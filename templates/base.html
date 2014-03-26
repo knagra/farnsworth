@@ -1,0 +1,49 @@
+<!--
+Project: Farnsworth
+
+Author: Karandeep Singh Nagra
+
+The HTML page for the entry page to the website.
+-->
+
+<html>
+<head>
+	<title>Farnsworth - {{ house_name }}</title>
+	{% load static from staticfiles %}
+	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/userstyle.css' %}" />
+</head>
+<body>
+	<div id="wrapper">
+	<div id="body">
+		<div id="left">
+			<a href="{% url 'homepage' %}"><img src="{% static 'ui/house.jpg' %}" /></a>
+			{% if user %}
+				<a class="link" href="{% url 'homepage' %}">Your profile ({{ user.username }})</a>
+			{% else %}
+				<a class="link" href="{% url 'homepage' %}">Log in</a>
+			{% endif %}<br>
+			<a class="link" href="{% url 'homepage' %}" >Home page</a><br>
+			{% if staff %}
+				<a class="link" href="{% url 'admin:index' %}" >Admin interface</a><br>
+			{% endif %}
+				<a class="link" href="{% url 'helppage' %}" >Help</a><br>
+		</div>
+		<div id="right">
+			<div id="title">
+			{% if homepage %}
+				<h1>Welcome to Farnsworth - {{ house_name }}</h1>
+			{% else %}
+				<h1>{{ house_name}} - {{pagename}}</h1>
+			{% endif %}
+			</div> <!-- close "title" -->
+			<div id="content">
+				{% block content %}{% endblock %}
+			</div> <!-- close "content" -->
+		</div> <!-- close "right" -->
+	</div> <!-- close "body" -->
+	<div id="bottom">
+		Powered by <a href="http://www.python.org" target="_blank">Python</a>, <a href="https://www.djangoproject.com" target="_blank">Django</a>, and <a href="http://apache.org/" target="_blank">Apache</a>.  Contact Karandeep Singh Nagra (<a href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>) for support.
+	</div> <!-- close "bottom" -->
+	</div> <!-- close "wrapper" -->
+</body>
+</html>

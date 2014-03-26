@@ -84,9 +84,10 @@ table {
 	padding-top: 20px;
 }
 
-#mainbody {
+#content {
 	clear: both;
 	padding-bottom: 0px;
+	padding-left: 20px;
 	position: relative;
 }
 

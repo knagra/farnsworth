@@ -15,7 +15,7 @@ def homepage(request):
 	'''
 	The view of the homepage.
 	'''
-	secure = request.is_secure() # connection is using HTTPS
+	homepage = True
 	house_name = house
 	if request.user.is_authenticated():
 		user = request.user
@@ -26,6 +26,16 @@ def homepage(request):
 	return render_to_response('homepage.html', locals(), context_instance=RequestContext(request))
 
 def helppage(request):
-	last_page = request.META.get('HTTP_REFERER', None)
-	return render_to_response('helppage.html', locals())
+	'''
+	The view of the helppage.
+	'''
+	pagename = "Help Page"
+	house_name = house
+	if request.user.is_authenticated():
+		user = request.user
+		staff = user.is_staff
+	else:
+		user = None
+		staff = False
+	return render_to_response('helppage.html', locals(), context_instance=RequestContext(request))
 

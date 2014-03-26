@@ -6,48 +6,8 @@ Author: Karandeep Singh Nagra
 The HTML page for the help.
 -->
 
-<html>
-<head>
-	<title>Farnsworth - Help</title>
-	{% load static from staticfiles %}
-	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/userstyle.css' %}" />
-</head>
-<body>
-	<div id="wrapper">
-	<div id="top">
-		<div id="house">
-			<a href="{% url 'homepage' %}"><img src="{% static 'ui/house.jpg' %}" /></a>
-		</div>
-		<div id="title">
-			<h1>Farnsworth - Help</h1>
-		</div>
-		<div id="login">
-			{% if user %}
-				
-			{% else %}
-				
-			{% endif %}
-		</div>
-	</div>
-	<div id="middle">
-	<div id="left">
-	{% if last_page %}
-		<a class="link" href="{{ last_page }}" >Previous page</a><br>
-	{% endif %}
-	<a class="link" href="{% url 'homepage' %}" >Home page</a>
-	</div>
-	<div id="right">
-	<a name="top"></a>
-	{% block message %}
-		<p>{{ message }}</p>
-	{% endblock %}
-		Welcome to Farnsworth.  This is a virtual gathering place for members of {{ house_name }} as well as a community outreach and general information site.
-	</div>
-	</div>
-	<div id="bottom">
-	<a href="#top">Return to top of page</a><br><br>
-	Powered by <a href="http://www.python.org">Python</a>, <a href="https://www.djangoproject.com">Django</a>, and <a href="https://sqlite.org">SQLite</a>.  Contact Karandeep Singh Nagra (<a href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>) for support.
-	</div>
-	</div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+	<p>Welcome to Farnsworth.  This is a virtual gathering place for members of {{ house_name }} as well as a community outreach and general information site.</p>
+{% endblock %}
