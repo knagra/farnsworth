@@ -1,0 +1,45 @@
+'''
+Project: Farnsworth
+
+Author: Karandeep Singh Nagra
+'''
+
+from django.db import models
+from django.contrib.auth.models import User, Group, Permission
+import unicodedata
+
+class UserProfile(models.Model):
+	'''
+	The UserProfile model.  Its only purpose is to change User unicode representation from
+	just unicode to first_name, last_name, and username.
+	'''
+	user = models.OneToOneField(User)
+	
+	def __unicode__(self):
+		return "%s %s (Username: %s)" %s (self.user.first_name, self.user.last_name, self.user.username)
+
+class Thread(models.Model):
+	'''
+	The Thread model.  Used to group messages.
+	'''
+	owner = models.ForeignKey(UserProfile, help_text="The user who started this thread.")
+	subject = models.CharField(blank=False, null=False, max_length=255, help_text="Subject of this thread.")
+	start_date = models.DateTimeField(auto_now_add=True, help_text="The date this thread was started.")
+	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The last time this thread was modified.")
+	number_of_messages = models.PositiveSmallIntegerField(default=1, help_text="The number of messages in this thread.")
+	active = models.BooleanField(default=True, help_text="Whether this thread is still active.")
+	
+	def __unicode__(self):
+		return "%s by %s, started %s" % (self.subject, self.owner, self.start_date)
+
+class Message(models.Model):
+	'''
+	The Message model.  Contains a body, owner, and post_date, referenced by thread.
+	'''
+	body = models.TextField(blank=False, null=False, help_text="Body of this message.")
+	owner = models.ForeignKey(UserProfile, help_text="The user who posted this message.")
+	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this message was posted.")
+	thread = models.ForeignKey(Thread, help_text="The thread to which this message belongs.")
+	
+	def __unicode__(self):
+		return "Message by %s on thread %s, posted %s" % (self.owner, self.thread.subject, self.post_date)
