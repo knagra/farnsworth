@@ -16,7 +16,7 @@ class UserProfile(models.Model):
 	user = models.OneToOneField(User)
 	
 	def __unicode__(self):
-		return "%s %s (Username: %s)" %s (self.user.first_name, self.user.last_name, self.user.username)
+		return "%s %s (Username: %s)" % (self.user.first_name, self.user.last_name, self.user.username)
 
 class Thread(models.Model):
 	'''
@@ -43,3 +43,16 @@ class Message(models.Model):
 	
 	def __unicode__(self):
 		return "Message by %s on thread %s, posted %s" % (self.owner, self.thread.subject, self.post_date)
+
+def create_user_profile(sender, instance, created, **kwargs):
+	'''
+	Function to add a user profile for every User that is created.
+	Parameters:
+		instance is an of User that was just saved.
+	'''
+	if created:
+		UserProfile.objects.create(user=instance)
+
+# Connect signals with their respective functions from above.
+# When a user is created, create a user profile associated with that user.
+models.signals.post_save.connect(create_user_profile, sender=User)

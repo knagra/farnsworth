@@ -14,9 +14,10 @@ class Manager(models.Model):
 	title = models.CharField(unique=True, blank=False, null=False, max_length=255, help_text="The title of this management position.")
 	incumbent = models.ForeignKey(UserProfile, blank=True, null=True, on_delete=models.SET_NULL, help_text="The incumbent for this position.")
 	duties = models.TextField(blank=True, null=True, help_text="The duties of this manager.")
+	email = models.EmailField(blank=True, null=True, max_length=255, help_text="The e-mail address of this manager.")
 	
 	def __unicode__(self):
-		"%s" % self.title
+		return "%s" % self.title
 
 class Request(models.Model):
 	'''
@@ -31,7 +32,7 @@ class Request(models.Model):
 	filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
 	
 	def __unicode__(self):
-		"Request to %s by %s on %s" % (self.manager, self.owner, self.post_date)
+		return "Request to %s by %s on %s" % (self.manager, self.owner, self.post_date)
 
 class Response(models.Model):
 	'''
@@ -43,4 +44,4 @@ class Response(models.Model):
 	request = models.ForeignKey(Request, blank=False, null=False, help_text="The request to which this is a response.")
 	
 	def __unicode__(self):
-		"Response by %s to: %s" % (self.owner, self.request)
+		return "Response by %s to: %s" % (self.owner, self.request)
