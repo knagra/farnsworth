@@ -156,6 +156,7 @@ table {
 	float: middle;
 	border: 1px solid grey;
 	margin: 30px 40px 0px 40px;
+	position: relative;
 }
 
 td {

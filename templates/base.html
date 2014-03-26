@@ -3,13 +3,7 @@ Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 
-The base HTML page for the website.  Simply extend the page and implement the content block:
-
-{% extends "base.html" %}
-
-{% block content %}
-	...
-{% endblock %}
+The HTML for the {{ pagename }}.
 -->
 
 <html>
@@ -25,8 +19,9 @@ The base HTML page for the website.  Simply extend the page and implement the co
 			<a href="{% url 'homepage' %}"><img src="{% static 'ui/house.jpg' %}" /></a>
 			{% if user %}
 				<a class="link" href="{% url 'homepage' %}">Your profile ({{ user.username }})</a>
+				<a class="link" href="{% url 'logout' %}">Logout</a>
 			{% else %}
-				<a class="link" href="{% url 'homepage' %}">Log in</a>
+				<a class="link" href="{% url 'login' %}">Log in</a>
 			{% endif %}<br>
 			<a class="link" href="{% url 'homepage' %}" >Home page</a><br>
 			{% if staff %}

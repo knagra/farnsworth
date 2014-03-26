@@ -18,8 +18,10 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('threads.views',
-	url(r'^$', 'homepage', name='homepage'),
-	url(r'^help/$', 'helppage', name='helppage'),
+	url(r'^$', 'homepage_view', name='homepage'),
+	url(r'^help/$', 'help_view', name='helppage'),
+	url(r'^login/$', 'login_view', name='login'),
+	url(r'^logout/$', 'logout_view', name='logout'),
 )
 
 urlpatterns += patterns('events.views',
