@@ -10,10 +10,14 @@ import unicodedata
 
 class UserProfile(models.Model):
 	'''
-	The UserProfile model.  Its only purpose is to change User unicode representation from
-	just unicode to first_name, last_name, and username.
+	The UserProfile model.  Tied to a unique User.  Contains current room number, former
+	room numbers, and phone number.
 	'''
 	user = models.OneToOneField(User)
+	current_room = models.CharField(blank=True, null=True, max_length=100, help_text="User's current room number")
+	former_rooms = models.CharField(blank=True, null=True, max_length=100, help_text="List of User's former room numbers")
+	phone_number = models.CharField(blank=True, null=True, max_length=20, help_text="User's phone number.")
+	current_member = models.BooleanField(default=False, help_text="Whether this user is a current member.")
 	
 	def __unicode__(self):
 		return "%s %s (Username: %s)" % (self.user.first_name, self.user.last_name, self.user.username)
