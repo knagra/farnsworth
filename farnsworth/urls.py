@@ -16,3 +16,16 @@ urlpatterns = patterns('',
 	url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 	url(r'^admin/', include(admin.site.urls)),
 )
+
+urlpatterns += patterns('threads.views',
+	url(r'^$', 'homepage', name='homepage'),
+	url(r'^help/$', 'helppage', name='helppage'),
+)
+
+urlpatterns += patterns('events.views',
+	
+)
+
+urlpatterns += patterns('requests.views',
+	
+)

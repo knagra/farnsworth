@@ -17,6 +17,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# Name of the house
+house = "Kingman Hall"
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
