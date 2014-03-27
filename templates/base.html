@@ -10,31 +10,23 @@ The HTML for the {{ pagename }}.
 <head>
 	<title>Farnsworth - {{ house_name }}</title>
 	{% load static from staticfiles %}
-	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/userstyle.css' %}" />
+	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
 </head>
 <body>
 	<div id="wrapper">
 	<div id="menu">
-		<table class="topmenu">
+		<table class="top_menu">
 		<tr>
 		{% if user %}
-			<td>
-			<a class="menulink" href="{% url 'homepage' %}">your profile ({{ user.username }})</a>
-			</td>
-			<td>
-			<a class="menulink" href="{% url 'logout' %}">logout</a>
-			</td>
+			<td><a class="menu_link" href="{% url 'homepage' %}">profile ({{ user.username }})</a></td>
+			<td><a class="menu_link" href="{% url 'logout' %}">logout</a></td>
 		{% else %}
-			<td>
-			<a class="menulink" href="{% url 'login' %}">login</a>
-			</td>
-			<td>
-			<a class="menulink" href="{% url 'homepage' %}">create account</a>
-			</td>
+			<td><a class="menu_link" href="{% url 'login' %}">login</a></td>
+			<td><a class="menu_link" href="{% url 'homepage' %}">create account</a></td>
 		{% endif %}
-			<td><a class="menulink" href="{% url 'homepage' %}" >home page</a></td>
-			<td><a class="menulink" href="{% url 'admin:index' %}" >go to</a></td>
-			<td><a class="menulink" href="{% url 'helppage' %}" >help</a></td>
+			<td><a class="menu_link" href="{% url 'homepage' %}" >homepage</a></td>
+			<td><a class="menu_link" href="{% url 'admin:index' %}" >go+</a></td>
+			<td><a class="menu_link" href="{% url 'helppage' %}" >help</a></td>
 		</tr>
 		</table>
 	</div> <!-- close "menu" -->
@@ -52,7 +44,7 @@ The HTML for the {{ pagename }}.
 		</div> <!-- close "content" -->
 	</div> <!-- close "body" -->
 	<div id="footer">
-		Powered by <a href="http://www.python.org" target="_blank">Python</a>, <a href="https://www.djangoproject.com" target="_blank">Django</a>, and <a href="http://apache.org/" target="_blank">Apache</a>.  Contact Karandeep Singh Nagra (<a href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>) for support.
+		Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a>, <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>, and <a class="footer_link" href="http://apache.org/" target="_blank">Apache</a>.  Contact Karandeep Singh Nagra (<a class="footer_link" href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>) for support.
 	</div> <!-- close "footer" -->
 	</div> <!-- close "wrapper" -->
 </body>
