@@ -1,3 +1,9 @@
+/*
+Project: Farnsworth
+
+Author: Karandeep Singh Nagra
+*/
+
 * {
 	padding: 0px 0px 0px 0px;
 	margin: 0px 0px 0px 0px;
@@ -19,12 +25,17 @@ body {
 	margin: 0 auto;
 	background-color: white;
 	min-height: 100%;
-	position: relative;
+	position: absolute;
+	left: 0;
+	right: 0;
+	align-self: center;
 	top: 0px;
 }
 
 p {
-	margin: 5px 0px 0px 20px;
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .link {
@@ -50,11 +61,13 @@ a * {
 	clear: both;
 	position: relative;
 	width: 100%;
+	height: auto;
 	color: grey;
+	padding-bottom: 40px;
 }
 
 #title {
-	margin-top: 50px;
+	margin-top: 60px;
 	margin-left: 20px;
 	float: center;
 	width: 100%;
@@ -63,7 +76,7 @@ a * {
 #menu {
 	background-color: grey;
 	width: 100%;
-	height: 52px;
+	height: 37px;
 	position: fixed;
 	top: 0;
 	color: white;
@@ -72,21 +85,7 @@ a * {
 
 .top_menu {
 	border-collapse: separate;
-	border-spacing: 30px 10px;
-}
-
-#search_bar {
-	float: right;
-	clear: left;
-	width: 25%;
-}
-
-#header {
-	border: solid;
-	border-top: 0;
-	border-bottom: 1;
-	border-left: 0;
-	border-right: 0;
+	border-spacing: 30px 0px;
 }
 
 #login {
@@ -141,6 +140,7 @@ a.menu_link:hover {
 	bottom: 0;
 	color: grey;
 	text-decoration: none;
+	clear: both;
 }
 
 .footer_link {
