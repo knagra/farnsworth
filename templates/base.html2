@@ -15,33 +15,31 @@ The HTML for the {{ pagename }}.
 <body>
 	<div id="wrapper">
 	<div id="menu">
-	<nav>
-		<ul>
+		<table class="top_menu">
+		<tr>
 		{% if user %}
-			<li><a class="menu_link" href="{% url 'homepage' %}">profile ({{ user.username }})</a></li>
-			<li><a class="menu_link" href="{% url 'logout' %}">logout</a></li>
+			<td><a class="menu_link" href="{% url 'homepage' %}">profile ({{ user.username }})</a></td>
+			<td><a class="menu_link" href="{% url 'logout' %}">logout</a></td>
 		{% else %}
-			<li><a class="menu_link" href="{% url 'login' %}">login</a></li>
-			<li><a class="menu_link" href="{% url 'homepage' %}">create account</a></li>
+			<td><a class="menu_link" href="{% url 'login' %}">login</a></td>
+			<td><a class="menu_link" href="{% url 'homepage' %}">create account</a></td>
 		{% endif %}
-			<li><a class="menu_link" href="{% url 'homepage' %}" >home</a></li>
-			<li><a class="menu_link" id="sub_menu_display" href="{% url 'admin:index' %}" >go+</a>
-				{% if user %}
-					<li>pages</li>
-					<li>go</li>
-					<li>here</li>
-				{% else %}
-					<li>please log in to access other pages</li>
-				{% endif %}
-			</li>
-			<li><a class="menu_link" href="{% url 'helppage' %}" >help</a></li>
-		</ul>
-	</nav>
+			<td><a class="menu_link" href="{% url 'homepage' %}" >home</a></td>
+			<td><a class="menu_link" id="sub_menu_display" href="{% url 'admin:index' %}" >go+</a></td>
+			<td><a class="menu_link" href="{% url 'helppage' %}" >help</a></td>
+		</tr>
+		</table>
 	</div> <!-- close "menu" -->
 	<div id="sub_menu">
 		<table class="top_menu">
 		<tr>
-
+		{% if user %}
+			<td class="sub_menu_link">pages</td>
+			<td class="sub_menu_link">go</td>
+			<td class="sub_menu_link">here</td>
+		{% else %}
+			<td class="sub_menu_link">please log in to access other pages</td>
+		{% endif %}
 		</tr>
 		</table>
 	</div> <!-- close "sub_menu" -->

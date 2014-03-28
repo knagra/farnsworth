@@ -32,32 +32,6 @@ body {
 	top: 0px;
 }
 
-nav ul ul {
-	display: none;
-}
-
-nav ul li:hover > ul {
-	display: block;
-}
-
-nav ul {
-	padding: 0 20px;
-	border-radius: 10px;
-	list-style: none;
-	position: relative;
-	display: inline-table;
-}
-
-nav ul li {
-	display: inline;
-}
-
-nav ul:after {
-	content: "";
-	clear: both;
-	display: block;
-}
-
 p {
 	margin-top: 10px;
 	margin-left: 10px;
