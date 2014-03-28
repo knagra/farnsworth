@@ -1,6 +1,6 @@
 Project: Farnsworth
 
-Author: Karandeep
+Author: Karandeep Singh Nagra
 
 A successor to Kingman's Guru website.  Built with Django, Python, and SQLite.
 Uses Django's auth backend to manage users and groups.
