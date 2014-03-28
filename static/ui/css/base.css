@@ -52,7 +52,7 @@ body {
 	list-style: none;
 	display: inline-table;
 	width: 920px;
-	height: 32px;
+	height: 30px;
 	position: relative;
 	z-index: 2;
 	overflow: hidden;
@@ -67,7 +67,7 @@ body {
 	padding: 0;
 	color: black;
 	position: fixed;
-	top: 32px;
+	top: 29px;
 	width: 200px;
 	height: auto;
 }
@@ -154,7 +154,7 @@ h1 {
 }
 
 #title {
-	margin-top: 60px;
+	margin-top: 50px;
 	margin-left: 30px;
 	float: center;
 	width: 100%;
