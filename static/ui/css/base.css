@@ -33,6 +33,7 @@ body {
 	position: absolute;
 	top: 0px;
 	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+	overflow: hidden;
 }
 
 #menu {
@@ -124,26 +125,6 @@ body {
 	color: #7e7e7e;
 }
 
-p {
-	margin-top: 10px;
-	margin-left: 10px;
-	margin-right: 10px;
-}
-
-.link {
-	height: 1em;
-	color: grey;
-	margin-left: 15px;
-}
-
-h3 {
-	margin: 5px 0px 0px 0px;
-}
-
-h1 {
-	color: grey;
-}
-
 #body {
 	clear: both;
 	position: relative;
@@ -160,27 +141,11 @@ h1 {
 	width: 100%;
 }
 
-#login {
-	display: inline-block;
-	float: right;
-	padding-left: 10px;
-	padding-top: 20px;
-}
-
 #content {
 	clear: both;
 	padding-bottom: 0px;
 	padding-left: 20px;
 	position: relative;
-}
-
-img {
-	width: 100%;
-	height: auto;
-	display: inline-block;
-	border: none;
-	margin: 0px 0px 0px 0px;
-	padding-bottom: 5px;
 }
 
 #footer {

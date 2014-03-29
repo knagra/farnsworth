@@ -1,0 +1,66 @@
+/*
+Project: Farnsworth
+
+Author: Karandeep Singh Nagra
+*/
+
+#login_form {
+	float: middle;
+	border: 1px solid #7e7e7e;
+	position: relative;
+	width: 500px;
+	margin: 30px auto;
+	font-size: 15pt;
+	overflow: hidden;
+}
+
+#login_form_title {
+	background: #5e5e5e;
+	background: linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
+	background: -moz-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
+	background: -webkit-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
+	color: #fafafa;
+	padding-left: 10px;
+	padding-top: 10px;
+	font-size: 20pt;
+}
+
+#button {
+	background: #5e5e5e;
+	color: #fafafa;
+	font-size: 15pt;
+	border: none;
+	width: 100%;
+	height: 40px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 0px;
+}
+
+#button:hover {
+	background: #fafafa;
+	color: #7e7e7e;
+	border-top: 1px solid #7e7e7e;
+	cursor: hand;
+}
+
+#login_form_table {
+	position: relative;
+	padding-left: 10px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+#login_form_table tr > td {
+	padding-top: 10px;
+}
+
+#login_form_table tr th {
+	padding-right: 10px;
+	vertical-align: middle;
+	position: relative;
+}
+
+#login_form_table ul {
+	float: left;
+}

@@ -24,15 +24,18 @@ The HTML for the {{ pagename }}.
 			<li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
 			<li><a class="menu_link" href="{% url 'homepage' %}">Create Account</a></li>
 		{% endif %}
+			<li><a class="menu_link" id="sub_menu_display" href="{% url 'admin:index' %}" >Go+</a>
+			<ul>
 			{% if user %}
-				<li><a class="menu_link" id="sub_menu_display" href="{% url 'admin:index' %}" >Go+</a>
-					<ul>
-					<li><a href="http://google.com" >Google</a></li>
-					<li><a href="https://workshift.bsc.coop/kng/" >Workshift</a></li>
-					<li><a href="http://wikipedia.org" >Wikipedia</a></li>
-					</ul>
-				</li>
+				<li><a href="https://google.com" target="_blank" >Google</a></li>
+				<li><a href="https://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
+				{% if staff %}
+					<li><a href="{% url 'admin:index' %}" >Admin</a></li>
+				{% endif %}
 			{% endif %}
+				<li><a href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
+			</ul>
+			</li>
 			<li><a class="menu_link" href="{% url 'helppage' %}" >Help</a></li>
 		</ul>
 	</div> <!-- close "menu" -->

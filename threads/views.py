@@ -57,19 +57,12 @@ def login_view(request):
 					login(request, user)
 					return HttpResponseRedirect(reverse('homepage'))
 				else:
-					form = loginForm()
-					return render(request, 'login.html', locals())
+					non_field_error = "Your account is not active.  Please contact the site administrator to activate your account."
 			else:
-				form = loginForm()
-				#message = "Invalid username/password combo."
-				return render(request, 'login.html', locals())
-		else:
-			form = loginForm()
-			#message = "Invalid username/password combo." 
-			return render(request, 'login.html', locals())
+				non_field_error = "Invalid username/password combo"
 	else:
 		form = loginForm()
-		return render(request, 'login.html', locals())
+	return render(request, 'login.html', locals())
 
 def logout_view(request):
 	''' Log the user out. '''

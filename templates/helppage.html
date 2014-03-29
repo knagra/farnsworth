@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% load static from staticfiles %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/helppage.css' %}" />
 	<p>Welcome to Farnsworth.  This is a virtual gathering place for members of {{ house_name }} as well as a community outreach and general information site.</p>
 {% endblock %}

@@ -1,26 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<div id="form">
-		<p>Please enter your username and password below to login.</p>
+{% load static from staticfiles %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/login.css' %}" />
+	<div id="login_form">
+		<div id="login_form_title">Login</div>
+		<div class="fieldWrapper">{{ non_field_error }}</div>
 		<form method="post" action="">
 			{% csrf_token %}
-			{% if form.errors %}
-				<p class="errorHeader">
-					Please correct the error{{ form.errors|pluralize }} below.
-				</p>
-				{{ form.non_field_errors }}
-			{% elif message %}
-				<p>{{ message }}</p>
-			{% endif %}
-			{% for field in form %}
-				<div class="fieldWrapper">
-					{{ field.label_tag }}: {{ field }} {{ field.errors }}
-				</div>
-			{% endfor %}
-			<div class="fieldWrapper">
-				<input id="button" type="submit" value="Login">
-			</div>
+			<table id="login_form_table">
+				{{ form.as_table }}
+			</table>
+			<input id="button" type="submit" value="Enter" />
 		</form>
 	</div>
 {% endblock %}
