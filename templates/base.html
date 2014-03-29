@@ -16,19 +16,19 @@ The HTML for the {{ pagename }}.
 	<div id="wrapper">
 	<div id="menu">
 		<ul>
-			<li><a class="menu_link" href="{% url 'homepage' %}" >Entry</a></li>
+			<li><a class="menu_link" href="{% url 'homepage' %}" >Home</a></li>
 		{% if user %}
 			<li><a class="menu_link" href="{% url 'homepage' %}">Profile ({{ user.username }})</a></li>
 			<li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>
 		{% else %}
 			<li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
-			<li><a class="menu_link" href="{% url 'homepage' %}">Create Account</a></li>
+			<li><a class="menu_link" href="{% url 'request_profile' %}">Create Account</a></li>
 		{% endif %}
 			<li><a class="menu_link" id="sub_menu_display" href="{% url 'admin:index' %}" >Go+</a>
 			<ul>
 			{% if user %}
-				<li><a href="https://google.com" target="_blank" >Google</a></li>
 				<li><a href="https://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
+				<li><a href="{% url 'external' %}">External</a></li>
 				{% if staff %}
 					<li><a href="{% url 'admin:index' %}" >Admin</a></li>
 				{% endif %}

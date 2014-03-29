@@ -2,14 +2,13 @@
 
 {% block content %}
 {% load static from staticfiles %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/login.css' %}" />
-	<div id="login_form">
-		<div id="login_form_title">Login</div>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/request_profile.css' %}" />
+	<div id="profile_request_form">
+		<div id="profile_request_title">Request a User Profile</div>
 		<div class="fieldWrapper">{{ non_field_error }}</div>
 		<form method="post" action="">
 			{% csrf_token %}
-			<table id="login_form_table">
+			<table id="profile_request_table">
 				{{ form.as_table }}
 			</table>
 			<input id="button" type="submit" value="Enter" />

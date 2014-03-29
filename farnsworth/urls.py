@@ -19,6 +19,7 @@ urlpatterns = patterns('',
 
 urlpatterns += patterns('threads.views',
 	url(r'^$', 'homepage_view', name='homepage'),
+	url(r'^external/$', 'external_view', name='external'),
 	url(r'^help/$', 'help_view', name='helppage'),
 	url(r'^login/$', 'login_view', name='login'),
 	url(r'^logout/$', 'logout_view', name='logout'),
@@ -29,5 +30,5 @@ urlpatterns += patterns('events.views',
 )
 
 urlpatterns += patterns('requests.views',
-	
+	url(r'^request_profile/$', 'request_profile_view', name='request_profile'),
 )

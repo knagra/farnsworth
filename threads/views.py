@@ -20,10 +20,24 @@ def homepage_view(request):
 	if request.user.is_authenticated():
 		user = request.user
 		staff = user.is_staff
+		return render_to_response('homepage.html', locals(), context_instance=RequestContext(request))
 	else:
 		user = None
 		staff = False
-	return render_to_response('homepage.html', locals(), context_instance=RequestContext(request))
+		return render_to_response('external.html', locals(), context_instance=RequestContext(request))
+
+def external_view(request, message):
+	''' The external landing. '''
+	homepage = True
+	pagename = "homepage"
+	house_name = house
+	if request.user.is_authenticated():
+		user = request.user
+		staff = user.is_staff
+	else:
+		user = None
+		staff = False
+	return render_to_response('external.html', locals(), context_instance=RequestContext(request))
 
 def help_view(request):
 	''' The view of the helppage. '''
@@ -41,6 +55,8 @@ def login_view(request):
 	''' The view of the login page. '''
 	pagename = "Login Page"
 	house_name = house
+	if request.user.is_authenticated():
+		return HttpResponseRedirect(reverse('homepage'))
 	user = None
 	staff = False
 	class loginForm(forms.Form):
