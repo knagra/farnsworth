@@ -11,7 +11,8 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from farnsworth.settings import house
 from django.contrib.auth import logout, login, authenticate
-from models import UserProfile
+from models import UserProfile, Message
+import datetime
 
 def red_ext(request, function_locals):
 	'''
@@ -126,4 +127,5 @@ def member_forums_view(request):
 	if not userProfile.current_member:
 		message = "These forums are reserved for current members only."
 		return red_ext(request, locals())
-	
+	for message in Message.objects.all():
+		if message.post_date
