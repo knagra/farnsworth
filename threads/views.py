@@ -127,5 +127,20 @@ def member_forums_view(request):
 	if not userProfile.current_member:
 		message = "These forums are reserved for current members only."
 		return red_ext(request, locals())
+	week_ago = datetime.now() - datetime.timedelta(days=7)
+	active_messages = list()
+	my_messages = list()
 	for message in Message.objects.all():
-		if message.post_date
+		if week_ago < message.post_date:
+			active_messages.append(message)
+		if message.owner.user = user:
+			my_messages.append(message)
+	active_threads = list()
+	my_threads = list()
+	for message in active_messages:
+		if message.thread not in active_threads:
+			active_threads.append(message.thread)
+	for message in my_messages:
+		if message.thread not in my_threads:
+			my_threads.append(message.thread)
+	return render_to_response('member_forums.html', locals(), context_instance=RequestContext(request))

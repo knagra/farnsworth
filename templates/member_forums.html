@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load static from staticfiles %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_forums.css' %}" />
+	<div id="active_threads">
+		<div id="threads_title">Active Threads</div>
+		<div class="fieldWrapper">{{ message }}</div>
+		<table class="threads_table">
+			{% for thread in active_threads %}
+				<tr>	<th>{{ thread.owner }}: {{ thread.subject}}</th>
+					<td><table class="message_table">
+						<tr>
+						{% for message in active_messages %}
+							{% if message.thread == thread %}
+							<td>{{ message.owner }} ({{ message.post_date }}): {{ message.body }}</td>
+						{% endfor %}
+						</tr>
+					</table></td>	
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+	<div id="my_threads">
+		<div id="threads_title">My Threads</div>
+		<div class="fieldWrapper">{{ message }}</div>
+		<table class="threads_table">
+			{% for thread in my_threads %}
+				
+			{% endfor %}
+		</table>
+	</div>
+{% endblock %}
