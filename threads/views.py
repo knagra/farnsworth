@@ -11,6 +11,25 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from farnsworth.settings import house
 from django.contrib.auth import logout, login, authenticate
+from models import UserProfile
+
+def red_ext(request, function_locals):
+	'''
+	Convenience function for redirecting users who don't have site access to the external page.
+	Parameters:
+		request - the request in the calling function
+		function_locals - the output of locals() in the calling function
+	'''
+	return render_to_response('external.html', function_locals, context_instance=RequestContext(request))
+
+def red_home(request, function_locals):
+	'''
+	Convenience function for redirecting users who don't have access to a page to the home page.
+	Parameters:
+		request - the request in the calling function
+		function_locals - the output of locals() in the calling function
+	'''
+	return render_to_response('homepage.html', function_locals, context_instance=RequestContext(request))
 
 def homepage_view(request):
 	''' The view of the homepage. '''
@@ -20,13 +39,13 @@ def homepage_view(request):
 	if request.user.is_authenticated():
 		user = request.user
 		staff = user.is_staff
-		return render_to_response('homepage.html', locals(), context_instance=RequestContext(request))
+		return red_home(request, locals())
 	else:
 		user = None
 		staff = False
-		return render_to_response('external.html', locals(), context_instance=RequestContext(request))
+		return red_ext(request, locals())
 
-def external_view(request, message):
+def external_view(request):
 	''' The external landing. '''
 	homepage = True
 	pagename = "homepage"
@@ -37,7 +56,7 @@ def external_view(request, message):
 	else:
 		user = None
 		staff = False
-	return render_to_response('external.html', locals(), context_instance=RequestContext(request))
+	return red_ext(request, locals())
 
 def help_view(request):
 	''' The view of the helppage. '''
@@ -84,3 +103,27 @@ def logout_view(request):
 	''' Log the user out. '''
 	logout(request)
 	return HttpResponseRedirect(reverse('homepage'))
+
+def member_forums_view(request):
+	''' Forums for current members. '''
+	pagename = "Member Forums"
+	house_name = house
+	userProfile = None
+	if request.user.is_authenticated():
+		user = request.user
+		staff = user.is_staff
+		for profile in UserProfile.objects.all():
+			if profile.user == user:
+				userProfile = profile
+				break
+		if not userProfile:
+			message = "A profile for you could not be found.  Please contact an admin for support."
+			return red_ext(request, locals())
+	else:
+		user = None
+		staff = False
+		return red_ext(request, locals())
+	if not userProfile.current_member:
+		message = "These forums are reserved for current members only."
+		return red_ext(request, locals())
+	

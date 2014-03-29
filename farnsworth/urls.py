@@ -9,10 +9,6 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'farnsworth.views.home', name='home'),
-    # url(r'^farnsworth/', include('farnsworth.foo.urls')),
-
 	url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 	url(r'^admin/', include(admin.site.urls)),
 )
@@ -23,6 +19,7 @@ urlpatterns += patterns('threads.views',
 	url(r'^help/$', 'help_view', name='helppage'),
 	url(r'^login/$', 'login_view', name='login'),
 	url(r'^logout/$', 'logout_view', name='logout'),
+	url(r'^member_forums/$', 'member_forums_view', name='member_forums'),
 )
 
 urlpatterns += patterns('events.views',

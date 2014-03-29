@@ -27,7 +27,8 @@ The HTML for the {{ pagename }}.
 			<li><a class="menu_link" id="sub_menu_display" href="{% url 'admin:index' %}" >Go+</a>
 			<ul>
 			{% if user %}
-				<li><a href="https://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
+				<li><a href="{% url 'member_forums' %}" >Member Forums</a></li>
+				<li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
 				<li><a href="{% url 'external' %}">External</a></li>
 				{% if staff %}
 					<li><a href="{% url 'admin:index' %}" >Admin</a></li>
