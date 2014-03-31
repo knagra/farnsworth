@@ -4,17 +4,22 @@
 {% load static from staticfiles %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_forums.css' %}" />
-	<div id="active_threads">
-		<div id="threads_title">Active Threads</div>
+	<div class="threads">
+		<div class="threads_title">Active Threads</div>
+		<input class="add_thread" type="submit" value="New Thread" />
 		<div class="fieldWrapper">{{ message }}</div>
 		<table class="threads_table">
+			{% if not active_threads %}
+				<tr> <th>No threads in the past 7 days.</th></tr>
+			{% endif %}
 			{% for thread in active_threads %}
-				<tr>	<th>{{ thread.owner }}: {{ thread.subject}}</th>
+				<tr>	<th>{{ thread.owner }}: {{ thread.subject }}</th>
 					<td><table class="message_table">
 						<tr>
 						{% for message in active_messages %}
 							{% if message.thread == thread %}
 							<td>{{ message.owner }} ({{ message.post_date }}): {{ message.body }}</td>
+							{% endif %}
 						{% endfor %}
 						</tr>
 					</table></td>	
@@ -22,12 +27,26 @@
 			{% endfor %}
 		</table>
 	</div>
-	<div id="my_threads">
-		<div id="threads_title">My Threads</div>
+	<div class="threads">
+		<div class="threads_title">My Threads</div>
+		<input class="add_thread" type="submit" value="New Thread" />
 		<div class="fieldWrapper">{{ message }}</div>
 		<table class="threads_table">
+			{% if not my_threads %}
+				<tr>	<th>You have no threads.</th></tr>
+			{% endif %}
 			{% for thread in my_threads %}
-				
+				<tr>	<th>{{ thread.owner }}: {{ thread.subject }}</th>
+					<td><table class="message_table">
+						<tr>
+						{% for message in my_messages %}
+							{% if message.thread == thread %}
+							<td>{{ message.owner }} ({{ message.post_date }}): {{ message.body }}</td>
+							{% endif %}
+						{% endfor %}
+						</tr>
+					</table></td>
+				</tr>
 			{% endfor %}
 		</table>
 	</div>

@@ -66,7 +66,7 @@ body {
 	padding: 0;
 	color: black;
 	position: fixed;
-	top: 29px;
+	top: 30px;
 	width: 200px;
 	height: auto;
 }
@@ -106,13 +106,13 @@ body {
 	border-top: 1px solid #8b8b8b;
 	border-bottom: 1px solid #3f3f3f;
 	position: relative;
-	font-size: 20pt;
 }
 
 #menu ul ul li a {
 	padding: 0px 20px;
 	text-decoration: none;
 	color: #fafafa;
+	font-size: 15pt;
 }
 
 #menu ul ul li:hover {
