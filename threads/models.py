@@ -35,6 +35,9 @@ class Thread(models.Model):
 	
 	def __unicode__(self):
 		return "%s by %s, started %s" % (self.subject, self.owner, self.start_date)
+	
+	class Meta:
+		ordering = ['-change_date', '-start_date']
 
 class Message(models.Model):
 	'''
@@ -47,6 +50,9 @@ class Message(models.Model):
 	
 	def __unicode__(self):
 		return "Message by %s on thread %s, posted %s" % (self.owner, self.thread.subject, self.post_date)
+	
+	class Meta:
+		ordering = ['-post_date']
 
 def create_user_profile(sender, instance, created, **kwargs):
 	'''

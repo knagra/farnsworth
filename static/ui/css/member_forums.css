@@ -80,6 +80,7 @@ Author: Karandeep Singh Nagra
 
 table {
 	border-spacing: 0px;
+	table-layout: fixed;
 }
 
 #submit_thread_form {
@@ -113,12 +114,23 @@ table {
 	width: 100%;
 }
 
+tr.table_header > * {
+	font-size: 15pt;
+	font-weight: bold;
+	vertical-align: center;
+	float: center;
+}
+
 .threads_table tr > th {
 	width: 30%;
 	border-right: 1px solid #7e7e7e;
 	vertical-align: top;
 	padding: 5px;
 	position: relative;
+}
+
+td {
+	word-wrap: break-word;
 }
 
 .threads_table tr > * {
@@ -133,9 +145,7 @@ table {
 }
 
 .message_table {
-	padding-left: 0px;
 	width: 100%;
-	padding-top: 0px;
 	padding-bottom: 10px;
 }
 
@@ -143,8 +153,15 @@ table {
 	border-bottom: 1px solid #7e7e7e;
 }
 
-td hr {
+.message_divider {
 	width: 75%;
+}
+
+/*
+Remove confusion about table layout in case user enters a horizontal line.
+*/	
+.message_table hr:not(.message_divider) {
+	margin-left: 10px;
 }
 
 #new_thread_form {

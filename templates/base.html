@@ -8,7 +8,7 @@ The HTML for the {{ pagename }}.
 
 <html>
 <head>
-	<title>Farnsworth - {{ house_name }}</title>
+	<title>{{ house_name }} - {{ pagename }}</title>
 	{% load static from staticfiles %}
 	{% block headers %} {% endblock %}
 	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />

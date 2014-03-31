@@ -35,7 +35,7 @@
 			{% if not active_threads %}
 				<tr><th>No threads active in the past 7 days.</th></tr>
 			{% else %}
-				<tr class="table_header"><th>Subject</th><td><b>Messages</b></td></tr>
+				<tr class="table_header"><th>Subject</th><td>Messages:</td></tr>
 			{% endif %}
 			{% for thread in active_threads %}
 				<tr>	<th>{{ thread.subject }}</th>
@@ -43,7 +43,7 @@
 						<tr>
 						{% for message in active_messages %}
 							{% if message.thread == thread %}
-							<td>{{ message.owner.user.first_name }} ({{ message.post_date }}):<hr \> {{ message.body|safe }}</td>
+							<td>{{ message.owner.user.first_name }} {{ message.owner.user.last_name }} ({{ message.post_date }}):<hr class="message_divider" \> {{ message.body|safe }}</td>
 							{% endif %}
 						{% endfor %}
 						</tr>
@@ -58,6 +58,8 @@
 		<table class="threads_table">
 			{% if not my_threads %}
 				<tr><th>You have no threads.</th></tr>
+			{% else %}
+				<tr class="table_header"><th>Subject</th><td>Messages:</td></tr>
 			{% endif %}
 			{% for thread in my_threads %}
 				<tr>	<th>{{ thread.subject }}</th>
@@ -65,7 +67,7 @@
 						<tr>
 						{% for message in my_messages %}
 							{% if message.thread == thread %}
-							<td>{{ message.owner }} ({{ message.post_date }}):<hr /> {{ message.body|safe }}</td>
+							<td>{{ message.owner.user.first_name }} {{ message.owner.user.last_name }} ({{ message.post_date }}):<hr class="message_divider" /> {{ message.body|safe }}</td>
 							{% endif %}
 						{% endfor %}
 						</tr>

@@ -14,6 +14,7 @@ from django.contrib.auth import logout, login, authenticate
 from models import UserProfile, Thread, Message
 from tinymce.widgets import TinyMCE
 from django.utils import timezone
+from django.forms.formsets import formset_factory
 import datetime
 
 def red_ext(request, function_locals):
@@ -37,7 +38,7 @@ def red_home(request, function_locals):
 def homepage_view(request):
 	''' The view of the homepage. '''
 	homepage = True
-	pagename = "homepage"
+	pagename = "Home Page"
 	house_name = house
 	if request.user.is_authenticated():
 		user = request.user
@@ -51,7 +52,7 @@ def homepage_view(request):
 def external_view(request):
 	''' The external landing. '''
 	homepage = True
-	pagename = "homepage"
+	pagename = "Home Page"
 	house_name = house
 	if request.user.is_authenticated():
 		user = request.user
@@ -132,12 +133,17 @@ def member_forums_view(request):
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
 		body = forms.CharField(widget=TinyMCE(attrs={'cols': '110', 'rows': '30',}))
+	class MessageForm(forms.Form):
+		subject = forms.CharField()
+		body = forms.CharField(widget=TinyMCE(attrs={'cols': '60', 'rows': '25',}))
+	MessageFormSet = formset_factory(MessageForm)
 	if request.method == 'POST':
 		thread_form = ThreadForm(request.POST)
 		if thread_form.is_valid():
 			subject = thread_form.cleaned_data['subject']
 			body = thread_form.cleaned_data['body']
 			thread = Thread(owner=userProfile, subject=subject, number_of_messages=0, active=True)
+			thread.number_of_messages = 1
 			thread.save()
 			message = Message(body=body, owner=userProfile, thread=thread)
 			message.save()

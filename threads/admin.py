@@ -40,7 +40,7 @@ class ThreadAdmin(admin.ModelAdmin):
 	list_filter = ('start_date', 'change_date', 'active', 'owner')
 	date_hierarchy = 'start_date'
 	ordering = ('-start_date',)
-	readonly_fields = ('subject', 'owner', 'start_date', 'number_of_messages', 'change_date',)
+	readonly_fields = ('subject', 'owner', 'start_date', 'change_date',)
 
 class MessageAdmin(admin.ModelAdmin):
 	list_display = ('thread', 'owner', 'post_date')
