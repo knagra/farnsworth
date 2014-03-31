@@ -172,3 +172,14 @@ LOGGING = {
         },
     }
 }
+
+# The default configuration for TinyMCE text areas.
+TINYMCE_DEFAULT_CONFIG = {
+	'theme': 'advanced',
+	'theme_advanced_toolbar_location': 'top',
+	'theme_advanced_buttons1': 'bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,hr,|,undo,redo',
+	'theme_advanced_buttons2': 'cut,copy,paste,pastetext,pasteword,|,search,replace,|,link,unlink,charmap,|,visualaid,table,|,blockquote,sub,sup,|,preview,code,emotions',
+	'theme_advanced_buttons3': '',
+	'plugins': 'paste,table,spellchecker,searchreplace,emotions',
+	'mode': 'textareas',
+}

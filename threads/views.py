@@ -145,7 +145,9 @@ def member_forums_view(request):
 		if message.thread not in my_threads:
 			my_threads.append(message.thread)
 	class ThreadForm(forms.Form):
-		subject = forms.CharField(max_length=300)
-		body = forms.CharField(widget=TinyMCE(attrs={'cols': 150, 'rows': 10}))
+		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
+		body = forms.CharField(widget=TinyMCE(attrs={'cols': '110', 'rows': '30',}))
+		#body = forms.CharField(widget=forms.Textarea)
 	thread_form = ThreadForm()
+	thread_form2 = ThreadForm()
 	return render_to_response('member_forums.html', locals(), context_instance=RequestContext(request))

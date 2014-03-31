@@ -44,13 +44,6 @@
 			{% if not my_threads %}
 				<tr><th>You have no threads.</th></tr>
 			{% endif %}
-			<form method="post" action="">
-				{% csrf_token %}
-				<table class="new_thread_table">
-					{{ thread_form.as_table }}
-				</table>
-				<input class="button" type="submit" value="Start Thread" />
-			</form>
 			{% for thread in my_threads %}
 				<tr>	<th>{{ thread.owner }}: {{ thread.subject }}</th>
 					<td><table class="message_table">
