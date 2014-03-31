@@ -8,27 +8,80 @@
 {% load static from staticfiles %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_forums.css' %}" />
+<script>
+	function show_new_thread_form() {
+		document.getElementById("new_thread_form").style.display="inline";
+	}
+	function hide_new_thread_form() {
+		document.getElementById("new_thread_form").style.display="none";
+	}
+	function show_and_focus() {
+		show_new_thread_form();
+		document.getElementById("id_subject").focus();
+	}
+</script>
 	<div class="threads">
 		<div class="threads_title">Active Threads</div>
-		<input class="add_thread" type="submit" value="New Thread" />
+		<input class="add_thread" onclick="show_new_thread_form()" type="submit" value="New Thread" />
+			<form id="new_thread_form" method="post" action="">
+				{% csrf_token %}
+				<table id="new_thread_table">
+					{{ thread_form.as_table }}
+				</table>
+				<input class="button" id="submit_thread_form" type="submit" value="Start Thread" />
+				<input class="button" id="cancel_thread_form" onclick="hide_new_thread_form()" type="submit" value="Cancel" />
+			</form>
 		<table class="threads_table">
 			{% if not active_threads %}
 				<tr><th>No threads active in the past 7 days.</th></tr>
-			{% endif %}
-			<form method="post" action="">
+			{% else %}
+				<tr class="table_header"><th>Subject</th><td><b>Messages</b></td></tr>
+{% extends "base.html" %}
+
+{% block headers %}
+{{ thread_form.media }}
+{% endblock %}
+
+{% block content %}
+{% load static from staticfiles %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_forums.css' %}" />
+<script>
+	function show_new_thread_form() {
+		document.getElementById("new_thread_form").style.display="inline";
+	}
+	function hide_new_thread_form() {
+		document.getElementById("new_thread_form").style.display="none";
+	}
+	function show_and_focus() {
+		show_new_thread_form();
+		document.getElementById("id_subject").focus();
+	}
+</script>
+	<div class="threads">
+		<div class="threads_title">Active Threads</div>
+		<input class="add_thread" onclick="show_new_thread_form()" type="submit" value="New Thread" />
+			<form id="new_thread_form" method="post" action="">
 				{% csrf_token %}
-				<table class="new_thread_table">
+				<table id="new_thread_table">
 					{{ thread_form.as_table }}
 				</table>
-				<input class="button" type="submit" value="Start Thread" />
+				<input class="button" id="submit_thread_form" type="submit" value="Start Thread" />
+				<input class="button" id="cancel_thread_form" onclick="hide_new_thread_form()" type="submit" value="Cancel" />
 			</form>
+		<table class="threads_table">
+			{% if not active_threads %}
+				<tr><th>No threads active in the past 7 days.</th></tr>
+			{% else %}
+				<tr><th>Subject</th><td>Messages</td></tr>
+			{% endif %}
 			{% for thread in active_threads %}
-				<tr>	<th>{{ thread.owner }}: {{ thread.subject }}</th>
+				<tr>	<th>{{ thread.subject }}</th>
 					<td><table class="message_table">
 						<tr>
 						{% for message in active_messages %}
 							{% if message.thread == thread %}
-							<td>{{ message.owner }} ({{ message.post_date }}): {{ message.body }}</td>
+							<td>{{ message.owner.user.first_name }} ({{ message.post_date }}):<hr \> {{ message.body|safe }}</td>
 							{% endif %}
 						{% endfor %}
 						</tr>
@@ -39,18 +92,57 @@
 	</div>
 	<div class="threads">
 		<div class="threads_title">My Threads</div>
-		<input class="add_thread" type="submit" value="New Thread" />
+		<input class="add_thread" onclick="show_and_focus()" type="submit" value="New Thread" />
 		<table class="threads_table">
 			{% if not my_threads %}
 				<tr><th>You have no threads.</th></tr>
 			{% endif %}
 			{% for thread in my_threads %}
-				<tr>	<th>{{ thread.owner }}: {{ thread.subject }}</th>
+				<tr>	<th>{{ thread.subject }}</th>
 					<td><table class="message_table">
 						<tr>
 						{% for message in my_messages %}
 							{% if message.thread == thread %}
-							<td>{{ message.owner }} ({{ message.post_date }}): {{ message.body }}</td>
+							<td>{{ message.owner }} ({{ message.post_date }}):<hr /> {{ message.body|safe }}</td>
+							{% endif %}
+						{% endfor %}
+						</tr>
+					</table></td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+{% endblock %}
+			{% endif %}
+			{% for thread in active_threads %}
+				<tr>	<th>{{ thread.subject }}</th>
+					<td><table class="message_table">
+						<tr>
+						{% for message in active_messages %}
+							{% if message.thread == thread %}
+							<td>{{ message.owner.user.first_name }} ({{ message.post_date }}):<hr \> {{ message.body|safe }}</td>
+							{% endif %}
+						{% endfor %}
+						</tr>
+					</table></td>	
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+	<div class="threads">
+		<div class="threads_title">My Threads</div>
+		<input class="add_thread" onclick="show_and_focus()" type="submit" value="New Thread" />
+		<table class="threads_table">
+			{% if not my_threads %}
+				<tr><th>You have no threads.</th></tr>
+			{% endif %}
+			{% for thread in my_threads %}
+				<tr>	<th>{{ thread.subject }}</th>
+					<td><table class="message_table">
+						<tr>
+						{% for message in my_messages %}
+							{% if message.thread == thread %}
+							<td>{{ message.owner }} ({{ message.post_date }}):<hr /> {{ message.body|safe }}</td>
 							{% endif %}
 						{% endfor %}
 						</tr>

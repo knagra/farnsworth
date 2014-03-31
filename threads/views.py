@@ -11,8 +11,9 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from farnsworth.settings import house
 from django.contrib.auth import logout, login, authenticate
-from models import UserProfile, Message
+from models import UserProfile, Thread, Message
 from tinymce.widgets import TinyMCE
+from django.utils import timezone
 import datetime
 
 def red_ext(request, function_locals):
@@ -128,11 +129,23 @@ def member_forums_view(request):
 	if not userProfile.current_member:
 		message = "These forums are reserved for current members only."
 		return red_ext(request, locals())
-	week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+	class ThreadForm(forms.Form):
+		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
+		body = forms.CharField(widget=TinyMCE(attrs={'cols': '110', 'rows': '30',}))
+	if request.method == 'POST':
+		thread_form = ThreadForm(request.POST)
+		if thread_form.is_valid():
+			subject = thread_form.cleaned_data['subject']
+			body = thread_form.cleaned_data['body']
+			thread = Thread(owner=userProfile, subject=subject, number_of_messages=0, active=True)
+			thread.save()
+			message = Message(body=body, owner=userProfile, thread=thread)
+			message.save()
+	week_ago = timezone.now() - datetime.timedelta(days=7)
 	active_messages = list()
 	my_messages = list()
 	for message in Message.objects.all():
-		if week_ago < message.change_date:
+		if week_ago < message.post_date:
 			active_messages.append(message)
 		if message.owner.user == user:
 			my_messages.append(message)
@@ -144,10 +157,5 @@ def member_forums_view(request):
 	for message in my_messages:
 		if message.thread not in my_threads:
 			my_threads.append(message.thread)
-	class ThreadForm(forms.Form):
-		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-		body = forms.CharField(widget=TinyMCE(attrs={'cols': '110', 'rows': '30',}))
-		#body = forms.CharField(widget=forms.Textarea)
 	thread_form = ThreadForm()
-	thread_form2 = ThreadForm()
 	return render_to_response('member_forums.html', locals(), context_instance=RequestContext(request))

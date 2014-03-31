@@ -71,11 +71,27 @@ Author: Karandeep Singh Nagra
 	color: #fafafa;
 	font-size: 15pt;
 	border: none;
-	width: 100%;
+	/*width: 100%;*/
 	height: 40px;
 	padding-top: 5px;
 	padding-bottom: 5px;
 	padding-left: 0px;
+}
+
+table {
+	border-spacing: 0px;
+}
+
+#submit_thread_form {
+	width: 50%;
+	border-right: 1px solid #3f3f3f;
+	float: left;
+}
+
+#cancel_thread_form {
+	width: 50%;
+	border-left: 1px solid #8b8b8b;
+	clear: left;
 }
 
 .button:hover {
@@ -84,24 +100,59 @@ Author: Karandeep Singh Nagra
 	border-top: 1px solid #7e7e7e;
 	border-bottom: 1px solid #7e7e7e;
 	cursor: pointer;
+	border-left: none;
+	border-right: none;
 }
 
 .threads_table {
 	position: relative;
 	padding-left: 0px;
-	padding-top: 10px;
-	padding-bottom: 20px;
+	padding-top: 0px;
+	padding-bottom: 15px;
 	float: left;
 	width: 100%;
 }
 
-.threads_table * {
-	border-bottom: 1px solid #7e7e7e;
-	border-left: none;
-
+.threads_table tr > th {
+	width: 30%;
+	border-right: 1px solid #7e7e7e;
+	vertical-align: top;
+	padding: 5px;
+	position: relative;
 }
 
-.new_thread_table {
+.threads_table tr > * {
+	border-bottom: 1px solid #7e7e7e;
+	padding: 0;
+}
+
+.threads_table tr > td {
+	width: 70%;
+	float: left;
+	padding-top: 0px;
+}
+
+.message_table {
+	padding-left: 0px;
+	width: 100%;
+	padding-top: 0px;
+	padding-bottom: 10px;
+}
+
+.message_table tr > * {
+	border-bottom: 1px solid #7e7e7e;
+}
+
+td hr {
+	width: 75%;
+}
+
+#new_thread_form {
+	display: none;
+	padding-bottom: 10px;
+}
+
+#new_thread_table {
 	position: relative;
 	padding-left: 0px;
 	padding-top: 10px;
@@ -110,15 +161,9 @@ Author: Karandeep Singh Nagra
 	float: left;
 }
 
-.threads_table tr > td {
-	padding-top: 10px;
-	width: 100%;
-}
-
-.threads_table tr th {
-	padding-right: 10px;
-	vertical-align: middle;
-	position: relative;
+#new_thread_table tr > * {
+	padding-left: 5px;
+	padding-top: 5px;
 }
 
 #profile_request_table ul {
