@@ -1,5 +1,14 @@
 Project: Farnsworth
 Author: Karandeep Singh Nagra
 
+Description
+==
 A replacement for Kingman's Guru website.  Scalable and modular, can be used at other
 co-op houses.
+
+Dependencies
+==
+Django 1.5
+Python 2.7
+SQLite3
+Django-TinyMCE

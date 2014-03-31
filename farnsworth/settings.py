@@ -137,6 +137,7 @@ INSTALLED_APPS = (
 	'events',
 	'requests',
 	'south',
+	'tinymce',
 	'django.contrib.admin',
 	'django.contrib.admindocs',
 )

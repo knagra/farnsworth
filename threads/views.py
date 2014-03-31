@@ -12,6 +12,7 @@ from django.template import RequestContext
 from farnsworth.settings import house
 from django.contrib.auth import logout, login, authenticate
 from models import UserProfile, Message
+from tinymce.widgets import TinyMCE
 import datetime
 
 def red_ext(request, function_locals):
@@ -131,7 +132,7 @@ def member_forums_view(request):
 	active_messages = list()
 	my_messages = list()
 	for message in Message.objects.all():
-		if week_ago < message.post_date:
+		if week_ago < message.change_date:
 			active_messages.append(message)
 		if message.owner.user == user:
 			my_messages.append(message)
@@ -143,4 +144,8 @@ def member_forums_view(request):
 	for message in my_messages:
 		if message.thread not in my_threads:
 			my_threads.append(message.thread)
+	class ThreadForm(forms.Form):
+		subject = forms.CharField(max_length=300)
+		body = forms.CharField(widget=TinyMCE(attrs={'cols': 150, 'rows': 10}))
+	thread_form = ThreadForm()
 	return render_to_response('member_forums.html', locals(), context_instance=RequestContext(request))

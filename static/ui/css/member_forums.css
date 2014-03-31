@@ -21,8 +21,9 @@ Author: Karandeep Singh Nagra
 	background: -webkit-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
 	color: #fafafa;
 	padding-left: 10px;
-	padding-top: 10px;
-	padding-bottom: 10px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	height: 50px;
 	font-size: 20pt;
 	width: 634px;
 	float: left;
@@ -37,8 +38,9 @@ Author: Karandeep Singh Nagra
 	background: -webkit-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
 	color: #fafafa;
 	padding-left: 0px;
-	padding-top: 10px;
-	padding-bottom: 9px;
+	padding-top: 0px;
+	height: 50px;
+	padding-bottom: 0px;
 	font-size: 20pt;
 	width: 215px;
 	float: right;
@@ -58,12 +60,13 @@ Author: Karandeep Singh Nagra
 }
 
 .fieldWrapper {
-	padding-top: 10px;
+	padding-top: 30px;
 	position: relative;
+	margin: auto 20px;
 	padding-left: 10px;
 }
 
-#button {
+.button {
 	background: #5e5e5e;
 	color: #fafafa;
 	font-size: 15pt;
@@ -75,26 +78,44 @@ Author: Karandeep Singh Nagra
 	padding-left: 0px;
 }
 
-#button:hover {
+.button:hover {
 	background: #fafafa;
 	color: #7e7e7e;
 	border-top: 1px solid #7e7e7e;
-	cursor: hand;
+	border-bottom: 1px solid #7e7e7e;
+	cursor: pointer;
 }
 
 .threads_table {
 	position: relative;
-	padding-left: 10px;
+	padding-left: 0px;
 	padding-top: 10px;
 	padding-bottom: 20px;
 	float: left;
+	width: 100%;
 }
 
-#profile_request_table tr > td {
+.threads_table * {
+	border-bottom: 1px solid #7e7e7e;
+	border-left: none;
+
+}
+
+.new_thread_table {
+	position: relative;
+	padding-left: 0px;
 	padding-top: 10px;
+	padding-bottom: 20px;
+	clear: both;
+	float: left;
 }
 
-#profile_request_table tr th {
+.threads_table tr > td {
+	padding-top: 10px;
+	width: 100%;
+}
+
+.threads_table tr th {
 	padding-right: 10px;
 	vertical-align: middle;
 	position: relative;

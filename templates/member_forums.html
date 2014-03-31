@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block headers %}
+{{ thread_form.media }}
+{% endblock %}
+
 {% block content %}
 {% load static from staticfiles %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
@@ -7,11 +11,17 @@
 	<div class="threads">
 		<div class="threads_title">Active Threads</div>
 		<input class="add_thread" type="submit" value="New Thread" />
-		<div class="fieldWrapper">{{ message }}</div>
 		<table class="threads_table">
 			{% if not active_threads %}
-				<tr> <th>No threads in the past 7 days.</th></tr>
+				<tr><th>No threads active in the past 7 days.</th></tr>
 			{% endif %}
+			<form method="post" action="">
+				{% csrf_token %}
+				<table class="new_thread_table">
+					{{ thread_form.as_table }}
+				</table>
+				<input class="button" type="submit" value="Start Thread" />
+			</form>
 			{% for thread in active_threads %}
 				<tr>	<th>{{ thread.owner }}: {{ thread.subject }}</th>
 					<td><table class="message_table">
@@ -30,11 +40,17 @@
 	<div class="threads">
 		<div class="threads_title">My Threads</div>
 		<input class="add_thread" type="submit" value="New Thread" />
-		<div class="fieldWrapper">{{ message }}</div>
 		<table class="threads_table">
 			{% if not my_threads %}
-				<tr>	<th>You have no threads.</th></tr>
+				<tr><th>You have no threads.</th></tr>
 			{% endif %}
+			<form method="post" action="">
+				{% csrf_token %}
+				<table class="new_thread_table">
+					{{ thread_form.as_table }}
+				</table>
+				<input class="button" type="submit" value="Start Thread" />
+			</form>
 			{% for thread in my_threads %}
 				<tr>	<th>{{ thread.owner }}: {{ thread.subject }}</th>
 					<td><table class="message_table">
