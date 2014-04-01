@@ -132,21 +132,52 @@ def member_forums_view(request):
 		return red_ext(request, locals())
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-		body = forms.CharField(widget=TinyMCE(attrs={'cols': '110', 'rows': '30',}))
+		body = forms.CharField(widget=TinyMCE())
+		#body = forms.CharField(widget=forms.Textarea)
+		#class Media:
+		#	js = ('/site_media/static/tiny_mce/tinymce.min.js',)
 	class MessageForm(forms.Form):
-		subject = forms.CharField()
-		body = forms.CharField(widget=TinyMCE(attrs={'cols': '60', 'rows': '25',}))
-	MessageFormSet = formset_factory(MessageForm)
+		thread_pk = forms.IntegerField()
+		body = forms.CharField(widget=TinyMCE())
+		#body = forms.CharField(widget=forms.Textarea)
+		#class Media:
+		#	js = ('/site_media/static/tiny_mce/tinymce.min.js',)
+	#MessageFormSet = formset_factory(MessageForm)
 	if request.method == 'POST':
-		thread_form = ThreadForm(request.POST)
-		if thread_form.is_valid():
-			subject = thread_form.cleaned_data['subject']
-			body = thread_form.cleaned_data['body']
-			thread = Thread(owner=userProfile, subject=subject, number_of_messages=0, active=True)
-			thread.number_of_messages = 1
-			thread.save()
-			message = Message(body=body, owner=userProfile, thread=thread)
-			message.save()
+		if 'submit_thread_form' in request.POST:
+			print "1"
+			thread_form = ThreadForm(request.POST)
+			print "2"
+			if thread_form.is_valid():
+				print "3"
+				subject = thread_form.cleaned_data['subject']
+				body = thread_form.cleaned_data['body']
+				thread = Thread(owner=userProfile, subject=subject, number_of_messages=0, active=True)
+				thread.number_of_messages = 1
+				thread.save()
+				message = Message(body=body, owner=userProfile, thread=thread)
+				message.save()
+			else:
+				print thread_form.errors
+		elif 'submit_message_form' in request.POST:
+			print "a"
+			message_form = MessageForm(request.POST)
+			print "b"
+			if message_form.is_valid():
+				print "c"
+				thread_pk = message_form.cleaned_data['thread_pk']
+				body = message_form.cleaned_data['body']
+				thread = Thread.objects.get(pk=thread_pk)
+				message = Message(body=body, owner=userProfile, thread=thread)
+				message.save()
+				thread.number_of_messages += 1
+				thread.save()
+			else:
+				print message_form.errors
+		else:
+			pagename = "Home page"
+			homepage = True
+			return red_home(request, locals())
 	week_ago = timezone.now() - datetime.timedelta(days=7)
 	active_messages = list()
 	my_messages = list()
@@ -163,5 +194,15 @@ def member_forums_view(request):
 	for message in my_messages:
 		if message.thread not in my_threads:
 			my_threads.append(message.thread)
+	active_message_forms = list()
+	my_message_forms = list()
+	for thread in active_threads:
+		form = MessageForm(initial={'thread_pk': thread.pk})
+		form.fields['thread_pk'].widget = forms.HiddenInput()
+		active_message_forms.append(form)
+	for thread in my_threads:
+		form = MessageForm(initial={'thread_pk': thread.pk})
+		form.fields['thread_pk'].widget = forms.HiddenInput()
+		my_message_forms.append(form)
 	thread_form = ThreadForm()
 	return render_to_response('member_forums.html', locals(), context_instance=RequestContext(request))

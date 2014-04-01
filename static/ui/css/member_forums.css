@@ -117,8 +117,12 @@ table {
 tr.table_header > * {
 	font-size: 15pt;
 	font-weight: bold;
-	vertical-align: center;
+	vertical-align: middle;
 	float: center;
+}
+
+tr.table_header > td {
+	padding-left: 5px;
 }
 
 .threads_table tr > th {
@@ -162,6 +166,11 @@ Remove confusion about table layout in case user enters a horizontal line.
 */	
 .message_table hr:not(.message_divider) {
 	margin-left: 10px;
+}
+
+.message_owner {
+	padding-left: 5px;
+	padding-top: 5px;
 }
 
 #new_thread_form {
