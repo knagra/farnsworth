@@ -10,6 +10,10 @@ Author: Karandeep Singh Nagra
 	font-family: Times New Roman, Times, serif;
 }
 
+h1 {
+	color: #7e7e7e;
+}
+
 body {
 	background: #efefef;
 	background: linear-gradient(top, #efefef 0%, #7e7e7e 100%);

@@ -252,6 +252,7 @@ Remove confusion about table layout in case user enters a horizontal line.
 .message_owner {
 	padding-left: 5px;
 	padding-top: 5px;
+	color: #7e7e7e;
 }
 
 #new_thread_form {
