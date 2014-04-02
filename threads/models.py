@@ -17,7 +17,15 @@ class UserProfile(models.Model):
 	current_room = models.CharField(blank=True, null=True, max_length=100, help_text="User's current room number")
 	former_rooms = models.CharField(blank=True, null=True, max_length=100, help_text="List of User's former room numbers")
 	phone_number = models.CharField(blank=True, null=True, max_length=20, help_text="User's phone number.")
-	current_member = models.BooleanField(default=False, help_text="Whether this user is a current member.")
+	RESIDENT = 'R'
+	BOARDER = 'B'
+	ALUMNUS = 'A'
+	STATUS_CHOICES = (
+		(RESIDENT, 'Current Resident'),
+		(BOARDER, 'Current Boarder'),
+		(ALUMNUS, 'Alumnus'),
+	)
+	status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=RESIDENT, help_text="Member status (resident, boarder, alumnus)")
 	
 	def __unicode__(self):
 		return "%s %s (Username: %s)" % (self.user.first_name, self.user.last_name, self.user.username)

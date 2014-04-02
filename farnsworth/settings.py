@@ -12,7 +12,8 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-	('Karandeep Nagra', 'karandeepsnagra@gmail.com'),
+	# This top admin is used on all pages as the support contact.
+	('Karandeep Singh Nagra', 'karandeepsnagra@gmail.com'),
 )
 
 MANAGERS = ADMINS

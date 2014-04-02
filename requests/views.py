@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from farnsworth.settings import house
+from farnsworth.settings import house, ADMINS
 from models import ProfileRequest
 from threads.models import UserProfile
 
@@ -17,6 +17,7 @@ def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
 	pagename = "Profile Request Page"
 	house_name = house
+	admin = ADMINS[0]
 	if request.user.is_authenticated():
 		return HttpResponseRedirect(reverse('homepage'))
 	else:

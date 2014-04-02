@@ -32,7 +32,8 @@
                 {% if docsroot %}
                     <a href="https://github.com/knagra/farnsworth/tree/master/DOCS" target="_blank">{% trans 'Documentation' %}</a> /
                 {% endif %}
-                <a href="{% url 'homepage' %}">{% trans 'Homepage' %}</a>
+                <a href="{% url 'homepage' %}">{% trans 'Homepage' %}</a> /
+		<a href="{% url 'logout' %}">{% trans 'Logout' %}</a>
             {% endblock %}
         </div>
         {% endif %}

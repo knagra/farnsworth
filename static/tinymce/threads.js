@@ -13,7 +13,7 @@ tinyMCE.init({
 tinyMCE.init({
 	selector: "textarea.message",
 	theme: "modern",
-	height: 300,
+	height: 100,
 	width: 640,
 	plugins: "paste searchreplace emoticons link image textcolor code visualchars charmap",
 	toolbar1: "bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist | outdent indent hr | undo redo | forecolor backcolor",

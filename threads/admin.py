@@ -8,10 +8,10 @@ from django.contrib import admin
 from threads.models import UserProfile, Thread, Message
 
 class UserProfileAdmin(admin.ModelAdmin):
-	list_display = ('user', 'get_info', 'current_member', 'get_email', 'phone_number', 'current_room')
+	list_display = ('user', 'get_info', 'status', 'get_email', 'phone_number', 'current_room')
 	search_fields = ('get_last', 'get_first', 'get_user', 'get_email', 'phone_number', 'current_room')
-	list_filter = ('current_member', 'current_room')
-	ordering = ('-current_member', )
+	list_filter = ('status', 'current_room')
+	ordering = ('-status', )
 	
 	def get_email(self, obj):
 		return obj.user.email

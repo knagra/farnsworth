@@ -13,12 +13,12 @@ Author: Karandeep Singh Nagra
 	color: black;
 }
 
-ul {
+#pages_list {
 	list-style-type: none;
 	padding-left: 40px;
 }
 
-ul li {
+#pages_list li {
 	display: block;
 	padding-top: 5px;
 	font-size: 13pt;

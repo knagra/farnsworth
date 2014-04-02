@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from farnsworth.settings import house
+from farnsworth.settings import house, ADMINS
 from django.contrib.auth import logout, login, authenticate
 from models import UserProfile, Thread, Message
 from django.utils import timezone
@@ -39,6 +39,7 @@ def homepage_view(request):
 	homepage = True
 	pagename = "Home Page"
 	house_name = house
+	admin = ADMINS[0]
 	if request.user.is_authenticated():
 		user = request.user
 		staff = user.is_staff
@@ -52,6 +53,7 @@ def external_view(request):
 	''' The external landing. '''
 	homepage = True
 	pagename = "Home Page"
+	admin = ADMINS[0]
 	house_name = house
 	if request.user.is_authenticated():
 		user = request.user
@@ -65,6 +67,7 @@ def help_view(request):
 	''' The view of the helppage. '''
 	pagename = "Help Page"
 	house_name = house
+	admin = ADMINS[0]
 	if request.user.is_authenticated():
 		user = request.user
 		staff = user.is_staff
@@ -77,6 +80,7 @@ def site_map_view(request):
 	''' The view of the site map. '''
 	pagename = "Site Map"
 	house_name = house
+	admin = ADMINS[0]
 	if request.user.is_authenticated():
 		user = request.user
 		staff = user.is_staff
@@ -85,10 +89,32 @@ def site_map_view(request):
 		staff = False
 	return render_to_response('site_map.html', locals(), context_instance=RequestContext(request))
 
+def profile_view(request):
+	''' The view of the profile page. '''
+	pagename = "Profile Page"
+	house_name = house
+	admin = ADMINS[0]
+	if request.user.is_authenticated():
+		user = request.user
+		staff = user.is_staff
+		userProfile = UserProfile.objects.get(user=user)
+		if not userProfile:
+			message = "A profile for you could not be found.  Please contact an admin for support."
+			return red_ext(request, locals())
+	else:
+		user = None
+		staff = False
+	class ResetPasswordForm(forms.Form):
+		current_password = forms.Charfield(max_length=100, widget=forms.TextInput(attrs={'size':'100'}))
+		new_password = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'100'}))
+		confirm_password = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'100'}))
+	
+
 def login_view(request):
 	''' The view of the login page. '''
 	pagename = "Login Page"
 	house_name = house
+	admin = ADMINS[0]
 	if request.user.is_authenticated():
 		return HttpResponseRedirect(reverse('homepage'))
 	user = None
@@ -123,30 +149,31 @@ def member_forums_view(request):
 	''' Forums for current members. '''
 	pagename = "Member Forums"
 	house_name = house
+	admin = ADMINS[0]
 	userProfile = None
 	if request.user.is_authenticated():
 		user = request.user
 		staff = user.is_staff
+		#profile = UserProfile.objects.get(user=user)
 		for profile in UserProfile.objects.all():
 			if profile.user == user:
 				userProfile = profile
 				break
 		if not userProfile:
+			pagename = "Home Page"
+			homepage = True
 			message = "A profile for you could not be found.  Please contact an admin for support."
 			return red_ext(request, locals())
 	else:
 		user = None
 		staff = False
 		return red_ext(request, locals())
-	if not userProfile.current_member:
-		message = "These forums are reserved for current members only."
-		return red_ext(request, locals())
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
 		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea(attrs={'class':'message'}))
+		#body = forms.CharField(widget=forms.Textarea(attrs={'class':'message'}))
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
 			thread_form = ThreadForm(request.POST)

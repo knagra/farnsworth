@@ -72,7 +72,7 @@
 						</td></tr>
 						{% for message in active_messages %}
 							{% if message.thread == thread %}
-							<tr><td><div class="message_owner">{{ message.owner.user.first_name }} {{ message.owner.user.last_name }} ({{ message.post_date }}):</div><hr class="message_divider" \> <div class="message_body">{{ message.body|safe }}</div></td></tr>
+							<tr><td><div class="message_owner">{% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %} ({{ message.post_date }}):</div><hr class="message_divider" \> <div class="message_body">{{ message.body|safe }}</div></td></tr>
 							{% endif %}
 						{% endfor %}
 					</table></td>
@@ -114,7 +114,7 @@
 						</td></tr>
 						{% for message in active_messages %}
 							{% if message.thread == thread %}
-							<tr><td><div class="message_owner">{{ message.owner.user.first_name }} {{ message.owner.user.last_name }} ({{ message.post_date }}):</div><hr class="message_divider" \> <div class="message_body">{{ message.body|safe }}</div></td></tr>
+							<tr><td><div class="message_owner">{% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %} ({{ message.post_date }}):</div><hr class="message_divider" \> <div class="message_body">{{ message.body|safe }}</div></td></tr>
 							{% endif %}
 						{% endfor %}
 					</table></td>
