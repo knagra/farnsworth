@@ -11,7 +11,6 @@ admin.autodiscover()
 urlpatterns = patterns('',
 	url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 	url(r'^admin/', include(admin.site.urls)),
-	#url(r'^tinymce/', include('tinymce.urls')),
 )
 
 urlpatterns += patterns('threads.views',
@@ -21,6 +20,7 @@ urlpatterns += patterns('threads.views',
 	url(r'^login/$', 'login_view', name='login'),
 	url(r'^logout/$', 'logout_view', name='logout'),
 	url(r'^member_forums/$', 'member_forums_view', name='member_forums'),
+	url(r'^site_map/$', 'site_map_view', name='site_map'),
 )
 
 urlpatterns += patterns('events.views',
@@ -29,4 +29,9 @@ urlpatterns += patterns('events.views',
 
 urlpatterns += patterns('requests.views',
 	url(r'^request_profile/$', 'request_profile_view', name='request_profile'),
+)
+
+# Catch any other urls here
+urlpatterns += patterns('threads.views',
+	url(r'', 'homepage_view', name='homepage'),
 )

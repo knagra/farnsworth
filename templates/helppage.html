@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
-{% block content %}
 {% load static from staticfiles %}
+
+{% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/helppage.css' %}" />
+{% endblock %}
+
+{% block content %}
 	<p>Welcome!  This is a virtual gathering place for members of {{ house_name }} as well as a community outreach and general information site.</p>
 {% endblock %}

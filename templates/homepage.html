@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
-{% block content %}
 {% load static from staticfiles %}
+
+{% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/homepage.css' %}" />
+{% endblock %}
+
+{% block content %}
 <p>
 Kingman Hall is one of the houses of the <a class="page_link" href="http://www.bsc.coop" target="_blank">Berkeley Student Cooperative</a> in Berkeley, California.
 The building houses 50 students every semester.

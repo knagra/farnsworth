@@ -94,11 +94,15 @@ table {
 	clear: left;
 }
 
+.new_message_form {
+	display: none;
+}
+
 .submit_message_form {
 	background: #5e5e5e;
 	color: #fafafa;
 	font-size: 13pt;
-	height: 40px;
+	height: 30px;
 	padding-top: 5px;
 	padding-bottom: 5px;
 	padding-left: 0px;
@@ -110,15 +114,11 @@ table {
 	float: left;
 }
 
-.new_message_form {
-	display: none;
-}
-
 .cancel_message_form {
 	background: #5e5e5e;
 	color: #fafafa;
 	font-size: 13pt;
-	height: 40px;
+	height: 30px;
 	padding-top: 5px;
 	padding-bottom: 5px;
 	padding-left: 0px;
@@ -136,9 +136,9 @@ table {
 	font-size: 13pt;
 	border: none;
 	width: 100%;
-	padding-top: 10px;
-	padding-bottom: 10px;
-	height: 40px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	height: 30px;
 }
 
 .add_message:hover {
@@ -253,6 +253,10 @@ Remove confusion about table layout in case user enters a horizontal line.
 	padding-left: 5px;
 	padding-top: 5px;
 	color: #7e7e7e;
+}
+
+.message_body {
+	padding-bottom: 5px;
 }
 
 #new_thread_form {

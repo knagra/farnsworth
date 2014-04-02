@@ -12,7 +12,6 @@ from django.template import RequestContext
 from farnsworth.settings import house
 from django.contrib.auth import logout, login, authenticate
 from models import UserProfile, Thread, Message
-#from tinymce.widgets import TinyMCE
 from django.utils import timezone
 from django.forms.formsets import formset_factory
 import datetime
@@ -74,6 +73,18 @@ def help_view(request):
 		staff = False
 	return render_to_response('helppage.html', locals(), context_instance=RequestContext(request))
 
+def site_map_view(request):
+	''' The view of the site map. '''
+	pagename = "Site Map"
+	house_name = house
+	if request.user.is_authenticated():
+		user = request.user
+		staff = user.is_staff
+	else:
+		user = None
+		staff = False
+	return render_to_response('site_map.html', locals(), context_instance=RequestContext(request))
+
 def login_view(request):
 	''' The view of the login page. '''
 	pagename = "Login Page"
@@ -83,8 +94,8 @@ def login_view(request):
 	user = None
 	staff = False
 	class loginForm(forms.Form):
-		username = forms.CharField(max_length=100)
-		password = forms.CharField(max_length=100, widget=forms.PasswordInput())
+		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	if request.method == 'POST':
 		form = loginForm(request.POST)
 		if form.is_valid():
@@ -132,24 +143,14 @@ def member_forums_view(request):
 		return red_ext(request, locals())
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-		#body = forms.CharField(widget=TinyMCE)
 		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
-		#class Media:
-		#	js = ('/static/tiny_mce/tiny_mce.js', '/static/tiny_mce/textareas.js')
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
-		#body1 = forms.CharField(widget=TinyMCE)
 		body = forms.CharField(widget=forms.Textarea(attrs={'class':'message'}))
-		class Media:
-			js = ('/static/tiny_mce/tiny_mce.js', '/static/tiny_mce/textareas.js')
-	#MessageFormSet = formset_factory(MessageForm)
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
-			print "1"
 			thread_form = ThreadForm(request.POST)
-			print "2"
 			if thread_form.is_valid():
-				print "3"
 				subject = thread_form.cleaned_data['subject']
 				body = thread_form.cleaned_data['body']
 				thread = Thread(owner=userProfile, subject=subject, number_of_messages=0, active=True)
@@ -160,11 +161,8 @@ def member_forums_view(request):
 			else:
 				print thread_form.errors
 		elif 'submit_message_form' in request.POST:
-			print "a"
 			message_form = MessageForm(request.POST)
-			print "b"
 			if message_form.is_valid():
-				print "c"
 				thread_pk = message_form.cleaned_data['thread_pk']
 				body = message_form.cleaned_data['body']
 				thread = Thread.objects.get(pk=thread_pk)

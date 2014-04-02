@@ -23,10 +23,10 @@ def request_profile_view(request):
 		user = None
 		staff = False
 	class profileRequestForm(forms.Form):
-		username = forms.CharField(max_length=100)
-		first_name = forms.CharField(max_length=100)
-		last_name = forms.CharField(max_length=100)
-		email = forms.CharField(max_length=255)
+		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
 	if request.method == 'POST':
 		form = profileRequestForm(request.POST)
 		if form.is_valid():

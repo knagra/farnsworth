@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
-{% block content %}
 {% load static from staticfiles %}
+
+{% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/login.css' %}" />
+{% endblock %}
+
+{% block content %}
 	<div id="login_form">
 		<div id="login_form_title">Login</div>
 		<div class="fieldWrapper">{{ non_field_error }}</div>

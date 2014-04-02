@@ -1,8 +1,13 @@
 {% extends "base.html" %}
 
-{% block content %}
 {% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/request_profile.css' %}" />
+{% endblock %}
+
+{% block content %}
 	<div id="profile_request_form">
 		<div id="profile_request_title">Request a User Profile</div>
 		<div class="fieldWrapper">{{ non_field_error }}</div>

@@ -1,0 +1,25 @@
+/*
+Project: Farnsworth
+
+Author: Karandeep Singh Nagra
+*/
+
+.page_link {
+	color: grey;
+	text-decoration: underline;
+}
+
+.page_link:hover {
+	color: black;
+}
+
+ul {
+	list-style-type: none;
+	padding-left: 40px;
+}
+
+ul li {
+	display: block;
+	padding-top: 5px;
+	font-size: 13pt;
+}
