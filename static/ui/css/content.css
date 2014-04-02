@@ -4,10 +4,13 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 */
 
-p {
-	margin-top: 10px;
-	margin-left: 10px;
-	margin-right: 10px;
+.page_link {
+	color: #7e7e7e;
+	text-decoration: underline;
+}
+
+.page_link:hover {
+	color: black;
 }
 
 h3 {

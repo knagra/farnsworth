@@ -59,13 +59,6 @@ Author: Karandeep Singh Nagra
 	cursor: pointer;
 }
 
-.fieldWrapper {
-	padding-top: 30px;
-	position: relative;
-	margin: auto 20px;
-	padding-left: 10px;
-}
-
 .button {
 	background: #5e5e5e;
 	color: #fafafa;
@@ -256,6 +249,7 @@ Remove confusion about table layout in case user enters a horizontal line.
 }
 
 .message_body {
+	padding-left: 5px;
 	padding-bottom: 5px;
 }
 
@@ -278,20 +272,3 @@ Remove confusion about table layout in case user enters a horizontal line.
 	padding-top: 5px;
 }
 
-#profile_request_table ul {
-	float: left;
-}
-
-#profile_request_table tr td ul {
-	float: right;
-	display: block;
-	position: relative;
-	overflow: hidden;
-}
-
-#profile_request_table tr td ul li {
-	color: red;
-	display: block;
-	margin: 0 0 3px;
-	padding: 4px 5px;
-}

@@ -52,7 +52,7 @@ def homepage_view(request):
 def external_view(request):
 	''' The external landing. '''
 	homepage = True
-	pagename = "Home Page"
+	pagename = "External"
 	admin = ADMINS[0]
 	house_name = house
 	if request.user.is_authenticated():
@@ -173,7 +173,7 @@ def member_forums_view(request):
 		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
-		#body = forms.CharField(widget=forms.Textarea(attrs={'class':'message'}))
+		body = forms.CharField(widget=forms.Textarea(attrs={'class':'message'}))
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
 			thread_form = ThreadForm(request.POST)
