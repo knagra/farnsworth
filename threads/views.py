@@ -104,11 +104,27 @@ def profile_view(request):
 	else:
 		user = None
 		staff = False
-	class ResetPasswordForm(forms.Form):
-		current_password = forms.Charfield(max_length=100, widget=forms.TextInput(attrs={'size':'100'}))
-		new_password = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'100'}))
-		confirm_password = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'100'}))
-	
+	class ChangePasswordForm(forms.Form):
+		current_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'100'}))
+		new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'100'}))
+		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'100'}))
+	class UpdateProfileForm(forms.Form):
+		current_room = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'100'}))
+		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'100'}))
+		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'100'}))
+		email_visible_to_others = forms.BooleanField(help_text="Whether others can see your e-mail address on your profile")
+		phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'100'}))
+		phone_visible_to_others = forms.BooleanField(help_text="Whether others can see your phone number on your profile")
+		enter_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'100'}))
+	if request.method == 'POST':
+		if 'submit_password_form' in request.POST:
+			change_password_form = ChangePasswordForm(request.POST)
+		elif 'submit_profile_form' in request.POST:
+			update_profile_form = UpdateProfileForm(request.POST)
+		else:
+			pagename = "Home Page"
+			message = "Your request at /profile/ could not be processed.  Please contact an admin for support."
+			return red_home(request, locals())
 
 def login_view(request):
 	''' The view of the login page. '''
@@ -185,8 +201,6 @@ def member_forums_view(request):
 				thread.save()
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
-			else:
-				print thread_form.errors
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -197,11 +211,10 @@ def member_forums_view(request):
 				message.save()
 				thread.number_of_messages += 1
 				thread.save()
-			else:
-				print message_form.errors
 		else:
 			pagename = "Home page"
 			homepage = True
+			message = "Your request at /member_forums/ could not be processed.  Please contact an admin for support."
 			return red_home(request, locals())
 	week_ago = timezone.now() - datetime.timedelta(days=7)
 	active_messages = list()
