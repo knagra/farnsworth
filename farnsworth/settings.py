@@ -137,7 +137,7 @@ INSTALLED_APPS = (
 	'events',
 	'requests',
 	'south',
-	'tinymce',
+	#'tinymce',
 	'django.contrib.admin',
 	'django.contrib.admindocs',
 )
@@ -172,9 +172,10 @@ LOGGING = {
         },
     }
 }
-
+'''
 # The default configuration for TinyMCE text areas.
 TINYMCE_DEFAULT_CONFIG = {
+	'selector': 'textarea',
 	'theme': 'advanced',
 	'width': 600,
 	'height': 300,
@@ -184,4 +185,4 @@ TINYMCE_DEFAULT_CONFIG = {
 	'theme_advanced_buttons3': '',
 	'plugins': 'paste,table,spellchecker,searchreplace,emotions',
 	'theme_advanced_resizing': True,
-}
+}'''

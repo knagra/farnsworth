@@ -71,7 +71,6 @@ Author: Karandeep Singh Nagra
 	color: #fafafa;
 	font-size: 15pt;
 	border: none;
-	/*width: 100%;*/
 	height: 40px;
 	padding-top: 5px;
 	padding-bottom: 5px;
@@ -93,6 +92,79 @@ table {
 	width: 50%;
 	border-left: 1px solid #8b8b8b;
 	clear: left;
+}
+
+.submit_message_form {
+	background: #5e5e5e;
+	color: #fafafa;
+	font-size: 13pt;
+	height: 40px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 0px;
+	width: 50%;
+	border-top: none;
+	border-left: none;
+	border-bottom: none;
+	border-right: 1px solid #3f3f3f;
+	float: left;
+}
+
+.new_message_form {
+	display: none;
+}
+
+.cancel_message_form {
+	background: #5e5e5e;
+	color: #fafafa;
+	font-size: 13pt;
+	height: 40px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 0px;
+	width: 50%;
+	border-top: none;
+	border-right: none;
+	border-bottom: none;
+	border-left: 1px solid #8b8b8b;
+	clear: left;
+}
+
+.add_message {
+	background: #5e5e5e;
+	color: #fafafa;
+	font-size: 13pt;
+	border: none;
+	width: 100%;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	height: 40px;
+}
+
+.add_message:hover {
+	background: #fafafa;
+	color: #7e7e7e;
+	cursor: pointer;
+}
+
+.submit_message_form:hover {
+	background: #fafafa;
+	color: #7e7e7e;
+	border-top: 1px solid #7e7e7e;
+	border-bottom: 1px solid #7e7e7e;
+	cursor: pointer;
+	border-left: none;
+	border-right: none;
+}
+
+.cancel_message_form:hover {
+	background: #fafafa;
+	color: #7e7e7e;
+	border-top: 1px solid #7e7e7e;
+	border-bottom: 1px solid #7e7e7e;
+	cursor: pointer;
+	border-left: none;
+	border-right: none;
 }
 
 .button:hover {
@@ -126,7 +198,7 @@ tr.table_header > td {
 }
 
 .threads_table tr > th {
-	width: 30%;
+	width: 25%;
 	border-right: 1px solid #7e7e7e;
 	vertical-align: top;
 	padding: 5px;
@@ -143,7 +215,7 @@ td {
 }
 
 .threads_table tr > td {
-	width: 70%;
+	width: 75%;
 	float: left;
 	padding-top: 0px;
 }
@@ -151,10 +223,19 @@ td {
 .message_table {
 	width: 100%;
 	padding-bottom: 10px;
+	position: relative;
+	float: left;
 }
 
 .message_table tr > * {
 	border-bottom: 1px solid #7e7e7e;
+}
+
+.message_table tr > td {
+	width: 100%;
+	float: left;
+	padding-top: 0px;
+	height: auto;
 }
 
 .message_divider {

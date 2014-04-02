@@ -12,7 +12,7 @@ from django.template import RequestContext
 from farnsworth.settings import house
 from django.contrib.auth import logout, login, authenticate
 from models import UserProfile, Thread, Message
-from tinymce.widgets import TinyMCE
+#from tinymce.widgets import TinyMCE
 from django.utils import timezone
 from django.forms.formsets import formset_factory
 import datetime
@@ -132,16 +132,16 @@ def member_forums_view(request):
 		return red_ext(request, locals())
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-		body = forms.CharField(widget=TinyMCE())
-		#body = forms.CharField(widget=forms.Textarea)
+		#body = forms.CharField(widget=TinyMCE)
+		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
 		#class Media:
-		#	js = ('/site_media/static/tiny_mce/tinymce.min.js',)
+		#	js = ('/static/tiny_mce/tiny_mce.js', '/static/tiny_mce/textareas.js')
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
-		body = forms.CharField(widget=TinyMCE())
-		#body = forms.CharField(widget=forms.Textarea)
-		#class Media:
-		#	js = ('/site_media/static/tiny_mce/tinymce.min.js',)
+		#body1 = forms.CharField(widget=TinyMCE)
+		body = forms.CharField(widget=forms.Textarea(attrs={'class':'message'}))
+		class Media:
+			js = ('/static/tiny_mce/tiny_mce.js', '/static/tiny_mce/textareas.js')
 	#MessageFormSet = formset_factory(MessageForm)
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
