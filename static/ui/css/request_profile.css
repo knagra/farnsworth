@@ -8,7 +8,7 @@ Author: Karandeep Singh Nagra
 	float: middle;
 	border: 1px solid #7e7e7e;
 	position: relative;
-	width: 600px;
+	width: 700px;
 	margin: 30px auto;
 	font-size: 15pt;
 	overflow: hidden;
@@ -58,18 +58,10 @@ Author: Karandeep Singh Nagra
 	padding-bottom: 20px;
 }
 
-#profile_request_table tr > td {
-	padding-top: 10px;
-}
-
 #profile_request_table tr th {
-	padding-right: 10px;
+	padding-right: 5px;
 	vertical-align: middle;
 	position: relative;
-}
-
-#profile_request_table ul {
-	float: left;
 }
 
 #profile_request_table tr td ul {
@@ -82,6 +74,5 @@ Author: Karandeep Singh Nagra
 #profile_request_table tr td ul li {
 	color: red;
 	display: block;
-	margin: 0 0 3px;
-	padding: 4px 5px;
+	padding-left: 3px;
 }

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/my_profile.css' %}" />
+{% endblock %}
+
+{% block content %}
+	<div id="update_profile">
+		<div class="title">Update Your Profile</div>
+		<div class="fieldWrapper">{{ profile_non_field_error }}</div>
+		<form method="post" action="">
+			{% csrf_token %}
+			<table class="form_table">
+				{{ update_profile_form.as_table }}
+			</table>
+			<input class="button" name="submit_profile_form" type="submit" value="Update Profile" />
+		</form>
+	</div>
+	<div id="change_password">
+		<div class="title">Change Password</div>
+		<div class="fieldWrapper">{{ password_non_field_error }}</div>
+		<form method="post" action="">
+			{% csrf_token %}
+			<table class="form_table">
+				{{ change_password_form.as_table }}
+			</table>
+			<input class="button" name="submit_password_form" type="submit" value="Change Password" />
+		</form>
+	</div>
+{% endblock %}

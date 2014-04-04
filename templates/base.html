@@ -13,13 +13,13 @@ The HTML for {{ pagename }}.
 	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
 	{% block headers %} {% endblock %}
 </head>
-<body>
+<body id="html_body">
 	<div id="wrapper">
 	<div id="menu">
 		<ul>
 			<li><a class="menu_link" href="{% url 'homepage' %}" >Home</a></li>
 		{% if user %}
-			<li><a class="menu_link" href="{% url 'profile' %}">Profile ({{ user.username }})</a></li>
+			<li><a class="menu_link" href="{% url 'my_profile' %}">Profile ({{ user.username }})</a></li>
 			<li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>
 		{% else %}
 			<li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
@@ -44,9 +44,9 @@ The HTML for {{ pagename }}.
 	<div id="body">
 		<div id="title">
 			{% if homepage %}
-				<h1>Welcome to {{ house_name }}</h1>
+				<h1 id="page_title">Welcome to {{ house_name }}</h1>
 			{% else %}
-				<h1>{{ house_name}} - {{pagename}}</h1>
+				<h1 id="page_title">{{ house_name}} - {{pagename}}</h1>
 			{% endif %}
 		</div> <!-- close "title" -->
 		<hr>

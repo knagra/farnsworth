@@ -88,7 +88,7 @@ def site_map_view(request):
 		staff = False
 	return render_to_response('site_map.html', locals(), context_instance=RequestContext(request))
 
-def profile_view(request):
+def my_profile_view(request):
 	''' The view of the profile page. '''
 	pagename = "Profile Page"
 	house_name = house
@@ -96,27 +96,34 @@ def profile_view(request):
 	if request.user.is_authenticated():
 		user = request.user
 		staff = user.is_staff
-		userProfile = UserProfile.objects.get(user=user)
+		for profile in UserProfile.objects.all():
+			if profile.user == user:
+				userProfile = profile
+				break
 		if not userProfile:
 			message = "A profile for you could not be found.  Please contact an admin for support."
 			return red_ext(request, locals())
 	else:
 		user = None
 		staff = False
+		userProfile = None
+		homepage = True
+		pagename = "External"
+		return red_ext(request, locals())
 	class ChangePasswordForm(forms.Form):
 		current_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 		new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	class UpdateProfileForm(forms.Form):
-		current_room = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
-		email_visible_to_others = forms.BooleanField(help_text="Whether others can see your e-mail address on your profile")
-		phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}))
-		phone_visible_to_others = forms.BooleanField(help_text="Whether others can see your phone number on your profile")
+		current_room = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+		email_visible_to_others = forms.BooleanField(required=False)
+		phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+		phone_visible_to_others = forms.BooleanField(required=False)
 		enter_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-	change_password_form = ChangePasswordForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
-	update_profile_form = UpdateProfileForm()
+	change_password_form = ChangePasswordForm()
+	update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
 	if request.method == 'POST':
 		if 'submit_password_form' in request.POST:
 			change_password_form = ChangePasswordForm(request.POST)
@@ -138,22 +145,17 @@ def profile_view(request):
 						change_password_form._errors['new_password'] = forms.util.ErrorList([u"Passwords don't match."])
 						change_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 				else:
-					change_password_form._errors['current_password'] = forms.util.ErrorList([u"Wrong password"])
+					change_password_form._errors['current_password'] = forms.util.ErrorList([u"Wrong password."])
 		elif 'submit_profile_form' in request.POST:
 			update_profile_form = UpdateProfileForm(request.POST)
 			if update_profile_form.is_valid():
 				current_room = update_profile_form.cleaned_data['current_room']
 				former_rooms = update_profile_form.cleaned_data['former_rooms']
 				email = update_profile_form.cleaned_data['email']
-				e-mail_visible_to_others = update_profile_form.cleaned_data['email_visible_to_others']
+				email_visible_to_others = update_profile_form.cleaned_data['email_visible_to_others']
 				phone_number = update_profile_form.cleaned_data['phone_number']
 				phone_visible_to_others = update_profile_form.cleaned_data['phone_visible_to_others']
 				enter_password = update_profile_form.cleaned_data['enter_password']
-				userProfile = None
-				for profile in UserProfile.objects.all():
-					if profile.user == user:
-						userProfile = profile
-						break
 				if hashers.check_password(enter_password, user.password):
 					userProfile.current_room = current_room
 					userProfile.former_rooms = former_rooms
@@ -162,14 +164,14 @@ def profile_view(request):
 					userProfile.phone_number = phone_number
 					userProfile.phone_visible = phone_visible_to_others
 					profile_non_field_error = "Your profile has been updated."
-					update_profile_form = UpdateProfileForm()
+					update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
 				else:
 					update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
 		else:
 			pagename = "Home Page"
 			message = "Your request at /profile/ could not be processed.  Please contact an admin for support."
 			return red_home(request, locals())
-	return render_to_response('profile.html', locals(), context_instance=RequestContext(request))
+	return render_to_response('my_profile.html', locals(), context_instance=RequestContext(request))
 
 def login_view(request):
 	''' The view of the login page. '''
