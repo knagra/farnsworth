@@ -28,7 +28,10 @@ class Request(models.Model):
 	body = models.TextField(blank=False, null=False, help_text="The body of this request.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this request was posted.")
 	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The last time this request was modified.")
-	manager = models.ForeignKey(Manager, blank=False, null=False, help_text="The manager to whom this request was made.")
+	manager = models.ForeignKey(Manager, blank=False, null=False, help_text="A manager to whom this request was made.")
+	manager2 = models.ForeignKey(Manager, blank=True, null=True, help_text="An optional additional manager to whom this request was made.", related_name="second_manager")
+	manager3 = models.ForeignKey(Manager, blank=True, null=True, help_text="Another optional additional manager to whom this request was made.", related_name="third_manager")
+	manager4 = models.ForeignKey(Manager, blank=True, null=True, help_text="Yet another optional additional manager.", related_name="fourth_manager")
 	filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
 	
 	def __unicode__(self):

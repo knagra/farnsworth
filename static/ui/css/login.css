@@ -8,7 +8,7 @@ Author: Karandeep Singh Nagra
 	float: middle;
 	border: 1px solid #7e7e7e;
 	position: relative;
-	width: 500px;
+	width: 600px;
 	margin: 30px auto;
 	font-size: 15pt;
 	overflow: hidden;
@@ -39,7 +39,7 @@ Author: Karandeep Singh Nagra
 	height: 40px;
 	padding-top: 5px;
 	padding-bottom: 5px;
-	padding-left: 0px;
+	/*padding-left: 0px;*/
 }
 
 #button:hover {
@@ -50,7 +50,7 @@ Author: Karandeep Singh Nagra
 }
 
 #login_form_table {
-	position: relative;
+	/*position: relative;*/
 	padding-left: 10px;
 	padding-top: 20px;
 	padding-bottom: 20px;
@@ -73,7 +73,7 @@ Author: Karandeep Singh Nagra
 #login_form_table tr td ul {
 	float: right;
 	display: block;
-	position: relative;
+	/*position: relative;*/
 	overflow: hidden;
 }
 

@@ -41,16 +41,18 @@
 				<input class="button" id="submit_thread_form" name="submit_thread_form" type="submit" value="Start Thread" />
 				<input class="button" id="cancel_thread_form" onclick="hide_new_thread_form()" type="button" value="Cancel" />
 			</form>
-		<table class="threads_table">
+		<div class="threads_table">
 			{% if not active_threads %}
-				<tr><th>No threads active in the past 7 days.</th></tr>
+				<div class="threads_row">No threads active in the past 7 days.</div>
 			{% else %}
-				<tr class="table_header"><th>Subject</th><td>Messages:</td></tr>
+				<div class="threads_row"><div class="table_header"><div class="thread_name">Subject</div><div class="thread_messages">Messages</div></div></div>
 			{% endif %}
 			{% for thread in active_threads %}
-				<tr>	<th>{{ thread.subject }}</th>
-					<td><table class="message_table">
-						<tr><td>
+				<div class="threads_row">
+					<div class="thread_name">{{ thread.subject }}</div>
+					<div class="thread_messages">
+						<div class="message_table">
+						<div class="message_row">
 						{% with y=forloop.counter|stringformat:"s" %}
 						{% with message_form_id="message_form_"|add:y %}
 						{% with button_id="button_"|add:y %}
@@ -69,30 +71,32 @@
 						{% endwith %}
 						{% endwith %}
 						{% endwith %}
-						</td></tr>
+						</div>
 						{% for message in active_messages %}
 							{% if message.thread == thread %}
-							<tr><td><div class="message_owner">{% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %} ({{ message.post_date }}):</div><hr class="message_divider" \> <div class="message_body">{{ message.body|safe }}</div></td></tr>
+							<div class="message_row"><div class="message_owner">{% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %} ({{ message.post_date }}):</div><hr class="message_divider" \> <div class="message_body">{{ message.body|safe }}</div></div>
 							{% endif %}
 						{% endfor %}
-					</table></td>
-				</tr>
+					</div></div>
+				</div>
 			{% endfor %}
-		</table>
+		</div>
 	</div>
 	<div class="threads">
 		<div class="threads_title">My Threads</div>
 		<input class="add_thread" onclick="show_and_focus()" type="submit" value="New Thread" />
-		<table class="threads_table">
+		<div class="threads_table">
 			{% if not my_threads %}
-				<tr><th>You have no threads.</th></tr>
+				<div class="threads_row">You have no threads.</div>
 			{% else %}
-				<tr class="table_header"><th>Subject</th><td>Messages:</td></tr>
+				<div class="threads_row"><div class="table_header"><div class="thread_name">Subject</div><div class="thread_messages">Messages</div></div></div>
 			{% endif %}
 			{% for thread in my_threads %}
-				<tr>	<th>{{ thread.subject }}</th>
-					<td><table class="message_table">
-						<tr><td>
+				<div class="threads_row">
+					<div class="thread_name">{{ thread.subject }}</div>
+					<div class="thread_messages">
+						<div class="message_table">
+						<div class="message_row">
 						{% with y=forloop.counter|stringformat:"s" %}
 						{% with message_form_id="message_form_2_"|add:y %}
 						{% with button_id="button_2_"|add:y %}
@@ -111,14 +115,14 @@
 						{% endwith %}
 						{% endwith %}
 						{% endwith %}
-						</td></tr>
+						</div>
 						{% for message in active_messages %}
 							{% if message.thread == thread %}
-							<tr><td><div class="message_owner">{% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %} ({{ message.post_date }}):</div><hr class="message_divider" \> <div class="message_body">{{ message.body|safe }}</div></td></tr>
+							<div class="message_row"><div class="message_owner">{% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %} ({{ message.post_date }}):</div><hr class="message_divider" \> <div class="message_body">{{ message.body|safe }}</div></div>
 							{% endif %}
 						{% endfor %}
-					</table></td>
-				</tr>
+					</div></div>
+				</div>
 			{% endfor %}
 		</table>
 	</div>
