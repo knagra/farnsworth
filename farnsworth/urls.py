@@ -21,6 +21,7 @@ urlpatterns += patterns('threads.views',
 	url(r'^logout/$', 'logout_view', name='logout'),
 	url(r'^member_forums/$', 'member_forums_view', name='member_forums'),
 	url(r'^site_map/$', 'site_map_view', name='site_map'),
+	url(r'^profile/$', 'profile_view', name='profile'),
 )
 
 urlpatterns += patterns('events.views',

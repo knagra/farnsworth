@@ -16,7 +16,9 @@ class UserProfile(models.Model):
 	user = models.OneToOneField(User)
 	current_room = models.CharField(blank=True, null=True, max_length=100, help_text="User's current room number")
 	former_rooms = models.CharField(blank=True, null=True, max_length=100, help_text="List of User's former room numbers")
-	phone_number = models.CharField(blank=True, null=True, max_length=20, help_text="User's phone number.")
+	phone_number = models.CharField(blank=True, null=True, max_length=20, help_text="User's phone number")
+	email_visible = models.BooleanField(default=False, help_text="Whether the email is visible in the directory")
+	phone_visible = models.BooleanField(default=False, help_text="Whether the phone number is visible in the directory")
 	RESIDENT = 'R'
 	BOARDER = 'B'
 	ALUMNUS = 'A'

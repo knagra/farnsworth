@@ -19,7 +19,7 @@ The HTML for {{ pagename }}.
 		<ul>
 			<li><a class="menu_link" href="{% url 'homepage' %}" >Home</a></li>
 		{% if user %}
-			<li><a class="menu_link" href="{% url 'homepage' %}">Profile ({{ user.username }})</a></li>
+			<li><a class="menu_link" href="{% url 'profile' %}">Profile ({{ user.username }})</a></li>
 			<li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>
 		{% else %}
 			<li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
