@@ -13,6 +13,7 @@ from farnsworth.settings import house, ADMINS
 from django.contrib.auth import logout, login, authenticate, hashers
 from models import UserProfile, Thread, Message
 from django.utils import timezone
+from django.contrib.auth.models import User
 import datetime
 
 def red_ext(request, function_locals):
@@ -104,13 +105,14 @@ def my_profile_view(request):
 	class UpdateProfileForm(forms.Form):
 		current_room = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		email_visible_to_others = forms.BooleanField(required=False)
 		phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		phone_visible_to_others = forms.BooleanField(required=False)
 		enter_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	change_password_form = ChangePasswordForm()
-	update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
+	update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'former_houses': userProfile.former_houses, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
 	if request.method == 'POST':
 		if 'submit_password_form' in request.POST:
 			change_password_form = ChangePasswordForm(request.POST)
@@ -138,6 +140,7 @@ def my_profile_view(request):
 			if update_profile_form.is_valid():
 				current_room = update_profile_form.cleaned_data['current_room']
 				former_rooms = update_profile_form.cleaned_data['former_rooms']
+				former_houses = update_profile_form.cleaned_data['former_houses']
 				email = update_profile_form.cleaned_data['email']
 				email_visible_to_others = update_profile_form.cleaned_data['email_visible_to_others']
 				phone_number = update_profile_form.cleaned_data['phone_number']
@@ -146,6 +149,7 @@ def my_profile_view(request):
 				if hashers.check_password(enter_password, user.password):
 					userProfile.current_room = current_room
 					userProfile.former_rooms = former_rooms
+					userProfile.former_houses = former_houses
 					user.email = email
 					userProfile.email_visible = email_visible_to_others
 					userProfile.phone_number = phone_number
@@ -416,3 +420,51 @@ def my_threads_view(request):
 				my_thread_messages.append(message)
 	thread_form = ThreadForm()
 	return render_to_response('my_threads.html', locals(), context_instance=RequestContext(request))
+
+def member_directory_view(request):
+	''' View of member directory. '''
+	pagename = "%s's Profile" % targetUsername
+	house_name = house
+	admin = ADMINS[0]
+	if request.user.is_authenticated():
+		user = request.user
+	else:
+		pagename = "External"
+		homepage = True
+		user = None
+		return red_ext(request, locals())
+	residents = list()
+	boarders = list()
+	alumni = list()
+	for profile in UserProfile.objects.all():
+		if profile.status == 'R':
+			residents.append(
+
+def member_profile_view(request, targetUsername):
+	''' View a member's Profile. '''
+	pagename = "%s's Profile" % targetUsername
+	house_name = house
+	admin = ADMINS[0]
+	userProfile = None
+	if request.user.is_authenticated():
+		user = request.user
+		userProfile = user.get_profile()
+	else:
+		pagename = "External"
+		homepage = True
+		user = None
+		return red_ext(request, locals())
+	targetUser = User.objects.get(username=targetUsername)
+	if not targetUser:
+		pagename = "User Not Found"
+		message = "User %s does not exist or could not be found." % targetUsername
+		return render_to_response('member_profile.html', locals(), context_instance=RequestContext(request))
+	targetProfile = targetUser.get_profile()
+	if not targetProfile:
+		pagename = "Profile Not Found"
+		message = "Profile for user %s could not be found." % targetUsername
+		return render_to_response('member_profile.html', locals(), context_instance=RequestContext(request))
+	if targetProfile == user.get_profile():
+		return HttpResponseRedirect(reverse('my_profile'))
+	else:
+		return render_to_response('member_profile.html', locals(), context_instance=RequestContext(request))

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_profile.css' %}" />
+{% endblock %}
+
+{% block content %}
+	<div id="user_profile">
+		<div id="table_title">{{ targetUsername }}'s Profile</div>
+		<table id="profile_table">
+			<tr><th class="label">Name:</th><td class="field">{{ targetUser.first_name }} {{ targetUser.last_name }}</td></tr>
+			<tr><th class="label">Status:</th><td class="field">{{ targetProfile.get_status_display }}</td></tr>
+			<tr><th class="label">Current Room:</th><td class="field">{{ targetProfile.current_room }}</td></tr>
+			<tr><th class="label">Former Rooms:</th><td class="field">{{ targetProfile.former_rooms }}</td></tr>
+			<tr><th class="label">Former Houses:</th><td class="field">{{ targetProfile.former_houses }}</td></tr>
+			{% if targetProfile.email_visible %}
+				<tr><th class="label">E-mail:</th><td class="field">{{ targetUser.email }}</td></tr>
+			{% endif %}
+			{% if targetProfile.phone_visible %}
+				<tr><th class="label">Phone:</th><td class="field">{{ targetProfile.phone_number }}</td></tr>
+			{% endif %}
+		</table>
+		<div id="directory"><a href="{% url 'member_directory' %}" >Go to Member Directory</a></div>
+	</div>
+{% endblock %}

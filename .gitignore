@@ -4,3 +4,4 @@
 migrations/
 *.swp
 *.tmp
+.svn/

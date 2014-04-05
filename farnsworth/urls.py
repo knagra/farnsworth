@@ -23,7 +23,9 @@ urlpatterns += patterns('threads.views',
 	url(r'^all_threads/$', 'all_threads_view', name='all_threads'),
 	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
 	url(r'^site_map/$', 'site_map_view', name='site_map'),
+	url(r'^member_directory/$', 'member_directory_view', name='member_directory'),
 	url(r'^profile/$', 'my_profile_view', name='my_profile'),
+	url(r'^profile/(?P<targetUsername>\w+)/$', 'member_profile_view', name='member_profile'),
 )
 
 urlpatterns += patterns('events.views',
