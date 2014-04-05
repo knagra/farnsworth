@@ -440,7 +440,7 @@ def member_directory_view(request):
 		if profile.status == UserProfile.RESIDENT:
 			residents.append(profile)
 		elif profile.status == UserProfile.BOARDER:
-			boarderss.append(profile)
+			boarders.append(profile)
 		elif profile.status == UserProfile.ALUMNUS:
 			alumni.append(profile)
 	return render_to_response('member_directory.html', locals(), context_instance=RequestContext(request))
