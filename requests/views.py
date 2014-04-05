@@ -50,6 +50,34 @@ def request_profile_view(request):
 		form = profileRequestForm()
 	return render(request, 'request_profile.html', locals())
 
+def generic_requests_view(request, caller_locals):
+	'''
+	Generic request view.  caller_locals should include the page name, a list of
+	relevant managers in relevant managers, 
+	'''
+	house_name = house
+	admin = ADMINS[0]
+	if request.user.is_authenticated():
+		user = request.user
+		userProfile = None
+		try:
+			userProfile = user.get_profile()
+		except:
+			pagename = "Home Page"
+			homepage = True
+			message = "No profile for you could be found.  Please contact a site admin."
+			return red_home(request, locals())
+	else:
+		user = None
+		pagename = "External"
+		homepage = True
+		return red_ext(request, locals())
+	manager = False; #if the user is a relevant manager
+	for position in caller_locals['relevant_managers']:
+		if position.incumbent == userProfile:
+			manager = True
+	
+
 def food_requests_view(request):
 	'''
 	Food requests page.  All requests generated here are alotted to Kitchen Manager 1,
@@ -57,20 +85,9 @@ def food_requests_view(request):
 	the managers it contains.
 	'''
 	pagename = "Profile Request Page"
-	house_name = house
 	relevant_managers = list()
-	admin = ADMINS[0]
 	km1 = Manager.objects.get_or_create(title="Kitchen Manager 1")
 	km2 = Manager.objects.get_or_create(title="Kitchen Manager 2")
 	relevant_managers.append(km1)
 	relevant_managers.append(km2)
-	if request.user.is_authenticated():
-		user = request.user
-		profile = user.get_profile()
-	else:
-		user = None
-		staff = False
-		pagename = "External"
-		homepage = True
-		return red_ext(request, locals())
-
+	return generic_requests_view(request, locals())

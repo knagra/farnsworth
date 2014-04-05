@@ -40,8 +40,8 @@ $(document).ready(function() {
 				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
 				<td>{{ member.user.last_name }}</td>
 				<td>{{ member.user.first_name }}</td>
-				<td>{% if member.email_visible and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
-				<td>{% if member.phone_visible and member.phone_number %}{{ member.phone_number }}{% endif %}</td>
+				<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+				<td>{% if member.phone_visible and member.phone_number or member.user == user and member.phone_number %}{{ member.phone_number }}{% endif %}</td>
 				<td>{% if member.current_room %}{{ member.current_room }}{% endif %}</td>
 			</tr>
 		{% endfor %}
@@ -70,8 +70,8 @@ $(document).ready(function() {
 				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
 				<td>{{ member.user.last_name }}</td>
 				<td>{{ member.user.first_name }}</td>
-				<td>{% if member.email_visible and member_user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
-				<td>{% if member.phone_visible and member.phone_number %}{{ member.phone_number }}{% endif %}</td>
+				<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email%}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+				<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
 			</tr>
 		{% endfor %}
 		</tbody>
@@ -100,8 +100,8 @@ $(document).ready(function() {
 				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
 				<td>{{ member.user.last_name }}</td>
 				<td>{{ member.user.first_name }}</td>
-				<td>{% if member.email_visible and member_user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
-				<td>{% if member.phone_visible and member.phone_number %}{{ member.phone_number }}{% endif %}</td>
+				<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+				<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
 				<td>{% if member.former_rooms %}{{ member.former_rooms }}{% endif %}</div>
 			</tr>
 		{% endfor %}

@@ -282,15 +282,6 @@ Remove confusion about table layout in case user enters a horizontal line.
 	color: #7e7e7e;
 }
 
-.profile_link {
-	color: #7e7e7e;
-	text-decoration: underline;
-}
-
-.profile_link:hover {
-	color: black;
-}
-
 .field_wrapper {
 	padding-top: 10px;
 	padding-bottom: 10px;

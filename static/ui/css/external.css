@@ -6,14 +6,13 @@ Author: Karandeep Singh Nagra
 
 .page_table {
 	width: 100%;
-	position: relative;
 	padding-top: 20px;
 }
 
 .page_image {
-	height: 300;
+	height: 300px;
 	width: auto;
-	position: relative;
+	max-width: 100%;
 }
 
 p {

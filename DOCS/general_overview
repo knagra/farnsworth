@@ -8,7 +8,7 @@ co-op houses.
 
 Dependencies
 ==
-Django 1.5
+Django 1.6.2
 Python 2.7
 SQLite3
 TinyMCE 4.0.21 (included in static folder)
