@@ -14,9 +14,12 @@
 	<li><a class="page_link" href="{% url 'helppage' %}" >Help Page</a> - to see some helpful information about the site.</li>
 	<li><a class="page_link" href="https://github.com/knagra/farnsworth" target="_blank" >Project Code Source</a> - to see this project's source code on <a class="page_link" href="https://github.com" target="_blank" >GitHub</a>.</li>
 	{% if user %}
-		<li><a class="page_link" href="{% url 'member_forums' %}" >Member Forums</a> - to see active member conversations.</li>
 		<li><a class="page_link" href="{% url 'homepage' %}" >Home Page</a> - to go to your home page.</li>
-		{% if staff %}
+		<li><a class="page_link" href="{% url 'member_forums' %}" >Member Forums</a> - to see active member conversations.</li>
+		<li><a class="page_link" href="{% url 'all_threads' %}" >All Threads</a> - to see all threads on this site.</li>
+		<li><a class="page_link" href="{% url 'my_threads' %}" >My Threads</a> - to see all your threads on this site.</li>
+		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - to see and update your profile or change your password.</li>
+		{% if user.is_staff %}
 			<li><a class="page_link" href="{% url 'admin:index' %}" >Admin Page</a> - to go to the site administration pages.</li>
 		{% endif %}
 		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - to logout of your account.</li>

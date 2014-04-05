@@ -20,6 +20,8 @@ urlpatterns += patterns('threads.views',
 	url(r'^login/$', 'login_view', name='login'),
 	url(r'^logout/$', 'logout_view', name='logout'),
 	url(r'^member_forums/$', 'member_forums_view', name='member_forums'),
+	url(r'^all_threads/$', 'all_threads_view', name='all_threads'),
+	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
 	url(r'^site_map/$', 'site_map_view', name='site_map'),
 	url(r'^profile/$', 'my_profile_view', name='my_profile'),
 )

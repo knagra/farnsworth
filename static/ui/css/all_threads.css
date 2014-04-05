@@ -154,6 +154,7 @@ Author: Karandeep Singh Nagra
 }
 
 .threads_table {
+	padding-bottom: 15px;
 	float: left;
 	width: 100%;
 }
@@ -252,32 +253,4 @@ Remove confusion about table layout in case user enters a horizontal line.
 #id_subject {
 	margin-bottom: 5px;
 	max-width: 75%;
-}
-
-.more_threads {
-	background: #5e5e5e;
-	border: none;
-	width: 100%;
-	clear: both;
-	text-align: center;
-}
-
-.more_threads:hover {
-	background: #fafafa;
-	color: #7e7e7e;
-	cursor: pointer;
-}
-
-.more_threads > a {
-	color: #fafafa;
-	font-size: 20pt;
-	text-decoration: none;
-	display: block;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	width: 100%;
-}
-
-.more_threads:hover > a {
-	color: #7e7e7e;
 }

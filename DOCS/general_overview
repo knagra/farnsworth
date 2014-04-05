@@ -11,4 +11,4 @@ Dependencies
 Django 1.5
 Python 2.7
 SQLite3
-Django-TinyMCE
+TinyMCE 4.0.21 (included in static folder)

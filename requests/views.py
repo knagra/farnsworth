@@ -12,6 +12,7 @@ from django.template import RequestContext
 from farnsworth.settings import house, ADMINS
 from models import ProfileRequest
 from threads.models import UserProfile
+from threads.views import red_ext, red_home
 
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
@@ -48,3 +49,28 @@ def request_profile_view(request):
 	else:
 		form = profileRequestForm()
 	return render(request, 'request_profile.html', locals())
+
+def food_requests_view(request):
+	'''
+	Food requests page.  All requests generated here are alotted to Kitchen Manager 1,
+	and Kitchen Manager 2.  This can be changed with by changing request_managers and
+	the managers it contains.
+	'''
+	pagename = "Profile Request Page"
+	house_name = house
+	relevant_managers = list()
+	admin = ADMINS[0]
+	km1 = Manager.objects.get_or_create(title="Kitchen Manager 1")
+	km2 = Manager.objects.get_or_create(title="Kitchen Manager 2")
+	relevant_managers.append(km1)
+	relevant_managers.append(km2)
+	if request.user.is_authenticated():
+		user = request.user
+		profile = user.get_profile()
+	else:
+		user = None
+		staff = False
+		pagename = "External"
+		homepage = True
+		return red_ext(request, locals())
+
