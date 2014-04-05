@@ -29,6 +29,7 @@ The HTML for {{ pagename }}.
 			<ul>
 			{% if user %}
 				<li><a href="{% url 'member_forums' %}" >Member Forums</a></li>
+				<li><a href="{% url 'member_directory' %}" >Member Directory</a></li>
 				<li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
 				<li><a href="{% url 'external' %}">External</a></li>
 				{% if user.is_staff %}

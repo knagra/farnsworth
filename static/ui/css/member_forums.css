@@ -290,3 +290,9 @@ Remove confusion about table layout in case user enters a horizontal line.
 .profile_link:hover {
 	color: black;
 }
+
+.field_wrapper {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	text-align: center;
+}

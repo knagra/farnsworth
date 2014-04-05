@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+<script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_directory.css' %}" />
+<script>
+$(document).ready(function() {
+	$('table').tablesorter({
+		sortList: [[1,0], [2,0]]
+	});
+});
+</script>
+{% endblock %}
+
+{% block content %}
+	<div class="table_container">
+		<div class="table_title">Residents</div>
+		{% if not residents %}
+			<div class="field_wrapper">Broh, no!  No current residents found.  Either {{ house_name }} is completely deserted or the database needs to be updated.</div>
+		{% else %}
+		<table class="members_table" id="residents_table">
+		<thead>
+		<tr>
+			<th>Username</th>
+			<th>Last Name</th>
+			<th>First Name</th>
+			<th>Email</th>
+			<th>Phone</th>
+			<th>Room</th>
+		</tr>
+		</thead>
+		<tbody>
+		{% for member in residents %}
+			<tr>
+				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+				<td>{{ member.user.last_name }}</td>
+				<td>{{ member.user.first_name }}</td>
+				<td>{% if member.email_visible %}{{ member.user.email }}{% endif %}</td>
+				<td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
+				<td>{{ member.current_room }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+		</table>
+		{% endif %}
+	</div>
+	<div class="table_container">
+		<div class="table_title">Boarders</div>
+		{% if not boarders %}
+			<div class="field_wrapper">It's a free, open world!  There are no borders!  ... It says "Boarders."  Awww...now I'm sad.  Ask your friends to board! or the site admin to update the database.</div>
+		{% else %}
+		<table class="members_table" id="boarders_table">
+		<thead>
+		<tr>
+			<th>Username</th>
+			<th>Last Name</th>
+			<th>First Name</th>
+			<th>Email</th>
+			<th>Phone</th>
+		</tr>
+		</thead>
+		<tbody>
+		{% for member in boarders %}
+			<tr>
+				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+				<td>{{ member.user.last_name }}</td>
+				<td>{{ member.user.first_name }}</td>
+				<td>{% if member.email_visible %}{{ member.user.email }}{% endif %}</td>
+				<td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+		</table>
+		{% endif %}
+	</div>
+	<div class="table_container">
+		<div class="table_title">Alumni</div>
+		{% if not alumni %}
+			<div class="field_wrapper">Hooj a baby co-op?  Hooj a baby co-op?  {{ house_name }}'s a baby co-op!  No alumni found in database.  Invite them to this site!</div>
+		{% else %}
+		<table class="members_table" id="alumni_table">
+		<thead>
+		<tr>
+			<th>Username</th>
+			<th>Last Name</th>
+			<th>First Name</th>
+			<th>Email</th>
+			<th>Phone</th>
+			<th>Former Rooms</th>
+		</tr>
+		</thead>
+		<tbody>
+		{% for member in alumni %}
+			<tr>
+				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+				<td>{{ member.user.last_name }}</td>
+				<td>{{ member.user.first_name }}</td>
+				<td>{% if member.email_visible %}{{ member.user.email }}{% endif %}</td>
+				<td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
+				<td>{{ member.former_rooms }}</div>
+			</tr>
+		{% endfor %}
+		</tbody>
+		</table>
+		{% endif %}
+	</div>
+{% endblock %}

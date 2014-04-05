@@ -423,7 +423,7 @@ def my_threads_view(request):
 
 def member_directory_view(request):
 	''' View of member directory. '''
-	pagename = "%s's Profile" % targetUsername
+	pagename = "Member Directory"
 	house_name = house
 	admin = ADMINS[0]
 	if request.user.is_authenticated():
@@ -437,8 +437,13 @@ def member_directory_view(request):
 	boarders = list()
 	alumni = list()
 	for profile in UserProfile.objects.all():
-		if profile.status == 'R':
-			residents.append(
+		if profile.status == UserProfile.RESIDENT:
+			residents.append(profile)
+		elif profile.status == UserProfile.BOARDER:
+			boarderss.append(profile)
+		elif profile.status == UserProfile.ALUMNUS:
+			alumni.append(profile)
+	return render_to_response('member_directory.html', locals(), context_instance=RequestContext(request))
 
 def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
@@ -454,13 +459,15 @@ def member_profile_view(request, targetUsername):
 		homepage = True
 		user = None
 		return red_ext(request, locals())
-	targetUser = User.objects.get(username=targetUsername)
-	if not targetUser:
+	try:
+		targetUser = User.objects.get(username=targetUsername)
+	except:
 		pagename = "User Not Found"
 		message = "User %s does not exist or could not be found." % targetUsername
 		return render_to_response('member_profile.html', locals(), context_instance=RequestContext(request))
-	targetProfile = targetUser.get_profile()
-	if not targetProfile:
+	try:
+		targetProfile = targetUser.get_profile()
+	except:
 		pagename = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
 		return render_to_response('member_profile.html', locals(), context_instance=RequestContext(request))

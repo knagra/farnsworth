@@ -43,7 +43,7 @@
 			</form>
 		<div class="threads_table">
 			{% if not active_threads %}
-				<div class="threads_row">No threads active in the past 7 days.</div>
+				<div class="field_wrapper">No threads active in the past 7 days.</div>
 			{% else %}
 				<div class="threads_row"><div class="table_header"><div class="thread_name">Subject</div><div class="thread_messages">Messages</div></div></div>
 			{% endif %}
@@ -88,7 +88,7 @@
 		<input class="add_thread" onclick="show_and_focus()" type="submit" value="New Thread" />
 		<div class="threads_table">
 			{% if not my_threads %}
-				<div class="threads_row">You have no threads.</div>
+				<div class="field_wrapper">You have no threads.</div>
 			{% else %}
 				<div class="threads_row"><div class="table_header"><div class="thread_name">Subject</div><div class="thread_messages">Messages</div></div></div>
 			{% endif %}
