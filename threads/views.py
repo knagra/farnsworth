@@ -32,7 +32,8 @@ def red_home(request, function_locals):
 		request - the request in the calling function
 		function_locals - the output of locals() in the calling function
 	'''
-	return render_to_response('homepage.html', function_locals, context_instance=RequestContext(request))
+	return HttpResponseRedirect(reverse('member_forums'))
+	#return render_to_response('homepage.html', function_locals, context_instance=RequestContext(request))
 
 def homepage_view(request):
 	''' The view of the homepage. '''
