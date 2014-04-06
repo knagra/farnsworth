@@ -44,6 +44,10 @@ Author: Karandeep Singh Nagra
 	height: 32px;
 }
 
+#menu * {
+	z-index: 1000;
+}
+
 #menu ul {
 	background: #5e5e5e;
 	background: linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
@@ -52,7 +56,6 @@ Author: Karandeep Singh Nagra
 	list-style: none;
 	display: inline-table;
 	width: 920px;
-	position: relative;
 	z-index: 12;
 	overflow: hidden;
 	opacity: 0.9;
@@ -107,7 +110,6 @@ Author: Karandeep Singh Nagra
 	float: none;
 	border-top: 1px solid #8b8b8b;
 	border-bottom: 1px solid #3f3f3f;
-	position: relative;
 }
 
 #menu ul ul li a {
@@ -145,13 +147,6 @@ Author: Karandeep Singh Nagra
 #content {
 	clear: both;
 	padding-left: 20px;
-	position: relative;
-}
-
-#content {
-	clear: both;
-	padding-left: 20px;
-	position: relative;
 }
 
 #footer {

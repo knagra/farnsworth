@@ -15,6 +15,10 @@ p {
 	padding-right: 10px;
 }
 
+#google_map {
+	z-index: -1;
+}
+
 #slider-wrapper {
 	padding-top: 10px;
 }
