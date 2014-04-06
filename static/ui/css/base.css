@@ -40,9 +40,8 @@ Author: Karandeep Singh Nagra
 
 #menu {
 	position: fixed;
-	z-index: 2;
-	width: 920px;
-	opacity: 0.9;
+	z-index: 12;
+	height: 32px;
 }
 
 #menu ul {
@@ -53,10 +52,10 @@ Author: Karandeep Singh Nagra
 	list-style: none;
 	display: inline-table;
 	width: 920px;
-	height: 30px;
 	position: relative;
-	z-index: 2;
+	z-index: 12;
 	overflow: hidden;
+	opacity: 0.9;
 }
 
 #menu ul ul {
@@ -71,6 +70,7 @@ Author: Karandeep Singh Nagra
 	top: 30px;
 	width: 200px;
 	height: auto;
+	z-index: 12;
 }
 
 #menu ul li:hover > ul {
@@ -144,7 +144,12 @@ Author: Karandeep Singh Nagra
 
 #content {
 	clear: both;
-	padding-bottom: 0px;
+	padding-left: 20px;
+	position: relative;
+}
+
+#content {
+	clear: both;
 	padding-left: 20px;
 	position: relative;
 }

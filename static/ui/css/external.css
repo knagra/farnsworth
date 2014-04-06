@@ -9,14 +9,12 @@ Author: Karandeep Singh Nagra
 	padding-top: 20px;
 }
 
-.page_image {
-	height: 300px;
-	width: auto;
-	max-width: 100%;
-}
-
 p {
 	padding-top: 10px;
 	padding-left: 10px;
 	padding-right: 10px;
+}
+
+#slider-wrapper {
+	padding-top: 10px;
 }

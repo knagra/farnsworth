@@ -50,6 +50,18 @@ def request_profile_view(request):
 		form = profileRequestForm()
 	return render(request, 'request_profile.html', locals())
 
+def manage_profile_requests_view(request):
+	''' The page to manager user profile requests. '''
+	pagename = "Profile Request Page"
+	house_name = house
+	admin = ADMINS[0]
+	if request.user.is_authenticated():
+		return HttpResponseRedirect(reverse('homepage'))
+	else:
+		user = None
+		staff = False
+
+
 def generic_requests_view(request, caller_locals):
 	'''
 	Generic request view.  caller_locals should include the page name, a list of

@@ -3,8 +3,28 @@
 {% load static from staticfiles %}
 
 {% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/nivo/nivo-slider.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/nivo/themes/default/default.css' %}" />
+<script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'jquery/nivo/jquery.nivo.slider.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/external.css' %}" />
+<script type="text/javascript">
+	$(window).load(function() {
+		$('#slider').nivoSlider({
+			effect: 'slideInLeft',
+			animSpeed: 800,
+			pauseTime: 5000,
+			startSlide: 0,
+			directionNav: true,
+			controlNav: true,
+			pauseOnHover: true,
+			prevText: '<',
+			nextText: '>',
+			
+		});
+	});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -25,18 +45,17 @@ Before it was purchased by the BSC, the property of Kingman Hall was known as th
 
 <p>Please visit the <a class="page_link" href="http://www.berkeleyheritage.com/" target="_blank">Berkeley Architectural Heritage Association</a>'s page on the <a class="page_link" href="http://www.berkeleyheritage.com/berkeley_landmarks/theta-xi.html" target="_blank">history of Kingman Hall</a> for more information.
 </p>
+<br />
+<br />
+{% endblock %}
 
-<p>
-<table class="page_table">
-	<tr>
-		<td><img class="page_image" src="{% static 'ui/images/house.jpg' %}" /></td>
-		<td><img class="page_image" src="{% static 'ui/images/entrance.jpg' %}" /></td>
-	</tr>
-	<tr>
-		<td><img class="page_image" src="{% static 'ui/images/map.gif' %}" /></td>
-		<td><img class="page_image" src="{% static 'ui/images/farnsworth.jpg' %}" /></td>
-	</tr>
-</table>
-</p>
-
+{% block gallery %}
+<div class="slider-wrapper theme-default">
+	<div class="ribbon"></div>
+	<div id="slider" class="nivoSlider">
+		<img class="page_image" src="{% static 'ui/images/house.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/entrance.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/map.gif' %}" />
+	</div>
+</div>
 {% endblock %}

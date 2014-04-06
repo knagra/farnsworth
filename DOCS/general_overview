@@ -14,3 +14,4 @@ SQLite3
 TinyMCE 4.0.21 (included in static folder)
 jQuery 1.11.0 (included in static/jquery folder)
 tablesorter 2.15.13 (included in static/jquery folder)
+Nivo Slider 3.2 (included in static/jquery folder)
