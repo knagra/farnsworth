@@ -12,6 +12,7 @@ The HTML for {{ pagename }}.
 <head>
 	<title>{{ house_name }} - {{ pagename }}</title>
 	{% load static from staticfiles %}
+	<link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
 	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
 	{% block headers %} {% endblock %}
 </head>
@@ -25,9 +26,8 @@ The HTML for {{ pagename }}.
 			<li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>
 		{% else %}
 			<li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
-			<li><a class="menu_link" href="{% url 'request_profile' %}">Create Account</a></li>
+			<li><a class="menu_link" href="{% url 'request_profile' %}">Request Account</a></li>
 		{% endif %}
-			<li><a class="menu_link" href="{% url 'helppage' %}" >Help</a></li>
 			<li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" >Go+</a>
 			<ul>
 			{% if user %}
@@ -42,6 +42,7 @@ The HTML for {{ pagename }}.
 				<li><a href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
 			</ul>
 			</li>
+			<li><a class="menu_link" href="{% url 'helppage' %}" >Help</a></li>
 		</ul>
 	</div>
 	<div id="body">
