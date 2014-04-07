@@ -9,8 +9,9 @@ Author: Karandeep Singh Nagra
 	border: 1px solid #7e7e7e;
 	position: relative;
 	width: 860px;
-	margin: 30px auto;
+	margin: 30px 10px;
 	font-size: 15pt;
+	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
 	overflow: hidden;
 }
 

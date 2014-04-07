@@ -27,6 +27,7 @@ The HTML for {{ pagename }}.
 			<li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
 			<li><a class="menu_link" href="{% url 'request_profile' %}">Create Account</a></li>
 		{% endif %}
+			<li><a class="menu_link" href="{% url 'helppage' %}" >Help</a></li>
 			<li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" >Go+</a>
 			<ul>
 			{% if user %}
@@ -41,7 +42,6 @@ The HTML for {{ pagename }}.
 				<li><a href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
 			</ul>
 			</li>
-			<li><a class="menu_link" href="{% url 'helppage' %}" >Help</a></li>
 		</ul>
 	</div>
 	<div id="body">

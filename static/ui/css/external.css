@@ -13,12 +13,16 @@ p {
 	padding-top: 10px;
 	padding-left: 10px;
 	padding-right: 10px;
+	clear: left;
+}
+
+.slider-wrapper {
+	width: 100%;
+	z-index: -1;
+	padding-top: 20px;
 }
 
 #google_map {
-	z-index: -1;
-}
-
-#slider-wrapper {
-	padding-top: 10px;
+	padding-top: 20px;
+	padding-left: 140px;
 }
