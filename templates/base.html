@@ -5,12 +5,12 @@ Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 
-The HTML for {{ pagename }}.
+The HTML for {{ page_name }}.
 -->
 
 <html>
 <head>
-	<title>{{ house_name }} - {{ pagename }}</title>
+	<title>{{ house }} - {{ page_name }}</title>
 	{% load static from staticfiles %}
 	<link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
 	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
@@ -21,7 +21,7 @@ The HTML for {{ pagename }}.
 	<div id="menu">
 		<ul>
 			<li><a class="menu_link" href="{% url 'homepage' %}" >Home</a></li>
-		{% if user %}
+		{% if user.is_authenticated %}
 			<li><a class="menu_link" href="{% url 'my_profile' %}">Profile ({{ user.username }})</a></li>
 			<li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>
 		{% else %}
@@ -30,16 +30,19 @@ The HTML for {{ pagename }}.
 		{% endif %}
 			<li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" >Go+</a>
 			<ul>
-			{% if user %}
+			{% if user.is_authenticated %}
 				<li><a href="{% url 'member_forums' %}" >Member Forums</a></li>
 				<li><a href="{% url 'member_directory' %}" >Member Directory</a></li>
 				<li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
 				<li><a href="{% url 'external' %}">External</a></li>
 				{% if user.is_staff %}
-					<li><a href="{% url 'admin:index' %}" >Admin</a></li>
-				{% endif %}
-				{% if user.is_superuser %}
-					<li><a href="{% url 'custom_add_user' %}" >Add User</a></li>
+					<li><a href="{% url 'admin:index' %}" >Admin</a>
+					{% if user.is_superuser %}
+						<ul>	<li><a href="{% url 'custom_add_user' %}" >Add User</a></li>
+							<li><a href="{% url 'admin:index' %}">Django Admin</a></li>
+						</ul>
+					{% endif %}
+					</li>
 				{% endif %}
 			{% endif %}
 				<li><a href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
@@ -50,10 +53,10 @@ The HTML for {{ pagename }}.
 	</div>
 	<div id="body">
 		<div id="title">
-			{% if homepage %}
-				<h1 id="page_title">Welcome to {{ house_name }}</h1>
+			{% if page_name == "Home Page" or page_name == "External" %}
+				<h1 id="page_title">Welcome to {{ house }}</h1>
 			{% else %}
-				<h1 id="page_title">{{ house_name}} - {{pagename}}</h1>
+				<h1 id="page_title">{{ house}} - {{page_name}}</h1>
 			{% endif %}
 		</div> <!-- close "title" -->
 		<hr>

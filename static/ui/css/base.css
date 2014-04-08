@@ -122,6 +122,13 @@ Author: Karandeep Singh Nagra
 	color: #fafafa;
 }
 
+#menu ul ul ul {
+	position: absolute;
+	left: 100%;
+	top: 0;
+	width: 175px;
+}
+
 #body {
 	clear: both;
 	position: relative;

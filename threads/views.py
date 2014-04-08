@@ -16,89 +16,57 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
 
-def red_ext(request, function_locals):
+def red_ext(request, message=None):
 	'''
-	Convenience function for redirecting users who don't have site access to the external page.
+	The external landing.
+	Also a convenience function for redirecting users who don't have site access to the external page.
 	Parameters:
 		request - the request in the calling function
-		function_locals - the output of locals() in the calling function
+		message - a message from the caller function
 	'''
-	return render_to_response('external.html', function_locals, context_instance=RequestContext(request))
+	if message:
+		return render_to_response('external.html', {'message': message, 'house': house, 'admin': ADMINS[0], 'page_name': "External"}, context_instance=RequestContext(request))
+	else:
+		return render_to_response('external.html', {'house': house, 'admin': ADMINS[0], 'page_name': "External"}, context_instance=RequestContext(request))
 
-def red_home(request, function_locals):
+
+def red_home(request, message):
 	'''
 	Convenience function for redirecting users who don't have access to a page to the home page.
 	Parameters:
 		request - the request in the calling function
-		function_locals - the output of locals() in the calling function
+		message - a message from the caller function
 	'''
 	return HttpResponseRedirect(reverse('member_forums'))
 	#return render_to_response('homepage.html', function_locals, context_instance=RequestContext(request))
 
 def homepage_view(request):
 	''' The view of the homepage. '''
-	homepage = True
-	pagename = "Home Page"
-	house_name = house
-	admin = ADMINS[0]
 	if request.user.is_authenticated():
-		user = request.user
-		return red_home(request, locals())
+		return red_home(request, None)
 	else:
-		user = None
-		return red_ext(request, locals())
-
-def external_view(request):
-	''' The external landing. '''
-	homepage = True
-	pagename = "External"
-	admin = ADMINS[0]
-	house_name = house
-	if request.user.is_authenticated():
-		user = request.user
-	else:
-		user = None
-	return red_ext(request, locals())
+		return red_ext(request, None)
 
 def help_view(request):
 	''' The view of the helppage. '''
-	pagename = "Help Page"
-	house_name = house
-	admin = ADMINS[0]
-	if request.user.is_authenticated():
-		user = request.user
-	else:
-		user = None
-	return render_to_response('helppage.html', locals(), context_instance=RequestContext(request))
+	page_name = "Help Page"
+	return render_to_response('helppage.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0]},  context_instance=RequestContext(request))
 
 def site_map_view(request):
 	''' The view of the site map. '''
-	pagename = "Site Map"
-	house_name = house
-	admin = ADMINS[0]
-	if request.user.is_authenticated():
-		user = request.user
-	else:
-		user = None
-	return render_to_response('site_map.html', locals(), context_instance=RequestContext(request))
+	page_name = "Site Map"
+	return render_to_response('site_map.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0]}, context_instance=RequestContext(request))
 
 def my_profile_view(request):
 	''' The view of the profile page. '''
-	pagename = "Profile Page"
-	house_name = house
-	admin = ADMINS[0]
+	page_name = "Profile Page"
 	if request.user.is_authenticated():
-		user = request.user
-		userProfile = user.get_profile()
+		userProfile = request.user.get_profile()
 		if not userProfile:
 			message = "A profile for you could not be found.  Please contact an admin for support."
-			return red_ext(request, locals())
+			return red_ext(request, message)
 	else:
-		user = None
-		userProfile = None
-		homepage = True
-		pagename = "External"
-		return red_ext(request, locals())
+		return HttpResponseRedirect(reverse('login'))
 	class ChangePasswordForm(forms.Form):
 		current_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 		new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
@@ -131,6 +99,7 @@ def my_profile_view(request):
 							change_password_form = ChangePasswordForm()
 						else:
 							password_non_field_error = "Password didn't hash properly.  Please try again."
+							return render_to_response('my_profile.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'password_non_field_error': password_non_field_error}, context_instance=RequestContext(request))
 					else:
 						change_password_form._errors['new_password'] = forms.util.ErrorList([u"Passwords don't match."])
 						change_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
@@ -158,27 +127,25 @@ def my_profile_view(request):
 					userProfile.save()
 					profile_non_field_error = "Your profile has been updated."
 					update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
+					return render_to_response('my_profile.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'profile_non_field_error': profile_non_field_error}, context_instance=RequestContext(request))
 				else:
 					update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
 		else:
-			pagename = "Home Page"
 			message = "Your request at /profile/ could not be processed.  Please contact an admin for support."
-			return red_home(request, locals())
-	return render_to_response('my_profile.html', locals(), context_instance=RequestContext(request))
+			return red_home(request, message)
+	return render_to_response('my_profile.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form}, context_instance=RequestContext(request))
 
 def login_view(request):
 	''' The view of the login page. '''
-	pagename = "Login Page"
-	house_name = house
-	admin = ADMINS[0]
+	page_name = "Login Page"
+	non_field_error = None
 	if request.user.is_authenticated():
 		return HttpResponseRedirect(reverse('homepage'))
-	user = None
-	class loginForm(forms.Form):
+	class LoginForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	if request.method == 'POST':
-		form = loginForm(request.POST)
+		form = LoginForm(request.POST)
 		if form.is_valid():
 			username = form.cleaned_data['username']
 			password = form.cleaned_data['password']
@@ -197,8 +164,11 @@ def login_view(request):
 			except:
 				non_field_error = "User not found"
 	else:
-		form = loginForm()
-	return render(request, 'login.html', locals())
+		form = LoginForm()
+	if non_field_error:
+		return render_to_response('login.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'form': form, 'non_field_error': non_field_error}, context_instance=RequestContext(request))
+	else:
+		return render_to_response('login.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'form': form}, context_instance=RequestContext(request))
 
 def logout_view(request):
 	''' Log the user out. '''
@@ -207,25 +177,16 @@ def logout_view(request):
 
 def member_forums_view(request):
 	''' Forums for current members. '''
-	pagename = "Member Forums"
-	house_name = house
-	admin = ADMINS[0]
-	userProfile = None
+	page_name = "Member Forums"
 	if request.user.is_authenticated():
-		user = request.user
-		userProfile = user.get_profile()
+		userProfile = request.user.get_profile()
 		if not userProfile:
-			pagename = "Home Page"
-			homepage = True
 			message = "A profile for you could not be found.  Please contact an admin for support."
-			return red_ext(request, locals())
+			return red_ext(request, message)
 	else:
-		user = None
-		pagename = "External"
-		homepage = True
-		return red_ext(request, locals())
+		return HttpResponseRedirect(reverse('login'))
 	class ThreadForm(forms.Form):
-		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
+		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}), required=False)
 		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
@@ -252,17 +213,15 @@ def member_forums_view(request):
 				thread.number_of_messages += 1
 				thread.save()
 		else:
-			pagename = "Home Page"
-			homepage = True
 			message = "Your request at /member_forums/ could not be processed.  Please contact an admin for support."
-			return red_home(request, locals())
+			return red_home(request, message)
 	week_ago = timezone.now() - datetime.timedelta(days=7)
 	active_messages = list()
 	my_messages = list()
 	for message in Message.objects.all():
 		if week_ago < message.post_date:
 			active_messages.append(message)
-		if message.owner.user == user:
+		if message.owner.user == request.user:
 			my_messages.append(message)
 	active_threads = list()
 	my_threads = list()
@@ -293,27 +252,18 @@ def member_forums_view(request):
 			if (message not in my_messages) and (message.thread == thread):
 				my_messages.append(message)
 	thread_form = ThreadForm()
-	return render_to_response('member_forums.html', locals(), context_instance=RequestContext(request))
+	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'active_threads': active_threads, 'my_threads': my_threads, 'active_message_forms': active_message_forms, 'my_message_forms': my_message_forms, 'thread_form': thread_form, 'active_messages': active_messages, 'my_messages': my_messages}, context_instance=RequestContext(request))
 
 def all_threads_view(request):
 	''' View of all threads. '''
-	pagename = "All Threads"
-	house_name = house
-	admin = ADMINS[0]
-	userProfile = None
+	page_name = "All Threads"
 	if request.user.is_authenticated():
-		user = request.user
-		userProfile = user.get_profile()
+		userProfile = request.user.get_profile()
 		if not userProfile:
-			pagename = "Home Page"
-			homepage = True
 			message = "A profile for you could not be found.  Please contact an admin for support."
-			return red_ext(request, locals())
+			return red_ext(request, message)
 	else:
-		pagename = "External"
-		homepage = True
-		user = None
-		return red_ext(request, locals())
+		return HttpResponseRedirect(reverse('login'))
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
 		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
@@ -342,10 +292,8 @@ def all_threads_view(request):
 				thread.number_of_messages += 1
 				thread.save()
 		else:
-			pagename = "Home Page"
-			homepage = True
 			message = "Your request at /all_threads/ could not be processed.  Please contact an admin for support."
-			return red_home(request, locals())
+			return red_home(request, message)
 	all_threads = Thread.objects.all()
 	all_messages = Message.objects.all()
 	message_forms = list()
@@ -354,27 +302,18 @@ def all_threads_view(request):
 		form.fields['thread_pk'].widget = forms.HiddenInput()
 		message_forms.append(form)
 	thread_form = ThreadForm()
-	return render_to_response('all_threads.html', locals(), context_instance=RequestContext(request))
+	return render_to_response('all_threads.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'all_threads': all_threads, 'all_messages': all_messages, 'message_forms': message_forms, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def my_threads_view(request):
 	''' View of my threads. '''
-	pagename = "My Threads"
-	house_name = house
-	admin = ADMINS[0]
-	userProfile = None
+	page_name = "My Threads"
 	if request.user.is_authenticated():
-		user = request.user
-		userProfile = user.get_profile()
+		userProfile = request.user.get_profile()
 		if not userProfile:
-			pagename = "Home Page"
-			homepage = True
 			message = "A profile for you could not be found.  Please contact an admin for support."
-			return red_ext(request, locals())
+			return red_ext(request, message)
 	else:
-		pagename = "External"
-		homepage = True
-		user = None
-		return red_ext(request, locals())
+		return HttpResponseRedirect(reverse('login'))
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
 		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
@@ -403,16 +342,14 @@ def my_threads_view(request):
 				thread.number_of_messages += 1
 				thread.save()
 		else:
-			pagename = "Home Page"
-			homepage = True
 			message = "Your request at /my_threads/ could not be processed.  Please contact an admin for support."
-			return red_home(request, locals())
+			return red_home(request, message)
 	my_messages = list()
 	my_threads = list()
 	message_forms = list()
 	my_thread_messages = list()
 	for message in Message.objects.all():
-		if message.owner.user == user:
+		if message.owner.user == request.user:
 			my_messages.append(message)
 	for message in my_messages:
 		if message.thread not in my_threads:
@@ -425,20 +362,13 @@ def my_threads_view(request):
 			if (message not in my_thread_messages) and (message.thread == thread):
 				my_thread_messages.append(message)
 	thread_form = ThreadForm()
-	return render_to_response('my_threads.html', locals(), context_instance=RequestContext(request))
+	return render_to_response('my_threads.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'my_messages': my_messages, 'my_threads': my_threads, 'message_forms': message_forms, 'my_thread_messages': my_thread_messages, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def member_directory_view(request):
 	''' View of member directory. '''
-	pagename = "Member Directory"
-	house_name = house
-	admin = ADMINS[0]
-	if request.user.is_authenticated():
-		user = request.user
-	else:
-		pagename = "External"
-		homepage = True
-		user = None
-		return red_ext(request, locals())
+	page_name = "Member Directory"
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect(reverse('login'))
 	residents = list()
 	boarders = list()
 	alumni = list()
@@ -449,35 +379,28 @@ def member_directory_view(request):
 			boarders.append(profile)
 		elif profile.status == UserProfile.ALUMNUS:
 			alumni.append(profile)
-	return render_to_response('member_directory.html', locals(), context_instance=RequestContext(request))
+	return render_to_response('member_directory.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
 def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
-	pagename = "%s's Profile" % targetUsername
-	house_name = house
-	admin = ADMINS[0]
-	userProfile = None
+	page_name = "%s's Profile" % targetUsername
 	if request.user.is_authenticated():
-		user = request.user
-		userProfile = user.get_profile()
+		userProfile = request.user.get_profile()
 	else:
-		pagename = "External"
-		homepage = True
-		user = None
-		return red_ext(request, locals())
+		return HttpResponseRedirect(reverse('login'))
 	try:
 		targetUser = User.objects.get(username=targetUsername)
 	except:
-		pagename = "User Not Found"
+		page_name = "User Not Found"
 		message = "User %s does not exist or could not be found." % targetUsername
-		return render_to_response('member_profile.html', locals(), context_instance=RequestContext(request))
+		return render_to_response('member_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'message': message}, context_instance=RequestContext(request))
 	try:
 		targetProfile = targetUser.get_profile()
 	except:
-		pagename = "Profile Not Found"
+		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
-		return render_to_response('member_profile.html', locals(), context_instance=RequestContext(request))
-	if targetProfile == user.get_profile():
+		return render_to_response('member_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'message': message}, context_instance=RequestContext(request))
+	if targetProfile == request.user.get_profile():
 		return HttpResponseRedirect(reverse('my_profile'))
 	else:
-		return render_to_response('member_profile.html', locals(), context_instance=RequestContext(request))
+		return render_to_response('member_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'targetProfile': targetProfile}, context_instance=RequestContext(request))
