@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/custom_add_user.css' %}" />
+{% endblock %}
+
+{% block content %}
+	<div id="add_user_form">
+		<div id="add_user_title">Request a User Profile</div>
+		<div class="fieldWrapper">{{ non_field_error }}</div>
+		<form method="post" action="">
+			{% csrf_token %}
+			<table id="add_user_table">
+				{{ add_user_form }}
+			</table>
+			<input id="button" type="submit" value="Add User" />
+		</form>
+	</div>
+{% endblock %}

@@ -34,6 +34,7 @@ urlpatterns += patterns('events.views',
 
 urlpatterns += patterns('requests.views',
 	url(r'^request_profile/$', 'request_profile_view', name='request_profile'),
+	url(r'^custom_admin/custom_add_user/$', 'custom_add_user_view', name='custom_add_user')
 )
 
 # Catch any other urls here

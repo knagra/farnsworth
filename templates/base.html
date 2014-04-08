@@ -38,6 +38,9 @@ The HTML for {{ pagename }}.
 				{% if user.is_staff %}
 					<li><a href="{% url 'admin:index' %}" >Admin</a></li>
 				{% endif %}
+				{% if user.is_superuser %}
+					<li><a href="{% url 'custom_add_user' %}" >Add User</a></li>
+				{% endif %}
 			{% endif %}
 				<li><a href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
 			</ul>
