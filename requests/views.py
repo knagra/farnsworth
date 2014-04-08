@@ -8,6 +8,7 @@ from django.shortcuts import render_to_response, render
 from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User, Group
 from django.template import RequestContext
 from farnsworth.settings import house, ADMINS
 from models import ProfileRequest
@@ -61,6 +62,60 @@ def manage_profile_requests_view(request):
 		user = None
 		staff = False
 
+def add_user_view(request):
+	''' The page to add a new user. '''
+	pagename = "Admin - Add User"
+	house_name = house
+	admin = ADMINS[0]
+	if request.user.is_authenticated():
+		user = request.user
+		if not user.is_superuser:
+			pagename = "Home Page"
+			homepage = True
+			message = "The page /custom_admin/add_user/ is restricted to superadmins."
+			red_home(request, locals())
+	else:
+		pagename = "Home Page"
+		homepage = True	
+		red_home(request, locals())
+	class addUserForm(forms.Form):
+		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
+		email_visible_to_others = forms.BooleanField(required=False)
+		phone = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
+		phone_visible_to_others = forms.BooleanField(required=False)
+		status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
+		current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}))
+		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		is_active = forms.BooleanField(required=False)
+		is_staff = forms.BooleanField(required=False)
+		is_superuser = forms.BooleanField(required=False)
+		groups = forms.MultipleChoiceField(choices=Group.objects.all(), widget=forms.widgets.SelectMultiple, required=False)
+		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	add_user_form = addUserForm(initial={'status': UserProfile.RESIDENT)
+	if request.method == 'POST':
+		add_user_form = addUserForm(request.POST):
+		if add_user_form.is_valid():
+			username = add_user_form.cleaned_data['username']
+			first_name = add_user_form.cleaned_data['first_name']
+			last_name = add_user_form.cleaned_data['last_name']
+			email = add_user_form.cleaned_data['email']
+			email_visible_to_others = add_user_form.cleaned_data['email_visible_to_others']
+			phone = add_user_form.cleaned_data['phone']
+			phone_visible_to_others = add_user_form.cleaned_data['phone_visible_to_others']
+			status = add_user_form.cleaned_data['status']
+			current_room = add_user_form.cleaned_data['current_room']
+			former_rooms = add_user_form.cleaned_data['former_rooms']
+			is_active = add_user_form.cleaned_data['is_active']
+			is_staff = add_user_form.cleaned_data['is_staff']
+			is_superuser = add_user_form.cleaned_data['is_superuser']
+			groups = add_user_form.cleaned_data['groups']
+			user_password = add_user_form.cleaned_data['user_password']
+			confirm_password = add_user_form.cleaned_data['confirm_password']
+			
 
 def generic_requests_view(request, caller_locals):
 	'''
