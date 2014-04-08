@@ -182,15 +182,20 @@ def login_view(request):
 		if form.is_valid():
 			username = form.cleaned_data['username']
 			password = form.cleaned_data['password']
-			user = authenticate(username=username, password=password)
-			if user is not None:
-				if user.is_active:
-					login(request, user)
-					return HttpResponseRedirect(reverse('homepage'))
-				else:
-					non_field_error = "Your account is not active.  Please contact the site administrator to activate your account."
-			else:
-				non_field_error = "Invalid username/password combo"
+			try:
+				temp_user = User.objects.get(username=username)
+				if temp_user is not None:
+					if temp_user.is_active:
+						user = authenticate(username=username, password=password)
+						if user is not None:
+							login(request, user)
+							return HttpResponseRedirect(reverse('homepage'))
+						else:
+							non_field_error = "Invalid username/password combo"
+					else:
+						non_field_error = "Your account is not active.  Please contact the site administrator to activate your account."
+			except:
+				non_field_error = "User not found"
 	else:
 		form = loginForm()
 	return render(request, 'login.html', locals())
