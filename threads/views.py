@@ -61,6 +61,7 @@ def my_profile_view(request):
 	''' The view of the profile page. '''
 	page_name = "Profile Page"
 	if request.user.is_authenticated():
+		user = request.user
 		userProfile = request.user.get_profile()
 		if not userProfile:
 			message = "A profile for you could not be found.  Please contact an admin for support."
@@ -403,4 +404,4 @@ def member_profile_view(request, targetUsername):
 	if targetProfile == request.user.get_profile():
 		return HttpResponseRedirect(reverse('my_profile'))
 	else:
-		return render_to_response('member_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'targetProfile': targetProfile}, context_instance=RequestContext(request))
+		return render_to_response('member_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'targetUser': targetUser, 'targetProfile': targetProfile}, context_instance=RequestContext(request))

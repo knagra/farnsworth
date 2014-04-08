@@ -11,9 +11,9 @@
 	<div id="user_profile">
 		<div id="table_title">
 			{% if targetUser %}
-				{{ targetUsername }}'s Profile
+				{{ targetUser.username }}'s Profile
 			{% else %}
-				User {{ targetUsername }} Not Found
+				User {{ targetUser.username }} Not Found
 			{% endif %}
 		</div>
 		{% if message %}
