@@ -9,7 +9,7 @@
 
 {% block content %}
 	<div id="user_profile">
-		<div id="table_title">
+		<div id="table_title" class="farnsworth_header">
 			{% if targetUser %}
 				{{ targetUser.username }}'s Profile
 			{% else %}
@@ -33,6 +33,6 @@
 				{% endif %}
 			</table>
 		{% endif %}
-		<div id="directory"><a href="{% url 'member_directory' %}" >Go to Member Directory</a></div>
+		<div id="directory"><a class="button" href="{% url 'member_directory' %}" >Go to Member Directory</a></div>
 	</div>
 {% endblock %}

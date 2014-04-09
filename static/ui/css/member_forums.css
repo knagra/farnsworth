@@ -49,7 +49,7 @@ Author: Karandeep Singh Nagra
 	background: #fafafa;
 	border-left: none;
 	border-bottom: 1px solid #5e5e5e;
-	color: #5e5e5e;
+	color: black;
 	cursor: pointer;
 }
 
@@ -92,6 +92,7 @@ Author: Karandeep Singh Nagra
 	border-bottom: none;
 	border-right: 1px solid #3f3f3f;
 	float: left;
+	font-weight: 300;
 }
 
 .cancel_message_form {
@@ -107,6 +108,7 @@ Author: Karandeep Singh Nagra
 	border-bottom: none;
 	border-left: 1px solid #8b8b8b;
 	clear: left;
+	font-weight: 300;
 }
 
 .add_message {
@@ -118,17 +120,18 @@ Author: Karandeep Singh Nagra
 	padding-top: 5px;
 	padding-bottom: 5px;
 	height: 30px;
+	font-weight: 300;
 }
 
 .add_message:hover {
 	background: #fafafa;
-	color: #7e7e7e;
+	color: black;
 	cursor: pointer;
 }
 
 .submit_message_form:hover {
 	background: #fafafa;
-	color: #7e7e7e;
+	color: black;
 	border-top: 1px solid #7e7e7e;
 	cursor: pointer;
 	border-left: none;
@@ -137,7 +140,7 @@ Author: Karandeep Singh Nagra
 
 .cancel_message_form:hover {
 	background: #fafafa;
-	color: #7e7e7e;
+	color: black;
 	border-top: 1px solid #7e7e7e;
 	cursor: pointer;
 	border-left: none;
@@ -146,7 +149,7 @@ Author: Karandeep Singh Nagra
 
 .button:hover {
 	background: #fafafa;
-	color: #7e7e7e;
+	color: black;
 	border-top: 1px solid #7e7e7e;
 	border-bottom: 1px solid #7e7e7e;
 	cursor: pointer;
@@ -265,7 +268,7 @@ Remove confusion about table layout in case user enters a horizontal line.
 
 .more_threads:hover {
 	background: #fafafa;
-	color: #7e7e7e;
+	color: black;
 	cursor: pointer;
 }
 
@@ -280,7 +283,7 @@ Remove confusion about table layout in case user enters a horizontal line.
 }
 
 .more_threads:hover > a {
-	color: #7e7e7e;
+	color: black;
 }
 
 .field_wrapper {

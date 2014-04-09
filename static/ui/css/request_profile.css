@@ -33,7 +33,7 @@ Author: Karandeep Singh Nagra
 	padding-left: 10px;
 }
 
-#button {
+.button {
 	background: #5e5e5e;
 	color: #fafafa;
 	font-size: 15pt;
@@ -45,9 +45,9 @@ Author: Karandeep Singh Nagra
 	padding-left: 0px;
 }
 
-#button:hover {
+.button:hover {
 	background: #fafafa;
-	color: #7e7e7e;
+	color: black;
 	border-top: 1px solid #7e7e7e;
 	cursor: pointer;
 }

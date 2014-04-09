@@ -92,6 +92,7 @@ Author: Karandeep Singh Nagra
 	border-bottom: none;
 	border-right: 1px solid #3f3f3f;
 	float: left;
+	font-weight: 300;
 }
 
 .cancel_message_form {
@@ -107,6 +108,7 @@ Author: Karandeep Singh Nagra
 	border-bottom: none;
 	border-left: 1px solid #8b8b8b;
 	clear: left;
+	font-weight: 300;
 }
 
 .add_message {
@@ -118,6 +120,7 @@ Author: Karandeep Singh Nagra
 	padding-top: 5px;
 	padding-bottom: 5px;
 	height: 30px;
+	font-weight: 300;
 }
 
 .add_message:hover {

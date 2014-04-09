@@ -9,7 +9,7 @@
 
 {% block content %}
 	<div id="update_profile">
-		<div class="title">Update Your Profile</div>
+		<div class="title farnsworth_header">Update Your Profile</div>
 		<div class="fieldWrapper">{{ profile_non_field_error }}</div>
 		<form method="post" action="">
 			{% csrf_token %}
@@ -20,7 +20,7 @@
 		</form>
 	</div>
 	<div id="change_password">
-		<div class="title">Change Password</div>
+		<div class="title farnsworth_header">Change Password</div>
 		<div class="fieldWrapper">{{ password_non_field_error }}</div>
 		<form method="post" action="">
 			{% csrf_token %}

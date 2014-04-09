@@ -23,6 +23,9 @@
 		{% if user.is_staff %}
 			<li><a class="page_link" href="{% url 'admin:index' %}" >Admin Page</a> - to go to the site administration pages.</li>
 		{% endif %}
+		{% if user.is_superuser %}
+			<li><a class="page_link" href="{% url 'custom_add_user' %}" >Add User</a> - to add a new user to the site.</li>
+		{% endif %}
 		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - to logout of your account.</li>
 	{% else %}
 		<li><a class="page_link" href="{% url 'login' %}" >Login Page</a> - to login to an existing member account.</li>

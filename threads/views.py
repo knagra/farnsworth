@@ -216,11 +216,11 @@ def member_forums_view(request):
 		else:
 			message = "Your request at /member_forums/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
-	week_ago = timezone.now() - datetime.timedelta(days=7)
+	three_days_ago = timezone.now() - datetime.timedelta(days=3)
 	active_messages = list()
 	my_messages = list()
 	for message in Message.objects.all():
-		if week_ago < message.post_date:
+		if three_days_ago < message.post_date:
 			active_messages.append(message)
 		if message.owner.user == request.user:
 			my_messages.append(message)

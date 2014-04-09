@@ -29,20 +29,24 @@ $(document).ready(function() {
 			<th>Username</th>
 			<th>Last Name</th>
 			<th>First Name</th>
+			<th>Active</th>
+			<th>Staff</th>
+			<th>Superuser</th>
 			<th>Email</th>
 			<th>Phone</th>
-			<th>Room</th>
 		</tr>
 		</thead>
 		<tbody>
 		{% for member in residents %}
 			<tr>
-				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+				<td><a class="page_link" href="{% url 'custom_modify_user' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
 				<td>{{ member.user.last_name }}</td>
 				<td>{{ member.user.first_name }}</td>
+				<td>{% if  member.user.is_active %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
+				<td>{% if  member.user.is_staff %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
+				<td>{% if  member.user.is_superuser %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
 				<td>{% if member.phone_visible and member.phone_number or member.user == user and member.phone_number %}{{ member.phone_number }}{% endif %}</td>
-				<td>{% if member.current_room %}{{ member.current_room }}{% endif %}</td>
 			</tr>
 		{% endfor %}
 		</tbody>
@@ -52,7 +56,7 @@ $(document).ready(function() {
 	<div class="table_container">
 		<div class="table_title farnsworth_header">Boarders</div>
 		{% if not boarders %}
-			<div class="field_wrapper">It's a free, open world!  There are no borders!  ... It says "Boarders."  Awww...now I'm sad.  Ask your friends to board! or the site admin to update the database.</div>
+			<div class="field_wrapper">It's a free, open world!  There are no borders!  ... It says "Boarders."  Awww...now I'm sad.  Ask your friends to board! or update the database.</div>
 		{% else %}
 		<table class="members_table" id="boarders_table">
 		<thead>
@@ -60,6 +64,9 @@ $(document).ready(function() {
 			<th>Username</th>
 			<th>Last Name</th>
 			<th>First Name</th>
+			<th>Active</th>
+			<th>Staff</th>
+			<th>Superuser</th>
 			<th>Email</th>
 			<th>Phone</th>
 		</tr>
@@ -67,9 +74,12 @@ $(document).ready(function() {
 		<tbody>
 		{% for member in boarders %}
 			<tr>
-				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+				<td><a class="page_link" href="{% url 'custom_modify_user' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
 				<td>{{ member.user.last_name }}</td>
 				<td>{{ member.user.first_name }}</td>
+				<td>{% if  member.user.is_active %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
+				<td>{% if  member.user.is_staff %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
+				<td>{% if  member.user.is_superuser %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email%}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
 				<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
 			</tr>
@@ -89,20 +99,24 @@ $(document).ready(function() {
 			<th>Username</th>
 			<th>Last Name</th>
 			<th>First Name</th>
+			<th>Active</th>
+			<th>Staff</th>
+			<th>Superuser</th>
 			<th>Email</th>
 			<th>Phone</th>
-			<th>Former Rooms</th>
 		</tr>
 		</thead>
 		<tbody>
 		{% for member in alumni %}
 			<tr>
-				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+				<td><a class="page_link" href="{% url 'custom_modify_user' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
 				<td>{{ member.user.last_name }}</td>
 				<td>{{ member.user.first_name }}</td>
+				<td>{% if  member.user.is_active %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
+				<td>{% if  member.user.is_staff %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
+				<td>{% if  member.user.is_superuser %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
 				<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
-				<td>{% if member.former_rooms %}{{ member.former_rooms }}{% endif %}</div>
 			</tr>
 		{% endfor %}
 		</tbody>

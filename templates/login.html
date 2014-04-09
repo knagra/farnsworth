@@ -9,14 +9,14 @@
 
 {% block content %}
 	<div id="login_form">
-		<div id="login_form_title">Login</div>
+		<div id="login_form_title" class="farnsworth_header">Login</div>
 		<div class="fieldWrapper">{{ non_field_error }}</div>
 		<form method="post" action="">
 			{% csrf_token %}
 			<table id="login_form_table">
 				{{ form.as_table }}
 			</table>
-			<input id="button" type="submit" value="Enter" />
+			<input class="button" type="submit" value="Enter" />
 		</form>
 	</div>
 {% endblock %}

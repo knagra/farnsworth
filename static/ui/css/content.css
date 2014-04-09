@@ -12,3 +12,11 @@ Author: Karandeep Singh Nagra
 .page_link:hover {
 	color: black;
 }
+
+.farnsworth_header {
+	font-weight: 200;
+}
+
+.button {
+	font-weight: 300;
+}

@@ -9,14 +9,14 @@
 
 {% block content %}
 	<div id="profile_request_form">
-		<div id="profile_request_title">Request a User Profile</div>
+		<div id="profile_request_title" class="farnsworth_header">Request a User Profile</div>
 		<div class="fieldWrapper">{{ non_field_error }}</div>
 		<form method="post" action="">
 			{% csrf_token %}
 			<table id="profile_request_table">
 				{{ form.as_table }}
 			</table>
-			<input id="button" type="submit" value="Submit Request" />
+			<input class="button" type="submit" value="Submit Request" />
 		</form>
 	</div>
 {% endblock %}

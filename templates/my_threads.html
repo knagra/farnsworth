@@ -27,8 +27,8 @@
 	}
 </script>
 	<div class="threads">
-		<div class="threads_title">My Threads</div>
-		<input class="add_thread" onclick="show_new_thread_form()" type="submit" value="New Thread" />
+		<div class="threads_title farnsworth_header">My Threads</div>
+		<input class="add_thread farnsworth_header" onclick="show_new_thread_form()" type="submit" value="New Thread" />
 			<form id="new_thread_form" method="post" action="">
 				{% csrf_token %}
 				<table id="new_thread_table">

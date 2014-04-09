@@ -58,7 +58,7 @@ Author: Karandeep Singh Nagra
 
 .button:hover {
 	background: #fafafa;
-	color: #7e7e7e;
+	color: black;
 	border-top: 1px solid #7e7e7e;
 	cursor: pointer;
 }

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/custom_modify_user.css' %}" />
+{% endblock %}
+
+{% block content %}
+	<div id="update_profile">
+		<div class="title farnsworth_header">Modify {{ targetUser.username }}'s Profile</div>
+		<form method="post" action="">
+			{% csrf_token %}
+			<table class="form_table">
+				{{ modify_user_form.as_table }}
+			</table>
+			<input class="button" name="update_user_profile" type="submit" value="Update User Profile" />
+		</form>
+	</div>
+	<div id="change_password">
+		<div class="title farnsworth_header">Change {{ targetUser.username }}'s Password</div>
+		<form method="post" action="">
+			{% csrf_token %}
+			<table class="form_table">
+				{{ change_user_password_form.as_table }}
+			</table>
+			<input class="button" name="change_user_password" type="submit" value="Change User Password" />
+		</form>
+	</div>
+{% endblock %}

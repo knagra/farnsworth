@@ -37,7 +37,7 @@ Author: Karandeep Singh Nagra
 
 #directory:hover {
 	background: #fafafa;
-	color: #7e7e7e;
+	color: black;
 	cursor: pointer;
 }
 
@@ -52,7 +52,7 @@ Author: Karandeep Singh Nagra
 }
 
 #directory:hover > a {
-	color: #7e7e7e;
+	color: black;
 	border-top: 1px solid #7e7e7e;
 }
 
