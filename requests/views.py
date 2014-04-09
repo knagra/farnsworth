@@ -260,7 +260,7 @@ def custom_add_user_view(request):
 				add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
 
-def generic_requests_view(request, relevant_managers, page_name):
+def generic_requests_view(request, relevant_managers, page_name, html_template):
 	'''
 	Generic request view.  caller_locals should include the page name, a list of
 	relevant managers in relevant managers, 
@@ -273,12 +273,12 @@ def generic_requests_view(request, relevant_managers, page_name):
 			message = "No profile for you could be found.  Please contact a site admin."
 			return red_home(request, message)
 	else:
-		message = "The page you are requesting is reserved for members.  Please log in if you are a member."
-		return red_ext(request, message)
+		return HttpResponseRedirect(reverse('login'))
 	manager = False; #if the user is a relevant manager
 	for position in relevant_managers:
 		if position.incumbent == userProfile:
 			manager = True
+			break
 	
 
 def food_requests_view(request):
@@ -293,4 +293,4 @@ def food_requests_view(request):
 	km2 = Manager.objects.get_or_create(title="Kitchen Manager 2")
 	relevant_managers.append(km1)
 	relevant_managers.append(km2)
-	return generic_requests_view(request, relevant_managers, page_name)
+	return generic_requests_view(request, relevant_managers, page_name, 'food_requests.html')

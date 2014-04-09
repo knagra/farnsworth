@@ -280,6 +280,7 @@ Remove confusion about table layout in case user enters a horizontal line.
 	padding-top: 5px;
 	padding-bottom: 5px;
 	width: 100%;
+	font-weight: 300;
 }
 
 .more_threads:hover > a {
