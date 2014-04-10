@@ -67,3 +67,16 @@ class ProfileRequest(models.Model):
 	
 	def __unicode__(self):
 		return "Profile request for account '%s %s (%s)' on %s" % (self.first_name, self.last_name, self.username, self.request_date)
+
+class Announcement(models.Model):
+	'''
+	Model for manager announcements.
+	'''
+	manager = models.ForeignKey(Manager, blank=False, null=False, help_Text="The manager who made this announcement.")
+	body = models.TextField(blank=False, null=False, help_text="The body of the announcement.")
+	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this announcement was posted.")
+	pinned = models.BooleanField(default=False, help_text="Whether this announcment should be pinned permanently.")
+	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The last time this request was modified.")
+	
+	def __unicode__(self):
+		return "Announcement by %s on %s" % (self.manager, self.post_date)

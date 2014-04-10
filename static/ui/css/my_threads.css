@@ -206,10 +206,6 @@ Author: Karandeep Singh Nagra
 	border-bottom: 1px solid #7e7e7e;
 }
 
-.message_body {
-	word-wrap: break-word;
-}
-
 .message_table {
 	width: 100%;
 	padding-bottom: 10px;
@@ -238,6 +234,8 @@ Remove confusion about table layout in case user enters a horizontal line.
 	padding-left: 5px;
 	padding-bottom: 5px;
 	font-size: 13pt;
+	word-wrap: break-word;
+	overflow-x: auto;
 }
 
 #new_thread_form {
