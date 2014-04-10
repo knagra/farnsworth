@@ -23,7 +23,12 @@ The HTML for {{ page_name }}.
 		<ul>
 			<li><a class="menu_link" href="{% url 'homepage' %}" >Home</a></li>
 		{% if user.is_authenticated %}
-			<li><a class="menu_link" href="{% url 'my_profile' %}">Profile ({{ user.username }})</a></li>
+			<li><a class="menu_link" href="{% url 'my_profile' %}" >Profile ({{ user.username }})+</a>
+			<ul>
+				<li><a href="{% url 'my_profile' %}" >Update My Profile</a></li>
+				<li><a href="{% url 'my_threads' %}">My Threads</a></li>
+			</ul>
+			</li>
 			<li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>
 		{% else %}
 			<li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
@@ -33,6 +38,12 @@ The HTML for {{ page_name }}.
 			<ul>
 			{% if user.is_authenticated %}
 				<li><a href="{% url 'member_forums' %}" >Member Forums</a></li>
+				<li><a href="{% url 'food_requests' %}" >Requests+</a>
+					<ul>	<li><a href="{% url 'food_requests' %}" >Food</a></li>
+						<li><a href="{% url 'maintenance_requests' %}" >Maintenance</a></li>
+						<li><a href="{% url 'health_requests' %}" >Health</a></li>
+					</ul>
+				</li>
 				<li><a href="{% url 'member_directory' %}" >Member Directory</a></li>
 				<li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
 				<li><a href="{% url 'external' %}">External</a></li>

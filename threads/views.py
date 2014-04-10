@@ -12,9 +12,7 @@ from django.template import RequestContext
 from farnsworth.settings import house, ADMINS
 from django.contrib.auth import logout, login, authenticate, hashers
 from models import UserProfile, Thread, Message
-from django.utils import timezone
 from django.contrib.auth.models import User
-import datetime
 
 def red_ext(request, message=None):
 	'''
@@ -216,44 +214,24 @@ def member_forums_view(request):
 		else:
 			message = "Your request at /member_forums/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
-	three_days_ago = timezone.now() - datetime.timedelta(days=3)
+	x = 0 # number of messages loaded
 	active_messages = list()
-	my_messages = list()
 	for message in Message.objects.all():
-		if three_days_ago < message.post_date:
-			active_messages.append(message)
-		if message.owner.user == request.user:
-			my_messages.append(message)
+		active_messages.append(message)
+		x += 1
+		if x >= 20:
+			break
 	active_threads = list()
-	my_threads = list()
 	for message in active_messages:
 		if message.thread not in active_threads:
 			active_threads.append(message.thread)
-	x = 0
-	for message in my_messages:
-		if x >= 10:
-			break
-		if message.thread not in my_threads:
-			my_threads.append(message.thread)
-			x +=1
 	active_message_forms = list()
-	my_message_forms = list()
 	for thread in active_threads:
 		form = MessageForm(initial={'thread_pk': thread.pk})
 		form.fields['thread_pk'].widget = forms.HiddenInput()
 		active_message_forms.append(form)
-		for message in Message.objects.all():
-			if (message not in active_messages) and (message.thread == thread):
-				active_messages.append(message)
-	for thread in my_threads:
-		form = MessageForm(initial={'thread_pk': thread.pk})
-		form.fields['thread_pk'].widget = forms.HiddenInput()
-		my_message_forms.append(form)
-		for message in Message.objects.all():
-			if (message not in my_messages) and (message.thread == thread):
-				my_messages.append(message)
 	thread_form = ThreadForm()
-	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'active_threads': active_threads, 'my_threads': my_threads, 'active_message_forms': active_message_forms, 'my_message_forms': my_message_forms, 'thread_form': thread_form, 'active_messages': active_messages, 'my_messages': my_messages}, context_instance=RequestContext(request))
+	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'active_threads': active_threads, 'active_message_forms': active_message_forms, 'thread_form': thread_form, 'active_messages': active_messages}, context_instance=RequestContext(request))
 
 def all_threads_view(request):
 	''' View of all threads. '''

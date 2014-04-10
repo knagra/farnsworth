@@ -13,9 +13,9 @@ class ManagerAdmin(admin.ModelAdmin):
 	list_filter = ('email',)
 
 class RequestAdmin(admin.ModelAdmin):
-	list_display = ('owner', 'post_date', 'manager', 'filled')
-	search_fields = ('owner', 'body', 'post_date', 'change_date', 'manager')
-	list_filter = ('post_date', 'change_date', 'filled', 'manager', 'owner')
+	list_display = ('owner', 'post_date', 'filled')
+	search_fields = ('owner', 'body', 'post_date', 'change_date')
+	list_filter = ('post_date', 'change_date', 'filled', 'owner')
 	date_hierarchy = 'post_date'
 	ordering = ('-post_date',)
 	readonly_fields = ('owner', 'post_date', 'body')

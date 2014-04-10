@@ -17,10 +17,6 @@
 	function hide_new_thread_form() {
 		document.getElementById("new_thread_form").style.display="none";
 	}
-	function show_and_focus() {
-		show_new_thread_form();
-		document.getElementById("id_subject").focus();
-	}
 	function show_new_message_form(message_form_id, button_id) {
 		document.getElementById(message_form_id).style.display="inline";
 		document.getElementById(button_id).style.display="none";
@@ -82,52 +78,5 @@
 			{% endfor %}
 		</div>
 		<div class="more_threads"><a href="{% url 'all_threads' %}" >See All Threads</a></div>
-	</div>
-	<div class="threads">
-		<div class="threads_title farnsworth_header">My Recent Threads</div>
-		<input class="add_thread farnsworth_header" onclick="show_and_focus()" type="submit" value="New Thread" />
-		<div class="threads_table">
-			{% if not my_threads %}
-				<div class="field_wrapper">You have no threads.</div>
-			{% else %}
-				<div class="threads_row"><div class="table_header"><div class="thread_name">Subject</div><div class="thread_messages">Messages</div></div></div>
-			{% endif %}
-			{% for thread in my_threads %}
-				<div class="threads_row">
-					<div class="thread_name">{{ thread.subject }}</div>
-					<div class="thread_messages">
-						<div class="message_table">
-						<div class="message_row">
-						{% with y=forloop.counter|stringformat:"s" %}
-						{% with message_form_id="message_form_2_"|add:y %}
-						{% with button_id="button_2_"|add:y %}
-						<form class="new_message_form" id="{{ message_form_id }}" method="post" action="">
-							{% csrf_token %}
-							{% for message_form in my_message_forms %}
-								{% if message_form.thread_pk.value == thread.pk %}
-									{{ message_form.thread_pk }}
-									<textarea class="message" name="body"></textarea>
-									<input class="submit_message_form" name="submit_message_form" type="submit" value="Post Message" />
-									<input class="cancel_message_form" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')" type="button" value="Cancel" />
-								{% endif %}
-							{% endfor %}
-						</form>
-						<input class="add_message" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
-						{% endwith %}
-						{% endwith %}
-						{% endwith %}
-						</div>
-						{% for message in my_messages %}
-							{% if message.thread == thread %}
-							<div class="message_row"><div class="message_owner"><a class="page_link" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >{% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %}</a> ({{ message.post_date }}):</div><hr class="message_divider" \> <div class="message_body">{{ message.body|safe }}</div></div>
-							{% endif %}
-						{% endfor %}
-					</div></div>
-				</div>
-			{% endfor %}
-		</table>
-		{% if my_threads %}
-			<div class="more_threads"><a href="{% url 'my_threads' %}">See All My Threads</a></div>
-		{% endif %}
 	</div>
 {% endblock %}

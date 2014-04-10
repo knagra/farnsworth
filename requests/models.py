@@ -28,14 +28,15 @@ class Request(models.Model):
 	body = models.TextField(blank=False, null=False, help_text="The body of this request.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this request was posted.")
 	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The last time this request was modified.")
-	manager = models.ForeignKey(Manager, blank=False, null=False, help_text="A manager to whom this request was made.")
-	manager2 = models.ForeignKey(Manager, blank=True, null=True, help_text="An optional additional manager to whom this request was made.", related_name="second_manager")
-	manager3 = models.ForeignKey(Manager, blank=True, null=True, help_text="Another optional additional manager to whom this request was made.", related_name="third_manager")
-	manager4 = models.ForeignKey(Manager, blank=True, null=True, help_text="Yet another optional additional manager.", related_name="fourth_manager")
+	request_type = models.CharField(max_length=255, blank=False, null=False, help_text="The type of request.")
+	managers = models.ManyToManyField(Manager, help_text="Managers to whom this request was made.")
 	filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
 	
 	def __unicode__(self):
-		return "Request to %s by %s on %s" % (self.manager, self.owner, self.post_date)
+		return "%s request by %s on %s" % (self.request_type, self.owner, self.post_date)
+	
+	class Meta:
+		ordering = ['-post_date']
 
 class Response(models.Model):
 	'''
@@ -45,9 +46,13 @@ class Response(models.Model):
 	body = models.TextField(blank=False, null=False, help_text="The body of this response.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this response was posted.")
 	request = models.ForeignKey(Request, blank=False, null=False, help_text="The request to which this is a response.")
+	manager = models.BooleanField(default=False, help_text="Whether this is a relevant manager response.")
 	
 	def __unicode__(self):
 		return "Response by %s to: %s" % (self.owner, self.request)
+	
+	class Meta:
+		ordering = ['-post_date']
 
 class ProfileRequest(models.Model):
 	'''

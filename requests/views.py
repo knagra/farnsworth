@@ -12,7 +12,7 @@ from django.contrib.auth import hashers
 from django.contrib.auth.models import User, Group
 from django.template import RequestContext
 from farnsworth.settings import house, ADMINS
-from models import ProfileRequest
+from models import Manager, ProfileRequest, Request, Response
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
 
@@ -260,10 +260,14 @@ def custom_add_user_view(request):
 				add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
 
-def generic_requests_view(request, relevant_managers, page_name, html_template):
+def generic_requests_view(request, relevant_managers, request_type):
 	'''
-	Generic request view.  caller_locals should include the page name, a list of
-	relevant managers in relevant managers, 
+	Generic request view.  Parameters:
+		request is the HTTP request
+		relevant managers is a list of Managers to whom the request is made
+		request_type is the type of request (e.g., "Food" or "Maintenance")
+			This field is used to filter requests.
+			{{ house }} - {{ request_type }} Requests appears in the title.
 	'''
 	if request.user.is_authenticated():
 		userProfile = None
@@ -274,12 +278,60 @@ def generic_requests_view(request, relevant_managers, page_name, html_template):
 			return red_home(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
-	manager = False; #if the user is a relevant manager
+	manager = False #if the user is a relevant manager
+	page_name = "%s Requests" % request_type
 	for position in relevant_managers:
 		if position.incumbent == userProfile:
 			manager = True
 			break
-	
+	class RequestForm(forms.Form):
+		body = forms.CharField(widget=forms.Textarea(attrs={'class': 'request'}))
+	if manager:
+		class ResponseForm(forms.Form):
+			request_pk = forms.IntegerField()
+			body = forms.CharField(widget=forms.Textarea(attrs={'class': 'response'}), required=False)
+			mark_filled = forms.BooleanField(required=False)
+	else:
+		class ResponseForm(forms.Form):
+			request_pk = forms.IntegerField()
+			body = forms.CharField(widget=forms.Textarea(attrs={'class': 'response'}))
+	if request.method == 'POST':
+		if 'submit_request' in request.POST:
+			request_form = RequestForm(request.POST)
+			if request_form.is_valid():
+				body = request_form.cleaned_data['body']
+				new_request = Request(owner=userProfile, body=body, request_type=request_type)
+				new_request.save()
+				for position in relevant_managers:
+					new_request.managers.add(position)
+				new_request.save()
+		elif 'add_response' in request.POST:
+			response_form = ResponseForm(request.POST)
+			if response_form.is_valid():
+				request_pk = response_form.cleaned_data['request_pk']
+				body = response_form.cleaned_data['body']
+				relevant_request = Request.objects.get(pk=request_pk)
+				new_response = Response(owner=userProfile, body=body, request=relevant_request)
+				if manager:
+					mark_filled = response_form.cleaned_data['mark_filled']
+					new_response.filled = mark_filled
+					new_response.manager = True
+				new_response.save()
+		else:
+			message = "Uhhh...Something went wrong.  Please contact an admin for support."
+			return red_home(request, message)
+	request_form = RequestForm()
+	response_forms = list()
+	all_responses = list()
+	for resp in Response.objects.all():
+		if resp.request.request_type == request_type:
+			all_responses.append(resp)
+	all_requests = Request.objects.filter(request_type=request_type)
+	for req in all_requests:
+		form = ResponseForm(initial={'request_pk': req.pk})
+		form.fields['request_pk'].widget = forms.HiddenInput()
+		response_forms.append(form) 
+	return render_to_response('generic_requests.html', {'manager': manager, 'all_responses': all_responses, 'request_type': request_type, 'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'request_form': request_form, 'all_requests': all_requests, 'response_forms': response_forms}, context_instance=RequestContext(request))
 
 def food_requests_view(request):
 	'''
@@ -287,10 +339,29 @@ def food_requests_view(request):
 	and Kitchen Manager 2.  This can be changed with by changing request_managers and
 	the managers it contains.
 	'''
-	page_name = "Profile Request Page"
 	relevant_managers = list()
-	km1 = Manager.objects.get_or_create(title="Kitchen Manager 1")
-	km2 = Manager.objects.get_or_create(title="Kitchen Manager 2")
+	km1, created = Manager.objects.get_or_create(title="Kitchen Manager 1")
+	km2, created = Manager.objects.get_or_create(title="Kitchen Manager 2")
 	relevant_managers.append(km1)
 	relevant_managers.append(km2)
-	return generic_requests_view(request, relevant_managers, page_name, 'food_requests.html')
+	return generic_requests_view(request, relevant_managers, "Food")
+
+def maintenance_requests_view(request):
+	'''
+	Maintenance requests page.  All requests generated here are alotted to Maintenance Manager.
+	This can be changed with by changing request_managers and the managers it contains.
+	'''
+	relevant_managers = list()
+	mm, created = Manager.objects.get_or_create(title="Maintenance Manager")
+	relevant_managers.append(mm)
+	return generic_requests_view(request, relevant_managers, "Maintenance")
+
+def health_requests_view(request):
+	'''
+	Health requests page.  All requests generated here are alotted to Health Worker.
+	This can be changed with by changing request_managers and the managers it contains.
+	'''
+	relevant_managers = list()
+	mm, created = Manager.objects.get_or_create(title="Health Worker")
+	relevant_managers.append(mm)
+	return generic_requests_view(request, relevant_managers, "Health")

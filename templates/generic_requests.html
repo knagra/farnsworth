@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/requests.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/generic_requests.css' %}" />
+{% endblock %}
+
+{% block content %}
+<script>
+	function show_new_request_form() {
+		document.getElementById("new_request_form").style.display="inline";
+	}
+	function hide_new_request_form() {
+		document.getElementById("new_request_form").style.display="none";
+	}
+	function show_new_response_form(response_form_id, button_id) {
+		document.getElementById(response_form_id).style.display="inline";
+		document.getElementById(button_id).style.display="none";
+	}
+	function hide_new_response_form(response_form_id, button_id) {
+		document.getElementById(response_form_id).style.display="none";
+		document.getElementById(button_id).style.display="inline";
+	}
+</script>
+	<div class="requests">
+		<div class="requests_title farnsworth_header">Recent Food Requests</div>
+		<input class="add_request farnsworth_header" onclick="show_new_request_form()" type="submit" value="New Request" />
+			<form id="new_request_form" method="post" action="">
+				{% csrf_token %}
+				<table id="new_request_table">
+					{{ request_form.as_table }}
+				</table>
+				<input class="button" id="submit_request_form" name="submit_request" type="submit" value="Submit Request" />
+				<input class="button" id="cancel_request_form" onclick="hide_new_request_form()" type="button" value="Cancel" />
+			</form>
+		<div class="requests_table">
+			{% if not all_requests %}
+				<div class="field_wrapper">No {{ request_type }} requests found.</div>
+			{% else %}
+				<div class="requests_row"><div class="table_header"><div class="request_name">Request</div><div class="request_responses">Responses</div></div></div>
+			{% endif %}
+			{% for request in all_requests %}
+				<div class="requests_row">
+					<div class="request_name"><div class="request_owner"><a class="page_link" href="{% url 'member_profile' targetUsername=request.owner.user.username %}" >{% if request.owner.user == user %}You{% else %}{{ request.owner.user.first_name }} {{ response.owner.user.last_name }}{% endif %}</a> ({{ request.post_date }}):</div><hr class="request_divider" \><div class="request_body">{{ request.body|safe }}</div></div>
+					<div class="request_responses">
+						<div class="response_table">
+						<div class="response_row">
+						{% with y=forloop.counter|stringformat:"s" %}
+						{% with response_form_id="response_form_"|add:y %}
+						{% with button_id="button_"|add:y %}
+						<form class="new_response_form" id="{{ response_form_id }}" method="post" action="">
+							{% csrf_token %}
+							{% for response_form in response_forms %}
+								{% if response_form.request_pk.value == request.pk %}
+									{{ response_form.request_pk }}
+									<textarea class="response" name="body"></textarea>
+									<input class="submit_response_form" name="add_response" type="submit" value="Post Message" />
+									<input class="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" type="button" value="Cancel" />
+								{% endif %}
+							{% endfor %}
+						</form>
+						<input class="add_response" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
+						{% endwith %}
+						{% endwith %}
+						{% endwith %}
+						</div>
+						{% for response in all_responses %}
+							{% if response.request == request %}
+							{% if response.manager %}<div class="response_row manager_response">{% else %}<div class="response_row">{% endif %}<div class="response_owner"><a class="page_link" href="{% url 'member_profile' targetUsername=response.owner.user.username %}" >{% if response.owner.user == user %}You{% else %}{{ response.owner.user.first_name }} {{ response.owner.user.last_name }}{% endif %}</a> ({{ response.post_date }}):</div><hr class="response_divider" \><div class="response_body">{{ response.body|safe }}</div></div>
+							{% endif %}
+						{% endfor %}
+					</div></div>
+				</div>
+			{% endfor %}
+		</div>
+<!--		<div class="more_requests"><a href="{% url 'food_requests' %}" >See All Requests</a></div>-->
+	</div>
+{% endblock %}
