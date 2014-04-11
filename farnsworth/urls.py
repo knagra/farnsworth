@@ -40,6 +40,8 @@ urlpatterns += patterns('requests.views',
 	url(r'^food_requests/$', 'food_requests_view', name='food_requests'),
 	url(r'^maintenance_requests/$', 'maintenance_requests_view', name='maintenance_requests'),
 	url(r'^health_requests/$', 'health_requests_view', name='health_requests'),
+	url(r'^network_requests/$', 'network_requests_view', name='network_requests'),
+	url(r'^site_requests/$', 'site_requests_view', name='site_requests'),
 )
 
 # Catch any other urls here

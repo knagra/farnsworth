@@ -31,6 +31,7 @@ class Request(models.Model):
 	request_type = models.CharField(max_length=255, blank=False, null=False, help_text="The type of request.")
 	managers = models.ManyToManyField(Manager, help_text="Managers to whom this request was made.")
 	filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
+	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
 	
 	def __unicode__(self):
 		return "%s request by %s on %s" % (self.request_type, self.owner, self.post_date)
@@ -72,7 +73,7 @@ class Announcement(models.Model):
 	'''
 	Model for manager announcements.
 	'''
-	manager = models.ForeignKey(Manager, blank=False, null=False, help_Text="The manager who made this announcement.")
+	manager = models.ForeignKey(Manager, blank=False, null=False, help_text="The manager who made this announcement.")
 	body = models.TextField(blank=False, null=False, help_text="The body of the announcement.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this announcement was posted.")
 	pinned = models.BooleanField(default=False, help_text="Whether this announcment should be pinned permanently.")

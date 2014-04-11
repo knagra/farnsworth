@@ -45,7 +45,7 @@
 			{% endif %}
 			{% for request in all_requests %}
 				<div class="requests_row">
-					<div class="request_name"><div class="request_owner"><a class="page_link" href="{% url 'member_profile' targetUsername=request.owner.user.username %}" >{% if request.owner.user == user %}You{% else %}{{ request.owner.user.first_name }} {{ response.owner.user.last_name }}{% endif %}</a> ({{ request.post_date }}):</div><hr class="request_divider" \><div class="request_body">{{ request.body|safe }}</div></div>
+					<div class="request_name"><div class="request_owner">{% if request.filled %}<img src="{% static 'admin/img/icon-yes.gif' %}" alt="Filled"/>{% elif request.closed %}<img src="{% static 'admin/img/icon-no.gif' %}">{% endif %}<a class="page_link" href="{% url 'member_profile' targetUsername=request.owner.user.username %}" >{% if request.owner.user == user %}You{% else %}{{ request.owner.user.first_name }} {{ request.owner.user.last_name }}{% endif %}</a> ({{ request.post_date }}):</div><hr class="request_divider" \><div class="request_body">{{ request.body|safe }}</div></div>
 					<div class="request_responses">
 						<div class="response_table">
 						<div class="response_row">
@@ -58,6 +58,13 @@
 								{% if response_form.request_pk.value == request.pk %}
 									{{ response_form.request_pk }}
 									<textarea class="response" name="body"></textarea>
+									{% if manager %}<div class="form_checkbox"><label for="id_mark_filled">Mark filled:</label>
+											{{ response_form.mark_filled }}
+											</div>
+											<div class="form_checkbox"><label for="id_mark_closed">Mark closed:</label>
+											{{ response_form.mark_closed }}
+											</div>
+									{% endif %}
 									<input class="submit_response_form" name="add_response" type="submit" value="Post Message" />
 									<input class="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" type="button" value="Cancel" />
 								{% endif %}

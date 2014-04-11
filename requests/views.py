@@ -291,6 +291,7 @@ def generic_requests_view(request, relevant_managers, request_type):
 			request_pk = forms.IntegerField()
 			body = forms.CharField(widget=forms.Textarea(attrs={'class': 'response'}), required=False)
 			mark_filled = forms.BooleanField(required=False)
+			mark_closed = forms.BooleanField(required=False)
 	else:
 		class ResponseForm(forms.Form):
 			request_pk = forms.IntegerField()
@@ -314,8 +315,11 @@ def generic_requests_view(request, relevant_managers, request_type):
 				new_response = Response(owner=userProfile, body=body, request=relevant_request)
 				if manager:
 					mark_filled = response_form.cleaned_data['mark_filled']
-					new_response.filled = mark_filled
+					mark_closed = response_form.cleaned_data['mark_closed']
+					relevant_request.closed = mark_closed
+					relevant_request.filled = mark_filled
 					new_response.manager = True
+				relevant_request.save()
 				new_response.save()
 		else:
 			message = "Uhhh...Something went wrong.  Please contact an admin for support."
@@ -328,7 +332,10 @@ def generic_requests_view(request, relevant_managers, request_type):
 			all_responses.append(resp)
 	all_requests = Request.objects.filter(request_type=request_type)
 	for req in all_requests:
-		form = ResponseForm(initial={'request_pk': req.pk})
+		if manager:
+			form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
+		else:
+			form = ResponseForm(initial={'request_pk': req.pk})
 		form.fields['request_pk'].widget = forms.HiddenInput()
 		response_forms.append(form) 
 	return render_to_response('generic_requests.html', {'manager': manager, 'all_responses': all_responses, 'request_type': request_type, 'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'request_form': request_form, 'all_requests': all_requests, 'response_forms': response_forms}, context_instance=RequestContext(request))
@@ -362,6 +369,41 @@ def health_requests_view(request):
 	This can be changed with by changing request_managers and the managers it contains.
 	'''
 	relevant_managers = list()
-	mm, created = Manager.objects.get_or_create(title="Health Worker")
-	relevant_managers.append(mm)
+	hw, created = Manager.objects.get_or_create(title="Health Worker")
+	relevant_managers.append(hw)
 	return generic_requests_view(request, relevant_managers, "Health")
+
+def network_requests_view(request):
+	'''
+	Network requests page.  All requests generated here are alotted to Health Worker.
+	This can be changed with by changing request_managers and the managers it contains.
+	'''
+	relevant_managers = list()
+	nm, created = Manager.objects.get_or_create(title="Network Manager")
+	relevant_managers.append(nm)
+	return generic_requests_view(request, relevant_managers, "Network")
+
+def site_requests_view(request):
+	'''
+	Site requests page.  All requests generated here are alotted to Health Worker.
+	This can be changed with by changing request_managers and the managers it contains.
+	'''
+	relevant_managers = list()
+	hubert, created = Manager.objects.get_or_create(title="Site Admin")
+	relevant_managers.append(hubert)
+	return generic_requests_view(request, relevant_managers, "Site")
+
+def my_requests_view(request):
+	'''
+	Show user his/her requests, sorted by request_type.
+	'''
+	if request.user.is_authenticated():
+		userProfile = None
+		try:
+			userProfile = request.user.get_profile()
+		except:
+			message = "No profile for you could be found.  Please contact a site admin."
+			return red_home(request, message)
+	else:
+		return HttpResponseRedirect(reverse('login'))
+	manager = False #if the user is a relevant manager

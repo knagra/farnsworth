@@ -14,7 +14,7 @@ The HTML for {{ page_name }}.
 	{% load static from staticfiles %}
 	<link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
 	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
-	<link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
+	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
 	{% block headers %} {% endblock %}
 </head>
 <body id="html_body">
@@ -42,13 +42,15 @@ The HTML for {{ page_name }}.
 					<ul>	<li><a href="{% url 'food_requests' %}" >Food</a></li>
 						<li><a href="{% url 'maintenance_requests' %}" >Maintenance</a></li>
 						<li><a href="{% url 'health_requests' %}" >Health</a></li>
+						<li><a href="{% url 'network_requests' %}" >Network</a></li>
+						<li><a href="{% url 'site_requests' %}" >Site</a></li>
 					</ul>
 				</li>
 				<li><a href="{% url 'member_directory' %}" >Member Directory</a></li>
 				<li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
 				<li><a href="{% url 'external' %}">External</a></li>
 				{% if user.is_staff %}
-					<li><a href="{% url 'admin:index' %}" >Admin+</a>
+					<li><a href="{% url 'admin:index' %}" >Admin{% if user.is_superuser %}+{% endif %}</a>
 					{% if user.is_superuser %}
 						<ul>	<li><a href="{% url 'custom_manage_users' %}" >Manage Users</a></li>
 							<li><a href="{% url 'custom_add_user' %}" >Add User</a></li>
