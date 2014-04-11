@@ -55,7 +55,7 @@ def manage_profile_requests_view(request):
 		if not request.user.is_superuser:
 			page_name = "Home Page"
 			message = "The page /custom_admin/manage_profile_requests/ is restricted to superadmins."
-			red_home(request, message)
+			return red_home(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	profile_requests = ProfileRequest.objects.all()
@@ -64,9 +64,10 @@ def manage_profile_requests_view(request):
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
 	if request.user.is_authenticated():
+		print request.user.is_superuser
 		if not request.user.is_superuser:
 			message = "The page /custom_admin/manage_users/ is restrcited to superadmins."
-			red_home(request, message)
+			return red_home(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	residents = list()
@@ -87,7 +88,7 @@ def custom_modify_user_view(request, targetUsername):
 	if request.user.is_authenticated():
 		if not request.user.is_superuser:
 			message = "The page /custom_admin/modify_user/ is restricted to superadmins."
-			red_home(request, message)
+			return red_home(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	try:
@@ -186,7 +187,7 @@ def custom_add_user_view(request):
 	if request.user.is_authenticated():
 		if not request.user.is_superuser:
 			message = "The page /custom_admin/add_user/ is restricted to superadmins."
-			red_home(request, message)
+			return red_home(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	class AddUserForm(forms.Form):
