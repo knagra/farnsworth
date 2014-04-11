@@ -463,16 +463,18 @@ def my_requests_view(request):
 		req_dict[request_type] = my_requests.filter(request_type=request_type)
 	for req in my_requests:
 		request_responses[req.pk] = Response.objects.filter(request=req)
-		form = ResponseForm(initial={'request_pk': req.pk})
-		form.fields['request_pk'].widget = forms.HiddenInput()
 		manager = False # Whether the user is a relevant manager for this request.
 		for position in req.managers.all():
 			if position.incumbent == userProfile:
 				manager = True
 				break
+		form.fields['request_pk'].widget = forms.HiddenInput()
 		if not manager:
+			form = ResponseForm(initial={'request_pk': req.pk})
 			form.fields['mark_filled'].widget = forms.HiddenInput()
 			form.fields['mark_closed'].widget = forms.HiddenInput()
+		else:
+			form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
 		response_forms.append(form)
 		#for request_type in request_types:
 		#	if req.request_type == request_type:
