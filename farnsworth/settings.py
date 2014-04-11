@@ -21,6 +21,15 @@ MANAGERS = ADMINS
 # Name of the house
 house = "Kingman Hall"
 
+# Register request types here.  This field is used to generate distinct sets of requests for the my_requests page.
+request_dict = {
+	'Food': ['Kitchen Manager 1', 'Kitchen Manager 2'],
+	'Maintenance': ['Maintenance Manager',],
+	'Health': ['Health Worker',],
+	'Network': ['Network Manager',],
+	'Site': ['Site Admin',]
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

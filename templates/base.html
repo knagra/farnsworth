@@ -26,7 +26,8 @@ The HTML for {{ page_name }}.
 			<li><a class="menu_link" href="{% url 'my_profile' %}" >Profile ({{ user.username }})+</a>
 			<ul>
 				<li><a href="{% url 'my_profile' %}" >Update My Profile</a></li>
-				<li><a href="{% url 'my_threads' %}">My Threads</a></li>
+				<li><a href="{% url 'my_threads' %}" >My Threads</a></li>
+				<li><a href="{% url 'my_requests' %}" >My Requests</a></li>
 			</ul>
 			</li>
 			<li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>

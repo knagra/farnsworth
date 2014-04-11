@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import hashers
 from django.contrib.auth.models import User, Group
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS
+from farnsworth.settings import house, ADMINS, request_dict
 from models import Manager, ProfileRequest, Request, Response
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
@@ -145,6 +145,9 @@ def custom_modify_user_view(request, targetUsername):
 				is_staff = modify_user_form.cleaned_data['is_staff']
 				is_superuser = modify_user_form.cleaned_data['is_superuser']
 				groups = modify_user_form.cleaned_data['groups']
+				targetUser.first_name = first_name
+				targetUser.last_name = last_name
+				targetUser.email = email
 				targetUser.is_active = is_active
 				targetUser.is_staff = is_staff
 				targetUser.is_superuser = is_superuser
@@ -398,6 +401,7 @@ def my_requests_view(request):
 	'''
 	Show user his/her requests, sorted by request_type.
 	'''
+	page_name = "My Requests"
 	if request.user.is_authenticated():
 		userProfile = None
 		try:
@@ -407,4 +411,72 @@ def my_requests_view(request):
 			return red_home(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
-	manager = False #if the user is a relevant manager
+	class RequestForm(forms.Form):
+		request_type = forms.CharField()
+		body = forms.CharField(widget=forms.Textarea(attrs={'class': 'request'}))
+	class ResponseForm(forms.Form):
+		request_pk = forms.IntegerField()
+		body = forms.CharField(widget=forms.Textarea(attrs={'class': 'response'}))
+		mark_filled = forms.BooleanField(required=False)
+		mark_closed = forms.BooleanField(required=False)
+	if request.method == 'POST':
+		if 'submit_request' in request.POST:
+			request_form = RequestForm(request.POST)
+			if request_form.is_valid():
+				request_type = request_form.cleaned_data['request_type']
+				body = request_form.cleaned_data['body']
+				new_request = Request(owner=userProfile, body=body, request_type=request_type)
+				new_request.save()
+				for manager_title in request_dict[request_type]:
+					manager_position = Manager.get_or_create(title=manager_title)
+					new_request.managers.add(manager_position)
+				new_request.save()
+		elif 'add_response' in request.POST:
+			response_form = ResponseForm(request.POST)
+			if response_form.is_valid():
+				request_pk = response_form.cleaned_data['request_pk']
+				body = response_form.cleaned_data['body']
+				relevant_request = Request.objects.get(pk=request_pk)
+				new_response = Response(owner=userProfile, body=body, request=relevant_request)
+				for manager_position in relevant_request.managers.all():
+					if manager_position.incumbent == userProfile:
+						mark_filled = response_form.cleaned_data['mark_filled']
+						mark_closed = response_form.cleaned_data['mark_closed']
+						new_response.filled = mark_filled
+						new_response.closed = mark_closed
+						new_response.manager = True
+						break
+				new_response.save()
+		else:
+			message = "Uhhh...Something went wrong.  Please contact an admin for support."
+			return red_home(request, message)
+	my_requests = Request.objects.filter(owner=userProfile)
+	request_responses = {} # A dictionary with request.pk->queryset_of_messages s.t. each message.request == request
+	req_dict = {} # A dictionary with request_type->queryse_of_requests_of_request_type
+	request_forms = list()
+	response_forms = list()
+	request_types = request_dict.keys()
+	for request_type in request_types:
+		form = RequestForm(initial={'request_type': request_type})
+		form.fields['request_type'].widget = forms.HiddenInput()
+		request_forms.append(form)
+		req_dict[request_type] = my_requests.filter(request_type=request_type)
+	for req in my_requests:
+		request_responses[req.pk] = Response.objects.filter(request=req)
+		form = ResponseForm(initial={'request_pk': req.pk})
+		form.fields['request_pk'].widget = forms.HiddenInput()
+		manager = False # Whether the user is a relevant manager for this request.
+		for position in req.managers.all():
+			if position.incumbent == userProfile:
+				manager = True
+				break
+		if not manager:
+			form.fields['mark_filled'].widget = forms.HiddenInput()
+			form.fields['mark_closed'].widget = forms.HiddenInput()
+		response_forms.append(form)
+		#for request_type in request_types:
+		#	if req.request_type == request_type:
+		#		req_dict[request_type].append(req)
+		#		break
+	return render_to_response('my_requests.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'req_dict': req_dict, 'request_responses': request_responses, 'request_forms': request_forms, 'response_forms': response_forms}, context_instance=RequestContext(request))
+
