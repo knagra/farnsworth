@@ -452,7 +452,7 @@ def my_requests_view(request):
 			return red_home(request, message)
 	my_requests = Request.objects.filter(owner=userProfile)
 	request_responses = {} # A dictionary with request.pk->queryset_of_messages s.t. each message.request == request
-	req_dict = {} # A dictionary with request_type->queryse_of_requests_of_request_type
+	req_dict = {} # A dictionary with request_type->queryset_of_requests_of_request_type
 	request_forms = list()
 	response_forms = list()
 	request_types = request_dict.keys()
@@ -460,6 +460,7 @@ def my_requests_view(request):
 		form = RequestForm(initial={'request_type': request_type})
 		form.fields['request_type'].widget = forms.HiddenInput()
 		request_forms.append(form)
+		#req_dict[request_type] = list()
 		req_dict[request_type] = my_requests.filter(request_type=request_type)
 	for req in my_requests:
 		request_responses[req.pk] = Response.objects.filter(request=req)
@@ -468,13 +469,13 @@ def my_requests_view(request):
 			if position.incumbent == userProfile:
 				manager = True
 				break
-		form.fields['request_pk'].widget = forms.HiddenInput()
 		if not manager:
 			form = ResponseForm(initial={'request_pk': req.pk})
 			form.fields['mark_filled'].widget = forms.HiddenInput()
 			form.fields['mark_closed'].widget = forms.HiddenInput()
 		else:
 			form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
+		form.fields['request_pk'].widget = forms.HiddenInput()
 		response_forms.append(form)
 		#for request_type in request_types:
 		#	if req.request_type == request_type:
