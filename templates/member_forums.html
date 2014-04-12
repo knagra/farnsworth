@@ -28,8 +28,8 @@
 </script>
 <div class="threads">
   <div class="row table_header">
-    <div class="col-md-9 thread_title">
-      <h3>Active Threads</h3>
+    <div class="col-md-9">
+      <h3 class="thread_title">Active Threads</h3>
     </div>
     <div class="col-md-3">
       <input class="btn btn-default add_thread" onclick="show_new_thread_form()" type="submit" value="New Thread" />
@@ -65,6 +65,9 @@
 	<h4 class="thread_name">{{ thread.subject }}</h4>
 	{% for message in active_messages %}
 	{% if message.thread == thread %}
+	{% if forloop.counter > 1 %}
+	<hr id="message_divider" />
+	{% endif %}
 	<div class="message_row">
 	  <span class="message_owner">
 	    <a class="page_link" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >
@@ -74,6 +77,7 @@
 	</div> <!-- message_row -->
 	{% endif %}
 	{% endfor %}
+	<input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
 	<div class="message_row add_message">
 	  {% with y=forloop.counter|stringformat:"s" %}
 	  {% with message_form_id="message_form_"|add:y %}
@@ -97,7 +101,6 @@
 	    {% endif %}
 	    {% endfor %}
 	  </form>
-	  <input class="add_message" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
 	  {% endwith %}
 	  {% endwith %}
 	  {% endwith %}

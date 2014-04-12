@@ -20,6 +20,11 @@ Author: Karandeep Singh Nagra
     font-size: 20pt;
 }
 
+.thread_title {
+    padding-left: 20px;
+}
+
+
 .add_thread {
     background: #5e5e5e;
     color: #fafafa;
@@ -110,6 +115,7 @@ Author: Karandeep Singh Nagra
     background: #fafafa;
     color: black;
     cursor: pointer;
+    border: 1px solid #8b8b8b;
 }
 
 .submit_message_form:hover {
@@ -156,8 +162,13 @@ Author: Karandeep Singh Nagra
     padding-right: 0px;
 }
 
+#message_divider {
+    margin: 0px;
+    height: 1px;
+    background: #000;
+ }
+
 .message_row {
-    border-bottom: 1px solid #7e7e7e;
     padding-left: 5px;
     padding-right: 5px;
 }
