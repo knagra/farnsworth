@@ -5,12 +5,12 @@ Author: Karandeep Singh Nagra
 */
 
 .threads {
-	float: middle;
-	border: 1px solid #7e7e7e;
-	margin: 30px 10px;
-	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
-	font-size: 15pt;
-	overflow: hidden;
+    float: middle;
+    border: 1px solid #7e7e7e;
+    margin: 10px 10px;
+    box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+    font-size: 15pt;
+    overflow: hidden;
 }
 
 .table_header {
@@ -18,10 +18,13 @@ Author: Karandeep Singh Nagra
     background: #5e5e5e;
     color: #fafafa;
     font-size: 20pt;
+    height: 60px;
 }
 
 .thread_title {
     padding-left: 20px;
+    font-size: 180%;
+    margin-top: 0px;
 }
 
 
@@ -29,8 +32,9 @@ Author: Karandeep Singh Nagra
     background: #5e5e5e;
     color: #fafafa;
     font-size: 20pt;
-    margin-left: auto;
-    margin-right: auto;
+    float: right;
+    margin-top: 7px;
+    margin-right: 5px;
 }
 
 .add_thread:hover {
@@ -152,9 +156,12 @@ Author: Karandeep Singh Nagra
 
 .thread_name {
     text-align: center;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    word-wrap: break-word;
+    margin: 5px auto;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 75%;
+    background: #dde;
+    border: 1px solid #888;
 }
 
 .thread_messages {
@@ -166,11 +173,15 @@ Author: Karandeep Singh Nagra
     margin: 0px;
     height: 1px;
     background: #888;
- }
+}
 
 .message_row {
     padding-left: 5px;
     padding-right: 5px;
+}
+
+.message_row:hover {
+    background: #ddf;
 }
 
 .message_table {
