@@ -1,16 +1,25 @@
 /*
-Project: Farnsworth
+  Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 */
 
 .threads {
+<<<<<<< HEAD
 	float: middle;
 	border: 1px solid #7e7e7e;
 	margin: 30px 10px;
-	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
 	font-size: 15pt;
 	overflow: hidden;
+=======
+    float: middle;
+    border: 1px solid #7e7e7e;
+    margin: 30px 10px;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+    font-size: 15pt;
+    overflow: hidden;
+>>>>>>> 8fd84134bc93300ee5fdddd92ccf2028d65a1c40
 }
 
 .table_header {
@@ -21,154 +30,154 @@ Author: Karandeep Singh Nagra
 }
 
 .add_thread {
-	background: #5e5e5e;
-	color: #fafafa;
-	font-size: 20pt;
-	margin-left: auto;
-	margin-right: auto;
+    background: #5e5e5e;
+    color: #fafafa;
+    font-size: 20pt;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .add_thread:hover {
-	background: #fafafa;
-	border-left: none;
-	border-bottom: 1px solid #5e5e5e;
-	color: black;
-	cursor: pointer;
+    background: #fafafa;
+    border-left: none;
+    border-bottom: 1px solid #5e5e5e;
+    color: black;
+    cursor: pointer;
 }
 
 .button {
-	background: #5e5e5e;
-	color: #fafafa;
-	font-size: 15pt;
-	border: none;
-	height: 40px;
-	padding-top: 5px;
-	padding-bottom: 5px;
+    background: #5e5e5e;
+    color: #fafafa;
+    font-size: 15pt;
+    border: none;
+    height: 40px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 #submit_thread_form {
-	width: 50%;
-	border-right: 1px solid #3f3f3f;
-	float: left;
+    width: 50%;
+    border-right: 1px solid #3f3f3f;
+    float: left;
 }
 
 #cancel_thread_form {
-	width: 50%;
-	border-left: 1px solid #8b8b8b;
-	clear: left;
+    width: 50%;
+    border-left: 1px solid #8b8b8b;
+    clear: left;
 }
 
 .new_message_form {
-	display: none;
+    display: none;
 }
 
 .submit_message_form {
-	background: #5e5e5e;
-	color: #fafafa;
-	font-size: 13pt;
-	height: 30px;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	width: 50%;
-	border-top: none;
-	border-left: none;
-	border-bottom: none;
-	border-right: 1px solid #3f3f3f;
-	float: left;
-	font-weight: 300;
+    background: #5e5e5e;
+    color: #fafafa;
+    font-size: 13pt;
+    height: 30px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 50%;
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+    border-right: 1px solid #3f3f3f;
+    float: left;
+    font-weight: 300;
 }
 
 .cancel_message_form {
-	background: #5e5e5e;
-	color: #fafafa;
-	font-size: 13pt;
-	height: 30px;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	width: 50%;
-	border-top: none;
-	border-right: none;
-	border-bottom: none;
-	border-left: 1px solid #8b8b8b;
-	clear: left;
-	font-weight: 300;
+    background: #5e5e5e;
+    color: #fafafa;
+    font-size: 13pt;
+    height: 30px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 50%;
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    border-left: 1px solid #8b8b8b;
+    clear: left;
+    font-weight: 300;
 }
 
 .add_message {
-	background: #5e5e5e;
-	color: #fafafa;
-	font-size: 13pt;
-	border: none;
-	width: 100%;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	height: 30px;
-	font-weight: 300;
+    background: #5e5e5e;
+    color: #fafafa;
+    font-size: 13pt;
+    border: none;
+    width: 100%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    height: 30px;
+    font-weight: 300;
 }
 
 .add_message:hover {
-	background: #fafafa;
-	color: black;
-	cursor: pointer;
+    background: #fafafa;
+    color: black;
+    cursor: pointer;
 }
 
 .submit_message_form:hover {
-	background: #fafafa;
-	color: black;
-	border-top: 1px solid #7e7e7e;
-	cursor: pointer;
-	border-left: none;
-	border-right: none;
+    background: #fafafa;
+    color: black;
+    border-top: 1px solid #7e7e7e;
+    cursor: pointer;
+    border-left: none;
+    border-right: none;
 }
 
 .cancel_message_form:hover {
-	background: #fafafa;
-	color: black;
-	border-top: 1px solid #7e7e7e;
-	cursor: pointer;
-	border-left: none;
-	border-right: none;
+    background: #fafafa;
+    color: black;
+    border-top: 1px solid #7e7e7e;
+    cursor: pointer;
+    border-left: none;
+    border-right: none;
 }
 
 .button:hover {
-	background: #fafafa;
-	color: black;
-	border-top: 1px solid #7e7e7e;
-	border-bottom: 1px solid #7e7e7e;
-	cursor: pointer;
-	border-left: none;
-	border-right: none;
+    background: #fafafa;
+    color: black;
+    border-top: 1px solid #7e7e7e;
+    border-bottom: 1px solid #7e7e7e;
+    cursor: pointer;
+    border-left: none;
+    border-right: none;
 }
 
 .threads_table {
-	padding: 0px;
+    padding: 0px;
 }
 
 .thread_name {
-	text-align: center;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	word-wrap: break-word;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    word-wrap: break-word;
 }
 
 .thread_messages {
-	padding-left: 0px;
-	padding-right: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 .message_row {
-	border-bottom: 1px solid #7e7e7e;
-	padding-left: 5px;
-	padding-right: 5px;
+    border-bottom: 1px solid #7e7e7e;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .message_table {
-	padding-bottom: 10px;
+    padding-bottom: 10px;
 }
 
 .message_divider {
-	width: 75%;
-	margin: 0px;
+    width: 75%;
+    margin: 0px;
 }
 
 .add_message {
@@ -176,71 +185,71 @@ Author: Karandeep Singh Nagra
 }
 
 /*
-Remove confusion about table layout in case user enters a horizontal line.
-*/	
+  Remove confusion about table layout in case user enters a horizontal line.
+  */	
 .message_table hr:not(.message_divider) {
-	margin-left: 10px;
+    margin-left: 10px;
 }
 
 .message_owner {
-	color: #7e7e7e;
-	font-size: 11pt;
+    color: #7e7e7e;
+    font-size: 11pt;
 }
 
 .message_body {
-	font-size: 13pt;
-	word-wrap: break-word;
-	overflow-x: auto;
+    font-size: 13pt;
+    word-wrap: break-word;
+    overflow-x: auto;
 }
 
 #new_thread_form {
-	display: none;
-	padding-bottom: 10px;
+    display: none;
+    padding-bottom: 10px;
 }
 
 #new_thread_table {
-	padding-top: 10px;
-	padding-bottom: 20px;
-	clear: both;
-	float: left;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    clear: both;
+    float: left;
 }
 
 #id_subject {
-	margin-bottom: 5px;
-	max-width: 75%;
+    margin-bottom: 5px;
+    max-width: 75%;
 }
 
 .more_threads {
-	background: #5e5e5e;
-	border: none;
-	width: 100%;
-	clear: both;
-	text-align: center;
+    background: #5e5e5e;
+    border: none;
+    width: 100%;
+    clear: both;
+    text-align: center;
 }
 
 .more_threads:hover {
-	background: #fafafa;
-	color: black;
-	cursor: pointer;
+    background: #fafafa;
+    color: black;
+    cursor: pointer;
 }
 
 .more_threads > a {
-	color: #fafafa;
-	font-size: 20pt;
-	text-decoration: none;
-	display: block;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	width: 100%;
-	font-weight: 300;
+    color: #fafafa;
+    font-size: 20pt;
+    text-decoration: none;
+    display: block;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 100%;
+    font-weight: 300;
 }
 
 .more_threads:hover > a {
-	color: black;
+    color: black;
 }
 
 .field_wrapper {
-	padding-top: 10px;
-	padding-bottom: 10px;
-	text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
 }
