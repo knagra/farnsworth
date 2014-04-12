@@ -39,7 +39,8 @@ def request_profile_view(request):
 					return render(request, 'request_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'form': form, 'non_field_error': non_field_error})
 			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, approved=False)
 			profile_request.save()
-			return render_to_response('external.html', {'page_name': page_name, 'house': house, 'user': user, 'staff': staff, 'message': 'Your request for a profile has been submitted.  An admin will e-mail you soon.'})
+			return HttpResponseRedirect(reverse('external'))
+			#return render_to_response('external.html', {'page_name': page_name, 'house': house, 'user': user, 'staff': staff, 'message': 'Your request for a profile has been submitted.  An admin will e-mail you soon.'})
 		else:
 			non_field_error = "Uh...Something went wrong in your input.  Please try again."
 			return render(request, 'request_profile.html', {'house': house, 'admin': ADMINS[0], 'form': form, 'page_name': page_name, 'non_field_error': non_field_error})
@@ -162,9 +163,10 @@ def custom_modify_user_view(request, targetUsername):
 				targetProfile.former_rooms = former_rooms
 				targetProfile.former_houses = former_houses
 				targetProfile.save()
-				modify_user_non_field_error = "User %s (%s %s) saved." % (targetUser.username, first_name, last_name)
-				modify_user_form = ModifyUserForm(initial={'first_name': targetUser.first_name, 'last_name': targetUser.last_name, 'email': targetUser.email, 'email_visible_to_others': targetProfile.email_visible, 'phone_number': targetProfile.phone_number, 'phone_visible_to_others': targetProfile.phone_visible, 'status': targetProfile.status, 'current_room': targetProfile.current_room, 'former_rooms': targetProfile.former_rooms, 'former_houses': targetProfile.former_houses, 'is_active': targetUser.is_active, 'is_staff': targetUser.is_staff, 'is_superuser': targetUser.is_superuser, 'groups': groups_dict})
-				return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'change_user_password_form': change_user_password_form, 'page_name': page_name, 'modify_user_form': modify_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
+				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
+				#modify_user_non_field_error = "User %s (%s %s) saved." % (targetUser.username, first_name, last_name)
+				#modify_user_form = ModifyUserForm(initial={'first_name': targetUser.first_name, 'last_name': targetUser.last_name, 'email': targetUser.email, 'email_visible_to_others': targetProfile.email_visible, 'phone_number': targetProfile.phone_number, 'phone_visible_to_others': targetProfile.phone_visible, 'status': targetProfile.status, 'current_room': targetProfile.current_room, 'former_rooms': targetProfile.former_rooms, 'former_houses': targetProfile.former_houses, 'is_active': targetUser.is_active, 'is_staff': targetUser.is_staff, 'is_superuser': targetUser.is_superuser, 'groups': groups_dict})
+				#return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'change_user_password_form': change_user_password_form, 'page_name': page_name, 'modify_user_form': modify_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
 		elif 'change_user_password' in request.POST:
 			change_user_password_form = ChangeUserPasswordForm(request.POST)
 			if change_user_password_form.is_valid():
@@ -175,8 +177,9 @@ def custom_modify_user_view(request, targetUsername):
 					if hashers.is_password_usable(hashed_password):
 						targetUser.password = hashed_password
 						targetUser.save()
-						change_user_password_form = ChangeUserPasswordForm()
-						change_password_non_field_error = "User password changed."
+						#change_user_password_form = ChangeUserPasswordForm()
+						#change_password_non_field_error = "User password changed."
+						return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 					else:
 						change_password_non_field_error = "Could not hash password.  Please try again."
 				else:
@@ -255,10 +258,11 @@ def custom_add_user_view(request):
 				new_user_profile.current_room = current_room
 				new_user_profile.former_rooms = former_rooms
 				new_user_profile.former_houses = former_houses
-				new_user_profile.save()
-				non_field_error = "User %s (%s %s) added." % (username, first_name, last_name)
-				add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
-				return render_to_response('custom_add_user.html', {'page_name': page_name, 'non_field_error': non_field_error, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
+				return HttpResponseRedirect(reverse('custom_add_user'))
+				#new_user_profile.save()
+				#non_field_error = "User %s (%s %s) added." % (username, first_name, last_name)
+				#add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
+				#return render_to_response('custom_add_user.html', {'page_name': page_name, 'non_field_error': non_field_error, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
 			else:
 				add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
 				add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])

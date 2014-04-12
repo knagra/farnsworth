@@ -95,7 +95,8 @@ def my_profile_view(request):
 							user.password = hashed_password
 							user.save()
 							password_non_field_error = "Your password has been changed."
-							change_password_form = ChangePasswordForm()
+							return HttpResponseRedirect(reverse('my_profile'))
+							#change_password_form = ChangePasswordForm()
 						else:
 							password_non_field_error = "Password didn't hash properly.  Please try again."
 							return render_to_response('my_profile.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'password_non_field_error': password_non_field_error}, context_instance=RequestContext(request))
@@ -125,8 +126,9 @@ def my_profile_view(request):
 					userProfile.phone_visible = phone_visible_to_others
 					userProfile.save()
 					profile_non_field_error = "Your profile has been updated."
-					update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
-					return render_to_response('my_profile.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'profile_non_field_error': profile_non_field_error}, context_instance=RequestContext(request))
+					return HttpResponseRedirect(reverse('my_profile'))
+					#update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
+					#return render_to_response('my_profile.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'profile_non_field_error': profile_non_field_error}, context_instance=RequestContext(request))
 				else:
 					update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
 		else:
@@ -201,6 +203,7 @@ def member_forums_view(request):
 				thread.save()
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
+				return HttpResponseRedirect(reverse('member_forums'))
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -211,6 +214,7 @@ def member_forums_view(request):
 				message.save()
 				thread.number_of_messages += 1
 				thread.save()
+				return HttpResponseRedirect(reverse('member_forums'))
 		else:
 			message = "Your request at /member_forums/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
@@ -260,6 +264,7 @@ def all_threads_view(request):
 				thread.save()
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
+				return HttpResponseRedirect(reverse('all_threads'))
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -270,6 +275,7 @@ def all_threads_view(request):
 				message.save()
 				thread.number_of_messages += 1
 				thread.save()
+				return HttpResponseRedirect(reverse('all_threads'))
 		else:
 			message = "Your request at /all_threads/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
@@ -310,6 +316,7 @@ def my_threads_view(request):
 				thread.save()
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
+				return HttpResponseRedirect(reverse('my_threads'))
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -320,6 +327,7 @@ def my_threads_view(request):
 				message.save()
 				thread.number_of_messages += 1
 				thread.save()
+				return HttpResponseRedirect(reverse('my_threads'))
 		else:
 			message = "Your request at /my_threads/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
