@@ -35,8 +35,8 @@
     {% csrf_token %}
     <div class="form-group">
       <textarea class="request" id="id_body" name="body"></textarea>
-      <button type="submit" class="btn btn-lg btn-success" name="submit_thread_form">Submit Request</button>
-      <input type="button" class="btn btn-lg btn-warning" name="cancel_thread_form" value="Cancel" onclick="hide_new_thread_form()">
+      <button type="submit" class="btn btn-lg btn-success" name="submit_request_form">Submit Request</button>
+      <input type="button" class="btn btn-lg btn-warning" name="cancel_request_form" value="Cancel" onclick="hide_new_request_form()">
     </div>
   </form>
 
@@ -96,25 +96,19 @@
 	      {% for response_form in response_forms %}
 	      {% if response_form.request_pk.value == request.pk %}
 	      {{ response_form.request_pk }}
-	      <textarea class="response" name="body"></textarea>
-	      {% if manager %}
-	      <div class="checkbox"><label for="id_mark_filled">Filled</label>
-		{{ response_form.mark_filled }}
-	      </div>
-	      <div class="checkbox"><label for="id_mark_closed">Closed</label>
-		{{ response_form.mark_closed }}
-	      </div>
-	      {% endif %}
-	      <div class="container-fluid">
-		<div class="row">
-		  <div class="col-md-6">
-		    <input class="btn btn-lg btn-primary" name="add_response" type="submit" value="Post Message" />
-		  </div>
-		  <div class="mol-md-6">
-		    <input class="btn btn-lg btn-default" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" type="button" value="Cancel" />
-		  </div>
+	      <div class="form-group">
+		<textarea class="response" name="body"></textarea>
+		{% if manager %}
+		<div class="checkbox"><label for="id_mark_filled">Filled</label>
+		  {{ response_form.mark_filled }}
 		</div>
-	      </div> <!-- container-fluid -->
+		<div class="checkbox"><label for="id_mark_closed">Closed</label>
+		  {{ response_form.mark_closed }}
+		</div>
+		{% endif %}
+		<button type="submit" class="btn btn-lg btn-success" name="add_response" type="submit">Post Response</button>
+		<input type="button" class="btn btn-lg btn-warning" name="cancel_response_form" value="Cancel" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" />
+	      </div>
 	      {% endif %}
 	      {% endfor %}
 	    </form>
