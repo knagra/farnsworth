@@ -8,28 +8,39 @@
 {% endblock %}
 
 {% block content %}
-<p>Please choose:</p>
-<ul id="pages_list">
-	<li><a class="page_link" href="{% url 'external' %}" >External Page</a> - to go to the external landing to this site.</li>
-	<li><a class="page_link" href="{% url 'helppage' %}" >Help Page</a> - to see some helpful information about the site.</li>
-	<li><a class="page_link" href="https://github.com/knagra/farnsworth" target="_blank" >Project Code Source</a> - to see this project's source code on <a class="page_link" href="https://github.com" target="_blank" >GitHub</a>.</li>
-	{% if user.is_authenticated %}
-		<li><a class="page_link" href="{% url 'homepage' %}" >Home Page</a> - to go to your home page.</li>
-		<li><a class="page_link" href="{% url 'member_directory' %}" >Member Directory</a> - to see a list of residents, boarders, alumni, and their phone numbers, e-mail addresses, etc.</li>
-		<li><a class="page_link" href="{% url 'member_forums' %}" >Member Forums</a> - to see active member conversations.</li>
-		<li><a class="page_link" href="{% url 'all_threads' %}" >All Threads</a> - to see all threads on this site.</li>
-		<li><a class="page_link" href="{% url 'my_threads' %}" >My Threads</a> - to see all your threads on this site.</li>
-		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - to see and update your profile or change your password.</li>
-		{% if user.is_staff %}
-			<li><a class="page_link" href="{% url 'admin:index' %}" >Admin Page</a> - to go to the site administration pages.</li>
-		{% endif %}
-		{% if user.is_superuser %}
-			<li><a class="page_link" href="{% url 'custom_add_user' %}" >Add User</a> - to add a new user to the site.</li>
-		{% endif %}
-		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - to logout of your account.</li>
-	{% else %}
-		<li><a class="page_link" href="{% url 'login' %}" >Login Page</a> - to login to an existing member account.</li>
-		<li><a class="page_link" href="{% url 'request_profile' %}" >Create Account</a> - to request a new account and profile on the site.</li>
+<div class="container-fluid list_container">
+<div class="container-title">General Pages</div>
+<ul class="pages_list">
+	<li><a class="page_link" href="{% url 'external' %}" >External Page</a> - go to the external landing to this site.</li>
+	<li><a class="page_link" href="{% url 'helppage' %}" >Help Page</a> - see some helpful information about the site.</li>
+	<li><a class="page_link" href="https://github.com/knagra/farnsworth" target="_blank" >Project Code Source</a> - see this project's source code on <a class="page_link" href="https://github.com" target="_blank" >GitHub</a>.</li>
+	{% if not user.is_authenticated %}
+		<li><a class="page_link" href="{% url 'login' %}" >Login Page</a> - login to an existing member account.</li>
+		<li><a class="page_link" href="{% url 'request_profile' %}" >Create Account</a> - request a new account and profile on the site.</li>
 	{% endif %}
 </ul>
+</div>
+{% if user.is_authenticated %}
+	<div class="container-fluid list_container">
+	<div class="container-title">Internal Pages</div>
+	<ul class="pages_list">
+		<li><a class="page_link" href="{% url 'homepage' %}" >Home Page</a> - go to your home page.</li>
+		<li><a class="page_link" href="{% url 'member_directory' %}" >Member Directory</a> - see a list of residents, boarders, alumni, and their phone numbers, e-mail addresses, etc.</li>
+		<li><a class="page_link" href="{% url 'member_forums' %}" >Member Forums</a> - see active member conversations.</li>
+		<li><a class="page_link" href="{% url 'all_threads' %}" >All Threads</a> - see all threads on this site.</li>
+		<li><a class="page_link" href="{% url 'my_threads' %}" >My Threads</a> - see all your threads on this site.</li>
+		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - see and update your profile or change your password.</li>
+		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - logout of your account.</li>
+	</ul>
+	</div>
+{% endif %}
+{% if user.is_superuser %}
+	<div class="container-fluid list_container">
+	<div class="container-title">Admin Pages</div>
+	<ul class="pages_list">
+		<li><a class="page_link" href="{% url 'admin:index' %}" >Admin Page</a> - go to the site administration pages.</li>
+		<li><a class="page_link" href="{% url 'custom_add_user' %}" >Add User</a> - add a new user to the site.</li>
+	</ul>
+	</div>
+{% endif %}
 {% endblock %} 
