@@ -1,91 +1,93 @@
 /*
-Project: Farnsworth
+  Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 */
 
 * {
-	padding: 0px 0px 0px 0px;
-	margin: 0px 0px 0px 0px;
-	font-family: 'Source Sans Pro', Tahoma, sans-serif;
-	font-weight: 400;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    font-family: 'Source Sans Pro', Tahoma, sans-serif;
+    font-weight: 400;
 }
 
 #page_title {
-	color: black;
-	font-size: 30pt;
-	font-weight: 200;
-	margin: 0;
+    color: black;
+    font-size: 30pt;
+    font-weight: 200;
+    margin: 0;
 }
 
 #html_body {
-	background: #efefef;
-	background: linear-gradient(top, #fafafa 0%, #efefef 100%);
-	background: -moz-linear-gradient(top, #fafafa 0%, #efefef 100%);
-	background: -webkit-linear-gradient(top, #fafafa 0%, #efefef 100%);
-	background-repeat: no-repeat;
-	background-attachment: fixed;
-	height: 100%;
-	width: 100%;
+    background: #efefef;
+    background: linear-gradient(top, #fafafa 0%, #efefef 100%);
+    background: -moz-linear-gradient(top, #fafafa 0%, #efefef 100%);
+    background: -webkit-linear-gradient(top, #fafafa 0%, #efefef 100%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100%;
+    width: 100%;
 }
 
 .navbar-static-top {
-	margin-bottom: 19px;
+    margin-bottom: 19px;
 }
 
 #wrapper {
-	width: 920px;
-	margin: 0 auto;
-	background-color: #fafafa;
-	min-height: 100%;
-	left: 0;
-	right: 0;
-	/* position: absolute; */
-	top: 0px;
-	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
-	overflow: hidden;
+    width: 920px;
+    margin: 0 auto;
+    background-color: #fafafa;
+    min-height: 100%;
+    left: 0;
+    right: 0;
+    /* position: absolute; */
+    top: 0px;
+    box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+    overflow: hidden;
 }
 
 #body {
-	clear: both;
-	position: relative;
-	width: 100%;
-	height: auto;
-	color: black;
+    clear: both;
+    position: relative;
+    width: 100%;
+    height: auto;
+    color: black;
+    margin-bottom: 60px;
 }
 
 #title {
-	float: center;
-	width: 100%;
+    float: center;
+    width: 100%;
 }
 
 #content {
-	clear: both;
+    clear: both;
 }
 
 footer {
-	clear: both;
-	text-align: center;
-	width: 100%;
-	font-size: 11pt;
-	border: none;
-	margin: 0 auto;
-	padding-top: 10px;
-	padding-bottom: 10px;
-	bottom: 0;
-	color: #101010;
-	text-decoration: none;
-	clear: both;
-	font-weight: 400;
+    position: absolute;
+    clear: both;
+    text-align: center;
+    width: 100%;
+    font-size: 11pt;
+    border: none;
+    margin: 0 auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    bottom: 0;
+    color: #101010;
+    text-decoration: none;
+    clear: both;
+    font-weight: 400;
 }
 
 .footer_link {
-	color: #202020;
-	font-weight: 400;
-	text-decoration: none;
+    color: #202020;
+    font-weight: 400;
+    text-decoration: none;
 }
 
 a.footer_link:hover {
-	color: black;
-	font-style: bold;
+    color: black;
+    font-style: bold;
 }
