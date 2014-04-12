@@ -15,6 +15,7 @@ Author: Karandeep Singh Nagra
 	color: black;
 	font-size: 30pt;
 	font-weight: 200;
+	margin: 0;
 }
 
 #html_body {
@@ -51,19 +52,15 @@ Author: Karandeep Singh Nagra
 	width: 100%;
 	height: auto;
 	color: black;
-	padding-bottom: 50px;
 }
 
 #title {
-	margin-top: 15px;
-	margin-left: 30px;
 	float: center;
 	width: 100%;
 }
 
 #content {
 	clear: both;
-	padding-left: 20px;
 }
 
 footer {
@@ -73,20 +70,18 @@ footer {
 	font-size: 11pt;
 	border: none;
 	margin: 0 auto;
-	/* position: absolute; */
 	padding-top: 10px;
 	padding-bottom: 10px;
 	bottom: 0;
-	color: #efefef;
+	color: #101010;
 	text-decoration: none;
 	clear: both;
-	background: #7e7e7e;
-	font-weight: 300;
+	font-weight: 400;
 }
 
 .footer_link {
-	color: #efefef;
-	font-weight: 300;
+	color: #202020;
+	font-weight: 400;
 	text-decoration: none;
 }
 

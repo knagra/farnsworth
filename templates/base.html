@@ -1,104 +1,102 @@
 <!DOCTYPE html>
 
 <!--
-Project: Farnsworth
+   Project: Farnsworth
 
-Author: Karandeep Singh Nagra
+   Author: Karandeep Singh Nagra
 
-The HTML for {{ page_name }}.
--->
+   The HTML for {{ page_name }}.
+  -->
 
 <html>
-<head>
-	<title>{{ house }} - {{ page_name }}</title>
-	{% load static from staticfiles %}
-	<link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
-	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
-	<link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
-	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
-	{% block headers %} {% endblock %}
-</head>
-<body id="html_body">
-  <div class="container"> <!-- # Get rid of this to make the bar span the entire width of the page -->
-    <div class="navbar navbar-default navbar-static-top" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="{% url 'homepage' %}">Farnsworth</a>
+  <head>
+    <title>{{ house }} - {{ page_name }}</title>
+    {% load static from staticfiles %}
+    <link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+    <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
+    {% block headers %} {% endblock %}
+  </head>
+  <body id="html_body">
+    <div class="container"> <!-- # Get rid of this to make the bar span the entire width of the page -->
+      <div class="navbar navbar-default navbar-static-top" role="navigation">
+	<div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'homepage' %}">Farnsworth</a>
           </div>
-	<div class="collapse navbar-collapse">
-	  <!-- class="active" ??? -->
-	  <ul class="nav navbar-nav">
-	    {% if user.is_authenticated %}
-	    <li class="dropdown">
-	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profile <b class="caret"></b></a>
-	      <ul class="dropdown-menu">
-	    	<li><a href="{% url 'my_profile' %}" >Update My Profile</a></li>
-	    	<li><a href="{% url 'my_threads' %}" >My Threads</a></li>
-	    	<!--<li><a href="{% url 'my_requests' %}" >My Requests</a></li>-->
-	      </ul>
-	    </li>
-	    <!-- Disabled, since this duplicated home, what do you think, KDeep? Want it back?
-	       <li><a href="{% url 'member_forums' %}" >Member Forums</a></li> -->
-	    <li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
-	    <li><a href="{% url 'member_directory' %}" >Member Directory</a></li>
-	    <li><a href="{% url 'external' %}">External</a></li>
-	    <li class="dropdown">
-	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Requests <b class="caret"></b></a>
-	      <ul class="dropdown-menu">
-	     	<li><a href="{% url 'food_requests' %}" >Food</a></li>
-	     	<li><a href="{% url 'maintenance_requests' %}" >Maintenance</a></li>
-	     	<li><a href="{% url 'health_requests' %}" >Health</a></li>
-	     	<li><a href="{% url 'network_requests' %}" >Network</a></li>
-	     	<li><a href="{% url 'site_requests' %}" >Site</a></li>
-	      </ul>
-	    </li>
-	    {% if user.is_staff %}
-	    <li class="dropdown">
-	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin{% if user.is_superuser %}+{% endif %} <b class="caret"></b></a>
-	      <ul class="dropdown-menu">
-		{% if user.is_superuser %}
-		<li><a href="{% url 'custom_manage_users' %}" >Manage Users</a></li>
-		<li><a href="{% url 'custom_add_user' %}" >Add User</a></li>
-		<li><a href="{% url 'admin:index' %}">Django Admin</a></li> 
+	  <div class="collapse navbar-collapse">
+	    <!-- class="active" ??? -->
+	    <ul class="nav navbar-nav">
+	      {% if user.is_authenticated %}
+	      <li class="dropdown">
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Profile <b class="caret"></b></a>
+		<ul class="dropdown-menu">
+	    	  <li><a href="{% url 'my_profile' %}" >Update My Profile</a></li>
+	    	  <li><a href="{% url 'my_threads' %}" >My Threads</a></li>
+	    	  <!--<li><a href="{% url 'my_requests' %}" >My Requests</a></li>-->
+		</ul>
+	      </li>
+	      <!-- Disabled, since this duplicated home, what do you think, KDeep? Want it back?
+		   <li><a href="{% url 'member_forums' %}" >Member Forums</a></li> -->
+	      <li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
+	      <li><a href="{% url 'member_directory' %}" >Member Directory</a></li>
+	      <li><a href="{% url 'external' %}">External</a></li>
+	      <li class="dropdown">
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Requests <b class="caret"></b></a>
+		<ul class="dropdown-menu">
+	     	  <li><a href="{% url 'food_requests' %}" >Food</a></li>
+	     	  <li><a href="{% url 'maintenance_requests' %}" >Maintenance</a></li>
+	     	  <li><a href="{% url 'health_requests' %}" >Health</a></li>
+	     	  <li><a href="{% url 'network_requests' %}" >Network</a></li>
+	     	  <li><a href="{% url 'site_requests' %}" >Site</a></li>
+		</ul>
+	      </li>
+	      {% if user.is_staff %}
+	      <li class="dropdown">
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin{% if user.is_superuser %}+{% endif %} <b class="caret"></b></a>
+		<ul class="dropdown-menu">
+		  {% if user.is_superuser %}
+		  <li><a href="{% url 'custom_manage_users' %}" >Manage Users</a></li>
+		  <li><a href="{% url 'custom_add_user' %}" >Add User</a></li>
+		  <li><a href="{% url 'admin:index' %}">Django Admin</a></li> 
+		  {% endif %}
+		</ul>
+	      </li>
+	      {% endif %}
+	      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" >Site Map</a>
 		{% endif %}
-	      </ul>
-	    </li>
-	    {% endif %}
-	    <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" >Site Map</a>
-	    {% endif %}
-	  </ul>
-	  <ul class="nav navbar-nav navbar-right">
-	    <li><a class="menu_link" href="{% url 'helppage' %}">Help</a></li>
-	    {% if user.is_authenticated %}
-	    <li><a href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
-	    <li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>
-	    {% else %}
-	    <li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
-	    <li><a class="menu_link" href="{% url 'request_profile' %}">Request Account</a></li>
-	    {% endif %}
-	  </ul>
+	    </ul>
+	    <ul class="nav navbar-nav navbar-right">
+	      <li><a class="menu_link" href="{% url 'helppage' %}">Help</a></li>
+	      {% if user.is_authenticated %}
+	      <li><a href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
+	      <li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>
+	      {% else %}
+	      <li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
+	      <li><a class="menu_link" href="{% url 'request_profile' %}">Request Account</a></li>
+	      {% endif %}
+	    </ul>
+	  </div>
 	</div>
       </div>
     </div>
-  </div>
 
-  <div class="container">
-    <div id="wrapper">
+    <div class="container">
+      <div id="title">
+	{% if page_name == "Home Page" or page_name == "External" %}
+	<h1 id="page_title">Welcome to {{ house }}</h1>
+	{% else %}
+	<h1 class="page-header" id="page_title">{{ house}} - {{page_name}}</h1>
+	{% endif %}
+      </div> <!-- close "title" -->
       <div id="body">
-	<div id="title">
-	  {% if page_name == "Home Page" or page_name == "External" %}
-	  <h1 id="page_title">Welcome to {{ house }}</h1>
-	  {% else %}
-	  <h1 id="page_title">{{ house}} - {{page_name}}</h1>
-	  {% endif %}
-	</div> <!-- close "title" -->
-	<hr>
 	<div id="content">
 	  {% block content %}{% endblock %}
 	</div> <!-- close "content" -->
@@ -107,9 +105,8 @@ The HTML for {{ page_name }}.
       <footer>
 	Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ admin.0 }} (<a class="footer_link" href="mailto:{{ admin.1 }}">{{ admin.1 }}</a>) for support.
       </footer>
-    </div> <!-- close "wrapper" -->
-  </div> <!-- close "container" -->
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-  <script src="/static/bootstrap/js/bootstrap.min.js"></script>
-</body>
+    </div> <!-- close "container" -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
 </html>

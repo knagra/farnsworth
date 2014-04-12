@@ -7,42 +7,25 @@ Author: Karandeep Singh Nagra
 .threads {
 	float: middle;
 	border: 1px solid #7e7e7e;
-	width: 860px;
 	margin: 30px 10px;
 	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
 	font-size: 15pt;
 	overflow: hidden;
 }
 
-.threads_title {
-	background: #5e5e5e;
-	background: linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -moz-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -webkit-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	color: #fafafa;
-	padding-left: 10px;
-	padding-top: 10px;
-	height: 40px;
-	font-size: 20pt;
-	width: 634px;
-	float: left;
-	border-right: 1px solid #3f3f3f;
+.table_header {
+    margin: auto;
+    background: #5e5e5e;
+    color: #fafafa;
+    font-size: 20pt;
 }
 
 .add_thread {
 	background: #5e5e5e;
-	background: linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -moz-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -webkit-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
 	color: #fafafa;
-	height: 50px;
 	font-size: 20pt;
-	width: 215px;
-	float: right;
-	border-left: 1px solid #8b8b8b;
-	border-top: none;
-	border-right: none;
-	border-bottom: 1px solid #5e5e5e;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .add_thread:hover {
@@ -158,36 +141,10 @@ Author: Karandeep Singh Nagra
 }
 
 .threads_table {
-	float: left;
-	width: 100%;
-}
-
-.table_header {
-	color: black;
-	font-size: 15pt;
-	font-weight: bold;
-	position: relative;
-	text-align: center;
-	width: 100%;
-}
-
-.threads_row {
-	width: 100%;
-	color: black;
-	border-bottom: 1px solid #7e7e7e;
-	overflow: hidden;
-}
-
-.table_header .thread_messages {
-	padding-top: 5px;
-	padding-bottom: 5px;
+	padding: 0px;
 }
 
 .thread_name {
-	width: 215px;
-	float: left;
-	position: relative;
-	display: inline-block;
 	text-align: center;
 	padding-top: 5px;
 	padding-bottom: 5px;
@@ -195,25 +152,27 @@ Author: Karandeep Singh Nagra
 }
 
 .thread_messages {
-	width: 644px;
-	float: right;
-	display: inline-block;
-	border-left: 1px solid #7e7e7e;
+	padding-left: 0px;
+	padding-right: 0px;
 }
 
 .message_row {
-	width: 100%;
 	border-bottom: 1px solid #7e7e7e;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .message_table {
-	width: 100%;
 	padding-bottom: 10px;
-	float: left;
 }
 
 .message_divider {
 	width: 75%;
+	margin: 0px;
+}
+
+.add_message {
+    padding: 0px;
 }
 
 /*
@@ -224,15 +183,11 @@ Remove confusion about table layout in case user enters a horizontal line.
 }
 
 .message_owner {
-	padding-left: 5px;
-	padding-top: 5px;
 	color: #7e7e7e;
 	font-size: 11pt;
 }
 
 .message_body {
-	padding-left: 5px;
-	padding-bottom: 5px;
 	font-size: 13pt;
 	word-wrap: break-word;
 	overflow-x: auto;
@@ -246,7 +201,6 @@ Remove confusion about table layout in case user enters a horizontal line.
 #new_thread_table {
 	padding-top: 10px;
 	padding-bottom: 20px;
-	padding-left: 10px;
 	clear: both;
 	float: left;
 }
