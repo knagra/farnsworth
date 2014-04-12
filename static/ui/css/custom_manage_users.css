@@ -16,9 +16,6 @@ Author: Karandeep Singh Nagra
 
 .table_title {
 	background: #5e5e5e;
-	background: linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -moz-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -webkit-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
 	color: #fafafa;
 	padding-left: 10px;
 	padding-top: 10px;

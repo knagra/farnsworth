@@ -38,19 +38,6 @@ html {
     margin-bottom: 19px;
 }
 
-#wrapper {
-    width: 920px;
-    margin: 0 auto;
-    background-color: #fafafa;
-    min-height: 100%;
-    left: 0;
-    right: 0;
-    /* position: absolute; */
-    top: 0px;
-    box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
-    overflow: hidden;
-}
-
 #body {
     clear: both;
     position: relative;

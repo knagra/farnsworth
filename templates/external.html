@@ -5,26 +5,8 @@
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'jquery/nivo/nivo-slider.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'jquery/nivo/themes/default/default.css' %}" />
-<script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'jquery/nivo/jquery.nivo.slider.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/external.css' %}" />
-<script type="text/javascript">
-	$(window).load(function() {
-		$('#slider').nivoSlider({
-			effect: 'slideInLeft',
-			animSpeed: 800,
-			pauseTime: 5000,
-			startSlide: 0,
-			directionNav: true,
-			controlNav: true,
-			pauseOnHover: true,
-			prevText: '<',
-			nextText: '>',
-			
-		});
-	});
-</script>
 {% endblock %}
 
 {% block content %}
@@ -65,4 +47,23 @@ Before it was purchased by the BSC, the property of Kingman Hall was known as th
 		<img class="page_image" src="{% static 'ui/images/IMG_0117.jpg' %}" />
 	</div>
 </div>
+{% endblock %}
+{% block endscripts %}
+<script type="text/javascript" src="{% static 'jquery/nivo/jquery.nivo.slider.js' %}"></script>
+<script type="text/javascript">
+	$(window).load(function() {
+		$('#slider').nivoSlider({
+			effect: 'slideInLeft',
+			animSpeed: 800,
+			pauseTime: 5000,
+			startSlide: 0,
+			directionNav: true,
+			controlNav: true,
+			pauseOnHover: true,
+			prevText: '<',
+			nextText: '>',
+			
+		});
+	});
+</script>
 {% endblock %}
