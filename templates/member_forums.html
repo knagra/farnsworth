@@ -63,48 +63,52 @@
     <div class="thread_messages">
       <div class="message_table">
 	<h4 class="thread_name">{{ thread.subject }}</h4>
+
 	{% for message in active_messages %}
 	{% if message.thread == thread %}
 	{% if forloop.counter > 1 %}
 	<hr id="message_divider" />
 	{% endif %}
 	<div class="message_row">
-	  <span class="message_owner">
+	  <div class="message_owner">
 	    <a class="page_link" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >
 	      {% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %}</a> ({{ message.post_date }}):
-	  </span>
-	  <span class="message_body">{{ message.body|safe }}</span>
+	  </div>
+	  <div class="message_body">{{ message.body|safe }}</div>
 	</div> <!-- message_row -->
 	{% endif %}
 	{% endfor %}
-	<input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
-	<div class="message_row add_message">
+
+	<div class="text-center">
 	  {% with y=forloop.counter|stringformat:"s" %}
 	  {% with message_form_id="message_form_"|add:y %}
 	  {% with button_id="button_"|add:y %}
+	  <input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
 	  <form class="new_message_form add_thread" id="{{ message_form_id }}" method="post" action="">
 	    {% csrf_token %}
 	    {% for message_form in active_message_forms %}
 	    {% if message_form.thread_pk.value == thread.pk %}
 	    {{ message_form.thread_pk }}
-	    <textarea class="message" name="body"></textarea>
 	    <div class="container-fluid">
 	      <div class="row">
+		<textarea class="message" name="body"></textarea>
+	      </div>
+	      <div class="row">
 		<div class="col-md-6">
-		  <input class="btn" name="submit_message_form" type="submit" value="Post Message" />
+		  <input class="btn btn-lg btn-primary" name="submit_message_form" type="submit" value="Post Message" />
 		</div>
 		<div class="col-md-6">
-		  <input class="btn" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')" type="button" value="Cancel" />
+		  <input class="btn btn-lg btn-default" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')" type="button" value="Cancel" />
 		</div>
 	      </div>
-	    </div>
+	    </div> <!-- container-fluid -->
 	    {% endif %}
 	    {% endfor %}
 	  </form>
 	  {% endwith %}
 	  {% endwith %}
 	  {% endwith %}
-	</div> <!-- message_row -->
+	</div>
       </div> <!-- message_table -->
     </div> <!-- thread_messages -->
     {% endfor %}
