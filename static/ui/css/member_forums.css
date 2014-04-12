@@ -18,10 +18,12 @@ Author: Karandeep Singh Nagra
     background: #5e5e5e;
     color: #fafafa;
     font-size: 20pt;
+    height: 45px;
 }
 
 .thread_title {
     padding-left: 20px;
+    font-size: 150%;
 }
 
 
@@ -29,8 +31,9 @@ Author: Karandeep Singh Nagra
     background: #5e5e5e;
     color: #fafafa;
     font-size: 20pt;
-    margin-left: auto;
-    margin-right: auto;
+    float: right;
+    /* margin-left: auto; */
+    /* margin-right: auto; */
 }
 
 .add_thread:hover {
@@ -155,6 +158,8 @@ Author: Karandeep Singh Nagra
     padding-top: 5px;
     padding-bottom: 5px;
     word-wrap: break-word;
+    background: #bbd;
+    border: 1px solid #000;
 }
 
 .thread_messages {
@@ -171,6 +176,10 @@ Author: Karandeep Singh Nagra
 .message_row {
     padding-left: 5px;
     padding-right: 5px;
+}
+
+.message_row:hover {
+    background: #ddf;
 }
 
 .message_table {

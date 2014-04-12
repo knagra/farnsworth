@@ -27,13 +27,9 @@
   }
 </script>
 <div class="threads">
-  <div class="row table_header">
-    <div class="col-md-9">
-      <h3 class="thread_title">Active Threads</h3>
-    </div>
-    <div class="col-md-3">
-      <input class="btn btn-default add_thread" onclick="show_new_thread_form()" type="submit" value="New Thread" />
-    </div>
+  <div class="table_header">
+    <input class="btn btn-primary btn-lg add_thread" align="right" onclick="show_new_thread_form()" type="submit" value="New Thread" />
+    <h3 class="thread_title">Active Threads</h3>
   </div> <!-- table_header -->
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}
@@ -43,13 +39,13 @@
     <div class="container-fluid">
       <div class="row">
 	<div class="col-md-6">
-	  <input class="btn btn-default" id="submit_thread_form" name="submit_thread_form" type="submit" value="Start Thread" />
+	  <input class="btn btn-primary btn-lg" id="submit_thread_form" name="submit_thread_form" type="submit" value="Start Thread" />
 	</div>
 	<div class="col-md-6">
-	  <input class="btn btn-default" id="cancel_thread_form" onclick="hide_new_thread_form()" type="button" value="Cancel" />
+	  <input class="btn btn-default btn-lg" id="cancel_thread_form" onclick="hide_new_thread_form()" type="button" value="Cancel" />
 	</div>
       </div>
-    </div>
+    </div> <!-- container-fluid -->
   </form>
   <div class="container-fluid threads_table">
     {% if not active_threads %}
@@ -62,7 +58,7 @@
     
     <div class="thread_messages">
       <div class="message_table">
-	<h4 class="thread_name">{{ thread.subject }}</h4>
+	<h3 class="thread_name">{{ thread.subject }}</h3>
 
 	{% for message in active_messages %}
 	{% if message.thread == thread %}
