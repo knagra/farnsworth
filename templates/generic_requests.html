@@ -33,19 +33,11 @@
   </div> <!-- table_header -->
   <form id="new_request_form" method="post" action="">
     {% csrf_token %}
-    <table id="new_request_table">
-      {{ request_form.as_table }}
-    </table>
-    <div class="container-fluid">
-      <div class="row">
-	<div class="col-md-6">
-	  <input class="btn btn-primary btn-lg" id="submit_request_form" name="submit_request" type="submit" value="Submit Request" />
-	</div>
-	<div class="col-md-6">
-	  <input class="btn btn-default btn-lg" id="cancel_request_form" onclick="hide_new_request_form()" type="button" value="Cancel" />
-	</div>
-      </div>
-    </div> <!-- container-fluid -->
+    <div class="form-group">
+      <textarea class="request" id="id_body" name="body"></textarea>
+      <button type="submit" class="btn btn-lg btn-success" name="submit_thread_form">Submit Request</button>
+      <input type="button" class="btn btn-lg btn-warning" name="cancel_thread_form" value="Cancel" onclick="hide_new_thread_form()">
+    </div>
   </form>
 
   <div class="container-fluid requests_table">
