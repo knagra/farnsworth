@@ -18,6 +18,11 @@ Author: Karandeep Singh Nagra
     margin: 0;
 }
 
+html {
+    position: relative;
+    min-height: 100%;
+}
+
 #html_body {
     background: #efefef;
     background: linear-gradient(top, #fafafa 0%, #efefef 100%);

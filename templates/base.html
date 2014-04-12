@@ -13,10 +13,10 @@
     <title>{{ house }} - {{ page_name }}</title>
     {% load static from staticfiles %}
     <link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
+    {% block headers %} {% endblock %}
     <link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
     <link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
     <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
-    {% block headers %} {% endblock %}
   </head>
   <body id="html_body">
     <div class="container"> <!-- # Get rid of this to make the bar span the entire width of the page -->
@@ -106,7 +106,9 @@
     <footer>
       Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ admin.0 }} (<a class="footer_link" href="mailto:{{ admin.1 }}">{{ admin.1 }}</a>) for support.
     </footer>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    {% block endscripts %}{% endblock %}
   </body>
 </html>

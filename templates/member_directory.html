@@ -4,17 +4,8 @@
 
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
-<script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_directory.css' %}" />
-<script>
-  $(document).ready(function() {
-  $('table').tablesorter({
-  sortList: [[1,0], [2,0]]
-  });
-  });
-</script>
 {% endblock %}
 
 {% block content %}
@@ -109,4 +100,14 @@
   </table>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block endscripts %}
+<script>
+  $(document).ready(function() {
+  $('table').tablesorter({
+  sortList: [[1,0], [2,0]]
+  });
+  });
+</script>
 {% endblock %}
