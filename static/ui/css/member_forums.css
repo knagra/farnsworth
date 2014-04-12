@@ -156,12 +156,12 @@ Author: Karandeep Singh Nagra
 
 .thread_name {
     text-align: center;
-    margin: 5px 0px;
+    margin: 5px auto;
     padding-top: 2px;
     padding-bottom: 2px;
-    word-wrap: break-word;
-    background: #bbd;
-    border: 1px solid #000;
+    width: 75%;
+    background: #dde;
+    border: 1px solid #888;
 }
 
 .thread_messages {
