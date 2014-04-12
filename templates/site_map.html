@@ -30,6 +30,12 @@
 		<li><a class="page_link" href="{% url 'all_threads' %}" >All Threads</a> - see all threads on this site.</li>
 		<li><a class="page_link" href="{% url 'my_threads' %}" >My Threads</a> - see all your threads on this site.</li>
 		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - see and update your profile or change your password.</li>
+		<li><a class="page_link" href="{% url 'food_requests' %}" >Food Requests</a> - see and add recent food requests.</li>
+		<li><a class="page_link" href="{% url 'maintenance_requests' %}" >Maintenance Requests</a> - see and add recent maintenance requests.</li>
+		<li><a class="page_link" href="{% url 'health_requests' %}" >Health Requests</a> - see and add recent health requests.</li>
+		<li><a class="page_link" href="{% url 'network_requests' %}" >Network Requests</a> - see and add recent network requests.</li>
+		<li><a class="page_link" href="{% url 'site_requests' %}" >Site Requests</a> - see and add recent site requests.</li>
+		<li><a class="page_link" href="{% url 'my_requests' %}" >My Requests</a> - see all your requests.</li>
 		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - logout of your account.</li>
 	</ul>
 	</div>
@@ -38,7 +44,8 @@
 	<div class="container-fluid list_container">
 	<div class="container-title">Admin Pages</div>
 	<ul class="pages_list">
-		<li><a class="page_link" href="{% url 'admin:index' %}" >Admin Page</a> - go to the site administration pages.</li>
+		<li><a class="page_link" href="{% url 'admin:index' %}" >Admin Page</a> - go to the Django admin pages.</li>
+		<li><a class="page_link" href="{% url 'custom_manage_users' %}" >Manage Users</a> - manage users.</li>
 		<li><a class="page_link" href="{% url 'custom_add_user' %}" >Add User</a> - add a new user to the site.</li>
 	</ul>
 	</div>
