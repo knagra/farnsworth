@@ -25,6 +25,12 @@
   document.getElementById(message_form_id).style.display="none";
   document.getElementById(button_id).style.display="inline";
   }
+	$("form").submit(function() {
+		$(this).submit(function() {
+			return false;
+		});
+		return true;
+	});
 </script>
 <div class="threads">
   <div class="table_header">
