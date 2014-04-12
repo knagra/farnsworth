@@ -9,104 +9,104 @@
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_directory.css' %}" />
 <script>
-$(document).ready(function() {
-	$('table').tablesorter({
-		sortList: [[1,0], [2,0]]
-	});
-});
+  $(document).ready(function() {
+  $('table').tablesorter({
+  sortList: [[1,0], [2,0]]
+  });
+  });
 </script>
 {% endblock %}
 
 {% block content %}
-	<div class="table_container">
-		<div class="table_title farnsworth_header">Residents</div>
-		{% if not residents %}
-			<div class="field_wrapper">Broh, no!  No current residents found.  Either {{ house }} is completely deserted or the database needs to be updated.</div>
-		{% else %}
-		<table class="members_table" id="residents_table">
-		<thead>
-		<tr>
-			<th>Username</th>
-			<th>Last Name</th>
-			<th>First Name</th>
-			<th>Email</th>
-			<th>Phone</th>
-			<th>Room</th>
-		</tr>
-		</thead>
-		<tbody>
-		{% for member in residents %}
-			<tr>
-				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
-				<td>{{ member.user.last_name }}</td>
-				<td>{{ member.user.first_name }}</td>
-				<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
-				<td>{% if member.phone_visible and member.phone_number or member.user == user and member.phone_number %}{{ member.phone_number }}{% endif %}</td>
-				<td>{% if member.current_room %}{{ member.current_room }}{% endif %}</td>
-			</tr>
-		{% endfor %}
-		</tbody>
-		</table>
-		{% endif %}
-	</div>
-	<div class="table_container">
-		<div class="table_title farnsworth_header">Boarders</div>
-		{% if not boarders %}
-			<div class="field_wrapper">It's a free, open world!  There are no borders!  ... It says "Boarders."  Awww...now I'm sad.  Ask your friends to board! or the site admin to update the database.</div>
-		{% else %}
-		<table class="members_table" id="boarders_table">
-		<thead>
-		<tr>
-			<th>Username</th>
-			<th>Last Name</th>
-			<th>First Name</th>
-			<th>Email</th>
-			<th>Phone</th>
-		</tr>
-		</thead>
-		<tbody>
-		{% for member in boarders %}
-			<tr>
-				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
-				<td>{{ member.user.last_name }}</td>
-				<td>{{ member.user.first_name }}</td>
-				<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
-				<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
-			</tr>
-		{% endfor %}
-		</tbody>
-		</table>
-		{% endif %}
-	</div>
-	<div class="table_container">
-		<div class="table_title farnsworth_header">Alumni</div>
-		{% if not alumni %}
-			<div class="field_wrapper">Hooj a baby co-op?  Hooj a baby co-op?  {{ house }}'s a baby co-op!  No alumni found in database.  Invite them to this site!</div>
-		{% else %}
-		<table class="members_table" id="alumni_table">
-		<thead>
-		<tr>
-			<th>Username</th>
-			<th>Last Name</th>
-			<th>First Name</th>
-			<th>Email</th>
-			<th>Phone</th>
-			<th>Former Rooms</th>
-		</tr>
-		</thead>
-		<tbody>
-		{% for member in alumni %}
-			<tr>
-				<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
-				<td>{{ member.user.last_name }}</td>
-				<td>{{ member.user.first_name }}</td>
-				<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
-				<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
-				<td>{% if member.former_rooms %}{{ member.former_rooms }}{% endif %}</div>
-			</tr>
-		{% endfor %}
-		</tbody>
-		</table>
-		{% endif %}
-	</div>
+<div class="table_container">
+  <div class="table_title farnsworth_header">Residents</div>
+  {% if not residents %}
+  <div class="field_wrapper">Broh, no!  No current residents found.  Either {{ house }} is completely deserted or the database needs to be updated.</div>
+  {% else %}
+  <table class="table table-striped table-bordered table-condensed table-hover" id="residents_table">
+    <thead>
+      <tr>
+	<th>Username</th>
+	<th>Last Name</th>
+	<th>First Name</th>
+	<th>Email</th>
+	<th>Phone</th>
+	<th>Room</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in residents %}
+      <tr>
+	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+	<td>{{ member.user.last_name }}</td>
+	<td>{{ member.user.first_name }}</td>
+	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.phone_number %}{{ member.phone_number }}{% endif %}</td>
+	<td>{% if member.current_room %}{{ member.current_room }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+<div class="table_container">
+  <div class="table_title farnsworth_header">Boarders</div>
+  {% if not boarders %}
+  <div class="field_wrapper">It's a free, open world!  There are no borders!  ... It says "Boarders."  Awww...now I'm sad.  Ask your friends to board! or the site admin to update the database.</div>
+  {% else %}
+  <table class="table table-striped table-bordered table-condensed table-hover" id="boarders_table">
+    <thead>
+      <tr>
+	<th>Username</th>
+	<th>Last Name</th>
+	<th>First Name</th>
+	<th>Email</th>
+	<th>Phone</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in boarders %}
+      <tr>
+	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+	<td>{{ member.user.last_name }}</td>
+	<td>{{ member.user.first_name }}</td>
+	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+<div class="table_container">
+  <div class="table_title farnsworth_header">Alumni</div>
+  {% if not alumni %}
+  <div class="field_wrapper">Hooj a baby co-op?  Hooj a baby co-op?  {{ house }}'s a baby co-op!  No alumni found in database.  Invite them to this site!</div>
+  {% else %}
+  <table class="table table-striped table-bordered table-condensed table-hover" id="alumni_table">
+    <thead>
+      <tr>
+	<th>Username</th>
+	<th>Last Name</th>
+	<th>First Name</th>
+	<th>Email</th>
+	<th>Phone</th>
+	<th>Former Rooms</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in alumni %}
+      <tr>
+	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+	<td>{{ member.user.last_name }}</td>
+	<td>{{ member.user.first_name }}</td>
+	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
+	<td>{% if member.former_rooms %}{{ member.former_rooms }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
 {% endblock %}
