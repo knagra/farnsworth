@@ -235,7 +235,7 @@ def member_forums_view(request):
 		form.fields['thread_pk'].widget = forms.HiddenInput()
 		active_message_forms.append(form)
 	thread_form = ThreadForm()
-	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'active_threads': active_threads, 'active_message_forms': active_message_forms, 'thread_form': thread_form, 'active_messages': active_messages}, context_instance=RequestContext(request))
+	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, "thread_title": "Active Threads", 'admin': ADMINS[0], 'threads': active_threads, 'message_forms': active_message_forms, 'thread_form': thread_form, 'messages': active_messages}, context_instance=RequestContext(request))
 
 def all_threads_view(request):
 	''' View of all threads. '''
@@ -287,7 +287,7 @@ def all_threads_view(request):
 		form.fields['thread_pk'].widget = forms.HiddenInput()
 		message_forms.append(form)
 	thread_form = ThreadForm()
-	return render_to_response('all_threads.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'all_threads': all_threads, 'all_messages': all_messages, 'message_forms': message_forms, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('member_forums.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, "thread_title": "All Threads", 'threads': all_threads, 'messages': all_messages, 'message_forms': message_forms, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def my_threads_view(request):
 	''' View of my threads. '''

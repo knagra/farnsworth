@@ -35,7 +35,7 @@
 <div class="threads">
   <div class="table_header">
     <input class="btn btn-primary btn-lg add_thread" align="right" onclick="show_new_thread_form()" type="submit" value="New Thread" />
-    <h3 class="thread_title">Active Threads</h3>
+    <h3 class="thread_title">{{ thread_title }}</h3>
   </div> <!-- table_header -->
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}
@@ -49,10 +49,10 @@
 	</div>
   </form>
   <div class="container-fluid threads_table">
-    {% if not active_threads %}
+    {% if not threads %}
     <div class="field_wrapper">No threads active in the past 3 days.</div>
     {% else %}
-    {% for thread in active_threads %}
+    {% for thread in threads %}
     {% if forloop.counter > 1 %}
     <hr/>
     {% endif %}
@@ -61,7 +61,7 @@
       <div class="message_table">
 	<h3 class="thread_name">{{ thread.subject }}</h3>
 
-	{% for message in active_messages %}
+	{% for message in messages %}
 	{% if message.thread == thread %}
 	{% if forloop.counter > 1 %}
 	<hr id="message_divider" />
@@ -83,7 +83,7 @@
 	  <input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
 	  <form class="new_message_form add_thread" id="{{ message_form_id }}" method="post" action="">
 	    {% csrf_token %}
-	    {% for message_form in active_message_forms %}
+	    {% for message_form in message_forms %}
 	    {% if message_form.thread_pk.value == thread.pk %}
 	    {{ message_form.thread_pk }}
 	    <textarea class="message" name="body"></textarea>
