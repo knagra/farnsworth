@@ -85,10 +85,8 @@
 	    {% for message_form in active_message_forms %}
 	    {% if message_form.thread_pk.value == thread.pk %}
 	    {{ message_form.thread_pk }}
+	    <textarea class="message" name="body"></textarea>
 	    <div class="container-fluid">
-	      <div class="row">
-		<textarea class="message" name="body"></textarea>
-	      </div>
 	      <div class="row">
 		<div class="col-md-6">
 		  <input class="btn btn-lg btn-primary" name="submit_message_form" type="submit" value="Post Message" />
