@@ -21,12 +21,29 @@ Author: Karandeep Singh Nagra
     height: 60px;
 }
 
+label {
+	padding-left: 5px;
+}
+
 .thread_title {
     padding-left: 20px;
     font-size: 180%;
     margin-top: 0px;
 }
 
+.btn-success {
+	width: 45%;
+	margin-left: 10px;
+	margin-top: 5px;
+}
+
+.btn-warning {
+	width: 45%;
+	position: absolute;
+	right: 10px;
+	margin-right: 10px;
+	margin-top: 5px;
+}
 
 .add_thread {
     background: #5e5e5e;
@@ -36,7 +53,7 @@ Author: Karandeep Singh Nagra
     margin-top: 7px;
     margin-right: 5px;
 }
-
+/*
 .add_thread:hover {
     background: #fafafa;
     border-left: none;
@@ -44,7 +61,7 @@ Author: Karandeep Singh Nagra
     color: black;
     cursor: pointer;
 }
-
+/*
 .button {
     background: #5e5e5e;
     color: #fafafa;
@@ -54,7 +71,7 @@ Author: Karandeep Singh Nagra
     padding-top: 5px;
     padding-bottom: 5px;
 }
-
+*/
 #submit_thread_form {
     width: 50%;
     border-right: 1px solid #3f3f3f;
@@ -114,7 +131,7 @@ Author: Karandeep Singh Nagra
     height: 30px;
     font-weight: 300;
 }
-
+/*
 .add_message:hover {
     background: #fafafa;
     color: black;
@@ -139,7 +156,7 @@ Author: Karandeep Singh Nagra
     border-left: none;
     border-right: none;
 }
-
+/*
 .button:hover {
     background: #fafafa;
     color: black;
@@ -149,7 +166,7 @@ Author: Karandeep Singh Nagra
     border-left: none;
     border-right: none;
 }
-
+*/
 .threads_table {
     padding: 0px;
 }
@@ -239,13 +256,13 @@ Author: Karandeep Singh Nagra
     clear: both;
     text-align: center;
 }
-
+/*
 .more_threads:hover {
     background: #fafafa;
     color: black;
     cursor: pointer;
 }
-
+*/
 .more_threads > a {
     color: #fafafa;
     font-size: 20pt;

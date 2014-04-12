@@ -33,19 +33,14 @@
   </div> <!-- table_header -->
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}
-    <table id="new_thread_table">
-      {{ thread_form.as_table }}
-    </table>
-    <div class="container-fluid">
-      <div class="row">
-	<div class="col-md-6">
-	  <input class="btn btn-primary btn-lg" id="submit_thread_form" name="submit_thread_form" type="submit" value="Start Thread" />
+	<div class="form-group">
+		<label for="id_subject">Subject</label>
+		<input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
+		<label for="id_body">Body</label>
+		<textarea class="thread" id="id_body" name="body"></textarea>
+		<button type="submit" class="btn btn-lg btn-success" name="submit_thread_form">Start Thread</button>
+		<input type="button" class="btn btn-lg btn-warning" name="cancel_thread_form" value="Cancel" onclick="hide_new_thread_form()">
 	</div>
-	<div class="col-md-6">
-	  <input class="btn btn-default btn-lg" id="cancel_thread_form" onclick="hide_new_thread_form()" type="button" value="Cancel" />
-	</div>
-      </div>
-    </div> <!-- container-fluid -->
   </form>
   <div class="container-fluid threads_table">
     {% if not active_threads %}
@@ -89,10 +84,10 @@
 	    <div class="container-fluid">
 	      <div class="row">
 		<div class="col-md-6">
-		  <input class="btn btn-lg btn-primary" name="submit_message_form" type="submit" value="Post Message" />
+		  <input class="btn btn-lg btn-success" name="submit_message_form" type="submit" value="Post Message" />
 		</div>
 		<div class="col-md-6">
-		  <input class="btn btn-lg btn-default" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')" type="button" value="Cancel" />
+		  <input class="btn btn-lg btn-warning" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')" type="button" value="Cancel" />
 		</div>
 	      </div>
 	    </div> <!-- container-fluid -->
