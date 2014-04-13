@@ -11,8 +11,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import hashers
 from django.contrib.auth.models import User, Group
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS, request_dict
-from models import Manager, ProfileRequest, Request, Response
+from farnsworth.settings import house, ADMINS, max_requests, max_responses
+from models import Manager, RequestType, ProfileRequest, Request, Response
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
 
@@ -40,7 +40,6 @@ def request_profile_view(request):
 			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, approved=False)
 			profile_request.save()
 			return HttpResponseRedirect(reverse('external'))
-			#return render_to_response('external.html', {'page_name': page_name, 'house': house, 'user': user, 'staff': staff, 'message': 'Your request for a profile has been submitted.  An admin will e-mail you soon.'})
 		else:
 			non_field_error = "Uh...Something went wrong in your input.  Please try again."
 			return render(request, 'request_profile.html', {'house': house, 'admin': ADMINS[0], 'form': form, 'page_name': page_name, 'non_field_error': non_field_error})
@@ -164,9 +163,6 @@ def custom_modify_user_view(request, targetUsername):
 				targetProfile.former_houses = former_houses
 				targetProfile.save()
 				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
-				#modify_user_non_field_error = "User %s (%s %s) saved." % (targetUser.username, first_name, last_name)
-				#modify_user_form = ModifyUserForm(initial={'first_name': targetUser.first_name, 'last_name': targetUser.last_name, 'email': targetUser.email, 'email_visible_to_others': targetProfile.email_visible, 'phone_number': targetProfile.phone_number, 'phone_visible_to_others': targetProfile.phone_visible, 'status': targetProfile.status, 'current_room': targetProfile.current_room, 'former_rooms': targetProfile.former_rooms, 'former_houses': targetProfile.former_houses, 'is_active': targetUser.is_active, 'is_staff': targetUser.is_staff, 'is_superuser': targetUser.is_superuser, 'groups': groups_dict})
-				#return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'change_user_password_form': change_user_password_form, 'page_name': page_name, 'modify_user_form': modify_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
 		elif 'change_user_password' in request.POST:
 			change_user_password_form = ChangeUserPasswordForm(request.POST)
 			if change_user_password_form.is_valid():
@@ -177,8 +173,6 @@ def custom_modify_user_view(request, targetUsername):
 					if hashers.is_password_usable(hashed_password):
 						targetUser.password = hashed_password
 						targetUser.save()
-						#change_user_password_form = ChangeUserPasswordForm()
-						#change_password_non_field_error = "User password changed."
 						return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 					else:
 						change_password_non_field_error = "Could not hash password.  Please try again."
@@ -259,23 +253,17 @@ def custom_add_user_view(request):
 				new_user_profile.former_rooms = former_rooms
 				new_user_profile.former_houses = former_houses
 				return HttpResponseRedirect(reverse('custom_add_user'))
-				#new_user_profile.save()
-				#non_field_error = "User %s (%s %s) added." % (username, first_name, last_name)
-				#add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
-				#return render_to_response('custom_add_user.html', {'page_name': page_name, 'non_field_error': non_field_error, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
 			else:
 				add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
 				add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
 
-def generic_requests_view(request, relevant_managers, request_type):
+def requests_view(request, requestType):
 	'''
 	Generic request view.  Parameters:
 		request is the HTTP request
-		relevant managers is a list of Managers to whom the request is made
-		request_type is the type of request (e.g., "Food" or "Maintenance")
-			This field is used to filter requests.
-			{{ house }} - {{ request_type }} Requests appears in the title.
+		requestType is name of a RequestType.
+			e.g. "food", "maintenance", "network", "site" 
 	'''
 	if request.user.is_authenticated():
 		userProfile = None
@@ -286,8 +274,19 @@ def generic_requests_view(request, relevant_managers, request_type):
 			return red_home(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
+	try:
+		request_type = RequestType.objects.get(name=requestType)
+	except:
+		message = "No request type '%s' found." % requestType
+		return red_home(request, message)
+		#return render_to_response('requests.html', {'page_name': 'Invalid Request Type', 'invalid_request_type': True, 'house': house, 'admin': ADMINS[0]}, context_instance=RequestContext(request))
+	page_name = "%s Requests" % requestType.capitalize()
+	if not request_type.enabled:
+		message = "%s requests have been disabled." % requestType.capitalize()
+		return red_home(request, message)
+		#return render_to_response('requests.html', {'page_name': page_name, 'house': house, 'admin': ADMINS[0], 'request_disabled': True}, context_instance=RequestContext(request))
+	relevant_managers = request_type.managers.all()
 	manager = False #if the user is a relevant manager
-	page_name = "%s Requests" % request_type
 	for position in relevant_managers:
 		if position.incumbent == userProfile:
 			manager = True
@@ -311,9 +310,7 @@ def generic_requests_view(request, relevant_managers, request_type):
 				body = request_form.cleaned_data['body']
 				new_request = Request(owner=userProfile, body=body, request_type=request_type)
 				new_request.save()
-				for position in relevant_managers:
-					new_request.managers.add(position)
-				new_request.save()
+				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 		elif 'add_response' in request.POST:
 			response_form = ResponseForm(request.POST)
 			if response_form.is_valid():
@@ -329,77 +326,25 @@ def generic_requests_view(request, relevant_managers, request_type):
 					new_response.manager = True
 				relevant_request.save()
 				new_response.save()
+				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 		else:
 			message = "Uhhh...Something went wrong.  Please contact an admin for support."
 			return red_home(request, message)
 	request_form = RequestForm()
-	response_forms = list()
-	all_responses = list()
-	for resp in Response.objects.all():
-		if resp.request.request_type == request_type:
-			all_responses.append(resp)
-	all_requests = Request.objects.filter(request_type=request_type)
-	for req in all_requests:
+	x = 0 # number of requests loaded
+	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list])
+	for req in Request.objects.filter(request_type=request_type):
+		request_responses = Response.objects.filter(request=req)
 		if manager:
 			form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
 		else:
 			form = ResponseForm(initial={'request_pk': req.pk})
 		form.fields['request_pk'].widget = forms.HiddenInput()
-		response_forms.append(form) 
-	return render_to_response('generic_requests.html', {'manager': manager, 'all_responses': all_responses, 'request_type': request_type, 'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'request_form': request_form, 'all_requests': all_requests, 'response_forms': response_forms}, context_instance=RequestContext(request))
-
-def food_requests_view(request):
-	'''
-	Food requests page.  All requests generated here are alotted to Kitchen Manager 1,
-	and Kitchen Manager 2.  This can be changed with by changing request_managers and
-	the managers it contains.
-	'''
-	relevant_managers = list()
-	km1, created = Manager.objects.get_or_create(title="Kitchen Manager 1")
-	km2, created = Manager.objects.get_or_create(title="Kitchen Manager 2")
-	relevant_managers.append(km1)
-	relevant_managers.append(km2)
-	return generic_requests_view(request, relevant_managers, "Food")
-
-def maintenance_requests_view(request):
-	'''
-	Maintenance requests page.  All requests generated here are alotted to Maintenance Manager.
-	This can be changed with by changing request_managers and the managers it contains.
-	'''
-	relevant_managers = list()
-	mm, created = Manager.objects.get_or_create(title="Maintenance Manager")
-	relevant_managers.append(mm)
-	return generic_requests_view(request, relevant_managers, "Maintenance")
-
-def health_requests_view(request):
-	'''
-	Health requests page.  All requests generated here are alotted to Health Worker.
-	This can be changed with by changing request_managers and the managers it contains.
-	'''
-	relevant_managers = list()
-	hw, created = Manager.objects.get_or_create(title="Health Worker")
-	relevant_managers.append(hw)
-	return generic_requests_view(request, relevant_managers, "Health")
-
-def network_requests_view(request):
-	'''
-	Network requests page.  All requests generated here are alotted to Health Worker.
-	This can be changed with by changing request_managers and the managers it contains.
-	'''
-	relevant_managers = list()
-	nm, created = Manager.objects.get_or_create(title="Network Manager")
-	relevant_managers.append(nm)
-	return generic_requests_view(request, relevant_managers, "Network")
-
-def site_requests_view(request):
-	'''
-	Site requests page.  All requests generated here are alotted to Health Worker.
-	This can be changed with by changing request_managers and the managers it contains.
-	'''
-	relevant_managers = list()
-	hubert, created = Manager.objects.get_or_create(title="Site Admin")
-	relevant_managers.append(hubert)
-	return generic_requests_view(request, relevant_managers, "Site")
+		requests_dict.append((req, request_responses, form))
+		x += 1
+		if x >= max_requests:
+			break
+	return render_to_response('requests.html', {'manager': manager, 'request_type': requestType, 'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
 
 def my_requests_view(request):
 	'''
@@ -416,7 +361,7 @@ def my_requests_view(request):
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	class RequestForm(forms.Form):
-		request_type = forms.CharField()
+		type_pk = forms.IntegerField()
 		body = forms.CharField(widget=forms.Textarea(attrs={'class': 'request'}))
 	class ResponseForm(forms.Form):
 		request_pk = forms.IntegerField()
@@ -427,14 +372,16 @@ def my_requests_view(request):
 		if 'submit_request' in request.POST:
 			request_form = RequestForm(request.POST)
 			if request_form.is_valid():
-				request_type = request_form.cleaned_data['request_type']
+				type_pk = request_form.cleaned_data['type_pk']
 				body = request_form.cleaned_data['body']
+				try:
+					request_type = RequestType.objects.get(pk=type_pk)
+				except:
+					message = "Uhh...the request type was not recognized.  Please contact an admin for support."
+					return red_home(request, message)
 				new_request = Request(owner=userProfile, body=body, request_type=request_type)
 				new_request.save()
-				for manager_title in request_dict[request_type]:
-					manager_position = Manager.get_or_create(title=manager_title)
-					new_request.managers.add(manager_position)
-				new_request.save()
+				return HttpResponseRedirect(reverse('my_requests'))
 		elif 'add_response' in request.POST:
 			response_form = ResponseForm(request.POST)
 			if response_form.is_valid():
@@ -442,7 +389,7 @@ def my_requests_view(request):
 				body = response_form.cleaned_data['body']
 				relevant_request = Request.objects.get(pk=request_pk)
 				new_response = Response(owner=userProfile, body=body, request=relevant_request)
-				for manager_position in relevant_request.managers.all():
+				for manager_position in relevant_request.request_type.managers.all():
 					if manager_position.incumbent == userProfile:
 						mark_filled = response_form.cleaned_data['mark_filled']
 						mark_closed = response_form.cleaned_data['mark_closed']

@@ -21,20 +21,17 @@ MANAGERS = ADMINS
 # Name of the house
 house = "Kingman Hall"
 
-# Register request types here.  This field is used to generate distinct sets of requests for the my_requests page.
-request_dict = {
-	'Food': ['Kitchen Manager 1', 'Kitchen Manager 2'],
-	'Maintenance': ['Maintenance Manager',],
-	'Health': ['Health Worker',],
-	'Network': ['Network Manager',],
-	'Site': ['Site Admin',]
-}
-
 # Max number of threads loaded in member_forums.
 max_threads = 20
 
 # Max number of messages loaded for each thread.
 max_messages = 4
+
+# Max number of requests loaded in requests_view.
+max_requests = 20
+
+# Max number of responses loaded for each request.
+max_responses = 20
 
 DATABASES = {
     'default': {

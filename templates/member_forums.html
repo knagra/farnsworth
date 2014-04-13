@@ -4,7 +4,7 @@
 
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/threads.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_forums.css' %}" />
 {% endblock %}
@@ -17,6 +17,7 @@
   </div> <!-- table_header -->
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}
+<<<<<<< HEAD
     <div class="form-group">
       <label for="id_subject">Subject</label>
       <input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
@@ -24,6 +25,16 @@
       <button type="submit" class="btn btn-lg btn-success" name="submit_thread_form">Start Thread</button>
       <input type="button" class="btn btn-lg btn-warning" name="cancel_thread_form" value="Cancel" onclick="hide_new_thread_form()">
     </div>
+=======
+	<div class="form-group">
+		<label for="id_subject">Subject</label>
+		<input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
+		<label for="id_body">Body</label>
+		<textarea id="id_body" name="body"></textarea>
+		<button type="submit" class="btn btn-lg btn-success" name="submit_thread_form">Start Thread</button>
+		<input type="button" class="btn btn-lg btn-warning" name="cancel_thread_form" value="Cancel" onclick="hide_new_thread_form()">
+	</div>
+>>>>>>> 6c28ce9b9ce66290f27511a9d5ce41c74ee8eca0
   </form>
   <div class="container-fluid threads_table">
     {% if not threads_dict %}
@@ -49,30 +60,25 @@
 	</div> <!-- message_row -->
 	{% endfor %}
 
-	<div class="text-center">
 	  {% with y=forloop.counter|stringformat:"s" %}
 	  {% with message_form_id="message_form_"|add:y %}
 	  {% with button_id="button_"|add:y %}
+	<div class="text-center">
 	  <input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
-	  <form class="new_message_form add_thread" id="{{ message_form_id }}" method="post" action="">
+	</div>
+	  <form class="new_message_form" id="{{ message_form_id }}" method="post" action="">
 	    {% csrf_token %}
-	    {{ thread_tuple.2 }}
-	    <textarea class="message" name="body"></textarea>
-	    <div class="container-fluid">
-	      <div class="row">
-		<div class="col-md-6">
-		  <input class="btn btn-lg btn-success" name="submit_message_form" type="submit" value="Post Message" />
+	    <input id="id_thread_pk" name="thread_pk" type="hidden" value="{{ thread_tuple.2 }}">
+	  	<div class="form-group">
+			<label for="id_body">Add Message</label>
+			<textarea name="body"></textarea>
+			<button type="submit" class="btn btn-lg btn-success" name="submit_message_form">Post Message</button>
+			<input type="button" class="btn btn-lg btn-warning" name="cancel_message_form" value="Cancel" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')" />
 		</div>
-		<div class="col-md-6">
-		  <input class="btn btn-lg btn-warning" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')" type="button" value="Cancel" />
-		</div>
-	      </div>
-	    </div> <!-- container-fluid -->
 	  </form>
 	  {% endwith %}
 	  {% endwith %}
 	  {% endwith %}
-	</div>
       </div> <!-- message_table -->
     </div> <!-- thread_messages -->
     {% endfor %}

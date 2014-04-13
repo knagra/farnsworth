@@ -188,10 +188,10 @@ def member_forums_view(request):
 		return HttpResponseRedirect(reverse('login'))
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}), required=False)
-		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
+		body = forms.CharField(widget=forms.Textarea())
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea(attrs={'class':'message'}))
+		body = forms.CharField(widget=forms.Textarea())
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
 			thread_form = ThreadForm(request.POST)
@@ -241,10 +241,10 @@ def all_threads_view(request):
 		return HttpResponseRedirect(reverse('login'))
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
+		body = forms.CharField(widget=forms.Textarea())
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea(attrs={'class':'message'}))
+		body = forms.CharField(widget=forms.Textarea())
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
 			thread_form = ThreadForm(request.POST)
@@ -290,10 +290,10 @@ def my_threads_view(request):
 		return HttpResponseRedirect(reverse('login'))
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-		body = forms.CharField(widget=forms.Textarea(attrs={'class':'thread'}))
+		body = forms.CharField(widget=forms.Textarea())
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea(attrs={'class':'message'}))
+		body = forms.CharField(widget=forms.Textarea())
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
 			thread_form = ThreadForm(request.POST)

@@ -4,9 +4,9 @@
 
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/requests.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/generic_requests.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/requests.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -29,22 +29,29 @@
 <div class="requests">
   <div class="table_header">
     <input class="btn btn-primary btn-lg add_request" onclick="show_new_request_form()" type="submit" value="New Request" />
-    <h3 class="requests_title">Recent {{ request_type }} Requests</h3>
+    <h3 class="requests_title">Recent {{ request_type|title }} Requests</h3>
   </div> <!-- table_header -->
   <form id="new_request_form" method="post" action="">
     {% csrf_token %}
     <div class="form-group">
+<<<<<<< HEAD:templates/generic_requests.html
       <textarea class="request" id="id_body" name="body"></textarea>
       <button type="submit" class="btn btn-lg btn-success" name="submit_request_form">Submit Request</button>
       <input type="button" class="btn btn-lg btn-warning" name="cancel_request_form" value="Cancel" onclick="hide_new_request_form()">
+=======
+      <label for="id_body">New Request</label>
+      <textarea name="body"></textarea>
+      <button type="submit" class="btn btn-lg btn-success" name="submit_request">Submit Request</button>
+      <input type="button" class="btn btn-lg btn-warning" name="cancel_request_form" onclick="hide_new_request_form()" value="Cancel" />
+>>>>>>> 6c28ce9b9ce66290f27511a9d5ce41c74ee8eca0:templates/requests.html
     </div>
   </form>
 
   <div class="container-fluid requests_table">
-    {% if not all_requests %}
+    {% if not requests_dict %}
     <div class="field_wrapper">No {{ request_type }} requests found.</div>
     {% else %}
-    {% for request in all_requests %}
+    {% for request_tuple in requests_dict %}
     {% if forloop.counter > 1 %}
     <hr/>
     {% endif %}
@@ -52,23 +59,22 @@
     <div class="requests_row">
       <div class="request_name">
 	<div class="request_owner">
-	  {% if request.filled %}
+	  {% if request_tuple.0.filled %}
 	  <img src="{% static 'admin/img/icon-yes.gif' %}" alt="Filled"/>
-	  {% elif request.closed %}
+	  {% elif request_tuple.0.closed %}
 	  <img src="{% static 'admin/img/icon-no.gif' %}" alt="Closed">
 	  {% endif %}
-	  <a class="page_link" href="{% url 'member_profile' targetUsername=request.owner.user.username %}" >
-	    {% if request.owner.user == user %}You{% else %}{{ request.owner.user.first_name }} {{ request.owner.user.last_name }}{% endif %}</a>
-	  ({{ request.post_date }}):
+	  <a class="page_link" href="{% url 'member_profile' targetUsername=request_tuple.0.owner.user.username %}" >
+	    {% if request_tuple.0.owner.user == user %}You{% else %}{{ request_tuple.0.owner.user.first_name }} {{ request_tuple.0.owner.user.last_name }}{% endif %}</a>
+	  ({{ request_tuple.0.post_date }}):
 	</div> <!-- request_owner -->
 	<hr class="response_divider" />
-	<div class="request_body">{{ request.body|safe }}</div>
+	<div class="request_body">{{ request_tuple.0.body|safe }}</div>
       </div> <!-- request_name -->
 
       <div class="request_responses">
 	<div class="response_table">
-	  {% for response in all_responses %}
-	  {% if response.request == request %}
+	  {% for response in request_tuple.1 %}
 	  {% if forloop.counter > 1 %}
 	  <hr id="response_divider" />
 	  {% endif %}
@@ -83,16 +89,17 @@
 	      {{ response.body|safe }}
 	    </div> <!-- response_body -->
 	  </div> <!-- response_row -->
-	  {% endif %}
 	  {% endfor %}
 
 	  <div class="text-center">
 	    {% with y=forloop.counter|stringformat:"s" %}
 	    {% with response_form_id="response_form_"|add:y %}
 	    {% with button_id="button_"|add:y %}
-	    <input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')" value="Add Response to Thread" />
+	    <input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')" value="Add Response" />
+	  </div> <!-- text-center -->
 	    <form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
 	      {% csrf_token %}
+<<<<<<< HEAD:templates/generic_requests.html
 	      {% for response_form in response_forms %}
 	      {% if response_form.request_pk.value == request.pk %}
 	      {{ response_form.request_pk }}
@@ -109,8 +116,19 @@
 		<button type="submit" class="btn btn-lg btn-success" name="add_response" type="submit">Post Response</button>
 		<input type="button" class="btn btn-lg btn-warning" name="cancel_response_form" value="Cancel" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" />
 	      </div>
+=======
+	      {{ request_tuple.2.request_pk }}
+	      <div class="form-group">
+		<label for="id_body">Add Response</label>
+	      <textarea class="response" name="body"></textarea>
+	      {% if manager %}
+		      <div class="checkbox"><label for="id_mark_filled">Filled</label>{{ request_tuple.2.mark_filled }}</div>
+		      <div class="checkbox"><label for="id_mark_closed">Closed</label>{{ request_tuple.2.mark_closed }}</div>
+>>>>>>> 6c28ce9b9ce66290f27511a9d5ce41c74ee8eca0:templates/requests.html
 	      {% endif %}
-	      {% endfor %}
+	      <button type="submit" class="btn btn-lg btn-success" name="add_response">Post Message</button>
+	      <input type="button" class="btn btn-lg btn-warning" name="cancel_response_form" value="Cancel" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" />
+	      </div> <!-- form-group -->
 	    </form>
 	    {% endwith %}
 	    {% endwith %}
@@ -118,10 +136,21 @@
 	  </div> <!-- response_row -->
 	</div> <!-- response_table -->
       </div> <!-- request_name -->
-    </div> <!-- requests_row -->
+ <!--   </div> <!-- requests_row -->
     {% endfor %}
     {% endif %}
   </div>
-  <!-- <div class="more_requests"><a href="{% url 'food_requests' %}" >See All Requests</a></div> -->
 </div>
+{% endblock %}
+
+{% block endscripts %}
+<!-- Prevent multiple form submissions -->
+<script>
+$("form").submit(function() {
+	$(this).submit(function() {
+		return false;
+	});
+	return true;
+});
+</script>
 {% endblock %}

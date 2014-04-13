@@ -37,11 +37,7 @@ urlpatterns += patterns('requests.views',
 	url(r'^custom_admin/manage_users/$', 'custom_manage_users_view', name='custom_manage_users'),
 	url(r'^custom_admin/modify_user/(?P<targetUsername>\w+)/$', 'custom_modify_user_view', name='custom_modify_user'),
 	url(r'^custom_admin/add_user/$', 'custom_add_user_view', name='custom_add_user'),
-	url(r'^food_requests/$', 'food_requests_view', name='food_requests'),
-	url(r'^maintenance_requests/$', 'maintenance_requests_view', name='maintenance_requests'),
-	url(r'^health_requests/$', 'health_requests_view', name='health_requests'),
-	url(r'^network_requests/$', 'network_requests_view', name='network_requests'),
-	url(r'^site_requests/$', 'site_requests_view', name='site_requests'),
+	url(r'^requests/(?P<requestType>\w+)/$', 'requests_view', name='requests'),
 	url(r'^my_requests/$', 'my_requests_view', name='my_requests'),
 )
 

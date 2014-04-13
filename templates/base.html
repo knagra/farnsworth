@@ -47,11 +47,11 @@
 	      <li class="dropdown">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Requests <b class="caret"></b></a>
 		<ul class="dropdown-menu">
-	     	  <li><a href="{% url 'food_requests' %}" >Food</a></li>
-	     	  <li><a href="{% url 'maintenance_requests' %}" >Maintenance</a></li>
-	     	  <li><a href="{% url 'health_requests' %}" >Health</a></li>
-	     	  <li><a href="{% url 'network_requests' %}" >Network</a></li>
-	     	  <li><a href="{% url 'site_requests' %}" >Site</a></li>
+	     	  <li><a href="{% url 'requests' requestType='food' %}" >Food</a></li>
+	     	  <li><a href="{% url 'requests' requestType='maintenance' %}" >Maintenance</a></li>
+	     	  <li><a href="{% url 'requests' requestType='health' %}" >Health</a></li>
+	     	  <li><a href="{% url 'requests' requestType='network' %}" >Network</a></li>
+	     	  <li><a href="{% url 'requests' requestType='site' %}" >Site</a></li>
 		</ul>
 	      </li>
 	     <li class="dropdown">
@@ -84,6 +84,7 @@
 	      {% else %}
 	      <li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
 	      <li><a class="menu_link" href="{% url 'request_profile' %}">Request Account</a></li>
+	      <li><a class="menu_link" href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
 	      {% endif %}
 	    </ul>
 	  </div>
