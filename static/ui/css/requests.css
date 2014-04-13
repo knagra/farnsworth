@@ -1,5 +1,5 @@
 /*
-  Project: Farnsworth
+Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 */
@@ -7,31 +7,50 @@ Author: Karandeep Singh Nagra
 .requests {
     float: middle;
     border: 1px solid #7e7e7e;
-    margin: 10px 10px;
+    margin-bottom: 10px;
     box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
     font-size: 15pt;
     overflow: hidden;
 }
 
 .requests_title {
-    padding-left: 20px;
-    font-size: 180%;
+    padding-left: 10px;
+    font-size: 150%;
     margin-top: 0px;
+	font-weight: 200;
+}
+
+label {
+	padding-left: 5px;
+}
+
+.btn-success {
+	width: 45%;
+	margin-top: 5px;
+	margin-left: 5px;
+}
+
+.btn-warning {
+	width: 45%;
+	position: absolute;
+	right: 0px;
+	margin-top: 5px;
+	margin-right: 5px;
+}
+
+.form-group {
+	padding-bottom: 5px;
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
 }
 
 .add_request {
-    background: #5e5e5e;
-    color: #fafafa;
-    font-size: 20pt;
     float: right;
-    margin-top: 7px;
-    margin-right: 5px;
+    margin-top: 2px;
+    margin-right: 2px;
 }
 
 .add_request:hover {
-    background: #fafafa;
-    border-left: none;
-    border-bottom: 1px solid #5e5e5e;
     color: black;
     cursor: pointer;
 }
@@ -136,13 +155,12 @@ Author: Karandeep Singh Nagra
     background: #5e5e5e;
     color: #fafafa;
     font-size: 20pt;
-    height: 60px;
+    height: 50px;
 }
 
 .requests_row {
     width: 100%;
     color: black;
-    border-bottom: 1px solid #7e7e7e;
     overflow: hidden;
 }
 

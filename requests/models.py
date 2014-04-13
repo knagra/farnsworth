@@ -19,6 +19,17 @@ class Manager(models.Model):
 	def __unicode__(self):
 		return "%s" % self.title
 
+class RequestType(models.Model):
+	'''
+	A request type to specify relevant managers and name.
+	'''
+	name = models.CharField(max_length=255, blank=False, null=False, help_text="Name of the request type, lowercase.")
+	managers = models.ManyToManyField(Manager, help_text="Managers to whom this type of request is made.")
+	enabled = models.BooleanField(default=True, help_text="Whether this type of request is currently accepted. Toggle this to off to temporarily disable accepting this type of request.")
+	
+	def __unicode__(self):
+		return "%s RequestType" % self.name
+
 class Request(models.Model):
 	'''
 	The Request model.  Contains an owner, body, post_date, change_date, and relevant
@@ -28,13 +39,12 @@ class Request(models.Model):
 	body = models.TextField(blank=False, null=False, help_text="The body of this request.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this request was posted.")
 	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The last time this request was modified.")
-	request_type = models.CharField(max_length=255, blank=False, null=False, help_text="The type of request.")
-	managers = models.ManyToManyField(Manager, help_text="Managers to whom this request was made.")
+	request_type = models.ForeignKey(RequestType, blank=False, null=False, help_text="The type of request this is.")
 	filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
 	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
 	
 	def __unicode__(self):
-		return "%s request by %s on %s" % (self.request_type, self.owner, self.post_date)
+		return "%s request by %s on %s" % (self.request_type.name, self.owner, self.post_date)
 	
 	class Meta:
 		ordering = ['-post_date']

@@ -5,12 +5,17 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.contrib import admin
-from requests.models import Manager, Request, Response, ProfileRequest
+from requests.models import Manager, RequestType, Request, Response, ProfileRequest
 
 class ManagerAdmin(admin.ModelAdmin):
 	list_display = ('title', 'incumbent', 'email')
 	search_fields = ('title', 'incumbent', 'email', 'duties')
 	list_filter = ('email',)
+
+class RequestTypeAdmin(admin.ModelAdmin):
+	list_display = ('name', 'enabled')
+	search_fields = ('name', 'managers')
+	list_filter = ('name', 'managers')
 
 class RequestAdmin(admin.ModelAdmin):
 	list_display = ('owner', 'post_date', 'filled')
@@ -37,6 +42,7 @@ class ProfileRequestAdmin(admin.ModelAdmin):
 	readonly_fields = ('username', 'last_name', 'first_name', 'email')
 
 admin.site.register(Manager, ManagerAdmin)
+admin.site.register(RequestType, RequestTypeAdmin)
 admin.site.register(Request, RequestAdmin)
 admin.site.register(Response, ResponseAdmin)
 admin.site.register(ProfileRequest, ProfileRequestAdmin)

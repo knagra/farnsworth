@@ -1,5 +1,5 @@
 /*
-  Project: Farnsworth
+Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 */
@@ -35,15 +35,15 @@ label {
 
 .btn-success {
 	width: 45%;
-	margin-left: 10px;
+	margin-left: 5px;
 	margin-top: 5px;
 }
 
 .btn-warning {
 	width: 45%;
 	position: absolute;
-	right: 10px;
-	margin-right: 10px;
+	right: 0px;
+	margin-right: 5px;
 	margin-top: 5px;
 }
 
