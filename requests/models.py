@@ -75,6 +75,7 @@ class ProfileRequest(models.Model):
 	email = models.CharField(blank=False, null=False, max_length=255, help_text="E-mail address if user is created.")
 	approved = models.BooleanField(default=False, help_text="Change this to true to automatically create user.")
 	request_date = models.DateTimeField(auto_now_add=True, help_text="Whether this request has been granted.")
+	affiliation = models.CharField(max_length=1, choices=UserProfile.STATUS_CHOICES, default=UserProfile.RESIDENT, help_text="User's affiliation with the house.")
 	
 	def __unicode__(self):
 		return "Profile request for account '%s %s (%s)' on %s" % (self.first_name, self.last_name, self.username, self.request_date)
