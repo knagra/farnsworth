@@ -23,7 +23,7 @@ $(document).ready(function() {
 		{% if not residents %}
 			<div class="field_wrapper">Broh, no!  No current residents found.  Either {{ house }} is completely deserted or the database needs to be updated.</div>
 		{% else %}
-		<table class="members_table" id="residents_table">
+		<table class="table table-striped table-bordered table-condensed table-hover members_table" id="residents_table">
 		<thead>
 		<tr>
 			<th>Username</th>
@@ -58,7 +58,7 @@ $(document).ready(function() {
 		{% if not boarders %}
 			<div class="field_wrapper">It's a free, open world!  There are no borders!  ... It says "Boarders."  Awww...now I'm sad.  Ask your friends to board! or update the database.</div>
 		{% else %}
-		<table class="members_table" id="boarders_table">
+		<table class="table table-striped table-bordered table-condensed table-hover members_table" id="boarders_table">
 		<thead>
 		<tr>
 			<th>Username</th>
@@ -93,7 +93,7 @@ $(document).ready(function() {
 		{% if not alumni %}
 			<div class="field_wrapper">Hooj a baby co-op?  Hooj a baby co-op?  {{ house }} is a baby co-op!  No alumni found in database.  Invite them to this site!</div>
 		{% else %}
-		<table class="members_table" id="alumni_table">
+		<table class="table table-striped table-bordered table-condensed table-hover members_table" id="alumni_table">
 		<thead>
 		<tr>
 			<th>Username</th>

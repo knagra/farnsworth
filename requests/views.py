@@ -26,6 +26,7 @@ def request_profile_view(request):
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
+		affiliation_with_the_house = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
 	if request.method == 'POST':
 		form = profileRequestForm(request.POST)
 		if form.is_valid():
@@ -33,11 +34,12 @@ def request_profile_view(request):
 			first_name = form.cleaned_data['first_name']
 			last_name = form.cleaned_data['last_name']
 			email = form.cleaned_data['email']
+			affiliation = form.cleaned_data['affiliation_with_the_house']
 			for profile in UserProfile.objects.all():
 				if profile.user.username == username:
 					non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
 					return render(request, 'request_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'form': form, 'non_field_error': non_field_error})
-			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, approved=False)
+			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, approved=False, affiliation=affiliation)
 			profile_request.save()
 			return HttpResponseRedirect(reverse('external'))
 		else:

@@ -14,6 +14,18 @@ Author: Karandeep Singh Nagra
 	overflow: hidden;
 }
 
+#residents_table {
+	margin: 0px;
+}
+
+#boarders_table {
+	margin: 0px;
+}
+
+#alumni_table {
+	margin: 0px;
+}
+
 .table_title {
 	background: #5e5e5e;
 	color: #fafafa;
@@ -29,4 +41,8 @@ Author: Karandeep Singh Nagra
 	padding-top: 10px;
 	padding-bottom: 10px;
 	text-align: center;
+}
+
+.table {
+	margin-bottom: 0px;
 }
