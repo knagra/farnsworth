@@ -89,11 +89,13 @@
 	    {% with y=forloop.counter|stringformat:"s" %}
 	    {% with response_form_id="response_form_"|add:y %}
 	    {% with button_id="button_"|add:y %}
-	    <input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')" value="Add Response to Thread" />
+	    <input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')" value="Add Response" />
 	  </div> <!-- text-center -->
 	    <form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
 	      {% csrf_token %}
 	      {{ request_tuple.2.request_pk }}
+	      <div class="form-group">
+		<label for="id_body">Add Response</label>
 	      <textarea class="response" name="body"></textarea>
 	      {% if manager %}
 		      <div class="checkbox"><label for="id_mark_filled">Filled</label>{{ request_tuple.2.mark_filled }}</div>
@@ -101,6 +103,7 @@
 	      {% endif %}
 	      <button type="submit" class="btn btn-lg btn-success" name="add_response">Post Message</button>
 	      <input type="button" class="btn btn-lg btn-warning" name="cancel_response_form" value="Cancel" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" />
+	      </div> <!-- form-group -->
 	    </form>
 	    {% endwith %}
 	    {% endwith %}

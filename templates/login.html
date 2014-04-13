@@ -9,14 +9,17 @@
 
 {% block content %}
 	<div id="login_form">
-		<div id="login_form_title" class="farnsworth_header">Login</div>
+		<div class="header"><h3 class="table_title">Login</h3></div>
 		<div class="fieldWrapper">{{ non_field_error }}</div>
 		<form method="post" action="">
 			{% csrf_token %}
-			<table id="login_form_table">
-				{{ form.as_table }}
-			</table>
-			<input class="button" type="submit" value="Enter" />
+			<div class="form-group">
+				<label for="id_username">Username</label>{{ form.username.errors }}
+				<input id="id_username" class="form-control" maxlength="100" name="username" type="text">
+				<label for="id_password">Password</label>{{ form.password.errors }}
+				<input id="id_password" class="form-control" maxlength="100" name="password" type="password">
+				<div class="text-center"><button type="submit" class="btn btn-lg btn-success">Enter</button></div>
+			</div>
 		</form>
 	</div>
 {% endblock %}
