@@ -17,7 +17,6 @@
   </div> <!-- table_header -->
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}
-<<<<<<< HEAD
     <div class="form-group">
       <label for="id_subject">Subject</label>
       <input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
@@ -25,16 +24,6 @@
       <button type="submit" class="btn btn-lg btn-success" name="submit_thread_form">Start Thread</button>
       <input type="button" class="btn btn-lg btn-warning" name="cancel_thread_form" value="Cancel" onclick="hide_new_thread_form()">
     </div>
-=======
-	<div class="form-group">
-		<label for="id_subject">Subject</label>
-		<input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
-		<label for="id_body">Body</label>
-		<textarea id="id_body" name="body"></textarea>
-		<button type="submit" class="btn btn-lg btn-success" name="submit_thread_form">Start Thread</button>
-		<input type="button" class="btn btn-lg btn-warning" name="cancel_thread_form" value="Cancel" onclick="hide_new_thread_form()">
-	</div>
->>>>>>> 6c28ce9b9ce66290f27511a9d5ce41c74ee8eca0
   </form>
   <div class="container-fluid threads_table">
     {% if not threads_dict %}
