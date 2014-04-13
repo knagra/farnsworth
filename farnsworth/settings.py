@@ -30,6 +30,12 @@ request_dict = {
 	'Site': ['Site Admin',]
 }
 
+# Max number of threads loaded in member_forums.
+max_threads = 20
+
+# Max number of messages loaded for each thread.
+max_messages = 4
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

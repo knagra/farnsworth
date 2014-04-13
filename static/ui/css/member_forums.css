@@ -18,7 +18,7 @@ Author: Karandeep Singh Nagra
     background: #5e5e5e;
     color: #fafafa;
     font-size: 20pt;
-    height: 60px;
+    height: 50px;
 }
 
 label {
@@ -26,9 +26,11 @@ label {
 }
 
 .thread_title {
-    padding-left: 20px;
-    font-size: 180%;
+    padding-left: 10px;
+    font-size: 150%;
     margin-top: 0px;
+	font-weight: 200;
+	margin-bottom: 0px;
 }
 
 .btn-success {
@@ -50,28 +52,10 @@ label {
     color: #fafafa;
     font-size: 20pt;
     float: right;
-    margin-top: 7px;
-    margin-right: 5px;
+    margin-top: 2px;
+    margin-right: 2px;
 }
-/*
-.add_thread:hover {
-    background: #fafafa;
-    border-left: none;
-    border-bottom: 1px solid #5e5e5e;
-    color: black;
-    cursor: pointer;
-}
-/*
-.button {
-    background: #5e5e5e;
-    color: #fafafa;
-    font-size: 15pt;
-    border: none;
-    height: 40px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-*/
+
 #submit_thread_form {
     width: 50%;
     border-right: 1px solid #3f3f3f;
@@ -131,42 +115,7 @@ label {
     height: 30px;
     font-weight: 300;
 }
-/*
-.add_message:hover {
-    background: #fafafa;
-    color: black;
-    cursor: pointer;
-    border: 1px solid #8b8b8b;
-}
 
-.submit_message_form:hover {
-    background: #fafafa;
-    color: black;
-    border-top: 1px solid #7e7e7e;
-    cursor: pointer;
-    border-left: none;
-    border-right: none;
-}
-
-.cancel_message_form:hover {
-    background: #fafafa;
-    color: black;
-    border-top: 1px solid #7e7e7e;
-    cursor: pointer;
-    border-left: none;
-    border-right: none;
-}
-/*
-.button:hover {
-    background: #fafafa;
-    color: black;
-    border-top: 1px solid #7e7e7e;
-    border-bottom: 1px solid #7e7e7e;
-    cursor: pointer;
-    border-left: none;
-    border-right: none;
-}
-*/
 .threads_table {
     padding: 0px;
 }
@@ -232,6 +181,12 @@ label {
     overflow-x: auto;
 }
 
+.form-group {
+	padding-bottom: 5px;
+	border-bottom: 1px solid #5e5e5e;
+	margin-bottom: 5px;
+}
+
 #new_thread_form {
     display: none;
     padding-bottom: 10px;
@@ -256,13 +211,7 @@ label {
     clear: both;
     text-align: center;
 }
-/*
-.more_threads:hover {
-    background: #fafafa;
-    color: black;
-    cursor: pointer;
-}
-*/
+
 .more_threads > a {
     color: #fafafa;
     font-size: 20pt;
