@@ -16,6 +16,7 @@ Author: Karandeep Singh Nagra
 .pages_list {
 	list-style-type: none;
 	padding-left: 40px;
+	padding-bottom: 10px;
 }
 
 .pages_list li {

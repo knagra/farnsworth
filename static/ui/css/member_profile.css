@@ -5,55 +5,22 @@ Author: Karandeep Singh Nagra
 */
 
 #user_profile {
-	float: middle;
 	border: 1px solid #7e7e7e;
 	position: relative;
-	width: 800px;
-	margin: 30px auto;
+	margin: 0px auto;
 	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-	font-size: 15pt;
 	overflow: hidden;
-}
-
-#table_title {
-	background: #5e5e5e;
-	background: linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -moz-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -webkit-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	color: #fafafa;
-	padding-left: 10px;
-	padding-top: 10px;
-	padding-bottom: 10px;
-	font-size: 20pt;
-}
-
-#directory {
-	background: #5e5e5e;
-	border: none;
-	width: 100%;
-	clear: both;
-	text-align: center;
-}
-
-#directory:hover {
-	background: #fafafa;
-	color: black;
-	cursor: pointer;
-}
-
-#directory > a {
-	color: #fafafa;
-	font-size: 20pt;
-	text-decoration: none;
-	display: block;
-	padding-top: 5px;
-	padding-bottom: 5px;
 	width: 100%;
 }
 
-#directory:hover > a {
+.btn {
+	width: 50%;
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+#profile_table * {
 	color: black;
-	border-top: 1px solid #7e7e7e;
 }
 
 #profile_table {
@@ -64,14 +31,17 @@ Author: Karandeep Singh Nagra
 }
 
 #profile_table tr th {
-	padding-right: 5px;
+	padding-right: 15px;
 	vertical-align: middle;
 	position: relative;
 	padding-top: 5px;
+	font-size: 15pt;
+	font-weight: 300;
 }
 
 #profile_table tr td {
 	padding-top: 5px;
+	font-size: 13pt;
 }
 
 .field_wrapper {

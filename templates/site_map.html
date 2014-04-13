@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid list_container">
-<div class="container-title">General Pages</div>
+<div class="list_container">
+<div class="header"><h3 class="table_title">General Pages</h3></div>
 <ul class="pages_list">
 	<li><a class="page_link" href="{% url 'external' %}" >External Page</a> - go to the external landing to this site.</li>
 	<li><a class="page_link" href="{% url 'helppage' %}" >Help Page</a> - see some helpful information about the site.</li>
@@ -21,8 +21,8 @@
 </ul>
 </div>
 {% if user.is_authenticated %}
-	<div class="container-fluid list_container">
-	<div class="container-title">Internal Pages</div>
+	<div class="list_container">
+	<div class="header"><h3 class="table_title">Internal Pages</h3></div>
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'homepage' %}" >Home Page</a> - go to your home page.</li>
 		<li><a class="page_link" href="{% url 'member_directory' %}" >Member Directory</a> - see a list of residents, boarders, alumni, and their phone numbers, e-mail addresses, etc.</li>
@@ -30,19 +30,19 @@
 		<li><a class="page_link" href="{% url 'all_threads' %}" >All Threads</a> - see all threads on this site.</li>
 		<li><a class="page_link" href="{% url 'my_threads' %}" >My Threads</a> - see all your threads on this site.</li>
 		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - see and update your profile or change your password.</li>
-		<li><a class="page_link" href="{% url 'food_requests' %}" >Food Requests</a> - see and add recent food requests.</li>
-		<li><a class="page_link" href="{% url 'maintenance_requests' %}" >Maintenance Requests</a> - see and add recent maintenance requests.</li>
-		<li><a class="page_link" href="{% url 'health_requests' %}" >Health Requests</a> - see and add recent health requests.</li>
-		<li><a class="page_link" href="{% url 'network_requests' %}" >Network Requests</a> - see and add recent network requests.</li>
-		<li><a class="page_link" href="{% url 'site_requests' %}" >Site Requests</a> - see and add recent site requests.</li>
+		<li><a class="page_link" href="{% url 'requests' requestType='food'%}" >Food Requests</a> - see and add recent food requests.</li>
+		<li><a class="page_link" href="{% url 'requests' requestType='maintenance' %}" >Maintenance Requests</a> - see and add recent maintenance requests.</li>
+		<li><a class="page_link" href="{% url 'requests' requestType='health' %}" >Health Requests</a> - see and add recent health requests.</li>
+		<li><a class="page_link" href="{% url 'requests' requestType='network' %}" >Network Requests</a> - see and add recent network requests.</li>
+		<li><a class="page_link" href="{% url 'requests' requestType='site' %}" >Site Requests</a> - see and add recent site requests.</li>
 		<li><a class="page_link" href="{% url 'my_requests' %}" >My Requests</a> - see all your requests.</li>
 		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - logout of your account.</li>
 	</ul>
 	</div>
 {% endif %}
 {% if user.is_superuser %}
-	<div class="container-fluid list_container">
-	<div class="container-title">Admin Pages</div>
+	<div class="list_container">
+	<div class="header"><h3 class="table_title">Admin Pages</h3></div>
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'admin:index' %}" >Admin Page</a> - go to the Django admin pages.</li>
 		<li><a class="page_link" href="{% url 'custom_manage_users' %}" >Manage Users</a> - manage users.</li>

@@ -63,7 +63,7 @@ class Response(models.Model):
 		return "Response by %s to: %s" % (self.owner, self.request)
 	
 	class Meta:
-		ordering = ['-post_date']
+		ordering = ['post_date']
 
 class ProfileRequest(models.Model):
 	'''

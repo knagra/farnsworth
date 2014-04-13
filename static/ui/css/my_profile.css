@@ -5,37 +5,22 @@ Author: Karandeep Singh Nagra
 */
 
 #update_profile {
-	float: middle;
 	border: 1px solid #7e7e7e;
 	position: relative;
-	width: 800px;
-	margin: 30px auto;
-	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-	font-size: 15pt;
+	margin: 0px auto;
+	margin-bottom: 10px;
+	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
 	overflow: hidden;
+	width: 100%;	
 }
 
 #change_password {
-	float: middle;
 	border: 1px solid #7e7e7e;
 	position: relative;
-	width: 800px;
-	margin: 30px auto;
+	margin: 0px auto;
 	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-	font-size: 15pt;
 	overflow: hidden;
-}
-
-.title {
-	background: #5e5e5e;
-	background: linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -moz-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	background: -webkit-linear-gradient(top, #7e7e7e 0%, #5e5e5e 100%);
-	color: #fafafa;
-	padding-left: 10px;
-	padding-top: 10px;
-	padding-bottom: 10px;
-	font-size: 20pt;
+	width: 100%;
 }
 
 .fieldWrapper {
@@ -44,47 +29,14 @@ Author: Karandeep Singh Nagra
 	padding-left: 10px;
 }
 
-.button {
-	background: #5e5e5e;
-	color: #fafafa;
-	font-size: 15pt;
-	border: none;
-	width: 100%;
-	height: 40px;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	padding-left: 0px;
+.form-group {
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-bottom: 0px;
 }
 
-.button:hover {
-	background: #fafafa;
-	color: black;
-	border-top: 1px solid #7e7e7e;
-	cursor: pointer;
+.btn {
+	width: 50%;
+	margin-top: 15px;
 }
 
-.form_table {
-	position: relative;
-	padding-left: 10px;
-	padding-top: 10px;
-	padding-bottom: 20px;
-}
-
-.form_table tr th {
-	padding-right: 5px;
-	vertical-align: middle;
-	position: relative;
-}
-
-.form_table tr td ul {
-	float: right;
-	display: block;
-	position: relative;
-	overflow: hidden;
-}
-
-.form_table tr td ul li {
-	color: red;
-	display: block;
-	padding-left: 3px;
-}
