@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS
+from farnsworth.settings import house, ADMINS, max_threads, max_messages
 from django.contrib.auth import logout, login, authenticate, hashers
 from models import UserProfile, Thread, Message
 from django.contrib.auth.models import User
@@ -218,24 +218,16 @@ def member_forums_view(request):
 		else:
 			message = "Your request at /member_forums/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
-	x = 0 # number of messages loaded
-	active_messages = list()
-	for message in Message.objects.all():
-		active_messages.append(message)
+	x = 0 # number of threads loaded
+	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk)
+	for thread in Thread.objects.all():
+		thread_messages = Message.objects.filter(thread=thread)
+		threads_dict.append((thread.subject, thread_messages, thread.pk))
 		x += 1
-		if x >= 20:
+		if x >= max_threads:
 			break
-	active_threads = list()
-	for message in active_messages:
-		if message.thread not in active_threads:
-			active_threads.append(message.thread)
-	active_message_forms = list()
-	for thread in active_threads:
-		form = MessageForm(initial={'thread_pk': thread.pk})
-		form.fields['thread_pk'].widget = forms.HiddenInput()
-		active_message_forms.append(form)
 	thread_form = ThreadForm()
-	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, "thread_title": "Active Threads", 'admin': ADMINS[0], 'threads': active_threads, 'message_forms': active_message_forms, 'thread_form': thread_form, 'messages': active_messages}, context_instance=RequestContext(request))
+	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, 'thread_title': 'Active Threads', 'admin': ADMINS[0], 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def all_threads_view(request):
 	''' View of all threads. '''
@@ -279,15 +271,12 @@ def all_threads_view(request):
 		else:
 			message = "Your request at /all_threads/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
-	all_threads = Thread.objects.all()
-	all_messages = Message.objects.all()
-	message_forms = list()
-	for thread in all_threads:
-		form = MessageForm(initial={'thread_pk': thread.pk})
-		form.fields['thread_pk'].widget = forms.HiddenInput()
-		message_forms.append(form)
+	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk)
+	for thread in Thread.objects.all():
+		thread_messages = Message.objects.filter(thread=thread)
+		threads_dict.append((thread.subject, thread_messages, thread.pk))
 	thread_form = ThreadForm()
-	return render_to_response('member_forums.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, "thread_title": "All Threads", 'threads': all_threads, 'messages': all_messages, 'message_forms': message_forms, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('member_forums.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'thread_title': 'All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def my_threads_view(request):
 	''' View of my threads. '''
@@ -331,25 +320,16 @@ def my_threads_view(request):
 		else:
 			message = "Your request at /my_threads/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
-	my_messages = list()
-	my_threads = list()
-	message_forms = list()
-	my_thread_messages = list()
-	for message in Message.objects.all():
-		if message.owner.user == request.user:
-			my_messages.append(message)
-	for message in my_messages:
-		if message.thread not in my_threads:
-			my_threads.append(message.thread)
-	for thread in my_threads:
-		form = MessageForm(initial={'thread_pk': thread.pk})
-		form.fields['thread_pk'].widget = forms.HiddenInput()
-		message_forms.append(form)
-		for message in Message.objects.all():
-			if (message not in my_thread_messages) and (message.thread == thread):
-				my_thread_messages.append(message)
+	x = 0 # number of threads loaded
+	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk)
+	for thread in Thread.objects.filter(owner=userProfile):
+		thread_messages = Message.objects.filter(thread=thread)
+		threads_dict.append((thread.subject, thread_messages, thread.pk))
+		x += 1
+		if x >= max_threads:
+			break
 	thread_form = ThreadForm()
-	return render_to_response('my_threads.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'my_messages': my_messages, 'my_threads': my_threads, 'message_forms': message_forms, 'my_thread_messages': my_thread_messages, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def member_directory_view(request):
 	''' View of member directory. '''
