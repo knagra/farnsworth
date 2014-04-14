@@ -42,13 +42,13 @@ def request_profile_view(request):
 			for profile in UserProfile.objects.all():
 				if profile.user.username == username:
 					non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
-					return render(request, 'request_profile.html', {'page_name': page_name, 'form': form, 'non_field_error': non_field_error})
+					form.errors['__all__'] = form.error_class([non_field_error])
+					return render(request, 'request_profile.html', {'page_name': page_name, 'form': form})
 			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, approved=False, affiliation=affiliation)
 			profile_request.save()
 			return HttpResponseRedirect(reverse('external'))
 		else:
-			non_field_error = "Uh...Something went wrong in your input.  Please try again."
-			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name, 'non_field_error': non_field_error})
+			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
 
 	else:
 		form = profileRequestForm()
