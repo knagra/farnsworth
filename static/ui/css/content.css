@@ -13,6 +13,10 @@ Author: Karandeep Singh Nagra
 	color: black;
 }
 
+.table_container {
+	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+}
+
 .header {
 	margin: auto;
 	background: #5e5e5e;
@@ -38,13 +42,4 @@ Author: Karandeep Singh Nagra
 
 .button {
 	font-weight: 300;
-}
-
-.form_table {
-	margin-top: 10px;
-}
-
-.form_table label {
-	padding-right: 10px;
-	padding-left: 5px;
 }

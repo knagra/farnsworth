@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+<script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/manage_profile_requests.css' %}" />
+<script>
+$(document).ready(function() {
+	$('table').tablesorter({
+		sortList: [[1,0], [2,0]]
+	});
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="table_container">
+	<div class="header"><h3 class="table_title">Profile Requests</h3></div>
+	{% if not profile_requests %}
+		<div class="field_wrapper">No profile requests in database.</div>
+	{% else %}
+	<table class="table table-striped table-bordered table-condensed table-hover members_table" id="requests_table">
+	<thead>
+	<tr>
+		<th>Username</th>
+		<th>Last Name</th>
+		<th>First Name</th>
+		<th>E-mail</th>
+		<th>Request Date</th>
+		<th>Affiliation</th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for r in profile_requests %}
+		<tr>
+			<td>{{ r.username }}</td>
+			<td>{{ r.last_name }}</td>
+			<td>{{ r.first_name }}</td>
+			<td><a class="page_link" href="mailto:{{ r.email }}">{{ r.email }}</a></td>
+			<td>{{ r.request_date }}</td>
+			<td>{% for choice in choices %}{% if r.affiliation == choice.0 %}{{ choice.1 }}{% endif %}{% endfor %}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+	</table>
+	{% endif %}
+</div>
+{% endblock %}

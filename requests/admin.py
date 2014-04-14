@@ -37,8 +37,8 @@ class ProfileRequestAdmin(admin.ModelAdmin):
 	list_display = ('username', 'last_name', 'first_name', 'email')
 	search_fields = ('username', 'last_name', 'first_name', 'email')
 	date_hierarchy = 'request_date'
-	list_filter = ('approved',)
-	ordering = ('-approved',)
+	list_filter = ('request_date',)
+	ordering = ('request_date',)
 	readonly_fields = ('username', 'last_name', 'first_name', 'email')
 
 class AnnouncementAdmin(admin.ModelAdmin):

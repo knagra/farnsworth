@@ -73,7 +73,6 @@ class ProfileRequest(models.Model):
 	first_name = models.CharField(blank=False, null=False, max_length=100, help_text="First name if user is created.")
 	last_name = models.CharField(blank=False, null=False, max_length=100, help_text="Last name if user is created.")
 	email = models.CharField(blank=False, null=False, max_length=255, help_text="E-mail address if user is created.")
-	approved = models.BooleanField(default=False, help_text="Change this to true to automatically create user.")
 	request_date = models.DateTimeField(auto_now_add=True, help_text="Whether this request has been granted.")
 	affiliation = models.CharField(max_length=1, choices=UserProfile.STATUS_CHOICES, default=UserProfile.RESIDENT, help_text="User's affiliation with the house.")
 	

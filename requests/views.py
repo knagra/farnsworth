@@ -64,7 +64,7 @@ def manage_profile_requests_view(request):
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	profile_requests = ProfileRequest.objects.all()
-	return render_to_response('manage_profile_requests.html', {'page_name': page_name, 'profile_requests': profile_requests}, context_instance=RequestContext(request))
+	return render_to_response('manage_profile_requests.html', {'page_name': page_name, 'choices': UserProfile.STATUS_CHOICES, 'profile_requests': profile_requests}, context_instance=RequestContext(request))
 
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
