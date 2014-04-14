@@ -23,12 +23,6 @@ Author: Karandeep Singh Nagra
 	width: 50%;
 }
 
-.fieldWrapper {
-	padding-top: 10px;
-	position: relative;
-	padding-left: 10px;
-}
-
 .form-group {
 	margin-left: 5px;
 	margin-right: 5px;
@@ -39,4 +33,3 @@ Author: Karandeep Singh Nagra
 	width: 50%;
 	margin-top: 15px;
 }
-

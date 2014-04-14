@@ -180,7 +180,8 @@ def custom_modify_user_view(request, targetUsername):
 						targetUser.save()
 						return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 					else:
-						change_password_non_field_error = "Could not hash password.  Please try again."
+						error = "Could not hash password.  Please try again."
+						change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
 				else:
 					change_user_password_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match"])
 					change_user_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match"])
@@ -237,10 +238,12 @@ def custom_add_user_view(request):
 			for usr in User.objects.all():
 				if usr.username == username:
 					non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
-					return render(request, 'custom_add_user.html', {'page_name': page_name, 'non_field_error': non_field_error, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house})
+					add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
+					return render(request, 'custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house})
 				if (usr.first_name == first_name) and (usr.last_name == last_name):
 					non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, usr.username)
-					return render(request, 'custom_add_user.html', {'page_name': page_name, 'non_field_error': non_field_error, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house})
+					add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
+					return render(request, 'custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house})
 			if user_password == confirm_password:
 				new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
 				new_user.is_active = is_active

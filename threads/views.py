@@ -94,15 +94,13 @@ def my_profile_view(request):
 						if hashers.is_password_usable(hashed_password):
 							user.password = hashed_password
 							user.save()
-							password_non_field_error = "Your password has been changed."
 							return HttpResponseRedirect(reverse('my_profile'))
-							#change_password_form = ChangePasswordForm()
 						else:
 							password_non_field_error = "Password didn't hash properly.  Please try again."
-							return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'password_non_field_error': password_non_field_error}, context_instance=RequestContext(request))
+							change_password_form.errors['__all__'] = change_password_form.error_class([password_non_field_error])
+							return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form}, context_instance=RequestContext(request))
 					else:
-						change_password_form._errors['new_password'] = forms.util.ErrorList([u"Passwords don't match."])
-						change_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+						change_password_form.errors['__all__'] = change_password_form.error_class([u"Passwords don't match."])
 				else:
 					change_password_form._errors['current_password'] = forms.util.ErrorList([u"Wrong password."])
 		elif 'submit_profile_form' in request.POST:
@@ -125,10 +123,7 @@ def my_profile_view(request):
 					userProfile.phone_number = phone_number
 					userProfile.phone_visible = phone_visible_to_others
 					userProfile.save()
-					profile_non_field_error = "Your profile has been updated."
 					return HttpResponseRedirect(reverse('my_profile'))
-					#update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
-					#return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'profile_non_field_error': profile_non_field_error}, context_instance=RequestContext(request))
 				else:
 					update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
 		else:
@@ -139,7 +134,6 @@ def my_profile_view(request):
 def login_view(request):
 	''' The view of the login page. '''
 	page_name = "Login Page"
-	non_field_error = None
 	if request.user.is_authenticated():
 		return HttpResponseRedirect(reverse('homepage'))
 	class LoginForm(forms.Form):
@@ -159,17 +153,14 @@ def login_view(request):
 							login(request, user)
 							return HttpResponseRedirect(reverse('homepage'))
 						else:
-							non_field_error = "Invalid username/password combo"
+							form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
 					else:
-						non_field_error = "Your account is not active.  Please contact the site administrator to activate your account."
+						form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
 			except:
-				non_field_error = "User not found"
+				form.errors['__all__'] = form.error_class(["User not found"])
 	else:
 		form = LoginForm()
-	if non_field_error:
-		return render_to_response('login.html', {'page_name': page_name, 'form': form, 'non_field_error': non_field_error}, context_instance=RequestContext(request))
-	else:
-		return render_to_response('login.html', {'page_name': page_name, 'form': form}, context_instance=RequestContext(request))
+	return render_to_response('login.html', {'page_name': page_name, 'form': form}, context_instance=RequestContext(request))
 
 def logout_view(request):
 	''' Log the user out. '''

@@ -10,7 +10,6 @@
 {% block content %}
 	<div id="add_user_form">
 		<div class="header"><h3 class="table_title">Add a User</h3></div>
-		<div class="fieldWrapper">{{ non_field_error }}</div>
 		<form method="post" action="">
 			{% csrf_token %}
 			<div class="form-group">
