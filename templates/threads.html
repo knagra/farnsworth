@@ -53,7 +53,7 @@
 	  {% with message_form_id="message_form_"|add:y %}
 	  {% with button_id="button_"|add:y %}
 	<div class="text-center">
-	  <input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
+	  <input class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')" value="Add Message to Thread" />
 	</div>
 	  <form class="new_message_form" id="{{ message_form_id }}" method="post" action="">
 	    {% csrf_token %}

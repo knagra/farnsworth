@@ -89,7 +89,7 @@
 	    {% with y=forloop.counter|stringformat:"s" %}
 	    {% with response_form_id="response_form_"|add:y %}
 	    {% with button_id="button_"|add:y %}
-	    <input class="btn btn-lg btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')" value="Add Response" />
+	    <input class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')" value="Add Response" />
 	  </div> <!-- text-center -->
 	    <form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
 	      {% csrf_token %}
