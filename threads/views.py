@@ -227,7 +227,7 @@ def member_forums_view(request):
 		if x >= max_threads:
 			break
 	thread_form = ThreadForm()
-	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, 'thread_title': 'Active Threads', 'admin': ADMINS[0], 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {'house': house, 'page_name': page_name, 'thread_title': 'Active Threads', 'admin': ADMINS[0], 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def all_threads_view(request):
 	''' View of all threads. '''
@@ -276,7 +276,7 @@ def all_threads_view(request):
 		thread_messages = Message.objects.filter(thread=thread)
 		threads_dict.append((thread.subject, thread_messages, thread.pk))
 	thread_form = ThreadForm()
-	return render_to_response('member_forums.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'thread_title': 'All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'thread_title': 'All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def my_threads_view(request):
 	''' View of my threads. '''
@@ -329,7 +329,7 @@ def my_threads_view(request):
 		if x >= max_threads:
 			break
 	thread_form = ThreadForm()
-	return render_to_response('member_forums.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def member_directory_view(request):
 	''' View of member directory. '''

@@ -404,35 +404,28 @@ def my_requests_view(request):
 			message = "Uhhh...Something went wrong.  Please contact an admin for support."
 			return red_home(request, message)
 	my_requests = Request.objects.filter(owner=userProfile)
-	request_responses = {} # A dictionary with request.pk->queryset_of_messages s.t. each message.request == request
-	req_dict = {} # A dictionary with request_type->queryset_of_requests_of_request_type
-	request_forms = list()
-	response_forms = list()
-	request_types = request_dict.keys()
-	for request_type in request_types:
-		form = RequestForm(initial={'request_type': request_type})
-		form.fields['request_type'].widget = forms.HiddenInput()
-		request_forms.append(form)
-		#req_dict[request_type] = list()
-		req_dict[request_type] = my_requests.filter(request_type=request_type)
-	for req in my_requests:
-		request_responses[req.pk] = Response.objects.filter(request=req)
-		manager = False # Whether the user is a relevant manager for this request.
-		for position in req.managers.all():
-			if position.incumbent == userProfile:
-				manager = True
-				break
-		if not manager:
-			form = ResponseForm(initial={'request_pk': req.pk})
-			form.fields['mark_filled'].widget = forms.HiddenInput()
-			form.fields['mark_closed'].widget = forms.HiddenInput()
-		else:
-			form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
-		form.fields['request_pk'].widget = forms.HiddenInput()
-		response_forms.append(form)
-		#for request_type in request_types:
-		#	if req.request_type == request_type:
-		#		req_dict[request_type].append(req)
-		#		break
-	return render_to_response('my_requests.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'req_dict': req_dict, 'request_responses': request_responses, 'request_forms': request_forms, 'response_forms': response_forms}, context_instance=RequestContext(request))
+	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name, request_form, type_manager, [(request.body, [list_of_request_responses], response_form),...])
+	for request_type in RequestType.objects.all():
+		if request_type.enabled:
+			type_manager = False
+			for position in request_type.managers.all():
+				if position.incumbent == userProfile:
+					type_manager = True
+					break
+			requests_list = list() # Items are of form (request, [list_of_request_responses], response_form),...])
+			type_requests = my_requests.filter(request_type=request_type)
+			for req in type_requests:
+				responses_list = Response.objects.filter(request=req)
+				if type_manager:
+					form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
+				else:
+					form = ResponseForm(initial={'request_pk': req.pk})
+					form.fields['mark_filled'].widget = forms.HiddenInput()
+					form.fields['mark_closed'].widget = forms.HiddenInput()
+				form.fields['request_pk'].widget = forms.HiddenInput()
+				requests_list.append((req, responses_list, form))
+			request_form = RequestForm(initial={'type_pk': request_type.pk})
+			request_form.fields['type_pk'].widget = forms.HiddenInput()
+			request_dict.append((request_type.name, request_form, type_manager, requests_list))
+	return render_to_response('my_requests.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 
