@@ -5,7 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.contrib import admin
-from requests.models import Manager, RequestType, Request, Response, ProfileRequest
+from requests.models import Manager, RequestType, Request, Response, ProfileRequest, Announcement
 
 class ManagerAdmin(admin.ModelAdmin):
 	list_display = ('title', 'incumbent', 'email')
@@ -41,8 +41,17 @@ class ProfileRequestAdmin(admin.ModelAdmin):
 	ordering = ('-approved',)
 	readonly_fields = ('username', 'last_name', 'first_name', 'email')
 
+class AnnouncementAdmin(admin.ModelAdmin):
+	list_display = ('manager', 'incumbent', 'post_date', 'pinned')
+	search_fields = ('manager', 'incumbent', 'body')
+	date_hierarchy = 'post_date'
+	list_filter = ('pinned',)
+	ordering = ('-post_date', 'pinned')
+	readonly_fields = ('manager', 'incumbent', 'post_date', 'body')
+
 admin.site.register(Manager, ManagerAdmin)
 admin.site.register(RequestType, RequestTypeAdmin)
 admin.site.register(Request, RequestAdmin)
 admin.site.register(Response, ResponseAdmin)
 admin.site.register(ProfileRequest, ProfileRequestAdmin)
+admin.site.register(Announcement, AnnouncementAdmin)

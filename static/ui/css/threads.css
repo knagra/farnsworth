@@ -79,7 +79,7 @@ label {
     padding-top: 2px;
     padding-bottom: 2px;
     width: 75%;
-    background: #dde;
+    background: #e9e9e9;
     border: 1px solid #888;
 }
 
@@ -100,7 +100,7 @@ label {
 }
 
 .message_row:hover {
-    background: #ddf;
+    background: #e9e9e9;
 }
 
 .message_table {
@@ -110,10 +110,6 @@ label {
 .message_divider {
     width: 75%;
     margin: 0px;
-}
-/*
-.add_message {
-    padding: 0px;
 }
 
 /*

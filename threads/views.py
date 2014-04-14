@@ -23,9 +23,9 @@ def red_ext(request, message=None):
 		message - a message from the caller function
 	'''
 	if message:
-		return render_to_response('external.html', {'message': message, 'house': house, 'admin': ADMINS[0], 'page_name': "External"}, context_instance=RequestContext(request))
+		return render_to_response('external.html', {'message': message, 'page_name': "External"}, context_instance=RequestContext(request))
 	else:
-		return render_to_response('external.html', {'house': house, 'admin': ADMINS[0], 'page_name': "External"}, context_instance=RequestContext(request))
+		return render_to_response('external.html', {'page_name': "External"}, context_instance=RequestContext(request))
 
 
 def red_home(request, message):
@@ -48,12 +48,12 @@ def homepage_view(request):
 def help_view(request):
 	''' The view of the helppage. '''
 	page_name = "Help Page"
-	return render_to_response('helppage.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0]},  context_instance=RequestContext(request))
+	return render_to_response('helppage.html', {'page_name': page_name},  context_instance=RequestContext(request))
 
 def site_map_view(request):
 	''' The view of the site map. '''
 	page_name = "Site Map"
-	return render_to_response('site_map.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0]}, context_instance=RequestContext(request))
+	return render_to_response('site_map.html', {'page_name': page_name}, context_instance=RequestContext(request))
 
 def my_profile_view(request):
 	''' The view of the profile page. '''
@@ -99,7 +99,7 @@ def my_profile_view(request):
 							#change_password_form = ChangePasswordForm()
 						else:
 							password_non_field_error = "Password didn't hash properly.  Please try again."
-							return render_to_response('my_profile.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'password_non_field_error': password_non_field_error}, context_instance=RequestContext(request))
+							return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'password_non_field_error': password_non_field_error}, context_instance=RequestContext(request))
 					else:
 						change_password_form._errors['new_password'] = forms.util.ErrorList([u"Passwords don't match."])
 						change_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
@@ -128,13 +128,13 @@ def my_profile_view(request):
 					profile_non_field_error = "Your profile has been updated."
 					return HttpResponseRedirect(reverse('my_profile'))
 					#update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
-					#return render_to_response('my_profile.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'profile_non_field_error': profile_non_field_error}, context_instance=RequestContext(request))
+					#return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form, 'profile_non_field_error': profile_non_field_error}, context_instance=RequestContext(request))
 				else:
 					update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
 		else:
 			message = "Your request at /profile/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
-	return render_to_response('my_profile.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form}, context_instance=RequestContext(request))
+	return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form}, context_instance=RequestContext(request))
 
 def login_view(request):
 	''' The view of the login page. '''
@@ -167,9 +167,9 @@ def login_view(request):
 	else:
 		form = LoginForm()
 	if non_field_error:
-		return render_to_response('login.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'form': form, 'non_field_error': non_field_error}, context_instance=RequestContext(request))
+		return render_to_response('login.html', {'page_name': page_name, 'form': form, 'non_field_error': non_field_error}, context_instance=RequestContext(request))
 	else:
-		return render_to_response('login.html', {'page_name': page_name, 'admin': ADMINS[0], 'house': house, 'form': form}, context_instance=RequestContext(request))
+		return render_to_response('login.html', {'page_name': page_name, 'form': form}, context_instance=RequestContext(request))
 
 def logout_view(request):
 	''' Log the user out. '''
@@ -227,7 +227,7 @@ def member_forums_view(request):
 		if x >= max_threads:
 			break
 	thread_form = ThreadForm()
-	return render_to_response('threads.html', {'house': house, 'page_name': page_name, 'thread_title': 'Active Threads', 'admin': ADMINS[0], 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Active Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def all_threads_view(request):
 	''' View of all threads. '''
@@ -276,7 +276,7 @@ def all_threads_view(request):
 		thread_messages = Message.objects.filter(thread=thread)
 		threads_dict.append((thread.subject, thread_messages, thread.pk))
 	thread_form = ThreadForm()
-	return render_to_response('threads.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'thread_title': 'All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def my_threads_view(request):
 	''' View of my threads. '''
@@ -329,7 +329,7 @@ def my_threads_view(request):
 		if x >= max_threads:
 			break
 	thread_form = ThreadForm()
-	return render_to_response('threads.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def member_directory_view(request):
 	''' View of member directory. '''
@@ -346,7 +346,7 @@ def member_directory_view(request):
 			boarders.append(profile)
 		elif profile.status == UserProfile.ALUMNUS:
 			alumni.append(profile)
-	return render_to_response('member_directory.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
+	return render_to_response('member_directory.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
 def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
@@ -360,14 +360,14 @@ def member_profile_view(request, targetUsername):
 	except:
 		page_name = "User Not Found"
 		message = "User %s does not exist or could not be found." % targetUsername
-		return render_to_response('member_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'message': message}, context_instance=RequestContext(request))
+		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
 	try:
 		targetProfile = targetUser.get_profile()
 	except:
 		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
-		return render_to_response('member_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'message': message}, context_instance=RequestContext(request))
+		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
 	if targetProfile == request.user.get_profile():
 		return HttpResponseRedirect(reverse('my_profile'))
 	else:
-		return render_to_response('member_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'targetUser': targetUser, 'targetProfile': targetProfile}, context_instance=RequestContext(request))
+		return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile}, context_instance=RequestContext(request))

@@ -16,6 +16,9 @@ from models import Manager, RequestType, ProfileRequest, Request, Response
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
 
+def add_context(request):
+	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ADMIN': ADMINS[0]}
+
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
 	page_name = "Profile Request Page"
@@ -38,17 +41,17 @@ def request_profile_view(request):
 			for profile in UserProfile.objects.all():
 				if profile.user.username == username:
 					non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
-					return render(request, 'request_profile.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'form': form, 'non_field_error': non_field_error})
+					return render(request, 'request_profile.html', {'page_name': page_name, 'form': form, 'non_field_error': non_field_error})
 			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, approved=False, affiliation=affiliation)
 			profile_request.save()
 			return HttpResponseRedirect(reverse('external'))
 		else:
 			non_field_error = "Uh...Something went wrong in your input.  Please try again."
-			return render(request, 'request_profile.html', {'house': house, 'admin': ADMINS[0], 'form': form, 'page_name': page_name, 'non_field_error': non_field_error})
+			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name, 'non_field_error': non_field_error})
 
 	else:
 		form = profileRequestForm()
-	return render(request, 'request_profile.html', {'house': house, 'admin': ADMINS[0], 'form': form, 'page_name': page_name})
+	return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
 
 def manage_profile_requests_view(request):
 	''' The page to manager user profile requests. '''
@@ -61,7 +64,7 @@ def manage_profile_requests_view(request):
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	profile_requests = ProfileRequest.objects.all()
-	return render_to_response('manage_profile_requests.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'profile_requests': profile_requests}, context_instance=RequestContext(request))
+	return render_to_response('manage_profile_requests.html', {'page_name': page_name, 'profile_requests': profile_requests}, context_instance=RequestContext(request))
 
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
@@ -82,7 +85,7 @@ def custom_manage_users_view(request):
 			boarders.append(profile)
 		elif profile.status == UserProfile.ALUMNUS:
 			alumni.append(profile)
-	return render_to_response('custom_manage_users.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
+	return render_to_response('custom_manage_users.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
 def custom_modify_user_view(request, targetUsername):
 	''' The page to modify a user. '''
@@ -98,13 +101,13 @@ def custom_modify_user_view(request, targetUsername):
 	except:
 		page_name = "User Not Found"
 		message = "User %s does not exist or could not be found." % targetUsername
-		return render_to_response('custom_modify_user.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'message': message}, context_instance=RequestContext(request))
+		return render_to_response('custom_modify_user.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
 	try:
 		targetProfile = targetUser.get_profile()
 	except:
 		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
-		return render_to_response('custom_modify_user.html', {'house': house, 'page_name': page_name, 'admin': ADMINS[0], 'message': message}, context_instance=RequestContext(request))	
+		return render_to_response('custom_modify_user.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))	
 	class ModifyUserForm(forms.Form):
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
@@ -181,7 +184,7 @@ def custom_modify_user_view(request, targetUsername):
 				else:
 					change_user_password_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match"])
 					change_user_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match"])
-	return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'page_name': page_name, 'modify_user_form': modify_user_form, 'change_user_password_form': change_user_password_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
+	return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'page_name': page_name, 'modify_user_form': modify_user_form, 'change_user_password_form': change_user_password_form}, context_instance=RequestContext(request))
 
 def custom_add_user_view(request):
 	''' The page to add a new user. '''
@@ -258,7 +261,7 @@ def custom_add_user_view(request):
 			else:
 				add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
 				add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
-	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house}, context_instance=RequestContext(request))
+	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
 
 def requests_view(request, requestType):
 	'''
@@ -281,12 +284,12 @@ def requests_view(request, requestType):
 	except:
 		message = "No request type '%s' found." % requestType
 		return red_home(request, message)
-		#return render_to_response('requests.html', {'page_name': 'Invalid Request Type', 'invalid_request_type': True, 'house': house, 'admin': ADMINS[0]}, context_instance=RequestContext(request))
+		#return render_to_response('requests.html', {'page_name': 'Invalid Request Type', 'invalid_request_type': True}, context_instance=RequestContext(request))
 	page_name = "%s Requests" % requestType.capitalize()
 	if not request_type.enabled:
 		message = "%s requests have been disabled." % requestType.capitalize()
 		return red_home(request, message)
-		#return render_to_response('requests.html', {'page_name': page_name, 'house': house, 'admin': ADMINS[0], 'request_disabled': True}, context_instance=RequestContext(request))
+		#return render_to_response('requests.html', {'page_name': page_name, 'request_disabled': True}, context_instance=RequestContext(request))
 	relevant_managers = request_type.managers.all()
 	manager = False #if the user is a relevant manager
 	for position in relevant_managers:
@@ -346,7 +349,7 @@ def requests_view(request, requestType):
 		x += 1
 		if x >= max_requests:
 			break
-	return render_to_response('requests.html', {'manager': manager, 'request_type': requestType, 'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
+	return render_to_response('requests.html', {'manager': manager, 'request_type': requestType, 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
 
 def my_requests_view(request):
 	'''
@@ -427,5 +430,5 @@ def my_requests_view(request):
 			request_form = RequestForm(initial={'type_pk': request_type.pk})
 			request_form.fields['type_pk'].widget = forms.HiddenInput()
 			request_dict.append((request_type.name, request_form, type_manager, requests_list))
-	return render_to_response('my_requests.html', {'house': house, 'admin': ADMINS[0], 'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
+	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 

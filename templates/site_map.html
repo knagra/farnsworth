@@ -30,11 +30,16 @@
 		<li><a class="page_link" href="{% url 'all_threads' %}" >All Threads</a> - see all threads on this site.</li>
 		<li><a class="page_link" href="{% url 'my_threads' %}" >My Threads</a> - see all your threads on this site.</li>
 		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - see and update your profile or change your password.</li>
-		<li><a class="page_link" href="{% url 'requests' requestType='food'%}" >Food Requests</a> - see and add recent food requests.</li>
+		{% if REQUEST_TYPES %}
+			{% for request_type in REQUEST_TYPES %}
+				<li><a class="page_link" href="{% url 'requests' requestType=request_type.name %}">{{ request_type.name|title }} Requests</a> - see and add to recent {{ request_type.name }} requests.</li>
+			{% endfor %}
+		{% endif %}
+<!--		<li><a class="page_link" href="{% url 'requests' requestType='food'%}" >Food Requests</a> - see and add recent food requests.</li>
 		<li><a class="page_link" href="{% url 'requests' requestType='maintenance' %}" >Maintenance Requests</a> - see and add recent maintenance requests.</li>
 		<li><a class="page_link" href="{% url 'requests' requestType='health' %}" >Health Requests</a> - see and add recent health requests.</li>
 		<li><a class="page_link" href="{% url 'requests' requestType='network' %}" >Network Requests</a> - see and add recent network requests.</li>
-		<li><a class="page_link" href="{% url 'requests' requestType='site' %}" >Site Requests</a> - see and add recent site requests.</li>
+		<li><a class="page_link" href="{% url 'requests' requestType='site' %}" >Site Requests</a> - see and add recent site requests.</li>-->
 		<li><a class="page_link" href="{% url 'my_requests' %}" >My Requests</a> - see all your requests.</li>
 		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - logout of your account.</li>
 	</ul>
