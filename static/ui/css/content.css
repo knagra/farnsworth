@@ -39,3 +39,12 @@ Author: Karandeep Singh Nagra
 .button {
 	font-weight: 300;
 }
+
+.form_table {
+	margin-top: 10px;
+}
+
+.form_table label {
+	padding-right: 10px;
+	padding-left: 5px;
+}

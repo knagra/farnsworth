@@ -113,6 +113,18 @@
     <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <!-- prevent multiple form submissions by disabling submit button on all forms after post -->
+	<script>
+		$("form").submit(function() {
+			$(this).submit(function() {
+				return false;
+			});
+			return true;
+		});
+		$("input[type=text]").addClass("form-control");
+		$("input[type=password]").addClass("form-control");
+		$("select").addClass("form-control");
+	</script>
     {% block endscripts %}{% endblock %}
   </body>
 </html>

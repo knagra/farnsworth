@@ -8,19 +8,19 @@ Author: Karandeep Singh Nagra
 	border: 1px solid #7e7e7e;
 	position: relative;
 	margin: 0px auto;
-	margin-bottom: 10px;
 	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
 	overflow: hidden;
-	width: 100%;	
+	width: 75%;
 }
 
 #change_password {
 	border: 1px solid #7e7e7e;
 	position: relative;
 	margin: 0px auto;
+	margin-top: 20px;
 	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
 	overflow: hidden;
-	width: 100%;
+	width: 50%;
 }
 
 .fieldWrapper {

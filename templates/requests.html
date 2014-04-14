@@ -116,15 +116,3 @@
   </div>
 </div>
 {% endblock %}
-
-{% block endscripts %}
-<!-- Prevent multiple form submissions -->
-<script>
-$("form").submit(function() {
-	$(this).submit(function() {
-		return false;
-	});
-	return true;
-});
-</script>
-{% endblock %}
