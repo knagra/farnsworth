@@ -31,7 +31,7 @@
 <div class="requests">
   {% with request_form_id="request_form_"|add:x %}
   <div class="table_header">
-    <input class="btn btn-primary btn-lg add_request" onclick="show_new_request_form('{{ request_form_id }}')" type="submit" value="New Request" />
+    <input class="btn btn-primary add_request" onclick="show_new_request_form('{{ request_form_id }}')" type="submit" value="New Request" />
     <h3 class="requests_title">My {{ type_tuple.0|title }} Requests</h3>
   </div> <!-- table_header -->
   <form class="new_request_form" id="{{ request_form_id }}" method="post" action="">

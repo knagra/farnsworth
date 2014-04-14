@@ -48,7 +48,7 @@
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Requests <b class="caret"></b></a>
 		<ul class="dropdown-menu">
 		{% if not REQUEST_TYPES %}
-			<li>No Enabled Request Types</li>
+			<li>Requests Disabled</li>
 		{% else %}
 			{% for request_type in REQUEST_TYPES %}
 				<li><a href="{% url 'requests' requestType=request_type.name %}" >{{ request_type.name|title }}</a></li>

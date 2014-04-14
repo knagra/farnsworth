@@ -17,6 +17,7 @@ from threads.models import UserProfile
 from threads.views import red_ext, red_home
 
 def add_context(request):
+	''' Add variables to all dictionaries passed to templates. '''
 	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ADMIN': ADMINS[0]}
 
 def request_profile_view(request):
@@ -58,7 +59,6 @@ def manage_profile_requests_view(request):
 	page_name = "Admin - Manage Profile Requests"
 	if request.user.is_authenticated():
 		if not request.user.is_superuser:
-			page_name = "Home Page"
 			message = "The page /custom_admin/manage_profile_requests/ is restricted to superadmins."
 			return red_home(request, message)
 	else:

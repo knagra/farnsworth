@@ -18,13 +18,14 @@ Author: Karandeep Singh Nagra
 	background: #5e5e5e;
 	color: #fafafa;
 	font-size: 20pt;
-	height: 50px;
+	height: 40px;
 }
 
 .table_title {
 	padding-left: 10px;
-	font-size: 150%;
+	font-size: 100%;
 	margin-top: 0px;
+	padding-top: 5px;
 	font-weight: 200;
 	margin-bottom: 0px;
 }

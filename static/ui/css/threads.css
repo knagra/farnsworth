@@ -18,7 +18,7 @@ Author: Karandeep Singh Nagra
     background: #5e5e5e;
     color: #fafafa;
     font-size: 20pt;
-    height: 50px;
+    height: 40px;
 }
 
 label {
@@ -27,8 +27,9 @@ label {
 
 .thread_title {
     padding-left: 10px;
-    font-size: 150%;
+    font-size: 100%;
     margin-top: 0px;
+	padding-top: 5px;
 	font-weight: 200;
 	margin-bottom: 0px;
 }
@@ -49,8 +50,8 @@ label {
 
 .add_thread {
     float: right;
-    margin-top: 2px;
-    margin-right: 2px;
+    margin-top: 3px;
+    margin-right: 3px;
 }
 
 #submit_thread_form {
