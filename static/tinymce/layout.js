@@ -8,4 +8,5 @@ tinyMCE.init({
 	toolbar2: "bold italic underline | cut copy paste pastetext pasteword | search replace | link unlink charmap | emoticons image media | forecolor backcolor | preview",
 	resize: "both",
 	menubar: false,
+	relative_urls: false
 });

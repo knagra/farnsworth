@@ -407,7 +407,7 @@ def my_requests_view(request):
 			message = "Uhhh...Something went wrong.  Please contact an admin for support."
 			return red_home(request, message)
 	my_requests = Request.objects.filter(owner=userProfile)
-	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name, request_form, type_manager, [(request.body, [list_of_request_responses], response_form),...])
+	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name, request_form, type_manager, [(request, [list_of_request_responses], response_form),...])
 	for request_type in RequestType.objects.all():
 		if request_type.enabled:
 			type_manager = False
