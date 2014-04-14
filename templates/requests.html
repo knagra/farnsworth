@@ -35,9 +35,9 @@
     {% csrf_token %}
     <div class="form-group">
       <label for="id_body">New Request</label>
-      <textarea name="body"></textarea>
-      <button type="submit" class="btn btn-lg btn-success" name="submit_request">Submit Request</button>
-      <input type="button" class="btn btn-lg btn-warning" name="cancel_request_form" onclick="hide_new_request_form()" value="Cancel" />
+      <textarea id="id_body" name="body"></textarea>
+      <button type="submit" class="btn btn-lg btn-success" name="submit_request_form">Submit Request</button>
+      <input type="button" class="btn btn-lg btn-warning" name="cancel_request_form" value="Cancel" onclick="hide_new_request_form()">
     </div>
   </form>
 
@@ -93,6 +93,24 @@
 	  </div> <!-- text-center -->
 	    <form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
 	      {% csrf_token %}
+<<<<<<< HEAD:templates/generic_requests.html
+	      {% for response_form in response_forms %}
+	      {% if response_form.request_pk.value == request.pk %}
+	      {{ response_form.request_pk }}
+	      <div class="form-group">
+		<textarea class="response" name="body"></textarea>
+		{% if manager %}
+		<div class="checkbox"><label for="id_mark_filled">Filled</label>
+		  {{ response_form.mark_filled }}
+		</div>
+		<div class="checkbox"><label for="id_mark_closed">Closed</label>
+		  {{ response_form.mark_closed }}
+		</div>
+		{% endif %}
+		<button type="submit" class="btn btn-lg btn-success" name="add_response" type="submit">Post Response</button>
+		<input type="button" class="btn btn-lg btn-warning" name="cancel_response_form" value="Cancel" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" />
+	      </div>
+=======
 	      {{ request_tuple.2.request_pk }}
 	      <div class="form-group">
 		<label for="id_body">Add Response</label>
@@ -100,6 +118,7 @@
 	      {% if manager %}
 		      <div class="checkbox"><label for="id_mark_filled">Filled</label>{{ request_tuple.2.mark_filled }}</div>
 		      <div class="checkbox"><label for="id_mark_closed">Closed</label>{{ request_tuple.2.mark_closed }}</div>
+>>>>>>> 6c28ce9b9ce66290f27511a9d5ce41c74ee8eca0:templates/requests.html
 	      {% endif %}
 	      <button type="submit" class="btn btn-lg btn-success" name="add_response">Post Message</button>
 	      <input type="button" class="btn btn-lg btn-warning" name="cancel_response_form" value="Cancel" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" />
