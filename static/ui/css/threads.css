@@ -34,18 +34,17 @@ label {
 	margin-bottom: 0px;
 }
 
-.btn-success {
-	width: 45%;
-	margin-left: 5px;
+.btn-group {
+	min-width: 90%;
 	margin-top: 5px;
 }
 
+.btn-success {
+	width: 50%;
+}
+
 .btn-warning {
-	width: 45%;
-	position: absolute;
-	right: 0px;
-	margin-right: 5px;
-	margin-top: 5px;
+	width: 50%;
 }
 
 .add_thread {

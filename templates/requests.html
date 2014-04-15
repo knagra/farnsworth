@@ -36,8 +36,12 @@
     <div class="form-group">
       <label for="id_body">New Request</label>
       <textarea id="id_body" name="body"></textarea>
-      <button type="submit" class="btn btn-lg btn-success" name="submit_request_form">Submit Request</button>
-      <input type="button" class="btn btn-lg btn-warning" name="cancel_request_form" value="Cancel" onclick="hide_new_request_form()">
+      <div class="text-center">
+      <div class="btn-group">
+      <button type="submit" class="btn btn-success" name="submit_request_form">Submit Request</button>
+      <input type="button" class="btn btn-warning" name="cancel_request_form" value="Cancel" onclick="hide_new_request_form()">
+      </div>
+      </div>
     </div>
   </form>
 
@@ -101,8 +105,12 @@
 		      <div class="checkbox"><label for="id_mark_filled">Filled</label>{{ request_tuple.2.mark_filled }}</div>
 		      <div class="checkbox"><label for="id_mark_closed">Closed</label>{{ request_tuple.2.mark_closed }}</div>
 	      {% endif %}
-	      <button type="submit" class="btn btn-lg btn-success" name="add_response">Post Message</button>
-	      <input type="button" class="btn btn-lg btn-warning" name="cancel_response_form" value="Cancel" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" />
+	      <div class="text-center">
+	      <div class="btn-group">
+	      <button type="submit" class="btn btn-success" name="add_response">Post Message</button>
+	      <input type="button" class="btn btn-warning" name="cancel_response_form" value="Cancel" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" />
+	      </div>
+	      </div>
 	      </div> <!-- form-group -->
 	    </form>
 	    {% endwith %}

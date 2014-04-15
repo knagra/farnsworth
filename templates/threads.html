@@ -21,8 +21,12 @@
       <label for="id_subject">Subject</label>
       <input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
       <textarea class="thread" id="id_body" name="body"></textarea>
-      <button type="submit" class="btn btn-lg btn-success" name="submit_thread_form">Start Thread</button>
-      <input type="button" class="btn btn-lg btn-warning" name="cancel_thread_form" value="Cancel" onclick="hide_new_thread_form()">
+      <div class="text-center">
+      <div class="btn-group">
+        <button type="submit" class="btn btn-success" name="submit_thread_form">Start Thread</button>
+        <input type="button" class="btn btn-warning" name="cancel_thread_form" value="Cancel" onclick="hide_new_thread_form()">
+      </div>
+      </div>
     </div>
   </form>
   <div class="threads_table">
@@ -61,8 +65,12 @@
 	  	<div class="form-group">
 			<label for="id_body">Add Message</label>
 			<textarea name="body"></textarea>
-			<button type="submit" class="btn btn-lg btn-success" name="submit_message_form">Post Message</button>
-			<input type="button" class="btn btn-lg btn-warning" name="cancel_message_form" value="Cancel" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')" />
+			<div class="text-center">
+			<div class="btn-group">
+				<button type="submit" class="btn btn-success" name="submit_message_form">Post Message</button>
+				<input type="button" class="btn btn-warning" name="cancel_message_form" value="Cancel" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')" />
+			</div>
+			</div>
 		</div>
 	  </form>
 	  {% endwith %}

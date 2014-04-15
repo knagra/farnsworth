@@ -59,12 +59,24 @@ def manage_profile_requests_view(request):
 	page_name = "Admin - Manage Profile Requests"
 	if request.user.is_authenticated():
 		if not request.user.is_superuser:
-			message = "The page /custom_admin/manage_profile_requests/ is restricted to superadmins."
+			message = "The domain /custom_admin/ is restricted to superadmins."
 			return red_home(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	profile_requests = ProfileRequest.objects.all()
 	return render_to_response('manage_profile_requests.html', {'page_name': page_name, 'choices': UserProfile.STATUS_CHOICES, 'profile_requests': profile_requests}, context_instance=RequestContext(request))
+
+def modify_profile_request_view(request, request_pk):
+	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
+	page_name = "Admin - Profile Request"
+	if requests.user.is_authenticated():
+		if not request.user.is_superuser:
+			message = "The domain /custom_admin/ is restricted to superadmins."
+			return red_home(request, message)
+	else:
+		return HttpResponseRedirect(reverse('login'))
+	profile_request = ProfileRequest.objects.get(pk=request_pk)
+	
 
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"

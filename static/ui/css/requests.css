@@ -26,18 +26,17 @@ label {
 	padding-left: 5px;
 }
 
-.btn-success {
-	width: 45%;
+.btn-group {
+	min-width: 90%;
 	margin-top: 5px;
-	margin-left: 5px;
+}
+
+.btn-success {
+	width: 50%;
 }
 
 .btn-warning {
-	width: 45%;
-	position: absolute;
-	right: 0px;
-	margin-top: 5px;
-	margin-right: 5px;
+	width: 50%;
 }
 
 .form-group {
