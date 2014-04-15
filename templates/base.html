@@ -44,22 +44,21 @@
 		</ul>
 	      </li>
 	      <li><a href="{% url 'member_forums' %}" >Forums</a></li>
+	      {% if REQUEST_TYPES %}
 	      <li class="dropdown">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Requests <b class="caret"></b></a>
 		<ul class="dropdown-menu">
-		{% if not REQUEST_TYPES %}
-			<li>Requests Disabled</li>
-		{% else %}
 			{% for request_type in REQUEST_TYPES %}
 				<li><a href="{% url 'requests' requestType=request_type.name %}" >{{ request_type.name|title }}</a></li>
 			{% endfor %}
-		{% endif %}
 		</ul>
 	      </li>
+	      {% endif %}
 	     <li class="dropdown">
 	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Go<b class="caret"></b></a>
 	      <ul class="dropdown-menu">
 	        <li><a href="{% url 'member_directory' %}" >Member Directory</a></li>
+		<li><a href="{% url 'announcements' %}" >Manager Announcements</a></li>
 		<li><a href="{% url 'all_threads' %}" >All Threads</a></li>
 	        <li><a href="{% url 'external' %}">External</a></li>
 	        <li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>

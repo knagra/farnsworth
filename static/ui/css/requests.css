@@ -26,6 +26,11 @@ label {
 	padding-left: 5px;
 }
 
+.checkbox {
+	margin-left: 10px;
+	display: inline-block;
+}
+
 .btn-group {
 	min-width: 90%;
 	margin-top: 5px;

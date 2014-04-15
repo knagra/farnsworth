@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+{% block headers %}
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/announcements.css' %}" />
+<script>
+	function show_new_announcement_form() {
+		document.getElementById("new_announcement_form").style.display="inline";
+	}
+	function hide_new_announcement_form() {
+		document.getElementById("new_announcement_form").style.display="none";
+	}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="table_container">
+	<div class="header">{% if manager_positions %}
+		<input class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="submit" value="New Announcement" />
+		{% endif %}<h3 class="table_title">Manager Announcements</h3>
+	</div> <!-- .header -->
+	<div class="announcements_table">
+		{% if manager_positions %}
+		<form id="new_announcement_form" method="post" action="">
+			{% csrf_token %}
+			<div class="form-group">
+				{{ announcement_form|bootstrap }}
+				<div class="text-center">
+				<div class="btn-group">
+					<button type="submit" class="btn btn-success" name="post_announcement">Announce</button>
+					<input type="button" class="btn btn-warning" name="cancel_announcement" value="Cancel" onclick="hide_new_announcement_form()" />
+				</div> <!-- .btn-group -->
+				</div> <!-- .text-center -->
+			</div> <!-- .form-group -->
+		</form>
+		{% endif %}
+	{% if not announcements_dict %}
+	<div class="field_wrapper">No pinned announcements found.</div>
+	{% else %}
+	{% for announcement_tuple in announcements_dict %}
+		{% if forloop.counter > 1 %}
+		<hr class="announcement_divider" />
+		{% endif %}
+		<div class="announcement_row">
+		<div class="announcement_owner">
+			{{ announcement_tuple.0.manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=announcement_tuple.0.incumbent.user.username %}">{% if announcement_tuple.0.incumbent == user%}You{% else %}{{ announcement_tuple.0.incumbent.user.first_name}} {{ announcement_tuple.0.incumbent.user.last_name}}{% endif %}</a>), {{ announcement_tuple.0.post_date }} (last modified {{ announcement_tuple.0.change_date }}):
+		{% if announcement_tuple.1 %}
+			<form class="unpin_form" method="post" action="">
+				{% csrf_token %}
+				{{ announcement_tuple.1 }}
+				{% if announcement_tuple.0.pinned %}
+					<button type="submit" class="btn btn-xs btn-warning" name="unpin">Unpin</button>
+				{% else %}
+					<button type="submit" class="btn btn-xs btn-success" name="unpin">Repin</button>
+				{% endif %}
+			</form>
+		{% endif %}
+		</div> <!-- .announcement_owner -->
+		<div class="announcement_body">{{ announcement_tuple.0.body|safe }}</div>
+		</div> <!-- .announcement_row -->
+	{% endfor %}
+	{% endif %}
+	</div> <!-- .announcements_table -->
+</div>
+{% endblock %}

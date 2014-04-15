@@ -41,6 +41,8 @@ urlpatterns += patterns('requests.views',
 	url(r'^custom_admin/add_user/$', 'custom_add_user_view', name='custom_add_user'),
 	url(r'^requests/(?P<requestType>\w+)/$', 'requests_view', name='requests'),
 	url(r'^my_requests/$', 'my_requests_view', name='my_requests'),
+	url(r'^announcements/$', 'announcements_view', name='announcements'),
+	url(r'^all_announcements/$', 'all_announcements_view', name='all_announcements'),
 )
 
 # Catch any other urls here

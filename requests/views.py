@@ -12,7 +12,7 @@ from django.contrib.auth import hashers
 from django.contrib.auth.models import User, Group
 from django.template import RequestContext
 from farnsworth.settings import house, ADMINS, max_requests, max_responses
-from models import Manager, RequestType, ProfileRequest, Request, Response
+from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
 
@@ -385,17 +385,17 @@ def requests_view(request, requestType):
 			manager = True
 			break
 	class RequestForm(forms.Form):
-		body = forms.CharField(widget=forms.Textarea(attrs={'class': 'request'}))
+		body = forms.CharField(widget=forms.Textarea())
 	if manager:
 		class ResponseForm(forms.Form):
 			request_pk = forms.IntegerField()
-			body = forms.CharField(widget=forms.Textarea(attrs={'class': 'response'}), required=False)
+			body = forms.CharField(widget=forms.Textarea(), required=False)
 			mark_filled = forms.BooleanField(required=False)
 			mark_closed = forms.BooleanField(required=False)
 	else:
 		class ResponseForm(forms.Form):
 			request_pk = forms.IntegerField()
-			body = forms.CharField(widget=forms.Textarea(attrs={'class': 'response'}))
+			body = forms.CharField(widget=forms.Textarea())
 	if request.method == 'POST':
 		if 'submit_request' in request.POST:
 			request_form = RequestForm(request.POST)
@@ -455,10 +455,10 @@ def my_requests_view(request):
 		return HttpResponseRedirect(reverse('login'))
 	class RequestForm(forms.Form):
 		type_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea(attrs={'class': 'request'}))
+		body = forms.CharField(widget=forms.Textarea())
 	class ResponseForm(forms.Form):
 		request_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea(attrs={'class': 'response'}))
+		body = forms.CharField(widget=forms.Textarea())
 		mark_filled = forms.BooleanField(required=False)
 		mark_closed = forms.BooleanField(required=False)
 	if request.method == 'POST':
@@ -520,3 +520,106 @@ def my_requests_view(request):
 			request_dict.append((request_type.name, request_form, type_manager, requests_list))
 	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 
+def announcements_view(request):
+	''' The view of manager announcements. '''
+	page_name = "Manager Announcements"
+	if request.user.is_authenticated():
+		userProfile = None
+		try:
+			userProfile = request.user.get_profile()
+		except:
+			message = "No profile for you could be found.  Please contact a site admin."
+			return red_home(request, message)
+	else:
+		return HttpResponseRedirect(reverse('login'))
+	announcement_form = None
+	manager_positions = Manager.objects.filter(incumbent=userProfile)
+	if manager_positions:
+		class AnnouncementForm(forms.Form):
+			as_manager = forms.ModelChoiceField(queryset=manager_positions)
+			body = forms.CharField(widget=forms.Textarea())
+		class UnpinForm(forms.Form):
+			announcement_pk = forms.IntegerField()
+		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
+	if request.method == 'POST':
+		if 'unpin' in request.POST:
+			unpin_form = UnpinForm(request.POST)
+			if unpin_form.is_valid():
+				announcement_pk = unpin_form.cleaned_data['announcement_pk']
+				relevant_announcement = Announcement.objects.get(pk=announcement_pk)
+				relevant_announcement.pinned = False
+				relevant_announcement.save()
+				return HttpResponseRedirect(reverse('announcements'))
+		elif ('post_announcement' in request.POST) and manager_positions:
+			announcement_form = AnnouncementForm(request.POST)
+			if announcement_form.is_valid():
+				body = announcement_form.cleaned_data['body']
+				manager = announcement_form.cleaned_data['as_manager']
+				new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
+				new_announcement.save()
+				return HttpResponseRedirect(reverse('announcements'))
+	announcements = Announcement.objects.filter(pinned=True)
+	announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_unpin_form)
+	for a in announcements:
+		form = None
+		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
+			form = UnpinForm(initial={'announcement_pk': a.pk})
+			form.fields['announcement_pk'].widget = forms.HiddenInput()
+		announcements_dict.append((a, form))
+	return render_to_response('announcements.html', {'page_name': page_name, 'manager_positions': manager_positions, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form}, context_instance=RequestContext(request))
+
+def all_announcements_view(request):
+	''' The view of manager announcements. '''
+	page_name = "Manager Announcements"
+	if request.user.is_authenticated():
+		userProfile = None
+		try:
+			userProfile = request.user.get_profile()
+		except:
+			message = "No profile for you could be found.  Please contact a site admin."
+			return red_home(request, message)
+	else:
+		return HttpResponseRedirect(reverse('login'))
+	announcement_form = None
+	manager_positions = Manager.objects.filter(incumbent=userProfile)
+	if manager_positions:
+		class AnnouncementForm(forms.Form):
+			as_manager = forms.ModelChoiceField(queryset=manager_positions)
+			body = forms.CharField(widget=forms.Textarea())
+		class UnpinForm(forms.Form):
+			announcement_pk = forms.IntegerField()
+		class RepinForm(forms.Form):
+			announcement_pk = forms.IntegerField()
+		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
+	if request.method == 'POST':
+		if 'unpin' in request.POST:
+			unpin_form = UnpinForm(request.POST)
+			if unpin_form.is_valid():
+				announcement_pk = unpin_form.cleaned_data['announcement_pk']
+				relevant_announcement = Announcement.objects.get(pk=announcement_pk)
+				if relevant_announcement.pinned:
+					relevant_announcement.pinned = False
+				else:
+					relevant_announcement.pinned = True
+				relevant_announcement.save()
+				return HttpResponseRedirect(reverse('all_announcements'))
+		elif ('post_announcement' in request.POST) and manager_positions:
+			announcement_form = AnnouncementForm(request.POST)
+			if announcement_form.is_valid():
+				body = announcement_form.cleaned_data['body']
+				manager = announcement_form.cleaned_data['as_manager']
+				new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
+				new_announcement.save()
+				return HttpResponseRedirect(reverse('all_announcements'))
+	announcements = Announcement.objects.all()
+	announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_unpin_form)
+	for a in announcements:
+		form = None
+		if ((a.manager.incumbent == userProfile) or request.user.is_superuser) and not a.pinned:
+			form = UnpinForm(initial={'announcement_pk': a.pk})
+			form.fields['announcement_pk'].widget = forms.HiddenInput()
+		elif ((a.manager.incumbent == userProfile) or request.user.is_superuser) and a.pinned:
+			form = UnpinForm(initial={'announcement_pk': a.pk})
+			form.fields['announcement_pk'].widget = forms.HiddenInput()
+		announcements_dict.append((a, form))
+	return render_to_response('announcements.html', {'page_name': page_name, 'manager_positions': manager_positions, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form}, context_instance=RequestContext(request))

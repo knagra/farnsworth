@@ -7,9 +7,6 @@
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/my_requests.css' %}" />
-{% endblock %}
-
-{% block content %}
 <script>
   function show_new_request_form(request_form_id) {
   document.getElementById(request_form_id).style.display="inline";
@@ -26,6 +23,9 @@
   document.getElementById(button_id).style.display="inline";
   }
 </script>
+{% endblock %}
+
+{% block content %}
 {% for type_tuple in request_dict %}
 {% with x=forloop.counter|stringformat:"s" %}
 <div class="requests">
@@ -106,8 +106,8 @@
 		<label for="id_body">Add Response</label>
 	      <textarea class="response" name="body"></textarea>
 	      {% if type_tuple.2 %}
-		      <div class="checkbox"><label for="id_mark_filled">Filled</label>{{ request_tuple.2.mark_filled }}</div>
-		      <div class="checkbox"><label for="id_mark_closed">Closed</label>{{ request_tuple.2.mark_closed }}</div>
+		      <div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
+		      <div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
 	      {% endif %}
 	      <div class="text-center">
 	      <div class="btn-group">
