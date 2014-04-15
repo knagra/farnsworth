@@ -8,3 +8,9 @@ Author: Karandeep Singh Nagra
 	margin-top: 0;
 	margin-bottom: 0;
 }
+
+.field_wrapper {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	text-align: center;
+}

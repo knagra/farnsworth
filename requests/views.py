@@ -18,7 +18,7 @@ from threads.views import red_ext, red_home
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
-	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ADMIN': ADMINS[0]}
+	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count()}
 
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
@@ -44,7 +44,7 @@ def request_profile_view(request):
 					non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
 					form.errors['__all__'] = form.error_class([non_field_error])
 					return render(request, 'request_profile.html', {'page_name': page_name, 'form': form})
-			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, approved=False, affiliation=affiliation)
+			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation)
 			profile_request.save()
 			return HttpResponseRedirect(reverse('external'))
 		else:
@@ -69,14 +69,87 @@ def manage_profile_requests_view(request):
 def modify_profile_request_view(request, request_pk):
 	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
 	page_name = "Admin - Profile Request"
-	if requests.user.is_authenticated():
+	if request.user.is_authenticated():
 		if not request.user.is_superuser:
 			message = "The domain /custom_admin/ is restricted to superadmins."
 			return red_home(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	profile_request = ProfileRequest.objects.get(pk=request_pk)
-	
+	class AddUserForm(forms.Form):
+		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
+		email_visible_to_others = forms.BooleanField(required=False)
+		phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
+		phone_visible_to_others = forms.BooleanField(required=False)
+		status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
+		current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False)
+		is_active = forms.BooleanField(required=False)
+		is_staff = forms.BooleanField(required=False)
+		is_superuser = forms.BooleanField(required=False)
+		groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
+		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	add_user_form = AddUserForm(initial={'status': profile_request.affiliation, 'username': profile_request.username, 'first_name': profile_request.first_name, 'last_name': profile_request.last_name, 'email': profile_request.email})
+	if request.method == 'POST':
+		add_user_form = AddUserForm(request.POST)
+		if 'delete_request' in request.POST:
+			profile_request.delete()
+			return HttpResponseRedirect(reverse('manage_profile_requests'))
+		elif 'add_user' in request.POST:
+			if add_user_form.is_valid():
+				username = add_user_form.cleaned_data['username']
+				first_name = add_user_form.cleaned_data['first_name']
+				last_name = add_user_form.cleaned_data['last_name']
+				email = add_user_form.cleaned_data['email']
+				email_visible_to_others = add_user_form.cleaned_data['email_visible_to_others']
+				phone_number = add_user_form.cleaned_data['phone_number']
+				phone_visible_to_others = add_user_form.cleaned_data['phone_visible_to_others']
+				status = add_user_form.cleaned_data['status']
+				current_room = add_user_form.cleaned_data['current_room']
+				former_rooms = add_user_form.cleaned_data['former_rooms']
+				former_houses = add_user_form.cleaned_data['former_houses']
+				is_active = add_user_form.cleaned_data['is_active']
+				is_staff = add_user_form.cleaned_data['is_staff']
+				is_superuser = add_user_form.cleaned_data['is_superuser']
+				groups = add_user_form.cleaned_data['groups']
+				user_password = add_user_form.cleaned_data['user_password']
+				confirm_password = add_user_form.cleaned_data['confirm_password']
+				for usr in User.objects.all():
+					if usr.username == username:
+						non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
+						add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
+						return render(request, 'custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form})
+					if (usr.first_name == first_name) and (usr.last_name == last_name):
+						non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, usr.username)
+						add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
+						return render(request, 'custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form})
+				if user_password == confirm_password:
+					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
+					new_user.is_active = is_active
+					new_user.is_staff = is_staff
+					new_user.is_superuser = is_superuser
+					new_user.save()
+					for group in groups:
+						group.user_set.add(new_user)
+					new_user_profile = new_user.get_profile()
+					new_user_profile.email_visible = email_visible_to_others
+					new_user_profile.phone_number = phone_number
+					new_user_profile.phone_visible = phone_visible_to_others
+					new_user_profile.status = status
+					new_user_profile.current_room = current_room
+					new_user_profile.former_rooms = former_rooms
+					new_user_profile.former_houses = former_houses
+					profile_request.delete()
+					return HttpResponseRedirect(reverse('manage_profile_requests'))
+				else:
+					add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
+					add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+	return render_to_response('modify_profile_request.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
 
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
@@ -251,11 +324,11 @@ def custom_add_user_view(request):
 				if usr.username == username:
 					non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
 					add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-					return render(request, 'custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house})
+					return render(request, 'custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form})
 				if (usr.first_name == first_name) and (usr.last_name == last_name):
 					non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, usr.username)
 					add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-					return render(request, 'custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form, 'admin': ADMINS[0], 'house': house})
+					return render(request, 'custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form})
 			if user_password == confirm_password:
 				new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
 				new_user.is_active = is_active
