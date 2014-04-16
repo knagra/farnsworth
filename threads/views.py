@@ -43,7 +43,7 @@ def homepage_view(request):
 	if request.user.is_authenticated():
 		return red_home(request, None)
 	else:
-		return red_ext(request, None)
+		return HttpResponseRedirect(reverse('external'))
 
 def help_view(request):
 	''' The view of the helppage. '''

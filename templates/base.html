@@ -59,8 +59,13 @@
 	      <ul class="dropdown-menu">
 	        <li><a href="{% url 'member_directory' %}" >Member Directory</a></li>
 		<li><a href="{% url 'announcements' %}" >Manager Announcements</a></li>
+	        <li><a href="{% url 'external' %}">Landing</a></li>
+		<li class="divider"></li>
+		<li class="dropdown-header">Archives</li>
 		<li><a href="{% url 'all_threads' %}" >All Threads</a></li>
-	        <li><a href="{% url 'external' %}">External</a></li>
+		<li><a href="{% url 'all_announcements' %}">All Announcements</a></li>
+		<li class="divider"></li>
+		<li class="dropdown-header">External</li>
 	        <li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
 	        <li><a href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
 	      </ul>

@@ -551,7 +551,7 @@ def announcements_view(request):
 				relevant_announcement.pinned = False
 				relevant_announcement.save()
 				return HttpResponseRedirect(reverse('announcements'))
-		elif ('post_announcement' in request.POST) and manager_positions:
+		elif 'post_announcement' in request.POST:
 			announcement_form = AnnouncementForm(request.POST)
 			if announcement_form.is_valid():
 				body = announcement_form.cleaned_data['body']
@@ -562,16 +562,16 @@ def announcements_view(request):
 	announcements = Announcement.objects.filter(pinned=True)
 	announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_unpin_form)
 	for a in announcements:
-		form = None
+		unpin_form = None
 		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
-			form = UnpinForm(initial={'announcement_pk': a.pk})
-			form.fields['announcement_pk'].widget = forms.HiddenInput()
-		announcements_dict.append((a, form))
+			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
+			unpin_form.fields['announcement_pk'].widget = forms.HiddenInput()
+		announcements_dict.append((a, unpin_form))
 	return render_to_response('announcements.html', {'page_name': page_name, 'manager_positions': manager_positions, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form}, context_instance=RequestContext(request))
 
 def all_announcements_view(request):
 	''' The view of manager announcements. '''
-	page_name = "Manager Announcements"
+	page_name = "All Announcements"
 	if request.user.is_authenticated():
 		userProfile = None
 		try:
@@ -613,7 +613,7 @@ def all_announcements_view(request):
 				new_announcement.save()
 				return HttpResponseRedirect(reverse('all_announcements'))
 	announcements = Announcement.objects.all()
-	announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_unpin_form)
+	announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_pin_form)
 	for a in announcements:
 		form = None
 		if ((a.manager.incumbent == userProfile) or request.user.is_superuser) and not a.pinned:

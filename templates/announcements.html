@@ -47,7 +47,7 @@
 		{% endif %}
 		<div class="announcement_row">
 		<div class="announcement_owner">
-			{{ announcement_tuple.0.manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=announcement_tuple.0.incumbent.user.username %}">{% if announcement_tuple.0.incumbent == user%}You{% else %}{{ announcement_tuple.0.incumbent.user.first_name}} {{ announcement_tuple.0.incumbent.user.last_name}}{% endif %}</a>), {{ announcement_tuple.0.post_date }} (last modified {{ announcement_tuple.0.change_date }}):
+			{{ announcement_tuple.0.manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=announcement_tuple.0.incumbent.user.username %}">{% if announcement_tuple.0.incumbent.user == user%}You{% else %}{{ announcement_tuple.0.incumbent.user.first_name}} {{ announcement_tuple.0.incumbent.user.last_name}}{% endif %}</a>), {{ announcement_tuple.0.post_date }}:
 		{% if announcement_tuple.1 %}
 			<form class="unpin_form" method="post" action="">
 				{% csrf_token %}
