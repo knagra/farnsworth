@@ -7,6 +7,6 @@ migrations/
 .svn/
 jquery/
 bootstrap/
-tinymce/*/
-tinymce/license.txt
-tinymce/tinymce.min.js
+static/tinymce/*/
+static/tinymce/license.txt
+static/tinymce/tinymce.min.js
