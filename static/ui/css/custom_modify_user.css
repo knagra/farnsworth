@@ -5,7 +5,6 @@ Author: Karandeep Singh Nagra
 */
 
 #update_profile {
-	border: 1px solid #7e7e7e;
 	position: relative;
 	margin: 0px auto;
 	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
@@ -14,7 +13,6 @@ Author: Karandeep Singh Nagra
 }
 
 #change_password {
-	border: 1px solid #7e7e7e;
 	position: relative;
 	margin: 0px auto;
 	margin-top: 20px;

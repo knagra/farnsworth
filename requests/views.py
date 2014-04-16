@@ -486,8 +486,9 @@ def my_requests_view(request):
 					if manager_position.incumbent == userProfile:
 						mark_filled = response_form.cleaned_data['mark_filled']
 						mark_closed = response_form.cleaned_data['mark_closed']
-						new_response.filled = mark_filled
-						new_response.closed = mark_closed
+						relevant_request.filled = mark_filled
+						relevant_request.closed = mark_closed
+						relevant_request.save()
 						new_response.manager = True
 						break
 				new_response.save()
