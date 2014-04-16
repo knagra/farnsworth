@@ -81,7 +81,7 @@ $(document).ready(function() {
 				<td>{% if  member.user.is_staff %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if  member.user.is_superuser %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
-				<td>{% if member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
+				<td>{% if member.phone_number %}{{ member.phone_number }}{% endif %}</td>
 			</tr>
 		{% endfor %}
 		</tbody>
@@ -116,7 +116,7 @@ $(document).ready(function() {
 				<td>{% if  member.user.is_staff %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if  member.user.is_superuser %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
-				<td>{% if member.user.phone_number %}{{ member.user.phone_number }}{% endif %}</td>
+				<td>{% if member.phone_number %}{{ member.phone_number }}{% endif %}</td>
 			</tr>
 		{% endfor %}
 		</tbody>

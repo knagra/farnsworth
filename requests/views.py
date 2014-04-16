@@ -144,6 +144,7 @@ def modify_profile_request_view(request, request_pk):
 					new_user_profile.current_room = current_room
 					new_user_profile.former_rooms = former_rooms
 					new_user_profile.former_houses = former_houses
+					new_user_profile.save()
 					profile_request.delete()
 					return HttpResponseRedirect(reverse('manage_profile_requests'))
 				else:

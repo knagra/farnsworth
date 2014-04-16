@@ -15,7 +15,8 @@ class Event(models.Model):
 	owner = models.ForeignKey(UserProfile, help_text="The user who posted this event.")
 	title = models.CharField(blank=False, null=False, max_length=255, help_text="The title of this event.")
 	description = models.TextField(blank=False, help_text="Description of this event.")
-	date_time = models.DateTimeField(blank=False, null=False, help_text="Date and time of this event.")
+	start_time = models.DateTimeField(blank=False, null=False, help_text="When this event starts.")
+	end_time = models.DateTimeField(blank=False, null=False, help_text="When this event ends."
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this event was posted.")
 	
 	def __unicode__(self):
