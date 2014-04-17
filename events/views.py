@@ -6,14 +6,17 @@ Author: Karandeep Singh Nagra
 
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
+from django.template import RequestContext
 from django import forms
 from models import Event
 from django.core.urlresolvers import reverse
 from threads.models import UserProfile
+from requests.models import Manager
 from threads.views import red_ext, red_home
 from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, house
 import datetime
 from django.utils.timezone import utc
+from datetimewidget.widgets import DateTimeWidget
 
 def list_events_view(request):
 	''' A list view of upcoming events. '''
@@ -29,11 +32,11 @@ def list_events_view(request):
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	class EventForm(forms.Form):
 		title = forms.CharField(max_length=100, widget=forms.TextInput())
-		description = forms.CharField(widget=forms.Texarea())
+		description = forms.CharField(widget=forms.Textarea())
 		location = forms.CharField(max_length=100, widget=forms.TextInput())
-		rsvp = forms.BooleanField(required=False)
-		start_time = forms.DateTimeField(widget=forms.DateTimeInput)
-		end_time = forms.DateTimeField(widget=forms.DateTimeInput)
+		rsvp = forms.BooleanField(required=False, label="RSVP")
+		start_time = forms.DateTimeField(widget=DateTimeWidget(usel10n=True))
+		end_time = forms.DateTimeField(widget=DateTimeWidget(usel10n=True))
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (optional)")
 	class RsvpForm(forms.Form):
 		event_pk = forms.IntegerField()
@@ -71,15 +74,15 @@ def list_events_view(request):
 		else:
 			return red_home(request, UNKNOWN_FORM)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
-	upcoming_events = Event.objects.filter(start_time>now)
-	event_dict = list() # a pseudo-dictionary, actually a list with items of form (event, ongoing, rsvpd, rsvp_form), where ongoing is a boolean of whether the event is currently ongoing, rsvpd is a boolean of whether the user has rsvp'd to the event
+	upcoming_events = Event.objects.filter(start_time__gte=now)
+	events_dict = list() # a pseudo-dictionary, actually a list with items of form (event, ongoing, rsvpd, rsvp_form), where ongoing is a boolean of whether the event is currently ongoing, rsvpd is a boolean of whether the user has rsvp'd to the event
 	for event in upcoming_events:
 		form = RsvpForm(initial={'event_pk': event.pk})
 		form.fields['event_pk'].widget = forms.HiddenInput()
 		ongoing = ((event.start_time <= now) and (event.end_time >= now))
 		rsvpd = (userProfile in event.rsvps.all())
-		event_dict.append((event, ongoing, rsvpd, form))
-	return render_to_response('list_events.html', {'page_name': page_name, 'event_dict': event_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
+		events_dict.append((event, ongoing, rsvpd, form))
+	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
 
 def list_all_events_view(request):
 	''' A list view of all events.  Part of archives. '''

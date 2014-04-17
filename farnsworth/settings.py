@@ -154,7 +154,6 @@ INSTALLED_APPS = (
 	'threads',
 	'events',
 	'requests',
-	'south',
 	'bootstrapform',
 	'django.contrib.admin',
 	'django.contrib.admindocs',

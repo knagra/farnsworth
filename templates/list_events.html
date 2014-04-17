@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+{% block headers %}
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/list_events.css' %}" />
+{{ event_form.media }}
+<script>
+	function show_new_event_form() {
+		document.getElementById("new_event_form").style.display="inline";
+	}
+	function hide_new_event_form() {
+		document.getElementById("new_event_form").style.display="none";
+	}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="table_container">
+	<div class="header"><button class="btn btn-primary add_event" onclick="show_new_event_form()" type="button">New Event</button>
+		<h3 class="table_title">{{ page_name }}</h3>
+	</div> <!-- .header -->
+	<div class="events_table">
+		<form id="new_event_form" method="post" action="">
+			{% csrf_token %}
+			<div class="form-group">
+				{{ event_form|bootstrap }}
+				<div class="text-center">
+				<div class="btn-group">
+					<button type="submit" class="btn btn-success" name="post_event">Add Event</button>
+					<button type="button" class="btn btn-warning" name="cancel_event" onclick="hide_new_event_form()">Cancel</button>
+				</div> <!-- .btn-group -->
+				</div> <!-- .text-center -->
+			</div> <!-- .form-group -->
+		</form>
+	{% if not event_dict %}
+	<div class="field_wrapper">No upcoming events.</div>
+	{% else %}
+	{% for event_tuple in events_dict %}
+		{% if forloop.counter > 1 %}
+		<hr class="event_divider" />
+		{% endif %}
+		<div class="event_row">
+		<div class="event_owner">
+			{{ event_tuple.0.manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.incumbent.user.username %}">{% if event_tuple.0.incumbent.user == user%}You{% else %}{{ event_tuple.0.incumbent.user.first_name}} {{ event_tuple.0.incumbent.user.last_name}}{% endif %}</a>), {{ event_tuple.0.post_date }}:
+		{% if event_tuple.1 %}
+			<form class="unpin_form" method="post" action="">
+				{% csrf_token %}
+				{{ event_tuple.1 }}
+				{% if event_tuple.0.pinned %}
+					<button type="submit" class="btn btn-xs btn-warning" name="unpin">Unpin</button>
+				{% else %}
+					<button type="submit" class="btn btn-xs btn-success" name="unpin">Repin</button>
+				{% endif %}
+			</form>
+		{% endif %}
+		</div> <!-- .event_owner -->
+		<div class="event_body">{{ event_tuple.0.body|safe }}</div>
+		</div> <!-- .event_row -->
+	{% endfor %}
+	{% endif %}
+	</div> <!-- .events_table -->
+</div>
+{% endblock %}

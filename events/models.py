@@ -13,7 +13,7 @@ class Event(models.Model):
 	The Event model.  Contains an owner, a description, and an event date-time, along
 	with a post_date and a title.
 	'''
-	owner = models.ForeignKey(UserProfile, help_text="The user who posted this event.")
+	owner = models.ForeignKey(UserProfile, help_text="The user who posted this event.", related_name="poster")
 	title = models.CharField(blank=False, null=False, max_length=255, help_text="The title of this event.")
 	description = models.TextField(blank=False, help_text="Description of this event.")
 	location = models.CharField(blank=True, null=True, max_length=255, help_text="Location of event.")
@@ -23,7 +23,7 @@ class Event(models.Model):
 	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The date this event was last modified.")
 	cancelled = models.BooleanField(default=True, help_text="Optional cancellation field.")
 	as_manager = models.ForeignKey(Manager, blank=True, null=True, on_delete=models.SET_NULL, help_text="The manager position this event is posted, if this is a manager event.")
-	rsvps = models.ManyToManyField(UserProfile, blank=True, null=True, help_text="The users who plan to attend this event.")
+	rsvps = models.ManyToManyField(UserProfile, blank=True, null=True, help_text="The users who plan to attend this event.", related_name="rsvps")
 	
 	def __unicode__(self):
 		return "%s on %s, posted by %s" % (self.title, self.date_time, self.owner)
