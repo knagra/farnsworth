@@ -7,6 +7,7 @@ Author: Karandeep Singh Nagra
 '''
 
 import os.path
+from django.conf import global_settings
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -33,21 +34,13 @@ max_requests = 20
 # Max number of responses loaded for each request.
 max_responses = 4
 
-from django.conf import global_settings
+# Standard messages sent to clients on errors.
+ADMINS_ONLY = "The domain %s is restricted to admins."
+NO_PROFILE = "A profile for you could not be found.  Please contact a site admin."
+UNKNOWN_FORM = "Your post request could not be processed.  Please contact a site admin."
 
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context",)
-'''
-TEMPLATE_CONTEXT_PROCESSORS = (
-	"django.contrib.auth.context_processors.auth",
-	"django.core.context_processors.debug",
-	"django.core.context_processors.i18n",
-	"django.core.context_processors.media",
-	"django.core.context_processors.static",
-	"django.core.context_processors.tz",
-	"django.contrib.messages.context_processors.messages",
-	"requests.views.add_context"
-)
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -58,9 +51,6 @@ DATABASES = {
         'PORT': '',
     }
 }
-
-# The user profile module.  It's in threads.models.py.
-AUTH_PROFILE_MODULE = 'threads.UserProfile'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

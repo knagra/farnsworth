@@ -28,7 +28,7 @@
 </script>
 <div class="requests">
   <div class="table_header">
-    <input class="btn btn-primary add_request" onclick="show_new_request_form()" type="submit" value="New Request" />
+    <button type="button" class="btn btn-primary add_request" onclick="show_new_request_form()">New Request</button>
     <h3 class="requests_title">Recent {{ request_type|title }} Requests</h3>
   </div> <!-- table_header -->
   <form id="new_request_form" method="post" action="">
@@ -38,8 +38,8 @@
       <textarea id="id_body" name="body"></textarea>
       <div class="text-center">
       <div class="btn-group">
-      <button type="submit" class="btn btn-success" name="submit_request_form">Submit Request</button>
-      <input type="button" class="btn btn-warning" name="cancel_request_form" value="Cancel" onclick="hide_new_request_form()">
+      <button type="submit" class="btn btn-success" name="submit_request">Submit Request</button>
+      <button type="button" class="btn btn-warning" name="cancel_request_form" onclick="hide_new_request_form()">Cancel</button>
       </div>
       </div>
     </div>
@@ -93,7 +93,7 @@
 	    {% with y=forloop.counter|stringformat:"s" %}
 	    {% with response_form_id="response_form_"|add:y %}
 	    {% with button_id="button_"|add:y %}
-	    <input class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')" value="Add Response" />
+	    <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')">Add Response</button>
 	  </div> <!-- text-center -->
 	    <form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
 	      {% csrf_token %}
@@ -108,7 +108,7 @@
 	        <div class="text-center">
 	        <div class="btn-group">
 	          <button type="submit" class="btn btn-success" name="add_response">Post Message</button>
-	          <input type="button" class="btn btn-warning" name="cancel_response_form" value="Cancel" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')" />
+	          <button type="button" class="btn btn-warning" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')">Cancel</button>
 	        </div>
 	        </div>
 	      </div> <!-- form-group -->

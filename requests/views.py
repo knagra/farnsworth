@@ -136,7 +136,7 @@ def modify_profile_request_view(request, request_pk):
 					new_user.save()
 					for group in groups:
 						group.user_set.add(new_user)
-					new_user_profile = new_user.get_profile()
+					new_user_profile = UserProfile.objects.get(user=new_user)
 					new_user_profile.email_visible = email_visible_to_others
 					new_user_profile.phone_number = phone_number
 					new_user_profile.phone_visible = phone_visible_to_others
@@ -155,7 +155,6 @@ def modify_profile_request_view(request, request_pk):
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
 	if request.user.is_authenticated():
-		print request.user.is_superuser
 		if not request.user.is_superuser:
 			message = "The page /custom_admin/manage_users/ is restrcited to superadmins."
 			return red_home(request, message)
@@ -189,7 +188,7 @@ def custom_modify_user_view(request, targetUsername):
 		message = "User %s does not exist or could not be found." % targetUsername
 		return render_to_response('custom_modify_user.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
 	try:
-		targetProfile = targetUser.get_profile()
+		targetProfile = UserProfile.objects.get(user=targetUser)
 	except:
 		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
@@ -338,7 +337,7 @@ def custom_add_user_view(request):
 				new_user.save()
 				for group in groups:
 					group.user_set.add(new_user)
-				new_user_profile = new_user.get_profile()
+				new_user_profile = UserProfile.objects.get(user=new_user)
 				new_user_profile.email_visible = email_visible_to_others
 				new_user_profile.phone_number = phone_number
 				new_user_profile.phone_visible = phone_visible_to_others
@@ -362,7 +361,7 @@ def requests_view(request, requestType):
 	if request.user.is_authenticated():
 		userProfile = None
 		try:
-			userProfile = request.user.get_profile()
+			userProfile = UserProfile.objects.get(user=request.user)
 		except:
 			message = "No profile for you could be found.  Please contact a site admin."
 			return red_home(request, message)
@@ -446,9 +445,8 @@ def my_requests_view(request):
 	'''
 	page_name = "My Requests"
 	if request.user.is_authenticated():
-		userProfile = None
 		try:
-			userProfile = request.user.get_profile()
+			userProfile = UserProfile.objects.get(user=request.user)
 		except:
 			message = "No profile for you could be found.  Please contact a site admin."
 			return red_home(request, message)
@@ -528,7 +526,7 @@ def announcements_view(request):
 	if request.user.is_authenticated():
 		userProfile = None
 		try:
-			userProfile = request.user.get_profile()
+			userProfile = UserProfile.objects.get(user=request.user)
 		except:
 			message = "No profile for you could be found.  Please contact a site admin."
 			return red_home(request, message)
@@ -576,7 +574,7 @@ def all_announcements_view(request):
 	if request.user.is_authenticated():
 		userProfile = None
 		try:
-			userProfile = request.user.get_profile()
+			userProfile = UserProfile.objects.get(user=request.user)
 		except:
 			message = "No profile for you could be found.  Please contact a site admin."
 			return red_home(request, message)

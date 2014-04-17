@@ -4,17 +4,20 @@ Author: Karandeep Singh Nagra
 Description
 ==
 A replacement for Kingman's Guru website.  Scalable and modular, can be used at other
-co-op houses.
+co-op houses.  No authorship claim is made to the contents of the subdirectories
+tinymce, jquery, and bootstrap of directory static, with the exception of the file
+static/tinymce/layout.js.  Please consult the relevant licenses before distributing
+or using those portions of this software.
 
 Dependencies
 ==
 Django 1.6.2
 Python 2.7.3
 SQLite3
-TinyMCE 4.0.21 (include in static folder)
-jQuery 1.11.0 (include in static/jquery folder)
-tablesorter 2.15.13 (include in static/jquery folder)
-Nivo Slider 3.2 (include in static/jquery folder)
+TinyMCE 4.0.21 (included in static folder)
+jQuery 1.11.0 (included in static/jquery folder)
+tablesorter 2.15.13 (included in static/jquery folder)
+Nivo Slider 3.2 (included in static/jquery folder)
 django-bootstrap-form 3.1
 
 Deployment

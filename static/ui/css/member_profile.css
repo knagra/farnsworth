@@ -14,7 +14,8 @@ Author: Karandeep Singh Nagra
 }
 
 .btn {
-	width: 50%;
+	min-width: 50%;
+	max-width: 100%;
 	margin-top: 15px;
 	margin-bottom: 15px;
 }
@@ -32,6 +33,7 @@ Author: Karandeep Singh Nagra
 
 #profile_table tr th {
 	padding-right: 15px;
+	padding-left: 10px;
 	vertical-align: middle;
 	position: relative;
 	padding-top: 5px;

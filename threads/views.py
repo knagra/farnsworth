@@ -60,7 +60,7 @@ def my_profile_view(request):
 	page_name = "Profile Page"
 	if request.user.is_authenticated():
 		user = request.user
-		userProfile = request.user.get_profile()
+		userProfile = UserProfile.objects.get(user=request.user)
 		if not userProfile:
 			message = "A profile for you could not be found.  Please contact an admin for support."
 			return red_ext(request, message)
@@ -171,7 +171,7 @@ def member_forums_view(request):
 	''' Forums for current members. '''
 	page_name = "Member Forums"
 	if request.user.is_authenticated():
-		userProfile = request.user.get_profile()
+		userProfile = UserProfile.objects.get(user=request.user)
 		if not userProfile:
 			message = "A profile for you could not be found.  Please contact an admin for support."
 			return red_ext(request, message)
@@ -224,7 +224,7 @@ def all_threads_view(request):
 	''' View of all threads. '''
 	page_name = "All Threads"
 	if request.user.is_authenticated():
-		userProfile = request.user.get_profile()
+		userProfile = UserProfile.objects.get(user=request.user)
 		if not userProfile:
 			message = "A profile for you could not be found.  Please contact an admin for support."
 			return red_ext(request, message)
@@ -273,7 +273,7 @@ def my_threads_view(request):
 	''' View of my threads. '''
 	page_name = "My Threads"
 	if request.user.is_authenticated():
-		userProfile = request.user.get_profile()
+		userProfile = UserProfile.objects.get(user=request.user)
 		if not userProfile:
 			message = "A profile for you could not be found.  Please contact an admin for support."
 			return red_ext(request, message)
@@ -343,7 +343,7 @@ def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
 	page_name = "%s's Profile" % targetUsername
 	if request.user.is_authenticated():
-		userProfile = request.user.get_profile()
+		userProfile = UserProfile.objects.get(user=request.user)
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	try:
@@ -353,12 +353,12 @@ def member_profile_view(request, targetUsername):
 		message = "User %s does not exist or could not be found." % targetUsername
 		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
 	try:
-		targetProfile = targetUser.get_profile()
+		targetProfile = UserProfile.objects.get(user=targetUser)
 	except:
 		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
 		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
-	if targetProfile == request.user.get_profile():
+	if targetProfile == userProfile:
 		return HttpResponseRedirect(reverse('my_profile'))
 	else:
 		return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile}, context_instance=RequestContext(request))

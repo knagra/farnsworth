@@ -17,10 +17,11 @@ label {
 
 .btn-group {
 	min-width: 90%;
+	max-width: 100%;
 }
 
 .btn-group .btn {
-	width: 50%;
+	min-width: 50%;
 }
 
 .add_announcement {

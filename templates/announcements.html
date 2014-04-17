@@ -20,8 +20,8 @@
 {% block content %}
 <div class="table_container">
 	<div class="header">{% if manager_positions %}
-		<input class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="submit" value="New Announcement" />
-		{% endif %}<h3 class="table_title">Manager Announcements</h3>
+		<button class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="button">New Announcement</button>
+		{% endif %}<h3 class="table_title">{{ page_name }}</h3>
 	</div> <!-- .header -->
 	<div class="announcements_table">
 		{% if manager_positions %}
@@ -32,7 +32,7 @@
 				<div class="text-center">
 				<div class="btn-group">
 					<button type="submit" class="btn btn-success" name="post_announcement">Announce</button>
-					<input type="button" class="btn btn-warning" name="cancel_announcement" value="Cancel" onclick="hide_new_announcement_form()" />
+					<button type="button" class="btn btn-warning" name="cancel_announcement" onclick="hide_new_announcement_form()">Cancel</button>
 				</div> <!-- .btn-group -->
 				</div> <!-- .text-center -->
 			</div> <!-- .form-group -->

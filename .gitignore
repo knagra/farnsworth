@@ -5,8 +5,3 @@ migrations/
 *.swp
 *.tmp
 .svn/
-jquery/
-bootstrap/
-static/tinymce/*/
-static/tinymce/license.txt
-static/tinymce/tinymce.min.js

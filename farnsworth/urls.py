@@ -20,7 +20,7 @@ urlpatterns += patterns('threads.views',
 	url(r'^login/$', 'login_view', name='login'),
 	url(r'^logout/$', 'logout_view', name='logout'),
 	url(r'^member_forums/$', 'member_forums_view', name='member_forums'),
-	url(r'^all_threads/$', 'all_threads_view', name='all_threads'),
+	url(r'^archives/all_threads/$', 'all_threads_view', name='all_threads'),
 	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
 	url(r'^site_map/$', 'site_map_view', name='site_map'),
 	url(r'^member_directory/$', 'member_directory_view', name='member_directory'),
@@ -29,7 +29,8 @@ urlpatterns += patterns('threads.views',
 )
 
 urlpatterns += patterns('events.views',
-	
+	url(r'^events/$', 'list_events_view', name='events'),
+	url(r'^archives/all_events/$', 'list_all_events_view', name='all_events'),
 )
 
 urlpatterns += patterns('requests.views',
@@ -42,7 +43,7 @@ urlpatterns += patterns('requests.views',
 	url(r'^requests/(?P<requestType>\w+)/$', 'requests_view', name='requests'),
 	url(r'^my_requests/$', 'my_requests_view', name='my_requests'),
 	url(r'^announcements/$', 'announcements_view', name='announcements'),
-	url(r'^all_announcements/$', 'all_announcements_view', name='all_announcements'),
+	url(r'^archives/all_announcements/$', 'all_announcements_view', name='all_announcements'),
 )
 
 # Catch any other urls here
