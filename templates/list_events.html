@@ -7,7 +7,7 @@
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/list_events.css' %}" />
-{{ event_form.media }}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
 <script>
 	function show_new_event_form() {
 		document.getElementById("new_event_form").style.display="inline";
@@ -36,32 +36,62 @@
 				</div> <!-- .text-center -->
 			</div> <!-- .form-group -->
 		</form>
-	{% if not event_dict %}
+	{% if not events_dict %}
 	<div class="field_wrapper">No upcoming events.</div>
 	{% else %}
 	{% for event_tuple in events_dict %}
 		{% if forloop.counter > 1 %}
 		<hr class="event_divider" />
 		{% endif %}
-		<div class="event_row">
+		<div class="event_row"{% if event_tuple.0.cancelled %} style="background: #ffe6e6;" title="Cancelled"{% elif event_tuple.1 %} style="background: #e6ffe6;" title="Happening Now"{% endif %}>
 		<div class="event_owner">
-			{{ event_tuple.0.manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.incumbent.user.username %}">{% if event_tuple.0.incumbent.user == user%}You{% else %}{{ event_tuple.0.incumbent.user.first_name}} {{ event_tuple.0.incumbent.user.last_name}}{% endif %}</a>), {{ event_tuple.0.post_date }}:
-		{% if event_tuple.1 %}
-			<form class="unpin_form" method="post" action="">
-				{% csrf_token %}
-				{{ event_tuple.1 }}
-				{% if event_tuple.0.pinned %}
-					<button type="submit" class="btn btn-xs btn-warning" name="unpin">Unpin</button>
-				{% else %}
-					<button type="submit" class="btn btn-xs btn-success" name="unpin">Repin</button>
-				{% endif %}
-			</form>
+		{% if event_tuple.0.as_manager %}
+			{{ event_tuple.0.as_manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{% if event_tuple.0.owner.user == user%}You{% else %}{{ event_tuple.0.owner.user.first_name}} {{ event_tuple.0.owner.user.last_name}}{% endif %}</a>), {{ event_tuple.0.post_date }} (last updated {{ event_tuple.0.change_date }}):
+		{% else %}
+			<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{% if event_tuple.0.owner.user == user%}You{% else %}{{ event_tuple.0.owner.user.first_name}} {{ event_tuple.0.owner.user.last_name}}{% endif %}</a>, {{ event_tuple.0.post_date }} (last updated {{ event_tuple.0.change_date }}):
 		{% endif %}
+		<form class="rsvp_form" method="post" action="">
+			{% csrf_token %}
+				{{ event_tuple.3 }}
+				{% if event_tuple.2 %}
+					<button type="submit" class="btn btn-xs btn-warning" name="rsvp">Un-RSVP</button>
+				{% else %}
+					<button type="submit" class="btn btn-xs btn-success" name="rsvp">RSVP</button>
+				{% endif %}
+		</form>
 		</div> <!-- .event_owner -->
-		<div class="event_body">{{ event_tuple.0.body|safe }}</div>
+		<hr class="event_divider">
+		<div class="event_body">
+			<div class="text-center">
+				<h3 class="event_header">{{ event_tuple.0.title }}</h3>
+				<h4>{{ event_tuple.0.start_time }} to {{ event_tuple.0.end_time }}</h4>
+				<hr style="width: 75%;">
+			</div>
+			{{ event_tuple.0.description|safe }}
+			<div class="text-center">
+			<hr style="width: 75%;" />
+			{% if event_tuple.0.rsvps.all %}
+				RSVPs: {% for member in event_tuple.0.rsvps.all %}
+					{% if forloop.counter > 1 %}, {% endif %}
+					<a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{% if member.user == user %}You{% else %}{{ member.user.first_name }} {{member.user.last_name }}{% endif %}</a>
+					{% endfor %}
+			{% else %}
+				No RSVPs.
+			{% endif %}
+			</div>
+		</div> <!-- .event_body -->
 		</div> <!-- .event_row -->
 	{% endfor %}
 	{% endif %}
 	</div> <!-- .events_table -->
 </div>
+{% endblock %}
+
+{% block endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript">
+	$(function(){$("#id_start_time").datetimepicker();});
+	$(function(){$("#id_end_time").datetimepicker();});
+</script>
 {% endblock %}

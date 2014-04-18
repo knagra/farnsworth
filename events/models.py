@@ -21,12 +21,12 @@ class Event(models.Model):
 	end_time = models.DateTimeField(blank=False, null=False, help_text="When this event ends.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this event was posted.")
 	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The date this event was last modified.")
-	cancelled = models.BooleanField(default=True, help_text="Optional cancellation field.")
+	cancelled = models.BooleanField(default=False, help_text="Optional cancellation field.")
 	as_manager = models.ForeignKey(Manager, blank=True, null=True, on_delete=models.SET_NULL, help_text="The manager position this event is posted, if this is a manager event.")
 	rsvps = models.ManyToManyField(UserProfile, blank=True, null=True, help_text="The users who plan to attend this event.", related_name="rsvps")
 	
 	def __unicode__(self):
-		return "%s on %s, posted by %s" % (self.title, self.date_time, self.owner)
+		return "Event %s posted by %s" % (self.title, self.owner)
 	
 	class Meta:
 		ordering = ['-start_time']	# could also do -start_time, -end_time, post_date but opting for the slight performance increase

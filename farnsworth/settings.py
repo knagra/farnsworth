@@ -41,6 +41,8 @@ UNKNOWN_FORM = "Your post request could not be processed.  Please contact a site
 
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context",)
 
+#DATETIME_INPUT_FORMATS = global_settings.DATETIME_INPUT_FORMATS + ('%m/%d/%Y %H:%M %p',)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -155,6 +157,7 @@ INSTALLED_APPS = (
 	'events',
 	'requests',
 	'bootstrapform',
+	'bootstrap3_datetime',
 	'django.contrib.admin',
 	'django.contrib.admindocs',
 )

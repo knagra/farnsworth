@@ -30,24 +30,11 @@ label {
     margin-right: 3px;
 }
 
-.threads_table {
-    padding: 0px;
-}
-
-.thread_name {
-    text-align: center;
-    margin: 5px auto;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    width: 75%;
-    background: #e9e9e9;
-    border: 1px solid #888;
-}
-
 .event_divider {
     margin: 0px;
     height: 1px;
     background: #888;
+	margin-bottom: 2px;
 }
 
 .event_row {
@@ -81,7 +68,7 @@ label {
     overflow-x: auto;
 }
 
-.unpin_form {
+.rsvp_form {
 	display: inline-block;
 	float: right;
 }
