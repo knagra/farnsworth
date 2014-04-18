@@ -19,7 +19,8 @@ jQuery 1.11.0 (included in static/jquery folder)
 tablesorter 2.15.13 (included in static/jquery folder)
 Nivo Slider 3.2 (included in static/jquery folder)
 django-bootstrap-form 3.1
-django-datetime-widget 0.6
+moment.js (included in static folder)
+bootstrap-datetime-picker (included in static/bootstrap/js and static/ui/css)
 
 Deployment
 ==
