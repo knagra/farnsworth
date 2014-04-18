@@ -222,7 +222,7 @@ def member_forums_view(request):
 
 def all_threads_view(request):
 	''' View of all threads. '''
-	page_name = "All Threads"
+	page_name = "Archives - All Threads"
 	if request.user.is_authenticated():
 		userProfile = UserProfile.objects.get(user=request.user)
 		if not userProfile:

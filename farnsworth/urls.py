@@ -31,6 +31,7 @@ urlpatterns += patterns('threads.views',
 urlpatterns += patterns('events.views',
 	url(r'^events/$', 'list_events_view', name='events'),
 	url(r'^archives/all_events/$', 'list_all_events_view', name='all_events'),
+	url(r'^edit_event/(?P<event_pk>\w+)/$', 'edit_event_view', name='edit_event'),
 )
 
 urlpatterns += patterns('requests.views',

@@ -152,3 +152,81 @@ def list_all_events_view(request):
 		rsvpd = (userProfile in event.rsvps.all())
 		events_dict.append((event, ongoing, rsvpd, form))
 	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
+
+def edit_event_view(request, event_pk):
+	''' The view to edit an event. '''
+	page_name = "Archives - All Events"
+	if request.user.is_authenticated():
+		userProfile = None
+		try:
+			userProfile = UserProfile.objects.get(user=request.user)
+		except:
+			return red_home(request, NO_PROFILE)
+	else:
+		return HttpResponseRedirect(reverse('login'))
+	try:
+		event = Event.objects.get(pk=event_pk)
+	except:
+		return HttpResponseRedirect(reverse('events'))
+	if not ((event.owner == userProfile) or (request.user.is_superuser)):
+		return HttpResponseRedirect(reverse('events'))
+	manager_positions = Manager.objects.filter(incumbent=userProfile)
+	class EventForm(forms.Form):
+		title = forms.CharField(max_length=100, widget=forms.TextInput())
+		description = forms.CharField(widget=forms.Textarea())
+		location = forms.CharField(max_length=100, widget=forms.TextInput())
+		rsvp = forms.BooleanField(required=False, label="RSVP")
+		start_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=['%m/%d/%Y %I:%M %p'])
+		end_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=['%m/%d/%Y %I:%M %p'])
+		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
+	rsvpd = (userProfile in event.rsvps.all())
+	event_form = EventForm(initial={'title': event.title, 'description': event.description, 'location': event.location, 'rsvp': rsvpd, 'start_time': event.start_time, 'end_time': event.end_time, 'as_manager': event.as_manager})
+	if not manager_positions:
+		event_form.fields['as_manager'].widget = forms.HiddenInput()
+	if request.method == 'POST':
+		if 'save_event' in request.POST:
+			event_form = EventForm(request.POST)
+			if event_form.is_valid():
+				title = event_form.cleaned_data['title']
+				description = event_form.cleaned_data['description']
+				location = event_form.cleaned_data['location']
+				rsvp = event_form.cleaned_data['rsvp']
+				start_time = event_form.cleaned_data['start_time']
+				end_time = event_form.cleaned_data['end_time']
+				as_manager = event_form.cleaned_data['as_manager']
+				event.title = title
+				event.description = description
+				event.location = location
+				event.start_time = start_time
+				event.end_time = end_time
+				event.save()
+				if rsvp:
+					event.rsvps.add(userProfile)
+				if as_manager:
+					event.as_manager = as_manager
+				event.save()
+				return HttpResponseRedirect(reverse('events'))
+		elif 'cancel_event' in request.POST:
+			event_form = EventForm(request.POST)
+			if event_form.is_valid():
+				event.cancelled = True
+				title = event_form.cleaned_data['title']
+				description = event_form.cleaned_data['description']
+				location = event_form.cleaned_data['location']
+				rsvp = event_form.cleaned_data['rsvp']
+				start_time = event_form.cleaned_data['start_time']
+				end_time = event_form.cleaned_data['end_time']
+				as_manager = event_form.cleaned_data['as_manager']
+				event.title = title
+				event.description = description
+				event.location = location
+				event.start_time = start_time
+				event.end_time = end_time
+				event.save()
+				if rsvp:
+					event.rsvps.add(userProfile)
+				if as_manager:
+					event.as_manager = as_manager
+				event.save()
+				return HttpResponseRedirect(reverse('events'))
+	return render_to_response('edit_event.html', {'page_name': page_name, 'event_form': event_form}, context_instance=RequestContext(request))

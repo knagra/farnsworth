@@ -570,7 +570,7 @@ def announcements_view(request):
 
 def all_announcements_view(request):
 	''' The view of manager announcements. '''
-	page_name = "All Announcements"
+	page_name = "Archives - All Announcements"
 	if request.user.is_authenticated():
 		userProfile = None
 		try:
