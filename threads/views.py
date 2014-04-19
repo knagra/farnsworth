@@ -23,9 +23,9 @@ def red_ext(request, message=None):
 		message - a message from the caller function
 	'''
 	if message:
-		return render_to_response('external.html', {'message': message, 'page_name': "External"}, context_instance=RequestContext(request))
+		return render_to_response('external.html', {'message': message, 'page_name': "Landing"}, context_instance=RequestContext(request))
 	else:
-		return render_to_response('external.html', {'page_name': "External"}, context_instance=RequestContext(request))
+		return render_to_response('external.html', {'page_name': "Landing"}, context_instance=RequestContext(request))
 
 
 def red_home(request, message):

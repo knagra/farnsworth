@@ -17,7 +17,7 @@ p {
 
 .slider-wrapper {
 	width: 100%;
-	padding-top: 10px;
+	padding-top: 20px;
 }
 
 #google_map {
@@ -26,4 +26,6 @@ p {
 	margin-left: auto;
 	margin-right: auto;
 	position: relative;
+	margin-top: 20px;
+	margin-bottom: 10px;
 }

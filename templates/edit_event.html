@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="table_container">
+<div class="table_container" id="event_form_table">
 	<div class="header"><h3 class="table_title">{{ page_name }}</h3></div> <!-- .header -->
 	<div class="event_table">
 		<form id="event_form" method="post" action="">
@@ -19,15 +19,13 @@
 			<div class="form-group">
 				{{ event_form|bootstrap }}
 				<div class="text-center">
-				<div class="btn-group">
-					<button type="submit" class="btn btn-success" name="post_event">Save Event</button>
-					<button type="submit" class="btn btn-danger" name="cancel_event">Save and Cancel</button>
+					<button type="submit" class="btn btn-lg btn-success" name="post_event">Save Event</button>
 				</div> <!-- .btn-group -->
 				</div> <!-- .text-center -->
 			</div> <!-- .form-group -->
 		</form>
 	</div> <!-- .event_table -->
-</div>
+</div> <!-- .table_container -->
 {% endblock %}
 
 {% block endscripts %}

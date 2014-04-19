@@ -64,6 +64,11 @@
 		<div class="event_body">
 			<div class="text-center">
 				<h3 class="event_header">{{ event_tuple.0.title }}</h3>
+				{% if event_tuple.0.owner.user == user or user.is_superuser %}
+					<form action="{% url 'edit_event' event_pk=event_tuple.0.pk %}">
+						<button class="btn btn-primary">Edit</button>
+					</form>
+				{% endif %}
 				<h4>{{ event_tuple.0.start_time }} to {{ event_tuple.0.end_time }}</h4>
 				<hr style="width: 75%;">
 			</div>
