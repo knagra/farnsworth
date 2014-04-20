@@ -9,10 +9,13 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS, max_threads, max_messages
+from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats
 from django.contrib.auth import logout, login, authenticate, hashers
 from models import UserProfile, Thread, Message
+from requests.models import RequestType
+from events.models import Event
 from django.contrib.auth.models import User
+import datetime
 
 def red_ext(request, message=None):
 	'''
@@ -48,10 +51,64 @@ def homepage_view(request, message=None):
 			return red_ext(request, message)
 	else:
 		return HttpResponseRedirect(reverse('login'))
+	request_types = RequestType.objects.filter(enabled=True)
+	manager_request_types = list() # List of request types for which the user is a relevant manager
+	for request_type in request_types:
+		if userProfile in request_type.managers.all():
+			manager_request_types.add(request_type)
+	requests_dict = list() # Pseudo-dictionary, list with items of form (request_type, (request, [list_of_request_responses], response_form))
+	class ResponseForm(forms.Form):
+		request_pk = forms.IntegerField()
+		body = forms.CharField(widget=forms.Textarea())
+		mark_filled = forms.BooleanField(required=False)
+		mark_closed = forms.BooleanField(required=False)
+	# Generate a dict of unfilled, unclosed requests for each request_type for which the user is a relevant manager:
+	if manager_request_types:
+		for request_type in manager_request_types:
+			requests_list = list() # Items of form (request, [list_of_request_responses], response_form)
+			# Select only unclosed, unfilled requests of type request_type:
+			type_requests = Request.objects.filter(request_type=request_type, filled=False, closed=False)
+			for req in type_requests:
+				response_list = Response.objects.filter(request=req)
+				form = ResponseForm(initial={'request_pk': req.pk})
+				form.fields['request_pk'].widget = forms.HiddenInput()
+				requests_list.append((req, responses_list, form))
+			requests_dict.append((request_type, requests_list))
+	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
-		
+		class AnnouncementForm(forms.Form):
+			as_manager = forms.ModelChoiceField(queryset=manager_positions)
+			body = forms.CharField(widget=forms.Textarea())
+		class UnpinForm(forms.Form):
+			announcement_pk = forms.IntegerField()
+		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
+	announcements_dict = list() # Pseudo-dictionary, list with items of form (announcement, announcement_unpin_form)
+	announcements = Announcement.objects.filter(pinned=True)
 	
+	class EventForm(forms.Form):
+		title = forms.CharField(max_length=100, widget=forms.TextInput())
+		description = forms.CharField(widget=forms.Textarea())
+		location = forms.CharField(max_length=100, widget=forms.TextInput())
+		rsvp = forms.BooleanField(required=False, label="RSVP")
+		start_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=time_formats)
+		end_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=time_formats)
+		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
+	class RsvpForm(forms.Form):
+		event_pk = forms.IntegerField()
+	today = datetime.datetime.today()
+	now = datetime.datetime.utcnow().replace(tzinfo=utc)
+	# Get only today's events:
+	events_list = Event.objects.filter(start_time__year=today.year, start_time__month=today.month, start_time__day=today.day)
+	events_dict = list() # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
+	for event in events_list:
+		form = RsvpForm(initial={'event_pk': event_pk})
+		form.fields['event_pk'].widget = forms.HiddenInput()
+		ongoing = ((event.start_time <= now) and (event.end_time >= now))
+		rsvpd = (userProfile in event.rsvps.all())
+		events_dict.append((event, ongoing, rsvpd, form))
+	
+	return red_home(request, message)
 	
 def help_view(request):
 	''' The view of the helppage. '''

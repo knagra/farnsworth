@@ -23,12 +23,16 @@ class RequestType(models.Model):
 	'''
 	A request type to specify relevant managers and name.
 	'''
-	name = models.CharField(max_length=255, blank=False, null=False, help_text="Name of the request type, lowercase.")
+	name = models.CharField(max_length=255, blank=False, null=False, help_text="Name of the request type, lowercase with _ in place of space.")
 	managers = models.ManyToManyField(Manager, help_text="Managers to whom this type of request is made.")
 	enabled = models.BooleanField(default=True, help_text="Whether this type of request is currently accepted. Toggle this to off to temporarily disable accepting this type of request.")
+	glyphicon = models.CharField(max_length=100, blank=True, null=True, help_text="Glyphicon for this request type (e.g., cutlery).  Check Bootstrap documentation for more info.")
 	
 	def __unicode__(self):
 		return "%s RequestType" % self.name
+	
+	def human_readable_name(self):
+		return self.name.replace('_', ' ')
 
 class Request(models.Model):
 	'''

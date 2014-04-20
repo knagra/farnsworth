@@ -13,11 +13,9 @@ from django.core.urlresolvers import reverse
 from threads.models import UserProfile
 from requests.models import Manager
 from threads.views import red_ext, red_home
-from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, house
+from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, house, time_formats
 import datetime
 from django.utils.timezone import utc
-
-time_formats = ['%m/%d/%Y %I:%M %p', '%m/%d/%Y %I:%M:%S %p', '%Y-%m-%d %H:%M:%S']
 
 def list_events_view(request):
 	''' A list view of upcoming events. '''

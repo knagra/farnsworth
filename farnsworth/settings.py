@@ -32,7 +32,7 @@ max_threads = 20
 max_messages = 4
 
 # Max number of requests loaded in requests_view.
-max_requests = 20
+max_requests = 30
 
 # Max number of responses loaded for each request.
 max_responses = 4
@@ -42,7 +42,11 @@ ADMINS_ONLY = "The domain %s is restricted to admins."
 NO_PROFILE = "A profile for you could not be found.  Please contact a site admin."
 UNKNOWN_FORM = "Your post request could not be processed.  Please contact a site admin."
 
+# Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context",)
+
+# List of time formats accepted by event forms.
+time_formats = ['%m/%d/%Y %I:%M %p', '%m/%d/%Y %I:%M:%S %p', '%Y-%m-%d %H:%M:%S']
 
 #DATETIME_INPUT_FORMATS = global_settings.DATETIME_INPUT_FORMATS + ('%m/%d/%Y %H:%M %p',)
 
@@ -160,6 +164,7 @@ INSTALLED_APPS = (
 	'events',
 	'requests',
 	'bootstrapform',
+	'south',
 	'django.contrib.admin',
 	'django.contrib.admindocs',
 )
