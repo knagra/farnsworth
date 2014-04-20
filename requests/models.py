@@ -96,3 +96,6 @@ class Announcement(models.Model):
 	
 	def __unicode__(self):
 		return "Announcement by %s as %s on %s" % (self.incumbent, self.manager, self.post_date)
+	
+	class Meta:
+		ordering = ['-post_date']

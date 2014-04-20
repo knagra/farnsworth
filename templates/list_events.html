@@ -41,7 +41,7 @@
 	{% else %}
 	{% for event_tuple in events_dict %}
 		{% if forloop.counter > 1 %}
-		<hr class="event_divider" />
+		<hr style="border-top: 1px solid #888; margin: 0;" />
 		{% endif %}
 		<div class="event_row"{% if event_tuple.0.cancelled %} style="background: #ffe6e6;" title="Cancelled"{% elif event_tuple.1 %} style="background: #e6ffe6;" title="Happening Now"{% endif %}>
 		<div class="event_owner">
@@ -60,7 +60,6 @@
 				{% endif %}
 		</form>
 		</div> <!-- .event_owner -->
-		<hr class="event_divider">
 		<div class="event_body">
 			<div class="text-center">
 				<h3 class="event_header">{{ event_tuple.0.title }}</h3>
