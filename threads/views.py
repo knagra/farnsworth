@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats
+from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads
 from django.contrib.auth import logout, login, authenticate, hashers
 from models import UserProfile, Thread, Message
 from requests.models import RequestType, Manager, Request, Announcement
@@ -51,7 +51,7 @@ def homepage_view(request, message=None):
 			message = "A profile for you could not be found.  Please contact an admin for support."
 			return red_ext(request, message)
 	else:
-		return HttpResponseRedirect(reverse('login'))
+		return HttpResponseRedirect(reverse('external'))
 	request_types = RequestType.objects.filter(enabled=True)
 	manager_request_types = list() # List of request types for which the user is a relevant manager
 	for request_type in request_types:
@@ -86,7 +86,16 @@ def homepage_view(request, message=None):
 		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
 	announcements_dict = list() # Pseudo-dictionary, list with items of form (announcement, announcement_unpin_form)
 	announcements = Announcement.objects.filter(pinned=True)
-	
+	x = 0 # Number of announcements loaded
+	for a in announcements:
+		unpin_form = None
+		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
+			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
+			unpin_form.fields['announcement_pk'].widget = forms.HiddenInput()
+		announcements_dict.append((a, unpin_form))
+		x += 1
+		if x >= home_max_announcements:
+			break
 	class EventForm(forms.Form):
 		title = forms.CharField(max_length=100, widget=forms.TextInput())
 		description = forms.CharField(widget=forms.Textarea())
@@ -108,8 +117,23 @@ def homepage_view(request, message=None):
 		ongoing = ((event.start_time <= now) and (event.end_time >= now))
 		rsvpd = (userProfile in event.rsvps.all())
 		events_dict.append((event, ongoing, rsvpd, form))
-	
-	return red_home(request, message)
+	class ThreadForm(forms.Form):
+		subject = forms.CharField(max_length=300, widget=forms.TextInput())
+		body = forms.CharField(widget=forms.Textarea())
+	class MessageForm(forms.Form):
+		thread_pk = forms.IntegerField()
+		body = forms.CharField(widget=forms.Textarea())
+	x = 0 # Number of threads loaded
+	threads_dict = list() # Pseudo-dictionary, list with items of form (thread.subject, [thread_messages_list], thread_message_form)
+	for thread in Thread.objects.all():
+		thread_messages = Message.objects.filter(thread=thread)
+		message_form = MessageForm(initial={'thread_pk': thread.pk})
+		message_form.fields['thread_pk'].widget = forms.HiddenInput()
+		threads_dict.append((thread.subject, thread_messages, message_form))
+		x += 1
+		if x >= home_max_threads:
+			break
+	return render_to_response('homepage.html', {'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'events_dict': events_dict, 'threads_dict': threads_dict}, context_instance=RequestContext(request))
 	
 def help_view(request):
 	''' The view of the helppage. '''

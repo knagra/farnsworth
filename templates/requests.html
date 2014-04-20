@@ -66,7 +66,6 @@
 	    {% if request_tuple.0.owner.user == user %}You{% else %}{{ request_tuple.0.owner.user.first_name }} {{ request_tuple.0.owner.user.last_name }}{% endif %}</a>
 	  ({{ request_tuple.0.post_date }}):
 	</div> <!-- request_owner -->
-	<hr class="response_divider" />
 	<div class="request_body">{{ request_tuple.0.body|safe }}</div>
       </div> <!-- request_name -->
 
@@ -74,7 +73,6 @@
 	<div class="response_table">
 	  {% for response in request_tuple.1 %}
 	  {% if forloop.counter > 1 %}
-	  <hr id="response_divider" />
 	  {% endif %}
 	  <div class="response_row{% if response.manager %} manager_response{% endif %}">
 	    <div class="response_owner">
@@ -82,7 +80,6 @@
 		{% if response.owner.user == user %}You{% else %}{{ response.owner.user.first_name }} {{ response.owner.user.last_name }}{% endif %}
 	      </a> ({{ response.post_date }}):
 	    </div> <!-- response_owner -->
-	    <hr class="response_divider" />
 	    <div class="response_body">
 	      {{ response.body|safe }}
 	    </div> <!-- response_body -->
