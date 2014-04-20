@@ -10,6 +10,11 @@
 {% block content %}
 	<div id="user_profile">
 		<div class="header">
+			{% if user.is_superuser %}
+				<form style="display:inline-block; position: relative; top: -6px; float: right; margin-top: 3px; margin-right: 3px; height: auto;" action="{% url 'custom_modify_user' targetUsername=targetUser.username %}">
+					<button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span> Edit</button>
+				</form>
+			{% endif %}
 		<h3 class="table_title">
 			{% if targetUser %}
 				{{ targetUser.username }}'s Profile
@@ -38,6 +43,10 @@
 			</table>
 		{% endif %}
 		<hr>
-		<div class="text-center"><form action="{% url 'member_directory' %}"><button id="member_directory" type="submit" class="btn btn-lg btn-primary">Member Directory</button></form></div>
+		<div class="text-center">
+			<form action="{% url 'member_directory' %}">
+				<button id="member_directory" type="submit" class="btn btn-lg btn-primary"><span class="glyphicon glyphicon-chevron-left"></span> Member Directory</button>
+			</form>
+		</div>
 	</div>
 {% endblock %}

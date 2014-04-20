@@ -28,10 +28,10 @@
     <tbody>
       {% for member in residents %}
       <tr>
-	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}" title="View Profile"><span class="glyphicon glyphicon-user"></span> {{ member.user.username }}</a></td>
 	<td>{{ member.user.last_name }}</td>
 	<td>{{ member.user.first_name }}</td>
-	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
 	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.phone_number %}{{ member.phone_number }}{% endif %}</td>
 	<td>{% if member.current_room %}{{ member.current_room }}{% endif %}</td>
       </tr>
@@ -58,10 +58,10 @@
     <tbody>
       {% for member in boarders %}
       <tr>
-	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}" title="View Profile"><span class="glyphicon glyphicon-user"></span> {{ member.user.username }}</a></td>
 	<td>{{ member.user.last_name }}</td>
 	<td>{{ member.user.first_name }}</td>
-	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
 	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
       </tr>
       {% endfor %}
@@ -88,10 +88,10 @@
     <tbody>
       {% for member in alumni %}
       <tr>
-	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}" title="View Profile"><span class="glyphicon glyphicon-user"></span> {{ member.user.username }}</a></td>
 	<td>{{ member.user.last_name }}</td>
 	<td>{{ member.user.first_name }}</td>
-	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
 	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
 	<td>{% if member.former_rooms %}{{ member.former_rooms }}{% endif %}</td>
       </tr>

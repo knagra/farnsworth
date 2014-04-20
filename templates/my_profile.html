@@ -14,7 +14,7 @@
 			{% csrf_token %}
 			<div class="form-group">
 				{{ update_profile_form|bootstrap }}
-				<div class="text-center"><button type="submit" class="btn btn-lg btn-success" name="submit_profile_form">Update Profile</button></div>
+				<div class="text-center"><button type="submit" class="btn btn-lg btn-success" name="submit_profile_form"><span class="glyphicon glyphicon-floppy-disk"></span> Update Profile</button></div>
 			</div>
 		</form>
 	</div>
@@ -24,7 +24,7 @@
 			{% csrf_token %}
 			<div class="form-group">
 				{{ change_password_form|bootstrap }}
-				<div class="text-center"><button type="submit" class="btn btn-lg btn-danger" name="submit_password_form">Change Password</button></div>
+				<div class="text-center"><button type="submit" class="btn btn-lg btn-danger" name="submit_password_form"><span class="glyphicon glyphicon-warning-sign"></span> Change Password</button></div>
 			</div>
 		</form>
 	</div>

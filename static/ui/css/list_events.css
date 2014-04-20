@@ -34,7 +34,7 @@ label {
     margin: 0px;
     height: 1px;
     background: #888;
-	margin-bottom: 2px;
+	margin-top: 3px;
 }
 
 .event_row {
@@ -71,6 +71,8 @@ label {
 .rsvp_form {
 	display: inline-block;
 	float: right;
+	position: relative;
+	top: -1px;
 }
 
 #new_event_form {

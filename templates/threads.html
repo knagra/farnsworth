@@ -12,7 +12,7 @@
 {% block content %}
 <div class="threads">
   <div class="table_header">
-    <button class="btn btn-primary add_thread" align="right" onclick="show_new_thread_form()" type="button">New Thread</button>
+    <button class="btn btn-primary add_thread" align="right" onclick="show_new_thread_form()" type="button"><span class="glyphicon glyphicon-pencil"></span> New Thread</button>
     <h3 class="thread_title">{{ thread_title }}</h3>
   </div> <!-- table_header -->
   <form id="new_thread_form" method="post" action="">
@@ -23,8 +23,8 @@
       <textarea class="thread" id="id_body" name="body"></textarea>
       <div class="text-center">
       <div class="btn-group">
-        <button type="submit" class="btn btn-success" name="submit_thread_form">Start Thread</button>
-        <button type="button" class="btn btn-warning" name="cancel_thread_form" onclick="hide_new_thread_form()">Cancel</button>
+        <button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Start Thread</button>
+        <button type="button" class="btn btn-warning" name="cancel_thread_form" onclick="hide_new_thread_form()"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
       </div>
       </div>
     </div>
@@ -57,7 +57,7 @@
 	  {% with message_form_id="message_form_"|add:y %}
 	  {% with button_id="button_"|add:y %}
 	<div class="text-center">
-	  <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')">Add Message to Thread</button>
+	  <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_message_form('{{ message_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Message</button>
 	</div>
 	  <form class="new_message_form" id="{{ message_form_id }}" method="post" action="">
 	    {% csrf_token %}
@@ -67,8 +67,8 @@
 			<textarea name="body"></textarea>
 			<div class="text-center">
 			<div class="btn-group">
-				<button type="submit" class="btn btn-success" name="submit_message_form">Post Message</button>
-				<button type="button" class="btn btn-warning" name="cancel_message_form" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')">Cancel</button>
+				<button type="submit" class="btn btn-success" name="submit_message_form"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
+				<button type="button" class="btn btn-warning" name="cancel_message_form" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
 			</div>
 			</div>
 		</div>

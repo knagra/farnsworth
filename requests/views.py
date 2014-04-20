@@ -11,14 +11,14 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import hashers
 from django.contrib.auth.models import User, Group
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS, max_requests, max_responses
+from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
-	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count()}
+	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'SHORT_HOUSE': short_house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count()}
 
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''

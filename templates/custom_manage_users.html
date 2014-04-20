@@ -39,13 +39,13 @@ $(document).ready(function() {
 		<tbody>
 		{% for member in residents %}
 			<tr>
-				<td><a class="page_link" href="{% url 'custom_modify_user' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+				<td><a class="page_link" href="{% url 'custom_modify_user' targetUsername=member.user.username %}"><span class="glyphicon glyphicon-wrench"></span> {{ member.user.username }}</a></td>
 				<td>{{ member.user.last_name }}</td>
 				<td>{{ member.user.first_name }}</td>
 				<td>{% if  member.user.is_active %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if  member.user.is_staff %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if  member.user.is_superuser %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
-				<td>{% if member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+				<td>{% if member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
 				<td>{% if member.phone_number %}{{ member.phone_number }}{% endif %}</td>
 			</tr>
 		{% endfor %}
@@ -74,13 +74,13 @@ $(document).ready(function() {
 		<tbody>
 		{% for member in boarders %}
 			<tr>
-				<td><a class="page_link" href="{% url 'custom_modify_user' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+				<td><a class="page_link" href="{% url 'custom_modify_user' targetUsername=member.user.username %}"><span class="glyphicon glyphicon-wrench"></span> {{ member.user.username }}</a></td>
 				<td>{{ member.user.last_name }}</td>
 				<td>{{ member.user.first_name }}</td>
 				<td>{% if  member.user.is_active %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if  member.user.is_staff %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if  member.user.is_superuser %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
-				<td>{% if member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+				<td>{% if member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
 				<td>{% if member.phone_number %}{{ member.phone_number }}{% endif %}</td>
 			</tr>
 		{% endfor %}
@@ -109,13 +109,13 @@ $(document).ready(function() {
 		<tbody>
 		{% for member in alumni %}
 			<tr>
-				<td><a class="page_link" href="{% url 'custom_modify_user' targetUsername=member.user.username %}">{{ member.user.username }}</a></td>
+				<td><a class="page_link" href="{% url 'custom_modify_user' targetUsername=member.user.username %}"><span class="glyphicon glyphicon-wrench"></span> {{ member.user.username }}</a></td>
 				<td>{{ member.user.last_name }}</td>
 				<td>{{ member.user.first_name }}</td>
 				<td>{% if  member.user.is_active %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if  member.user.is_staff %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
 				<td>{% if  member.user.is_superuser %}<span style="display:none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True"/>{% else %}<span style="display:none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False"/>{% endif %}</td>
-				<td>{% if member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}">{{ member.user.email }}</a>{% endif %}</td>
+				<td>{% if member.user.email %}<a class="page_link" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
 				<td>{% if member.phone_number %}{{ member.phone_number }}{% endif %}</td>
 			</tr>
 		{% endfor %}

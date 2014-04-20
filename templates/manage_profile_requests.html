@@ -37,10 +37,10 @@ $(document).ready(function() {
 	<tbody>
 	{% for r in profile_requests %}
 		<tr>
-			<td><a class="page_link" href="{% url 'modify_profile_request' request_pk=r.pk %}">{{ r.username }}</a></td>
+			<td><a class="page_link" href="{% url 'modify_profile_request' request_pk=r.pk %}"><span class="glyphicon glyphicon-wrench"></span> {{ r.username }}</a></td>
 			<td>{{ r.last_name }}</td>
 			<td>{{ r.first_name }}</td>
-			<td><a class="page_link" href="mailto:{{ r.email }}">{{ r.email }}</a></td>
+			<td><a class="page_link" href="mailto:{{ r.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ r.email }}</a></td>
 			<td>{{ r.request_date }}</td>
 			<td>{% for choice in choices %}{% if r.affiliation == choice.0 %}{{ choice.1 }}{% endif %}{% endfor %}</td>
 		</tr>
