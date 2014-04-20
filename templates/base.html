@@ -49,7 +49,7 @@
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-inbox"></span> Requests <b class="caret"></b></a>
 		<ul class="dropdown-menu">
 			{% for request_type in REQUEST_TYPES %}
-				<li><a href="{% url 'requests' requestType=request_type.name %}" >{{ request_type.name|title }}</a></li>
+				<li><a href="{% url 'requests' requestType=request_type.name %}" ><span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span> {{ request_type.human_readable_name|title }}</a></li>
 			{% endfor %}
 		</ul>
 	      </li>
@@ -78,7 +78,7 @@
 		<ul class="dropdown-menu">
 		  <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
 		  <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
-		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-flag"></span> Profile Requests ({{ NUM_OF_PROFILE_REQUESTS }})</a></li>
+		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-inbox"></span> Profile Requests ({{ NUM_OF_PROFILE_REQUESTS }})</a></li>
 		  <li><a href="{% url 'admin:index' %}"><span class="glyphicon glyphicon-wrench"></span> Django Admin</a></li> 
 		</ul>
 	      </li>

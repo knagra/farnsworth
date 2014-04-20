@@ -373,9 +373,9 @@ def requests_view(request, requestType):
 		message = "No request type '%s' found." % requestType
 		return red_home(request, message)
 		#return render_to_response('requests.html', {'page_name': 'Invalid Request Type', 'invalid_request_type': True}, context_instance=RequestContext(request))
-	page_name = "%s Requests" % requestType.capitalize()
+	page_name = "%s Requests" % request_type.human_readable_name().title()
 	if not request_type.enabled:
-		message = "%s requests have been disabled." % requestType.capitalize()
+		message = "%s requests have been disabled." % request_type.human_readable_name().title()
 		return red_home(request, message)
 		#return render_to_response('requests.html', {'page_name': page_name, 'request_disabled': True}, context_instance=RequestContext(request))
 	relevant_managers = request_type.managers.all()
@@ -437,7 +437,7 @@ def requests_view(request, requestType):
 		x += 1
 		if x >= max_requests:
 			break
-	return render_to_response('requests.html', {'manager': manager, 'request_type': requestType, 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
+	return render_to_response('requests.html', {'manager': manager, 'request_type': request_type.human_readable_name(), 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
 
 def my_requests_view(request):
 	'''
@@ -495,7 +495,7 @@ def my_requests_view(request):
 			message = "Uhhh...Something went wrong.  Please contact an admin for support."
 			return red_home(request, message)
 	my_requests = Request.objects.filter(owner=userProfile)
-	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name, request_form, type_manager, [(request, [list_of_request_responses], response_form),...])
+	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.human_readable_name, request_form, type_manager, [(request, [list_of_request_responses], response_form),...])
 	for request_type in RequestType.objects.all():
 		if request_type.enabled:
 			type_manager = False
@@ -517,7 +517,7 @@ def my_requests_view(request):
 				requests_list.append((req, responses_list, form))
 			request_form = RequestForm(initial={'type_pk': request_type.pk})
 			request_form.fields['type_pk'].widget = forms.HiddenInput()
-			request_dict.append((request_type.name, request_form, type_manager, requests_list))
+			request_dict.append((request_type.human_readable_name(), request_form, type_manager, requests_list))
 	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 
 def announcements_view(request):
