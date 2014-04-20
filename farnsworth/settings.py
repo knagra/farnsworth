@@ -157,7 +157,6 @@ INSTALLED_APPS = (
 	'events',
 	'requests',
 	'bootstrapform',
-	'bootstrap3_datetime',
 	'django.contrib.admin',
 	'django.contrib.admindocs',
 )
