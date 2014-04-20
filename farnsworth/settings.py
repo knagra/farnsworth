@@ -22,6 +22,9 @@ MANAGERS = ADMINS
 # Name of the house
 house = "Kingman Hall"
 
+# Short name of the house
+short_house = "Kingman"
+
 # Max number of threads loaded in member_forums.
 max_threads = 20
 
@@ -157,7 +160,6 @@ INSTALLED_APPS = (
 	'events',
 	'requests',
 	'bootstrapform',
-	'bootstrap3_datetime',
 	'django.contrib.admin',
 	'django.contrib.admindocs',
 )

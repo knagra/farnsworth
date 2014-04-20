@@ -28,7 +28,7 @@
 </script>
 <div class="requests">
   <div class="table_header">
-    <button type="button" class="btn btn-primary add_request" onclick="show_new_request_form()">New Request</button>
+    <button type="button" class="btn btn-primary add_request" onclick="show_new_request_form()"><span class="glyphicon glyphicon-pencil"></span> New Request</button>
     <h3 class="requests_title">Recent {{ request_type|title }} Requests</h3>
   </div> <!-- table_header -->
   <form id="new_request_form" method="post" action="">
@@ -38,8 +38,8 @@
       <textarea id="id_body" name="body"></textarea>
       <div class="text-center">
       <div class="btn-group">
-      <button type="submit" class="btn btn-success" name="submit_request">Submit Request</button>
-      <button type="button" class="btn btn-warning" name="cancel_request_form" onclick="hide_new_request_form()">Cancel</button>
+      <button type="submit" class="btn btn-success" name="submit_request"><span class="glyphicon glyphicon-inbox"></span> Submit Request</button>
+      <button type="button" class="btn btn-warning" name="cancel_request_form" onclick="hide_new_request_form()"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
       </div>
       </div>
     </div>
@@ -93,7 +93,7 @@
 	    {% with y=forloop.counter|stringformat:"s" %}
 	    {% with response_form_id="response_form_"|add:y %}
 	    {% with button_id="button_"|add:y %}
-	    <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')">Add Response</button>
+	    <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
 	  </div> <!-- text-center -->
 	    <form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
 	      {% csrf_token %}
@@ -107,8 +107,8 @@
 	        {% endif %}
 	        <div class="text-center">
 	        <div class="btn-group">
-	          <button type="submit" class="btn btn-success" name="add_response">Post Message</button>
-	          <button type="button" class="btn btn-warning" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')">Cancel</button>
+	          <button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-send"></span> Post Message</button>
+	          <button type="button" class="btn btn-warning" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
 	        </div>
 	        </div>
 	      </div> <!-- form-group -->

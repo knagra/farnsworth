@@ -20,7 +20,7 @@
 {% block content %}
 <div class="table_container">
 	<div class="header">{% if manager_positions %}
-		<button class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="button">New Announcement</button>
+		<button class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="button"><span class="glyphicon glyphicon-pencil"></span> New Announcement</button>
 		{% endif %}<h3 class="table_title">{{ page_name }}</h3>
 	</div> <!-- .header -->
 	<div class="announcements_table">
@@ -31,8 +31,8 @@
 				{{ announcement_form|bootstrap }}
 				<div class="text-center">
 				<div class="btn-group">
-					<button type="submit" class="btn btn-success" name="post_announcement">Announce</button>
-					<button type="button" class="btn btn-warning" name="cancel_announcement" onclick="hide_new_announcement_form()">Cancel</button>
+					<button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
+					<button type="button" class="btn btn-warning" name="cancel_announcement" onclick="hide_new_announcement_form()"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
 				</div> <!-- .btn-group -->
 				</div> <!-- .text-center -->
 			</div> <!-- .form-group -->
@@ -53,9 +53,9 @@
 				{% csrf_token %}
 				{{ announcement_tuple.1 }}
 				{% if announcement_tuple.0.pinned %}
-					<button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-warning" name="unpin">Unpin</button>
+					<button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-warning" name="unpin"><span class="glyphicon glyphicon-pushpin"></span> Unpin</button>
 				{% else %}
-					<button type="submit" class="btn btn-xs btn-success" name="unpin">Repin</button>
+					<button type="submit" class="btn btn-xs btn-success" name="unpin"><span class="glyphicon glyphicon-pushpin"></span> Repin</button>
 				{% endif %}
 			</form>
 		{% endif %}

@@ -10,7 +10,7 @@
 
 <html>
   <head>
-    <title>{{ HOUSE }} - {{ page_name }}</title>
+    <title>{{ SHORT_HOUSE }} - {{ page_name }}</title>
     {% load static from staticfiles %}
     <link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
     {% block headers %} {% endblock %}
@@ -29,24 +29,24 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{% url 'homepage' %}">Farnsworth</a>
+            <a class="navbar-brand" title="Home" href="{% url 'homepage' %}"><span class="glyphicon glyphicon-home"></span> {{ SHORT_HOUSE }}</a>
           </div>
 	  <div class="collapse navbar-collapse">
 	    <!-- class="active" ??? -->
 	    <ul class="nav navbar-nav">
 	      {% if user.is_authenticated %}
 	      <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }} <b class="caret"></b></a>
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {{ user.username }} <b class="caret"></b></a>
 		<ul class="dropdown-menu">
-	    	  <li><a href="{% url 'my_profile' %}" >Update My Profile</a></li>
-	    	  <li><a href="{% url 'my_threads' %}" >My Threads</a></li>
-	    	  <li><a href="{% url 'my_requests' %}" >My Requests</a></li>
+	    	  <li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
+	    	  <li><a href="{% url 'my_threads' %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
+	    	  <li><a href="{% url 'my_requests' %}" ><span class="glyphicon glyphicon-inbox"></span> My Requests</a></li>
 		</ul>
 	      </li>
-	      <li><a href="{% url 'member_forums' %}" >Forums</a></li>
+	      <li><a href="{% url 'member_forums' %}" ><span class="glyphicon glyphicon-comment"></span> Forums</a></li>
 	      {% if REQUEST_TYPES %}
 	      <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Requests <b class="caret"></b></a>
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-inbox"></span> Requests <b class="caret"></b></a>
 		<ul class="dropdown-menu">
 			{% for request_type in REQUEST_TYPES %}
 				<li><a href="{% url 'requests' requestType=request_type.name %}" >{{ request_type.name|title }}</a></li>
@@ -55,45 +55,45 @@
 	      </li>
 	      {% endif %}
 	     <li class="dropdown">
-	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Go<b class="caret"></b></a>
+	      <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-arrow-right"></span> Go<b class="caret"></b></a>
 	      <ul class="dropdown-menu">
-	        <li><a href="{% url 'member_directory' %}" >Member Directory</a></li>
-		<li><a href="{% url 'announcements' %}" >Manager Announcements</a></li>
-		<li><a href="{% url 'events' %}" >Upcoming Events</a></li>
-	        <li><a href="{% url 'external' %}">Landing</a></li>
+	        <li><a href="{% url 'member_directory' %}" ><span class="glyphicon glyphicon-book"></span> Member Directory</a></li>
+		<li><a href="{% url 'announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Manager Announcements</a></li>
+		<li><a href="{% url 'events' %}" ><span class="glyphicon glyphicon-calendar"></span> Upcoming Events</a></li>
+	        <li><a href="{% url 'external' %}"><span class="glyphicon glyphicon-plane"></span> Landing</a></li>
 		<li class="divider"></li>
 		<li class="dropdown-header">Archives</li>
-		<li><a href="{% url 'all_threads' %}" >All Threads</a></li>
-		<li><a href="{% url 'all_announcements' %}">All Announcements</a></li>
-		<li><a href="{% url 'all_events' %}">All Events</a></li>
+		<li><a href="{% url 'all_threads' %}" ><span class="glyphicon glyphicon-comment"></span> All Threads</a></li>
+		<li><a href="{% url 'all_announcements' %}"><span class="glyphicon glyphicon-bullhorn"></span> All Announcements</a></li>
+		<li><a href="{% url 'all_events' %}"><span class="glyphicon glyphicon-calendar"></span> All Events</a></li>
 		<li class="divider"></li>
 		<li class="dropdown-header">External</li>
-	        <li><a href="http://workshift.bsc.coop/kng/" target="_blank" >Workshift</a></li>
-	        <li><a href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
+	        <li><a href="http://workshift.bsc.coop/kng/" target="_blank" ><span class="glyphicon glyphicon-briefcase"></span> Workshift</a></li>
+	        <li><a href="https://github.com/knagra/farnsworth" target="_blank" ><span class="glyphicon glyphicon-info-sign"></span> Source</a></li>
 	      </ul>
              </li>
 	      {% if user.is_superuser %}
 	      <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> Admin <b class="caret"></b></a>
 		<ul class="dropdown-menu">
-		  <li><a href="{% url 'custom_manage_users' %}" >Manage Users</a></li>
-		  <li><a href="{% url 'custom_add_user' %}" >Add User</a></li>
-		  <li><a href="{% url 'manage_profile_requests' %}">Profile Requests ({{ NUM_OF_PROFILE_REQUESTS }})</a></li>
-		  <li><a href="{% url 'admin:index' %}">Django Admin</a></li> 
+		  <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
+		  <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
+		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-flag"></span> Profile Requests ({{ NUM_OF_PROFILE_REQUESTS }})</a></li>
+		  <li><a href="{% url 'admin:index' %}"><span class="glyphicon glyphicon-wrench"></span> Django Admin</a></li> 
 		</ul>
 	      </li>
 	      {% endif %}
-	      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" >Site Map</a>
+	      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a>
 		{% endif %}
 	    </ul>
 	    <ul class="nav navbar-nav navbar-right">
-	      <li><a class="menu_link" href="{% url 'helppage' %}">Help</a></li>
+	      <li><a class="menu_link" href="{% url 'helppage' %}"><span class="glyphicon glyphicon-question-sign"></span> Help</a></li>
 	      {% if user.is_authenticated %}
-	      <li><a class="menu_link" href="{% url 'logout' %}">Logout</a></li>
+	      <li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 	      {% else %}
-	      <li><a class="menu_link" href="{% url 'login' %}">Login</a></li>
-	      <li><a class="menu_link" href="{% url 'request_profile' %}">Request Account</a></li>
-	      <li><a class="menu_link" href="https://github.com/knagra/farnsworth" target="_blank" >Source</a></li>
+	      <li><a class="menu_link" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+	      <li><a class="menu_link" href="{% url 'request_profile' %}"><span class="glyphicon glyphicon-leaf"></span> Request Account</a></li>
+	      <li><a class="menu_link" href="https://github.com/knagra/farnsworth" target="_blank" ><span class="glyphicon glyphicon-info-sign"></span> Source</a></li>
 	      {% endif %}
 	    </ul>
 	  </div>

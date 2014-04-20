@@ -9,15 +9,15 @@
 
 {% block content %}
 	<div id="add_user_form">
-		<div class="header"><h3 class="table_title">Add a User</h3></div>
+		<div class="header"><h3 class="table_title">Modify Profile Request</h3></div>
 		<form method="post" action="">
 			{% csrf_token %}
 			<div class="form-group">
 				{{ add_user_form|bootstrap }}
 				<div class="text-center">
 				<div class="btn-group btn-group-lg">
-					<button type="submit" name="add_user" class="btn btn-success">Add User</button>
-					<button type="submit" name="delete_request" class="btn btn-danger">Delete Request</button>
+					<button type="submit" name="add_user" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Add User</button>
+					<button type="submit" name="delete_request" class="btn btn-danger"><span class="glyphicon glyphicon-fire"></span> Delete Request</button>
 				</div>
 				</div>
 			</div>

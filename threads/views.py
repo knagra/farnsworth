@@ -38,13 +38,21 @@ def red_home(request, message):
 	return HttpResponseRedirect(reverse('member_forums'))
 	#return render_to_response('homepage.html', function_locals, context_instance=RequestContext(request))
 
-def homepage_view(request):
+def homepage_view(request, message=None):
 	''' The view of the homepage. '''
 	if request.user.is_authenticated():
-		return red_home(request, None)
+		user = request.user
+		userProfile = UserProfile.objects.get(user=request.user)
+		if not userProfile:
+			message = "A profile for you could not be found.  Please contact an admin for support."
+			return red_ext(request, message)
 	else:
-		return HttpResponseRedirect(reverse('external'))
-
+		return HttpResponseRedirect(reverse('login'))
+	manager_positions = Manager.objects.filter(incumbent=userProfile)
+	if manager_positions:
+		
+	
+	
 def help_view(request):
 	''' The view of the helppage. '''
 	page_name = "Help Page"
@@ -139,6 +147,7 @@ def login_view(request):
 	class LoginForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	form = LoginForm()
 	if request.method == 'POST':
 		form = LoginForm(request.POST)
 		if form.is_valid():
@@ -158,8 +167,6 @@ def login_view(request):
 						form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
 			except:
 				form.errors['__all__'] = form.error_class(["User not found"])
-	else:
-		form = LoginForm()
 	return render_to_response('login.html', {'page_name': page_name, 'form': form}, context_instance=RequestContext(request))
 
 def logout_view(request):
@@ -178,11 +185,12 @@ def member_forums_view(request):
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	class ThreadForm(forms.Form):
-		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}), required=False)
+		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
 		body = forms.CharField(widget=forms.Textarea())
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
 		body = forms.CharField(widget=forms.Textarea())
+	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
 			thread_form = ThreadForm(request.POST)
@@ -217,7 +225,6 @@ def member_forums_view(request):
 		x += 1
 		if x >= max_threads:
 			break
-	thread_form = ThreadForm()
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Active Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def all_threads_view(request):
@@ -236,6 +243,7 @@ def all_threads_view(request):
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
 		body = forms.CharField(widget=forms.Textarea())
+	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
 			thread_form = ThreadForm(request.POST)
@@ -266,7 +274,6 @@ def all_threads_view(request):
 	for thread in Thread.objects.all():
 		thread_messages = Message.objects.filter(thread=thread)
 		threads_dict.append((thread.subject, thread_messages, thread.pk))
-	thread_form = ThreadForm()
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def my_threads_view(request):
@@ -285,6 +292,7 @@ def my_threads_view(request):
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
 		body = forms.CharField(widget=forms.Textarea())
+	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
 			thread_form = ThreadForm(request.POST)
@@ -319,7 +327,6 @@ def my_threads_view(request):
 		x += 1
 		if x >= max_threads:
 			break
-	thread_form = ThreadForm()
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 def member_directory_view(request):
