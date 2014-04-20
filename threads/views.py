@@ -12,10 +12,11 @@ from django.template import RequestContext
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats
 from django.contrib.auth import logout, login, authenticate, hashers
 from models import UserProfile, Thread, Message
-from requests.models import RequestType
+from requests.models import RequestType, Manager, Request, Announcement
 from events.models import Event
 from django.contrib.auth.models import User
 import datetime
+from django.utils.timezone import utc
 
 def red_ext(request, message=None):
 	'''
@@ -102,7 +103,7 @@ def homepage_view(request, message=None):
 	events_list = Event.objects.filter(start_time__year=today.year, start_time__month=today.month, start_time__day=today.day)
 	events_dict = list() # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
 	for event in events_list:
-		form = RsvpForm(initial={'event_pk': event_pk})
+		form = RsvpForm(initial={'event_pk': event.pk})
 		form.fields['event_pk'].widget = forms.HiddenInput()
 		ongoing = ((event.start_time <= now) and (event.end_time >= now))
 		rsvpd = (userProfile in event.rsvps.all())
