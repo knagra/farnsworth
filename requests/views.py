@@ -10,6 +10,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.contrib.auth import hashers
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
@@ -54,27 +55,23 @@ def request_profile_view(request):
 		form = profileRequestForm()
 	return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
 
+@login_required
 def manage_profile_requests_view(request):
 	''' The page to manager user profile requests. '''
 	page_name = "Admin - Manage Profile Requests"
-	if request.user.is_authenticated():
-		if not request.user.is_superuser:
-			message = "The domain /custom_admin/ is restricted to superadmins."
-			return red_home(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	if not request.user.is_superuser:
+		message = "The domain /custom_admin/ is restricted to superadmins."
+		return red_home(request, message)
 	profile_requests = ProfileRequest.objects.all()
 	return render_to_response('manage_profile_requests.html', {'page_name': page_name, 'choices': UserProfile.STATUS_CHOICES, 'profile_requests': profile_requests}, context_instance=RequestContext(request))
 
+@login_required
 def modify_profile_request_view(request, request_pk):
 	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
 	page_name = "Admin - Profile Request"
-	if request.user.is_authenticated():
-		if not request.user.is_superuser:
-			message = "The domain /custom_admin/ is restricted to superadmins."
-			return red_home(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	if not request.user.is_superuser:
+		message = "The domain /custom_admin/ is restricted to superadmins."
+		return red_home(request, message)
 	profile_request = ProfileRequest.objects.get(pk=request_pk)
 	class AddUserForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
@@ -152,14 +149,12 @@ def modify_profile_request_view(request, request_pk):
 					add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	return render_to_response('modify_profile_request.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
 
+@login_required
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
-	if request.user.is_authenticated():
-		if not request.user.is_superuser:
-			message = "The page /custom_admin/manage_users/ is restrcited to superadmins."
-			return red_home(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	if not request.user.is_superuser:
+		message = "The page /custom_admin/manage_users/ is restrcited to superadmins."
+		return red_home(request, message)
 	residents = list()
 	boarders = list()
 	alumni = list()
@@ -172,15 +167,13 @@ def custom_manage_users_view(request):
 			alumni.append(profile)
 	return render_to_response('custom_manage_users.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
+@login_required
 def custom_modify_user_view(request, targetUsername):
 	''' The page to modify a user. '''
 	page_name = "Admin - Modify User"
-	if request.user.is_authenticated():
-		if not request.user.is_superuser:
-			message = "The page /custom_admin/modify_user/ is restricted to superadmins."
-			return red_home(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	if not request.user.is_superuser:
+		message = "The page /custom_admin/modify_user/ is restricted to superadmins."
+		return red_home(request, message)
 	try:
 		targetUser = User.objects.get(username=targetUsername)
 	except:
@@ -272,15 +265,13 @@ def custom_modify_user_view(request, targetUsername):
 					change_user_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match"])
 	return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'page_name': page_name, 'modify_user_form': modify_user_form, 'change_user_password_form': change_user_password_form}, context_instance=RequestContext(request))
 
+@login_required
 def custom_add_user_view(request):
 	''' The page to add a new user. '''
 	page_name = "Admin - Add User"
-	if request.user.is_authenticated():
-		if not request.user.is_superuser:
-			message = "The page /custom_admin/add_user/ is restricted to superadmins."
-			return red_home(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	if not request.user.is_superuser:
+		message = "The page /custom_admin/add_user/ is restricted to superadmins."
+		return red_home(request, message)
 	class AddUserForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
@@ -351,6 +342,7 @@ def custom_add_user_view(request):
 				add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
 
+@login_required
 def requests_view(request, requestType):
 	'''
 	Generic request view.  Parameters:
@@ -358,15 +350,12 @@ def requests_view(request, requestType):
 		requestType is name of a RequestType.
 			e.g. "food", "maintenance", "network", "site" 
 	'''
-	if request.user.is_authenticated():
-		userProfile = None
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except:
-			message = "No profile for you could be found.  Please contact a site admin."
-			return red_home(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = None
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		message = "No profile for you could be found.  Please contact a site admin."
+		return red_home(request, message)
 	try:
 		request_type = RequestType.objects.get(name=requestType)
 	except:
@@ -439,19 +428,17 @@ def requests_view(request, requestType):
 			break
 	return render_to_response('requests.html', {'manager': manager, 'request_type': request_type.human_readable_name(), 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
 
+@login_required
 def my_requests_view(request):
 	'''
 	Show user his/her requests, sorted by request_type.
 	'''
 	page_name = "My Requests"
-	if request.user.is_authenticated():
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except:
-			message = "No profile for you could be found.  Please contact a site admin."
-			return red_home(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		message = "No profile for you could be found.  Please contact a site admin."
+		return red_home(request, message)
 	class RequestForm(forms.Form):
 		type_pk = forms.IntegerField()
 		body = forms.CharField(widget=forms.Textarea())
@@ -520,18 +507,16 @@ def my_requests_view(request):
 			request_dict.append((request_type.human_readable_name(), request_form, type_manager, requests_list))
 	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 
+@login_required
 def announcements_view(request):
 	''' The view of manager announcements. '''
 	page_name = "Manager Announcements"
-	if request.user.is_authenticated():
-		userProfile = None
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except:
-			message = "No profile for you could be found.  Please contact a site admin."
-			return red_home(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = None
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		message = "No profile for you could be found.  Please contact a site admin."
+		return red_home(request, message)
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
@@ -568,18 +553,16 @@ def announcements_view(request):
 		announcements_dict.append((a, unpin_form))
 	return render_to_response('announcements.html', {'page_name': page_name, 'manager_positions': manager_positions, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form}, context_instance=RequestContext(request))
 
+@login_required
 def all_announcements_view(request):
 	''' The view of manager announcements. '''
 	page_name = "Archives - All Announcements"
-	if request.user.is_authenticated():
-		userProfile = None
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except:
-			message = "No profile for you could be found.  Please contact a site admin."
-			return red_home(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = None
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		message = "No profile for you could be found.  Please contact a site admin."
+		return red_home(request, message)
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:

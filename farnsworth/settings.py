@@ -19,6 +19,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+BASE_URL = "/farnswauth"
+
 # Name of the house
 house = "Kingman Hall"
 
@@ -174,6 +176,10 @@ INSTALLED_APPS = (
 	'django.contrib.admin',
 	'django.contrib.admindocs',
 )
+
+LOGIN_URL = BASE_URL + "/login/"
+LOGOUT_URL = BASE_URL + "/logout/"
+LOGIN_REDIRECT_URL = BASE_URL
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 

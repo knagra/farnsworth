@@ -10,11 +10,12 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads
-from django.contrib.auth import logout, login, authenticate, hashers
 from models import UserProfile, Thread, Message
 from requests.models import RequestType, Manager, Request, Response, Announcement
 from events.models import Event
+from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 import datetime
 from django.utils.timezone import utc
 
@@ -191,17 +192,15 @@ def site_map_view(request):
 	page_name = "Site Map"
 	return render_to_response('site_map.html', {'page_name': page_name}, context_instance=RequestContext(request))
 
+@login_required
 def my_profile_view(request):
 	''' The view of the profile page. '''
 	page_name = "Profile Page"
-	if request.user.is_authenticated():
-		user = request.user
-		userProfile = UserProfile.objects.get(user=request.user)
-		if not userProfile:
-			message = "A profile for you could not be found.  Please contact an admin for support."
-			return red_ext(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	user = request.user
+	userProfile = UserProfile.objects.get(user=request.user)
+	if not userProfile:
+		message = "A profile for you could not be found.  Please contact an admin for support."
+		return red_ext(request, message)
 	class ChangePasswordForm(forms.Form):
 		current_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 		new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
@@ -302,16 +301,14 @@ def logout_view(request):
 	logout(request)
 	return HttpResponseRedirect(reverse('homepage'))
 
+@login_required
 def member_forums_view(request):
 	''' Forums for current members. '''
 	page_name = "Member Forums"
-	if request.user.is_authenticated():
-		userProfile = UserProfile.objects.get(user=request.user)
-		if not userProfile:
-			message = "A profile for you could not be found.  Please contact an admin for support."
-			return red_ext(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
+	if not userProfile:
+		message = "A profile for you could not be found.  Please contact an admin for support."
+		return red_ext(request, message)
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
 		body = forms.CharField(widget=forms.Textarea())
@@ -354,16 +351,14 @@ def member_forums_view(request):
 			break
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Active Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
+@login_required
 def all_threads_view(request):
 	''' View of all threads. '''
 	page_name = "Archives - All Threads"
-	if request.user.is_authenticated():
-		userProfile = UserProfile.objects.get(user=request.user)
-		if not userProfile:
-			message = "A profile for you could not be found.  Please contact an admin for support."
-			return red_ext(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
+	if not userProfile:
+		message = "A profile for you could not be found.  Please contact an admin for support."
+		return red_ext(request, message)
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
 		body = forms.CharField(widget=forms.Textarea())
@@ -402,16 +397,14 @@ def all_threads_view(request):
 		threads_dict.append((thread.subject, thread_messages, thread.pk))
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
+@login_required
 def my_threads_view(request):
 	''' View of my threads. '''
 	page_name = "My Threads"
-	if request.user.is_authenticated():
-		userProfile = UserProfile.objects.get(user=request.user)
-		if not userProfile:
-			message = "A profile for you could not be found.  Please contact an admin for support."
-			return red_ext(request, message)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
+	if not userProfile:
+		message = "A profile for you could not be found.  Please contact an admin for support."
+		return red_ext(request, message)
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
 		body = forms.CharField(widget=forms.Textarea())
@@ -454,11 +447,10 @@ def my_threads_view(request):
 			break
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
+@login_required
 def member_directory_view(request):
 	''' View of member directory. '''
 	page_name = "Member Directory"
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect(reverse('login'))
 	residents = list()
 	boarders = list()
 	alumni = list()
@@ -471,13 +463,11 @@ def member_directory_view(request):
 			alumni.append(profile)
 	return render_to_response('member_directory.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
+@login_required
 def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
 	page_name = "%s's Profile" % targetUsername
-	if request.user.is_authenticated():
-		userProfile = UserProfile.objects.get(user=request.user)
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
 	try:
 		targetUser = User.objects.get(username=targetUsername)
 	except:
