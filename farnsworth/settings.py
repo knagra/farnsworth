@@ -41,7 +41,7 @@ max_responses = 4
 home_max_announcements = 5
 
 # Max number of threads loaded for home page.
-home_max_threads = 5
+home_max_threads = 10
 
 # Standard messages sent to clients on errors.
 ADMINS_ONLY = "The domain %s is restricted to admins."

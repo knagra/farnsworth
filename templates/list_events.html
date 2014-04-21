@@ -46,7 +46,7 @@
 		<div class="event_row"{% if event_tuple.0.cancelled %} style="background: #ffe6e6;" title="Cancelled"{% elif event_tuple.1 %} style="background: #e6ffe6;" title="Happening Now"{% endif %}>
 		<div class="event_owner">
 		{% if event_tuple.0.as_manager %}
-			{{ event_tuple.0.as_manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{% if event_tuple.0.owner.user == user%}You{% else %}{{ event_tuple.0.owner.user.first_name}} {{ event_tuple.0.owner.user.last_name}}{% endif %}</a>), {{ event_tuple.0.post_date }} (last updated {{ event_tuple.0.change_date }}):
+			{{ event_tuple.0.as_manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{% if event_tuple.0.owner.user == user%}You{% else %}{{ event_tuple.0.owner.user.first_name}} {{ event_tuple.0.owner.user.last_name}}{% endif %}</a>), {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
 		{% else %}
 			<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{% if event_tuple.0.owner.user == user%}You{% else %}{{ event_tuple.0.owner.user.first_name}} {{ event_tuple.0.owner.user.last_name}}{% endif %}</a>, {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
 		{% endif %}
