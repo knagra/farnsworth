@@ -1,38 +1,183 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
-
+{% load bootstrap %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/homepage.css' %}" />
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+<script>
+function show_new_response_form(response_form_id, button_id) {
+	document.getElementById(response_form_id).style.display="inline";
+	document.getElementById(button_id).style.display="none";
+}
+function hide_new_response_form(response_form_id, button_id) {
+	document.getElementById(response_form_id).style.display="none";
+	document.getElementById(button_id).style.display="inline";
+}
+function show_form(form_id) {
+	document.getElementById(form_id).style.display="inline";
+}
+function hide_form(form_id) {
+	document.getElementById(form_id).style.display="none";
+}
+</script>
 {% endblock %}
-
 {% block content %}
-<p>
-Kingman Hall is one of the houses of the <a class="page_link" href="http://www.bsc.coop" target="_blank">Berkeley Student Cooperative</a> in Berkeley, California.
-The building houses 50 students every semester.
-The house phone number is 510-900-2179.
-We are located at 1730 La Loma Avenue, just a few steps north of the Ridge Road and La Loma Avenue intersection, at the northeast corner of the <a class="page_link" href="http://www.berkeley.edu" target="_blank">UC Berkeley</a> campus.
-Look for the big butterfly painted next to the front door.
-</p>
+{% if message %}
+	<div class="alert alert-danger">
+		{{ message }}
+	</div>
+{% endif %}
+{% if requests_dict %}
+{% for type_tuple in requests_dict %}
+{% if type_tuple.1 %}
+<div class="requests table_container">
+	<div class="header">
+		<form style="display: inline-block; position: relative; top: -3px; float: right; margin-right: 3px;" action="{% url 'requests' requestType=type_tuple.0.name %}">
+			<button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span> Requests Page</button>
+		</form>
+		<h3 class="table_title">
+			{{ type_tuple.0.human_readable_name|title }} Requests
+		</h3>
+	</div>
+	<div class="main_table">
+	{% for request_tuple in type_tuple.1 %}
+	{% if forloop.counter > 1 %}
+	<hr style="margin-top: 3px; margin-bottom: 3px;"/>
+	{% endif %}
+	<div class="main_row">
+	<div class="request_name">
+		<div class="request_owner">
+		<a class="page_link" href="{% url 'member_profile' targetUsername=request_tuple.0.owner.user.username %}">
+			{% if request_tuple.0.owner.user == user %}You{% else %}{{ request_tuple.0.owner.user.first_name }} {{ request_tuple.0.owner.user.last_name }}{% endif %}
+		</a>
+		({{ request_tuple.0.post_date }}):
+		</div> <!-- .request_owner -->
+		<div class="request_body">{{ request_tuple.0.body|safe }}</div>
+	</div> <!-- .request_name -->
+	<div class="request_responses">
+		<div class="response_table">
+			{% for response in request_tuple.1 %}
+			{% if forloop.counter > 1 %}
+			<hr class="response_divider" />
+			{% endif %}
+			<div class="response_row hover_row{% if response.manager %} manager_response{% endif %}">
+				<div class="response_owner">
+					<a class="page_link" href="{% url 'member_profile' targetUsername=response.owner.user.username %}">
+					{% if response.owner.user == user %}You{% else %}{{ response.owner.user.first_name }} {{ response.owner.user.last_name }}{% endif %}
+					</a> ({{ response.post_date }}):
+				</div> <!-- .response_owner -->
+				<div class="response_body">
+					{{ response.body|safe }}
+				</div> <!-- response_body -->
+			</div> <!-- .response_row -->
+			{% endfor %}
+			{% with y=forloop.counter|stringformat:"s" %}
+			{% with response_form_id="response_form_"|add:y %}
+			{% with button_id="button_"|add:y %}
+			<div class="text-center">
+			<button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
+			</div> <!-- .text-center -->
+			<form class="new_response_form" id="{{ response_form_id }}" method="post" action="">
+				{% csrf_token %}
+				{{ request_tuple.2.request_pk }}
+				<div class="form-group">
+				<label for="id_response_body">Add Response</label>
+				<textarea class="response" name="body"></textarea>
+				<div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
+				<div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
+				<div class="text-center">
+				<div class="btn-group">
+					<button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-send"></span> Add Response</button>
+					<button type="button" class="btn btn-warning" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
+				</div> <!-- .btn-group -->
+				</div> <!-- .text-center -->
+				</div> <!-- .form-group -->
+			</form>
+			{% endwith %}
+			{% endwith %}
+			{% endwith %}
+		</div> <!-- .response_table -->
+	</div> <!-- .request_responses -->
+	</div> <!-- .requests_row -->
+	{% endfor %}
+	</div> <!-- .requests_table -->
+</div> <!-- .requests -->
+{% endif %}
+{% endfor %}
+{% endif %}
 
-<p>
-Before it was purchased by the BSC, the property of Kingman Hall was known as the "Living Love Center."  If you have any knowledge of the Center's current whereabouts (if it is still active), please e-mail us with the information at <a class="page_link" href="mailto:knghm@bsc.coop">knghm@bsc.coop</a> so we can forward incoming mail appropriately.
-</p>
-
-<p>
-<table class="page_table">
-	<tr>
-		<td><img class="page_image" src="{% static 'ui/images/house.jpg' %}" /></td>
-		<td><img class="page_image" src="{% static 'ui/images/entrance.jpg' %}" /></td>
-	</tr>
-	<tr>
-		<td><img class="page_image" src="{% static 'ui/images/map.gif' %}" /></td>
-		<td><img class="page_image" src="{% static 'ui/images/farnsworth.jpg' %}" /></td>
-	</tr>
-</table>
-</p>
-
-<p>
-The Berkeley Architectural Heritage Association has <a class="page_link" href="http://www.berkeleyheritage.com/berkeley_landmarks/theta-xi.html">more information on the history of our house</a>.</p>
+<div class="row">
+<div class="announcements table_container span4">
+	<div class="header">
+		{% if announcement_form %}
+		<button class="btn btn-primary header_button" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span> New Announcement</button>
+		{% endif %}
+		<h3 class="table_title">
+			Manager Announcements
+		</h3>
+	</div>
+	<div class="main_table">
+		{% if announcement_form %}
+		<form id="new_announcement_form" class="main_form" method="post" action="">
+			{% csrf_token %}
+			{{ announcement_form|bootstrap }}
+			<div class="text-center">
+			<div class="btn-group">
+				<button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
+				<button type="button" class="btn btn-warning" name="cancel_announcement" onclick="hide_form('new_announcement_form')"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
+			</div> <!-- .btn-group -->
+			</div> <!-- .text-center -->
+		</form>
+		{% endif %}
+		{% if not announcements_dict %}
+			<div class="field_wrapper">No recent announcements.</div>
+		{% else %}
+		{% for tuple in announcements_dict %}
+			{% if forloop.counter > 1 %}
+				<hr class="divider" />
+			{% endif %}
+			<div class="main_row hover_row">
+			<div class="announcement_owner">
+				{{ tuple.0.manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">{% if tuple.0.incumbent.user == user %}You{% else %}{{ tuple.0.incumbent.user.first_name }} {{ tuple.0.incumbent.user.last_name }}{% endif %}</a>), {{ tuple.0.post_date }}:
+				{% if tuple.1 %}
+					<form class="unpin_form" method="post" action="">
+						{% csrf_token %}
+						{{ tuple.1 }}
+						<button type="submit" class="btn btn-xs btn-warning" name="unpin"><span class="glyphicon glyphicon-pushpin"></span> Unpin</button>
+					</form>
+				{% endif %}
+			</div> <!-- .announcement_owner -->
+			<div class="announcement_body">{{ tuple.0.body|safe }}</div>
+			</div> <!-- .announcement_row -->
+		{% endfor %}
+		{% endif %}
+	</div>
+</div> <!-- .announcements -->
+<div class="table_container events span4">
+	<div class="header">
+		<form action="{% url 'events' %}">
+		<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-calendar"></span> Events Page</button>
+		</form>
+		<h3 class="table_title">
+			Today's Events
+		</h3>
+	</div>
+	{% if not events_dict %}
+	<div class="field_wrapper">
+		No events in the next 24 hours.
+	</div>
+	{% else %}
+	{% for tuple in events_dict %}
+	{% if forloop.counter > 1 %}
+	<hr class="divider">
+	{% endif %}
+	<div class="event_row"{% if tuple.0.cancelled %} style="background: #ffe6e6;" title="Cancelled"{% elif tuple.1 %} style="background: #e6ffe6;" title="Hapenning Now"{% endif %}>
+	</div> <!-- .event_row -->
+	{% endfor %}
+	{% endif %}
+</div>
+</div> <!-- .fluid-row -->
 {% endblock %}

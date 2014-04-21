@@ -12,7 +12,7 @@ from django.template import RequestContext
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads
 from django.contrib.auth import logout, login, authenticate, hashers
 from models import UserProfile, Thread, Message
-from requests.models import RequestType, Manager, Request, Announcement
+from requests.models import RequestType, Manager, Request, Response, Announcement
 from events.models import Event
 from django.contrib.auth.models import User
 import datetime
@@ -39,7 +39,8 @@ def red_home(request, message):
 		request - the request in the calling function
 		message - a message from the caller function
 	'''
-	return HttpResponseRedirect(reverse('member_forums'))
+	return HttpResponseRedirect(reverse('homepage_message_view', kwargs={'message': message}))
+	#return HttpResponseRedirect(reverse('member_forums'))
 	#return render_to_response('homepage.html', function_locals, context_instance=RequestContext(request))
 
 def homepage_view(request, message=None):
@@ -55,12 +56,14 @@ def homepage_view(request, message=None):
 	request_types = RequestType.objects.filter(enabled=True)
 	manager_request_types = list() # List of request types for which the user is a relevant manager
 	for request_type in request_types:
-		if userProfile in request_type.managers.all():
-			manager_request_types.add(request_type)
+		for position in request_type.managers.all():
+			if userProfile == position.incumbent:
+				manager_request_types.append(request_type)
+				break
 	requests_dict = list() # Pseudo-dictionary, list with items of form (request_type, (request, [list_of_request_responses], response_form))
 	class ResponseForm(forms.Form):
 		request_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea())
+		response_body = forms.CharField(widget=forms.Textarea())
 		mark_filled = forms.BooleanField(required=False)
 		mark_closed = forms.BooleanField(required=False)
 	# Generate a dict of unfilled, unclosed requests for each request_type for which the user is a relevant manager:
@@ -73,14 +76,14 @@ def homepage_view(request, message=None):
 				response_list = Response.objects.filter(request=req)
 				form = ResponseForm(initial={'request_pk': req.pk})
 				form.fields['request_pk'].widget = forms.HiddenInput()
-				requests_list.append((req, responses_list, form))
+				requests_list.append((req, response_list, form))
 			requests_dict.append((request_type, requests_list))
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
 		class AnnouncementForm(forms.Form):
 			as_manager = forms.ModelChoiceField(queryset=manager_positions)
-			body = forms.CharField(widget=forms.Textarea())
+			announcement_body = forms.CharField(widget=forms.Textarea())
 		class UnpinForm(forms.Form):
 			announcement_pk = forms.IntegerField()
 		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
@@ -119,10 +122,10 @@ def homepage_view(request, message=None):
 		events_dict.append((event, ongoing, rsvpd, form))
 	class ThreadForm(forms.Form):
 		subject = forms.CharField(max_length=300, widget=forms.TextInput())
-		body = forms.CharField(widget=forms.Textarea())
+		thread_body = forms.CharField(widget=forms.Textarea())
 	class MessageForm(forms.Form):
 		thread_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea())
+		message_body = forms.CharField(widget=forms.Textarea())
 	x = 0 # Number of threads loaded
 	threads_dict = list() # Pseudo-dictionary, list with items of form (thread.subject, [thread_messages_list], thread_message_form)
 	for thread in Thread.objects.all():
@@ -133,7 +136,37 @@ def homepage_view(request, message=None):
 		x += 1
 		if x >= home_max_threads:
 			break
-	return render_to_response('homepage.html', {'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'events_dict': events_dict, 'threads_dict': threads_dict}, context_instance=RequestContext(request))
+	if request.method == 'POST':
+		if 'add_response' in request.POST:
+			response_form = ResponseForm(request.POST)
+			if response_form.is_valid():
+				request_pk = response_form.cleaned_data['request_pk']
+				body = response_form.cleaned_data['response_body']
+				relevant_request = Request.objects.get(pk=request_pk)
+				new_response = Response(owner=userProfile, body=body, request=relevant_request)
+				relevant_request.closed = response_form.cleaned_data['mark_closed']
+				relevant_request.filled = response_form.cleaned_data['mark_filled']
+				new_response.manager = True
+				relevant_request.save()
+				new_response.save()
+				return HttpResponseRedirect(reverse('homepage'))
+		elif 'post_announcement' in request.POST:
+			announcement_form = AnnouncementForm(request.POST)
+			if announcement_form.is_valid():
+				body = announcement_form.cleaned_data['announcement_body']
+				manager = announcement_form.cleaned_data['as_manager']
+				new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
+				new_announcement.save()
+				return HttpResponseRedirect(reverse('homepage'))
+		elif 'unpin' in request.POST:
+			unpin_form = UnpinForm(request.POST)
+			if unpin_form.is_valid():
+				announcement_pk = unpin_form.cleaned_data['announcement_pk']
+				relevant_announcement = Announcement.objects.get(pk=announcement_pk)
+				relevant_announcement.pinned = False
+				relevant_announcement.save()
+				return HttpResponseRedirect(reverse('homepage'))
+	return render_to_response('homepage.html', {'page_name': 'Home', 'message': message, 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads_dict': threads_dict}, context_instance=RequestContext(request))
 	
 def help_view(request):
 	''' The view of the helppage. '''

@@ -70,7 +70,6 @@
 	    {% if request_tuple.0.owner.user == user %}You{% else %}{{ request_tuple.0.owner.user.first_name }} {{ request_tuple.0.owner.user.last_name }}{% endif %}</a>
 	  ({{ request_tuple.0.post_date }}):
 	</div> <!-- request_owner -->
-	<hr class="response_divider" />
 	<div class="request_body">{{ request_tuple.0.body|safe }}</div>
       </div> <!-- request_name -->
 
@@ -86,19 +85,18 @@
 		{% if response.owner.user == user %}You{% else %}{{ response.owner.user.first_name }} {{ response.owner.user.last_name }}{% endif %}
 	      </a> ({{ response.post_date }}):
 	    </div> <!-- response_owner -->
-	    <hr class="response_divider" />
 	    <div class="response_body">
 	      {{ response.body|safe }}
 	    </div> <!-- response_body -->
 	  </div> <!-- response_row -->
 	  {% endfor %}
 
-	  <div class="text-center">
 	    {% with y=forloop.counter|stringformat:"s" %}
 	    {% with response_form_id="response_form_"|add:x|add:"_"|add:y %}
 	    {% with button_id="button_"|add:x|add:"_"|add:y %}
+		<div class="text-center">
 	    <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
-	  </div> <!-- text-center -->
+		</div> <!-- text-center -->
 	    <form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
 	      {% csrf_token %}
 	      {{ request_tuple.2.request_pk }}

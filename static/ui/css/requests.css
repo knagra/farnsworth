@@ -55,11 +55,6 @@ label {
     margin-right: 3px;
 }
 
-.add_request:hover {
-    color: black;
-    cursor: pointer;
-}
-
 #submit_request_form {
     width: 50%;
     border-right: 1px solid #3f3f3f;
@@ -138,11 +133,6 @@ label {
     width: 75%;
     background: #e9e9e9;
     border: 1px solid #888;
-}
-
-.request_responses {
-    padding-left: 0px;
-    padding-right: 0px;
 }
 
 .response_row {
@@ -261,12 +251,6 @@ label {
 
 .more_requests:hover > a {
     color: black;
-}
-
-.field_wrapper {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    text-align: center;
 }
 
 .mark_filled {
