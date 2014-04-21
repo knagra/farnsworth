@@ -141,8 +141,10 @@ def homepage_view(request, message=None):
 			break
 	if request.method == 'POST':
 		if 'add_response' in request.POST:
+			print "a"
 			response_form = ResponseForm(request.POST)
 			if response_form.is_valid():
+				print "b"
 				request_pk = response_form.cleaned_data['request_pk']
 				body = response_form.cleaned_data['response_body']
 				relevant_request = Request.objects.get(pk=request_pk)
@@ -152,6 +154,7 @@ def homepage_view(request, message=None):
 				new_response.manager = True
 				relevant_request.save()
 				new_response.save()
+				print "c"
 				return HttpResponseRedirect(reverse('homepage'))
 		elif 'post_announcement' in request.POST:
 			announcement_form = AnnouncementForm(request.POST)
