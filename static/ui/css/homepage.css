@@ -11,12 +11,7 @@ Author: Karandeep Singh Nagra
 }
 
 .btn-group {
-	min-width: 90%;
 	margin-top: 5px;
-}
-
-.btn-group .btn {
-	width: 50%;
 }
 
 #new_announcement_form .btn-group {

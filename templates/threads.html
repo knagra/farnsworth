@@ -24,7 +24,7 @@
       <div class="text-center">
       <div class="btn-group">
         <button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Start Thread</button>
-        <button type="button" class="btn btn-warning" name="cancel_thread_form" onclick="hide_new_thread_form()"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
+        <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_new_thread_form()"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
       </div>
       </div>
     </div>
@@ -39,7 +39,7 @@
     {% endif %}
     <div class="thread_messages">
       <div class="message_table">
-	<h3 class="thread_name"><a title="View Thread" class="thread_link" href="{% url 'view_thread' thread_pk=thread_tuple.2 %}">{{ thread_tuple.0 }}</a><span style="font-size: 50%;">{% if thread_tuple.3 %} ({{ thread_tuple.3 }} older messages){% endif %}</span></h3>
+	<h3 class="thread_name"><a title="View Thread" class="thread_link" href="{% url 'view_thread' thread_pk=thread_tuple.2 %}">{{ thread_tuple.0 }}</a><span style="font-size: 50%; color: #7e7e7e;">{% if thread_tuple.3 > 0 %} ({{ thread_tuple.3 }} older messages){% endif %}</span></h3>
 	{% for message in thread_tuple.1 %}
 	{% if forloop.counter > 1 %}
 	<hr class="message_divider" />
@@ -68,7 +68,7 @@
 			<div class="text-center">
 			<div class="btn-group">
 				<button type="submit" class="btn btn-success" name="submit_message_form"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
-				<button type="button" class="btn btn-warning" name="cancel_message_form" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
+				<button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
 			</div>
 			</div>
 		</div>

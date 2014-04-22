@@ -69,3 +69,11 @@ Author: Karandeep Singh Nagra
 	margin-bottom: 0px;
 	border-top: 1px solid #888;
 }
+
+.btn-group {
+	min-width: 90%;
+}
+
+.btn-group .btn {
+	width: 50%;
+}

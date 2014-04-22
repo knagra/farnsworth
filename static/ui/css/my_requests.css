@@ -29,16 +29,7 @@ label {
 }
 
 .btn-group {
-	min-width: 90%;
 	margin-top: 5px;
-}
-
-.btn-success {
-	width: 50%;
-}
-
-.btn-warning {
-	width: 50%;
 }
 
 .form-group {

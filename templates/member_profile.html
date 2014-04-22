@@ -39,6 +39,7 @@
 				{% if targetProfile.phone_visible %}
 					<tr><th>Phone:</th><td class="field">{{ targetProfile.phone_number }}</td></tr>
 				{% endif %}
+				<tr><th>Threads Owned:</th><td class="field"><a class="page_link" title="See Threads" href="{% url 'list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a></td></tr>
 			</tbody>
 			</table>
 		{% endif %}

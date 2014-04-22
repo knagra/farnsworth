@@ -39,7 +39,7 @@
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {{ user.username }} <b class="caret"></b></a>
 		<ul class="dropdown-menu">
 	    	  <li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
-	    	  <li><a href="{% url 'my_threads' %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
+	    	  <li><a href="{% url 'list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
 	    	  <li><a href="{% url 'my_requests' %}" ><span class="glyphicon glyphicon-inbox"></span> My Requests</a></li>
 		</ul>
 	      </li>
@@ -63,7 +63,7 @@
 	        <li><a href="{% url 'external' %}"><span class="glyphicon glyphicon-plane"></span> Landing</a></li>
 		<li class="divider"></li>
 		<li class="dropdown-header">Archives</li>
-		<li><a href="{% url 'all_threads' %}" ><span class="glyphicon glyphicon-comment"></span> All Threads</a></li>
+		<li><a href="{% url 'list_all_threads' %}" ><span class="glyphicon glyphicon-comment"></span> All Threads</a></li>
 		<li><a href="{% url 'all_announcements' %}"><span class="glyphicon glyphicon-bullhorn"></span> All Announcements</a></li>
 		<li><a href="{% url 'all_events' %}"><span class="glyphicon glyphicon-calendar"></span> All Events</a></li>
 		<li class="divider"></li>

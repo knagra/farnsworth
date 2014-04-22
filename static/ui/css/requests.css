@@ -31,16 +31,7 @@ label {
 }
 
 .btn-group {
-	min-width: 90%;
 	margin-top: 5px;
-}
-
-.btn-success {
-	width: 50%;
-}
-
-.btn-warning {
-	width: 50%;
 }
 
 .form-group {
@@ -222,35 +213,6 @@ label {
 #id_subject {
     margin-bottom: 5px;
     max-width: 75%;
-}
-
-.more_requests {
-    background: #5e5e5e;
-    border: none;
-    width: 100%;
-    clear: both;
-    text-align: center;
-}
-
-.more_requests:hover {
-    background: #fafafa;
-    color: black;
-    cursor: pointer;
-}
-
-.more_requests > a {
-    color: #fafafa;
-    font-size: 20pt;
-    text-decoration: none;
-    display: block;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    width: 100%;
-    font-weight: 300;
-}
-
-.more_requests:hover > a {
-    color: black;
 }
 
 .mark_filled {

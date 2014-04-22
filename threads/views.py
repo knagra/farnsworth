@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads
+from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads, NO_PROFILE
 from models import UserProfile, Thread, Message
 from requests.models import RequestType, Manager, Request, Response, Announcement
 from events.models import Event
@@ -59,8 +59,7 @@ def homepage_view(request, message=None):
 		user = request.user
 		userProfile = UserProfile.objects.get(user=request.user)
 		if not userProfile:
-			message = "A profile for you could not be found.  Please contact an admin for support."
-			return red_ext(request, message)
+			return red_ext(request, NO_PROFILE)
 	else:
 		return HttpResponseRedirect(reverse('external'))
 	request_types = RequestType.objects.filter(enabled=True)
@@ -309,8 +308,7 @@ def member_forums_view(request):
 	page_name = "Member Forums"
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
-		message = "A profile for you could not be found.  Please contact an admin for support."
-		return red_ext(request, message)
+		return red_ext(request, NO_PROFILE)
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -342,14 +340,15 @@ def member_forums_view(request):
 	for thread in Thread.objects.all():
 		y = 0 # number of messages loaded
 		thread_messages = list()
-		for message in Message.objects.filter(thread=thread):
+		for message in Message.objects.filter(thread=thread).reverse():
 			thread_messages.append(message)
 			y += 1
 			if y >= max_messages:
 				break
-		more_messages = None
-		if Message.objects.filter(thread=thread).count() > max_messages:
-			more_messages = thread.number_of_messages - len(thread_messages)
+		more_messages = thread.number_of_messages - max_messages
+		if more_messages < 0:
+			more_messages = 0
+		thread_messages.reverse()
 		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
 		x += 1
 		if x >= max_threads:
@@ -362,8 +361,7 @@ def all_threads_view(request):
 	page_name = "Archives - All Threads"
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
-		message = "A profile for you could not be found.  Please contact an admin for support."
-		return red_ext(request, message)
+		return red_ext(request, NO_PROFILE)
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -390,10 +388,20 @@ def all_threads_view(request):
 		else:
 			message = "Your request at /all_threads/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
-	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk)
+	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.all():
-		thread_messages = Message.objects.filter(thread=thread)
-		threads_dict.append((thread.subject, thread_messages, thread.pk))
+		y = 0 # number of messages loaded
+		thread_messages = list()
+		for message in Message.objects.filter(thread=thread).reverse():
+			thread_messages.append(message)
+			y += 1
+			if y >= max_messages:
+				break
+		more_messages = thread.number_of_messages - max_messages
+		if more_messages < 0:
+			more_messages = 0
+		thread_messages.reverse()
+		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 @login_required
@@ -402,8 +410,7 @@ def my_threads_view(request):
 	page_name = "My Threads"
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
-		message = "A profile for you could not be found.  Please contact an admin for support."
-		return red_ext(request, message)
+		return red_ext(request, NO_PROFILE)
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -431,14 +438,57 @@ def my_threads_view(request):
 			message = "Your request at /my_threads/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
 	x = 0 # number of threads loaded
-	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk)
+	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.filter(owner=userProfile):
-		thread_messages = Message.objects.filter(thread=thread)
-		threads_dict.append((thread.subject, thread_messages, thread.pk))
+		y = 0 # number of messages loaded
+		thread_messages = list()
+		for message in Message.objects.filter(thread=thread).reverse():
+			thread_messages.append(message)
+			y += 1
+			if y >= max_messages:
+				break
+		more_messages = thread.number_of_messages - max_messages
+		if more_messages < 0:
+			more_messages = 0
+		thread_messages.reverse()
+		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
 		x += 1
 		if x >= max_threads:
 			break
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+
+@login_required
+def list_my_threads_view(request):
+	''' View of my threads. '''
+	userProfile = UserProfile.objects.get(user=request.user)
+	if not userProfile:
+		return red_ext(request, NO_PROFILE)
+	threads = Thread.objects.filter(owner=userProfile)
+	return render_to_response('list_threads.html', {'page_name': "My Threads", 'threads': threads}, context_instance=RequestContext(request))
+
+@login_required
+def list_user_threads_view(request, targetUsername):
+	''' View of my threads. '''
+	if targetUsername == request.user.username:
+		return list_my_threads_view(request)
+	try:
+		targetUser = User.objects.get(username=targetUsername)
+		targetProfile = UserProfile.objects.get(user=targetUser)
+	except:
+		return render_to_response('list_threads.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
+	threads = Thread.objects.filter(owner=targetProfile)
+	page_name = "%s's Threads" % targetUsername
+	return render_to_response('list_threads.html', {'page_name': page_name, 'threads': threads}, context_instance=RequestContext(request))
+
+@login_required
+def list_all_threads_view(request):
+	''' View of my threads. '''
+	userProfile = UserProfile.objects.get(user=request.user)
+	if not userProfile:
+		message = "A profile for you could not be found.  Please contact an admin for support."
+		return red_ext(request, message)
+	threads = Thread.objects.all()
+	return render_to_response('list_threads.html', {'page_name': "All Threads", 'threads': threads}, context_instance=RequestContext(request))
 
 @login_required
 def member_directory_view(request):
@@ -476,7 +526,8 @@ def member_profile_view(request, targetUsername):
 	if targetProfile == userProfile:
 		return HttpResponseRedirect(reverse('my_profile'))
 	else:
-		return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile}, context_instance=RequestContext(request))
+		number_of_threads = Thread.objects.filter(owner=targetProfile).count()
+		return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile, 'number_of_threads': number_of_threads}, context_instance=RequestContext(request))
 
 @login_required
 def thread_view(request, thread_pk):

@@ -12,7 +12,7 @@ from django.contrib.auth import hashers
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
+from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
@@ -26,14 +26,14 @@ def request_profile_view(request):
 	page_name = "Profile Request Page"
 	if request.user.is_authenticated():
 		return HttpResponseRedirect(reverse('homepage'))
-	class profileRequestForm(forms.Form):
+	class ProfileRequestForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
 		affiliation_with_the_house = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
 	if request.method == 'POST':
-		form = profileRequestForm(request.POST)
+		form = ProfileRequestForm(request.POST)
 		if form.is_valid():
 			username = form.cleaned_data['username']
 			first_name = form.cleaned_data['first_name']
@@ -52,7 +52,7 @@ def request_profile_view(request):
 			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
 
 	else:
-		form = profileRequestForm()
+		form = ProfileRequestForm()
 	return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
 
 @login_required
@@ -60,8 +60,7 @@ def manage_profile_requests_view(request):
 	''' The page to manager user profile requests. '''
 	page_name = "Admin - Manage Profile Requests"
 	if not request.user.is_superuser:
-		message = "The domain /custom_admin/ is restricted to superadmins."
-		return red_home(request, message)
+		return red_home(request, ADMINS_ONLY)
 	profile_requests = ProfileRequest.objects.all()
 	return render_to_response('manage_profile_requests.html', {'page_name': page_name, 'choices': UserProfile.STATUS_CHOICES, 'profile_requests': profile_requests}, context_instance=RequestContext(request))
 
@@ -70,8 +69,7 @@ def modify_profile_request_view(request, request_pk):
 	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
 	page_name = "Admin - Profile Request"
 	if not request.user.is_superuser:
-		message = "The domain /custom_admin/ is restricted to superadmins."
-		return red_home(request, message)
+		return red_home(request, ADMINS_ONLY)
 	profile_request = ProfileRequest.objects.get(pk=request_pk)
 	class AddUserForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
@@ -153,8 +151,7 @@ def modify_profile_request_view(request, request_pk):
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
 	if not request.user.is_superuser:
-		message = "The page /custom_admin/manage_users/ is restrcited to superadmins."
-		return red_home(request, message)
+		return red_home(request, ADMINS_ONLY)
 	residents = list()
 	boarders = list()
 	alumni = list()
@@ -172,8 +169,7 @@ def custom_modify_user_view(request, targetUsername):
 	''' The page to modify a user. '''
 	page_name = "Admin - Modify User"
 	if not request.user.is_superuser:
-		message = "The page /custom_admin/modify_user/ is restricted to superadmins."
-		return red_home(request, message)
+		return red_home(request, ADMINS_ONLY)
 	try:
 		targetUser = User.objects.get(username=targetUsername)
 	except:
@@ -270,8 +266,7 @@ def custom_add_user_view(request):
 	''' The page to add a new user. '''
 	page_name = "Admin - Add User"
 	if not request.user.is_superuser:
-		message = "The page /custom_admin/add_user/ is restricted to superadmins."
-		return red_home(request, message)
+		return red_home(request, ADMINS_ONLY)
 	class AddUserForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
@@ -350,12 +345,10 @@ def requests_view(request, requestType):
 		requestType is name of a RequestType.
 			e.g. "food", "maintenance", "network", "site" 
 	'''
-	userProfile = None
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
-		message = "No profile for you could be found.  Please contact a site admin."
-		return red_home(request, message)
+		return red_home(request, NO_PROFILE)
 	try:
 		request_type = RequestType.objects.get(name=requestType)
 	except:
@@ -410,8 +403,7 @@ def requests_view(request, requestType):
 				new_response.save()
 				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 		else:
-			message = "Uhhh...Something went wrong.  Please contact an admin for support."
-			return red_home(request, message)
+			return red_home(request, UNKNOWN_FORM)
 	request_form = RequestForm()
 	x = 0 # number of requests loaded
 	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list])
@@ -437,11 +429,7 @@ def my_requests_view(request):
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
-		message = "No profile for you could be found.  Please contact a site admin."
-		return red_home(request, message)
-	class RequestForm(forms.Form):
-		type_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea())
+		return red_home(request, NO_PROFILE)
 	class ResponseForm(forms.Form):
 		request_pk = forms.IntegerField()
 		body = forms.CharField(widget=forms.Textarea())
@@ -456,7 +444,7 @@ def my_requests_view(request):
 				try:
 					request_type = RequestType.objects.get(pk=type_pk)
 				except:
-					message = "Uhh...the request type was not recognized.  Please contact an admin for support."
+					message = "The request type was not recognized.  Please contact an admin for support."
 					return red_home(request, message)
 				new_request = Request(owner=userProfile, body=body, request_type=request_type)
 				new_request.save()
@@ -479,8 +467,7 @@ def my_requests_view(request):
 						break
 				new_response.save()
 		else:
-			message = "Uhhh...Something went wrong.  Please contact an admin for support."
-			return red_home(request, message)
+			return red_home(request, UNKNOWN_FORM)
 	my_requests = Request.objects.filter(owner=userProfile)
 	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.human_readable_name, request_form, type_manager, [(request, [list_of_request_responses], response_form),...])
 	for request_type in RequestType.objects.all():
@@ -508,6 +495,48 @@ def my_requests_view(request):
 	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 
 @login_required
+def list_my_requests_view(request):
+	'''
+	Show user his/her requests in list form.
+	'''
+	page_name = "My Requests"
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		return red_home(request, NO_PROFILE)
+	requests = Request.objects.filter(owner=userProfile)
+	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests}, context_instance=RequestContext(request))
+
+@login_required
+def list_user_requests_view(request, targetUsername):
+	'''
+	Show user his/her requests in list form.
+	'''
+	if targetUsername == request.user.username:
+		return list_my_requests_view(request)
+	try:
+		targetUser = User.objects.get(username=targetUsername)
+		targetProfile = UserProfile.objects.get(user=targetUser)
+	except:
+		return render_to_response('list_requests.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
+	page_name = "%s Requests" % targetUsername
+	requests = Request.objects.filter(owner=targetProfile)
+	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests}, context_instance=RequestContext(request))
+
+@login_required
+def list_all_requests_view(request, requestType):
+	'''
+	Show user his/her requests in list form.
+	'''
+	page_name = "My Requests"
+	try:
+		request_type = RequestType.objects.get(name=requestType)
+	except:
+		return render_to_response('list_request.html', {'page_name': "Request Type Not Found"}, context_instance=RequestContext(request))
+	requests = Request.objects.filter(request_type=request_type)
+	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests}, context_instance=RequestContext(request))
+
+@login_required
 def announcements_view(request):
 	''' The view of manager announcements. '''
 	page_name = "Manager Announcements"
@@ -515,8 +544,7 @@ def announcements_view(request):
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
-		message = "No profile for you could be found.  Please contact a site admin."
-		return red_home(request, message)
+		return red_home(request, NO_PROFILE)
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
@@ -557,12 +585,10 @@ def announcements_view(request):
 def all_announcements_view(request):
 	''' The view of manager announcements. '''
 	page_name = "Archives - All Announcements"
-	userProfile = None
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
-		message = "No profile for you could be found.  Please contact a site admin."
-		return red_home(request, message)
+		return red_home(request, NO_PROFILE)
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
