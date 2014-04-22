@@ -11,7 +11,7 @@
 {% block content %}
 <div class="threads table_container span12">
 	<div class="header">
-		{% if page_name == 'All Threads' %}
+		{% if page_name == 'Archives - All Threads' %}
 			<form action="{% url 'all_threads' %}">
 			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span> Expanded View</button>
 			</form>
@@ -31,7 +31,7 @@
     <thead>
       <tr>
 	<th>Subject</th>
-	{% if page_name == 'All Threads' %}<th>Thread Owner</th>{% endif %}
+	{% if page_name == 'Archives - All Threads' %}<th>Thread Owner</th>{% endif %}
 	<th>Messages</th>
 	<th>Posted (Y/M/D)</th>
 	<th>Updated (Y/M/D)</th>
@@ -41,7 +41,7 @@
       {% for thread in threads %}
       <tr>
 	<td><a title="View Thread" class="page_link" href="{% url 'view_thread' thread_pk=thread.pk %}">{{ thread.subject }}</a></td>
-	{% if page_name == 'All Threads' %}<td><a class="page_link" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">{{ thread.owner.user.first_name }} {{ thread.owner.user.last_name }}</a></td>{% endif %}
+	{% if page_name == 'Archives - All Threads' %}<td><a class="page_link" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">{{ thread.owner.user.first_name }} {{ thread.owner.user.last_name }}</a></td>{% endif %}
 	<td>{{ thread.number_of_messages }}</td>
 	<td>{{ thread.start_date|date:"Y/m/d, A h:i:s" }}</td>
 	<td>{{ thread.change_date|date:"Y/m/d, A h:i:s" }}</td>

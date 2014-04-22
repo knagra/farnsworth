@@ -488,7 +488,7 @@ def list_all_threads_view(request):
 		message = "A profile for you could not be found.  Please contact an admin for support."
 		return red_ext(request, message)
 	threads = Thread.objects.all()
-	return render_to_response('list_threads.html', {'page_name': "All Threads", 'threads': threads}, context_instance=RequestContext(request))
+	return render_to_response('list_threads.html', {'page_name': "Archives - All Threads", 'threads': threads}, context_instance=RequestContext(request))
 
 @login_required
 def member_directory_view(request):
