@@ -19,6 +19,15 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from django.utils.timezone import utc
 
+class ThreadForm(forms.Form):
+	''' Form to post a new thread. '''
+	subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
+	body = forms.CharField(widget=forms.Textarea())
+class MessageForm(forms.Form):
+	''' Form to post a new message. '''
+	thread_pk = forms.IntegerField()
+	body = forms.CharField(widget=forms.Textarea())
+
 def red_ext(request, message=None):
 	'''
 	The external landing.
@@ -121,14 +130,7 @@ def homepage_view(request, message=None):
 		ongoing = ((event.start_time <= now) and (event.end_time >= now))
 		rsvpd = (userProfile in event.rsvps.all())
 		events_dict.append((event, ongoing, rsvpd, form))
-	'''class ThreadForm(forms.Form):
-		subject = forms.CharField(max_length=300, widget=forms.TextInput())
-		thread_body = forms.CharField(widget=forms.Textarea())
-	class MessageForm(forms.Form):
-		thread_pk = forms.IntegerField()
-		message_body = forms.CharField(widget=forms.Textarea())
-	x = 0 # Number of threads loaded
-	threads_dict = list() # Pseudo-dictionary, list with items of form (thread.subject, [thread_messages_list], thread_message_form)'''
+	#threads_dict = list() # Pseudo-dictionary, list with items of form (thread.subject, [thread_messages_list], thread_message_form)
 	threads = list() # List of recent threads
 	for thread in Thread.objects.all():
 		#thread_messages = Message.objects.filter(thread=thread)
@@ -141,10 +143,8 @@ def homepage_view(request, message=None):
 			break
 	if request.method == 'POST':
 		if 'add_response' in request.POST:
-			print "a"
 			response_form = ResponseForm(request.POST)
 			if response_form.is_valid():
-				print "b"
 				request_pk = response_form.cleaned_data['request_pk']
 				body = response_form.cleaned_data['response_body']
 				relevant_request = Request.objects.get(pk=request_pk)
@@ -154,7 +154,6 @@ def homepage_view(request, message=None):
 				new_response.manager = True
 				relevant_request.save()
 				new_response.save()
-				print "c"
 				return HttpResponseRedirect(reverse('homepage'))
 		elif 'post_announcement' in request.POST:
 			announcement_form = AnnouncementForm(request.POST)
@@ -312,12 +311,6 @@ def member_forums_view(request):
 	if not userProfile:
 		message = "A profile for you could not be found.  Please contact an admin for support."
 		return red_ext(request, message)
-	class ThreadForm(forms.Form):
-		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-		body = forms.CharField(widget=forms.Textarea())
-	class MessageForm(forms.Form):
-		thread_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea())
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -345,10 +338,19 @@ def member_forums_view(request):
 			message = "Your request at /member_forums/ could not be processed.  Please contact an admin for support."
 			return red_home(request, message)
 	x = 0 # number of threads loaded
-	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk)
+	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.all():
-		thread_messages = Message.objects.filter(thread=thread)
-		threads_dict.append((thread.subject, thread_messages, thread.pk))
+		y = 0 # number of messages loaded
+		thread_messages = list()
+		for message in Message.objects.filter(thread=thread):
+			thread_messages.append(message)
+			y += 1
+			if y >= max_messages:
+				break
+		more_messages = None
+		if Message.objects.filter(thread=thread).count() > max_messages:
+			more_messages = thread.number_of_messages - len(thread_messages)
+		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
 		x += 1
 		if x >= max_threads:
 			break
@@ -362,12 +364,6 @@ def all_threads_view(request):
 	if not userProfile:
 		message = "A profile for you could not be found.  Please contact an admin for support."
 		return red_ext(request, message)
-	class ThreadForm(forms.Form):
-		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-		body = forms.CharField(widget=forms.Textarea())
-	class MessageForm(forms.Form):
-		thread_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea())
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -408,12 +404,6 @@ def my_threads_view(request):
 	if not userProfile:
 		message = "A profile for you could not be found.  Please contact an admin for support."
 		return red_ext(request, message)
-	class ThreadForm(forms.Form):
-		subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-		body = forms.CharField(widget=forms.Textarea())
-	class MessageForm(forms.Form):
-		thread_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea())
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -487,3 +477,26 @@ def member_profile_view(request, targetUsername):
 		return HttpResponseRedirect(reverse('my_profile'))
 	else:
 		return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile}, context_instance=RequestContext(request))
+
+@login_required
+def thread_view(request, thread_pk):
+	''' View an individual thread. '''
+	try:
+		thread = Thread.objects.get(pk=thread_pk)
+	except:
+		return render_to_response('view_thread.html', {'page_name': "Thread Not Found"}, context_instance=RequestContext(request))
+	messages = Message.objects.filter(thread=thread)
+	if request.method == 'POST':
+		message_form = MessageForm(request.POST)
+		if message_form.is_valid():
+				thread_pk = message_form.cleaned_data['thread_pk']
+				body = message_form.cleaned_data['body']
+				thread = Thread.objects.get(pk=thread_pk)
+				message = Message(body=body, owner=userProfile, thread=thread)
+				message.save()
+				thread.number_of_messages += 1
+				thread.save()
+				return HttpResponseRedirect(reverse('thread', kwargs={'thread_pk': thread_pk}))
+	else:
+		message_form = MessageForm()
+	return render_to_response('view_thread.html', {'thread': thread, 'page_name': "View Thread", 'messages': messages}, context_instance=RequestContext(request))

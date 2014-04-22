@@ -39,7 +39,7 @@
     {% endif %}
     <div class="thread_messages">
       <div class="message_table">
-	<h3 class="thread_name">{{ thread_tuple.0 }}</h3>
+	<h3 class="thread_name"><a title="View Thread" class="thread_link" href="{% url 'view_thread' thread_pk=thread_tuple.2 %}">{{ thread_tuple.0 }}</a><span style="font-size: 50%;">{% if thread_tuple.3 %} ({{ thread_tuple.3 }} older messages){% endif %}</span></h3>
 	{% for message in thread_tuple.1 %}
 	{% if forloop.counter > 1 %}
 	<hr class="message_divider" />

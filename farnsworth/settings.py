@@ -46,7 +46,7 @@ home_max_announcements = 5
 home_max_threads = 10
 
 # Standard messages sent to clients on errors.
-ADMINS_ONLY = "The domain %s is restricted to admins."
+ADMINS_ONLY = "The domain {domain} is restricted to admins."
 NO_PROFILE = "A profile for you could not be found.  Please contact a site admin."
 UNKNOWN_FORM = "Your post request could not be processed.  Please contact a site admin."
 

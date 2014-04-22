@@ -12,6 +12,15 @@ Author: Karandeep Singh Nagra
     overflow: hidden;
 }
 
+.thread_link {
+	text-decoration: none;
+	color: black;
+}
+
+.thread_link:hover {
+	color: #7e7e7e;
+}
+
 .table_header {
     margin: auto;
     background: #5e5e5e;
