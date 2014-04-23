@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads
 # Stardard error messages:
-from farnsworth.settings import NO_PROFILE, THREAD_ERROR, MESSAGE_ERROR, UNKNOWN_FORM
+from farnsworth.settings import NO_PROFILE, THREAD_ERROR, MESSAGE_ERROR, UNKNOWN_FORM, RSVP_ADD, RSVP_REMOVE
 from models import UserProfile, Thread, Message
 from requests.models import RequestType, Manager, Request, Response, Announcement
 from events.models import Event
@@ -135,6 +135,7 @@ def homepage_view(request, message=None):
 		events_dict.append((event, ongoing, rsvpd, form))
 	#threads_dict = list() # Pseudo-dictionary, list with items of form (thread.subject, [thread_messages_list], thread_message_form)
 	threads = list() # List of recent threads
+	x = 0
 	for thread in Thread.objects.all():
 		#thread_messages = Message.objects.filter(thread=thread)
 		#message_form = MessageForm(initial={'thread_pk': thread.pk})
@@ -158,6 +159,10 @@ def homepage_view(request, message=None):
 				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
 				relevant_request.save()
 				new_response.save()
+				if relevant_request.closed:
+					messages.add_message(request, messages.SUCCESS, REQ_CLOSED)
+				if relevant_request.filled:
+					messages.add_message(request, messages.SUCCESS, REQ_FILLED)
 				return HttpResponseRedirect(reverse('homepage'))
 		elif 'post_announcement' in request.POST:
 			announcement_form = AnnouncementForm(request.POST)
@@ -182,8 +187,12 @@ def homepage_view(request, message=None):
 				relevant_event = Event.objects.get(pk=event_pk)
 				if userProfile in relevant_event.rsvps.all():
 					relevant_event.rsvps.remove(userProfile)
+					message = RSVP_REMOVE.format(event=relevant_event.title)
+					messages.add_message(request, messages.SUCCESS, message)
 				else:
 					relevant_event.rsvps.add(userProfile)
+					message = RSVP_ADD.format(event=relevant_event.title)
+					messages.add_message(request, messages.SUCCESS, message)
 				relevant_event.save()
 				return HttpResponseRedirect(reverse('homepage'))
 	return render_to_response('homepage.html', {'page_name': "Home", 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads}, context_instance=RequestContext(request))

@@ -59,6 +59,8 @@ EVENT_ERROR = "Your event post was not successful.  Please check for errors and 
 RSVP_ADD = "You've been successfully added to the list of RSVPs for {event}."
 RSVP_REMOVE = "You've been successfully removed from the list of RSVPs for {event}."
 EVENT_UPDATED = "Event {event} successfully updated."
+REQ_CLOSED = "Request successfully marked closed."
+REQ_FILLED = "Request successfully marked filled."
 
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context",)
