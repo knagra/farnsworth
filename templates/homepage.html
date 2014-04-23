@@ -26,11 +26,6 @@ function hide_form(form_id) {
 </script>
 {% endblock %}
 {% block content %}
-{% if message %}
-	<div class="alert alert-danger">
-		{{ message }}
-	</div>
-{% endif %}
 {% if requests_dict %}
 {% for type_tuple in requests_dict %}
 {% if type_tuple.1 %}

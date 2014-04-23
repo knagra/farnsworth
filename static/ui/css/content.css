@@ -77,3 +77,11 @@ Author: Karandeep Singh Nagra
 .btn-group .btn {
 	width: 50%;
 }
+
+#filled_request {
+	background-color: #e6ffe6;
+}
+
+#closed_request {
+	background-color: #ffe6e6;
+}

@@ -12,12 +12,15 @@ from django.contrib.auth import hashers
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM
+from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
+# Stardard error messages:
+from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, USER_ADDED, PREQ_DEL, USER_PROFILE_SAVED, USER_PW_CHANGED
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
 from datetime import datetime
 from django.utils.timezone import utc
+from django.contrib import messages
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -49,6 +52,7 @@ def request_profile_view(request):
 					return render(request, 'request_profile.html', {'page_name': page_name, 'form': form})
 			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation)
 			profile_request.save()
+			messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
 			return HttpResponseRedirect(reverse('external'))
 		else:
 			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
@@ -94,6 +98,8 @@ def modify_profile_request_view(request, request_pk):
 	if request.method == 'POST':
 		add_user_form = AddUserForm(request.POST)
 		if 'delete_request' in request.POST:
+			message = PREQ_DEL.format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
+			messages.add_message(request, messages.WARNING, message)
 			profile_request.delete()
 			return HttpResponseRedirect(reverse('manage_profile_requests'))
 		elif 'add_user' in request.POST:
@@ -142,6 +148,8 @@ def modify_profile_request_view(request, request_pk):
 					new_user_profile.former_houses = former_houses
 					new_user_profile.save()
 					profile_request.delete()
+					message = USER_ADDED.format(username=username)
+					messages.add_message(request, messages.SUCCESS, message)
 					return HttpResponseRedirect(reverse('manage_profile_requests'))
 				else:
 					add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
@@ -242,6 +250,8 @@ def custom_modify_user_view(request, targetUsername):
 				targetProfile.former_rooms = former_rooms
 				targetProfile.former_houses = former_houses
 				targetProfile.save()
+				message = USER_PROFILE_SAVED.format(username=targetUser.username)
+				messages.add_message(request, messages.SUCCESS, message)
 				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 		elif 'change_user_password' in request.POST:
 			change_user_password_form = ChangeUserPasswordForm(request.POST)
@@ -253,6 +263,8 @@ def custom_modify_user_view(request, targetUsername):
 					if hashers.is_password_usable(hashed_password):
 						targetUser.password = hashed_password
 						targetUser.save()
+						message = USER_PW_CHANGED.format(username=targetUser.username)
+						messages.add_message(request, messages.SUCCESS, message)
 						return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 					else:
 						error = "Could not hash password.  Please try again."
@@ -332,6 +344,8 @@ def custom_add_user_view(request):
 				new_user_profile.current_room = current_room
 				new_user_profile.former_rooms = former_rooms
 				new_user_profile.former_houses = former_houses
+				message = USER_ADDED.format(username=username)
+				messages.add_message(request, messages.SUCCESS, message)
 				return HttpResponseRedirect(reverse('custom_add_user'))
 			else:
 				add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])

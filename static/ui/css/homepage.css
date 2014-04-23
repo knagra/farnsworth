@@ -65,6 +65,11 @@ Author: Karandeep Singh Nagra
 	color: #7e7e7e;
 }
 
+.announcement_body {
+	word-wrap: break-word;
+	overflow-x: auto;
+}
+
 .new_response_form {
 	display: none;
 }

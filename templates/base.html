@@ -102,13 +102,24 @@
 
     <div class="container">
       <div id="title">
-	{% if page_name == "Landing" %}
+	{% if page_name == "Landing" or page_name == "Help Page" %}
 	<h1 id="page_title">Welcome to {{ HOUSE }}</h1>
 	{% endif %}
       </div> <!-- close "title" -->
       <div id="body">
 	<div id="content">
-	  {% block content %}{% endblock %}
+		{% if page_name == "Landing" or page_name == "Help Page" %}
+			<br />
+		{% endif %}
+		{% if messages %}
+		{% for message in messages %}
+			<div class="alert alert-dismissable{% if 'error' in message.tags %} alert-danger{% elif 'warning' in message.tags %} alert-warning{% elif 'success' in message.tags %} alert-success{% else %} alert-info{% endif %}">
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+			{{ message }}
+			</div>
+		{% endfor %}
+		{% endif %}
+		{% block content %}{% endblock %}
 	</div> <!-- close "content" -->
 	{% block gallery %}{% endblock %}
       </div> <!-- close "body" -->

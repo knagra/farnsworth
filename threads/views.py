@@ -9,7 +9,9 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads, NO_PROFILE
+from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads
+# Stardard error messages:
+from farnsworth.settings import NO_PROFILE, THREAD_ERROR, MESSAGE_ERROR, UNKNOWN_FORM
 from models import UserProfile, Thread, Message
 from requests.models import RequestType, Manager, Request, Response, Announcement
 from events.models import Event
@@ -18,6 +20,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.utils.timezone import utc
+from django.contrib import messages
 
 class ThreadForm(forms.Form):
 	''' Form to post a new thread. '''
@@ -37,9 +40,12 @@ def red_ext(request, message=None):
 		message - a message from the caller function
 	'''
 	if message:
-		return render_to_response('external.html', {'message': message, 'page_name': "Landing"}, context_instance=RequestContext(request))
-	else:
-		return render_to_response('external.html', {'page_name': "Landing"}, context_instance=RequestContext(request))
+		messages.add_message(request, messages.ERROR, message)
+	return HttpResponseRedirect(reverse('external'))
+
+def landing_view(request):
+	''' The external landing.'''
+	return render_to_response('external.html', {'page_name': "Landing"}, context_instance=RequestContext(request))
 
 def red_home(request, message):
 	'''
@@ -48,9 +54,8 @@ def red_home(request, message):
 		request - the request in the calling function
 		message - a message from the caller function
 	'''
-	return HttpResponseRedirect(reverse('homepage_message_view', kwargs={'message': message}))
-	#return HttpResponseRedirect(reverse('member_forums'))
-	#return render_to_response('homepage.html', function_locals, context_instance=RequestContext(request))
+	messages.add_message(request, messages.ERROR, message)
+	return HttpResponseRedirect(reverse('homepage'))
 
 def homepage_view(request, message=None):
 	''' The view of the homepage. '''
@@ -181,12 +186,11 @@ def homepage_view(request, message=None):
 					relevant_event.rsvps.add(userProfile)
 				relevant_event.save()
 				return HttpResponseRedirect(reverse('homepage'))
-	return render_to_response('homepage.html', {'page_name': 'Home', 'message': message, 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads}, context_instance=RequestContext(request))
+	return render_to_response('homepage.html', {'page_name': "Home", 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads}, context_instance=RequestContext(request))
 	
 def help_view(request):
 	''' The view of the helppage. '''
-	page_name = "Help Page"
-	return render_to_response('helppage.html', {'page_name': page_name},  context_instance=RequestContext(request))
+	return render_to_response('helppage.html', {'page_name': "Help Page"},  context_instance=RequestContext(request))
 
 def site_map_view(request):
 	''' The view of the site map. '''
@@ -230,6 +234,7 @@ def my_profile_view(request):
 						if hashers.is_password_usable(hashed_password):
 							user.password = hashed_password
 							user.save()
+							messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
 							return HttpResponseRedirect(reverse('my_profile'))
 						else:
 							password_non_field_error = "Password didn't hash properly.  Please try again."
@@ -259,6 +264,7 @@ def my_profile_view(request):
 					userProfile.phone_number = phone_number
 					userProfile.phone_visible = phone_visible_to_others
 					userProfile.save()
+					messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
 					return HttpResponseRedirect(reverse('my_profile'))
 				else:
 					update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
@@ -288,7 +294,11 @@ def login_view(request):
 						user = authenticate(username=username, password=password)
 						if user is not None:
 							login(request, user)
-							return HttpResponseRedirect(reverse('homepage'))
+							try:
+								next_url = request.REQUEST.get('next', '')
+								return HttpResponseRedirect(next_url)
+							except:
+								return HttpResponseRedirect(reverse('homepage'))
 						else:
 							form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
 					else:
@@ -321,6 +331,8 @@ def member_forums_view(request):
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
 				return HttpResponseRedirect(reverse('member_forums'))
+			else:
+				messages.add_message(request, messages.ERROR, THREAD_ERROR)
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -330,11 +342,13 @@ def member_forums_view(request):
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
 				thread.number_of_messages += 1
+				thread.change_date = datetime.utcnow().replace(tzinfo=utc)
 				thread.save()
 				return HttpResponseRedirect(reverse('member_forums'))
+			else:
+				messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
 		else:
-			message = "Your request at /member_forums/ could not be processed.  Please contact an admin for support."
-			return red_home(request, message)
+			messages.add_message(request, messages.ERROR, UNKNOWN_FORM)
 	x = 0 # number of threads loaded
 	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.all():
@@ -374,6 +388,8 @@ def all_threads_view(request):
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
 				return HttpResponseRedirect(reverse('all_threads'))
+			else:
+				messages.add_message(request, messages.ERROR, THREAD_ERROR)
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -383,11 +399,13 @@ def all_threads_view(request):
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
 				thread.number_of_messages += 1
+				thread.change_date = datetime.utcnow().replace(tzinfo=utc)
 				thread.save()
 				return HttpResponseRedirect(reverse('all_threads'))
+			else:
+				messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
 		else:
-			message = "Your request at /all_threads/ could not be processed.  Please contact an admin for support."
-			return red_home(request, message)
+			messages.add_message(request, messages.ERROR, UNKNOWN_FORM)
 	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.all():
 		y = 0 # number of messages loaded
@@ -423,6 +441,8 @@ def my_threads_view(request):
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
 				return HttpResponseRedirect(reverse('my_threads'))
+			else:
+				messages.add_message(request, messages.ERROR, THREAD_ERROR)
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -432,11 +452,13 @@ def my_threads_view(request):
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
 				thread.number_of_messages += 1
+				thread.change_date = datetime.utcnow().replace(tzinfo=utc)
 				thread.save()
 				return HttpResponseRedirect(reverse('my_threads'))
+			else:
+				messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
 		else:
-			message = "Your request at /my_threads/ could not be processed.  Please contact an admin for support."
-			return red_home(request, message)
+			messages.add_message(request, messages.ERROR, UNKNOWN_FORM)
 	x = 0 # number of threads loaded
 	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.filter(owner=userProfile):
@@ -549,6 +571,8 @@ def thread_view(request, thread_pk):
 				thread.change_date = datetime.utcnow().replace(tzinfo=utc)
 				thread.save()
 				return HttpResponseRedirect(reverse('thread', kwargs={'thread_pk': thread_pk}))
+		else:
+			messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
 	else:
 		message_form = MessageForm()
 	return render_to_response('view_thread.html', {'thread': thread, 'page_name': "View Thread", 'messages': messages}, context_instance=RequestContext(request))

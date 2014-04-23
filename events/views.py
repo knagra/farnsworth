@@ -13,9 +13,12 @@ from django.core.urlresolvers import reverse
 from threads.models import UserProfile
 from requests.models import Manager
 from threads.views import red_ext, red_home
-from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, house, time_formats
+from farnsworth.settings import house, time_formats
+# Standard error messages:
+from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, EVENT_ERROR, RSVP_ADD, RSVP_REMOVE, EVENT_UPDATED
 import datetime
 from django.utils.timezone import utc
+from django.contrib import messages
 
 def list_events_view(request):
 	''' A list view of upcoming events. '''
@@ -61,6 +64,8 @@ def list_events_view(request):
 					new_event.as_manager = as_manager
 				new_event.save()
 				return HttpResponseRedirect(reverse('events'))
+			else:
+				messages.add_message(request, messages.SUCCESS, EVENT_ERROR)
 		elif 'rsvp' in request.POST:
 			rsvp_form = RsvpForm(request.POST)
 			if rsvp_form.is_valid():
@@ -68,8 +73,12 @@ def list_events_view(request):
 				relevant_event = Event.objects.get(pk=event_pk)
 				if userProfile in relevant_event.rsvps.all():
 					relevant_event.rsvps.remove(userProfile)
+					message = RSVP_REMOVE.format(event=relevant_event.title)
+					messages.add_message(request, messages.SUCCESS, message)
 				else:
 					relevant_event.rsvps.add(userProfile)
+					message = RSVP_ADD.format(event=relevant_event.title)
+					messages.add_message(request, messages.SUCCESS, message)
 				relevant_event.save()
 				return HttpResponseRedirect(reverse('events'))
 		else:
@@ -129,6 +138,8 @@ def list_all_events_view(request):
 					new_event.as_manager = as_manager
 				new_event.save()
 				return HttpResponseRedirect(reverse('all_events'))
+			else:
+				messages.add_message(request, messages.SUCCESS, EVENT_ERROR)
 		elif 'rsvp' in request.POST:
 			rsvp_form = RsvpForm(request.POST)
 			if rsvp_form.is_valid():
@@ -136,8 +147,12 @@ def list_all_events_view(request):
 				relevant_event = Event.objects.get(pk=event_pk)
 				if userProfile in relevant_event.rsvps.all():
 					relevant_event.rsvps.remove(userProfile)
+					message = RSVP_REMOVE.format(event=relevant_event.title)
+					messages.add_message(request, messages.SUCCESS, message)
 				else:
 					relevant_event.rsvps.add(userProfile)
+					message = RSVP_ADD.format(event=relevant_event.title)
+					messages.add_message(request, messages.SUCCESS, message)
 				relevant_event.save()
 				return HttpResponseRedirect(reverse('all_events'))
 		else:
@@ -207,5 +222,7 @@ def edit_event_view(request, event_pk):
 			if as_manager:
 				event.as_manager = as_manager
 			event.save()
+			message = EVENT_UPDATED.format(event=title)
+			messages.add_message(request, messages.SUCCESS, message)
 			return HttpResponseRedirect(reverse('events'))
 	return render_to_response('edit_event.html', {'page_name': page_name, 'event_form': event_form}, context_instance=RequestContext(request))

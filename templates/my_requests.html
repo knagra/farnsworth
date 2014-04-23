@@ -59,13 +59,8 @@
     {% endif %}
 
     <div class="requests_row">
-      <div class="request_name">
+      <div class="request_name"{% if request_tuple.0.filled %} id="filled_request" title="Filled"{% elif request_tuple.0.closed %} id="closed_request" title="Closed"{% endif %}>
 	<div class="request_owner">
-	  {% if request_tuple.0.filled %}
-	  <img src="{% static 'admin/img/icon-yes.gif' %}" alt="Filled"/>
-	  {% elif request_tuple.0.closed %}
-	  <img src="{% static 'admin/img/icon-no.gif' %}" alt="Closed">
-	  {% endif %}
 	  <a class="page_link" href="{% url 'member_profile' targetUsername=request_tuple.0.owner.user.username %}" >
 	    {% if request_tuple.0.owner.user == user %}You{% else %}{{ request_tuple.0.owner.user.first_name }} {{ request_tuple.0.owner.user.last_name }}{% endif %}</a>
 	  ({{ request_tuple.0.post_date }}):
