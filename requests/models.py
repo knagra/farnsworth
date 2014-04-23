@@ -42,7 +42,7 @@ class Request(models.Model):
 	owner = models.ForeignKey(UserProfile, blank=False, null=False, help_text="The user who made this request.")
 	body = models.TextField(blank=False, null=False, help_text="The body of this request.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this request was posted.")
-	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The last time this request was modified.")
+	change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
 	request_type = models.ForeignKey(RequestType, blank=False, null=False, help_text="The type of request this is.")
 	filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
 	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
@@ -92,7 +92,7 @@ class Announcement(models.Model):
 	body = models.TextField(blank=False, null=False, help_text="The body of the announcement.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this announcement was posted.")
 	pinned = models.BooleanField(default=False, help_text="Whether this announcment should be pinned permanently.")
-	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The last time this request was modified.")
+	change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
 	
 	def __unicode__(self):
 		return "Announcement by %s as %s on %s" % (self.incumbent, self.manager, self.post_date)

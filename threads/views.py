@@ -16,7 +16,7 @@ from events.models import Event
 from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-import datetime
+from datetime import datetime
 from django.utils.timezone import utc
 
 class ThreadForm(forms.Form):
@@ -40,7 +40,6 @@ def red_ext(request, message=None):
 		return render_to_response('external.html', {'message': message, 'page_name': "Landing"}, context_instance=RequestContext(request))
 	else:
 		return render_to_response('external.html', {'page_name': "Landing"}, context_instance=RequestContext(request))
-
 
 def red_home(request, message):
 	'''
@@ -118,8 +117,8 @@ def homepage_view(request, message=None):
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
 	class RsvpForm(forms.Form):
 		event_pk = forms.IntegerField()
-	today = datetime.datetime.today()
-	now = datetime.datetime.utcnow().replace(tzinfo=utc)
+	today = datetime.today()
+	now = datetime.utcnow().replace(tzinfo=utc)
 	# Get only today's events:
 	events_list = Event.objects.filter(start_time__year=today.year, start_time__month=today.month, start_time__day=today.day)
 	events_dict = list() # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
@@ -151,6 +150,7 @@ def homepage_view(request, message=None):
 				relevant_request.closed = response_form.cleaned_data['mark_closed']
 				relevant_request.filled = response_form.cleaned_data['mark_filled']
 				new_response.manager = True
+				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
 				relevant_request.save()
 				new_response.save()
 				return HttpResponseRedirect(reverse('homepage'))
@@ -546,6 +546,7 @@ def thread_view(request, thread_pk):
 				message = Message(body=body, owner=userProfile, thread=thread)
 				message.save()
 				thread.number_of_messages += 1
+				thread.change_date = datetime.utcnow().replace(tzinfo=utc)
 				thread.save()
 				return HttpResponseRedirect(reverse('thread', kwargs={'thread_pk': thread_pk}))
 	else:

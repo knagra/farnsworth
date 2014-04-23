@@ -40,7 +40,7 @@ class Thread(models.Model):
 	owner = models.ForeignKey(UserProfile, help_text="The user who started this thread.")
 	subject = models.CharField(blank=False, null=False, max_length=254, help_text="Subject of this thread.")
 	start_date = models.DateTimeField(auto_now_add=True, help_text="The date this thread was started.")
-	change_date = models.DateTimeField(auto_now_add=True, auto_now=True, help_text="The last time this thread was modified.")
+	change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this thread was modified.")
 	number_of_messages = models.PositiveSmallIntegerField(default=1, help_text="The number of messages in this thread.")
 	active = models.BooleanField(default=True, help_text="Whether this thread is still active.")
 	

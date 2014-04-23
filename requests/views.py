@@ -16,6 +16,8 @@ from farnsworth.settings import house, short_house, ADMINS, max_requests, max_re
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
+from datetime import datetime
+from django.utils.timezone import utc
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -50,7 +52,6 @@ def request_profile_view(request):
 			return HttpResponseRedirect(reverse('external'))
 		else:
 			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
-
 	else:
 		form = ProfileRequestForm()
 	return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
@@ -399,6 +400,7 @@ def requests_view(request, requestType):
 					relevant_request.closed = mark_closed
 					relevant_request.filled = mark_filled
 					new_response.manager = True
+				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
 				relevant_request.save()
 				new_response.save()
 				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
@@ -430,6 +432,9 @@ def my_requests_view(request):
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
 		return red_home(request, NO_PROFILE)
+	class RequestForm(forms.Form):
+		type_pk = forms.IntegerField()
+		body = forms.CharField(widget=forms.Textarea())
 	class ResponseForm(forms.Form):
 		request_pk = forms.IntegerField()
 		body = forms.CharField(widget=forms.Textarea())
@@ -462,6 +467,7 @@ def my_requests_view(request):
 						mark_closed = response_form.cleaned_data['mark_closed']
 						relevant_request.filled = mark_filled
 						relevant_request.closed = mark_closed
+						relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
 						relevant_request.save()
 						new_response.manager = True
 						break
