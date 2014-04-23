@@ -11,9 +11,9 @@
 
 {% block content %}
 <div class="threads">
-  <div class="table_header">
+  <div class="header">
     <button class="btn btn-primary add_thread" align="right" onclick="show_new_thread_form()" type="button"><span class="glyphicon glyphicon-pencil"></span> New Thread</button>
-    <h3 class="thread_title">{{ thread_title }}</h3>
+    <h3 class="table_title">{{ thread_title }}</h3>
   </div> <!-- table_header -->
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}

@@ -12,15 +12,6 @@ Author: Karandeep Singh Nagra
     overflow: hidden;
 }
 
-.requests_title {
-    padding-left: 10px;
-    font-size: 100%;
-	padding-top: 5px;
-    margin-top: 0px;
-	padding-top: 5px;
-	font-weight: 200;
-}
-
 label {
 	padding-left: 5px;
 }
@@ -62,52 +53,12 @@ label {
     display: none;
 }
 
-.submit_response_form {
-    background: #5e5e5e;
-    color: #fafafa;
-    font-size: 13pt;
-    height: 30px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    width: 50%;
-    border-top: none;
-    border-left: none;
-    border-bottom: none;
-    border-right: 1px solid #3f3f3f;
-    float: left;
-    font-weight: 300;
-}
-
-.cancel_response_form {
-    background: #5e5e5e;
-    color: #fafafa;
-    font-size: 13pt;
-    height: 30px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    width: 50%;
-    border-top: none;
-    border-right: none;
-    border-bottom: none;
-    border-left: 1px solid #8b8b8b;
-    clear: left;
-    font-weight: 300;
-}
-
 .add_response {
     padding: 0px;
 }
 
 .requests_table {
     width: 100%;
-}
-
-.table_header {
-    margin: auto;
-    background: #5e5e5e;
-    color: #fafafa;
-    font-size: 20pt;
-    height: 40px;
 }
 
 .requests_row {
@@ -213,8 +164,4 @@ label {
 #id_subject {
     margin-bottom: 5px;
     max-width: 75%;
-}
-
-.mark_filled {
-    width: 100%;
 }

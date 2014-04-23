@@ -26,10 +26,10 @@
   document.getElementById(button_id).style.display="inline";
   }
 </script>
-<div class="requests">
-  <div class="table_header">
+<div class="requests table_container">
+  <div class="header">
     <button type="button" class="btn btn-primary add_request" onclick="show_new_request_form()"><span class="glyphicon glyphicon-pencil"></span> New Request</button>
-    <h3 class="requests_title">Recent {{ request_type|title }} Requests</h3>
+    <h3 class="table_title">Recent {{ request_type|title }} Requests</h3>
   </div> <!-- table_header -->
   <form id="new_request_form" method="post" action="">
     {% csrf_token %}

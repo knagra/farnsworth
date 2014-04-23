@@ -12,14 +12,6 @@ Author: Karandeep Singh Nagra
     overflow: hidden;
 }
 
-.requests_title {
-    padding-left: 10px;
-    font-size: 100%;
-	padding-top: 5px;
-    margin-top: 0px;
-	font-weight: 200;
-}
-
 label {
 	padding-left: 5px;
 }
@@ -44,101 +36,16 @@ label {
     margin-right: 3px;
 }
 
-.add_request:hover {
-    color: black;
-    cursor: pointer;
-}
-
-.submit_request_form {
-    width: 50%;
-    border-right: 1px solid #3f3f3f;
-    float: left;
-}
-
-.cancel_request_form {
-    width: 50%;
-    border-left: 1px solid #8b8b8b;
-    clear: left;
-}
-
 .new_response_form {
     display: none;
-}
-
-.submit_response_form {
-    background: #5e5e5e;
-    color: #fafafa;
-    font-size: 13pt;
-    height: 30px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    width: 50%;
-    border-top: none;
-    border-left: none;
-    border-bottom: none;
-    border-right: 1px solid #3f3f3f;
-    float: left;
-    font-weight: 300;
-}
-
-.cancel_response_form {
-    background: #5e5e5e;
-    color: #fafafa;
-    font-size: 13pt;
-    height: 30px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    width: 50%;
-    border-top: none;
-    border-right: none;
-    border-bottom: none;
-    border-left: 1px solid #8b8b8b;
-    clear: left;
-    font-weight: 300;
 }
 
 .add_response {
     padding: 0px;
 }
 
-.submit_response_form:hover {
-    background: #fafafa;
-    color: black;
-    border-top: 1px solid #7e7e7e;
-    cursor: pointer;
-    border-left: none;
-    border-right: none;
-}
-
-.cancel_response_form:hover {
-    background: #fafafa;
-    color: black;
-    border-top: 1px solid #7e7e7e;
-    cursor: pointer;
-    border-left: none;
-    border-right: none;
-}
-
-.button:hover {
-    background: #fafafa;
-    color: black;
-    border-top: 1px solid #7e7e7e;
-    border-bottom: 1px solid #7e7e7e;
-    cursor: pointer;
-    border-left: none;
-    border-right: none;
-}
-
 .requests_table {
     width: 100%;
-}
-
-.table_header {
-    margin: auto;
-    background: #5e5e5e;
-    color: #fafafa;
-    font-size: 20pt;
-    height: 40px;
 }
 
 .requests_row {
@@ -249,43 +156,4 @@ label {
 #id_subject {
     margin-bottom: 5px;
     max-width: 75%;
-}
-
-.more_requests {
-    background: #5e5e5e;
-    border: none;
-    width: 100%;
-    clear: both;
-    text-align: center;
-}
-
-.more_requests:hover {
-    background: #fafafa;
-    color: black;
-    cursor: pointer;
-}
-
-.more_requests > a {
-    color: #fafafa;
-    font-size: 20pt;
-    text-decoration: none;
-    display: block;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    width: 100%;
-    font-weight: 300;
-}
-
-.more_requests:hover > a {
-    color: black;
-}
-
-.field_wrapper {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    text-align: center;
-}
-
-.mark_filled {
-    width: 100%;
 }

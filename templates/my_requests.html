@@ -30,10 +30,10 @@
 {% with x=forloop.counter|stringformat:"s" %}
 <div class="requests">
   {% with request_form_id="request_form_"|add:x %}
-  <div class="table_header">
+  <div class="header">
     <button class="btn btn-primary add_request" onclick="show_new_request_form('{{ request_form_id }}')" type="button"><span class="glyphicon glyphicon-pencil"></span> New Request</button>
-    <h3 class="requests_title">My {{ type_tuple.0|title }} Requests</h3>
-  </div> <!-- table_header -->
+    <h3 class="table_title">My {{ type_tuple.0|title }} Requests</h3>
+  </div> <!-- header -->
   <form class="new_request_form" id="{{ request_form_id }}" method="post" action="">
     {% csrf_token %}
 	{{ type_tuple.1.type_pk }}

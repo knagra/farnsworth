@@ -525,7 +525,7 @@ def list_user_requests_view(request, targetUsername):
 		targetProfile = UserProfile.objects.get(user=targetUser)
 	except:
 		return render_to_response('list_requests.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
-	page_name = "%s Requests" % targetUsername
+	page_name = "%s's Requests" % targetUsername
 	requests = Request.objects.filter(owner=targetProfile)
 	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests}, context_instance=RequestContext(request))
 

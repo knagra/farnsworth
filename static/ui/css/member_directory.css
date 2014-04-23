@@ -24,16 +24,3 @@ Author: Karandeep Singh Nagra
 #alumni_table {
     margin: 0px;
 }
-
-.table_title {
-    background: #5e5e5e;
-    color: #fafafa;
-    padding-left: 10px;
-    font-size: 20pt;
-}
-
-.field_wrapper {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    text-align: center;
-}
