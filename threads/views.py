@@ -558,7 +558,7 @@ def thread_view(request, thread_pk):
 		thread = Thread.objects.get(pk=thread_pk)
 	except:
 		return render_to_response('view_thread.html', {'page_name': "Thread Not Found"}, context_instance=RequestContext(request))
-	messages = Message.objects.filter(thread=thread)
+	messages_list = Message.objects.filter(thread=thread)
 	if request.method == 'POST':
 		message_form = MessageForm(request.POST)
 		if message_form.is_valid():
@@ -575,4 +575,4 @@ def thread_view(request, thread_pk):
 			messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
 	else:
 		message_form = MessageForm()
-	return render_to_response('view_thread.html', {'thread': thread, 'page_name': "View Thread", 'messages': messages}, context_instance=RequestContext(request))
+	return render_to_response('view_thread.html', {'thread': thread, 'page_name': "View Thread", 'messages_list': messages_list}, context_instance=RequestContext(request))
