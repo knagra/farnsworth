@@ -87,6 +87,7 @@
     </thead>
     <tbody>
       {% for member in alumni %}
+      {% if member.user.username != ANONYMOUS_USERNAME %}
       <tr>
 	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}" title="View Profile"><span class="glyphicon glyphicon-user"></span> {{ member.user.username }}</a></td>
 	<td>{{ member.user.last_name }}</td>
@@ -95,6 +96,7 @@
 	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
 	<td>{% if member.former_rooms %}{{ member.former_rooms }}{% endif %}</td>
       </tr>
+      {% endif %}
       {% endfor %}
     </tbody>
   </table>

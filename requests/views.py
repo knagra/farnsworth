@@ -8,13 +8,13 @@ from django.shortcuts import render_to_response, render
 from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
-from django.contrib.auth import hashers
+from django.contrib.auth import hashers, logout, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
-# Stardard error messages:
-from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, USER_ADDED, PREQ_DEL, USER_PROFILE_SAVED, USER_PW_CHANGED
+from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, ANONYMOUS_USERNAME
+# Stardard messages:
+from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, USER_ADDED, PREQ_DEL, USER_PROFILE_SAVED, USER_PW_CHANGED, ANONYMOUS_EDIT, ANONYMOUS_DENIED, ANONYMOUS_LOGIN
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile
 from threads.views import red_ext, red_home
@@ -24,7 +24,7 @@ from django.contrib import messages
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
-	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'SHORT_HOUSE': short_house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count()}
+	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ANONYMOUS_USERNAME': ANONYMOUS_USERNAME, 'SHORT_HOUSE': short_house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count()}
 
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
@@ -176,6 +176,8 @@ def custom_manage_users_view(request):
 @login_required
 def custom_modify_user_view(request, targetUsername):
 	''' The page to modify a user. '''
+	if targetUsername == ANONYMOUS_USERNAME:
+		messages.add_message(request, messages.WARNING, ANONYMOUS_EDIT)
 	page_name = "Admin - Modify User"
 	if not request.user.is_superuser:
 		return red_home(request, ADMINS_ONLY)
@@ -284,7 +286,7 @@ def custom_add_user_view(request):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
+		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		email_visible_to_others = forms.BooleanField(required=False)
 		phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
 		phone_visible_to_others = forms.BooleanField(required=False)
@@ -298,7 +300,6 @@ def custom_add_user_view(request):
 		groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
 		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-	add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
 	if request.method == 'POST':
 		add_user_form = AddUserForm(request.POST)
 		if add_user_form.is_valid():
@@ -350,7 +351,21 @@ def custom_add_user_view(request):
 			else:
 				add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
 				add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+	else:
+		add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
 	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
+
+@login_required
+def anonymous_login_view(request):
+	''' View for an admin to log her/himself out and login the anonymous user. '''
+	if not request.user.is_superuser:
+		return red_home(request, ANONYMOUS_DENIED)
+	logout(request)
+	spineless = User.objects.get(username=ANONYMOUS_USERNAME)
+	spineless.backend = 'django.contrib.auth.backends.ModelBackend'
+	login(request, spineless)
+	messages.add_message(request, messages.INFO, ANONYMOUS_LOGIN)
+	return HttpResponseRedirect(reverse('homepage'))
 
 @login_required
 def requests_view(request, requestType):

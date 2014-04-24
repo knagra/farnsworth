@@ -9,9 +9,9 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads
-# Stardard error messages:
-from farnsworth.settings import NO_PROFILE, THREAD_ERROR, MESSAGE_ERROR, UNKNOWN_FORM, RSVP_ADD, RSVP_REMOVE
+from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads, ANONYMOUS_USERNAME
+# Stardard messages:
+from farnsworth.settings import NO_PROFILE, THREAD_ERROR, MESSAGE_ERROR, UNKNOWN_FORM, RSVP_ADD, RSVP_REMOVE, SPINELESS, ANONYMOUS_DENIED
 from models import UserProfile, Thread, Message
 from requests.models import RequestType, Manager, Request, Response, Announcement
 from events.models import Event
@@ -26,6 +26,7 @@ class ThreadForm(forms.Form):
 	''' Form to post a new thread. '''
 	subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
 	body = forms.CharField(widget=forms.Textarea())
+
 class MessageForm(forms.Form):
 	''' Form to post a new message. '''
 	thread_pk = forms.IntegerField()
@@ -210,6 +211,8 @@ def site_map_view(request):
 def my_profile_view(request):
 	''' The view of the profile page. '''
 	page_name = "Profile Page"
+	if request.user.username == ANONYMOUS_USERNAME:
+		return red_home(request, SPINELESS)
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
@@ -296,6 +299,8 @@ def login_view(request):
 		if form.is_valid():
 			username = form.cleaned_data['username']
 			password = form.cleaned_data['password']
+			if username == ANONYMOUS_USERNAME:
+				return red_ext(request, ANONYMOUS_DENIED)
 			try:
 				temp_user = User.objects.get(username=username)
 				if temp_user is not None:
@@ -540,6 +545,8 @@ def member_directory_view(request):
 @login_required
 def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
+	if targetUsername == request.user.username and targetUsername != ANONYMOUS_USERNAME:
+		return HttpResponseRedirect(reverse('my_profile'))
 	page_name = "%s's Profile" % targetUsername
 	userProfile = UserProfile.objects.get(user=request.user)
 	try:
@@ -554,8 +561,6 @@ def member_profile_view(request, targetUsername):
 		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
 		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
-	if targetProfile == userProfile:
-		return HttpResponseRedirect(reverse('my_profile'))
 	else:
 		number_of_threads = Thread.objects.filter(owner=targetProfile).count()
 		return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile, 'number_of_threads': number_of_threads}, context_instance=RequestContext(request))

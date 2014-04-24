@@ -45,6 +45,9 @@ home_max_announcements = 5
 # Max number of threads loaded for home page.
 home_max_threads = 10
 
+# The anonymous username.
+ANONYMOUS_USERNAME = "spineless"
+
 # Standard messages sent to clients on errors.
 ADMINS_ONLY = "The domain /custom_admin/ is restricted to admins."
 NO_PROFILE = "A profile for you could not be found.  Please contact a site admin."
@@ -61,6 +64,10 @@ RSVP_REMOVE = "You've been successfully removed from the list of RSVPs for {even
 EVENT_UPDATED = "Event {event} successfully updated."
 REQ_CLOSED = "Request successfully marked closed."
 REQ_FILLED = "Request successfully marked filled."
+SPINELESS = "You cannot modify the anonymous user profile."
+ANONYMOUS_EDIT = "THIS IS THE ANONYMOUS USER PROFILE.  It is highly recommended that you not modify it."
+ANONYMOUS_DENIED = "Only superadmins are allowed to login the anonymous user."
+ANONYMOUS_LOGIN = "You have successfully logged out and logged in as the anonymous user."
 
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context",)

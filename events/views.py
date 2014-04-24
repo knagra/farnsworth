@@ -14,7 +14,7 @@ from threads.models import UserProfile
 from requests.models import Manager
 from threads.views import red_ext, red_home
 from farnsworth.settings import house, time_formats
-# Standard error messages:
+# Standard messages:
 from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, EVENT_ERROR, RSVP_ADD, RSVP_REMOVE, EVENT_UPDATED
 import datetime
 from django.utils.timezone import utc

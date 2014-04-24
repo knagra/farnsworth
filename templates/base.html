@@ -35,6 +35,9 @@
 	    <!-- class="active" ??? -->
 	    <ul class="nav navbar-nav">
 	      {% if user.is_authenticated %}
+	      {% if user.username == ANONYMOUS_USERNAME %}
+			<li><a style="color: #ff0000;">Anonymous Coward</a></li>
+	      {% else %}
 	      <li class="dropdown">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {{ user.username }} <b class="caret"></b></a>
 		<ul class="dropdown-menu">
@@ -44,6 +47,7 @@
 			  <li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 		</ul>
 	      </li>
+	      {% endif %}
 	      {% if REQUEST_TYPES %}
 	      <li class="dropdown">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-inbox"></span> Requests <b class="caret"></b></a>
