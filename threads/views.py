@@ -568,6 +568,7 @@ def member_profile_view(request, targetUsername):
 @login_required
 def thread_view(request, thread_pk):
 	''' View an individual thread. '''
+	userProfile = UserProfile.objects.get(user=request.user)
 	try:
 		thread = Thread.objects.get(pk=thread_pk)
 	except:
@@ -584,9 +585,9 @@ def thread_view(request, thread_pk):
 				thread.number_of_messages += 1
 				thread.change_date = datetime.utcnow().replace(tzinfo=utc)
 				thread.save()
-				return HttpResponseRedirect(reverse('thread', kwargs={'thread_pk': thread_pk}))
+				return HttpResponseRedirect(reverse('view_thread', kwargs={'thread_pk': thread_pk}))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
 	else:
-		message_form = MessageForm()
+		message_form = MessageForm(initial={'thread_pk': thread.pk})
 	return render_to_response('view_thread.html', {'thread': thread, 'page_name': "View Thread", 'messages_list': messages_list}, context_instance=RequestContext(request))

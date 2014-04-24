@@ -41,14 +41,14 @@
 	</div>
 	  <form class="new_message_form" id="add_message_form" method="post" action="">
 	    {% csrf_token %}
-	    <input id="id_thread_pk" name="thread_pk" type="hidden" value="{{ thread_tuple.2 }}">
+	    <input id="id_thread_pk" name="thread_pk" type="hidden" value="{{ thread.pk }}">
 	  	<div class="form-group">
 			<label for="id_body">Add Message</label>
 			<textarea name="body"></textarea>
 			<div class="text-center">
 			<div class="btn-group">
 				<button type="submit" class="btn btn-success" name="submit_message_form"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
-				<button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Cancel</button>
+				<button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
 			</div>
 			</div>
 		</div>
