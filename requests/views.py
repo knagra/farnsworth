@@ -374,7 +374,11 @@ def anonymous_login_view(request):
 	except:
 		random_password = User.objects.make_random_password()
 		spineless = User.objects.create_user(username=ANONYMOUS_USERNAME, first_name="Anonymous", last_name="Coward", password=random_password)
+		spineless.is_active = False
 		spineless.save()
+		spineless_profile = UserProfile.objects.get(user=spineless)
+		spineless_profile.status = UserProfile.ALUMNUS
+		spineless_profile.save()
 	spineless.backend = 'django.contrib.auth.backends.ModelBackend'
 	login(request, spineless)
 	messages.add_message(request, messages.INFO, ANONYMOUS_LOGIN)
