@@ -369,7 +369,12 @@ def anonymous_login_view(request):
 	if not request.user.is_superuser:
 		return red_home(request, ANONYMOUS_DENIED)
 	logout(request)
-	spineless = User.objects.get(username=ANONYMOUS_USERNAME)
+	try:
+		spineless = User.objects.get(username=ANONYMOUS_USERNAME)
+	except:
+		random_password = User.objects.make_random_password()
+		spineless = User.objects.create_user(username=ANONYMOUS_USERNAME, first_name="Anonymous", last_name="Coward", password=random_password)
+		spineless.save()
 	spineless.backend = 'django.contrib.auth.backends.ModelBackend'
 	login(request, spineless)
 	messages.add_message(request, messages.INFO, ANONYMOUS_LOGIN)
