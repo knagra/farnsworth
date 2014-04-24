@@ -20,6 +20,17 @@
 	{% endif %}
 </ul>
 </div>
+{% if user.is_authenticated and user.username != ANONYMOUS_USERNAME %}
+	<div class="list_container">
+	<div class="header"><h3 class="table_title">Profile Pages</h3></div>
+	<ul class="pages_list">
+		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - see and update your profile or change your password.</li>
+		<li><a class="page_link" href="{% url 'my_threads' %}" >My Threads</a> - see all your threads on this site.</li>
+		<li><a class="page_link" href="{% url 'my_requests' %}" >My Requests</a> - see all your requests.</li>
+		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - logout of your account.</li>
+	</ul>
+	</div>
+{% endif %}
 {% if user.is_authenticated %}
 	<div class="list_container">
 	<div class="header"><h3 class="table_title">Member Pages</h3></div>
@@ -29,15 +40,11 @@
 		<li><a class="page_link" href="{% url 'member_forums' %}" >Member Forums</a> - see active member conversations.</li>
 		<li><a class="page_link" href="{% url 'announcements' %}" >Manager Announcements</a> - see manager announcements.</li>
 		<li><a class="page_link" href="{% url 'events' %}" >Upcoming Events</a> - see a list of upcoming events.</li>
-		<li><a class="page_link" href="{% url 'my_threads' %}" >My Threads</a> - see all your threads on this site.</li>
-		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - see and update your profile or change your password.</li>
 		{% if REQUEST_TYPES %}
 			{% for request_type in REQUEST_TYPES %}
 				<li><a class="page_link" href="{% url 'requests' requestType=request_type.name %}">{{ request_type.name|title }} Requests</a> - see and add to recent {{ request_type.name }} requests.</li>
 			{% endfor %}
 		{% endif %}
-		<li><a class="page_link" href="{% url 'my_requests' %}" >My Requests</a> - see all your requests.</li>
-		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - logout of your account.</li>
 	</ul>
 	</div>
 	<div class="list_container">
