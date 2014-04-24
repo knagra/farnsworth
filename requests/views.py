@@ -356,6 +356,14 @@ def custom_add_user_view(request):
 	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
 
 @login_required
+def utilities_view(request):
+	''' View for an admin to do maintenance tasks on the site. '''
+	if not request.user.is_superuser:
+		return red_home(request, ADMINS_ONLY)
+	logout_url = request.build_absolute_uri(reverse('logout'))
+	return render_to_response('utilities.html', {'page_name': "Site Utilities", 'logout_url': logout_url}, context_instance=RequestContext(request))
+
+@login_required
 def anonymous_login_view(request):
 	''' View for an admin to log her/himself out and login the anonymous user. '''
 	if not request.user.is_superuser:

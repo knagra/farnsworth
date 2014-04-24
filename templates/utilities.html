@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/utilities.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="table_container">
+	<div class="header"><h3 class="table_title">Site Utilities</h3></div>
+	<ul class="utilities_list">
+		<li>You can log out and login as the anonymous user (username "{{ ANONYMOUS_USERNAME }}").
+		It is recommended that you only do this on common space computers.
+		If logged in as the anonymous user on another machine, you can logout by visiting {{ logout_url }} on that machine.
+		<ul><li>Login as the anonymous user "{{ ANONYMOUS_USERNAME }}": <a class="page_link" href="{% url 'anonymous_login' %}"><span class="glyphicon glyphicon-log-out"></span> Anonymous Login</a></li></ul>
+		</li>
+		<li>Sometimes (especially if you used the Django admin), the number of request responses and thread messages stored in their model fields can be different from the real value.
+		If this is the case, or you're not sure, you can recount both these fields for each request and thread.
+		It is advised that you do this every few weeks.
+		Running this utility will not modify the change date on either requests or threads.
+		<ul><li>Recount request responses and thread messages: <a class="page_link"><span class="glyphicon glyphicon-repeat"></span> Recount</a></li></ul>
+		</li>
+		<li>You can alternatively go to the Django admin interface for more low-level control.
+		This is highly not recommended and only advised if you wrote Farnsworth or can rewrite it completely yourself.
+		Be careful.  If you fuck up real bad, contact Karandeep through <a class="page_link" href="//github.com/knagra" target="_blank">his GitHub page</a>.
+		<ul><li>Django admin: <a class="page_link" href="{% url 'admin:index' %}"><span class="glyphicon glyphicon-wrench"></span> Django Admin</a></li></ul>
+		</li>
+	</ul>
+</div>
+{% endblock %}
