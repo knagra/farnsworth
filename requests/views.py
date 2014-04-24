@@ -14,9 +14,9 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, ANONYMOUS_USERNAME
 # Stardard messages:
-from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, USER_ADDED, PREQ_DEL, USER_PROFILE_SAVED, USER_PW_CHANGED, ANONYMOUS_EDIT, ANONYMOUS_DENIED, ANONYMOUS_LOGIN
+from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, USER_ADDED, PREQ_DEL, USER_PROFILE_SAVED, USER_PW_CHANGED, ANONYMOUS_EDIT, ANONYMOUS_DENIED, ANONYMOUS_LOGIN, RECOUNTED
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
-from threads.models import UserProfile
+from threads.models import UserProfile, Thread, Message
 from threads.views import red_ext, red_home
 from datetime import datetime
 from django.utils.timezone import utc
@@ -383,6 +383,20 @@ def anonymous_login_view(request):
 	login(request, spineless)
 	messages.add_message(request, messages.INFO, ANONYMOUS_LOGIN)
 	return HttpResponseRedirect(reverse('homepage'))
+
+@login_required
+def recount_view(request):
+	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
+	if not request.user.is_superuser:
+		return red_home(request, ADMINS_ONLY)
+	for req in Request.objects.all():
+		req.number_of_responses = Response.objects.filter(request=req).count()
+		req.save()
+	for thread in Thread.objects.all():
+		thread.number_of_messages = Message.objects.filter(thread=thread).count()
+		thread.save()
+	messages.add_message(request, messages.SUCCESS, RECOUNTED)
+	return HttpResponseRedirect(reverse('utilities'))
 
 @login_required
 def requests_view(request, requestType):

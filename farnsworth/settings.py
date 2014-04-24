@@ -68,6 +68,7 @@ SPINELESS = "You cannot modify the anonymous user profile."
 ANONYMOUS_EDIT = "THIS IS THE ANONYMOUS USER PROFILE.  It is highly recommended that you not modify it."
 ANONYMOUS_DENIED = "Only superadmins are allowed to login the anonymous user."
 ANONYMOUS_LOGIN = "You have successfully logged out and logged in as the anonymous user."
+RECOUNTED = "Thread messages and request responses successfully recounted."
 
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context",)
