@@ -222,13 +222,23 @@ function hide_form(form_id) {
 <div class="row" style="margin-top: 10px;">
 <div class="threads table_container span12">
 	<div class="header">
-		<form action="{% url 'member_forums' %}">
-		<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-comment"></span> Member Forums</button>
-		</form>
+		<button class="btn btn-primary header_button" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span> New Thread</button>
 		<h3 class="table_title">
 			Recent Threads
 		</h3>
-	</div>
+	</div> <!-- .header -->
+	<form id="new_thread_form" method="post" action="">
+		{% csrf_token %}
+		<div class="form-group">
+			{{ thread_form|bootstrap }}
+			<div class="text-center">
+			<div class="btn-group">
+				<button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Start Thread</button>
+				<button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_form('new_thread_form')"><span class="glyphicon glyphicon-collapse"></span> Hide</button>
+			</div> <!-- .btn-group -->
+			</div> <!-- .text-center -->
+		</div>
+	</form>
   {% if not threads %}
   <div class="field_wrapper">No threads found in database.</div>
   {% else %}

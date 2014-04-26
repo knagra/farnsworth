@@ -116,3 +116,7 @@ Author: Karandeep Singh Nagra
 .events {
 	margin-top: 10px;
 }
+
+#new_thread_form {
+	display: none;
+}

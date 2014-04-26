@@ -134,14 +134,10 @@ def homepage_view(request, message=None):
 		ongoing = ((event.start_time <= now) and (event.end_time >= now))
 		rsvpd = (userProfile in event.rsvps.all())
 		events_dict.append((event, ongoing, rsvpd, form))
-	#threads_dict = list() # Pseudo-dictionary, list with items of form (thread.subject, [thread_messages_list], thread_message_form)
+	thread_form = ThreadForm()
 	threads = list() # List of recent threads
 	x = 0
 	for thread in Thread.objects.all():
-		#thread_messages = Message.objects.filter(thread=thread)
-		#message_form = MessageForm(initial={'thread_pk': thread.pk})
-		#message_form.fields['thread_pk'].widget = forms.HiddenInput()
-		#threads_dict.append((thread.subject, thread_messages, message_form))
 		threads.append(thread)
 		x += 1
 		if x >= home_max_threads:
@@ -196,7 +192,19 @@ def homepage_view(request, message=None):
 					messages.add_message(request, messages.SUCCESS, message)
 				relevant_event.save()
 				return HttpResponseRedirect(reverse('homepage'))
-	return render_to_response('homepage.html', {'page_name': "Home", 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads}, context_instance=RequestContext(request))
+		elif 'submit_thread_form' in request.POST:
+			thread_form = ThreadForm(request.POST)
+			if thread_form.is_valid():
+				subject = thread_form.cleaned_data['subject']
+				body = thread_form.cleaned_data['body']
+				thread = Thread(owner=userProfile, subject=subject, number_of_messages=1, active=True)
+				thread.save()
+				message = Message(body=body, owner=userProfile, thread=thread)
+				message.save()
+				return HttpResponseRedirect(reverse('homepage'))
+			else:
+				messages.add_message(request, messages.ERROR, THREAD_ERROR)
+	return render_to_response('homepage.html', {'page_name': "Home", 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads, 'thread_form': thread_form}, context_instance=RequestContext(request))
 	
 def help_view(request):
 	''' The view of the helppage. '''
