@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads, ANONYMOUS_USERNAME
 # Stardard messages:
-from farnsworth.settings import NO_PROFILE, THREAD_ERROR, MESSAGE_ERROR, UNKNOWN_FORM, RSVP_ADD, RSVP_REMOVE, SPINELESS, ANONYMOUS_DENIED
+from farnsworth.settings import MESSAGES
 from models import UserProfile, Thread, Message
 from requests.models import RequestType, Manager, Request, Response, Announcement
 from events.models import Event
@@ -64,7 +64,7 @@ def homepage_view(request, message=None):
 		user = request.user
 		userProfile = UserProfile.objects.get(user=request.user)
 		if not userProfile:
-			return red_ext(request, NO_PROFILE)
+			return red_ext(request, MESSAGES['NO_PROFILE'])
 	else:
 		return HttpResponseRedirect(reverse('external'))
 	request_types = RequestType.objects.filter(enabled=True)
@@ -157,9 +157,9 @@ def homepage_view(request, message=None):
 				relevant_request.save()
 				new_response.save()
 				if relevant_request.closed:
-					messages.add_message(request, messages.SUCCESS, REQ_CLOSED)
+					messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_CLOSED'])
 				if relevant_request.filled:
-					messages.add_message(request, messages.SUCCESS, REQ_FILLED)
+					messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_FILLED'])
 				return HttpResponseRedirect(reverse('homepage'))
 		elif 'post_announcement' in request.POST:
 			announcement_form = AnnouncementForm(request.POST)
@@ -184,11 +184,11 @@ def homepage_view(request, message=None):
 				relevant_event = Event.objects.get(pk=event_pk)
 				if userProfile in relevant_event.rsvps.all():
 					relevant_event.rsvps.remove(userProfile)
-					message = RSVP_REMOVE.format(event=relevant_event.title)
+					message = MESSAGES['RSVP_REMOVE'].format(event=relevant_event.title)
 					messages.add_message(request, messages.SUCCESS, message)
 				else:
 					relevant_event.rsvps.add(userProfile)
-					message = RSVP_ADD.format(event=relevant_event.title)
+					message = MESSAGES['RSVP_ADD'].format(event=relevant_event.title)
 					messages.add_message(request, messages.SUCCESS, message)
 				relevant_event.save()
 				return HttpResponseRedirect(reverse('homepage'))
@@ -203,7 +203,7 @@ def homepage_view(request, message=None):
 				message.save()
 				return HttpResponseRedirect(reverse('homepage'))
 			else:
-				messages.add_message(request, messages.ERROR, THREAD_ERROR)
+				messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 	return render_to_response('homepage.html', {'page_name': "Home", 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads, 'thread_form': thread_form}, context_instance=RequestContext(request))
 	
 def help_view(request):
@@ -220,12 +220,11 @@ def my_profile_view(request):
 	''' The view of the profile page. '''
 	page_name = "Profile Page"
 	if request.user.username == ANONYMOUS_USERNAME:
-		return red_home(request, SPINELESS)
+		return red_home(request, MESSAGES['SPINELESS'])
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
-		message = "A profile for you could not be found.  Please contact an admin for support."
-		return red_ext(request, message)
+		return red_ext(request, MESSAGES['NO_PROFILE'])
 	class ChangePasswordForm(forms.Form):
 		current_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 		new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
@@ -289,8 +288,7 @@ def my_profile_view(request):
 				else:
 					update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
 		else:
-			message = "Your request at /profile/ could not be processed.  Please contact an admin for support."
-			return red_home(request, message)
+			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form}, context_instance=RequestContext(request))
 
 def login_view(request):
@@ -308,7 +306,7 @@ def login_view(request):
 			username = form.cleaned_data['username']
 			password = form.cleaned_data['password']
 			if username == ANONYMOUS_USERNAME:
-				return red_ext(request, ANONYMOUS_DENIED)
+				return red_ext(request, MESSAGES['ANONYMOUS_DENIED'])
 			try:
 				temp_user = User.objects.get(username=username)
 				if temp_user is not None:
@@ -340,7 +338,7 @@ def member_forums_view(request):
 	page_name = "Member Forums"
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
-		return red_ext(request, NO_PROFILE)
+		return red_ext(request, MESSAGES['NO_PROFILE'])
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -354,7 +352,7 @@ def member_forums_view(request):
 				message.save()
 				return HttpResponseRedirect(reverse('member_forums'))
 			else:
-				messages.add_message(request, messages.ERROR, THREAD_ERROR)
+				messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -368,9 +366,9 @@ def member_forums_view(request):
 				thread.save()
 				return HttpResponseRedirect(reverse('member_forums'))
 			else:
-				messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
+				messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 		else:
-			messages.add_message(request, messages.ERROR, UNKNOWN_FORM)
+			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
 	x = 0 # number of threads loaded
 	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.all():
@@ -397,7 +395,7 @@ def all_threads_view(request):
 	page_name = "Archives - All Threads"
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
-		return red_ext(request, NO_PROFILE)
+		return red_ext(request, MESSAGES['NO_PROFILE'])
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -411,7 +409,7 @@ def all_threads_view(request):
 				message.save()
 				return HttpResponseRedirect(reverse('all_threads'))
 			else:
-				messages.add_message(request, messages.ERROR, THREAD_ERROR)
+				messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -425,9 +423,9 @@ def all_threads_view(request):
 				thread.save()
 				return HttpResponseRedirect(reverse('all_threads'))
 			else:
-				messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
+				messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 		else:
-			messages.add_message(request, messages.ERROR, UNKNOWN_FORM)
+			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
 	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.all():
 		y = 0 # number of messages loaded
@@ -450,7 +448,7 @@ def my_threads_view(request):
 	page_name = "My Threads"
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
-		return red_ext(request, NO_PROFILE)
+		return red_ext(request, MESSAGES['NO_PROFILE'])
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -464,7 +462,7 @@ def my_threads_view(request):
 				message.save()
 				return HttpResponseRedirect(reverse('my_threads'))
 			else:
-				messages.add_message(request, messages.ERROR, THREAD_ERROR)
+				messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 		elif 'submit_message_form' in request.POST:
 			message_form = MessageForm(request.POST)
 			if message_form.is_valid():
@@ -478,9 +476,9 @@ def my_threads_view(request):
 				thread.save()
 				return HttpResponseRedirect(reverse('my_threads'))
 			else:
-				messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
+				messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 		else:
-			messages.add_message(request, messages.ERROR, UNKNOWN_FORM)
+			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
 	x = 0 # number of threads loaded
 	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.filter(owner=userProfile):
@@ -506,7 +504,7 @@ def list_my_threads_view(request):
 	''' View of my threads. '''
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
-		return red_ext(request, NO_PROFILE)
+		return red_ext(request, MESSAGES['NO_PROFILE'])
 	threads = Thread.objects.filter(owner=userProfile)
 	return render_to_response('list_threads.html', {'page_name': "My Threads", 'threads': threads}, context_instance=RequestContext(request))
 
@@ -529,8 +527,7 @@ def list_all_threads_view(request):
 	''' View of my threads. '''
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
-		message = "A profile for you could not be found.  Please contact an admin for support."
-		return red_ext(request, message)
+		return red_ext(request, MESSAGES['NO_PROFILE'])
 	threads = Thread.objects.all()
 	return render_to_response('list_threads.html', {'page_name': "Archives - All Threads", 'threads': threads}, context_instance=RequestContext(request))
 
@@ -595,7 +592,7 @@ def thread_view(request, thread_pk):
 				thread.save()
 				return HttpResponseRedirect(reverse('view_thread', kwargs={'thread_pk': thread_pk}))
 		else:
-			messages.add_message(request, messages.ERROR, MESSAGE_ERROR)
+			messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 	else:
 		message_form = MessageForm(initial={'thread_pk': thread.pk})
 	return render_to_response('view_thread.html', {'thread': thread, 'page_name': "View Thread", 'messages_list': messages_list}, context_instance=RequestContext(request))

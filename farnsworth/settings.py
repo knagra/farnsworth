@@ -49,26 +49,29 @@ home_max_threads = 10
 ANONYMOUS_USERNAME = "spineless"
 
 # Standard messages sent to clients on errors.
-ADMINS_ONLY = "The domain /custom_admin/ is restricted to admins."
-NO_PROFILE = "A profile for you could not be found.  Please contact a site admin."
-UNKNOWN_FORM = "Your post request could not be processed.  Please contact a site admin."
-MESSAGE_ERROR = "Your message post was not successful.  Please try again."
-THREAD_ERROR = "Your thread post was not successful.  Both subject and body are required.  Please try again."
-USER_ADDED = "User {username} has successfully added."
-PREQ_DEL = "Profile request by {first_name} {last_name} for username {username} successfully deleted."
-USER_PROFILE_SAVED = "User {username}'s profile has been successfully updated."
-USER_PW_CHANGED = "User {username}'s password has been successfully changed."
-EVENT_ERROR = "Your event post was not successful.  Please check for errors and try again."
-RSVP_ADD = "You've been successfully added to the list of RSVPs for {event}."
-RSVP_REMOVE = "You've been successfully removed from the list of RSVPs for {event}."
-EVENT_UPDATED = "Event {event} successfully updated."
-REQ_CLOSED = "Request successfully marked closed."
-REQ_FILLED = "Request successfully marked filled."
-SPINELESS = "You cannot modify the anonymous user profile."
-ANONYMOUS_EDIT = "THIS IS THE ANONYMOUS USER PROFILE.  IT IS HIGHLY RECOMMENDED THAT YOU NOT MODIFY IT."
-ANONYMOUS_DENIED = "Only superadmins are allowed to login the anonymous user."
-ANONYMOUS_LOGIN = "You have successfully logged out and logged in as the anonymous user."
-RECOUNTED = "Thread messages and request responses successfully recounted."
+MESSAGES = {
+	'ADMINS_ONLY': "The domain /custom_admin/ is restricted to admins.",
+	'NO_PROFILE': "A profile for you could not be found.  Please contact a site admin.",
+	'UNKNOWN_FORM': "Your post request could not be processed.  Please contact a site admin.",
+	'MESSAGE_ERROR': "Your message post was not successful.  Please try again.",
+	'THREAD_ERROR': "Your thread post was not successful.  Both subject and body are required.  Please try again.",
+	'USER_ADDED': "User {username} has successfully added.",
+	'PREQ_DEL': "Profile request by {first_name} {last_name} for username {username} successfully deleted.",
+	'USER_PROFILE_SAVED': "User {username}'s profile has been successfully updated.",
+	'USER_PW_CHANGED': "User {username}'s password has been successfully changed.",
+	'EVENT_ERROR': "Your event post was not successful.  Please check for errors and try again.",
+	'RSVP_ADD': "You've been successfully added to the list of RSVPs for {event}.",
+	'RSVP_REMOVE': "You've been successfully removed from the list of RSVPs for {event}.",
+	'EVENT_UPDATED': "Event {event} successfully updated.",
+	'REQ_CLOSED': "Request successfully marked closed.",
+	'REQ_FILLED': "Request successfully marked filled.",
+	'SPINELESS': "You cannot modify the anonymous user profile.",
+	'ANONYMOUS_EDIT': "THIS IS THE ANONYMOUS USER PROFILE.  IT IS HIGHLY RECOMMENDED THAT YOU NOT MODIFY IT.",
+	'ANONYMOUS_DENIED': "Only superadmins are allowed to login the anonymous user.",
+	'ANONYMOUS_LOGIN': "You have successfully logged out and logged in as the anonymous user.",
+	'RECOUNTED': "Thread messages and request responses successfully recounted.",
+	'ALREADY_PAST': "This event has already passed.  You can no longer RSVP to this event.",
+}
 
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context",)

@@ -53,10 +53,12 @@
 		<form class="rsvp_form" method="post" action="">
 			{% csrf_token %}
 				{{ event_tuple.3 }}
+				{% if not event_tuple.4 %}
 				{% if event_tuple.2 %}
 					<button type="submit" class="btn btn-xs btn-warning" name="rsvp"><span class="glyphicon glyphicon-star-empty"></span> Un-RSVP</button>
 				{% else %}
 					<button type="submit" class="btn btn-xs btn-success" name="rsvp"><span class="glyphicon glyphicon-star"></span> RSVP</button>
+				{% endif %}
 				{% endif %}
 		</form>
 		</div> <!-- .event_owner -->

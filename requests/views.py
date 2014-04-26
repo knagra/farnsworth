@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, ANONYMOUS_USERNAME
 # Stardard messages:
-from farnsworth.settings import NO_PROFILE, ADMINS_ONLY, UNKNOWN_FORM, USER_ADDED, PREQ_DEL, USER_PROFILE_SAVED, USER_PW_CHANGED, ANONYMOUS_EDIT, ANONYMOUS_DENIED, ANONYMOUS_LOGIN, RECOUNTED
+from farnsworth.settings import MESSAGES
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile, Thread, Message
 from threads.views import red_ext, red_home
@@ -65,7 +65,7 @@ def manage_profile_requests_view(request):
 	''' The page to manager user profile requests. '''
 	page_name = "Admin - Manage Profile Requests"
 	if not request.user.is_superuser:
-		return red_home(request, ADMINS_ONLY)
+		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	profile_requests = ProfileRequest.objects.all()
 	return render_to_response('manage_profile_requests.html', {'page_name': page_name, 'choices': UserProfile.STATUS_CHOICES, 'profile_requests': profile_requests}, context_instance=RequestContext(request))
 
@@ -74,7 +74,7 @@ def modify_profile_request_view(request, request_pk):
 	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
 	page_name = "Admin - Profile Request"
 	if not request.user.is_superuser:
-		return red_home(request, ADMINS_ONLY)
+		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	profile_request = ProfileRequest.objects.get(pk=request_pk)
 	class AddUserForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
@@ -98,7 +98,7 @@ def modify_profile_request_view(request, request_pk):
 	if request.method == 'POST':
 		add_user_form = AddUserForm(request.POST)
 		if 'delete_request' in request.POST:
-			message = PREQ_DEL.format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
+			message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
 			messages.add_message(request, messages.WARNING, message)
 			profile_request.delete()
 			return HttpResponseRedirect(reverse('manage_profile_requests'))
@@ -148,7 +148,7 @@ def modify_profile_request_view(request, request_pk):
 					new_user_profile.former_houses = former_houses
 					new_user_profile.save()
 					profile_request.delete()
-					message = USER_ADDED.format(username=username)
+					message = MESSAGES['USER_ADDED'].format(username=username)
 					messages.add_message(request, messages.SUCCESS, message)
 					return HttpResponseRedirect(reverse('manage_profile_requests'))
 				else:
@@ -160,7 +160,7 @@ def modify_profile_request_view(request, request_pk):
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
 	if not request.user.is_superuser:
-		return red_home(request, ADMINS_ONLY)
+		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	residents = list()
 	boarders = list()
 	alumni = list()
@@ -177,10 +177,10 @@ def custom_manage_users_view(request):
 def custom_modify_user_view(request, targetUsername):
 	''' The page to modify a user. '''
 	if targetUsername == ANONYMOUS_USERNAME:
-		messages.add_message(request, messages.WARNING, ANONYMOUS_EDIT)
+		messages.add_message(request, messages.WARNING, MESSAGES['ANONYMOUS_EDIT'])
 	page_name = "Admin - Modify User"
 	if not request.user.is_superuser:
-		return red_home(request, ADMINS_ONLY)
+		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	try:
 		targetUser = User.objects.get(username=targetUsername)
 	except:
@@ -252,7 +252,7 @@ def custom_modify_user_view(request, targetUsername):
 				targetProfile.former_rooms = former_rooms
 				targetProfile.former_houses = former_houses
 				targetProfile.save()
-				message = USER_PROFILE_SAVED.format(username=targetUser.username)
+				message = MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username)
 				messages.add_message(request, messages.SUCCESS, message)
 				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 		elif 'change_user_password' in request.POST:
@@ -265,7 +265,7 @@ def custom_modify_user_view(request, targetUsername):
 					if hashers.is_password_usable(hashed_password):
 						targetUser.password = hashed_password
 						targetUser.save()
-						message = USER_PW_CHANGED.format(username=targetUser.username)
+						message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
 						messages.add_message(request, messages.SUCCESS, message)
 						return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 					else:
@@ -281,7 +281,7 @@ def custom_add_user_view(request):
 	''' The page to add a new user. '''
 	page_name = "Admin - Add User"
 	if not request.user.is_superuser:
-		return red_home(request, ADMINS_ONLY)
+		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	class AddUserForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
@@ -345,7 +345,7 @@ def custom_add_user_view(request):
 				new_user_profile.current_room = current_room
 				new_user_profile.former_rooms = former_rooms
 				new_user_profile.former_houses = former_houses
-				message = USER_ADDED.format(username=username)
+				message = MESSAGES['USER_ADDED'].format(username=username)
 				messages.add_message(request, messages.SUCCESS, message)
 				return HttpResponseRedirect(reverse('custom_add_user'))
 			else:
@@ -359,7 +359,7 @@ def custom_add_user_view(request):
 def utilities_view(request):
 	''' View for an admin to do maintenance tasks on the site. '''
 	if not request.user.is_superuser:
-		return red_home(request, ADMINS_ONLY)
+		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	logout_url = request.build_absolute_uri(reverse('logout'))
 	return render_to_response('utilities.html', {'page_name': "Site Utilities", 'logout_url': logout_url}, context_instance=RequestContext(request))
 
@@ -367,7 +367,7 @@ def utilities_view(request):
 def anonymous_login_view(request):
 	''' View for an admin to log her/himself out and login the anonymous user. '''
 	if not request.user.is_superuser:
-		return red_home(request, ANONYMOUS_DENIED)
+		return red_home(request, MESSAGES['ANONYMOUS_DENIED'])
 	logout(request)
 	try:
 		spineless = User.objects.get(username=ANONYMOUS_USERNAME)
@@ -381,21 +381,21 @@ def anonymous_login_view(request):
 		spineless_profile.save()
 	spineless.backend = 'django.contrib.auth.backends.ModelBackend'
 	login(request, spineless)
-	messages.add_message(request, messages.INFO, ANONYMOUS_LOGIN)
+	messages.add_message(request, messages.INFO, MESSAGES['ANONYMOUS_LOGIN'])
 	return HttpResponseRedirect(reverse('homepage'))
 
 @login_required
 def recount_view(request):
 	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
 	if not request.user.is_superuser:
-		return red_home(request, ADMINS_ONLY)
+		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	for req in Request.objects.all():
 		req.number_of_responses = Response.objects.filter(request=req).count()
 		req.save()
 	for thread in Thread.objects.all():
 		thread.number_of_messages = Message.objects.filter(thread=thread).count()
 		thread.save()
-	messages.add_message(request, messages.SUCCESS, RECOUNTED)
+	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'])
 	return HttpResponseRedirect(reverse('utilities'))
 
 @login_required
@@ -409,7 +409,7 @@ def requests_view(request, requestType):
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
-		return red_home(request, NO_PROFILE)
+		return red_home(request, MESSAGES['NO_PROFILE'])
 	try:
 		request_type = RequestType.objects.get(name=requestType)
 	except:
@@ -465,7 +465,7 @@ def requests_view(request, requestType):
 				new_response.save()
 				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 		else:
-			return red_home(request, UNKNOWN_FORM)
+			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	request_form = RequestForm()
 	x = 0 # number of requests loaded
 	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list])
@@ -491,7 +491,7 @@ def my_requests_view(request):
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
-		return red_home(request, NO_PROFILE)
+		return red_home(request, MESSAGES['NO_PROFILE'])
 	class RequestForm(forms.Form):
 		type_pk = forms.IntegerField()
 		body = forms.CharField(widget=forms.Textarea())
@@ -533,7 +533,7 @@ def my_requests_view(request):
 						break
 				new_response.save()
 		else:
-			return red_home(request, UNKNOWN_FORM)
+			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	my_requests = Request.objects.filter(owner=userProfile)
 	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.human_readable_name, request_form, type_manager, [(request, [list_of_request_responses], response_form),...])
 	for request_type in RequestType.objects.all():
@@ -569,7 +569,7 @@ def list_my_requests_view(request):
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
-		return red_home(request, NO_PROFILE)
+		return red_home(request, MESSAGES['NO_PROFILE'])
 	requests = Request.objects.filter(owner=userProfile)
 	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests}, context_instance=RequestContext(request))
 
@@ -610,7 +610,7 @@ def announcements_view(request):
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
-		return red_home(request, NO_PROFILE)
+		return red_home(request, MESSAGES['NO_PROFILE'])
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
@@ -654,7 +654,7 @@ def all_announcements_view(request):
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
-		return red_home(request, NO_PROFILE)
+		return red_home(request, MESSAGES['NO_PROFILE'])
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
