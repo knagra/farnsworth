@@ -17,7 +17,7 @@ Author: Karandeep Singh Nagra
 #new_announcement_form .btn-group {
 	padding-bottom: 10px;
 	margin-bottom: 3px;
-	border-bottom: 1px solid #ddd;
+	border-bottom: 1px solid #eee;
 }
 
 .unpin_form {
@@ -111,10 +111,6 @@ Author: Karandeep Singh Nagra
 #threads_table {
 	margin-top: 0px;
 	margin-bottom: 0px;
-}
-
-.events {
-	margin-top: 10px;
 }
 
 #new_thread_form {

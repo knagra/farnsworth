@@ -440,7 +440,7 @@ def all_threads_view(request):
 			more_messages = 0
 		thread_messages.reverse()
 		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
-	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Archives - All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
 @login_required
 def my_threads_view(request):

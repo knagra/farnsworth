@@ -59,12 +59,6 @@ label {
     padding-right: 0px;
 }
 
-.message_divider {
-    margin: 0px;
-    height: 1px;
-    background: #888;
-}
-
 .message_row {
     padding-left: 5px;
     padding-right: 5px;
@@ -81,7 +75,7 @@ label {
 /*
   Remove confusion about table layout in case user enters a horizontal line.
   */	
-.message_table hr:not(.message_divider) {
+.message_table hr:not(.main_divider) {
     margin-left: 10px;
 }
 

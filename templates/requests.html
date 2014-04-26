@@ -51,7 +51,7 @@
     {% else %}
     {% for request_tuple in requests_dict %}
     {% if forloop.counter > 1 %}
-    <hr/>
+    <hr class="main_divider"/>
     {% endif %}
 
     <div class="requests_row">
@@ -68,6 +68,7 @@
 	<div class="response_table">
 	  {% for response in request_tuple.1 %}
 	  {% if forloop.counter > 1 %}
+    <hr class="main_divider"/>
 	  {% endif %}
 	  <div class="response_row{% if response.manager %} manager_response{% endif %}">
 	    <div class="response_owner">

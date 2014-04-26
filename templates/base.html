@@ -9,18 +9,18 @@
   -->
 
 <html>
-  <head>
-    <title>{{ SHORT_HOUSE }} - {{ page_name }}</title>
+<head>
+	<title>{{ SHORT_HOUSE }} - {{ page_name }}</title>
     {% load static from staticfiles %}
-    <link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
+	<link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
     {% block headers %} {% endblock %}
-    <link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
-    <link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
-    <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
-  </head>
-  <body id="html_body">
-    <div class="container"> <!-- # Get rid of this to make the bar span the entire width of the page -->
-      <div class="navbar navbar-default navbar-static-top" role="navigation">
+	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
+	<link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
+</head>
+<body id="html_body">
+	<div class="container"> <!-- # Get rid of this to make the bar span the entire width of the page -->
+	<div class="navbar navbar-default navbar-static-top" role="navigation">
 	<div class="container-fluid">
           <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -30,7 +30,7 @@
               <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" title="Home" href="{% url 'homepage' %}"><span class="glyphicon glyphicon-home"></span> {{ SHORT_HOUSE }}</a>
-          </div>
+          </div> <!-- .navbar-header -->
 	  <div class="collapse navbar-collapse">
 	    <!-- class="active" ??? -->
 	    <ul class="nav navbar-nav">
@@ -81,10 +81,13 @@
 	      <li class="dropdown">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> Admin <b class="caret"></b></a>
 		<ul class="dropdown-menu">
+			<li class="dropdown-header">Manage Users</li>
 		  <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
 		  <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
 		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-inbox"></span> Profile Requests ({{ NUM_OF_PROFILE_REQUESTS }})</a></li>
-		  <li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Utilities</a></li>
+		  <li class="divider"></li>
+		  <li class="dropdown-header">Miscelleneous</li>
+		  <li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Site Utilities</a></li>
 		</ul>
 	      </li>
 	      {% endif %}
@@ -101,8 +104,8 @@
 	    </ul>
 	  </div>
 	</div>
-      </div>
-    </div>
+    </div> <!-- .container-fluid -->
+    </div> <!-- .navbar -->
 
     <div class="container">
       <div id="title">
@@ -128,6 +131,7 @@
 	{% block gallery %}{% endblock %}
       </div> <!-- close "body" -->
     </div> <!-- close "container" -->
+    </div> <!-- .container -->
     <footer>
       Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.
     </footer>

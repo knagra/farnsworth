@@ -43,7 +43,7 @@
 	{% else %}
 	{% for announcement_tuple in announcements_dict %}
 		{% if forloop.counter > 1 %}
-		<hr class="announcement_divider" />
+		<hr class="main_divider" />
 		{% endif %}
 		<div class="announcement_row">
 		<div class="announcement_owner">
@@ -60,7 +60,7 @@
 			</form>
 		{% endif %}
 		</div> <!-- .announcement_owner -->
-		<hr class="announcement_divider" />
+		<hr class="main_divider" />
 		<div class="announcement_body">{{ announcement_tuple.0.body|safe }}</div>
 		</div> <!-- .announcement_row -->
 	{% endfor %}

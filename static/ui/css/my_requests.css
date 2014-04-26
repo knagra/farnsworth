@@ -82,31 +82,10 @@ label {
     padding-bottom: 10px;
 }
 
-.response_divider {
-    width: 75%;
-    margin: 0px;
-}
-
-#response_divier {
-    margin: 0px;
-    height: 1px;
-    background: #888;
-}
-
-.request_divider {
-    width: 75%;
-}
-
-#response_divider {
-    margin: 0px;
-    height: 1px;
-    background: #888;
-}
-
 /*
   Remove confusion about table layout in case user enters a horizontal line.
   */	
-.response_table hr:not(.response_divider) {
+.response_table hr:not(.main_divider) {
     margin-left: 10px;
 }
 
@@ -116,7 +95,7 @@ label {
 }
 
 .manager_response {
-    background-color: #efffef;
+    background-color: #e6ffe6;
 }
 
 .request_owner {
@@ -144,16 +123,4 @@ label {
 .new_request_form {
     display: none;
     padding-bottom: 10px;
-}
-
-#new_request_table {
-    padding-top: 10px;
-    padding-bottom: 20px;
-    clear: both;
-    float: left;
-}
-
-#id_subject {
-    margin-bottom: 5px;
-    max-width: 75%;
 }
