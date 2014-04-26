@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/threads.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="threads">
+  <div class="header">
+    <form action="{% url 'member_forums' %}">
+	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-comment"></span> Member Forums</button>
+	</form>
+    <h3 class="table_title">View Thread</h3>
+  </div> <!-- table_header -->
+  <div class="thread_table">
+    {% if not thread %}
+    <div class="field_wrapper">Thread not found.</div>
+    {% else %}
+    <div class="thread_messages">
+      <div class="message_table">
+	<h3 class="thread_name">{{ thread.subject }}</h3>
+	{% for message in messages_list %}
+	{% if forloop.counter > 1 %}
+	<hr class="main_divider" />
+	{% endif %}
+	<div class="message_row">
+	  <div class="message_owner">
+	    <a class="page_link" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >
+	      {% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %}</a> ({{ message.post_date }}):
+	  </div>
+	  <div class="message_body">{{ message.body|safe }}</div>
+	</div> <!-- message_row -->
+	{% endfor %}
+	<div class="text-center">
+	  <button class="btn btn-primary" type="button" id="show_form" onclick="show_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-paperclip"></span> Add Message</button>
+	</div>
+	  <form class="new_message_form" id="add_message_form" method="post" action="">
+	    {% csrf_token %}
+	    <input id="id_thread_pk" name="thread_pk" type="hidden" value="{{ thread.pk }}">
+	  	<div class="form-group">
+			<label for="id_body">Add Message</label>
+			<textarea name="body"></textarea>
+			<div class="text-center">
+			<div class="btn-group">
+				<button type="submit" class="btn btn-success" name="submit_message_form"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
+				<button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+			</div>
+			</div>
+		</div>
+	  </form>
+      </div> <!-- message_table -->
+    </div> <!-- thread_messages -->
+    {% endif %}
+  </div> <!-- thread_table -->
+</div>
+{% endblock %}
+
+{% block endscripts %}
+<script>
+  function show_new_message_form(message_form_id, button_id) {
+  document.getElementById(message_form_id).style.display="inline";
+  document.getElementById(button_id).style.display="none";
+  }
+  function hide_new_message_form(message_form_id, button_id) {
+  document.getElementById(message_form_id).style.display="none";
+  document.getElementById(button_id).style.display="inline";
+  }
+</script>
+{% endblock %}

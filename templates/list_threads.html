@@ -56,7 +56,11 @@
 <script>
 $(document).ready(function() {
 	$('table').tablesorter({
+		{% if page_name == 'Archives - All Threads' %}
 		sortList: [[4,0], [3,0]]
+		{% else %}
+		sortList: [[3,0], [2,0]]
+		{% endif %}
 	});
 });
 </script>

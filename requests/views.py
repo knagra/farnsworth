@@ -586,7 +586,7 @@ def list_user_requests_view(request, targetUsername):
 		return render_to_response('list_requests.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
 	page_name = "%s's Requests" % targetUsername
 	requests = Request.objects.filter(owner=targetProfile)
-	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests}, context_instance=RequestContext(request))
+	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests, 'targetUsername': targetUsername}, context_instance=RequestContext(request))
 
 @login_required
 def all_requests_view(request):
@@ -607,10 +607,56 @@ def list_all_requests_view(request, requestType):
 	try:
 		request_type = RequestType.objects.get(name=requestType)
 	except:
-		return render_to_response('list_request.html', {'page_name': "Request Type Not Found"}, context_instance=RequestContext(request))
+		return render_to_response('list_requests.html', {'page_name': "Request Type Not Found"}, context_instance=RequestContext(request))
 	requests = Request.objects.filter(request_type=request_type)
 	page_name = "Archives - All %s Requests" % request_type.human_readable_name().title()
 	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests, 'request_type': request_type}, context_instance=RequestContext(request))
+
+@login_required
+def request_view(request, request_pk):
+	'''
+	The view of a single request.
+	'''
+	try:
+		relevant_request = Request.objects.get(pk=request_pk)
+	except:
+		return render_to_response('view_request.html', {'page_name': "Request Not Found"}, context_instance=RequestContext(request))
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		return red_ext(request, MESSAGES['NO_PROFILE'])
+	request_responses = Response.objects.filter(request=relevant_request)
+	manager = False # Whether the user is a relevant manager for this request
+	for position in Manager.objects.filter(incumbent=userProfile):
+		if position in relevant_request.managers.all():
+			manager = True
+			break
+	class ResponseForm(forms.Form):
+		body = forms.CharField(widget=forms.Textarea())
+		mark_filled = forms.BooleanField(required=False)
+		mark_closed = forms.BooleanField(required=False)
+	if request.method == 'POST':
+		response_form = ResponseForm(request.POST)
+		if response_form.is_valid():
+			request_pk = response_form.cleaned_data['request_pk']
+			body = response_form.cleaned_data['body']
+			new_response = Response(owner=userProfile, body=body, request=relevant_request)
+			if manager:
+				relevant_request.filled = response_form.cleaned_data['mark_filled']
+				relevant_request.closed = response_form.cleaned_data['mark_closed']
+				relevant_request.number_of_responses += 1
+				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
+				relevant_request.save()
+				new_response.manager = True
+			new_response.save()
+		else:
+			return red_home(request, MESSAGES['UNKNOWN_FORM'])
+	else:
+		response_form = ResponseForm(initial={'mark_filled': relevant_request.filled, 'mark_closed': relevant_request.closed})
+		if not manager:
+			response_form.fields['mark_filled'].widget = forms.HiddenInput()
+			response_form.fields['mark_closed'].widget = forms.HiddenInput()
+	return render_to_response('view_request.html', {'relevant_request': relevant_request, 'request_responses': request_responses}, context_instance=RequestContext(request))
 
 @login_required
 def announcements_view(request):

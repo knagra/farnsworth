@@ -52,6 +52,7 @@ urlpatterns += patterns('requests.views',
 	url(r'^archives/all_requests/$', 'all_requests_view', name='all_requests'),
 	url(r'^requests/(?P<requestType>\w+)/all/$', 'list_all_requests_view', name='list_all_requests'),
 	url(r'^my_requests/$', 'my_requests_view', name='my_requests'),
+	url(r'^request/(?P<request_pk>\w+)/$', 'request_view', name='view_request'),
 	url(r'^announcements/$', 'announcements_view', name='announcements'),
 	url(r'^archives/all_announcements/$', 'all_announcements_view', name='all_announcements'),
 )
