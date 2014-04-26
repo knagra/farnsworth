@@ -47,6 +47,7 @@ class Request(models.Model):
 	filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
 	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
 	number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
+	votes = models.SmallIntegerField(default=0, help_text="Vote count for this request.")
 	
 	def __unicode__(self):
 		return "%s request by %s on %s" % (self.request_type.name, self.owner, self.post_date)

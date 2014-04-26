@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="table_container">
+	<div class="header">
+		{% if page_name == 'My Requests' %}
+			<form action="{% url 'my_requests' %}">
+			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span> Expanded View</button>
+			</form>
+		{% elif request_type.enabled %}
+			<form action="{% url 'requests' requestType=request_type.name %}">
+			<button class="btn btn-primary header_button" type="submit"><span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span> Requests Page</button>
+			</form>
+		{% endif %}
+		<h3 class="table_title">
+			{{ page_name }}
+		</h3>
+	</div>
+  {% if not requests %}
+  <div class="field_wrapper">No requests found.</div>
+  {% else %}
+  <table class="table table-striped table-bordered table-condensed table-hover" style="margin: 0px;">
+    <thead>
+      <tr>
+		<th>Request</th>
+		{% if page_name != 'My Requests' %}<th>Progenitor</th>{% endif %}
+		{% if not request_type %}<th>Type</th>{% endif %}
+		<th>Responses</th>
+		<th>Status</th>
+		<th>Votes</th>
+		<th>Posted (Y/M/D)</th>
+		<th>Updated (Y/M/D)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in requests %}
+      <tr class="{% if req.filled %}success{% elif req.closed %}danger{% else %}warning{% endif %}">
+		<td><a title="View Request" class="page_link">{{ req.body|safe }}</a></td>
+		{% if page_name != 'My Requests' %}<td><a class="page_link" href="{% url 'member_profile' targetUsername=req.owner.user.username %}" title="View Profile">{{ req.owner.user.first_name }} {{ req.owner.user.last_name }}</a></td>{% endif %}
+		{% if not request_type %}<td>{{ req.request_type.name|title }}</td>{% endif %}
+		<td>{{ req.number_of_responses }}</td>
+		<td>{% if req.filled %}Filled{% elif req.closed %}Closed{% else %}Pending{% endif %}</td>
+		<td>{% if req.votes >= 0 %}+{% endif %}{{ req.votes }}</td>
+		<td>{{ req.post_date|date:"Y/m/d, A h:i:s" }}</td>
+		<td>{{ req.change_date|date:"Y/m/d, A h:i:s" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+	$('table').tablesorter({
+		sortList: [[4,0], [3,0]]
+	});
+});
+</script>
+{% endblock %}

@@ -40,7 +40,8 @@
 				{% if targetProfile.phone_visible %}
 					<tr><th>Phone:</th><td class="field">{{ targetProfile.phone_number }}</td></tr>
 				{% endif %}
-				<tr><th>Threads Owned:</th><td class="field"><a class="page_link" title="See Threads" href="{% url 'list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a></td></tr>
+				<tr><th>Threads Started:</th><td class="field">{% if number_of_threads > 0 %}<a class="page_link" title="See Threads" href="{% url 'list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a>{% else %}{{ number_of_threads }}{% endif %}</td></tr>
+				<tr><th>Requests Posted:</th><td class="field">{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}</a></td></tr>
 				{% endif %}
 			</tbody>
 			</table>

@@ -565,13 +565,12 @@ def list_my_requests_view(request):
 	'''
 	Show user his/her requests in list form.
 	'''
-	page_name = "My Requests"
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
 		return red_home(request, MESSAGES['NO_PROFILE'])
 	requests = Request.objects.filter(owner=userProfile)
-	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests}, context_instance=RequestContext(request))
+	return render_to_response('list_requests.html', {'page_name': "My Requests", 'requests': requests}, context_instance=RequestContext(request))
 
 @login_required
 def list_user_requests_view(request, targetUsername):
@@ -590,17 +589,28 @@ def list_user_requests_view(request, targetUsername):
 	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests}, context_instance=RequestContext(request))
 
 @login_required
+def all_requests_view(request):
+	'''
+	Show user a list of enabled request types, the number of requests of each type and a link to see them all.
+	'''
+	types_dict = list() # Pseudo-dictionary, actually a list with items of form (human_readable_name, number_of_type_requests, name, enabled)
+	for request_type in RequestType.objects.all():
+		number_of_requests = Request.objects.filter(request_type=request_type).count()
+		types_dict.append((request_type.human_readable_name().title(), number_of_requests, request_type.name, request_type.enabled))
+	return render_to_response('all_requests.html', {'page_name': "Archives - All Requests", 'types_dict': types_dict}, context_instance=RequestContext(request))
+
+@login_required
 def list_all_requests_view(request, requestType):
 	'''
 	Show user his/her requests in list form.
 	'''
-	page_name = "My Requests"
 	try:
 		request_type = RequestType.objects.get(name=requestType)
 	except:
 		return render_to_response('list_request.html', {'page_name': "Request Type Not Found"}, context_instance=RequestContext(request))
 	requests = Request.objects.filter(request_type=request_type)
-	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests}, context_instance=RequestContext(request))
+	page_name = "Archives - All %s Requests" % request_type.human_readable_name().title()
+	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests, 'request_type': request_type}, context_instance=RequestContext(request))
 
 @login_required
 def announcements_view(request):

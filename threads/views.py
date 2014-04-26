@@ -568,7 +568,8 @@ def member_profile_view(request, targetUsername):
 		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
 	else:
 		number_of_threads = Thread.objects.filter(owner=targetProfile).count()
-		return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile, 'number_of_threads': number_of_threads}, context_instance=RequestContext(request))
+		number_of_requests = Request.objects.filter(owner=targetProfile).count()
+		return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile, 'number_of_threads': number_of_threads, 'number_of_requests': number_of_requests}, context_instance=RequestContext(request))
 
 @login_required
 def thread_view(request, thread_pk):
