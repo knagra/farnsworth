@@ -46,7 +46,7 @@
     <tbody>
       {% for req in requests %}
       <tr class="{% if req.filled %}success{% elif req.closed %}danger{% else %}warning{% endif %}">
-		<td><a title="View Request" class="page_link">{{ req.body|safe }}</a></td>
+		<td><a title="View Request" class="page_link" href="{% url 'view_request' request_pk=req.pk %}">{{ req.body|safe }}</a></td>
 		{% if request_type %}<td><a class="page_link" href="{% url 'member_profile' targetUsername=req.owner.user.username %}" title="View Profile">{{ req.owner.user.first_name }} {{ req.owner.user.last_name }}</a></td>{% endif %}
 		{% if not request_type %}<td>{{ req.request_type.name|title }}</td>{% endif %}
 		<td>{{ req.number_of_responses }}</td>

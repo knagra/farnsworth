@@ -628,7 +628,7 @@ def request_view(request, request_pk):
 	request_responses = Response.objects.filter(request=relevant_request)
 	manager = False # Whether the user is a relevant manager for this request
 	for position in Manager.objects.filter(incumbent=userProfile):
-		if position in relevant_request.managers.all():
+		if position in relevant_request.request_type.managers.all():
 			manager = True
 			break
 	class ResponseForm(forms.Form):
@@ -656,7 +656,7 @@ def request_view(request, request_pk):
 		if not manager:
 			response_form.fields['mark_filled'].widget = forms.HiddenInput()
 			response_form.fields['mark_closed'].widget = forms.HiddenInput()
-	return render_to_response('view_request.html', {'relevant_request': relevant_request, 'request_responses': request_responses}, context_instance=RequestContext(request))
+	return render_to_response('view_request.html', {'page_name': "View Request", 'relevant_request': relevant_request, 'request_responses': request_responses}, context_instance=RequestContext(request))
 
 @login_required
 def announcements_view(request):
