@@ -57,6 +57,7 @@ def list_events_view(request):
 				end_time = event_form.cleaned_data['end_time']
 				as_manager = event_form.cleaned_data['as_manager']
 				if start_time > end_time:
+					messages.add_message(request, messages.ERROR, "Something went wrong.  Please try again.")
 					event_form.errors['__all__'] = event_form.error_class(["Start time is later than end time.  Unless this event involves time travel, please change the start or end time."])
 				else:
 					new_event = Event(owner=userProfile, title=title, description=description, location=location, start_time=start_time, end_time=end_time)
@@ -138,6 +139,7 @@ def list_all_events_view(request):
 				end_time = event_form.cleaned_data['end_time']
 				as_manager = event_form.cleaned_data['as_manager']
 				if start_time > end_time:
+					messages.add_message(request, messages.ERROR, "Something went wrong.  Please try again.")
 					event_form.errors['__all__'] = event_form.error_class(["Start time is later than end time.  Unless this event involves time travel, please change the start or end time."])
 				else:
 					new_event = Event(owner=userProfile, title=title, description=description, location=location, start_time=start_time, end_time=end_time)
@@ -224,6 +226,7 @@ def edit_event_view(request, event_pk):
 			end_time = event_form.cleaned_data['end_time']
 			as_manager = event_form.cleaned_data['as_manager']
 			if start_time > end_time:
+				messages.add_message(request, messages.ERROR, "Something went wrong.  Please try again.")
 				event_form.errors['__all__'] = event_form.error_class(["Start time is later than end time.  Unless this event involves time travel, please change the start or end time."])
 			else:
 				event.title = title

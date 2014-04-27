@@ -18,7 +18,7 @@ from events.models import Event
 from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from django.contrib import messages
 
@@ -123,10 +123,13 @@ def homepage_view(request, message=None):
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
 	class RsvpForm(forms.Form):
 		event_pk = forms.IntegerField()
-	today = datetime.today()
+	#today = datetime.today()
 	now = datetime.utcnow().replace(tzinfo=utc)
+	tomorrow = now + timedelta(hours=24)
+	# Get only next 24 hours of events:
+	events_list = Event.objects.all().exclude(start_time__gte=tomorrow).exclude(end_time__lte=now)
 	# Get only today's events:
-	events_list = Event.objects.filter(start_time__year=today.year, start_time__month=today.month, start_time__day=today.day)
+	#events_list = Event.objects.filter(start_time__year=today.year, start_time__month=today.month, start_time__day=today.day)
 	events_dict = list() # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
 	for event in events_list:
 		form = RsvpForm(initial={'event_pk': event.pk})
