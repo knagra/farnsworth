@@ -39,8 +39,8 @@
 		<th>Responses</th>
 		<th>Status</th>
 		<th>Votes</th>
-		<th>Posted (Y/M/D)</th>
-		<th>Updated (Y/M/D)</th>
+		<th>Posted</th>
+		<th>Updated</th>
       </tr>
     </thead>
     <tbody>
@@ -52,8 +52,8 @@
 		<td>{{ req.number_of_responses }}</td>
 		<td>{% if req.filled %}Filled{% elif req.closed %}Closed{% else %}Pending{% endif %}</td>
 		<td>{% if req.votes >= 0 %}+{% endif %}{{ req.votes }}</td>
-		<td>{{ req.post_date|date:"Y/m/d, A h:i:s" }}</td>
-		<td>{{ req.change_date|date:"Y/m/d, A h:i:s" }}</td>
+		<td>{{ req.post_date|date:"m/d/Y, h:i A" }}</td>
+		<td>{{ req.change_date|date:"m/d/Y, h:i A" }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -64,10 +64,29 @@
 
 {% block endscripts %}
 <script>
+$.tablesorter.addParser({
+	id: 'farnsworth_datetime',
+	is: function(s) {
+		return /d{1,2}\/d{1,2}\/d{1,4} d{1,2}:d{1,2} s(AM|PM)/.test(s);
+	},
+	format: function(s) {
+		return Date.parse(s);
+	},
+	type: 'numeric'
+});
+
 $(document).ready(function() {
 	$('table').tablesorter({
+		headers: {
+			5: {
+				sorter: 'farnsworth_datetime',
+			},
+			6: {
+				sorter: 'farnsworth_datetime',
+			}
+		},
 		{% if request_type %}
-		sortList: [[4,0], [3,0]]
+		sortList: [[3,0], [4,0]]
 		{% else %}
 		sortList: [[1,0], [3,1]]
 		{% endif %}
