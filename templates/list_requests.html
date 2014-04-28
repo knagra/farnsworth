@@ -16,7 +16,7 @@
 			</form>
 		{% elif request_type.enabled %}
 			<form action="{% url 'requests' requestType=request_type.name %}">
-			<button class="btn btn-primary header_button" type="submit"><span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span> Requests Page</button>
+			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span> Requests Page</button>
 			</form>
 		{% elif targetUsername %}
 			<form action="{% url 'member_profile' targetUsername=targetUsername %}">

@@ -1,0 +1,3 @@
+{{ object.subject }}
+{{ object.owner.user.get_full_name }}
+Started {{ object.start_date }}

@@ -5,3 +5,4 @@ migrations/
 *.swp
 *.tmp
 .svn/
+farnsworth/whoosh_index/

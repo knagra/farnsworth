@@ -21,6 +21,8 @@ Nivo Slider 3.2 (included in static/jquery folder)
 django-bootstrap-form 3.1
 moment.js (included in static folder)
 bootstrap-datetime-picker (included in static/bootstrap/js and static/ui/css)
+Whoosh 2.6.0
+Django-Haystack 2.1.0
 
 Deployment
 ==
