@@ -36,6 +36,10 @@ html {
     margin-bottom: 19px;
 }
 
+#search_bar {
+	margin-top: 9px;
+}
+
 #body {
     clear: both;
     position: relative;

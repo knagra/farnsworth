@@ -71,6 +71,10 @@ Author: Karandeep Singh Nagra
 	border-top: 1px solid #dedede;
 }
 
+.hover_row:hover {
+	background: #e9e9e9;
+}
+
 .btn-group {
 	min-width: 90%;
 }

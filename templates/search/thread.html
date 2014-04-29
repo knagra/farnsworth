@@ -1,0 +1,2 @@
+<p class="result_title">Thread: <a href="{% url 'view_thread' thread_pk=result.object.pk %}">{{ result.object.subject }}</a></p>
+<p class="result_description">Started by <a class="page_link" href="{% url 'member_profile' targetUsername=result.object.owner.user.username %}">{{ result.object.owner.user.get_full_name }}</a> on {{ result.object.start_date }}, with {{ result.object.number_of_messages }} message{{ result.object.number_of_messages|pluralize }}. Last updated {{ result.object.change_date }}.</p>

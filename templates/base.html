@@ -69,10 +69,15 @@
 	        <li><a href="{% url 'external' %}"><span class="glyphicon glyphicon-plane"></span> Landing</a></li>
 		<li class="divider"></li>
 		<li class="dropdown-header">Archives</li>
-		<li><a href="{% url 'list_all_threads' %}" ><span class="glyphicon glyphicon-comment"></span> All Threads</a></li>
-		<li><a href="{% url 'all_announcements' %}"><span class="glyphicon glyphicon-bullhorn"></span> All Announcements</a></li>
-		<li><a href="{% url 'all_events' %}"><span class="glyphicon glyphicon-calendar"></span> All Events</a></li>
-		<li><a href="{% url 'all_requests' %}"><span class="glyphicon glyphicon-inbox"></span> All Requests</a></li>
+			<li><a href="{% url 'list_all_threads' %}" ><span class="glyphicon glyphicon-comment"></span> All Threads</a></li>
+			<li><a href="{% url 'all_announcements' %}"><span class="glyphicon glyphicon-bullhorn"></span> All Announcements</a></li>
+			<li><a href="{% url 'all_events' %}"><span class="glyphicon glyphicon-calendar"></span> All Events</a></li>
+			<li><a href="{% url 'all_requests' %}"><span class="glyphicon glyphicon-inbox"></span> All Requests</a></li>
+        <li class="divider"></li>
+        <li class="dropdown-header">Utilities</li>
+		  <li><a href="{% url 'haystack_search' %}" ><span class="glyphicon glyphicon-search"></span> Advanced Search</a></li>
+	      <li><a class="menu_link" href="{% url 'helppage' %}"><span class="glyphicon glyphicon-question-sign"></span> Help</a></li>
+	      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a>
 		<li class="divider"></li>
 		<li class="dropdown-header">External</li>
 	        <li><a href="http://workshift.bsc.coop/kng/" target="_blank" ><span class="glyphicon glyphicon-briefcase"></span> Workshift</a></li>
@@ -86,7 +91,7 @@
 			<li class="dropdown-header">Manage Users</li>
 		  <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
 		  <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
-		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-inbox"></span> Profile Requests ({{ NUM_OF_PROFILE_REQUESTS }})</a></li>
+		  <li><a href="{% url 'manage_profile_requests' %}"><span class="badge pull-right">{{ NUM_OF_PROFILE_REQUESTS }}</span>Profile Requests</a></li>
 		  <li class="divider"></li>
 		  <li class="dropdown-header">Miscelleneous</li>
 		  <li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Site Utilities</a></li>
@@ -100,9 +105,18 @@
 	      <li><a class="menu_link" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 	      <li><a class="menu_link" href="{% url 'request_profile' %}"><span class="glyphicon glyphicon-leaf"></span> Request Account</a></li>
 	      <li><a class="menu_link" href="https://github.com/knagra/farnsworth" target="_blank" ><span class="glyphicon glyphicon-info-sign"></span> Source</a></li>
-	      {% endif %}
 	      <li><a class="menu_link" href="{% url 'helppage' %}"><span class="glyphicon glyphicon-question-sign"></span> Help</a></li>
 	      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a>
+	      {% else %}
+	      <form id="search_bar" action="{% url 'haystack_search' %}?q=">
+			<!--<div class="input-group">
+			<span class="input-group-btn">-->
+			<input type="text" name="q" id="id_q" placeholder="Search">
+			<!--<button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+			</span>
+			</div>-->
+	      </form>
+	      {% endif %}
 	    </ul>
 	  </div>
 	</div>
