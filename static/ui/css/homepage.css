@@ -51,7 +51,7 @@ Author: Karandeep Singh Nagra
 
 .request_body {
 	font-size: 11pt;
-	word-wrap: break-work;
+	word-wrap: break-word;
 	overflow-x: auto;
 	padding-left: 5px;
 }

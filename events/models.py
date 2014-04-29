@@ -30,3 +30,6 @@ class Event(models.Model):
 	
 	class Meta:
 		ordering = ['-start_time']	# could also do -start_time, -end_time, post_date but opting for the slight performance increase
+	
+	def is_event(self):
+		return True

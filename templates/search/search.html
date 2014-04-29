@@ -27,14 +27,26 @@
 <hr class="main_divider" />
 {% endif %}
 <div class="hover_row">
-{% if result.object.user %}
+{% if result.object.is_userprofile %}
 	{% include "search/userprofile.html" %}
-{% elif result.object.subject %}
+{% elif result.object.is_thread %}
 	{% include "search/thread.html" %}
+{% elif result.object.is_message %}
+	{% include "search/message.html" %}
+{% elif result.object.is_manager %}
+	{% include "search/manager.html" %}
+{% elif result.object.is_request %}
+	{% include "search/request.html" %}
+{% elif result.object.is_response %}
+	{% include "search/response.html" %}
+{% elif result.object.is_announcement %}
+	{% include "search/announcement.html" %}
+{% elif result.object.is_event %}
+	{% include "search/event.html" %}
 {% endif %}
-</div>
+</div> <!-- .hover_row -->
 {% empty %}
-	<p>No results found.</p>
+	<div class="field_wrapper">No results found.</div>
 {% endfor %}
 
 {% if page.has_previous or page.has_next %}
@@ -42,10 +54,10 @@
 	{% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
 	|
 	{% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
-	</div>
+	</div> <!-- text-center" -->
 {% endif %}
 {% endif %}
-</div>
-</div>
+</div> <!-- .results_container -->
+</div> <!-- .table_container -->
 </form>
 {% endblock %}

@@ -1,2 +1,5 @@
 {{ object.user.get_full_name }}
 {{ object.status }}
+{{ object.current_room }}
+{{ object.former_rooms }}
+{{ object.former_houses }}

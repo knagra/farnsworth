@@ -13,11 +13,15 @@ class Manager(models.Model):
 	'''
 	title = models.CharField(unique=True, blank=False, null=False, max_length=255, help_text="The title of this management position.")
 	incumbent = models.ForeignKey(UserProfile, blank=True, null=True, on_delete=models.SET_NULL, help_text="The incumbent for this position.")
+	compensation = models.TextField(blank=True, null=True, help_text="The compensation for this manager.")
 	duties = models.TextField(blank=True, null=True, help_text="The duties of this manager.")
 	email = models.EmailField(blank=True, null=True, max_length=255, help_text="The e-mail address of this manager.")
 	
 	def __unicode__(self):
 		return "%s" % self.title
+	
+	def is_manager(self):
+		return True
 
 class RequestType(models.Model):
 	'''
@@ -33,6 +37,9 @@ class RequestType(models.Model):
 	
 	def human_readable_name(self):
 		return self.name.replace('_', ' ')
+	
+	def is_requesttype(self):
+		return True
 
 class Request(models.Model):
 	'''
@@ -54,6 +61,9 @@ class Request(models.Model):
 	
 	class Meta:
 		ordering = ['-post_date']
+	
+	def is_request(self):
+		return True
 
 class Response(models.Model):
 	'''
@@ -70,6 +80,9 @@ class Response(models.Model):
 	
 	class Meta:
 		ordering = ['post_date']
+	
+	def is_response(self):
+		return True
 
 class ProfileRequest(models.Model):
 	'''
@@ -84,6 +97,9 @@ class ProfileRequest(models.Model):
 	
 	def __unicode__(self):
 		return "Profile request for account '%s %s (%s)' on %s" % (self.first_name, self.last_name, self.username, self.request_date)
+	
+	def is_profilerequest(self):
+		return True
 
 class Announcement(models.Model):
 	'''
@@ -101,3 +117,6 @@ class Announcement(models.Model):
 	
 	class Meta:
 		ordering = ['-post_date']
+	
+	def is_announcement(self):
+		return True

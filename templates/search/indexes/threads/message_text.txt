@@ -1,4 +1,2 @@
-{{ object.body|safe }}
-{{ object.owner.user.get_full_name }}
-In thread {{ object.thread.subject }}
-Posted {{ object.post_date }}
+{{ object.owner.user.get_full_name }} ({{ object.post_date }}): {{ object.body|safe }}
+

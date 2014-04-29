@@ -1,0 +1,5 @@
+{% if object.as_manager %}{{ object.as_manager }} ({% endif %}{{ object.owner.user.get_full_name }}{% if object.as_manager %}){% endif %}:
+{{ object.title }}
+{{ object.start_time }} - {{ object.end_time }}
+
+{{ object.description|safe }}

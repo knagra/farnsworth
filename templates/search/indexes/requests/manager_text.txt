@@ -1,0 +1,7 @@
+{{ object.title }} ({{ object.incumbent.user.get_full_name }})
+
+Compensation:
+{{ object.compensation|safe }}
+
+Duties:
+{{ object.duties|safe }}

@@ -38,7 +38,7 @@ class ThreadIndex(indexes.SearchIndex, indexes.Indexable):
 		return Thread
 	
 	def index_queryset(self, using=None):
-		return self.get_model().objects.filter(start_date__lte=datetime.now())
+		return self.get_model().objects.filter(active=True)
 
 class MessageIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Messages. '''
@@ -50,4 +50,4 @@ class MessageIndex(indexes.SearchIndex, indexes.Indexable):
 		return Message
 	
 	def index_queryset(self, using=None):
-		return self.get_model().objects.filter(post_date__lte=datetime.now())
+		return self.get_model().objects.filter(thread__active=True)

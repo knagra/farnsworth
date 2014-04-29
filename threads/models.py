@@ -32,6 +32,9 @@ class UserProfile(models.Model):
 	
 	def __unicode__(self):
 		return "%s %s (Username: %s)" % (self.user.first_name, self.user.last_name, self.user.username)
+	
+	def is_userprofile(self):
+		return True
 
 class Thread(models.Model):
 	'''
@@ -49,6 +52,9 @@ class Thread(models.Model):
 	
 	class Meta:
 		ordering = ['-change_date']
+	
+	def is_thread(self):
+		return True
 
 class Message(models.Model):
 	'''
@@ -64,6 +70,9 @@ class Message(models.Model):
 	
 	class Meta:
 		ordering = ['post_date']
+	
+	def is_message(self):
+		return True
 
 def create_user_profile(sender, instance, created, **kwargs):
 	'''

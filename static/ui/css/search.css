@@ -6,10 +6,17 @@ Author: Karandeep Singh Nagra
 
 .result_title {
 	font-size: 120%;
-	padding-top: 10px;
+	padding-top: 5px;
 	padding-left: 5px;
 }
 
 .result_description {
 	margin-left: 20px;
+	padding-bottom: 5px;
+	height: auto;
+}
+
+.response_body {
+	font-size: 11pt;
+	word-wrap: break-word;
 }
