@@ -2,6 +2,7 @@
 
 {% load static from staticfiles %}
 {% load bootstrap %}
+{% load thread_tags %}
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
@@ -46,9 +47,9 @@
 		<div class="event_row"{% if event_tuple.0.cancelled %} style="background: #ffe6e6;" title="Cancelled"{% elif event_tuple.1 %} style="background: #e6ffe6;" title="Happening Now"{% endif %}>
 		<div class="event_owner">
 		{% if event_tuple.0.as_manager %}
-			{{ event_tuple.0.as_manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{% if event_tuple.0.owner.user == user%}You{% else %}{{ event_tuple.0.owner.user.first_name}} {{ event_tuple.0.owner.user.last_name}}{% endif %}</a>), {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
+			{{ event_tuple.0.as_manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>), {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
 		{% else %}
-			<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{% if event_tuple.0.owner.user == user%}You{% else %}{{ event_tuple.0.owner.user.first_name}} {{ event_tuple.0.owner.user.last_name}}{% endif %}</a>, {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
+			<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>, {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
 		{% endif %}
 		<form class="rsvp_form" method="post" action="">
 			{% csrf_token %}
@@ -79,7 +80,7 @@
 			{% if event_tuple.0.rsvps.all %}
 				RSVPs: {% for member in event_tuple.0.rsvps.all %}
 					{% if forloop.counter > 1 %}, {% endif %}
-					<a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{% if member.user == user %}You{% else %}{{ member.user.first_name }} {{member.user.last_name }}{% endif %}</a>
+					<a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>
 					{% endfor %}
 			{% else %}
 				No RSVPs.

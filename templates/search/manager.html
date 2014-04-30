@@ -1,5 +1,6 @@
 {% load highlight %}
-<h4 class="result_title">{{ result.object.title }} <small>{% if result.object.incumbent %}<a href="{% url 'member_profile' targetUsername=result.object.incumbent.user.username %}">{{ result.object.incumbent.user.get_full_name }}</a>{% else %}No incumbent{% endif %}</small></h4>
+{% load thread_tags %}
+<h4 class="result_title">{{ result.object.title }} <small>{% if result.object.incumbent %}<a href="{% url 'member_profile' targetUsername=result.object.incumbent.user.username %}">{{ result.object.incumbent|display_user:user }}</a>{% else %}No incumbent{% endif %}</small></h4>
 <div class="result_description">Compensation: {{ result.object.compensation|safe }}</div>
 
 <div class="result_description">Duties: {{ result.object.duties|safe }}</div>

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
-
+{% load request_tags %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
@@ -51,7 +51,9 @@
 		{% if not request_type %}<td>{{ req.request_type.name|title }}</td>{% endif %}
 		<td>{{ req.number_of_responses }}</td>
 		<td>{% if req.filled %}Filled{% elif req.closed %}Closed{% else %}Pending{% endif %}</td>
-		<td>{% if req.votes >= 0 %}+{% endif %}{{ req.votes }}</td>
+		{% with vote_count=req|count_votes %}
+		<td>{% if vote_count > 0 %}+{{ vote_count }}{% elif vote_count = 0 %}+0{% else %}{{ vote_count }}{% endif %}</td>
+		{% endwith %}
 		<td>{{ req.post_date|date:"m/d/Y, h:i A" }}</td>
 		<td>{{ req.change_date|date:"m/d/Y, h:i A" }}</td>
       </tr>

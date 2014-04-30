@@ -15,6 +15,10 @@ Author: Karandeep Singh Nagra
 	height: auto;
 }
 
+.result_description tr th {
+	padding-right: 5px;
+}
+
 .response_body {
 	font-size: 11pt;
 	word-wrap: break-word;

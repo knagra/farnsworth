@@ -17,7 +17,7 @@ from farnsworth.settings import house, short_house, ADMINS, max_requests, max_re
 from farnsworth.settings import MESSAGES
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile, Thread, Message
-from threads.views import red_ext, red_home
+from threads.views import red_ext, red_home, UnpinForm, VoteForm
 from datetime import datetime
 from django.utils.timezone import utc
 from django.contrib import messages
@@ -431,13 +431,13 @@ def requests_view(request, requestType):
 		body = forms.CharField(widget=forms.Textarea())
 	if manager:
 		class ResponseForm(forms.Form):
-			request_pk = forms.IntegerField()
+			request_pk = forms.IntegerField(widget=forms.HiddenInput())
 			body = forms.CharField(widget=forms.Textarea(), required=False)
 			mark_filled = forms.BooleanField(required=False)
 			mark_closed = forms.BooleanField(required=False)
 	else:
 		class ResponseForm(forms.Form):
-			request_pk = forms.IntegerField()
+			request_pk = forms.IntegerField(widget=forms.HiddenInput())
 			body = forms.CharField(widget=forms.Textarea())
 	if request.method == 'POST':
 		if 'submit_request' in request.POST:
@@ -464,19 +464,43 @@ def requests_view(request, requestType):
 				relevant_request.save()
 				new_response.save()
 				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
+		elif 'upvote' in request.POST:
+			vote_form = VoteForm(request.POST)
+			if vote_form.is_valid():
+				request_pk = vote_form.cleaned_data['request_pk']
+				relevant_request = Request.objects.get(pk=request_pk)
+				if userProfile in relevant_request.upvotes.all():
+					relevant_request.upvotes.remove(userProfile)
+				else:
+					relevant_request.upvotes.add(userProfile)
+					relevant_request.downvotes.remove(userProfile)
+				relevant_request.save()
+		elif 'downvote' in request.POST:
+			vote_form = VoteForm(request.POST)
+			if vote_form.is_valid():
+				request_pk = vote_form.cleaned_data['request_pk']
+				relevant_request = Request.objects.get(pk=request_pk)
+				if userProfile in relevant_request.downvotes.all():
+					relevant_request.downvotes.remove(userProfile)
+				else:
+					relevant_request.downvotes.add(userProfile)
+					relevant_request.upvotes.remove(userProfile)
+				relevant_request.save()
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	request_form = RequestForm()
 	x = 0 # number of requests loaded
-	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list])
+	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, downvote, vote_form)
 	for req in Request.objects.filter(request_type=request_type):
 		request_responses = Response.objects.filter(request=req)
 		if manager:
 			form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
 		else:
 			form = ResponseForm(initial={'request_pk': req.pk})
-		form.fields['request_pk'].widget = forms.HiddenInput()
-		requests_dict.append((req, request_responses, form))
+		upvote = userProfile in req.upvotes.all()
+		downvote = userProfile in req.downvotes.all()
+		vote_form = VoteForm(initial={'request_pk': req.pk})
+		requests_dict.append((req, request_responses, form, upvote, downvote, vote_form))
 		x += 1
 		if x >= max_requests:
 			break
@@ -496,7 +520,7 @@ def my_requests_view(request):
 		type_pk = forms.IntegerField()
 		body = forms.CharField(widget=forms.Textarea())
 	class ResponseForm(forms.Form):
-		request_pk = forms.IntegerField()
+		request_pk = forms.IntegerField(widget=forms.HiddenInput())
 		body = forms.CharField(widget=forms.Textarea())
 		mark_filled = forms.BooleanField(required=False)
 		mark_closed = forms.BooleanField(required=False)
@@ -532,10 +556,32 @@ def my_requests_view(request):
 						new_response.manager = True
 						break
 				new_response.save()
+		elif 'upvote' in request.POST:
+			vote_form = VoteForm(request.POST)
+			if vote_form.is_valid():
+				request_pk = vote_form.cleaned_data['request_pk']
+				relevant_request = Request.objects.get(pk=request_pk)
+				if userProfile in relevant_request.upvotes.all():
+					relevant_request.upvotes.remove(userProfile)
+				else:
+					relevant_request.upvotes.add(userProfile)
+					relevant_request.downvotes.remove(userProfile)
+				relevant_request.save()
+		elif 'downvote' in request.POST:
+			vote_form = VoteForm(request.POST)
+			if vote_form.is_valid():
+				request_pk = vote_form.cleaned_data['request_pk']
+				relevant_request = Request.objects.get(pk=request_pk)
+				if userProfile in relevant_request.downvotes.all():
+					relevant_request.downvotes.remove(userProfile)
+				else:
+					relevant_request.downvotes.add(userProfile)
+					relevant_request.upvotes.remove(userProfile)
+				relevant_request.save()
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	my_requests = Request.objects.filter(owner=userProfile)
-	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.human_readable_name, request_form, type_manager, [(request, [list_of_request_responses], response_form),...])
+	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.human_readable_name, request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, downvote, vote_form),...])
 	for request_type in RequestType.objects.all():
 		if request_type.enabled:
 			type_manager = False
@@ -553,8 +599,10 @@ def my_requests_view(request):
 					form = ResponseForm(initial={'request_pk': req.pk})
 					form.fields['mark_filled'].widget = forms.HiddenInput()
 					form.fields['mark_closed'].widget = forms.HiddenInput()
-				form.fields['request_pk'].widget = forms.HiddenInput()
-				requests_list.append((req, responses_list, form))
+				upvote = userProfile in req.upvotes.all()
+				downvote = userProfile in req.downvotes.all()
+				vote_form = VoteForm(initial={'request_pk': req.pk})
+				requests_list.append((req, responses_list, form, upvote, downvote, vote_form))
 			request_form = RequestForm(initial={'type_pk': request_type.pk})
 			request_form.fields['type_pk'].widget = forms.HiddenInput()
 			request_dict.append((request_type.human_readable_name(), request_form, type_manager, requests_list))
@@ -636,27 +684,48 @@ def request_view(request, request_pk):
 		mark_filled = forms.BooleanField(required=False)
 		mark_closed = forms.BooleanField(required=False)
 	if request.method == 'POST':
-		response_form = ResponseForm(request.POST)
-		if response_form.is_valid():
-			request_pk = response_form.cleaned_data['request_pk']
-			body = response_form.cleaned_data['body']
-			new_response = Response(owner=userProfile, body=body, request=relevant_request)
-			if manager:
-				relevant_request.filled = response_form.cleaned_data['mark_filled']
-				relevant_request.closed = response_form.cleaned_data['mark_closed']
-				relevant_request.number_of_responses += 1
-				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-				relevant_request.save()
-				new_response.manager = True
-			new_response.save()
+		if 'add_response' in request.POST:
+			response_form = ResponseForm(request.POST)
+			if response_form.is_valid():
+				request_pk = response_form.cleaned_data['request_pk']
+				body = response_form.cleaned_data['body']
+				new_response = Response(owner=userProfile, body=body, request=relevant_request)
+				if manager:
+					relevant_request.filled = response_form.cleaned_data['mark_filled']
+					relevant_request.closed = response_form.cleaned_data['mark_closed']
+					relevant_request.number_of_responses += 1
+					relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
+					relevant_request.save()
+					new_response.manager = True
+				new_response.save()
+		elif 'upvote' in request.POST:
+			if userProfile in relevant_request.upvotes.all():
+				relevant_request.upvotes.remove(userProfile)
+			else:
+				relevant_request.upvotes.add(userProfile)
+				relevant_request.downvotes.remove(userProfile)
+			relevant_request.save()
+		elif 'downvote' in request.POST:
+			if userProfile in relevant_request.downvotes.all():
+				relevant_request.downvotes.remove(userProfile)
+			else:
+				relevant_request.downvotes.add(userProfile)
+				relevant_request.upvotes.remove(userProfile)
+			relevant_request.save()
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	else:
 		response_form = ResponseForm(initial={'mark_filled': relevant_request.filled, 'mark_closed': relevant_request.closed})
+		upvote = userProfile in relevant_request.upvotes.all()
+		downvote = userProfile in relevant_request.downvotes.all()
+		vote_form = VoteForm()
 		if not manager:
 			response_form.fields['mark_filled'].widget = forms.HiddenInput()
 			response_form.fields['mark_closed'].widget = forms.HiddenInput()
-	return render_to_response('view_request.html', {'page_name': "View Request", 'relevant_request': relevant_request, 'request_responses': request_responses}, context_instance=RequestContext(request))
+	upvote = userProfile in relevant_request.upvotes.all()
+	downvote = userProfile in relevant_request.downvotes.all()
+	vote_form = VoteForm()
+	return render_to_response('view_request.html', {'page_name': "View Request", 'relevant_request': relevant_request, 'request_responses': request_responses, 'upvote': upvote, 'downvote': downvote, 'vote_form': vote_form}, context_instance=RequestContext(request))
 
 @login_required
 def announcements_view(request):
@@ -673,8 +742,6 @@ def announcements_view(request):
 		class AnnouncementForm(forms.Form):
 			as_manager = forms.ModelChoiceField(queryset=manager_positions)
 			body = forms.CharField(widget=forms.Textarea())
-		class UnpinForm(forms.Form):
-			announcement_pk = forms.IntegerField()
 		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
 	if request.method == 'POST':
 		if 'unpin' in request.POST:
@@ -699,7 +766,6 @@ def announcements_view(request):
 		unpin_form = None
 		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
 			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
-			unpin_form.fields['announcement_pk'].widget = forms.HiddenInput()
 		announcements_dict.append((a, unpin_form))
 	return render_to_response('announcements.html', {'page_name': page_name, 'manager_positions': manager_positions, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form}, context_instance=RequestContext(request))
 
@@ -717,10 +783,6 @@ def all_announcements_view(request):
 		class AnnouncementForm(forms.Form):
 			as_manager = forms.ModelChoiceField(queryset=manager_positions)
 			body = forms.CharField(widget=forms.Textarea())
-		class UnpinForm(forms.Form):
-			announcement_pk = forms.IntegerField()
-		class RepinForm(forms.Form):
-			announcement_pk = forms.IntegerField()
 		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
 	if request.method == 'POST':
 		if 'unpin' in request.POST:
@@ -748,9 +810,7 @@ def all_announcements_view(request):
 		form = None
 		if ((a.manager.incumbent == userProfile) or request.user.is_superuser) and not a.pinned:
 			form = UnpinForm(initial={'announcement_pk': a.pk})
-			form.fields['announcement_pk'].widget = forms.HiddenInput()
 		elif ((a.manager.incumbent == userProfile) or request.user.is_superuser) and a.pinned:
 			form = UnpinForm(initial={'announcement_pk': a.pk})
-			form.fields['announcement_pk'].widget = forms.HiddenInput()
 		announcements_dict.append((a, form))
 	return render_to_response('announcements.html', {'page_name': page_name, 'manager_positions': manager_positions, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form}, context_instance=RequestContext(request))

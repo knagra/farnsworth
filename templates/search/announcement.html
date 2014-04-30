@@ -1,3 +1,4 @@
 {% load highlight %}
-<h4 class="result_title">Announcement <small>by {{ result.object.manager }} (<a href="{% url 'member_profile' targetUsername=result.object.incumbent.user.username %}">{{ result.object.incumbent.user.get_full_name }}</a>)</small></h4>
+{% load thread_tags %}
+<h4 class="result_title">Announcement <small>by {{ result.object.manager }} (<a href="{% url 'member_profile' targetUsername=result.object.incumbent.user.username %}">{{ result.object.incumbent|display_user:user }}</a>)</small></h4>
 <div class="result_description">{{ result.object.body|safe }}</div>

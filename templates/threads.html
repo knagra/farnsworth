@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
-
+{% load thread_tags %}
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
@@ -46,8 +46,7 @@
 	{% endif %}
 	<div class="message_row">
 	  <div class="message_owner">
-	    <a class="page_link" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >
-	      {% if message.owner.user == user %}You{% else %}{{ message.owner.user.first_name }} {{ message.owner.user.last_name }}{% endif %}</a> ({{ message.post_date }}):
+	    <a class="page_link" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >{{ message.owner|display_user:user }}</a> ({{ message.post_date }}):
 	  </div>
 	  <div class="message_body">{{ message.body|safe }}</div>
 	</div> <!-- message_row -->

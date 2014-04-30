@@ -12,7 +12,7 @@ from models import Event
 from django.core.urlresolvers import reverse
 from threads.models import UserProfile
 from requests.models import Manager
-from threads.views import red_ext, red_home
+from threads.views import red_ext, red_home, RsvpForm
 from farnsworth.settings import house, time_formats
 # Standard messages:
 from farnsworth.settings import MESSAGES
@@ -40,8 +40,6 @@ def list_events_view(request):
 		start_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
 		end_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
-	class RsvpForm(forms.Form):
-		event_pk = forms.IntegerField()
 	event_form = EventForm(initial={'rsvp': True, 'location': house})
 	if not manager_positions:
 		event_form.fields['as_manager'].widget = forms.HiddenInput()
@@ -121,8 +119,6 @@ def list_all_events_view(request):
 		start_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
 		end_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
-	class RsvpForm(forms.Form):
-		event_pk = forms.IntegerField()
 	event_form = EventForm(initial={'rsvp': True, 'location': house})
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	if not manager_positions:

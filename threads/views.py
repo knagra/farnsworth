@@ -29,8 +29,18 @@ class ThreadForm(forms.Form):
 
 class MessageForm(forms.Form):
 	''' Form to post a new message. '''
-	thread_pk = forms.IntegerField()
+	thread_pk = forms.IntegerField(widget=forms.HiddenInput())
 	body = forms.CharField(widget=forms.Textarea())
+
+class VoteForm(forms.Form):
+	request_pk = forms.IntegerField(widget=forms.HiddenInput())
+
+class UnpinForm(forms.Form):
+	announcement_pk = forms.IntegerField(widget=forms.HiddenInput())
+
+class RsvpForm(forms.Form):
+	''' Form to RSVP or un-RSVP from an event. '''
+	event_pk = forms.IntegerField(widget=forms.HiddenInput())
 
 def red_ext(request, message=None):
 	'''
@@ -76,21 +86,23 @@ def homepage_view(request, message=None):
 				break
 	requests_dict = list() # Pseudo-dictionary, list with items of form (request_type, (request, [list_of_request_responses], response_form))
 	class ResponseForm(forms.Form):
-		request_pk = forms.IntegerField()
+		request_pk = forms.IntegerField(widget=forms.HiddenInput())
 		response_body = forms.CharField(widget=forms.Textarea())
 		mark_filled = forms.BooleanField(required=False)
 		mark_closed = forms.BooleanField(required=False)
 	# Generate a dict of unfilled, unclosed requests for each request_type for which the user is a relevant manager:
 	if manager_request_types:
 		for request_type in manager_request_types:
-			requests_list = list() # Items of form (request, [list_of_request_responses], response_form)
+			requests_list = list() # Items of form (request, [list_of_request_responses], response_form, upvote, downvote, vote_form)
 			# Select only unclosed, unfilled requests of type request_type:
 			type_requests = Request.objects.filter(request_type=request_type, filled=False, closed=False)
 			for req in type_requests:
 				response_list = Response.objects.filter(request=req)
 				form = ResponseForm(initial={'request_pk': req.pk})
-				form.fields['request_pk'].widget = forms.HiddenInput()
-				requests_list.append((req, response_list, form))
+				upvote = userProfile in req.upvotes.all()
+				downvote = userProfile in req.downvotes.all()
+				vote_form = VoteForm(initial={'request_pk': req.pk})
+				requests_list.append((req, response_list, form, upvote, downvote, vote_form))
 			requests_dict.append((request_type, requests_list))
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
@@ -98,8 +110,6 @@ def homepage_view(request, message=None):
 		class AnnouncementForm(forms.Form):
 			as_manager = forms.ModelChoiceField(queryset=manager_positions)
 			announcement_body = forms.CharField(widget=forms.Textarea())
-		class UnpinForm(forms.Form):
-			announcement_pk = forms.IntegerField()
 		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
 	announcements_dict = list() # Pseudo-dictionary, list with items of form (announcement, announcement_unpin_form)
 	announcements = Announcement.objects.filter(pinned=True)
@@ -108,7 +118,6 @@ def homepage_view(request, message=None):
 		unpin_form = None
 		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
 			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
-			unpin_form.fields['announcement_pk'].widget = forms.HiddenInput()
 		announcements_dict.append((a, unpin_form))
 		x += 1
 		if x >= home_max_announcements:
@@ -121,19 +130,13 @@ def homepage_view(request, message=None):
 		start_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=time_formats)
 		end_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=time_formats)
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
-	class RsvpForm(forms.Form):
-		event_pk = forms.IntegerField()
-	#today = datetime.today()
 	now = datetime.utcnow().replace(tzinfo=utc)
 	tomorrow = now + timedelta(hours=24)
 	# Get only next 24 hours of events:
 	events_list = Event.objects.all().exclude(start_time__gte=tomorrow).exclude(end_time__lte=now)
-	# Get only today's events:
-	#events_list = Event.objects.filter(start_time__year=today.year, start_time__month=today.month, start_time__day=today.day)
 	events_dict = list() # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
 	for event in events_list:
 		form = RsvpForm(initial={'event_pk': event.pk})
-		form.fields['event_pk'].widget = forms.HiddenInput()
 		ongoing = ((event.start_time <= now) and (event.end_time >= now))
 		rsvpd = (userProfile in event.rsvps.all())
 		events_dict.append((event, ongoing, rsvpd, form))
@@ -207,6 +210,30 @@ def homepage_view(request, message=None):
 				return HttpResponseRedirect(reverse('homepage'))
 			else:
 				messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
+		elif 'upvote' in request.POST:
+			vote_form = VoteForm(request.POST)
+			if vote_form.is_valid():
+				request_pk = vote_form.cleaned_data['request_pk']
+				relevant_request = Request.objects.get(pk=request_pk)
+				if userProfile in relevant_request.upvotes.all():
+					relevant_request.upvotes.remove(userProfile)
+				else:
+					relevant_request.upvotes.add(userProfile)
+					relevant_request.downvotes.remove(userProfile)
+				relevant_request.save()
+		elif 'downvote' in request.POST:
+			vote_form = VoteForm(request.POST)
+			if vote_form.is_valid():
+				request_pk = vote_form.cleaned_data['request_pk']
+				relevant_request = Request.objects.get(pk=request_pk)
+				if userProfile in relevant_request.downvotes.all():
+					relevant_request.downvotes.remove(userProfile)
+				else:
+					relevant_request.downvotes.add(userProfile)
+					relevant_request.upvotes.remove(userProfile)
+				relevant_request.save()
+		else:
+			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
 	return render_to_response('homepage.html', {'page_name': "Home", 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads, 'thread_form': thread_form}, context_instance=RequestContext(request))
 	
 def help_view(request):

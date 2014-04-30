@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
-
+{% load thread_tags %}
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
@@ -57,8 +57,17 @@
     <div class="requests_row">
       <div class="request_name"{% if request_tuple.0.filled %} id="filled_request" title="Filled"{% elif request_tuple.0.closed %} id="closed_request" title="Closed"{% endif %}>
 	<div class="request_owner">
-	  <a class="page_link" href="{% url 'member_profile' targetUsername=request_tuple.0.owner.user.username %}" >
-	    {% if request_tuple.0.owner.user == user %}You{% else %}{{ request_tuple.0.owner.user.first_name }} {{ request_tuple.0.owner.user.last_name }}{% endif %}</a>
+		{% if not request_tuple.0.owner.user = user %}
+		<form class="inline-form" style="float: right; position: relative; top: -6px; margin-right: 2px;" method="POST" action="">
+			{% csrf_token %}
+			{{ request_tuple.5 }}
+		<div class="btn-group btn-group-xs">
+			<button type="submit" class="btn btn-{% if request_tuple.3 %}default" title="Cancel Up Vote"{% else %}success" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
+			<button type="submit" class="btn btn-{% if request_tuple.4 %}default" title="Cancel Down Vote"{% else %}danger" title="Down Vote"{% endif %} name="downvote"><span class="glyphicon glyphicon-thumbs-down"></span></button>
+		</div>
+		</form>
+		{% endif %}
+	  <a class="page_link" href="{% url 'member_profile' targetUsername=request_tuple.0.owner.user.username %}" >{{ request_tuple.0.owner|display_user:user }}</a>
 	  ({{ request_tuple.0.post_date }}):
 	</div> <!-- request_owner -->
 	<div class="request_body">{{ request_tuple.0.body|safe }}</div>
@@ -72,9 +81,7 @@
 	  {% endif %}
 	  <div class="response_row{% if response.manager %} manager_response{% endif %}">
 	    <div class="response_owner">
-	      <a class="page_link" href="{% url 'member_profile' targetUsername=response.owner.user.username %}" >
-		{% if response.owner.user == user %}You{% else %}{{ response.owner.user.first_name }} {{ response.owner.user.last_name }}{% endif %}
-	      </a> ({{ response.post_date }}):
+	      <a class="page_link" href="{% url 'member_profile' targetUsername=response.owner.user.username %}" >{{ response.owner|display_user:user }}</a> ({{ response.post_date }}):
 	    </div> <!-- response_owner -->
 	    <div class="response_body">
 	      {{ response.body|safe }}
