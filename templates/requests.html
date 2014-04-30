@@ -58,7 +58,7 @@
       <div class="request_name"{% if request_tuple.0.filled %} id="filled_request" title="Filled"{% elif request_tuple.0.closed %} id="closed_request" title="Closed"{% endif %}>
 	<div class="request_owner">
 		{% if not request_tuple.0.owner.user = user %}
-		<form class="inline-form" style="float: right; position: relative; top: -6px; margin-right: 2px;" method="POST" action="">
+		<form style="display: inline-block; float: right; position: relative; top: -6px; margin-right: 2px;" method="POST" action="">
 			{% csrf_token %}
 			{{ request_tuple.5 }}
 		<div class="btn-group btn-group-xs">
@@ -67,8 +67,9 @@
 		</div>
 		</form>
 		{% endif %}
-	  <a class="page_link" href="{% url 'member_profile' targetUsername=request_tuple.0.owner.user.username %}" >{{ request_tuple.0.owner|display_user:user }}</a>
-	  ({{ request_tuple.0.post_date }}):
+		{% with vote_count_request=request_tuple.0 %}
+		{% include "vote_list.html" %}
+		{% endwith %}
 	</div> <!-- request_owner -->
 	<div class="request_body">{{ request_tuple.0.body|safe }}</div>
       </div> <!-- request_name -->

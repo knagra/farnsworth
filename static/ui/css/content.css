@@ -91,3 +91,10 @@ Author: Karandeep Singh Nagra
 #closed_request {
 	background-color: #ffe6e6;
 }
+
+.vote_list {
+	 padding: 0px;
+	 margin: 0px;
+	 list-style: none;
+	 display: inline-block;
+}

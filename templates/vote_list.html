@@ -1,0 +1,33 @@
+{% load request_tags %}
+{% load thread_tags %}
+{% with vote_count=vote_count_request|count_votes %}
+<a class="page_link" href="{% url 'member_profile' targetUsername=vote_count_request.owner.user.username %}">{{ vote_count_request.owner|display_user:user }}</a>
+{% if vote_count > 0 %}
+	<ul class="vote_list"><li class="dropdown">
+		<a class="dropdown-toggle" data-toggle="dropdown" title="show votes" href="#">+{{ vote_count }}</a>
+		<ul class="dropdown-menu">
+		{% for voter in vote_count_request.upvotes.all %}
+			<li class="list-group-item-success"><a href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
+		{% endfor %}
+		{% for voter in vote_count_request.downvotes.all %}
+			<li class="list-group-item-danger"><a href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
+		{% endfor %}
+		</ul>
+	</li></ul>
+{% elif 0 > vote_count %}
+	<ul class="vote_list"><li class="dropdown">
+		<a class="dropdown-toggle" data-toggle="dropdown" title="show votes" href="#">{{ vote_count }}</a>
+		<ul class="dropdown-menu">
+		{% for voter in vote_count_request.upvotes.all %}
+			<li class="list-group-item-success"><a class="success" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
+		{% endfor %}
+		{% for voter in vote_count_request.downvotes.all %}
+			<li class="list-group-item-danger"><a class="danger" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
+		{% endfor %}
+		</ul>
+	</li></ul>
+{% else %}
+	+0
+{% endif %}
+{% endwith %}
+({{ vote_count_request.post_date }}):
