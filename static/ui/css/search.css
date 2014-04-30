@@ -5,7 +5,6 @@ Author: Karandeep Singh Nagra
 */
 
 .result_title {
-	font-size: 120%;
 	padding-top: 5px;
 	padding-left: 5px;
 }
@@ -19,4 +18,8 @@ Author: Karandeep Singh Nagra
 .response_body {
 	font-size: 11pt;
 	word-wrap: break-word;
+}
+
+th {
+	padding-right: 5px;
 }

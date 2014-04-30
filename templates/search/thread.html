@@ -1,2 +1,2 @@
-<div class="result_title">Thread <a href="{% url 'view_thread' thread_pk=result.object.pk %}">{{ result.object.subject }}</a></div>
+<h4 class="result_title"><a href="{% url 'view_thread' thread_pk=result.object.pk %}">{{ result.object.subject }}</a> <small>Thread</small></h4>
 <div class="result_description"><a href="{% url 'member_profile' targetUsername=result.object.owner.user.username %}">{{ result.object.owner.user.get_full_name }}</a>, {{ result.object.start_date }}, {{ result.object.number_of_messages }} message{{ result.object.number_of_messages|pluralize }}. Last updated {{ result.object.change_date }}.</div>

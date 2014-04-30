@@ -1,3 +1,3 @@
 {% load highlight %}
-<div class="result_title">Event {{ result.object.title }} ({{ result.object.start_time }} - {{ result.object.end_time }})</div>
+<h4 class="result_title">{{ result.object.title }}, {{ result.object.start_time }} - {{ result.object.end_time }} <small>Event</small></h4>
 <div class="result_description">{% highlight result.text with query %}</div>

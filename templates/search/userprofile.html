@@ -1,4 +1,4 @@
-<div class="result_title"><a href="{% url 'member_profile' targetUsername=result.object.user.username %}">{{ result.object.user.get_full_name }}</a></div>
+<h4 class="result_title"><a href="{% url 'member_profile' targetUsername=result.object.user.username %}">{{ result.object.user.get_full_name }}</a> <small>User</small></h4>
 <table class="result_description">
 	<tr><th>Status:</th><td class="field">{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ result.object.get_status_display }}{% endif %}</td></tr>
 	{% if not result.object.user.username == ANONYMOUS_USERNAME %}

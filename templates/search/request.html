@@ -1,3 +1,3 @@
 {% load highlight %}
-<div class="result_title"><a href="{% url 'view_request' request_pk=result.object.pk %}">{{ result.object.request_type.human_readable_name|title }} Request</a> by <a href="{% url 'member_profile' targetUsername=result.object.owner.user.username %}">{{ result.object.owner.user.get_full_name }}</a></div>
+<h4 class="result_title"><a href="{% url 'view_request' request_pk=result.object.pk %}">{{ result.object.request_type.human_readable_name|title }} Request</a> <small>by <a href="{% url 'member_profile' targetUsername=result.object.owner.user.username %}">{{ result.object.owner.user.get_full_name }}</a></small></h4>
 <div class="result_description">{% highlight result.text with query %}</div>
