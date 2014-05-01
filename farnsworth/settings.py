@@ -43,7 +43,7 @@ max_responses = 4
 home_max_announcements = 5
 
 # Max number of threads loaded for home page.
-home_max_threads = 10
+home_max_threads = 15
 
 # The anonymous username.
 ANONYMOUS_USERNAME = "spineless"

@@ -27,7 +27,21 @@
 		</ul>
 	</li></ul>
 {% else %}
+	{% if vote_count_request.upvotes.all or vote_count_request.downvotes.all %}
+	<ul class="vote_list"><li class="dropdown">
+		<a class="dropdown-toggle" data-toggle="dropdown" title="show votes" href="#">+0</a>
+		<ul class="dropdown-menu">
+		{% for voter in vote_count_request.upvotes.all %}
+			<li class="list-group-item-success"><a class="success" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
+		{% endfor %}
+		{% for voter in vote_count_request.downvotes.all %}
+			<li class="list-group-item-danger"><a class="danger" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
+		{% endfor %}
+		</ul>
+	</li></ul>
+	{% else %}
 	+0
+	{% endif %}
 {% endif %}
 {% endwith %}
 ({{ vote_count_request.post_date }}):

@@ -57,7 +57,7 @@
     <div class="requests_row">
       <div class="request_name"{% if request_tuple.0.filled %} id="filled_request" title="Filled"{% elif request_tuple.0.closed %} id="closed_request" title="Closed"{% endif %}>
 	<div class="request_owner">
-		{% if not request_tuple.0.owner.user = user %}
+		{% if not request_tuple.0.owner.user = user and user.username != ANONYMOUS_USERNAME %}
 		<form style="display: inline; float: right; position: relative; top: -6px; margin-right: 2px;" method="POST" action="">
 			{% csrf_token %}
 			{{ request_tuple.5 }}

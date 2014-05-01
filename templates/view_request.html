@@ -25,7 +25,7 @@
     {% else %}
 	<div class="request_name"{% if relevant_request.filled %} id="filled_request" title="Filled"{% elif relevant_request.closed %} id="closed_request" title="Closed"{% endif %}>
 		<div class="request_owner">
-		{% if not relevant_request.owner.user = user %}
+		{% if not relevant_request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
 		<form class="inline-form" style="float: right; position: relative; top: -6px; margin-right: 2px;" method="POST" action="">
 			{% csrf_token %}
 			{{ vote_form }}
