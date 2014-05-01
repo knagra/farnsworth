@@ -4,7 +4,7 @@
 <a class="page_link" href="{% url 'member_profile' targetUsername=vote_count_request.owner.user.username %}">{{ vote_count_request.owner|display_user:user }}</a>
 {% if vote_count > 0 %}
 	<ul class="vote_list"><li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" title="show votes" href="#">+{{ vote_count }}</a>
+		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">+{{ vote_count }}</a>
 		<ul class="dropdown-menu">
 		{% for voter in vote_count_request.upvotes.all %}
 			<li class="list-group-item-success"><a href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
@@ -16,7 +16,7 @@
 	</li></ul>
 {% elif 0 > vote_count %}
 	<ul class="vote_list"><li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" title="show votes" href="#">{{ vote_count }}</a>
+		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">{{ vote_count }}</a>
 		<ul class="dropdown-menu">
 		{% for voter in vote_count_request.upvotes.all %}
 			<li class="list-group-item-success"><a class="success" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
@@ -29,7 +29,7 @@
 {% else %}
 	{% if vote_count_request.upvotes.all or vote_count_request.downvotes.all %}
 	<ul class="vote_list"><li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" title="show votes" href="#">+0</a>
+		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">+0</a>
 		<ul class="dropdown-menu">
 		{% for voter in vote_count_request.upvotes.all %}
 			<li class="list-group-item-success"><a class="success" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
@@ -40,7 +40,7 @@
 		</ul>
 	</li></ul>
 	{% else %}
-	+0
+	<span title="No Votes">+0</span>
 	{% endif %}
 {% endif %}
 {% endwith %}
