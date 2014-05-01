@@ -75,7 +75,7 @@ MESSAGES = {
 }
 
 # Add the context that populates a few variables used on every page in the site.
-TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context",)
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context", "django.core.context_processors.request", "sekizai.context_processors.sekizai",)
 
 # List of time formats accepted by event forms.
 time_formats = ['%m/%d/%Y %I:%M %p', '%m/%d/%Y %I:%M:%S %p', '%Y-%m-%d %H:%M:%S']
@@ -192,12 +192,22 @@ INSTALLED_APPS = (
 	'django.contrib.sites',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
+	'django.contrib.humanize',	# wiki
 	'threads',
 	'events',
 	'requests',
 	'bootstrapform',
 	'south',
 	'haystack',
+	'django_notify',	# wiki here to...
+	'mptt',
+	'sekizai',
+	'sorl.thumbnail',
+	'wiki',
+	'wiki.plugins.attachments',
+	'wiki.plugins.notifications',
+	'wiki.plugins.images',
+	'wiki.plugins.macros',	# ...here.
 	'django.contrib.admin',
 	'django.contrib.admindocs',
 )
