@@ -8,8 +8,6 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from haystack.views import basic_search
-from wiki.urls import get_pattern as get_wiki_pattern
-from django_notify.urls import get_pattern as get_notify_pattern
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -65,7 +63,5 @@ urlpatterns += patterns('requests.views',
 
 # Catch any other urls here
 urlpatterns += patterns('threads.views',
-	url(r'^notify/', get_notify_pattern()),
-	url(r'^wiki/', get_wiki_pattern()),
 	url(r'', 'homepage_view', name='homepage'),
 )

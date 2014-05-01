@@ -14,12 +14,12 @@
 	{% if ANONYMOUS_SESSION %}
 		<li>You are currently temporarily logged in.  When you log out, the anonymous user "{{ ANONYMOUS_USERNAME }}"  will be logged in.
 		You can log out the anonymous user and end the anonymous session.
-		<ul><li>End anonymous session and logout anonymous user: <a class="page_link" href="{% url 'end_anonymous_session' %}"><span class="glyphicon glyphicon-off"></span> End Anonymous Session</a></li></ul>
+		<ul><li>End anonymous session and logout anonymous user: <a class="page_link" href="{% url 'end_anonymous_session' %}"><span class="glyphicon glyphicon-log-out"></span> End Anonymous Session</a></li></ul>
 		</li>
 	{% else %}
 		<li>You can log out and login as the anonymous user (username "{{ ANONYMOUS_USERNAME }}").
 		It is recommended that you only do this on common space computers.
-		If you have started an anonymous session on another machine, you can end the session by logging in as yourself on that machine and ending the session through this page.
+		If you have started an anonymous session on another machine, you can end the session by logging in as yourself on that machine and ending the session through this same page.
 		<ul><li>Login as the anonymous user "{{ ANONYMOUS_USERNAME }}": <a class="page_link" href="{% url 'anonymous_login' %}"><span class="glyphicon glyphicon-log-out"></span> Anonymous Login</a></li></ul>
 		</li>
 	{% endif %}

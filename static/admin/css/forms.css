@@ -65,7 +65,6 @@ form ul.inline li {
     padding: 3px 10px 0 0;
     float: left;
     width: 8em;
-    word-wrap: break-word;
 }
 
 .aligned ul label {
@@ -227,10 +226,6 @@ body.popup .submit-row {
     width: 5em;
 }
 
-.vBigIntegerField {
-    width: 10em;
-}
-
 .vForeignKeyRawIdAdminField {
     width: 5em;
 }
@@ -273,7 +268,6 @@ body.popup .submit-row {
     margin: 0;
     background: #fff;
     border: none;
-    width: 100%;
 }
 
 .inline-related fieldset.module h3 {
