@@ -11,11 +11,18 @@
 <div class="table_container">
 	<div class="header"><h3 class="table_title">Site Utilities</h3></div>
 	<ul class="utilities_list">
+	{% if ANONYMOUS_SESSION %}
+		<li>You are currently temporarily logged in.  When you log out, the anonymous user "{{ ANONYMOUS_USERNAME }}"  will be logged in.
+		You can log out the anonymous user and end the anonymous session.
+		<ul><li>End anonymous session and logout anonymous user: <a class="page_link" href="{% url 'end_anonymous_session' %}"><span class="glyphicon glyphicon-log-out"></span> End Anonymous Session</a></li></ul>
+		</li>
+	{% else %}
 		<li>You can log out and login as the anonymous user (username "{{ ANONYMOUS_USERNAME }}").
 		It is recommended that you only do this on common space computers.
-		If logged in as the anonymous user on another machine, you can logout by visiting {{ logout_url }} on that machine.
+		If logged in as the anonymous user on another machine, you can logout through this same page on that machine.
 		<ul><li>Login as the anonymous user "{{ ANONYMOUS_USERNAME }}": <a class="page_link" href="{% url 'anonymous_login' %}"><span class="glyphicon glyphicon-log-out"></span> Anonymous Login</a></li></ul>
 		</li>
+	{% endif %}
 		<li>Sometimes (especially if you used the Django admin), the number of request responses and thread messages stored in their model fields can be different from the real value.
 		If this is the case, or you're not sure, you can recount both these fields for each request and thread.
 		It is advised that you do this every few weeks.

@@ -67,8 +67,9 @@ MESSAGES = {
 	'REQ_FILLED': "Request successfully marked filled.",
 	'SPINELESS': "You cannot modify the anonymous user profile.",
 	'ANONYMOUS_EDIT': "THIS IS THE ANONYMOUS USER PROFILE.  IT IS HIGHLY RECOMMENDED THAT YOU NOT MODIFY IT.",
-	'ANONYMOUS_DENIED': "Only superadmins are allowed to login the anonymous user.",
-	'ANONYMOUS_LOGIN': "You have successfully logged out and logged in as the anonymous user.",
+	'ANONYMOUS_DENIED': "Only superadmins are allowed to login the anonymous user or end the anonymous session.",
+	'ANONYMOUS_LOGIN': "You have successfully logged out and started an anonymous session on this machine.",
+	'ANONYMOUS_SESSION_ENDED': "You have successfully ended the anonymous session on this machine.",
 	'RECOUNTED': "Thread messages and request responses successfully recounted.",
 	'ALREADY_PAST': "This event has already passed.  You can no longer RSVP to this event.",
 }

@@ -24,7 +24,13 @@ from django.contrib import messages
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
-	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ANONYMOUS_USERNAME': ANONYMOUS_USERNAME, 'SHORT_HOUSE': short_house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count()}
+	if request.user.username == ANONYMOUS_USERNAME:
+		request.session['ANONYMOUS_SESSION'] = True
+	try:
+		ANONYMOUS_SESSION = request.session['ANONYMOUS_SESSION']
+	except:
+		ANONYMOUS_SESSION = False
+	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ANONYMOUS_USERNAME': ANONYMOUS_USERNAME, 'SHORT_HOUSE': short_house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(), 'ANONYMOUS_SESSION': ANONYMOUS_SESSION}
 
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
@@ -360,8 +366,7 @@ def utilities_view(request):
 	''' View for an admin to do maintenance tasks on the site. '''
 	if not request.user.is_superuser:
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
-	logout_url = request.build_absolute_uri(reverse('logout'))
-	return render_to_response('utilities.html', {'page_name': "Site Utilities", 'logout_url': logout_url}, context_instance=RequestContext(request))
+	return render_to_response('utilities.html', {'page_name': "Site Utilities"}, context_instance=RequestContext(request))
 
 @login_required
 def anonymous_login_view(request):
@@ -381,8 +386,18 @@ def anonymous_login_view(request):
 		spineless_profile.save()
 	spineless.backend = 'django.contrib.auth.backends.ModelBackend'
 	login(request, spineless)
+	request.session['ANONYMOUS_SESSION'] = True
 	messages.add_message(request, messages.INFO, MESSAGES['ANONYMOUS_LOGIN'])
 	return HttpResponseRedirect(reverse('homepage'))
+
+@login_required
+def end_anonymous_session_view(request):
+	''' End the anonymous session if the user is a superuser. '''
+	if not request.user.is_superuser:
+		return red_home(request, MESSAGES['ANONYMOUS_DENIED'])
+	request.session['ANONYMOUS_SESSION'] = False
+	messages.add_message(request, messages.INFO, MESSAGES['ANONYMOUS_SESSION_ENDED'])
+	return HttpResponseRedirect(reverse('utilities'))
 
 @login_required
 def recount_view(request):

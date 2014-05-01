@@ -323,8 +323,12 @@ def my_profile_view(request):
 
 def login_view(request):
 	''' The view of the login page. '''
+	try:
+		ANONYMOUS_SESSION = request.session['ANONYMOUS_SESSION']
+	except:
+		ANONYMOUS_SESSION = False
 	page_name = "Login Page"
-	if request.user.is_authenticated():
+	if (request.user.is_authenticated() and not ANONYMOUS_SESSION) or (ANONYMOUS_SESSION and request.user.username != ANONYMOUS_USERNAME):
 		return HttpResponseRedirect(reverse('homepage'))
 	class LoginForm(forms.Form):
 		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
@@ -344,11 +348,13 @@ def login_view(request):
 						user = authenticate(username=username, password=password)
 						if user is not None:
 							login(request, user)
+							request.session['ANONYMOUS_SESSION'] = True
 							try:
 								next_url = request.REQUEST.get('next', '')
 								return HttpResponseRedirect(next_url)
 							except:
-								return HttpResponseRedirect(reverse('homepage'))
+								pass
+							return HttpResponseRedirect(reverse('homepage'))
 						else:
 							form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
 					else:
@@ -359,7 +365,30 @@ def login_view(request):
 
 def logout_view(request):
 	''' Log the user out. '''
-	logout(request)
+	try:
+		ANONYMOUS_SESSION = request.session['ANONYMOUS_SESSION']
+	except:
+		ANONYMOUS_SESSION = False
+	if ANONYMOUS_SESSION:
+		if request.user.username != ANONYMOUS_USERNAME:
+			logout(request)
+			try:
+				spineless = User.objects.get(username=ANONYMOUS_USERNAME)
+			except:
+				random_password = User.objects.make_random_password()
+				spineless = User.objects.create_user(username=ANONYMOUS_USERNAME, first_name="Anonymous", last_name="Coward", password=random_password)
+				spineless.is_active = False
+				spineless.save()
+				spineless_profile = UserProfile.objects.get(user=spineless)
+				spineless_profile.status = UserProfile.ALUMNUS
+				spineless_profile.save()
+			spineless.backend = 'django.contrib.auth.backends.ModelBackend'
+			login(request, spineless)
+			request.session['ANONYMOUS_SESSION'] = True
+		else:
+			messages.add_message(request, messages.ERROR, MESSAGES['ANONYMOUS_DENIED'])
+	else:
+		logout(request)
 	return HttpResponseRedirect(reverse('homepage'))
 
 @login_required
