@@ -348,7 +348,8 @@ def login_view(request):
 						user = authenticate(username=username, password=password)
 						if user is not None:
 							login(request, user)
-							request.session['ANONYMOUS_SESSION'] = True
+							if ANONYMOUS_SESSION:
+								request.session['ANONYMOUS_SESSION'] = True
 							try:
 								next_url = request.REQUEST.get('next', '')
 								return HttpResponseRedirect(next_url)

@@ -19,7 +19,7 @@
 	{% else %}
 		<li>You can log out and login as the anonymous user (username "{{ ANONYMOUS_USERNAME }}").
 		It is recommended that you only do this on common space computers.
-		If logged in as the anonymous user on another machine, you can logout through this same page on that machine.
+		If you have started an anonymous session on another machine, you can end the session by logging in as yourself on that machine and ending the session through this same page.
 		<ul><li>Login as the anonymous user "{{ ANONYMOUS_USERNAME }}": <a class="page_link" href="{% url 'anonymous_login' %}"><span class="glyphicon glyphicon-log-out"></span> Anonymous Login</a></li></ul>
 		</li>
 	{% endif %}
