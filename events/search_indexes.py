@@ -12,14 +12,14 @@ from models import Event
 
 class EventIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Events. '''
-	text = indexes.CharField(document=True, use_template=True)
-	owner = indexes.CharField(model_attr='owner')
-	title = indexes.CharField(model_attr='title')
-	description = indexes.CharField(model_attr='description')
-	location = indexes.CharField(model_attr='location', null=True)
+	text = indexes.NgramField(document=True, use_template=True)
+	owner = indexes.NgramField(model_attr='owner')
+	title = indexes.NgramField(model_attr='title')
+	description = indexes.NgramField(model_attr='description')
+	location = indexes.NgramField(model_attr='location', null=True)
 	start_time = indexes.DateTimeField(model_attr='start_time')
 	end_time = indexes.DateTimeField(model_attr='end_time')
-	as_manager = indexes.CharField(model_attr='as_manager', null=True)
+	as_manager = indexes.NgramField(model_attr='as_manager', null=True)
 	
 	def get_model(self):
 		return Event
