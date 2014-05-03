@@ -5,6 +5,14 @@
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/search.css' %}" />
+<script>
+	function show_facets() {
+		document.getElementById("facets_container").style.display="inline";
+	}
+	function hide_facets() {
+		document.getElementById("facets_container").style.display="none";
+	}
+</script>
 {% endblock %}
 {% block content %}
 {% if not query %}
@@ -17,34 +25,68 @@
 <div class="table_container">
 <div class="header">
 	<form style="display: inline-block; position: relative; top: -3px; float: right; margin-right: 2px;" action="{% url 'haystack_search' %}">
-	<button type="submit" class="btn btn-default">New Search</button>
+	<div class="btn-group">
+		<button type="button" class="btn btn-info" onclick="show_facets()"><span class="glyphicon glyphicon-filter"></span> Filter</button>
+		<button type="submit" class="btn btn-default">Clear</button>
+	</div>
 	</form>
 	<h3 class="table_title">Search: "{{ query }}"</h3>
 </div>
+<div id="facets_container" class="bg-info">
+<h3 class="text-center">Filter</h3>
+<hr class="main_divider" style="width:75%;" />
+{% if not facets.fields %}
+	<div class="field_wrapper">No applicable filters.</div>
+	<hr class="main_divider" />
+{% else %}
+{% if facets.fields.exact_owner %}
+	<h4 class="facet_title"><small>By</small> Owner</h4>
+	<dl>
+	{% for datum in facets.fields.exact_owner %}
+		<dd class="facet_detail"><a href="{{ request.get_full_path}}&amp;selected_facets=exact_owner:{{ datum.0|urlencode }}">{{ datum.0 }}</a> ({{ datum.1}})</dd>
+	{% endfor %}
+	</dl>
+	<hr class="main_divider" />
+{% endif %}
+{% if facets.fields.exact_location %}
+	<h4 class="facet_title"><small>By</small> Location</h4>
+	<dl>
+	{% for datum in facets.fields.exact_location %}
+		<dd class="facet_detail"><a href="{{ request.get_full_path}}&amp;selected_facets=exact_location:{{ datum.0|urlencode }}">{{ datum.0 }}</a> ({{ datum.1}})</dd>
+	{% endfor %}
+	</dl>
+	<hr class="main_divider" />
+{% endif %}
+{% endif %}
+<div class="text-center hide_facets">
+	<button type="button" class="btn btn-default" onclick="hide_facets()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+	<hr class="main_divider" />
+</div>
+</div> <!-- #facets_container -->
 <div class="results_container">
 {% for result in page.object_list %}
-{% if forloop.counter > 1 %}
-<hr class="main_divider" />
-{% endif %}
-<div class="hover_row">
-{% if result.object.is_userprofile %}
-	{% include "search/userprofile.html" %}
-{% elif result.object.is_thread %}
-	{% include "search/thread.html" %}
-{% elif result.object.is_message %}
-	{% include "search/message.html" %}
-{% elif result.object.is_manager %}
-	{% include "search/manager.html" %}
-{% elif result.object.is_request %}
-	{% include "search/request.html" %}
-{% elif result.object.is_response %}
-	{% include "search/response.html" %}
-{% elif result.object.is_announcement %}
-	{% include "search/announcement.html" %}
-{% elif result.object.is_event %}
-	{% include "search/event.html" %}
-{% endif %}
-</div> <!-- .hover_row -->
+	{% if forloop.counter > 1 %}
+		<hr class="main_divider" />
+	{% endif %}
+	<div class="hover_row">
+	{% if result.object.is_userprofile %}
+		{% include "search/userprofile.html" %}
+	{% elif result.object.is_thread %}
+		{% include "search/thread.html" %}
+	{% elif result.object.is_message %}
+		{% include "search/message.html" %}
+	{% elif result.object.is_manager %}
+		{% include "search/manager.html" %}
+	{% elif result.object.is_request %}
+		{% include "search/request.html" %}
+	{% elif result.object.is_response %}
+		{% include "search/response.html" %}
+	{% elif result.object.is_announcement %}
+		{% include "search/announcement.html" %}
+	{% elif result.object.is_event %}
+		{% include "search/event.html" %}
+	{% endif %}
+	</div> <!-- .hover_row -->
 {% empty %}
 	<div class="field_wrapper">No results found.</div>
 {% endfor %}

@@ -1,4 +1,0 @@
-<p class="result_title"><a href="{% url 'member_profile' targetUsername=result.object.user.username %}">{{ result.object.user.get_full_name }}</a></p>
-<p class="result_description"><table class="profile_table">
-</table>
-</p>

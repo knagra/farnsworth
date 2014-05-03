@@ -15,6 +15,7 @@ class ManagerIndex(indexes.SearchIndex, indexes.Indexable):
 	text = indexes.EdgeNgramField(document=True, use_template=True)
 	title = indexes.EdgeNgramField(model_attr='title')
 	incumbent = indexes.EdgeNgramField(model_attr='incumbent')
+	exact_incumbent = indexes.CharField(model_attr='incumbent', faceted=True)
 	compensation = indexes.EdgeNgramField(model_attr='compensation', null=True)
 	duties = indexes.EdgeNgramField(model_attr='duties', null=True)
 	email = indexes.EdgeNgramField(model_attr='email', null=True)
@@ -29,6 +30,7 @@ class RequestIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Requests. '''
 	text = indexes.EdgeNgramField(document=True, use_template=True)
 	owner = indexes.EdgeNgramField(model_attr='owner')
+	exact_owner = indexes.CharField(model_attr='owner', faceted=True)
 	body = indexes.EdgeNgramField(model_attr='body')
 	post_date = indexes.DateTimeField(model_attr='post_date')
 	change_date = indexes.DateTimeField(model_attr='change_date')
@@ -43,6 +45,7 @@ class ResponseIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Responses. '''
 	text = indexes.EdgeNgramField(document=True, use_template = True)
 	owner = indexes.EdgeNgramField(model_attr='owner')
+	exact_owner = indexes.CharField(model_attr='owner', faceted=True)
 	body = indexes.EdgeNgramField(model_attr='body')
 	post_date = indexes.DateTimeField(model_attr='post_date')
 	request = indexes.EdgeNgramField(model_attr='request')
@@ -57,7 +60,9 @@ class AnnouncementIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Announcements. '''
 	text = indexes.EdgeNgramField(document=True, use_template = True)
 	manager = indexes.EdgeNgramField(model_attr='manager')
+	exact_manager = indexes.CharField(model_attr='manager', faceted=True)
 	incumbent = indexes.EdgeNgramField(model_attr='incumbent')
+	exact_incumbent = indexes.CharField(model_attr='incumbent', faceted=True)
 	body = indexes.EdgeNgramField(model_attr='body')
 	post_date = indexes.DateTimeField(model_attr='post_date')
 	change_date = indexes.DateTimeField(model_attr='change_date')

@@ -4,7 +4,37 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 */
 
+#facets_container {
+	display: none;
+	overflow: auto;
+	height: auto;
+}
+
+.hide_facets {
+	margin-top: 5px;
+	width: 100%;
+}
+
+.hide_facets > button {
+	margin-bottom: 20px;
+	min-width: 25%;
+	max-width: 100%;
+}
+
+.facet_title {
+	margin: 0px;
+	padding-top: 5px;
+	padding-left: 10px;
+}
+
+.facet_detail {
+	padding-left: 25px;
+	padding-bottom: 5px;
+	height: auto;
+}
+
 .result_title {
+	margin: 0px;
 	padding-top: 5px;
 	padding-left: 5px;
 }
