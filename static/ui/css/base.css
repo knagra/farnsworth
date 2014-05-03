@@ -46,7 +46,7 @@ html {
     width: 100%;
     height: auto;
     color: black;
-    margin-bottom: 60px;
+    margin-bottom: 20px;
 }
 
 #title {
@@ -58,6 +58,15 @@ html {
     clear: both;
 }
 
+#wrap: {
+	box-shadow: 0px 10px 15px rgba(0,0,0,0.3);
+}
+
+#bottom {
+	z-index: -10;
+	color: #7e7e7e;
+}
+
 footer {
     position: absolute;
     clear: both;
@@ -66,7 +75,7 @@ footer {
     font-size: 11pt;
     border: none;
     margin: 0 auto;
-    padding-top: 10px;
+    margin-top: 20px;
     padding-bottom: 10px;
     bottom: 0;
     color: #7e7e7e;

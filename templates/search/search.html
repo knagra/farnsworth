@@ -21,6 +21,7 @@
 	<div class="text-center">
 	<button class="btn btn-lg btn-default" type="submit"><span class="glyphicon glyphicon-search"></span> Search</button>
 	</div>
+</form>
 {% else %}
 <div class="table_container">
 <div class="header">
@@ -40,7 +41,9 @@
 	<h4 class="text-center"><small>By</small> User</h4>
 	<div class="list-group" style="margin-left: 10px; margin-right: 10px;">
 	{% for datum in facets.fields.exact_user %}
-		<a class="list-group-item{% if not datum.0 %} list-group-item-danger{% endif %}" href="{{ request.get_full_path}}&amp;selected_facets=exact_user:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{% if datum.0 %}{{ datum.0 }}{% else %}(UNKNOWN USER){% endif %}</a>
+	{% if datum.0 %}
+		<a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_user:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{{ datum.0 }}</a>
+	{% endif %}
 	{% endfor %}
 	</div>
 	<hr class="main_divider" style="width: 50%;" />
@@ -49,7 +52,9 @@
 	<h4 class="text-center"><small>By</small> Manager</h4>
 	<div class="list-group" style="margin-left: 10px; margin-right: 10px;">
 	{% for datum in facets.fields.exact_manager %}
-		<a class="list-group-item{% if not datum.0 %} list-group-item-danger{% endif %}" href="{{ request.get_full_path}}&amp;selected_facets=exact_manager:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{% if datum.0 %}{{ datum.0 }}{% else %}(UNKNOWN MANAGER){% endif %}</a>
+	{% if datum.0 %}
+		<a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_manager:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{{ datum.0 }}</a>
+	{% endif %}
 	{% endfor %}
 	</div>
 	<hr class="main_divider" style="width: 50%;" />
@@ -58,7 +63,9 @@
 	<h4 class="text-center"><small>By</small> Location</h4>
 	<div class="list-group" style="margin-left: 10px; margin-right: 10px;">
 	{% for datum in facets.fields.exact_location %}
-		<a class="list-group-item{% if not datum.0 %} list-group-item-danger{% endif %}" href="{{ request.get_full_path}}&amp;selected_facets=exact_location:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{% if datum.0 %}{{ datum.0 }}{% else %}(UNKNOWN LOCATION){% endif %}</a>
+	{% if datum.0 %}
+		<a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_location:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{{ datum.0 }}</a>
+	{% endif %}
 	{% endfor %}
 	</div>
 	<hr class="main_divider" style="width: 50%;" />
@@ -67,16 +74,17 @@
 	<h4 class="text-center"><small>By</small> Member Status</h4>
 	<div class="list-group" style="margin-left: 10px; margin-right: 10px;">
 	{% for datum in facets.fields.exact_status %}
-		<a class="list-group-item{% if not datum.0 %} list-group-item-danger{% endif %}" href="{{ request.get_full_path}}&amp;selected_facets=exact_status:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{% if datum.0 = 'R' %}Resident{% elif datum.0 = 'B' %}Boarder{% elif datum.0 = 'U' %}Alumnus{% else %}Unknown Status{% endif %}</a>
+	{% if datum.0 %}
+		<a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_status:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{% if datum.0 = 'R' %}Resident{% elif datum.0 = 'B' %}Boarder{% elif datum.0 = 'U' %}Alumnus{% else %}Unknown Status{% endif %}</a>
+	{% endif %}
 	{% endfor %}
 	</div>
 	<hr class="main_divider" style="width: 50%;" />
 {% endif %}
-</ul> <!-- .list-group -->
 {% endif %}
 <div class="text-center hide_facets">
 	<button type="button" class="btn btn-default" onclick="hide_facets()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-	<hr class="main_divider" />
+	<hr class="main_divider" style="width: 75%;" />
 </div>
 </div> <!-- #facets_container -->
 <div class="results_container">
@@ -84,7 +92,7 @@
 	{% if forloop.counter > 1 %}
 		<hr class="main_divider" />
 	{% endif %}
-	<div class="hover_row">
+	<div class="hover_row result_row">
 	{% if result.object.is_userprofile %}
 		{% include "search/userprofile.html" %}
 	{% elif result.object.is_thread %}
@@ -114,8 +122,7 @@
 	{% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
 	</div> <!-- text-center" -->
 {% endif %}
-{% endif %}
 </div> <!-- .results_container -->
 </div> <!-- .table_container -->
-</form>
+{% endif %}
 {% endblock %}

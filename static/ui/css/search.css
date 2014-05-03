@@ -8,8 +8,6 @@ Author: Karandeep Singh Nagra
 	display: none;
 	overflow: auto;
 	background-color: #d9edf7;
-	margin-right: 2px;
-	margin-left: 2px;
 }
 
 .hide_facets {
@@ -23,16 +21,8 @@ Author: Karandeep Singh Nagra
 	max-width: 100%;
 }
 
-.facet_title {
-	margin: 0px;
-	padding-top: 5px;
-	padding-left: 10px;
-}
-
-.facet_detail {
-	padding-left: 25px;
+.result_row {
 	padding-bottom: 5px;
-	height: auto;
 }
 
 .result_title {
