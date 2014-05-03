@@ -12,7 +12,7 @@ from haystack.query import SearchQuerySet
 from haystack.views import FacetedSearchView
 admin.autodiscover()
 
-sqs = SearchQuerySet().facet('exact_owner').facet('exact_location').facet('exact_as_manager').facet('exact_incumbent')
+sqs = SearchQuerySet().facet('exact_user').facet('exact_location').facet('exact_manager').facet('exact_status')
 
 urlpatterns = patterns('',
 	url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

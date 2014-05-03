@@ -7,7 +7,7 @@ Author: Karandeep Singh Nagra
 #facets_container {
 	display: none;
 	overflow: auto;
-	height: auto;
+	background-color: #d9edf7;
 }
 
 .hide_facets {

@@ -14,7 +14,7 @@ class EventIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Events. '''
 	text = indexes.EdgeNgramField(document=True, use_template=True)
 	owner = indexes.EdgeNgramField(model_attr='owner')
-	exact_owner = indexes.CharField(model_attr='owner', faceted=True)
+	exact_user = indexes.CharField(model_attr='owner', faceted=True)
 	title = indexes.EdgeNgramField(model_attr='title')
 	description = indexes.EdgeNgramField(model_attr='description')
 	location = indexes.EdgeNgramField(model_attr='location', null=True)
@@ -22,7 +22,7 @@ class EventIndex(indexes.SearchIndex, indexes.Indexable):
 	start_time = indexes.DateTimeField(model_attr='start_time')
 	end_time = indexes.DateTimeField(model_attr='end_time')
 	as_manager = indexes.EdgeNgramField(model_attr='as_manager', null=True)
-	exact_as_manager = indexes.CharField(model_attr='as_manager', null=True, faceted=True)
+	exact_manager = indexes.CharField(model_attr='as_manager', null=True, faceted=True)
 	
 	def get_model(self):
 		return Event

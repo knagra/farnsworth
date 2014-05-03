@@ -26,24 +26,35 @@
 <div class="header">
 	<form style="display: inline-block; position: relative; top: -3px; float: right; margin-right: 2px;" action="{% url 'haystack_search' %}">
 	<div class="btn-group">
-		<button type="button" class="btn btn-info" onclick="show_facets()"><span class="glyphicon glyphicon-filter"></span> Filter</button>
-		<button type="submit" class="btn btn-default">Clear</button>
+		<button type="button" class="btn btn-info" onclick="show_facets()" title="Show filters"><span class="glyphicon glyphicon-filter"></span> Filter</button>
+		<button type="submit" class="btn btn-default" title="Start a new search"><span class="glyphicon glyphicon-asterisk"></span> New</button>
 	</div>
 	</form>
-	<h3 class="table_title">Search: "{{ query }}"</h3>
+	<h3 class="table_title">Search</h3>
 </div>
-<div id="facets_container" class="bg-info">
+<h2 class="text-center">Results matching "{{ query }}"</h2>
+<hr class="main_divider" style="width: 75%;" />
+<div id="facets_container">
 <h3 class="text-center">Filter</h3>
-<hr class="main_divider" style="width:75%;" />
+<hr class="main_divider" style="width:50%;" />
 {% if not facets.fields %}
 	<div class="field_wrapper">No applicable filters.</div>
 	<hr class="main_divider" />
 {% else %}
-{% if facets.fields.exact_owner %}
-	<h4 class="facet_title"><small>By</small> Owner</h4>
+{% if facets.fields.exact_user %}
+	<h4 class="facet_title"><small>By</small> User</h4>
 	<dl>
-	{% for datum in facets.fields.exact_owner %}
-		<dd class="facet_detail"><a href="{{ request.get_full_path}}&amp;selected_facets=exact_owner:{{ datum.0|urlencode }}">{{ datum.0 }}</a> ({{ datum.1}})</dd>
+	{% for datum in facets.fields.exact_user %}
+		<dd class="facet_detail"><a href="{{ request.get_full_path}}&amp;selected_facets=exact_user:{{ datum.0|urlencode }}">{% if datum.0 %}{{ datum.0 }}{% else %}(UNKNOWN USER){% endif %}</a> ({{ datum.1}})</dd>
+	{% endfor %}
+	</dl>
+	<hr class="main_divider" />
+{% endif %}
+{% if facets.fields.exact_manager %}
+	<h4 class="facet_title"><small>By</small> Manager</h4>
+	<dl>
+	{% for datum in facets.fields.exact_manager %}
+		<dd class="facet_detail"><a href="{{ request.get_full_path}}&amp;selected_facets=exact_manager:{{ datum.0|urlencode }}">{% if datum.0 %}{{ datum.0 }}{% else %}(UNKNOWN MANAGER){% endif %}</a> ({{ datum.1}})</dd>
 	{% endfor %}
 	</dl>
 	<hr class="main_divider" />
@@ -52,7 +63,18 @@
 	<h4 class="facet_title"><small>By</small> Location</h4>
 	<dl>
 	{% for datum in facets.fields.exact_location %}
-		<dd class="facet_detail"><a href="{{ request.get_full_path}}&amp;selected_facets=exact_location:{{ datum.0|urlencode }}">{{ datum.0 }}</a> ({{ datum.1}})</dd>
+		{% if datum.0 %}
+			<dd class="facet_detail"><a href="{{ request.get_full_path}}&amp;selected_facets=exact_location:{{ datum.0|urlencode }}">{% if datum.0 %}{{ datum.0 }}{% else %}(UNKNOWN LOCATION){% endif %}</a> ({{ datum.1}})</dd>
+		{% endif %}
+	{% endfor %}
+	</dl>
+	<hr class="main_divider" />
+{% endif %}
+{% if facets.fields.exact_status %}
+	<h4 class="facet_title"><small>By</small> Member Status</h4>
+	<dl>
+	{% for datum in facets.fields.exact_status %}
+		<dd class="facet_detail"><a href="{{ request.get_full_path}}&amp;selected_facets=exact_status:{{ datum.0|urlencode }}">{% if datum.0 = 'R' %}Resident{% elif datum.0 = 'B' %}Boarder{% elif datum.0 = 'U' %}Alumnus{% else %}Unknown Status{% endif %}</a> ({{ datum.1}})</dd>
 	{% endfor %}
 	</dl>
 	<hr class="main_divider" />
