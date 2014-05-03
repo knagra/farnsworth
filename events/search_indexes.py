@@ -15,7 +15,7 @@ class EventIndex(indexes.SearchIndex, indexes.Indexable):
 	text = indexes.EdgeNgramField(document=True, use_template=True)
 	owner = indexes.EdgeNgramField(model_attr='owner')
 	exact_user = indexes.CharField(model_attr='owner', faceted=True)
-	title = indexes.EdgeNgramField(model_attr='title')
+	title = indexes.EdgeNgramField(model_attr='title', boost=1.125)
 	description = indexes.EdgeNgramField(model_attr='description')
 	location = indexes.EdgeNgramField(model_attr='location', null=True)
 	exact_location = indexes.CharField(model_attr='location', null=True, faceted=True)

@@ -13,7 +13,7 @@ from models import Manager, Request, Response, Announcement
 class ManagerIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Managers. '''
 	text = indexes.EdgeNgramField(document=True, use_template=True)
-	title = indexes.EdgeNgramField(model_attr='title')
+	title = indexes.EdgeNgramField(model_attr='title', boost=1.125)
 	incumbent = indexes.EdgeNgramField(model_attr='incumbent')
 	exact_user = indexes.CharField(model_attr='incumbent', faceted=True)
 	compensation = indexes.EdgeNgramField(model_attr='compensation', null=True)

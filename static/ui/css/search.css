@@ -8,6 +8,8 @@ Author: Karandeep Singh Nagra
 	display: none;
 	overflow: auto;
 	background-color: #d9edf7;
+	margin-right: 2px;
+	margin-left: 2px;
 }
 
 .hide_facets {

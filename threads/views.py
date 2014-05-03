@@ -221,6 +221,7 @@ def homepage_view(request, message=None):
 					relevant_request.upvotes.add(userProfile)
 					relevant_request.downvotes.remove(userProfile)
 				relevant_request.save()
+				return HttpResponseRedirect(reverse('homepage'))
 		elif 'downvote' in request.POST:
 			vote_form = VoteForm(request.POST)
 			if vote_form.is_valid():
@@ -232,6 +233,7 @@ def homepage_view(request, message=None):
 					relevant_request.downvotes.add(userProfile)
 					relevant_request.upvotes.remove(userProfile)
 				relevant_request.save()
+				return HttpResponseRedirect(reverse('homepage'))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
 	return render_to_response('homepage.html', {'page_name': "Home", 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads, 'thread_form': thread_form}, context_instance=RequestContext(request))
