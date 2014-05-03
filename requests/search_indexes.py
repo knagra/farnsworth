@@ -12,12 +12,12 @@ from models import Manager, Request, Response, Announcement
 
 class ManagerIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Managers. '''
-	text = indexes.NgramField(document=True, use_template=True)
-	title = indexes.NgramField(model_attr='title')
-	incumbent = indexes.NgramField(model_attr='incumbent')
-	compensation = indexes.NgramField(model_attr='compensation', null=True)
-	duties = indexes.NgramField(model_attr='duties', null=True)
-	email = indexes.NgramField(model_attr='email', null=True)
+	text = indexes.EdgeNgramField(document=True, use_template=True)
+	title = indexes.EdgeNgramField(model_attr='title')
+	incumbent = indexes.EdgeNgramField(model_attr='incumbent')
+	compensation = indexes.EdgeNgramField(model_attr='compensation', null=True)
+	duties = indexes.EdgeNgramField(model_attr='duties', null=True)
+	email = indexes.EdgeNgramField(model_attr='email', null=True)
 	
 	def get_model(self):
 		return Manager
@@ -27,9 +27,9 @@ class ManagerIndex(indexes.SearchIndex, indexes.Indexable):
 
 class RequestIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Requests. '''
-	text = indexes.NgramField(document=True, use_template=True)
-	owner = indexes.NgramField(model_attr='owner')
-	body = indexes.NgramField(model_attr='body')
+	text = indexes.EdgeNgramField(document=True, use_template=True)
+	owner = indexes.EdgeNgramField(model_attr='owner')
+	body = indexes.EdgeNgramField(model_attr='body')
 	post_date = indexes.DateTimeField(model_attr='post_date')
 	change_date = indexes.DateTimeField(model_attr='change_date')
 	
@@ -41,11 +41,11 @@ class RequestIndex(indexes.SearchIndex, indexes.Indexable):
 
 class ResponseIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Responses. '''
-	text = indexes.NgramField(document=True, use_template = True)
-	owner = indexes.NgramField(model_attr='owner')
-	body = indexes.NgramField(model_attr='body')
+	text = indexes.EdgeNgramField(document=True, use_template = True)
+	owner = indexes.EdgeNgramField(model_attr='owner')
+	body = indexes.EdgeNgramField(model_attr='body')
 	post_date = indexes.DateTimeField(model_attr='post_date')
-	request = indexes.NgramField(model_attr='request')
+	request = indexes.EdgeNgramField(model_attr='request')
 	
 	def get_model(self):
 		return Response
@@ -55,10 +55,10 @@ class ResponseIndex(indexes.SearchIndex, indexes.Indexable):
 
 class AnnouncementIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Announcements. '''
-	text = indexes.NgramField(document=True, use_template = True)
-	manager = indexes.NgramField(model_attr='manager')
-	incumbent = indexes.NgramField(model_attr='incumbent')
-	body = indexes.NgramField(model_attr='body')
+	text = indexes.EdgeNgramField(document=True, use_template = True)
+	manager = indexes.EdgeNgramField(model_attr='manager')
+	incumbent = indexes.EdgeNgramField(model_attr='incumbent')
+	body = indexes.EdgeNgramField(model_attr='body')
 	post_date = indexes.DateTimeField(model_attr='post_date')
 	change_date = indexes.DateTimeField(model_attr='change_date')
 	
