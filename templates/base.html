@@ -20,7 +20,6 @@
 	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
 </head>
 <body id="html_body">
-	<div id="wrap">
 	<div class="container"> <!-- # Get rid of this to make the bar span the entire width of the page -->
 	<div class="navbar navbar-default navbar-static-top" role="navigation">
 	<div class="container-fluid">
@@ -41,7 +40,7 @@
 			<li><a title="Logged in as anonymous user {{ user.first_name }} {{ user.last_name }}. Click to temporarily login as yourself." style="color: #ff0000;" href="{% url 'login' %}"><span class="glyphicon glyphicon-exclamation-sign"></span> Login</a></li>
 	      {% else %}
 	      <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {{ user.username }} <b class="caret"></b></a>
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown"{% if ANONYMOUS_SESSION %} style="color: #ff0000;" title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}><span class="glyphicon glyphicon-user"></span> {{ user.username }} <b class="caret"></b></a>
 		<ul class="dropdown-menu">
 	    	  <li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
 	    	  <li><a href="{% url 'list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
@@ -149,10 +148,9 @@
 	{% block gallery %}{% endblock %}
       </div> <!-- close "body" -->
     </div> <!-- .container -->
-    </div> <!-- #wrap -->
-	<div id="bottom" class="container text-center"><p class="muted credit">
+	<div id="bottom" class="container text-center">
       Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.
-    </p></div>
+    </div>
     <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
@@ -168,6 +166,59 @@
 		$("input[type=text]").addClass("form-control");
 		$("input[type=password]").addClass("form-control");
 		$("select").addClass("form-control");
+		
+	<!-- change display format for some things depending on window width -->
+		$(window).ready(function() {
+			var wi = $(window).width();
+			if (wi <= 300) {
+				$(".table_title").css("font-size", "39%");
+				$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+			} else if (wi <= 300) {
+				$(".table_title").css("font-size", "45%");
+				$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+			} else if (wi <= 440) {
+				$(".table_title").css("font-size", "55%");
+				$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+			} else if (wi <= 480) {
+				$(".table_title").css("font-size", "75%");
+				$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+			} else if (wi <= 550) {
+				$(".table_title").css("font-size", "85%");
+				$("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
+			} else if (wi <= 768) {
+				$(".table_title").css("font-size", "100%");
+				$("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
+			} else if (wi > 768) {
+				$(".table_title").css("font-size", "100%");
+				$("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
+			}
+			
+			$(window).resize(function() {
+				var wi = $(window).width();
+				if (wi <= 300) {
+					$(".table_title").css("font-size", "39%");
+					$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+				} else if (wi <= 300) {
+					$(".table_title").css("font-size", "45%");
+					$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+				} else if (wi <= 440) {
+					$(".table_title").css("font-size", "55%");
+					$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+				} else if (wi <= 480) {
+					$(".table_title").css("font-size", "75%");
+					$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+				} else if (wi <= 550) {
+					$(".table_title").css("font-size", "85%");
+					$("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
+				} else if (wi <= 768) {
+					$(".table_title").css("font-size", "100%");
+					$("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
+				} else if (wi > 768) {
+					$(".table_title").css("font-size", "100%");
+					$("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
+				}
+			});
+		});
 	</script>
     {% block endscripts %}{% endblock %}
   </body>

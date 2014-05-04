@@ -1,0 +1,8 @@
+Farnsworth Roadmap
+==================
+
+Now until 10 May 2014 - OAuth, user and site admin documenation work.  Create a list of future features and some hints on how to implement them.
+
+10 May 2014 - Alpha Release (Version 0.9.0), no new features until release 1.1.  Switch to PostgreSQL for deployment database.  Looking for bugs now.
+
+17 May 2014 - Initial Release (Version 1.0.0).

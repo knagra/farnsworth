@@ -18,7 +18,7 @@ Author: Karandeep Singh Nagra
 
 html {
     position: relative;
-    min-height: 100%;
+    height: 100%;
 }
 
 #html_body {
@@ -28,8 +28,10 @@ html {
     background: -webkit-linear-gradient(top, #fafafa 0%, #efefef 100%);
     background-repeat: no-repeat;
     background-attachment: fixed;
-    height: 100%;
+    min-height: 100%;
+    height: auto;
     width: 100%;
+    position: relative;
 }
 
 .navbar-static-top {
@@ -46,7 +48,7 @@ html {
     width: 100%;
     height: auto;
     color: black;
-    margin-bottom: 20px;
+    padding-bottom: 50px;
 }
 
 #title {
@@ -58,34 +60,21 @@ html {
     clear: both;
 }
 
-#wrap: {
-	box-shadow: 0px 10px 15px rgba(0,0,0,0.3);
-}
-
 #bottom {
-	z-index: -10;
-	color: #7e7e7e;
+	color: #aeaeae;
+	font-size: 11pt;
+	position: absolute;
+	bottom: 0px;
+	clear: both;
+	width: 100%;
+	height: 50px;
+	overflow: auto;
+	padding-top: 19px;
 }
 
-footer {
-    position: absolute;
-    clear: both;
-    text-align: center;
-    width: 100%;
-    font-size: 11pt;
-    border: none;
-    margin: 0 auto;
-    margin-top: 20px;
-    padding-bottom: 10px;
-    bottom: 0;
-    color: #7e7e7e;
-    text-decoration: none;
-    clear: both;
-    font-weight: 400;
-}
 
 .footer_link {
-    color: #5e5e5e;
+    color: #7e7e7e;
     font-weight: 400;
     text-decoration: none;
 }
