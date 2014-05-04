@@ -80,8 +80,6 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("re
 # List of time formats accepted by event forms.
 time_formats = ['%m/%d/%Y %I:%M %p', '%m/%d/%Y %I:%M:%S %p', '%Y-%m-%d %H:%M:%S']
 
-#DATETIME_INPUT_FORMATS = global_settings.DATETIME_INPUT_FORMATS + ('%m/%d/%Y %H:%M %p',)
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
