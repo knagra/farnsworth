@@ -22,9 +22,9 @@
 <div class="table_container">
 	<div class="header">{% if manager_positions %}
 		<button class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="button"><span class="glyphicon glyphicon-pencil"></span> New Announcement</button>
-		{% endif %}<h3 class="table_title">{{ page_name }}</h3>
+		{% endif %}<h3 class="table_title large_title">{{ page_name }}</h3>
 	</div> <!-- .header -->
-	<div class="announcements_table">
+	<div class="announcements_table main_table">
 		{% if manager_positions %}
 		<form id="new_announcement_form" method="post" action="">
 			{% csrf_token %}

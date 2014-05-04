@@ -10,12 +10,14 @@
 {% block content %}
 	<div id="login_form">
 		<div class="header"><h3 class="table_title">Login</h3></div>
+		<div class="main_table">
 		<form method="post" action="">
 			{% csrf_token %}
 			<div class="form-group">
 				{{ form|bootstrap }}
-				<div class="text-center"><button type="submit" class="btn btn-lg btn-success">Enter <span class="glyphicon glyphicon-chevron-right"></span></button></div>
+				<div class="text-center"><button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-lock"></span>Enter</button></div>
 			</div>
 		</form>
+		</div> <!-- .main_table -->
 	</div>
 {% endblock %}

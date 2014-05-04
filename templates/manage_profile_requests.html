@@ -20,6 +20,7 @@ $(document).ready(function() {
 {% block content %}
 <div class="table_container">
 	<div class="header"><h3 class="table_title">Profile Requests</h3></div>
+	<div class="main_table">
 	{% if not profile_requests %}
 		<div class="field_wrapper">No profile requests in database.</div>
 	{% else %}
@@ -48,5 +49,6 @@ $(document).ready(function() {
 	</tbody>
 	</table>
 	{% endif %}
+	</div> <!-- .main_table -->
 </div>
 {% endblock %}

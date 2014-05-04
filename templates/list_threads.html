@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
-
+{% load request_tags %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
@@ -18,11 +18,16 @@
 			<form action="{% url 'my_threads' %}">
 			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span> Expanded View</button>
 			</form>
+		{% elif targetUsername %}
+			<form action="{% url 'member_profile' targetUsername=targetUsername %}">
+			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-user"></span> {{ targetUsername }}'s Profile</button>
+			</form>
 		{% endif %}
-		<h3 class="table_title">
+		<h3 class="table_title {% if page_name|longer_than:'1234567890123456789' %}large{% elif page_name|longer_than:'123456789012' %}medium{% else %}small{% endif %}_title">
 			{{ page_name }}
 		</h3>
 	</div>
+  <div class="main_table">
   {% if not threads %}
   <div class="field_wrapper">No threads found.</div>
   {% else %}
@@ -49,6 +54,7 @@
     </tbody>
   </table>
   {% endif %}
+  </div> <!-- .main_table -->
 </div>
 {% endblock %}
 

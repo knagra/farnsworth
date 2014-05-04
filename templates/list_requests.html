@@ -23,10 +23,11 @@
 			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-user"></span> {{ targetUsername }}'s Profile</button>
 			</form>
 		{% endif %}
-		<h3 class="table_title">
+		<h3 class="table_title {% if page_name|longer_than:'1234567890123456789' %}large{% elif page_name|longer_than:'123456789012' %}medium{% else %}small{% endif %}_title">
 			{{ page_name }}
 		</h3>
 	</div>
+  <div class="main_table">
   {% if not requests %}
   <div class="field_wrapper">No requests found.</div>
   {% else %}
@@ -61,6 +62,7 @@
     </tbody>
   </table>
   {% endif %}
+  </div> <!-- .main_table -->
 </div>
 {% endblock %}
 

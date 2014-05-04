@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
+{% load request_tags %}
 {% load thread_tags %}
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
@@ -13,8 +14,9 @@
 <div class="threads">
   <div class="header">
     <button class="btn btn-primary add_thread" align="right" onclick="show_new_thread_form()" type="button"><span class="glyphicon glyphicon-pencil"></span> New Thread</button>
-    <h3 class="table_title">{{ thread_title }}</h3>
+    <h3 class="table_title {% if thread_title|longer_than:'12345678901234567890' %}large{% elif thread_title|longer_than:'12345678901234' %}medium{% else %}small{% endif %}_title">{{ thread_title }}</h3>
   </div> <!-- table_header -->
+  <div class="main_table">
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}
     <div class="form-group">
@@ -80,6 +82,7 @@
     {% endfor %}
     {% endif %}
   </div> <!-- threads_table -->
+  </div> <!-- .main_table -->
 </div>
 {% endblock %}
 

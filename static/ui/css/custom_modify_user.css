@@ -9,7 +9,7 @@ Author: Karandeep Singh Nagra
 	margin: 0px auto;
 	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
 	overflow: hidden;
-	width: 75%;
+	width: 85%;
 }
 
 #change_password {
@@ -18,7 +18,7 @@ Author: Karandeep Singh Nagra
 	margin-top: 20px;
 	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
 	overflow: hidden;
-	width: 50%;
+	width: 60%;
 }
 
 .form-group {
@@ -26,7 +26,7 @@ Author: Karandeep Singh Nagra
 	padding-right: 5px;
 }
 
-.btn {
+.form-group .btn {
 	min-width: 50%;
 	max-width: 100%;
 	margin-top: 15px;

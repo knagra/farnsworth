@@ -9,7 +9,8 @@
 
 {% block content %}
 	<div id="add_user_form">
-		<div class="header"><h3 class="table_title">Modify Profile Request</h3></div>
+		<div class="header"><h3 class="table_title small_title">Modify Profile Request</h3></div>
+		<div class="main_table">
 		<form method="post" action="">
 			{% csrf_token %}
 			<div class="form-group">
@@ -22,5 +23,6 @@
 				</div>
 			</div>
 		</form>
+		</div> <!-- .main_table -->
 	</div>
 {% endblock %}

@@ -2,6 +2,7 @@
 
 {% load static from staticfiles %}
 {% load bootstrap %}
+{% load request_tags %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/custom_modify_user.css' %}" />
@@ -9,7 +10,8 @@
 
 {% block content %}
 	<div id="update_profile">
-		<div class="header"><h3 class="table_title">Modify {{ targetUser.username }}'s Profile</h3></div>
+		<div class="header"><h3 class="table_title medium_title">Modify {{ targetUser.username }}'s Profile</h3></div>
+		<div class="main_table">
 		<form method="post" action="">
 			{% csrf_token %}
 			<div class="form-group">
@@ -17,9 +19,11 @@
 				<div class="text-center"><button type="submit" class="btn btn-lg btn-success" name="update_user_profile"><span class="glyphicon glyphicon-floppy-disk"></span> Update {{ targetUser.username }}'s Profile</button></div>
 			</div>
 		</form>
-	</div>
+		</div> <!-- .main_table -->
+	</div> <!-- #update_profile -->
 	<div id="change_password">
-		<div class="header"><h3 class="table_title">Change {{ targetUser.username }}'s Password</h3></div>
+		<div class="header"><h3 class="table_title large_title">Change {{ targetUser.username }}'s Password</h3></div>
+		<div class="main_table">
 		<form method="post" action="">
 			{% csrf_token %}
 			<div class="form-group">
@@ -27,5 +31,6 @@
 				<div class="text-center"><button type="submit" class="btn btn-lg btn-warning" name="change_user_password"><span class="glyphicon glyphicon-flash"></span> Change {{ targetUser.username }}'s Password</button></div>
 			</div>
 		</form>
+		</div> <!-- .main_table -->
 	</div>
 {% endblock %}

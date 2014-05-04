@@ -11,6 +11,7 @@
 {% block content %}
 <div class="table_container">
   <div class="header"><h3 class="table_title">Residents</h3></div>
+  <div class="main_table">
   {% if not residents %}
   <div class="field_wrapper">Broh, no!  No current residents found.  Either {{ HOUSE }} is completely deserted or the database needs to be updated.</div>
   {% else %}
@@ -39,9 +40,11 @@
     </tbody>
   </table>
   {% endif %}
+  </div> <!-- .main_table -->
 </div>
 <div class="table_container">
   <div class="header"><h3 class="table_title">Boarders</h3></div>
+  <div class="main_table">
   {% if not boarders %}
   <div class="field_wrapper">It's a free, open world!  There are no borders!  ... It says "Boarders."  Awww...now I'm sad.  Ask your friends to board! or the site admin to update the database.</div>
   {% else %}
@@ -68,9 +71,11 @@
     </tbody>
   </table>
   {% endif %}
+  </div> <!-- .main_table -->
 </div>
 <div class="table_container">
   <div class="header"><h3 class="table_title">Alumni</h3></div>
+  <div class="main_table">
   {% if not alumni %}
   <div class="field_wrapper">Hooj a baby co-op?  Hooj a baby co-op?  {{ HOUSE }}'s a baby co-op!  No alumni found in database.  Invite them to this site!</div>
   {% else %}
@@ -101,6 +106,7 @@
     </tbody>
   </table>
   {% endif %}
+  </div> <!-- .main_table -->
 </div>
 {% endblock %}
 

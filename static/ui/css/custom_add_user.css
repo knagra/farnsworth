@@ -9,7 +9,7 @@ Author: Karandeep Singh Nagra
 	margin: 0px auto;
 	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
 	overflow: hidden;
-	max-width: 75%;
+	max-width: 85%;
 }
 
 .form-group {
@@ -18,7 +18,7 @@ Author: Karandeep Singh Nagra
 	margin-bottom: 0px;
 }
 
-.btn {
+.form-group .btn {
 	min-width: 50%;
 	margin-top: 15px;
 }

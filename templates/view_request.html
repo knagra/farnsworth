@@ -17,9 +17,9 @@
 	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-{% if relevant_request.request_type.glyphicon %}{{ relevant_request.request_type.glyphicon }}{% else %}inbox{% endif %}"></span> List All Requests</button>
 	</form>
 	{% endif %}
-    <h3 class="table_title">{{ page_name }}</h3>
+    <h3 class="table_title small_title">{{ page_name }}</h3>
   </div> <!-- table_header -->
-  <div class="requests_table">
+  <div class="requests_table main_table">
     {% if not relevant_request %}
     <div class="field_wrapper">Request not found.</div>
     {% else %}

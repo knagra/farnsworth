@@ -49,6 +49,7 @@ Author: Karandeep Singh Nagra
 
 .main_table {
 	width: 100%;
+	overflow-x: auto;
 }
 
 .main_form {

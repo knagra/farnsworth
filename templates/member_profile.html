@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
-
+{% load request_tags %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_profile.css' %}" />
@@ -10,19 +10,21 @@
 {% block content %}
 	<div id="user_profile">
 		<div class="header">
-			{% if user.is_superuser and targetUser.username != ANONYMOUS_USERNAME %}
+			{% if user.is_superuser and targetUser.username != ANONYMOUS_USERNAME and targetUser %}
 				<form style="display:inline-block; position: relative; top: -6px; float: right; margin-top: 3px; margin-right: 3px; height: auto;" action="{% url 'custom_modify_user' targetUsername=targetUser.username %}">
 					<button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span> Edit</button>
 				</form>
 			{% endif %}
-		<h3 class="table_title">
 			{% if targetUser %}
+			<h3 class="table_title{% if targetUser.username|longer_than:'12345678901234567890' %} large_title{% elif targetUser.username|longer_than:'1234568' %} medium_title{% elif targetUser.username|longer_than:'1234567' %} small_title{% endif %}">
 				{{ targetUser.username }}'s Profile
 			{% else %}
-				User {{ targetUser.username }} Not Found
+			<h3 class="table_title small_title">
+				User Not Found
 			{% endif %}
-		</h3>
-		</div>
+			</h3>
+		</div> <!-- .header -->
+		<div class="main_table">
 		{% if message %}
 			<div class="field_wrapper">{{ message }}</div>
 		{% else %}
@@ -35,7 +37,7 @@
 				<tr><th>Former Rooms:</th><td class="field">{{ targetProfile.former_rooms }}</td></tr>
 				<tr><th>Former Houses:</th><td class="field">{{ targetProfile.former_houses }}</td></tr>
 				{% if targetProfile.email_visible %}
-					<tr><th>E-mail:</th><td class="field">{{ targetUser.email }}</td></tr>
+					<tr><th>E-mail:</th><td class="field"><a class="page_link" title="Write E-mail" href="mailto:{{ targetUser.email }}">{{ targetUser.email }}</a></td></tr>
 				{% endif %}
 				{% if targetProfile.phone_visible %}
 					<tr><th>Phone:</th><td class="field">{{ targetProfile.phone_number }}</td></tr>
@@ -49,8 +51,9 @@
 		<hr>
 		<div class="text-center">
 			<form action="{% url 'member_directory' %}">
-				<button id="member_directory" type="submit" class="btn btn-lg btn-info"><span class="glyphicon glyphicon-chevron-left"></span> Member Directory</button>
+				<button id="member_directory" type="submit" class="btn btn-lg btn-info"><span class="glyphicon glyphicon-book"></span> Member Directory</button>
 			</form>
 		</div>
+		</div> <!-- .main_table -->
 	</div>
 {% endblock %}

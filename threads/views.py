@@ -582,7 +582,7 @@ def list_user_threads_view(request, targetUsername):
 		return render_to_response('list_threads.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
 	threads = Thread.objects.filter(owner=targetProfile)
 	page_name = "%s's Threads" % targetUsername
-	return render_to_response('list_threads.html', {'page_name': page_name, 'threads': threads}, context_instance=RequestContext(request))
+	return render_to_response('list_threads.html', {'page_name': page_name, 'threads': threads, 'targetUsername': targetUsername}, context_instance=RequestContext(request))
 
 @login_required
 def list_all_threads_view(request):
