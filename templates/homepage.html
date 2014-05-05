@@ -241,7 +241,7 @@ function hide_form(form_id) {
 	{% if forloop.counter > 1 %}
 	<hr class="main_divider">
 	{% endif %}
-	<div class="main_row"{% if tuple.0.cancelled %} style="background: #ffe6e6;" title="Cancelled"{% elif tuple.1 %} style="background: #e6ffe6;" title="Hapenning Now"{% endif %}>
+	<div class="main_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Hapenning Now{% endif %}">
 		<div class="main_owner">
 		{% if tuple.0.as_manager %}
 			{{ tuple.0.as_manager }} (<a class="page_link" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>), {{ tuple.0.change_date }}:
@@ -260,13 +260,12 @@ function hide_form(form_id) {
 		</div> <!-- .main_owner -->
 		<div class="event_body">
 			<div class="text-center">
-				<h5 class="event_header">{{ tuple.0.title }}</h5>
+				<h4 class="event_header">{{ tuple.0.title }} <small>{{ tuple.0.start_time }} to {{ tuple.0.end_time }}</small></h4>
 				{% if tuple.0.owner.user == user or user.is_superuser %}
 					<form action="{% url 'edit_event' event_pk=tuple.0.pk %}">
 						<button class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit</button>
 					</form>
 				{% endif %}
-				<h6>{{ tuple.0.start_time }} to {{ tuple.0.end_time }}</h6>
 				<hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;">
 			</div> <!-- .text-center -->
 			{{ tuple.0.description|safe }}
