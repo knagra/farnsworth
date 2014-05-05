@@ -12,9 +12,9 @@ class WorkshiftType(models.Model):
 	'''
 	A workshift type; for example, a "Pots" workshift type.
 	'''
-	name = models.CharField(blank=False, null=False, unique=True, max_length=255, help_text='The name of this workshift type (e.g., "Pots"), must be unique')
-	description = models.TextField(blank=True, null=True, help_text="A description for this workshift")
-	quick_tips = models.TextField(blank=True, null=True, help_text="Quick tips to the workshifter")
+	name = models.CharField(blank=False, null=False, unique=True, max_length=255, help_text='The name of this workshift type (e.g., "Pots"), must be unique.')
+	description = models.TextField(blank=True, null=True, help_text="A description for this workshift.")
+	quick_tips = models.TextField(blank=True, null=True, help_text="Quick tips to the workshifter.")
 	
 	def __unicode__(self):
 		return self.name	
@@ -23,7 +23,7 @@ class RegularWorkshift(models.Model):
 	'''
 	A regular, weekly recurring workshift.
 	'''
-	workshift_type = models.ForeignKey(WorkshiftType, help_text="The workshift type of this workshift")
+	workshift_type = models.ForeignKey(WorkshiftType, help_text="The workshift type of this workshift.")
 	hours = models.SmallPositiveIntegerField(blank=True, null=True, help_text="The number of hours this shift is worth.")
 	auto_assign = models.BooleanField(default=False, help_text="Whether assignment for this shift is handled by the computer.")
 
@@ -39,4 +39,4 @@ class OneTimeWorkshift(models.Model):
 	'''
 	A one-time workshift; for example, one time bathroom shifts, hallway shifts.
 	'''
-	
+	workshift_type = models.ForeignKey(WorkshiftType, help_text="The workshift type of this workshift.")
