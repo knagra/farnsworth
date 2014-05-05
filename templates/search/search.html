@@ -28,6 +28,7 @@
 	<button type="button" class="btn btn-info header_button" onclick="show_facets()" title="Show filters"><span class="glyphicon glyphicon-filter"></span> Filter</button>
 	<h3 class="table_title">Search</h3>
 </div>
+<div class="main_table">
 <h2 class="text-center">Results matching "{{ query }}"</h2>
 <hr class="main_divider" style="width: 75%;" />
 <div id="facets_container">
@@ -123,6 +124,7 @@
 	</div> <!-- text-center" -->
 {% endif %}
 </div> <!-- .results_container -->
+</div> <!-- .main_table -->
 </div> <!-- .table_container -->
 {% endif %}
 {% endblock %}
