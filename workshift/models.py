@@ -27,10 +27,16 @@ class RegularWorkshift(models.Model):
 	hours = models.SmallPositiveIntegerField(blank=True, null=True, help_text="The number of hours this shift is worth.")
 	auto_assign = models.BooleanField(default=False, help_text="Whether assignment for this shift is handled by the computer.")
 
-class ManagerWorkshift(RegularWorkshift):
+class ManagerWorkshift(models.Model):
 	'''
 	A manager workshift.  Used to make transitioning from semester to semester more concise.  Doesn't require a WorkshiftType.
 	'''
 	manager = models.ForeignKey(Manager, help_text="The manager that gets this workshift")
 	semester_hours = models.SmallIntegerField(blank=True, null=True, help_text="The number of hours this position is comped regular semesters.")
 	summer_hours = models.SmallIntegerField(blank=True, null=True, help_text="The number of hours this position is comped during summer.")
+
+class OneTimeWorkshift(models.Model):
+	'''
+	A one-time workshift; for example, one time bathroom shifts, hallway shifts.
+	'''
+	

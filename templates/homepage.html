@@ -48,7 +48,7 @@ function hide_form(form_id) {
 	<hr style="margin-top: 3px; margin-bottom: 3px;"/>
 	{% endif %}
 	<div class="request_row">
-	<div class="request_name">
+	<div class="request_name bg-warning" title="Open">
 		<div class="request_owner">
 		{% if not request_tuple.0.owner.user = user %}
 		<form class="inline-form" style="float: right; position: relative; top: -8px; padding-right: 2px;" method="POST" action="">
