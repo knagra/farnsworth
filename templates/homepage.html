@@ -209,7 +209,7 @@ function hide_form(form_id) {
 					<form class="unpin_form" method="post" action="">
 						{% csrf_token %}
 						{{ tuple.1 }}
-						<button type="submit" class="btn btn-xs btn-warning" name="unpin"><span class="glyphicon glyphicon-pushpin"></span> Unpin</button>
+						<button type="submit" class="btn btn-xs btn-warning" name="unpin" title="Unpin"><span class="glyphicon glyphicon-ban-circle"></span></button>
 					</form>
 				{% endif %}
 			</div> <!-- .announcement_owner -->
@@ -241,7 +241,7 @@ function hide_form(form_id) {
 	{% if forloop.counter > 1 %}
 	<hr class="main_divider">
 	{% endif %}
-	<div class="main_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Hapenning Now{% endif %}">
+	<div class="main_row hover_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Hapenning Now{% endif %}">
 		<div class="main_owner">
 		{% if tuple.0.as_manager %}
 			{{ tuple.0.as_manager }} (<a class="page_link" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>), {{ tuple.0.change_date }}:
@@ -252,9 +252,9 @@ function hide_form(form_id) {
 			{% csrf_token %}
 				{{ tuple.3 }}
 				{% if tuple.2 %}
-					<button type="submit" class="btn btn-xs btn-warning" name="rsvp"><span class="glyphicon glyphicon-star-empty"></span> Un-RSVP</button>
+					<button type="submit" class="btn btn-xs btn-warning" name="rsvp" title="Un-RSVP"><span class="glyphicon glyphicon-star-empty"></span></button>
 				{% else %}
-					<button type="submit" class="btn btn-xs btn-success" name="rsvp"><span class="glyphicon glyphicon-star"></span> RSVP</button>
+					<button type="submit" class="btn btn-xs btn-success" name="rsvp" title="RSVP"><span class="glyphicon glyphicon-star"></span></button>
 				{% endif %}
 		</form>
 		</div> <!-- .main_owner -->

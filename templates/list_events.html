@@ -44,7 +44,7 @@
 		{% if forloop.counter > 1 %}
 		<hr class="main_divider"/>
 		{% endif %}
-		<div class="event_row{% if event_tuple.0.cancelled %} bg-danger" title="Cancelled{% elif event_tuple.1 %} bg-success" title="Happening Now{% endif %}">
+		<div class="event_row hover_row{% if event_tuple.0.cancelled %} bg-danger" title="Cancelled{% elif event_tuple.1 %} bg-success" title="Happening Now{% endif %}">
 		<div class="event_owner">
 		{% if event_tuple.0.as_manager %}
 			{{ event_tuple.0.as_manager }} (<a class="page_link" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>), {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
@@ -56,9 +56,9 @@
 				{{ event_tuple.3 }}
 				{% if not event_tuple.4 %}
 				{% if event_tuple.2 %}
-					<button type="submit" class="btn btn-xs btn-warning" name="rsvp"><span class="glyphicon glyphicon-star-empty"></span> Un-RSVP</button>
+					<button type="submit" class="btn btn-xs btn-warning" name="rsvp" title="Un-RSVP"><span class="glyphicon glyphicon-star-empty"></span></button>
 				{% else %}
-					<button type="submit" class="btn btn-xs btn-success" name="rsvp"><span class="glyphicon glyphicon-star"></span> RSVP</button>
+					<button type="submit" class="btn btn-xs btn-success" name="rsvp" title="RSVP"><span class="glyphicon glyphicon-star"></span></button>
 				{% endif %}
 				{% endif %}
 		</form>
