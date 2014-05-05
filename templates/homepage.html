@@ -72,7 +72,7 @@ function hide_form(form_id) {
 			{% if forloop.counter > 1 %}
 			<hr class="main_divider" />
 			{% endif %}
-			<div class="response_row hover_row{% if response.manager %} manager_response" title="Manager Response{% endif %}">
+			<div class="response_row hover_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
 				<div class="response_owner">
 					<a class="page_link" href="{% url 'member_profile' targetUsername=response.owner.user.username %}">{{ response.owner|display_user:user }}</a> ({{ response.post_date }}):
 				</div> <!-- .response_owner -->

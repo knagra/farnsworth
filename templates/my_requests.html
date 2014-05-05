@@ -61,7 +61,7 @@
     {% endif %}
 
     <div class="requests_row">
-      <div class="request_name"{% if request_tuple.0.filled %} id="filled_request" title="Filled"{% elif request_tuple.0.closed %} id="closed_request" title="Closed"{% endif %}>
+      <div class="request_name{% if request_tuple.0.filled %} bg-success" title="Filled"{% elif request_tuple.0.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
 	<div class="request_owner">
 	  <a class="page_link" href="{% url 'member_profile' targetUsername=request_tuple.0.owner.user.username %}" >{{ request_tuple.0.owner|display_user:user }}</a>
 	  ({{ request_tuple.0.post_date }}):
@@ -75,7 +75,7 @@
 	  {% if forloop.counter > 1 %}
 	  <hr class="main_divider" />
 	  {% endif %}
-	  <div class="response_row{% if response.manager %} manager_response" title="Manager Response{% endif %}">
+	  <div class="response_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
 	    <div class="response_owner">
 	      <a class="page_link" href="{% url 'member_profile' targetUsername=response.owner.user.username %}" >{{ response.owner|display_user:user }}</a> ({{ response.post_date }}):
 	    </div> <!-- response_owner -->

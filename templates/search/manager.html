@@ -1,6 +1,9 @@
 {% load highlight %}
 {% load thread_tags %}
 <h4 class="result_title">{{ result.object.title }} <small>Incumbent: {% if result.object.incumbent %}<a href="{% url 'member_profile' targetUsername=result.object.incumbent.user.username %}">{{ result.object.incumbent|display_user:user }}</a>{% else %}none{% endif %}</small></h4>
+{% if result.object.email %}
+<div class="result_description">E-mail: <a title="Write E-mail" href="mailto:{{ result.object.email }}">{{ result.object.email }}</a></div>
+{% endif %}
 <div class="result_description">Compensation: {{ result.object.compensation|safe }}</div>
 
 <div class="result_description">Duties: {{ result.object.duties|safe }}</div>

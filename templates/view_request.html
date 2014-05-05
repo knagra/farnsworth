@@ -23,7 +23,7 @@
     {% if not relevant_request %}
     <div class="field_wrapper">Request not found.</div>
     {% else %}
-	<div class="request_name"{% if relevant_request.filled %} id="filled_request" title="Filled"{% elif relevant_request.closed %} id="closed_request" title="Closed"{% endif %}>
+	<div class="request_name{% if relevant_request.filled %} bg-success" title="Filled"{% elif relevant_request.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
 		<div class="request_owner">
 		{% if not relevant_request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
 		<form class="inline-form" style="float: right; position: relative; top: -6px; margin-right: 2px;" method="POST" action="">
@@ -47,7 +47,7 @@
 	{% if forloop.counter > 1 %}
 	<hr class="main_divider" />
 	{% endif %}
-	<div class="response_row{% if response.manager %} manager_response" title="Manager Response{% endif %}">
+	<div class="response_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
 	  <div class="response_owner">
 	    <a class="page_link" href="{% url 'member_profile' targetUsername=response.owner.user.username %}" >{{ response.owner|display_user:user }}</a> ({{ response.post_date }}):
 	  </div>
