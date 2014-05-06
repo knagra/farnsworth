@@ -91,7 +91,7 @@
 		  <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
 		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-inbox"></span> Profile Requests ({{ NUM_OF_PROFILE_REQUESTS }})</a></li>
 		  <li class="divider"></li>
-		  <li class="dropdown-header">Miscelleneous</li>
+		  <li class="dropdown-header">Miscellaneous</li>
 		  <li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Site Utilities</a></li>
 		</ul>
 	      </li>
@@ -121,18 +121,11 @@
 	  </div>
     </div> <!-- .container -->
     </div> <!-- .navbar -->
-
+		{% block jumbotron %}{% endblock %}
     <div class="container">
-      <div id="title">
-	{% if page_name == "Landing" or page_name == "Help Page" %}
-	<h1 id="page_title">Welcome to {{ HOUSE }}</h1>
-	{% endif %}
-      </div> <!-- close "title" -->
-      <div id="body">
+		{% block title %}{% endblock %}
+    <div id="body">
 	<div id="content">
-		{% if page_name == "Landing" or page_name == "Help Page" %}
-			<br />
-		{% endif %}
 		{% if messages %}
 		{% for message in messages %}
 			<div class="alert alert-dismissable{% if 'error' in message.tags %} alert-danger{% elif 'warning' in message.tags %} alert-warning{% elif 'success' in message.tags %} alert-success{% else %} alert-info{% endif %}">

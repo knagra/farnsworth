@@ -15,17 +15,25 @@
 	{% if user.is_superuser %}
 	<div class="row">
 	<div class="col-md-6">
-		<h1 class="sub_title">Managing Users</h1>
+		<h1 class="sub_title">Admin: Managing Users</h1>
+		<p>You can click on any user's name from the <a href="{% url 'custom_manage_users' %}">manage users page</a> to edit that user's profile.
+		From the modify user page, you can change a user's personal details, resident status, etc. as well as change his/her password.
+		
+		</p>
 	</div> <!-- .col-md-6 -->
 	<div class="col-md-6">
-		<h1 class="sub_title">Miscellaneous</h1>
+		<h1 class="sub_title">Admin: Miscellaneous</h1>
 	</div> <!-- .col-md-6 -->
 	</div> <!-- .row -->
+	<br />
+	<hr class="main_divider" />
 	{% endif %}
 	<div class="row">
 	<div class="col-md-6">
 		<h1 class="sub_title">Profile Management</h1>
-		<p>Control over your profile is handled through the <a href="{% url 'my_profile' %}">my profile page</a>.  You can access this page from anywhere from the top.</p>
+		<p>Control over your profile is handled through the <a href="{% url 'my_profile' %}">my profile page</a>.
+		You can access this page from anywhere from the top menu.
+		</p>
 	</div> <!-- .col-md-6 -->
 	<br class="visible-xs visible-sm" />
 	<div class="col-md-6">
