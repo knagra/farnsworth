@@ -5,12 +5,9 @@ Author: Karandeep Singh Nagra
 */
 
 .page_link {
-	color: #7e7e7e;
-	text-decoration: underline;
 }
 
 .page_link:hover {
-	color: black;
 }
 
 .form-group {
