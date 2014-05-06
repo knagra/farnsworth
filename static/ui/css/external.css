@@ -16,12 +16,3 @@ Author: Karandeep Singh Nagra
 .page_list {
 	list-style: none;
 }
-
-#google_map {
-	max-width: 600px;
-	margin-left: auto;
-	margin-right: auto;
-	position: relative;
-	margin-top: 20px;
-	margin-bottom: 10px;
-}
