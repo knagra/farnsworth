@@ -8,6 +8,27 @@
 {% endblock %}
 
 {% block content %}
+{% if not user.is_authenticated %}
 	<p>Welcome!  This is a virtual gathering place for members of {{ HOUSE }} as well as a community outreach and general information site.</p>
 	<p>Please login to access member forums, manager requests, event postings, and announcements.</p>
+{% else %}
+	<div class="row">
+	<div class="col-md-6">
+		<h1 class="sub_title">Profile Management</h1>
+		<p></p>
+	</div>
+	<br class="visible-xs visible-sm" />
+	<div class="col-md-6">
+		<h1 class="sub_title">Threads</h1>
+	</div>
+	<br />
+	<div class="col-md-6">
+		<h1 class="sub_title">Requests</h1>
+	</div>
+	<br class="visible-xs visible-sm" />
+	<div class="col-md-6">
+		<h1 class="sub_title">Events and Announcements</h1>
+	</div>
+	</div>
+{% endif %}
 {% endblock %}
