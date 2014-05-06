@@ -72,6 +72,7 @@ MESSAGES = {
 	'ANONYMOUS_SESSION_ENDED': "You have successfully ended the anonymous session on this machine.",
 	'RECOUNTED': "Thread messages and request responses successfully recounted.",
 	'ALREADY_PAST': "This event has already passed.  You can no longer RSVP to this event.",
+	'LAST_SUPERADMIN': "You are the only superadmin in the database.  To prevent permanent system lock-out, you have been prevented from changing your own superadmin status.",
 }
 
 # Add the context that populates a few variables used on every page in the site.
@@ -80,6 +81,7 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("re
 # List of time formats accepted by event forms.
 time_formats = ['%m/%d/%Y %I:%M %p', '%m/%d/%Y %I:%M:%S %p', '%Y-%m-%d %H:%M:%S']
 
+# SQLite3 setup
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -90,6 +92,18 @@ DATABASES = {
         'PORT': '',
     }
 }
+
+'''# PostgreSQL setup
+DATABASES = {
+	'default': {
+		'ENGINE': 'django.db.backends.postgresql_psycopg2',
+		'NAME': 'farnsworth',
+		'USER': 'farnsworth_admin',
+		'PASSWORD': 'farnsworth_admin',
+		'HOST': 'localhost',
+		'PORT': '',
+	}
+}'''
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
