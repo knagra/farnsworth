@@ -246,7 +246,10 @@ def custom_modify_user_view(request, targetUsername):
 				targetUser.email = email
 				targetUser.is_active = is_active
 				targetUser.is_staff = is_staff
-				targetUser.is_superuser = is_superuser
+				if (targetUser == request.user) and (User.objects.filter(is_superuser=True).count() <= 1):
+					messages.add_message(request, messages.ERROR, MESSAGES['LAST_SUPERADMIN'])
+				else:
+					targetUser.is_superuser = is_superuser
 				targetUser.save()
 				for group in groups:
 					group.user_set.add(targetUser)
