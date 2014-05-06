@@ -30,7 +30,7 @@
 	{% endif %}
 	<div class="message_row">
 	  <div class="message_owner">
-	    <a class="page_link" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >{{ message.owner|display_user:user }}</a> ({{ message.post_date }}):
+	    <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >{{ message.owner|display_user:user }}</a> ({{ message.post_date }}):
 	  </div>
 	  <div class="message_body">{{ message.body|safe }}</div>
 	</div> <!-- message_row -->

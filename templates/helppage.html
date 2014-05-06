@@ -7,6 +7,16 @@
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/helppage.css' %}" />
 {% endblock %}
 
+{% block title %}
+{% if not user.is_authenticated %}
+<div id="title">
+	<h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
+	<h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
+	<br />
+</div> <!-- close "title" -->
+{% endif %}
+{% endblock %}
+
 {% block content %}
 {% if not user.is_authenticated %}
 	<p>Welcome!  This is a virtual gathering place for members of {{ HOUSE }} as well as a community outreach and general information site.</p>
@@ -18,7 +28,12 @@
 		<h1 class="sub_title">Admin: Managing Users</h1>
 		<p>You can click on any user's name from the <a href="{% url 'custom_manage_users' %}">manage users page</a> to edit that user's profile.
 		From the modify user page, you can change a user's personal details, resident status, etc. as well as change his/her password.
-		
+		To prevent permanent lockout, if you are the only superadmin, <b>you will be prevented from changing your own superadmin status</b>.
+		Everything else will be saved.
+		</p>
+		<p>
+		It is highly recommended that users not be deleted.  You should instead deactivate them.
+		But if you really need to delete a user, you can do so from the <a href="{% url 'admin:index' %}">Django admin pages</a>.
 		</p>
 	</div> <!-- .col-md-6 -->
 	<div class="col-md-6">
