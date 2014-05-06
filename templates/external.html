@@ -9,6 +9,13 @@
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/external.css' %}" />
 {% endblock %}
 
+{% block title %}
+<div id="title">
+	<h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
+	<h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
+</div> <!-- close "title" -->
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid page_container">
 <p>
@@ -61,6 +68,9 @@ Before it was purchased by the BSC, the property of Kingman Hall was known as th
 			nextText: '>',
 			
 		});
+	});
+	$(document).ready(function() {
+		$('#google_map').addClass("hidden-xs");
 	});
 </script>
 {% endblock %}
