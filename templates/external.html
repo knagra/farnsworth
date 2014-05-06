@@ -12,14 +12,31 @@
 {% block jumbotron %}
 <div id="jumbotron" class="jumbotron">
 	<div class="container">
-	<h1>We are Afro.</h1>
+	<h1 id="page_title" class="hidden-xs">This is Afro House.</h1>
+	<h1 id="small_page_title" class="visible-xs">This is Afro House.</h1>
 	</div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid page_container">
-
+<div class="row">
+<div class="col-md-6">
+<h1 class="sub_title">We are part of the BSC.</h1>
+<p>To apply to live at Afro, visit the BSC's <a href="http://www.bsc.coop/housing/apply-for-housing-main/apply-for-housing" target="_blank">application page</a>.</p>
+<p>To apply to board at Afro, visit the BSC's <a href="http://www.bsc.coop/food/meal-contract-info-rates" target="_blank">boarding information page</a>.</p>
+<p>Or drop by for dinner.  We are accepting house-level boarders.</p>
+</div>
+<br class="visible-xs visible-sm" />
+<div class="col-md-6">
+<h1 class="sub_title">We are partners with our community.</h1>
+<p>We host events for African-American student and community groups.</p>
+<p>We actively do community service in reaching out to and helping the cause of African-American groups in the greater Bay Area.</p>
+<p>In our boarding and housing candidate selection, we give priority preference to members of these groups:</p>
+	<ul class="page_list">
+		<li>list of orgs here</li>
+	</ul>
+<p>If your values align with ours, we encourage you to reach out to us.  E-mail our house manager at <a href="mailto:athhm@bsc.coop">athhm@bsc.coop</a>.</p>
+</div>
 </div>
 {% endblock %}
 {% block endscripts %}

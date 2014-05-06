@@ -5,7 +5,7 @@ Author: Karandeep Singh Nagra
 */
 
 #jumbotron {
-	background: #fafafa;
+	background: none;
 	color: #101010;
 }
 
@@ -13,19 +13,8 @@ Author: Karandeep Singh Nagra
 	color: #101010;
 }
 
-p {
-	padding-top: 10px;
-	clear: left;
-}
-
-.page_container {
-	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
-	overflow-x: auto;
-}
-
-.slider-wrapper {
-	width: 100%;
-	padding-top: 20px;
+.page_list {
+	list-style: none;
 }
 
 #google_map {
