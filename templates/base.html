@@ -121,9 +121,10 @@
 	  </div> <!-- .navbar-collapse -->
     </div> <!-- .container -->
     </div> <!-- .navbar -->
-	{% block jumbotron %}{% endblock %}
+		{% block jumbotron %}{% endblock %}
     <div class="container">
-      <div id="body">
+		{% block title %}{% endblock %}
+    <div id="body">
 	<div id="content">
 		{% if page_name == "Landing" or page_name == "Help Page" %}
 			<br />
