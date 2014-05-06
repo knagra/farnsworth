@@ -4,6 +4,15 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 */
 
+#jumbotron {
+	background: #fafafa;
+	color: #101010;
+}
+
+#jumbotron * {
+	color: #101010;
+}
+
 p {
 	padding-top: 10px;
 	clear: left;
