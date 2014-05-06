@@ -56,9 +56,9 @@
 				{{ event_tuple.3 }}
 				{% if not event_tuple.4 %}
 				{% if event_tuple.2 %}
-					<button type="submit" class="btn btn-xs btn-warning" name="rsvp"><span class="glyphicon glyphicon-star-empty"></span> Un-RSVP</button>
+					<button type="submit" class="btn btn-xs btn-warning" name="rsvp" title="Un-RSVP"><span class="glyphicon glyphicon-star-empty"></span></button>
 				{% else %}
-					<button type="submit" class="btn btn-xs btn-success" name="rsvp"><span class="glyphicon glyphicon-star"></span> RSVP</button>
+					<button type="submit" class="btn btn-xs btn-success" name="rsvp" title="RSVP"><span class="glyphicon glyphicon-star"></span></button>
 				{% endif %}
 				{% endif %}
 		</form>

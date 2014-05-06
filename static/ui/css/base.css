@@ -11,9 +11,22 @@ Author: Karandeep Singh Nagra
 
 #page_title {
     color: black;
-    font-size: 30pt;
+    font-size: 400%;
     font-weight: 200;
     margin: 0;
+}
+
+#small_page_title {
+	color: black;
+	font-size: 600%;
+	font-weight: 300;
+	margin: 0;
+}
+
+.sub_title {
+	color: black;
+	font-size: 250%;
+	font-weight: 300;
 }
 
 html {
@@ -22,12 +35,6 @@ html {
 }
 
 #html_body {
-    background: #efefef;
-    background: linear-gradient(top, #fafafa 0%, #efefef 100%);
-    background: -moz-linear-gradient(top, #fafafa 0%, #efefef 100%);
-    background: -webkit-linear-gradient(top, #fafafa 0%, #efefef 100%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
     min-height: 100%;
     height: auto;
     width: 100%;

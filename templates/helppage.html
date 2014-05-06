@@ -8,6 +8,48 @@
 {% endblock %}
 
 {% block content %}
+{% if not user.is_authenticated %}
 	<p>Welcome!  This is a virtual gathering place for members of {{ HOUSE }} as well as a community outreach and general information site.</p>
 	<p>Please login to access member forums, manager requests, event postings, and announcements.</p>
+{% else %}
+	{% if user.is_superuser %}
+	<div class="row">
+	<div class="col-md-6">
+		<h1 class="sub_title">Managing Users</h1>
+	</div> <!-- .col-md-6 -->
+	<div class="col-md-6">
+		<h1 class="sub_title">Miscellaneous</h1>
+	</div> <!-- .col-md-6 -->
+	</div> <!-- .row -->
+	{% endif %}
+	<div class="row">
+	<div class="col-md-6">
+		<h1 class="sub_title">Profile Management</h1>
+		<p>Control over your profile is handled through the <a href="{% url 'my_profile' %}">my profile page</a>.  You can access this page from anywhere from the top.</p>
+	</div> <!-- .col-md-6 -->
+	<br class="visible-xs visible-sm" />
+	<div class="col-md-6">
+		<h1 class="sub_title">Threads</h1>
+	</div> <!-- .col-md-6 -->
+	</div> <!-- .row -->
+	<br />
+	<div class="row">
+	<div class="col-md-6">
+		<h1 class="sub_title">Requests</h1>
+	</div> <!-- .col-md-6 -->
+	<br class="visible-xs visible-sm" />
+	<div class="col-md-6">
+		<h1 class="sub_title">Announcements</h1>
+	</div> <!-- .col-md-6 -->
+	</div> <!-- .row -->
+	<div class="row">
+	<div class="col-md-6">
+		<h1 class="sub_title">Events</h1>
+	</div> <!-- .col-md-6 -->
+	<br class="visible-xs visible-sm" />
+	<div class="col-md-6">
+		<h1 class="sub_title">Miscellaneous</h1>
+	</div> <!-- .col-md-6 -->
+	</div> <!-- .row -->
+{% endif %}
 {% endblock %}

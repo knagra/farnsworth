@@ -54,14 +54,13 @@
 				{% csrf_token %}
 				{{ announcement_tuple.1 }}
 				{% if announcement_tuple.0.pinned %}
-					<button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-warning" name="unpin"><span class="glyphicon glyphicon-pushpin"></span> Unpin</button>
+					<button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-warning" name="unpin" title="Unpin"><span class="glyphicon glyphicon-ban-circle"></span></button>
 				{% else %}
-					<button type="submit" class="btn btn-xs btn-success" name="unpin"><span class="glyphicon glyphicon-pushpin"></span> Repin</button>
+					<button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-success" name="unpin" title="Repin"><span class="glyphicon glyphicon-pushpin"></span></button>
 				{% endif %}
 			</form>
 		{% endif %}
 		</div> <!-- .announcement_owner -->
-		<hr class="main_divider" />
 		<div class="announcement_body">{{ announcement_tuple.0.body|safe }}</div>
 		</div> <!-- .announcement_row -->
 	{% endfor %}
