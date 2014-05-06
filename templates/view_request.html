@@ -30,8 +30,8 @@
 			{% csrf_token %}
 			{{ vote_form }}
 		<div class="btn-group btn-group-xs">
-			<button type="submit" class="btn btn-{% if upvote %}default" title="Cancel Up Vote"{% else %}success" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
-			<button type="submit" class="btn btn-{% if downvote %}default" title="Cancel Down Vote"{% else %}danger" title="Down Vote"{% endif %} name="downvote"><span class="glyphicon glyphicon-thumbs-down"></span></button>
+			<button type="submit" class="btn btn-{% if upvote %}success" title="Cancel Up Vote"{% else %}default" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
+			<button type="submit" class="btn btn-{% if downvote %}danger" title="Cancel Down Vote"{% else %}default" title="Down Vote"{% endif %} name="downvote"><span class="glyphicon glyphicon-thumbs-down"></span></button>
 		</div>
 		</form>
 		{% endif %}
