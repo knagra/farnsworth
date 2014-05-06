@@ -22,12 +22,6 @@ html {
 }
 
 #html_body {
-    background: #efefef;
-    background: linear-gradient(top, #fafafa 0%, #efefef 100%);
-    background: -moz-linear-gradient(top, #fafafa 0%, #efefef 100%);
-    background: -webkit-linear-gradient(top, #fafafa 0%, #efefef 100%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
     min-height: 100%;
     height: auto;
     width: 100%;
