@@ -36,6 +36,7 @@ urlpatterns += patterns('threads.views',
 	url(r'^profile/$', 'my_profile_view', name='my_profile'),
 	url(r'^profile/(?P<targetUsername>\w+)/$', 'member_profile_view', name='member_profile'),
 	url(r'^profile/(?P<targetUsername>\w+)/threads/$', 'list_user_threads_view', name="list_user_threads"),
+	url(r'^house_map/$', 'house_map_view', name='house_map'),
 )
 
 urlpatterns += patterns('events.views',

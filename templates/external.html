@@ -12,8 +12,10 @@
 {% block jumbotron %}
 <div id="jumbotron" class="jumbotron">
 	<div class="container">
-	<h1 id="page_title" class="hidden-xs">This is Afro House.</h1>
-	<h1 id="small_page_title" class="visible-xs">This is Afro House.</h1>
+	<h1 id="page_title" class="hidden-xs hidden-sm hidden-md">We are Afro.</h1>
+	<h1 id="large_page_title" class="visible-md">We are Afro.</h1>
+	<h1 id="medium_page_title" class="visible-sm">We are Afro.</h1>
+	<h1 id="small_page_title" class="visible-xs">We are Afro.</h1>
 	</div>
 </div>
 {% endblock %}
@@ -22,10 +24,14 @@
 <div class="row">
 <div class="col-md-6">
 <h1 class="sub_title">We are part of the BSC.</h1>
+<p>We are a member house of the <a href="http://bsc.coop">Berkeley Student Cooperative</a>,
+an organization founded to provide low-cost, high quality housing to under-privileged students of <a href="https://www.berkeley.edu/">UC Berkeley</a>
+and other Bay Area colleges and universities.
+</p>
 <p>To apply to live at Afro, visit the BSC's <a href="http://www.bsc.coop/housing/apply-for-housing-main/apply-for-housing" target="_blank">application page</a>.</p>
 <p>To apply to board at Afro, visit the BSC's <a href="http://www.bsc.coop/food/meal-contract-info-rates" target="_blank">boarding information page</a>.</p>
 <p>Or drop by for dinner.  We are accepting house-level boarders.</p>
-<p>We are located at 2347 Prospect Street, Berkeley, CA 94704.</p>
+<p>We are located at 2347 Prospect Street, Berkeley, CA 94704 (<a href="{% url 'house_map' %}">click for map</a>).</p>
 </div>
 <br class="visible-xs visible-sm" />
 <div class="col-md-6">
@@ -39,4 +45,12 @@
 <p>If your values align with ours, we encourage you to reach out to us.  E-mail our house manager at <a href="mailto:athhm@bsc.coop">athhm@bsc.coop</a>.</p>
 </div>
 </div>
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+	$('.navbar').css('margin-bottom', 0);
+});
+</script>
 {% endblock %}
