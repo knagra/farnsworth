@@ -24,54 +24,89 @@
 {% else %}
 	{% if user.is_superuser %}
 	<div class="row">
-	<div class="col-md-6">
-		<h1 class="sub_title">Admin: Managing Users</h1>
+	<div id="managing_users" class="col-md-6">
+		<h1 class="sub_title">Admin: Managing Users <small><a name="managing_users" title="A link to this section" href="#managing_users">&sect;</a></small></h1>
+		<hr style="width: 75%; left: 0;" />
+		<h2 class="sub_subtitle">Adding Users <a name="adding_users" title="A link to this sub-section" href="#adding_users">&sect;</a></h2>
+		<p>You can add a user from the <a href="{% url 'custom_add_user' %}">add user page</a>.  The process is fairly intuitive.
+		Usernames should be unique.  It is recommended that e-mails and phone numbers be kept hidden from other members.
+		A user can modify her/his own profile to reveal e-mail and phone number to other members.
+		The "is active" status is used to toggle active vs. inactive.  You can add inactive users, but you will probably be adding active users.
+		For alumni, starting them as inactive users is advised, as this will result in a tighter security spec for your implementation of Farnsworth.
+		Inactive users are not allowed to login.  When an inactive user attempts to login, s/he is given a message saying her/his account is inactive.
+		</p>
+		<p><b>You must provide a password.</b>  An option is not yet available to create users without passwords.
+		</p>
+		<h2 class="sub_subtitle">Modifying Users <a name="modifying_users" title="A link to this sub-section" href="#modify_users">&sect;</a></h2>
 		<p>You can click on any user's name from the <a href="{% url 'custom_manage_users' %}">manage users page</a> to edit that user's profile.
-		From the modify user page, you can change a user's personal details, resident status, etc. as well as change his/her password.
+		From the modify user page, you can change a user's personal details, member status, etc., as well as change her/his password.
 		To prevent permanent lockout, if you are the only superadmin, <b>you will be prevented from changing your own superadmin status</b>.
-		Everything else will be saved.
+		Everything else will be saved when you try to change your own profile as the only admin.
 		</p>
-		<p>
-		It is highly recommended that users not be deleted.  You should instead deactivate them.
+		<p><b>It is highly recommended that users not be deleted.  You should instead deactivate them.</b>
 		But if you really need to delete a user, you can do so from the <a href="{% url 'admin:index' %}">Django admin pages</a>.
+		Doing so will delete all threads and requests the user posted, all messages and responses the user posted, as well as all events.
+		This can mess up all manner of things.  So it's recommended that you not do it.
 		</p>
+		<p>You cannot modify usernames from the custom admin pages, but you can do so from the Django admin pages.
+		It doesn't seem productive to allow such a change as the user who owns the account will locked out of his/her account and unable even to know
+		what happened.
+		</p>
+		<p>You are also discouraged from modifying the anonymous user (username "{{ ANONYMOUS_USERNAME }}").
+		When you open this user's edit page, a warning will be displayed saying the same.
+		More on the anonymous user is covered under the <a href="#anonymous_user">Anonymous User sub-section</a> of the <a href="#admin_miscellaneous">Admin: Miscellaneous section</a>.
+		</p>
+		<p>On every user profile page (a general user page accessed from various parts of the site, most notably the member directory),
+		there will appear a yellow edit button in the top right corner if an admin is accessing the page.
+		This button does not appear for non-superadmin users; so you don't need to worry about that.
+		Clicking this button will redirect you to the modify user page (an admin page accessed usually through the manage users page).
+		</p>
+		<h2 class="sub_subtitle">Profile Requests <a name="profile_requests" title="A link to this sub-section" href="#profile_requests">&sect;</a></h2>
 	</div> <!-- .col-md-6 -->
-	<div class="col-md-6">
-		<h1 class="sub_title">Admin: Miscellaneous</h1>
+	<div id="admin_misc" class="col-md-6">
+		<h1 class="sub_title">Admin: Miscellaneous <small><a name="admin_miscellaneous" title="A link to this section" href="#admin_miscellaneous">&sect;</a></small></h1>
+		<hr style="width: 75%; left: 0;" />
+		<h2 class="sub_subtitle">Anonymous User <a name="anonymous_user" title="A link to this sub-section" href="#anonymous_user">&sect;</a></h2>
 	</div> <!-- .col-md-6 -->
 	</div> <!-- .row -->
 	<br />
 	<hr class="main_divider" />
 	{% endif %}
 	<div class="row">
-	<div class="col-md-6">
-		<h1 class="sub_title">Profile Management</h1>
+	<div id="profile" class="col-md-6">
+		<h1 class="sub_title">Profile Management <small><a name="profile_management" title="A link to this section" href="#profile_management">&sect;</a></small></h1>
+		<hr style="width: 75%; left: 0;" />
 		<p>Control over your profile is handled through the <a href="{% url 'my_profile' %}">my profile page</a>.
 		You can access this page from anywhere from the top menu.
 		</p>
 	</div> <!-- .col-md-6 -->
 	<br class="visible-xs visible-sm" />
-	<div class="col-md-6">
-		<h1 class="sub_title">Threads</h1>
+	<div id="threads" class="col-md-6">
+		<h1 class="sub_title">Threads <small><a name="threads" title="A link to this section" href="#threads">&sect;</a></small></h1>
+		<hr style="width: 75%; left: 0;" />
 	</div> <!-- .col-md-6 -->
 	</div> <!-- .row -->
 	<br />
 	<div class="row">
-	<div class="col-md-6">
-		<h1 class="sub_title">Requests</h1>
+	<div id="requests" class="col-md-6">
+		<h1 class="sub_title">Requests <small><a name="requests" title="A link to this section" href="#requests">&sect;</a></small></h1>
+		<hr style="width: 75%; left: 0;" />
 	</div> <!-- .col-md-6 -->
 	<br class="visible-xs visible-sm" />
-	<div class="col-md-6">
-		<h1 class="sub_title">Announcements</h1>
+	<div id="announcements" class="col-md-6">
+		<h1 class="sub_title">Announcements <small><a name="announcements" title="A link to this section" href="#announcements">&sect;</a></small></h1>
+		<hr style="width: 75%; left: 0;" />
 	</div> <!-- .col-md-6 -->
 	</div> <!-- .row -->
 	<div class="row">
-	<div class="col-md-6">
-		<h1 class="sub_title">Events</h1>
+	<div id="events" class="col-md-6">
+		<h1 class="sub_title">Events <small><a name="events" title="A link to this section" href="#events">&sect;</a></small></h1>
+		<hr style="width: 75%; left: 0;" />
 	</div> <!-- .col-md-6 -->
 	<br class="visible-xs visible-sm" />
-	<div class="col-md-6">
-		<h1 class="sub_title">Miscellaneous</h1>
+	<div id="misc" class="col-md-6">
+		<h1 class="sub_title">Miscellaneous <small><a name="miscellaneous" title="A link to this section" href="#miscellaneous">&sect;</a></small></h1>
+		<hr style="width: 75%; left: 0;" />
 	</div> <!-- .col-md-6 -->
 	</div> <!-- .row -->
 {% endif %}
