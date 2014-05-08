@@ -11,7 +11,7 @@ from django import forms
 from models import Event
 from django.core.urlresolvers import reverse
 from threads.models import UserProfile
-from managers.models import Manager
+from requests.models import Manager
 from threads.views import red_ext, red_home, RsvpForm
 from farnsworth.settings import house, time_formats
 # Standard messages:

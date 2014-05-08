@@ -16,8 +16,6 @@ class Manager(models.Model):
 	compensation = models.TextField(blank=True, null=True, help_text="The compensation for this manager.")
 	duties = models.TextField(blank=True, null=True, help_text="The duties of this manager.")
 	email = models.EmailField(blank=True, null=True, max_length=255, help_text="The e-mail address of this manager.")
-	president = models.BooleanField(default=False, help_text="Whether this manager has president privileges (edit managers, bylaws, etc.).")
-	workshift_manager = models.BooleanField(default=False, help_text="Whether this manager has workshift manager privileges (assign workshifts, etc.).")
 	
 	def __unicode__(self):
 		return "%s" % self.title
