@@ -22,10 +22,10 @@ MANAGERS = ADMINS
 BASE_URL = "/farnsworth"
 
 # Name of the house
-house = "Kingman Hall"
+house = "African-American Theme House"
 
 # Short name of the house
-short_house = "Kingman"
+short_house = "Afro"
 
 # Max number of threads loaded in member_forums.
 max_threads = 20
