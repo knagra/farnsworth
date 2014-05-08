@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/custom_modify_user.css' %}" />
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+	<div id="update_profile">
+		<div class="header">
+			{% if page_name = 'Edit Manager' %}
+			<h3 class="table_title{% if manager_title|longer_than:'123456789012345' %} large_title{% elif manager_title|longer_than:'123456789012' %} medium_title{% elif manager_title|longer_than:'1234567' %} small_title{% endif %}">Modify {{ manager_title }}</h3>
+			{% else %}
+			<h3 class="table_title">Add Manager</h3>
+			{% endif %}
+		</div> <!-- .header -->
+		<div class="main_table">
+			<form method="post" action="">
+				{% csrf_token %}
+				<div class="form-group">
+					{{ form|bootstrap }}
+					<div class="text-center">
+						<button type="submit" class="btn btn-lg btn-success" name="update_manager"><span class="glyphicon glyphicon-floppy-disk"></span> Update Manager</button>
+					</div> <!-- .text-center -->
+				</div> <!-- .form-group -->
+			</form>
+		</div> <!-- main_table -->
+	</div> <!-- #update_profile -->
+{% endblock %}

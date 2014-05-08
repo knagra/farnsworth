@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load thread_tags %}
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="table_container">
+	<div class="header">
+		<h3 class="table_title">Managers</h3>
+	</div> <!-- .header -->
+	<div class="main_table">
+	{% if not managerset %}
+		<div class="field_wrapper">No managers in database.</div>
+	{% else %}
+	<table class="table table-striped table-bordered table-condensed table-hover" id="managers_table" style="margin: 0px;">
+	<thead>
+		<tr><th>Title</th>
+			<th>Incumbent</th>
+			<th>E-mail</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for pos in managerset %}
+		<tr><td><a title="See Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a></td>
+			<td>{% if pos.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>{% endif %}</td>
+			<td>{% if pos.email %}<a title="Write E-mail" href="mailto:{{ pos.email }}">{{ pos.email }}</a>{% endif %}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+	</table>
+	{% endif %}
+	</div> <!-- .main_table -->
+</div> <!-- .table_container -->
+{% endblock %}
+
+{% block endscripts %}
+<script>
+	$(document).ready(function() {
+		$('table').tablesorter({
+			sortList: [[0,0], [1,0]]
+		});
+	});
+</script>
+{% endblock %}

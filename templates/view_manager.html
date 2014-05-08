@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load thread_tags %}
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_profile.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div id="user_profile" class="table_container">
+	<div class="header">
+		{% if user.is_superuser or PRESIDENT %}
+			<form class="header_form" action="{% url 'edit_manager' managerTitle=targetManager.url_title %}">
+				<button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs"> Edit</span></button>
+			</form>
+		{% endif %}
+		<h3 class="table_title{% if user.is_superuser or PRESIDENT %} small_title{% endif %}">View Manager</h3>
+	</div> <!-- .header -->
+	<div class="main_table">
+	<table id="profile_table">
+	<tbody>
+		<tr><th>Title:</th><td class="field">{{ targetManager.title }}</td></tr>
+		<tr><th>Incumbent:</th><td class="field">{% if targetManager.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=targetManager.incumbent.user.username %}" >{{ targetManager.incumbent|display_user:user }}</a>{% endif %}</td></tr>
+	</tbody>
+	</table>
+	<div id="id_compensation" style="margin-left: 10px; font-size: 15pt; font-weight: 300; margin-top: 5px;">Compensation:<br /><div style="margin-left: 20px;">{{ targetManager.compensation|safe }}</div></div>
+	<div id="id_duties" style="margin-left: 10px; font-size: 15pt; font-weight: 300; margin-top: 5px;">Duties:<br /><div style="margin-left: 20px;">{{ targetManager.duties|safe }}</div></div>
+	<hr>
+	<div class="text-center">
+		<form action="{% url 'list_managers' %}">
+			<button id="member_directory" type="submit" class="btn btn-lg btn-info"><span class="glyphicon glyphicon-tower"></span> Manager Directory</button>
+		</form>
+	</div>
+	</div> <!-- .main_table -->
+</div> <!-- #user_profile -->
+{% endblock %}

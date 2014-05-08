@@ -10,7 +10,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads, ANONYMOUS_USERNAME
-# Stardard messages:
+# Standard messages:
 from farnsworth.settings import MESSAGES
 from models import UserProfile, Thread, Message
 from managers.models import RequestType, Manager, Request, Response, Announcement
@@ -33,14 +33,27 @@ class MessageForm(forms.Form):
 	body = forms.CharField(widget=forms.Textarea())
 
 class VoteForm(forms.Form):
+	''' Form to cast an up or down vote for a request. '''
 	request_pk = forms.IntegerField(widget=forms.HiddenInput())
 
 class UnpinForm(forms.Form):
+	''' Form to repin or unpin an announcement. '''
 	announcement_pk = forms.IntegerField(widget=forms.HiddenInput())
 
 class RsvpForm(forms.Form):
 	''' Form to RSVP or un-RSVP from an event. '''
 	event_pk = forms.IntegerField(widget=forms.HiddenInput())
+
+class ManagerForm(forms.Form):
+	''' Form to create or modify a manager position. '''
+	title = forms.CharField(max_length=255, help_text="A unique title for this manager position.")
+	incumbent_choices = [('', '-----'),] + ([(p, p.user.get_full_name()) for p in UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS)])
+	incumbent = forms.ChoiceField(choices=incumbent_choices, help_text="Current incumbent for this manager position.", required=False)
+	compensation = forms.CharField(widget=forms.Textarea(attrs={'class': 'editable'}), required=False)
+	duties = forms.CharField(widget=forms.Textarea(attrs={'class': 'editable'}), required=False)
+	email = forms.EmailField(max_length=255, required=False, help_text="Manager e-mail (optional)")
+	president = forms.BooleanField(help_text="Whether this manager has president privileges (edit and add managers, etc.)", required=False)
+	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
 
 def red_ext(request, message=None):
 	'''

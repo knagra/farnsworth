@@ -14,7 +14,7 @@ from farnsworth.settings import ANONYMOUS_USERNAME
 class UserProfileIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for UserProfiles. '''
 	text = indexes.EdgeNgramField(document=True, use_template=True)
-	user = indexes.EdgeNgramField(model_attr='user', boost=1.125)
+	user = indexes.EdgeNgramField(model_attr='user', boost=2)
 	exact_user = indexes.CharField(model_attr='user', faceted=True)
 	current_room = indexes.EdgeNgramField(model_attr='current_room', null=True)
 	exact_location = indexes.CharField(model_attr='current_room', null=True, faceted=True)

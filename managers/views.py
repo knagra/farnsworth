@@ -17,20 +17,29 @@ from farnsworth.settings import house, short_house, ADMINS, max_requests, max_re
 from farnsworth.settings import MESSAGES
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile, Thread, Message
-from threads.views import red_ext, red_home, UnpinForm, VoteForm
+from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm
 from datetime import datetime
 from django.utils.timezone import utc
 from django.contrib import messages
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
+	PRESIDENT = False # whether the user has president privileges
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+		for pos in Manager.objects.filter(incumbent=userProfile):
+			if pos.president:
+				PRESIDENT = True
+				break
+	except:
+		pass
 	if request.user.username == ANONYMOUS_USERNAME:
 		request.session['ANONYMOUS_SESSION'] = True
 	try:
 		ANONYMOUS_SESSION = request.session['ANONYMOUS_SESSION']
 	except:
 		ANONYMOUS_SESSION = False
-	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ANONYMOUS_USERNAME': ANONYMOUS_USERNAME, 'SHORT_HOUSE': short_house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(), 'ANONYMOUS_SESSION': ANONYMOUS_SESSION}
+	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ANONYMOUS_USERNAME': ANONYMOUS_USERNAME, 'SHORT_HOUSE': short_house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(), 'ANONYMOUS_SESSION': ANONYMOUS_SESSION, 'PRESIDENT': PRESIDENT}
 
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
@@ -421,11 +430,150 @@ def recount_view(request):
 	return HttpResponseRedirect(reverse('utilities'))
 
 @login_required
+def list_managers_view(request):
+	''' Show a list of manager positions with links to view in detail. '''
+	managerset = Manager.objects.all()
+	return render_to_response('list_managers.html', {'page_name': "Managers", 'managerset': managerset}, context_instance=RequestContext(request))
+
+@login_required
+def manager_view(request, managerTitle):
+	''' View the details of a manager position.
+	Parameters:
+		request is an HTTP request
+		managerTitle is the URL title of the manager.
+	'''
+	try:
+		targetManager = Manager.objects.get(url_title=managerTitle)
+	except:
+		messages.add_message(request, messages.ERROR, MESSAGES['NO_MANAGER'].format(managerTitle=managerTitle))
+		return HttpResponseRedirect(reverse('list_managers'))
+	return render_to_response('view_manager.html', {'page_name': "View Manager", 'targetManager': targetManager}, context_instance=RequestContext(request))
+
+@login_required
+def meta_manager_view(request):
+	'''
+	A manager of managers.  Display a list of current managers, with links to modify them.
+	Also display a link to add a new manager.  Restricted to presidents and superadmins.
+	'''
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		return red_home(request, MESSAGES['NO_PROFILE'])
+	president = False # whether the user has president privileges
+	for pos in Manager.objects.filter(incumbent=userProfile):
+		if pos.president:
+			president=True
+			break
+	if (not request.user.is_superuser) and (not president):
+		return red_home(request, MESSAGES['PRESIDENT'])
+	managerset = Manager.objects.all()
+	return render_to_response('meta_manager.html', {'page_name': "Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
+
+@login_required
+def add_manager_view(request):
+	''' View to add a new manager position. Restricted to superadmins and presidents. '''
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		return red_home(request, MESSAGES['NO_PROFILE'])
+	president = False # whether the user has president privileges
+	for pos in Manager.objects.filter(incumbent=userProfile):
+		if pos.president:
+			president=True
+			break
+	if (not request.user.is_superuser) and (not president):
+		return red_home(request, MESSAGES['PRESIDENTS_ONLY'])
+	if request.method == 'POST':
+		form = ManagerForm(request.POST)
+		if form.is_valid():
+			title = form.cleaned_data['title']
+			incumbent = form.cleaned_data['incumbent']
+			compensation = form.cleaned_data['compensation']
+			duties = form.cleaned_data['duties']
+			email = form.cleaned_data['email']
+			president = form.cleaned_data['president']
+			workshift_manager = form.cleaned_data['workshift_manager']
+			url_title = title.lower().replace(' ', '_')
+			if Manager.objects.filter(title=title).count():
+				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
+			if Manager.objects.filter(url_title=url_title).count():
+				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
+			else:
+				new_manager = Manager(title=title, compensation=compensation, duties=duties, email=email, president=president, workshift_manager=workshift_manager)
+				if incumbent:
+					new_manager.incumbent = incumbent
+				new_manager.save()
+				messages.add_message(request, messages.SUCCESS, MESSAGES['MANAGED_ADDED'])
+				return HttpResponseRedirect(reverse('add_manager'))
+	else:
+		form = ManagerForm()
+	return render_to_response('edit_manager.html', {'page_name': "Add Manager", 'form': form}, context_instance=RequestContext(request))
+
+
+@login_required
+def edit_manager_view(request, managerTitle):
+	''' View to modify an existing manager. 
+	Parameters:
+		request is an HTTP request
+		managerTitle is URL title of the manager.
+	'''
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		return red_home(request, MESSAGES['NO_PROFILE'])
+	president = False # whether the user has president privileges
+	for pos in Manager.objects.filter(incumbent=userProfile):
+		if pos.president:
+			president=True
+			break
+	if (not request.user.is_superuser) and (not president):
+		return red_home(request, MESSAGES['PRESIDENTS_ONLY'])
+	try:
+		targetManager = Manager.objects.get(url_title=managerTitle)
+	except:
+		messages.add_message(request, messages.ERROR, MESSAGES['NO_MANAGER'].format(managerTitle=managerTitle))
+		return HttpResponseRedirect(reverse('meta_manager'))
+	if request.method == 'POST':
+		form = ManagerForm(request.POST)
+		if form.is_valid():
+			title = form.cleaned_data['title']
+			incumbent = form.cleaned_data['incumbent']
+			compensation = form.cleaned_data['compensation']
+			duties = form.cleaned_data['duties']
+			email = form.cleaned_data['email']
+			president = form.cleaned_data['president']
+			workshift_manager = form.cleaned_data['workshift_manager']
+			url_title = title.lower().replace(' ', '_')
+			if Manager.objects.filter(title=title).count():
+				if Manager.objects.get(title=title) != targetManager:
+					form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
+			elif Manager.objects.filter(url_title=url_title).count():
+				if Manager.objects.get(url_title=url_title) != targetManager:
+					form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
+			else:
+				targetManager.title = title
+				targetManager.url_title = url_title
+				if incumbent:
+					targetManager.incumbent = incumbent
+				targetManager.compensation = compensation
+				targetManager.duties = duties
+				targetManager.email = email
+				targetManager.president = president
+				targetManager.workshift_manager = workshift_manager
+				targetManager.save()
+				messages.add_message(request, messages.SUCCESS, MESSAGES['MANAGED_ADDED'])
+				return HttpResponseRedirect(reverse('meta_manager'))
+	else:
+		form = ManagerForm(initial={'title': targetManager.title, 'incumbent': targetManager.incumbent.user.get_full_name(), 'compensation': targetManager.compensation,
+			'duties': targetManager.duties, 'email': targetManager.email, 'president': targetManager.president, 'workshift_manager': targetManager.workshift_manager})
+	return render_to_response('edit_manager.html', {'page_name': "Edit Manager", 'form': form, 'manager_title': targetManager.title}, context_instance=RequestContext(request))
+
+@login_required
 def requests_view(request, requestType):
 	'''
 	Generic request view.  Parameters:
 		request is the HTTP request
-		requestType is name of a RequestType.
+		requestType is URL name of a RequestType.
 			e.g. "food", "maintenance", "network", "site" 
 	'''
 	try:
@@ -433,16 +581,13 @@ def requests_view(request, requestType):
 	except:
 		return red_home(request, MESSAGES['NO_PROFILE'])
 	try:
-		request_type = RequestType.objects.get(name=requestType)
+		request_type = RequestType.objects.get(url_name=requestType)
 	except:
-		message = "No request type '%s' found." % requestType
-		return red_home(request, message)
-		#return render_to_response('requests.html', {'page_name': 'Invalid Request Type', 'invalid_request_type': True}, context_instance=RequestContext(request))
-	page_name = "%s Requests" % request_type.human_readable_name().title()
+		return red_home(request, MESSAGES['NO_REQUEST_TYPE'].format(requestType=requestType))
+	page_name = "%s Requests" % request_type.name.title()
 	if not request_type.enabled:
-		message = "%s requests have been disabled." % request_type.human_readable_name().title()
+		message = "%s requests have been disabled." % request_type.name.title()
 		return red_home(request, message)
-		#return render_to_response('requests.html', {'page_name': page_name, 'request_disabled': True}, context_instance=RequestContext(request))
 	relevant_managers = request_type.managers.all()
 	manager = False #if the user is a relevant manager
 	for position in relevant_managers:
@@ -526,7 +671,7 @@ def requests_view(request, requestType):
 		x += 1
 		if x >= max_requests:
 			break
-	return render_to_response('requests.html', {'manager': manager, 'request_type': request_type.human_readable_name(), 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
+	return render_to_response('requests.html', {'manager': manager, 'request_type': request_type.name.title(), 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
 
 @login_required
 def my_requests_view(request):
@@ -603,7 +748,7 @@ def my_requests_view(request):
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	my_requests = Request.objects.filter(owner=userProfile)
-	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.human_readable_name, request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, downvote, vote_form),...])
+	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, downvote, vote_form),...])
 	for request_type in RequestType.objects.all():
 		if request_type.enabled:
 			type_manager = False
@@ -627,7 +772,7 @@ def my_requests_view(request):
 				requests_list.append((req, responses_list, form, upvote, downvote, vote_form))
 			request_form = RequestForm(initial={'type_pk': request_type.pk})
 			request_form.fields['type_pk'].widget = forms.HiddenInput()
-			request_dict.append((request_type.human_readable_name(), request_form, type_manager, requests_list))
+			request_dict.append((request_type.name.title(), request_form, type_manager, requests_list))
 	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 
 @login_required
@@ -663,10 +808,10 @@ def all_requests_view(request):
 	'''
 	Show user a list of enabled request types, the number of requests of each type and a link to see them all.
 	'''
-	types_dict = list() # Pseudo-dictionary, actually a list with items of form (human_readable_name, number_of_type_requests, name, enabled)
+	types_dict = list() # Pseudo-dictionary, actually a list with items of form (request_type.name.title(), number_of_type_requests, name, enabled)
 	for request_type in RequestType.objects.all():
 		number_of_requests = Request.objects.filter(request_type=request_type).count()
-		types_dict.append((request_type.human_readable_name().title(), number_of_requests, request_type.name, request_type.enabled))
+		types_dict.append((request_type.name.title(), number_of_requests, request_type.url_name, request_type.enabled))
 	return render_to_response('all_requests.html', {'page_name': "Archives - All Requests", 'types_dict': types_dict}, context_instance=RequestContext(request))
 
 @login_required
@@ -675,11 +820,11 @@ def list_all_requests_view(request, requestType):
 	Show user his/her requests in list form.
 	'''
 	try:
-		request_type = RequestType.objects.get(name=requestType)
+		request_type = RequestType.objects.get(url_name=requestType)
 	except:
 		return render_to_response('list_requests.html', {'page_name': "Request Type Not Found"}, context_instance=RequestContext(request))
 	requests = Request.objects.filter(request_type=request_type)
-	page_name = "Archives - All %s Requests" % request_type.human_readable_name().title()
+	page_name = "Archives - All %s Requests" % request_type.name.title()
 	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests, 'request_type': request_type}, context_instance=RequestContext(request))
 
 @login_required
