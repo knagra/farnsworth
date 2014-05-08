@@ -13,7 +13,7 @@ from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_f
 # Stardard messages:
 from farnsworth.settings import MESSAGES
 from models import UserProfile, Thread, Message
-from requests.models import RequestType, Manager, Request, Response, Announcement
+from managers.models import RequestType, Manager, Request, Response, Announcement
 from events.models import Event
 from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
@@ -659,3 +659,7 @@ def thread_view(request, thread_pk):
 	else:
 		message_form = MessageForm(initial={'thread_pk': thread.pk})
 	return render_to_response('view_thread.html', {'thread': thread, 'page_name': "View Thread", 'messages_list': messages_list}, context_instance=RequestContext(request))
+
+def house_map_view(request):
+	''' Show the house map to a visitor. '''
+	return render_to_response('house_map.html', {'page_name': "House Map"}, context_instance=RequestContext(request))
