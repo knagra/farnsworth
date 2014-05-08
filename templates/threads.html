@@ -13,8 +13,8 @@
 {% block content %}
 <div class="threads">
   <div class="header">
-    <button class="btn btn-primary add_thread" align="right" onclick="show_new_thread_form()" type="button"><span class="glyphicon glyphicon-pencil"></span> New Thread</button>
-    <h3 class="table_title {% if thread_title|longer_than:'12345678901234567890' %}large{% elif thread_title|longer_than:'12345678901234' %}medium{% else %}small{% endif %}_title">{{ thread_title }}</h3>
+    <button class="btn btn-primary add_thread" align="right" onclick="show_new_thread_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
+    <h3 class="table_title{% if thread_title|longer_than:'12345678901234567890' %} medium_title{% elif thread_title|longer_than:'12345678901234' %} small_title{% endif %}">{{ thread_title }}</h3>
   </div> <!-- table_header -->
   <div class="main_table">
   <form id="new_thread_form" method="post" action="">

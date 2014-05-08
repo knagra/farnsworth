@@ -12,11 +12,11 @@
 		<div class="header">
 			{% if user.is_superuser and targetUser.username != ANONYMOUS_USERNAME and targetUser %}
 				<form class="header_form" action="{% url 'custom_modify_user' targetUsername=targetUser.username %}">
-					<button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span> Edit</button>
+					<button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs"> Edit</span></button>
 				</form>
 			{% endif %}
 			{% if targetUser %}
-			<h3 class="table_title{% if targetUser.username|longer_than:'12345678901234567890' %} large_title{% elif targetUser.username|longer_than:'1234568' %} medium_title{% elif targetUser.username|longer_than:'1234567' %} small_title{% endif %}">
+			<h3 class="table_title{% if targetUser.username|longer_than:'1234567890123456' %} medium_title{% elif targetUser.username|longer_than:'123456890' %} small_title{% endif %}">
 				{{ targetUser.username }}'s Profile
 			{% else %}
 			<h3 class="table_title small_title">

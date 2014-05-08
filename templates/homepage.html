@@ -36,9 +36,9 @@ function hide_form(form_id) {
 <div class="requests table_container">
 	<div class="header">
 		<form style="display: inline-block; position: relative; top: -3px; float: right; margin-right: 3px;" action="{% url 'requests' requestType=type_tuple.0.name %}">
-			<button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span> Requests Page</button>
+			<button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> Requests Page</span></button>
 		</form>
-		<h3 class="table_title {% if type_tuple.0.name|longer_than:'12345678901234567890' %}large{% elif type_tuple.0.name|longer_than:'1234567890123' %}medium{% else %}small{% endif %}_title">
+		<h3 class="table_title{% if type_tuple.0.name|longer_than:'123456789012345' %} medium_title{% elif type_tuple.0.name|longer_than:'1234567890' %} small_title{% endif %}">
 			{{ type_tuple.0.human_readable_name|title }} Requests
 		</h3>
 	</div>
@@ -122,8 +122,8 @@ function hide_form(form_id) {
 <div class="col-md-12">
 <div class="threads table_container">
 	<div class="header">
-		<button class="btn btn-primary header_button" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span> New Thread</button>
-		<h3 class="table_title small_title">
+		<button class="btn btn-primary header_button" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
+		<h3 class="table_title">
 			Recent Threads
 		</h3>
 	</div> <!-- .header -->
@@ -176,9 +176,9 @@ function hide_form(form_id) {
 <div class="announcements table_container">
 	<div class="header">
 		{% if announcement_form %}
-		<button class="btn btn-primary header_button" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span> New Announcement</button>
+		<button class="btn btn-primary header_button" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
 		{% endif %}
-		<h3 class="table_title large_title">
+		<h3 class="table_title small_title">
 			Recent Announcements
 		</h3>
 	</div>
@@ -225,9 +225,9 @@ function hide_form(form_id) {
 <div class="table_container events">
 	<div class="header">
 		<form action="{% url 'events' %}">
-		<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-calendar"></span> Events Page</button>
+		<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-calendar"></span><span class="hidden-xs"> Events Page</span></button>
 		</form>
-		<h3 class="table_title small_title">
+		<h3 class="table_title">
 			Today's Events
 		</h3>
 	</div> <!-- .header -->
