@@ -73,6 +73,13 @@ MESSAGES = {
 	'RECOUNTED': "Thread messages and request responses successfully recounted.",
 	'ALREADY_PAST': "This event has already passed.  You can no longer RSVP to this event.",
 	'LAST_SUPERADMIN': "You are the only superadmin in the database.  To prevent permanent system lock-out, you have been prevented from changing your own superadmin status.",
+	'PRESIDENTS_ONLY': "This page is restricted to Presidents and superadmins.",
+	'WORKSHIFT_MANAGER_ONLY': "This page is restricted to Workshift Managers and superadmins.",
+	'NO_MANAGER': "The manager page {managerTitle} could not be found.",
+	'NO_REQUEST_TYPE': "The request type {requestType} could not be found.",
+	'MANAGER_ADDED': "Manager {managerTitle} has been added.",
+	'INVALID_FORM': "Your input could not be properly processed.  Please try again.",
+	'INACTIVE_MANAGER': "{managerTitle} is currently deactivated.",
 }
 
 # Add the context that populates a few variables used on every page in the site.

@@ -34,6 +34,15 @@ Author: Karandeep Singh Nagra
 	height: 40px;
 }
 
+.header_form {
+	display: inline-block;
+	position: relative;
+	top: -3px;
+	float: right;
+	margin-right: 3px;
+	height: auto;
+}
+
 .table_title {
 	padding-left: 10px;
 	font-size: 100%;

@@ -32,8 +32,8 @@
 <div class="requests">
   {% with request_form_id="request_form_"|add:x %}
   <div class="header">
-    <button class="btn btn-primary add_request" onclick="show_new_request_form('{{ request_form_id }}')" type="button"><span class="glyphicon glyphicon-pencil"></span> New Request</button>
-    <h3 class="table_title {% if type_tuple.0|longer_than:'123456' %}large{% else %}medium{% endif %}_title">My {{ type_tuple.0|title }} Requests</h3>
+    <button class="btn btn-primary add_request" onclick="show_new_request_form('{{ request_form_id }}')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
+    <h3 class="table_title {% if type_tuple.0|longer_than:'123456' %}medium{% else %}small{% endif %}_title">My {{ type_tuple.0|title }} Requests</h3>
   </div> <!-- header -->
   <div class="main_table">
   <form class="new_request_form" id="{{ request_form_id }}" method="post" action="">

@@ -5,7 +5,6 @@ Author: Karandeep Singh Nagra
 */
 
 #user_profile {
-	border: 1px solid #7e7e7e;
 	position: relative;
 	margin: 0px auto;
 	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
@@ -16,10 +15,6 @@ Author: Karandeep Singh Nagra
 .main_table .btn {
 	min-width: 50%;
 	max-width: 100%;
-}
-
-#profile_table * {
-	color: black;
 }
 
 #profile_table {

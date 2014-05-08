@@ -10,7 +10,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads, ANONYMOUS_USERNAME
-# Stardard messages:
+# Standard messages:
 from farnsworth.settings import MESSAGES
 from models import UserProfile, Thread, Message
 from requests.models import RequestType, Manager, Request, Response, Announcement
@@ -33,14 +33,45 @@ class MessageForm(forms.Form):
 	body = forms.CharField(widget=forms.Textarea())
 
 class VoteForm(forms.Form):
+	''' Form to cast an up or down vote for a request. '''
 	request_pk = forms.IntegerField(widget=forms.HiddenInput())
 
 class UnpinForm(forms.Form):
+	''' Form to repin or unpin an announcement. '''
 	announcement_pk = forms.IntegerField(widget=forms.HiddenInput())
 
 class RsvpForm(forms.Form):
 	''' Form to RSVP or un-RSVP from an event. '''
 	event_pk = forms.IntegerField(widget=forms.HiddenInput())
+
+class ManagerForm(forms.Form):
+	''' Form to create or modify a manager position. '''
+	title = forms.CharField(max_length=255, help_text="A unique title for this manager position.")
+	incumbent = forms.ModelChoiceField(queryset=UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS), help_text="Current incumbent for this manager position.", required=False)
+	compensation = forms.CharField(widget=forms.Textarea(), required=False)
+	duties = forms.CharField(widget=forms.Textarea(), required=False)
+	email = forms.EmailField(max_length=255, required=False, help_text="Manager e-mail (optional)")
+	president = forms.BooleanField(help_text="Whether this manager has president privileges (edit and add managers, etc.)", required=False)
+	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
+	active = forms.BooleanField(help_text="Whether this is an active manager positions (visible in directory, etc.)", required=False)
+	
+	def clean(self):
+		''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
+		cleaned_data = super(ManagerForm, self).clean()
+		compensation = cleaned_data.get("compensation")
+		duties = cleaned_data.get("duties")
+		if compensation == '<br data-mce-bogus="1">':
+			cleaned_data["compensation"] = ""
+		if duties == '<br data-mce-bogus="1">':
+			cleaned_data["duties"] = ""
+		return cleaned_data
+
+class RequestTypeForm(forms.Form):
+	''' Form to add or modify a request type. '''
+	name = forms.CharField(max_length=255, help_text="A uniqune name identifying this request type.")
+	managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.filter(active=True), help_text="Managers responsible for addressing this type of request.", required=False)
+	enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
+	glyphicon = forms.CharField(max_length=100, required=False, help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.')
 
 def red_ext(request, message=None):
 	'''

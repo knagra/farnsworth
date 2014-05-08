@@ -63,6 +63,7 @@
 	      <ul class="dropdown-menu">
 	        <li><a href="{% url 'member_forums' %}" ><span class="glyphicon glyphicon-comment"></span> Forums</a></li>
 	        <li><a href="{% url 'member_directory' %}" ><span class="glyphicon glyphicon-book"></span> Member Directory</a></li>
+	        <li><a href="{% url 'list_managers' %}" ><span class="glyphicon glyphicon-tower"></span> Manager Directory</a></li>
 		<li><a href="{% url 'announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Manager Announcements</a></li>
 		<li><a href="{% url 'events' %}" ><span class="glyphicon glyphicon-calendar"></span> Upcoming Events</a></li>
 	        <li><a href="{% url 'external' %}"><span class="glyphicon glyphicon-plane"></span> Landing</a></li>
@@ -86,10 +87,13 @@
 	      <li class="dropdown">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> Admin <b class="caret"></b></a>
 		<ul class="dropdown-menu">
-			<li class="dropdown-header">Manage Users</li>
+			<li class="dropdown-header">Users</li>
 		  <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
 		  <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
 		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-inbox"></span> Profile Requests ({{ NUM_OF_PROFILE_REQUESTS }})</a></li>
+		  <li class="divider"></li>
+		  <li class="dropdown-header">President Duties</li>
+		  <li><a href="{% url 'meta_manager' %}"><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
 		  <li class="divider"></li>
 		  <li class="dropdown-header">Miscellaneous</li>
 		  <li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Site Utilities</a></li>

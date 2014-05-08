@@ -13,9 +13,9 @@
 <div class="threads">
   <div class="header">
     <form action="{% url 'member_forums' %}">
-	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-comment"></span> Member Forums</button>
+	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-comment"></span><span class="hidden-xs"> Member Forums</span></button>
 	</form>
-    <h3 class="table_title small_title">View Thread</h3>
+    <h3 class="table_title">View Thread</h3>
   </div> <!-- table_header -->
   <div class="thread_table main_table">
     {% if not thread %}
