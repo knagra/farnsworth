@@ -76,7 +76,7 @@ MESSAGES = {
 }
 
 # Add the context that populates a few variables used on every page in the site.
-TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("requests.views.add_context",)
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("managers.views.add_context",)
 
 # List of time formats accepted by event forms.
 time_formats = ['%m/%d/%Y %I:%M %p', '%m/%d/%Y %I:%M:%S %p', '%Y-%m-%d %H:%M:%S']
@@ -206,7 +206,7 @@ INSTALLED_APPS = (
 	'django.contrib.staticfiles',
 	'threads',
 	'events',
-	'requests',
+	'managers',
 	'bootstrapform',
 	'south',
 	'haystack',

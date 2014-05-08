@@ -1,0 +1,3 @@
+{{ object.manager }} ({{ object.incumbent.user.get_full_name }}), {{ object.post_date }} ({{ object.change_date }}):
+
+{{ object.body|safe }}

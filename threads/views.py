@@ -13,7 +13,7 @@ from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_f
 # Stardard messages:
 from farnsworth.settings import MESSAGES
 from models import UserProfile, Thread, Message
-from requests.models import RequestType, Manager, Request, Response, Announcement
+from managers.models import RequestType, Manager, Request, Response, Announcement
 from events.models import Event
 from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User

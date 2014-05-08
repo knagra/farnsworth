@@ -45,7 +45,7 @@ urlpatterns += patterns('events.views',
 	url(r'^edit_event/(?P<event_pk>\w+)/$', 'edit_event_view', name='edit_event'),
 )
 
-urlpatterns += patterns('requests.views',
+urlpatterns += patterns('managers.views',
 	url(r'^request_profile/$', 'request_profile_view', name='request_profile'),
 	url(r'^custom_admin/profile_requests/$', 'manage_profile_requests_view', name='manage_profile_requests'),
 	url(r'^custom_admin/profile_requests/(?P<request_pk>\w+)/$', 'modify_profile_request_view', name='modify_profile_request'),
