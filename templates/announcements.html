@@ -21,8 +21,8 @@
 {% block content %}
 <div class="table_container">
 	<div class="header">{% if manager_positions %}
-		<button class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="button"><span class="glyphicon glyphicon-pencil"></span> New Announcement</button>
-		{% endif %}<h3 class="table_title large_title">{{ page_name }}</h3>
+		<button class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+		{% endif %}<h3 class="table_title medium_title">{{ page_name }}</h3>
 	</div> <!-- .header -->
 	<div class="announcements_table main_table">
 		{% if manager_positions %}

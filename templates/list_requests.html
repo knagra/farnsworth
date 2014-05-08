@@ -12,18 +12,18 @@
 	<div class="header">
 		{% if page_name == 'My Requests' %}
 			<form action="{% url 'my_requests' %}">
-			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span> Expanded View</button>
+			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span><span class="hidden-xs"> Expanded View</span></button>
 			</form>
 		{% elif request_type.enabled %}
 			<form action="{% url 'requests' requestType=request_type.name %}">
-			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span> Requests Page</button>
+			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> Requests Page</span></button>
 			</form>
 		{% elif targetUsername %}
 			<form action="{% url 'member_profile' targetUsername=targetUsername %}">
-			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-user"></span> {{ targetUsername }}'s Profile</button>
+			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-user"></span><span class="hidden-xs"> {{ targetUsername }}'s Profile</span></button>
 			</form>
 		{% endif %}
-		<h3 class="table_title {% if page_name|longer_than:'1234567890123456789' %}large{% elif page_name|longer_than:'123456789012' %}medium{% else %}small{% endif %}_title">
+		<h3 class="table_title{% if page_name|longer_than:'1234567890123456789' %} medium_title{% elif page_name|longer_than:'123456789012' %} small_title{% endif %}">
 			{{ page_name }}
 		</h3>
 	</div>

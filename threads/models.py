@@ -30,7 +30,7 @@ class UserProfile(models.Model):
 	status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=RESIDENT, help_text="Member status (resident, boarder, alumnus)")
 	
 	def __unicode__(self):
-		return "%s %s (Username: %s)" % (self.user.first_name, self.user.last_name, self.user.username)
+		return self.user.get_full_name()
 	
 	def is_userprofile(self):
 		return True

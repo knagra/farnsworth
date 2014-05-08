@@ -1,9 +1,9 @@
 {% load highlight %}
 {% load thread_tags %}
-<h4 class="result_title">{{ result.object.title }} <small>Incumbent: {% if result.object.incumbent %}<a href="{% url 'member_profile' targetUsername=result.object.incumbent.user.username %}">{{ result.object.incumbent|display_user:user }}</a>{% else %}none{% endif %}</small></h4>
+<h4 class="result_title"><a href="{% url 'view_manager' managerTitle=result.object.url_title %}">{{ result.object.title }}</a> <small>Incumbent: {% if result.object.incumbent %}<a href="{% url 'member_profile' targetUsername=result.object.incumbent.user.username %}">{{ result.object.incumbent|display_user:user }}</a>{% else %}none{% endif %}</small></h4>
 {% if result.object.email %}
 <div class="result_description">E-mail: <a title="Write E-mail" href="mailto:{{ result.object.email }}">{{ result.object.email }}</a></div>
 {% endif %}
-<div class="result_description">Compensation: {{ result.object.compensation|safe }}</div>
-
-<div class="result_description">Duties: {{ result.object.duties|safe }}</div>
+{% if result.object.incumbent.phone_visible and result.object.incumbent.phone_number %}
+<div class="result_description">Personal Phone: {{ result.object.incumbent.phone_number }}</div>
+{% endif %}

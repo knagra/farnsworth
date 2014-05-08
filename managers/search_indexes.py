@@ -3,7 +3,7 @@ Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 
-Search indexes for the requests app.
+Search indexes for the managers app.
 '''
 
 from datetime import datetime
@@ -13,18 +13,20 @@ from models import Manager, Request, Response, Announcement
 class ManagerIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Managers. '''
 	text = indexes.EdgeNgramField(document=True, use_template=True)
-	title = indexes.EdgeNgramField(model_attr='title', boost=1.125)
-	incumbent = indexes.EdgeNgramField(model_attr='incumbent')
-	exact_user = indexes.CharField(model_attr='incumbent', faceted=True)
+	title = indexes.EdgeNgramField(model_attr='title', boost=2)
+	exact_manager = indexes.CharField(model_attr='title', faceted=True)
+	incumbent = indexes.EdgeNgramField(model_attr='incumbent', null=True)
+	exact_user = indexes.CharField(model_attr='incumbent', faceted=True, null=True)
 	compensation = indexes.EdgeNgramField(model_attr='compensation', null=True)
 	duties = indexes.EdgeNgramField(model_attr='duties', null=True)
 	email = indexes.EdgeNgramField(model_attr='email', null=True)
+	exact_email = indexes.CharField(model_attr='email', faceted=True, null=True)
 	
 	def get_model(self):
 		return Manager
 	
 	def index_queryset(self, using=None):
-		return self.get_model().objects.all()
+		return self.get_model().objects.filter(active=True)
 
 class RequestIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Requests. '''

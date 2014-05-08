@@ -12,7 +12,7 @@ tinyMCE.init({
 });
 
 tinyMCE.init({
-	selector: "div.editable",
+	selector: ".editable",
 	inline: true,
 	height: 300,
 	width: "100%",

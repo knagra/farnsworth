@@ -21,8 +21,8 @@
 
 {% block content %}
 <div class="table_container">
-	<div class="header"><button class="btn btn-primary add_event" onclick="show_new_event_form()" type="button"><span class="glyphicon glyphicon-pencil"></span> New Event</button>
-		<h3 class="table_title">{{ page_name }}</h3>
+	<div class="header"><button class="btn btn-primary add_event" onclick="show_new_event_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Event</span></button>
+		<h3 class="table_title small_title">{{ page_name }}</h3>
 	</div> <!-- .header -->
 	<div class="events_table main_table">
 		<form id="new_event_form" method="post" action="">
