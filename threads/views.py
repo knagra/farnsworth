@@ -53,6 +53,7 @@ class ManagerForm(forms.Form):
 	email = forms.EmailField(max_length=255, required=False, help_text="Manager e-mail (optional)")
 	president = forms.BooleanField(help_text="Whether this manager has president privileges (edit and add managers, etc.)", required=False)
 	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
+	active = forms.BooleanField(help_text="Whether this is an active manager positions (visible in directory, etc.)", required=False)
 	
 	def clean(self):
 		''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
@@ -64,6 +65,13 @@ class ManagerForm(forms.Form):
 		if duties == '<br data-mce-bogus="1">':
 			cleaned_data["duties"] = ""
 		return cleaned_data
+
+class RequestTypeForm(forms.Form):
+	''' Form to add or modify a request type. '''
+	name = forms.CharField(max_length=255, help_text="A uniqune name identifying this request type.")
+	managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.filter(active=True), help_text="Managers responsible for addressing this type of request.", required=False)
+	enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
+	glyphicon = forms.CharField(max_length=100, required=False, help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.')
 
 def red_ext(request, message=None):
 	'''

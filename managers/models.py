@@ -19,6 +19,7 @@ class Manager(models.Model):
 	email = models.EmailField(blank=True, null=True, max_length=255, help_text="The e-mail address of this manager.")
 	president = models.BooleanField(default=False, help_text="Whether this manager has president privileges (edit managers, bylaws, etc.).")
 	workshift_manager = models.BooleanField(default=False, help_text="Whether this manager has workshift manager privileges (assign workshifts, etc.).")
+	active = models.BooleanField(default=True, help_text="Whether this is an active manager position (visible in directory, etc.).")
 	
 	def __unicode__(self):
 		return "%s" % self.title

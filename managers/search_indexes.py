@@ -26,7 +26,7 @@ class ManagerIndex(indexes.SearchIndex, indexes.Indexable):
 		return Manager
 	
 	def index_queryset(self, using=None):
-		return self.get_model().objects.all()
+		return self.get_model().objects.filter(active=True)
 
 class RequestIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Requests. '''

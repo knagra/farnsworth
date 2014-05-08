@@ -363,6 +363,7 @@ def custom_add_user_view(request):
 				new_user_profile.current_room = current_room
 				new_user_profile.former_rooms = former_rooms
 				new_user_profile.former_houses = former_houses
+				new_user_profile.save()
 				message = MESSAGES['USER_ADDED'].format(username=username)
 				messages.add_message(request, messages.SUCCESS, message)
 				return HttpResponseRedirect(reverse('custom_add_user'))
@@ -432,7 +433,7 @@ def recount_view(request):
 @login_required
 def list_managers_view(request):
 	''' Show a list of manager positions with links to view in detail. '''
-	managerset = Manager.objects.all()
+	managerset = Manager.objects.filter(active=True)
 	return render_to_response('list_managers.html', {'page_name': "Managers", 'managerset': managerset}, context_instance=RequestContext(request))
 
 @login_required
@@ -447,7 +448,10 @@ def manager_view(request, managerTitle):
 	except:
 		messages.add_message(request, messages.ERROR, MESSAGES['NO_MANAGER'].format(managerTitle=managerTitle))
 		return HttpResponseRedirect(reverse('list_managers'))
-	return render_to_response('view_manager.html', {'page_name': "View Manager", 'targetManager': targetManager}, context_instance=RequestContext(request))
+	if not targetManager.active:
+		messages.add_message(request, messages.ERROR, MESSAGES['INACTIVE_MANAGER'].format(managerTitle=targetManager.title))
+	else:
+		return render_to_response('view_manager.html', {'page_name': "View Manager", 'targetManager': targetManager}, context_instance=RequestContext(request))
 
 @login_required
 def meta_manager_view(request):
@@ -493,13 +497,14 @@ def add_manager_view(request):
 			email = form.cleaned_data['email']
 			president = form.cleaned_data['president']
 			workshift_manager = form.cleaned_data['workshift_manager']
+			active = form.cleaned_data['active']
 			url_title = title.lower().replace(' ', '_')
 			if Manager.objects.filter(title=title).count():
 				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
 			if Manager.objects.filter(url_title=url_title).count():
 				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
 			else:
-				new_manager = Manager(title=title, url_title=url_title, compensation=compensation, duties=duties, email=email, president=president, workshift_manager=workshift_manager)
+				new_manager = Manager(title=title, url_title=url_title, compensation=compensation, duties=duties, email=email, president=president, workshift_manager=workshift_manager, active=active)
 				if incumbent:
 					new_manager.incumbent = incumbent
 				new_manager.save()
@@ -543,6 +548,7 @@ def edit_manager_view(request, managerTitle):
 			email = form.cleaned_data['email']
 			president = form.cleaned_data['president']
 			workshift_manager = form.cleaned_data['workshift_manager']
+			active = form.cleaned_data['active']
 			url_title = title.lower().replace(' ', '_')
 			if Manager.objects.filter(title=title).count() and Manager.objects.get(title=title) != targetManager:
 				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
@@ -558,13 +564,14 @@ def edit_manager_view(request, managerTitle):
 				targetManager.email = email
 				targetManager.president = president
 				targetManager.workshift_manager = workshift_manager
+				targetManager.active = active
 				targetManager.save()
 				return HttpResponseRedirect(reverse('meta_manager'))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 	else:
 		form = ManagerForm(initial={'title': targetManager.title, 'incumbent': targetManager.incumbent, 'compensation': targetManager.compensation,
-			'duties': targetManager.duties, 'email': targetManager.email, 'president': targetManager.president, 'workshift_manager': targetManager.workshift_manager})
+			'duties': targetManager.duties, 'email': targetManager.email, 'president': targetManager.president, 'workshift_manager': targetManager.workshift_manager, 'active': targetManager.active})
 	return render_to_response('edit_manager.html', {'page_name': "Edit Manager", 'form': form, 'manager_title': targetManager.title}, context_instance=RequestContext(request))
 
 @login_required
