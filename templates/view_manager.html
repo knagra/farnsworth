@@ -23,6 +23,10 @@
 	<tbody>
 		<tr><th>Title:</th><td class="field">{{ targetManager.title }}</td></tr>
 		<tr><th>Incumbent:</th><td class="field">{% if targetManager.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=targetManager.incumbent.user.username %}" >{{ targetManager.incumbent|display_user:user }}</a>{% endif %}</td></tr>
+		<tr><th>E-mail:</th><td class="field"><a title="Write E-mail" href="mailto:{{ targetManager.email }}">{{ targetManager.email }}</a></td></tr>
+		{% if targetManager.incumbent.phone_visible %}
+		<tr><th>Personal Phone:</th><td class="fields">{{ targetManager.incumbent.phone_number }}</td></tr>
+		{% endif %}
 	</tbody>
 	</table>
 	<div id="id_compensation" style="margin-left: 10px; font-size: 15pt; font-weight: 300; margin-top: 5px;">Compensation:<br /><div style="margin-left: 20px;">{{ targetManager.compensation|safe }}</div></div>

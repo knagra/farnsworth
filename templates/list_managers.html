@@ -27,7 +27,7 @@
 	<tbody>
 		{% for pos in managerset %}
 		<tr><td><a title="See Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a></td>
-			<td>{% if pos.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>{% endif %}</td>
+			<td>{% if pos.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent.user.get_full_name }}</a>{% endif %}</td>
 			<td>{% if pos.email %}<a title="Write E-mail" href="mailto:{{ pos.email }}">{{ pos.email }}</a>{% endif %}</td>
 			<td>{% if pos.incumbent.phone_visible %}{{ pos.incumbent.phone_number }}{% endif %}</td>
 		</tr>

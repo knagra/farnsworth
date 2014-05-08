@@ -78,6 +78,7 @@ MESSAGES = {
 	'NO_MANAGER': "The manager page {managerTitle} could not be found.",
 	'NO_REQUEST_TYPE': "The request type {requestType} could not be found.",
 	'MANAGER_ADDED': "Manager {managerTitle} has been added.",
+	'INVALID_FORM': "Your input could not be properly processed.  Please try again.",
 }
 
 # Add the context that populates a few variables used on every page in the site.

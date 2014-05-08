@@ -14,11 +14,13 @@ class ManagerIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Managers. '''
 	text = indexes.EdgeNgramField(document=True, use_template=True)
 	title = indexes.EdgeNgramField(model_attr='title', boost=2)
+	exact_manager = indexes.CharField(model_attr='title', faceted=True)
 	incumbent = indexes.EdgeNgramField(model_attr='incumbent', null=True)
 	exact_user = indexes.CharField(model_attr='incumbent', faceted=True, null=True)
 	compensation = indexes.EdgeNgramField(model_attr='compensation', null=True)
 	duties = indexes.EdgeNgramField(model_attr='duties', null=True)
 	email = indexes.EdgeNgramField(model_attr='email', null=True)
+	exact_email = indexes.CharField(model_attr='email', faceted=True, null=True)
 	
 	def get_model(self):
 		return Manager

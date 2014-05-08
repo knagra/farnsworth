@@ -30,8 +30,8 @@
 	</thead>
 	<tbody>
 		{% for pos in managerset %}
-		<tr><td><a title="Edit Manager" href="{% url 'edit_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a></td>
-			<td>{% if pos.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>{% endif %}</td>
+		<tr><td><a title="Edit Manager" href="{% url 'edit_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-wrench"></span> {{ pos.title }}</a></td>
+			<td>{% if pos.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent.user.get_full_name }}</a>{% endif %}</td>
 			<td>{% if pos.president %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True" />{% else %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False" />{% endif %}</td>
 			<td>{% if pos.workshift_manager %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="True" />{% else %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="False" />{% endif %}</td>
 			<td>{% if pos.email %}<a title="Write E-mail" href="mailto:{{ pos.email }}">{{ pos.email }}</a>{% endif %}</td>

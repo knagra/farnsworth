@@ -47,13 +47,23 @@ class RsvpForm(forms.Form):
 class ManagerForm(forms.Form):
 	''' Form to create or modify a manager position. '''
 	title = forms.CharField(max_length=255, help_text="A unique title for this manager position.")
-	incumbent_choices = [('', '-----'),] + ([(p, p.user.get_full_name()) for p in UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS)])
-	incumbent = forms.ChoiceField(choices=incumbent_choices, help_text="Current incumbent for this manager position.", required=False)
-	compensation = forms.CharField(widget=forms.Textarea(attrs={'class': 'editable'}), required=False)
-	duties = forms.CharField(widget=forms.Textarea(attrs={'class': 'editable'}), required=False)
+	incumbent = forms.ModelChoiceField(queryset=UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS), help_text="Current incumbent for this manager position.", required=False)
+	compensation = forms.CharField(widget=forms.Textarea(), required=False)
+	duties = forms.CharField(widget=forms.Textarea(), required=False)
 	email = forms.EmailField(max_length=255, required=False, help_text="Manager e-mail (optional)")
 	president = forms.BooleanField(help_text="Whether this manager has president privileges (edit and add managers, etc.)", required=False)
 	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
+	
+	def clean(self):
+		''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
+		cleaned_data = super(ManagerForm, self).clean()
+		compensation = cleaned_data.get("compensation")
+		duties = cleaned_data.get("duties")
+		if compensation == '<br data-mce-bogus="1">':
+			cleaned_data["compensation"] = ""
+		if duties == '<br data-mce-bogus="1">':
+			cleaned_data["duties"] = ""
+		return cleaned_data
 
 def red_ext(request, message=None):
 	'''
