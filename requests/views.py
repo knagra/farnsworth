@@ -408,11 +408,15 @@ def recount_view(request):
 	if not request.user.is_superuser:
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	for req in Request.objects.all():
-		req.number_of_responses = Response.objects.filter(request=req).count()
-		req.save()
+		recount = Response.objects.filter(request=req).count()
+		if req.number_of_responses != recount:
+			req.number_of_responses = recount
+			req.save()
 	for thread in Thread.objects.all():
-		thread.number_of_messages = Message.objects.filter(thread=thread).count()
-		thread.save()
+		recount = Message.objects.filter(thread=thread).count()
+		if thread.number_of_messages != recount:
+			thread.number_of_messages = recount
+			thread.save()
 	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'])
 	return HttpResponseRedirect(reverse('utilities'))
 
