@@ -7,6 +7,16 @@
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/helppage.css' %}" />
 {% endblock %}
 
+{% block title %}
+{% if not user.is_authenticated %}
+<div id="title">
+	<h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
+	<h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
+	<br />
+</div> <!-- close "title" -->
+{% endif %}
+{% endblock %}
+
 {% block content %}
 {% if not user.is_authenticated %}
 	<p>Welcome!  This is a virtual gathering place for members of {{ HOUSE }} as well as a community outreach and general information site.
