@@ -219,9 +219,9 @@ def custom_modify_user_view(request, targetUsername):
 		current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		is_active = forms.BooleanField(required=False)
-		is_staff = forms.BooleanField(required=False)
-		is_superuser = forms.BooleanField(required=False)
+		is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
+		is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
+		is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
 		groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
 	class ChangeUserPasswordForm(forms.Form):
 		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
@@ -312,9 +312,9 @@ def custom_add_user_view(request):
 		current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False)
-		is_active = forms.BooleanField(required=False)
-		is_staff = forms.BooleanField(required=False)
-		is_superuser = forms.BooleanField(required=False)
+		is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
+		is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
+		is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
 		groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
 		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
@@ -379,7 +379,7 @@ def utilities_view(request):
 	''' View for an admin to do maintenance tasks on the site. '''
 	if not request.user.is_superuser:
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
-	return render_to_response('utilities.html', {'page_name': "Site Utilities"}, context_instance=RequestContext(request))
+	return render_to_response('utilities.html', {'page_name': "Admin - Site Utilities"}, context_instance=RequestContext(request))
 
 @login_required
 def anonymous_login_view(request):
@@ -471,7 +471,7 @@ def meta_manager_view(request):
 	if (not request.user.is_superuser) and (not president):
 		return red_home(request, MESSAGES['PRESIDENT'])
 	managerset = Manager.objects.all()
-	return render_to_response('meta_manager.html', {'page_name': "Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
+	return render_to_response('meta_manager.html', {'page_name': "Admin - Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
 
 @login_required
 def add_manager_view(request):
@@ -512,8 +512,7 @@ def add_manager_view(request):
 				return HttpResponseRedirect(reverse('add_manager'))
 	else:
 		form = ManagerForm()
-	return render_to_response('edit_manager.html', {'page_name': "Add Manager", 'form': form}, context_instance=RequestContext(request))
-
+	return render_to_response('edit_manager.html', {'page_name': "Admin - Add Manager", 'form': form}, context_instance=RequestContext(request))
 
 @login_required
 def edit_manager_view(request, managerTitle):
@@ -572,7 +571,7 @@ def edit_manager_view(request, managerTitle):
 	else:
 		form = ManagerForm(initial={'title': targetManager.title, 'incumbent': targetManager.incumbent, 'compensation': targetManager.compensation,
 			'duties': targetManager.duties, 'email': targetManager.email, 'president': targetManager.president, 'workshift_manager': targetManager.workshift_manager, 'active': targetManager.active})
-	return render_to_response('edit_manager.html', {'page_name': "Edit Manager", 'form': form, 'manager_title': targetManager.title}, context_instance=RequestContext(request))
+	return render_to_response('edit_manager.html', {'page_name': "Admin - Edit Manager", 'form': form, 'manager_title': targetManager.title}, context_instance=RequestContext(request))
 
 @login_required
 def requests_view(request, requestType):

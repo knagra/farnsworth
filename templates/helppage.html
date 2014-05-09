@@ -45,7 +45,7 @@
 	<div class="row">
 	<div id="managing_users" class="col-md-6">
 		<h1 class="sub_title text-center">Admin: Managing Users <small><a name="managing_users" title="A link to this section" href="#managing_users">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div">show/hide</a></div>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="managing_users_body" class="toggleable">
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle">Adding Users <a name="adding_users" title="A link to this sub-section" href="#adding_users">&sect;</a></h2>
@@ -105,7 +105,8 @@
 			</p>
 			<p>You are also discouraged from modifying the anonymous user (username "{{ ANONYMOUS_USERNAME }}").
 			When you open this user's edit page, a warning will be displayed saying the same.
-			More on the anonymous user is covered under the <a href="#anonymous_user">Anonymous User sub-section</a> of the <a href="#admin_miscellaneous">Admin: Miscellaneous section</a>.
+			More on the anonymous user is covered under the <a href="#anonymous_user">Anonymous User sub-section</a>
+			of the <a href="#admin_miscellaneous">Admin: Miscellaneous section</a>.
 			</p>
 			<p>On every user profile page (a general user page accessed from various parts of the site, most notably the
 			<a href="{% url 'member_directory' %}">member directory</a>),
@@ -132,12 +133,12 @@
 			If a request is deleted, there is no way to retrieve it.  The user will have to fill another request, or you can add the user manually
 			(check the <a href="#adding_users">adding users</a> section above for more info).
 			</p>
-		<div class="text-center"><a class="inner_toggle">hide</a></div>
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #managing_users_body -->
 	</div> <!-- #managing_users -->
 	<div id="admin_misc" class="col-md-6">
 		<h1 class="sub_title text-center">Admin: Miscellaneous <small><a name="admin_miscellaneous" title="A link to this section" href="#admin_miscellaneous">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div">show/hide</a></div>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="admin_misc_body" class="toggleable">
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle">Anonymous User <a name="anonymous_user" title="A link to this sub-section" href="#anonymous_user">&sect;</a></h2>
@@ -223,17 +224,54 @@
 			</p>
 			<p>Managing all models is identical through the Django admin interface.  The interface for modifying a model isntance is fairly intuitive.
 			</p>
-		<div class="text-center"><a class="inner_toggle">hide</a></div>
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #admin_misc_body -->
 	</div> <!-- #admin_misc -->
 	</div> <!-- .row -->
 	<br />
 	<hr class="main_divider" />
 	{% endif %}
+	
+	{% if user.is_superuser or PRESIDENT %}
+	<div class="row">
+	<div id="meta_manager" class="col-md-6 col-md-offset-3">
+		<h1 class="sub_title text-center">President: Meta-Manager <small><a name="#meta_manager" title="A link to this section" href="#meta_manager">&sect;</a></small></h1>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+		<div id="meta_manager_body" class="toggleable">
+		<hr style="width: 75%;" />
+		
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
+		</div> <!-- #meta_manager_body" -->
+	</div> <!-- #meta_manager -->
+	</div> <!-- .row -->
+	<br />
+	<hr class="main_divider" />
+	{% endif %}
+	
+	<div class="row">
+	<div id="navigation" class="col-md-6">
+		<h1 class="sub_title text-center">Navigation <small><a name="navigation" title="A link to this section" href="#navigation">&sect;</a></small></h1>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+		<div id="navigation_body" class="toggleable">
+		<hr style="width: 75%;" />
+		
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
+		</div> <!-- #navigation_body -->
+	</div> <!-- #navigation -->
+	<div id="tips" class="col-md-6">
+		<h1 class="sub_title text-center">General Tips <small><a name="tips" title="A link to this section" href="#tips">&sect;</a></small></h1>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+		<div id="tips_body" class="toggleable">
+		<hr style="width: 75%;" />
+		
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
+		</div> <!-- #tips_body -->
+	</div> <!-- #tips -->
+	</div> <!-- .row -->
 	<div class="row">
 	<div id="profile" class="col-md-6">
 		<h1 class="sub_title text-center">Profile Management <small><a name="profile_management" title="A link to this section" href="#profile_management">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div">show/hide</a></div>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="profile_body" class="toggleable">
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle">Profile Details <a name="profile" title="A link to this sub-section" href="#profile">&sect;</a></h2>
@@ -244,16 +282,16 @@
 			<p>
 			</p>
 		<h2 class="sub_subtitle">Password <a name="password" title="A link to this sub-section" href="#password">&sect;</a></h2>
-			<div class="text-center"><a class="inner_toggle">hide</a></div>
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #profile_body -->
 	</div> <!-- #profile -->
 	<br class="visible-xs visible-sm" />
 	<div id="threads" class="col-md-6">
 		<h1 class="sub_title text-center">Threads <small><a name="threads" title="A link to this section" href="#threads">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div">show/hide</a></div>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="threads_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle">hide</a></div>
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #threads_body -->
 	</div> <!-- #threads -->
 	</div> <!-- .row -->
@@ -261,38 +299,38 @@
 	<div class="row">
 	<div id="requests" class="col-md-6">
 		<h1 class="sub_title text-center">Requests <small><a name="requests" title="A link to this section" href="#requests">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div">show/hide</a></div>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="requests_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle">hide</a></div>
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #requests_body -->
 	</div> <!-- #requests -->
 	<br class="visible-xs visible-sm" />
 	<div id="announcements" class="col-md-6">
 		<h1 class="sub_title text-center">Announcements <small><a name="announcements" title="A link to this section" href="#announcements">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div">show/hide</a></div>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="announcements_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle">hide</a></div>
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #announcements_body -->
 	</div> <!-- #announcements -->
 	</div> <!-- .row -->
 	<div class="row">
 	<div id="events" class="col-md-6">
 		<h1 class="sub_title text-center">Events <small><a name="events" title="A link to this section" href="#events">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div">show/hide</a></div>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="events_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle">hide</a></div>
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #events_body -->
 	</div> <!-- #events -->
 	<br class="visible-xs visible-sm" />
 	<div id="misc" class="col-md-6">
 		<h1 class="sub_title text-center">Miscellaneous <small><a name="miscellaneous" title="A link to this section" href="#miscellaneous">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div">show/hide</a></div>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div class="misc_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle">hide</a></div>
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #misc_body -->
 	</div> <!-- #misc -->
 	</div> <!-- .row -->
