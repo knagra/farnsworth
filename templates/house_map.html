@@ -28,12 +28,13 @@
 {% block endscripts %}
 <script>
 $(document).ready(function() {
-	$('html').css('height', $(window).height() - 56);
-	$('#bottom').hide();
+	$('html').css('height', $(window).height() - 51);
+	$('html').css('overflow', 'hidden');
+	$('#bottom').addClass('visible-xs');
 	$('#body').parent().hide();
 	$('.navbar').css('margin-bottom', 0);
 	$(window).resize(function () {
-		$('html').css('height', $(window).height() - 56);
+		$('html').css('height', $(window).height() - 51);
 	});
 });
 </script>
