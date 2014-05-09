@@ -362,7 +362,7 @@ $(document).ready(function() {
 		if (wi <= 768 && $('a.toggle_div').next('div.toggleable')) {
 			$('a.toggle_div').parent().next('div.toggleable').hide();
 		} else {
-			$('a.toggle_div').parent().next('div').show();
+			$('a.toggle_div').parent().next('div.toggleable').show();
 		}
 	});
 	$('a.toggle_div').click(function() {

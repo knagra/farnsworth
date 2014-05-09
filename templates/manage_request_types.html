@@ -28,7 +28,7 @@
 	</thead>
 	<tbody>
 		{% for type in request_types %}
-		<tr><td><a title="Modify Request Type" href="{% url 'edit_request_type' typeName=type.url_name %}"><span class="glyphicon glyphicon-cog"></span> {{ type.name }}</a></td>
+		<tr><td><a title="Modify Request Type" href="{% url 'edit_request_type' typeName=type.url_name %}"><span class="glyphicon glyphicon-{% if type.glyphicon %}{{ type.glyphicon }}{% else %}cog{% endif %}"></span> {{ type.name }}</a></td>
 			<td>{% if type.enabled %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>
 			<td>{% for pos in type.managers.all %}
 				{% if forloop.counter > 1 %}, {% endif %}
