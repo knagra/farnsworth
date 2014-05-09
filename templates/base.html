@@ -53,7 +53,7 @@
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-inbox"></span> Requests <b class="caret"></b></a>
 		<ul class="dropdown-menu">
 			{% for request_type in REQUEST_TYPES %}
-				<li><a href="{% url 'requests' requestType=request_type.name %}" ><span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span> {{ request_type.human_readable_name|title }}</a></li>
+				<li><a href="{% url 'requests' requestType=request_type.url_name %}" ><span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span> {{ request_type.name }}</a></li>
 			{% endfor %}
 		</ul>
 	      </li>
@@ -94,10 +94,19 @@
 		  <li class="divider"></li>
 		  <li class="dropdown-header">President Duties</li>
 		  <li><a href="{% url 'meta_manager' %}"><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
+		  <li><a href="{% url 'manage_request_types' %}"><span class="glyphicon glyphicon-inbox"></span> Manage Request Types</a></li>
 		  <li class="divider"></li>
 		  <li class="dropdown-header">Miscellaneous</li>
 		  <li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Site Utilities</a></li>
 		</ul>
+	      </li>
+	      {% elif PRESIDENT %}
+	      <li class="dropdown">
+	      <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> President <b class="caret"></b></a>
+	      <ul class="dropdown-menu">
+			  <li><a href="{% url 'meta_manager' %}" ><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
+			  <li><a href="{% url 'manage_request_types' %}"><span class="glyphicon glyphicon-inbox"></span> Manage Request Types</a></li>
+	      </ul>
 	      </li>
 	      {% endif %}
 		{% endif %}

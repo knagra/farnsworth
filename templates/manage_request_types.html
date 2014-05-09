@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load thread_tags %}
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="table_container">
+	<div class="header">
+		<form class="header_form" action="{% url 'add_request_type' %}">
+			<button id="add_request_type" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Request Type</span></button>
+		</form>
+		<h3 class="table_title small_title">Request Types</h3>
+	</div> <!-- .header -->
+	<div class="main_table">
+	{% if not request_types %}
+		<div class="field_wrapper">No request types in database.</div>
+	{% else %}
+	<table class="table table-striped table-bordered table-condensed table-hover" id="managers_table" style="margin: 0px;">
+	<thead>
+		<tr><th>Request Type</th>
+			<th>Enabled</th>
+			<th>Relevant Managers</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for type in request_types %}
+		<tr><td><a title="Modify Request Type" href="{% url 'edit_request_type' typeName=type.url_name %}"><span class="glyphicon glyphicon-cog"></span> {{ type.name }}</a></td>
+			<td>{% if type.enabled %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>
+			<td>{% for pos in type.managers.all %}
+				{% if forloop.counter > 1 %}, {% endif %}
+				<a title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+					{% if pos.incumbent %}
+					(<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
+					{% else %}
+					(No incumbent)
+					{% endif %}
+				{% endfor %}
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+	</table>
+	{% endif %}
+	</div> <!-- .main_table -->
+</div> <!-- .table_container -->
+{% endblock %}
+
+{% block endscripts %}
+<script>
+	$(document).ready(function() {
+		$('table').tablesorter({
+			sortList: [[0,0], [1,0]]
+		});
+	});
+</script>
+{% endblock %}

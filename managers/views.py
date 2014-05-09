@@ -17,7 +17,7 @@ from farnsworth.settings import house, short_house, ADMINS, max_requests, max_re
 from farnsworth.settings import MESSAGES
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile, Thread, Message
-from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm
+from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm, RequestTypeForm
 from datetime import datetime
 from django.utils.timezone import utc
 from django.contrib import messages
@@ -219,9 +219,9 @@ def custom_modify_user_view(request, targetUsername):
 		current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		is_active = forms.BooleanField(required=False)
-		is_staff = forms.BooleanField(required=False)
-		is_superuser = forms.BooleanField(required=False)
+		is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
+		is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
+		is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
 		groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
 	class ChangeUserPasswordForm(forms.Form):
 		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
@@ -312,9 +312,9 @@ def custom_add_user_view(request):
 		current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False)
-		is_active = forms.BooleanField(required=False)
-		is_staff = forms.BooleanField(required=False)
-		is_superuser = forms.BooleanField(required=False)
+		is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
+		is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
+		is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
 		groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
 		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
@@ -379,7 +379,7 @@ def utilities_view(request):
 	''' View for an admin to do maintenance tasks on the site. '''
 	if not request.user.is_superuser:
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
-	return render_to_response('utilities.html', {'page_name': "Site Utilities"}, context_instance=RequestContext(request))
+	return render_to_response('utilities.html', {'page_name': "Admin - Site Utilities"}, context_instance=RequestContext(request))
 
 @login_required
 def anonymous_login_view(request):
@@ -471,7 +471,7 @@ def meta_manager_view(request):
 	if (not request.user.is_superuser) and (not president):
 		return red_home(request, MESSAGES['PRESIDENT'])
 	managerset = Manager.objects.all()
-	return render_to_response('meta_manager.html', {'page_name': "Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
+	return render_to_response('meta_manager.html', {'page_name': "Admin - Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
 
 @login_required
 def add_manager_view(request):
@@ -501,7 +501,7 @@ def add_manager_view(request):
 			url_title = title.lower().replace(' ', '_')
 			if Manager.objects.filter(title=title).count():
 				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
-			if Manager.objects.filter(url_title=url_title).count():
+			elif Manager.objects.filter(url_title=url_title).count():
 				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
 			else:
 				new_manager = Manager(title=title, url_title=url_title, compensation=compensation, duties=duties, email=email, president=president, workshift_manager=workshift_manager, active=active)
@@ -512,8 +512,7 @@ def add_manager_view(request):
 				return HttpResponseRedirect(reverse('add_manager'))
 	else:
 		form = ManagerForm()
-	return render_to_response('edit_manager.html', {'page_name': "Add Manager", 'form': form}, context_instance=RequestContext(request))
-
+	return render_to_response('edit_manager.html', {'page_name': "Admin - Add Manager", 'form': form}, context_instance=RequestContext(request))
 
 @login_required
 def edit_manager_view(request, managerTitle):
@@ -566,13 +565,124 @@ def edit_manager_view(request, managerTitle):
 				targetManager.workshift_manager = workshift_manager
 				targetManager.active = active
 				targetManager.save()
+				messages.add_message(request, messages.SUCCESS, MESSAGES['MANAGER_SAVED'].format(managerTitle=title))
 				return HttpResponseRedirect(reverse('meta_manager'))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 	else:
 		form = ManagerForm(initial={'title': targetManager.title, 'incumbent': targetManager.incumbent, 'compensation': targetManager.compensation,
 			'duties': targetManager.duties, 'email': targetManager.email, 'president': targetManager.president, 'workshift_manager': targetManager.workshift_manager, 'active': targetManager.active})
-	return render_to_response('edit_manager.html', {'page_name': "Edit Manager", 'form': form, 'manager_title': targetManager.title}, context_instance=RequestContext(request))
+	return render_to_response('edit_manager.html', {'page_name': "Admin - Edit Manager", 'form': form, 'manager_title': targetManager.title}, context_instance=RequestContext(request))
+
+@login_required
+def manage_request_types_view(request):
+	''' Manage requests.  Display a list of request types with links to edit them.
+	Also display a link to add a new request type.  Restricted to presidents and superadmins.
+	'''
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		return red_home(request, MESSAGES['NO_PROFILE'])
+	president = False # whether the user has president privileges
+	for pos in Manager.objects.filter(incumbent=userProfile):
+		if pos.president:
+			president = True
+			break
+	if (not request.user.is_superuser) and (not president):
+		return red_home(request, MESSAGES['PRESIDENT'])
+	request_types = RequestType.objects.all()
+	return render_to_response('manage_request_types.html', {'page_name': "Admin - Manage Request Types", 'request_types': request_types},
+			context_instance=RequestContext(request))
+
+@login_required
+def add_request_type_view(request):
+	''' View to add a new request type.  Restricted to presidents and superadmins. '''
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		return red_home(request, MESSAGES['NO_PROFILE'])
+	president = False # whether the user has president privileges
+	for pos in Manager.objects.filter(incumbent=userProfile):
+		if pos.president:
+			president = True
+			break
+	if (not request.user.is_superuser) and (not president):
+		return red_home(request, MESSAGES['PRESIDENT'])
+	if request.method == 'POST':
+		form = RequestTypeForm(request.POST)
+		if form.is_valid():
+			name = form.cleaned_data['name']
+			relevant_managers = form.cleaned_data['relevant_managers']
+			enabled = form.cleaned_data['enabled']
+			glyphicon = form.cleaned_data['glyphicon']
+			url_name = name.lower().replace(' ', '_')
+			if RequestType.objects.filter(name=name).count():
+				form._errors['name'] = forms.util.ErrorList([u"A request type with this name already exists."])
+			elif RequestType.objects.filter(url_name=url_name).count():
+				form._errors['name'] = forms.util.ErrorList([u'This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.'])
+			else:
+				new_request_type = RequestType(name=name, url_name=url_name, enabled=enabled, glyphicon=glyphicon)
+				new_request_type.save()
+				for pos in relevant_managers:
+					new_request_type.managers.add(pos)
+				new_request_type.save()
+				messages.add_message(request, messages.SUCCESS, MESSAGES['REQUEST_TYPE_ADDED'].format(typeName=name))
+				return HttpResponseRedirect(reverse('manage_request_types'))
+		else:
+			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
+	else:
+		form = RequestTypeForm()
+	return render_to_response('edit_request_type.html', {'page_name': "Admin - Add Request Type", 'form': form}, context_instance=RequestContext(request))
+
+@login_required
+def edit_request_type_view(request, typeName):
+	''' View to edit a new request type.  Restricted to presidents and superadmins.
+	Parameters:
+		request is an HTTP request
+		typeName is the request type's URL name.
+	'''
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except:
+		return red_home(request, MESSAGES['NO_PROFILE'])
+	president = False # whether the user has president privileges
+	for pos in Manager.objects.filter(incumbent=userProfile):
+		if pos.president:
+			president = True
+			break
+	if (not request.user.is_superuser) and (not president):
+		return red_home(request, MESSAGES['PRESIDENT'])
+	try:
+		requestType = RequestType.objects.get(url_name=typeName)
+	except:
+		messages.add_message(request, messages.ERROR, MESSAGES['NO_REQUEST_TYPE'].format(typeName=typeName))
+		return HttpResponseRedirect(reverse('manage_request_types'))
+	if request.method == 'POST':
+		form = RequestTypeForm(request.POST)
+		if form.is_valid():
+			name = form.cleaned_data['name']
+			relevant_managers = form.cleaned_data['relevant_managers']
+			enabled = form.cleaned_data['enabled']
+			glyphicon = form.cleaned_data['glyphicon']
+			url_name = name.lower().replace(' ', '_')
+			if RequestType.objects.filter(name=name).count() and RequestType.objects.get(name=name) != requestType:
+				form._errors['name'] = forms.util.ErrorList([u"A request type with this name already exists."])
+			elif RequestType.objects.filter(url_name=url_name).count() and RequestType.objects.get(url_name=url_name) != requestType:
+				form._errors['name'] = forms.util.ErrorList([u'This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.'])
+			else:
+				requestType.name = name
+				requestType.url_name = url_name
+				requestType.managers = relevant_managers
+				requestType.enabled = enabled
+				glyphicon = glyphicon
+				requestType.save()
+				messages.add_message(request, messages.SUCCESS, MESSAGES['REQUEST_TYPE_SAVED'].format(typeName=name))
+				return HttpResponseRedirect(reverse('manage_request_types'))
+		else:
+			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
+	else:
+		form = RequestTypeForm(initial={'name': requestType.name, 'relevant_managers': requestType.managers.all(), 'enabled': requestType.enabled, 'glyphicon': requestType.glyphicon})
+	return render_to_response('edit_request_type.html', {'page_name': "Admin - Edit Request Type", 'form': form, 'requestType': requestType}, context_instance=RequestContext(request))
 
 @login_required
 def requests_view(request, requestType):
