@@ -220,15 +220,25 @@
 	
 	{% if user.is_superuser or PRESIDENT %}
 	<div class="row">
-	<div id="meta_manager" class="col-md-6 col-md-offset-3">
-		<h1 class="sub_title text-center">President: Meta-Manager <small><a name="#meta_manager" title="A link to this section" href="#meta_manager">&sect;</a></small></h1>
+	<div id="meta_manager" class="col-md-6">
+		<h1 class="sub_title text-center">President: Meta-Manager <small><a name="meta_manager" title="A link to this section" href="#meta_manager">&sect;</a></small></h1>
 		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="meta_manager_body" class="toggleable">
 		<hr style="width: 75%;" />
 		
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
-		</div> <!-- #meta_manager_body" -->
+		</div> <!-- #meta_manager_body -->
 	</div> <!-- #meta_manager -->
+	
+	<div id="request_types" class="col-md-6">
+		<h1 class="sub_title text-center">President: Request Types <small><a name="request_types" title="A link to this section" href="#request_types">&sect;</a></small></h1>
+		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+		<div id="request_types_body" class="toggleable">
+		<hr style="width: 75%;" />
+		
+		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
+		</div> <!-- # request_types_body -->
+	</div> <!-- #request_types -->
 	</div> <!-- .row -->
 	<br />
 	<hr class="main_divider" />
