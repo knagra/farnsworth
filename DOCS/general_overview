@@ -28,14 +28,46 @@ Python elasticsearch (pip install elasticsearch)
 
 Deployment
 ==
-Add the following lines to the httpd.conf file for Apache:
-WSGIScriptAlias /farnsworth /path/to/farnsworth/farnsworth/wsgi.py
-WSGIPythonPath /path/to/farnsworth
-Alias /static/ /path/to/farnsworth/static/
 
-<Directory /path/to/farnsworth/farnsworth>
-<Files wsgi.py>
-Order deny,allow
-Allow from all
-</Files>
-</Directory>
+System Packages
+===
+On CentOS:
+  
+    $ sudo yum install postgres python python-devel virtualenv gcc
+
+On Debian:
+
+    $ sudo apt-get install postgres python python-devel virtualenv gcc
+
+Apache
+===
+Add the following lines to the httpd.conf file for Apache:
+  
+    WSGIScriptAlias /farnsworth /path/to/farnsworth/farnsworth/wsgi.py
+    WSGIPythonPath /path/to/farnsworth:/path/to/farnsworth/lib/python<python-version>/site-packages
+    Alias /static/ /path/to/farnsworth/static/
+
+    <Directory /path/to/farnsworth/farnsworth>
+      <Files wsgi.py>
+        Order deny,allow
+        Allow from all
+      </Files>
+    </Directory>
+
+virtualenv
+===
+
+    $ cd /path/to/farnsworth
+    $ virtualenv .
+    $ source bin/activate
+    $ pip install -e git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master
+    $ pip install django django-bootstrap-form psycopg2 south python-social-auth elasticsearch
+
+Postgres
+===
+    $ sudo su - postgres
+    $ createdb <house>
+    $ createuser -PS <house>_admin
+    $ psql
+    postgres=# GRANT ALL PRIVILEGES ON DATABASE <house> TO <house>_admin;
+
