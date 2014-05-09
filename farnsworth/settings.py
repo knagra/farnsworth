@@ -77,9 +77,12 @@ MESSAGES = {
 	'WORKSHIFT_MANAGER_ONLY': "This page is restricted to Workshift Managers and superadmins.",
 	'NO_MANAGER': "The manager page {managerTitle} could not be found.",
 	'NO_REQUEST_TYPE': "The request type {requestType} could not be found.",
-	'MANAGER_ADDED': "Manager {managerTitle} has been added.",
+	'MANAGER_ADDED': "Manager {managerTitle} has been successfully added.",
+	'MANAGER_SAVED': "Manager {managerTitle} has been successfully saved.",
 	'INVALID_FORM': "Your input could not be properly processed.  Please try again.",
 	'INACTIVE_MANAGER': "{managerTitle} is currently deactivated.",
+	'REQUEST_TYPE_ADDED': "Request type {typeName} has been successfully added.",
+	'REQUEST_TYPE_SAVED': "Request type {typeName} has been successfully saved.",
 }
 
 # Add the context that populates a few variables used on every page in the site.
