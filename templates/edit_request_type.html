@@ -13,10 +13,10 @@
 {% block content %}
 	<div id="update_profile">
 		<div class="header">
-			{% if page_name = 'Admin - Edit Manager' %}
-			<h3 class="table_title{% if manager_title|longer_than:'123456789012345' %} medium_title{% elif manager_title|longer_than:'123456789012' %} small_title{% endif %}">Modify {{ manager_title }}</h3>
+			{% if page_name = 'Admin - Edit Request Type' %}
+			<h3 class="table_title{% if requestType.name|longer_than:'123456789012345' %} large_title{% elif requestType.name|longer_than:'12345678' %} medium_title{% else %} small_title{% endif %}">"{{ requestType.name }}" Request Type</h3>
 			{% else %}
-			<h3 class="table_title">Add Manager</h3>
+			<h3 class="table_title small_title">Add Request Type</h3>
 			{% endif %}
 		</div> <!-- .header -->
 		<div class="main_table">
@@ -25,7 +25,7 @@
 				<div class="form-group">
 					{{ form|bootstrap }}
 					<div class="text-center">
-						<button type="submit" class="btn btn-lg btn-success" name="update_manager"><span class="glyphicon glyphicon-floppy-disk"></span> {% if page_name = 'Admin - Edit Manager' %}Update{% else %}Add{% endif %} Manager</button>
+						<button type="submit" class="btn btn-lg btn-success" name="update_manager"><span class="glyphicon glyphicon-floppy-disk"></span> {% if page_name = 'Admin - Edit Request Type' %}Update{% else %}Add{% endif %} Request Type</button>
 					</div> <!-- .text-center -->
 				</div> <!-- .form-group -->
 			</form>

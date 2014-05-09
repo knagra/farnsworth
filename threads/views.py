@@ -68,10 +68,10 @@ class ManagerForm(forms.Form):
 
 class RequestTypeForm(forms.Form):
 	''' Form to add or modify a request type. '''
-	name = forms.CharField(max_length=255, help_text="A uniqune name identifying this request type.")
-	managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.filter(active=True), help_text="Managers responsible for addressing this type of request.", required=False)
+	name = forms.CharField(max_length=255, help_text="A unique name identifying this request type. Capitalize first letter of each word.")
+	relevant_managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.filter(active=True), help_text="Managers responsible for addressing this type of request; list excludes inactive managers.", required=False)
 	enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
-	glyphicon = forms.CharField(max_length=100, required=False, help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.')
+	glyphicon = forms.CharField(max_length=100, required=False, help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.')
 
 def red_ext(request, message=None):
 	'''

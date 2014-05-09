@@ -13,7 +13,7 @@
 <div class="requests">
   <div class="header">
 	{% if relevant_request %}
-    <form action="{% url 'list_all_requests' requestType=relevant_request.request_type.name %}">
+    <form action="{% url 'list_all_requests' requestType=relevant_request.request_type.url_name %}">
 	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-{% if relevant_request.request_type.glyphicon %}{{ relevant_request.request_type.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> List All Requests</span></button>
 	</form>
 	{% endif %}
