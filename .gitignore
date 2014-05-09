@@ -6,3 +6,10 @@ migrations/
 *.tmp
 .svn/
 farnsworth/whoosh_index/
+bin/
+build/
+include/
+lib/
+lib64
+src/
+
