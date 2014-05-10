@@ -67,7 +67,7 @@ def list_events_view(request):
 					new_event.save()
 					return HttpResponseRedirect(reverse('events'))
 			else:
-				messages.add_message(request, messages.SUCCESS, MESSAGES['EVENT_ERROR'])
+				messages.add_message(request, messages.ERROR, MESSAGES['EVENT_ERROR'])
 		elif 'rsvp' in request.POST:
 			rsvp_form = RsvpForm(request.POST)
 			if rsvp_form.is_valid():

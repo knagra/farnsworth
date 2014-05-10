@@ -13,7 +13,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, ANONYMOUS_USERNAME
-# Stardard messages:
+# Standard messages:
 from farnsworth.settings import MESSAGES
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile, Thread, Message
@@ -21,6 +21,31 @@ from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm, R
 from datetime import datetime
 from django.utils.timezone import utc
 from django.contrib import messages
+import re
+
+def verify_username(username):
+	''' Verify a potential username.
+	Parameters:
+		username is the potential username
+	Returns True if username contains only characters a through z, A through Z, 0 through 9, or the characters . and _; returns false otherwise.
+	'''
+	return not bool(re.compile(r'[^a-zA-Z0-9_.]').search(username))
+
+def verify_name(name):
+	''' Verify a potential username.
+	Parameters:
+		name is the potential first or last name
+	Returns True if name doesn't contain ", <, >, &, ; returns false otherwise.
+	'''
+	return bool(re.compile(r"[^a-zA-Z']").search(name))
+
+def verify_email(email):
+	''' Verify a potential username.
+	Parameters:
+		email is the potential email
+	Returns True if username contains only characters a-z, A-Z, 0-9, the characters . and _ and contains at least one . and one @; returns false otherwise.
+	'''
+	return not bool(re.compile(r'[^a-zA-Z0-9_.@]').search(email))
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -47,7 +72,7 @@ def request_profile_view(request):
 	if request.user.is_authenticated():
 		return HttpResponseRedirect(reverse('homepage'))
 	class ProfileRequestForm(forms.Form):
-		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, ".", or "_"')
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
@@ -60,6 +85,8 @@ def request_profile_view(request):
 			last_name = form.cleaned_data['last_name']
 			email = form.cleaned_data['email']
 			affiliation = form.cleaned_data['affiliation_with_the_house']
+			if not verify_username(username):
+				
 			for profile in UserProfile.objects.all():
 				if profile.user.username == username:
 					non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
@@ -92,7 +119,7 @@ def modify_profile_request_view(request, request_pk):
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	profile_request = ProfileRequest.objects.get(pk=request_pk)
 	class AddUserForm(forms.Form):
-		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, ".", or "_"')
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
@@ -417,17 +444,22 @@ def recount_view(request):
 	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
 	if not request.user.is_superuser:
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
+	requests_changed = 0
 	for req in Request.objects.all():
 		recount = Response.objects.filter(request=req).count()
 		if req.number_of_responses != recount:
 			req.number_of_responses = recount
 			req.save()
+			requests_changed += 1
+	threads_changed = 0
 	for thread in Thread.objects.all():
 		recount = Message.objects.filter(thread=thread).count()
 		if thread.number_of_messages != recount:
 			thread.number_of_messages = recount
 			thread.save()
-	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'])
+			threads_changed += 1
+	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(requests_changed=requests_changed, request_count=Request.objects.all().count(),
+			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
 	return HttpResponseRedirect(reverse('utilities'))
 
 @login_required
@@ -866,29 +898,28 @@ def my_requests_view(request):
 	my_requests = Request.objects.filter(owner=userProfile)
 	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, downvote, vote_form),...])
 	for request_type in RequestType.objects.all():
-		if request_type.enabled:
-			type_manager = False
-			for position in request_type.managers.all():
-				if position.incumbent == userProfile:
-					type_manager = True
-					break
-			requests_list = list() # Items are of form (request, [list_of_request_responses], response_form),...])
-			type_requests = my_requests.filter(request_type=request_type)
-			for req in type_requests:
-				responses_list = Response.objects.filter(request=req)
-				if type_manager:
-					form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
-				else:
-					form = ResponseForm(initial={'request_pk': req.pk})
-					form.fields['mark_filled'].widget = forms.HiddenInput()
-					form.fields['mark_closed'].widget = forms.HiddenInput()
-				upvote = userProfile in req.upvotes.all()
-				downvote = userProfile in req.downvotes.all()
-				vote_form = VoteForm(initial={'request_pk': req.pk})
-				requests_list.append((req, responses_list, form, upvote, downvote, vote_form))
-			request_form = RequestForm(initial={'type_pk': request_type.pk})
-			request_form.fields['type_pk'].widget = forms.HiddenInput()
-			request_dict.append((request_type.name.title(), request_form, type_manager, requests_list))
+		type_manager = False
+		for position in request_type.managers.all():
+			if position.incumbent == userProfile:
+				type_manager = True
+				break
+		requests_list = list() # Items are of form (request, [list_of_request_responses], response_form),...])
+		type_requests = my_requests.filter(request_type=request_type)
+		for req in type_requests:
+			responses_list = Response.objects.filter(request=req)
+			if type_manager:
+				form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
+			else:
+				form = ResponseForm(initial={'request_pk': req.pk})
+				form.fields['mark_filled'].widget = forms.HiddenInput()
+				form.fields['mark_closed'].widget = forms.HiddenInput()
+			upvote = userProfile in req.upvotes.all()
+			downvote = userProfile in req.downvotes.all()
+			vote_form = VoteForm(initial={'request_pk': req.pk})
+			requests_list.append((req, responses_list, form, upvote, downvote, vote_form))
+		request_form = RequestForm(initial={'type_pk': request_type.pk})
+		request_form.fields['type_pk'].widget = forms.HiddenInput()
+		request_dict.append((request_type, request_form, type_manager, requests_list))
 	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 
 @login_required
@@ -924,10 +955,10 @@ def all_requests_view(request):
 	'''
 	Show user a list of enabled request types, the number of requests of each type and a link to see them all.
 	'''
-	types_dict = list() # Pseudo-dictionary, actually a list with items of form (request_type.name.title(), number_of_type_requests, name, enabled)
+	types_dict = list() # Pseudo-dictionary, actually a list with items of form (request_type.name.title(), number_of_type_requests, name, enabled, glyphicon)
 	for request_type in RequestType.objects.all():
 		number_of_requests = Request.objects.filter(request_type=request_type).count()
-		types_dict.append((request_type.name.title(), number_of_requests, request_type.url_name, request_type.enabled))
+		types_dict.append((request_type.name.title(), number_of_requests, request_type.url_name, request_type.enabled, request_type.glyphicon))
 	return render_to_response('all_requests.html', {'page_name': "Archives - All Requests", 'types_dict': types_dict}, context_instance=RequestContext(request))
 
 @login_required

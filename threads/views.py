@@ -47,7 +47,7 @@ class RsvpForm(forms.Form):
 class ManagerForm(forms.Form):
 	''' Form to create or modify a manager position. '''
 	title = forms.CharField(max_length=255, help_text="A unique title for this manager position.")
-	incumbent = forms.ModelChoiceField(queryset=UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS), help_text="Current incumbent for this manager position.", required=False)
+	incumbent = forms.ModelChoiceField(queryset=UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS), help_text="Current incumbent for this manager position.  List excludes alumni.", required=False)
 	compensation = forms.CharField(widget=forms.Textarea(), required=False)
 	duties = forms.CharField(widget=forms.Textarea(), required=False)
 	email = forms.EmailField(max_length=255, required=False, help_text="Manager e-mail (optional)")

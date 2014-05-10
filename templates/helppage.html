@@ -50,7 +50,8 @@
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle">Adding Users <a name="adding_users" title="A link to this sub-section" href="#adding_users">&sect;</a></h2>
 			<p>You can add a user from the <a target="_blank" href="{% url 'custom_add_user' %}">add user page</a>.  The process is fairly intuitive.
-			Usernames should be unique.  It is recommended that e-mails and phone numbers be kept hidden from other members when creating a user.
+			Usernames should be unique and a single word composed of alphanumeric characters or the underscore character.
+			It is recommended that e-mails and phone numbers be kept hidden from other members when creating a user.
 			A user can modify her/his own profile to reveal e-mail and phone number to other members.
 			</p>
 			<p>The "is active" status is an indicator of whether the user can login.  You can add inactive users, but you will probably be adding active users.
@@ -71,6 +72,11 @@
 			</p>
 			<p>The "is superuser" status toggles admin rights on the site.
 			A user with superuser privileges will able to access admin pages written into this interface and have full privileges in the Django admin.
+			</p>
+			<p>It can be useful to give users superadmin status and not give them staff status as all admin privileges in the custom admin are granted
+			with superadmin status, but access to the Django admin is restricted.
+			Effectively, superuser-not-staff status is a weak obfuscation-based security against users really messing things up by misusing the Django
+			admin.
 			</p>
 			<p>Groups are fully supported by Django but are not yet supported by the custom Farnsworth interface.
 			They are provided in this page in case someone wants to do further development of Django which involves groups.
@@ -239,7 +245,30 @@
 		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="meta_manager_body" class="toggleable">
 		<hr style="width: 75%;" />
-		
+			<p>Managers are managed from the <a href="{% url 'meta_manager' %}">meta-manager</a> page.</p>
+		<h2 class="sub_subtitle">Adding Managers <a name="adding_managers" title="A link to this sub-section" href="#adding_managers">&sect;</a></h2>
+			<p>You can add a new manager by clicking the top right button on the meta-manager page or by going directly to
+			the <a href="{% url 'add_manager' %}">add manager</a> page.  A manager position can have only one incumbent.  Keep this in mind.
+			</p>
+			<p>Since houses allow multiple members to hold the same position, an active status is available for these scenarios.
+			The recommended way to have multiple members hold the same position is to create multiple types of a singular position.
+			So, for example, to have a Kitchen Manager position that can have more than one incumbent, create two (or three or four, depending on your house)
+			instances of Kitchen Managers (Kitchen Manager 1, Kitchen Manager 2, ...) and then deactive the excess manager positions.
+			</p>
+			<p>Though this may seem a shortcoming of the site, in practical terms, it's a decision between a clean end-user experience
+			and a clean site admin experience.  Having multiple incumbents for the same position makes sorting and searching more cumbersome for the user.
+			A simple injective relation is optimal for understanding managers and incumbents.
+			</p>
+			<p>Yes, this implementation does mean slightly more work for you. But it means significantly less combined mental work for end-users.
+			</p>
+			<p>The form to add a new manager is fairly intuitive and has lots of help text.  All fields are optional except the manager title field.
+			Farnsworth auto-generates the URL key for the manager from the title you provide by lower-casing all letters and replacing spaces with underscore.
+			"Kitchen Manager 1" &rarr; "kitchen_manager_1", "WRM" &rarr; "wrm", etc.  These URLs are used to reference managers in the directory
+			and the meta-manager.  You will be thrown an error when adding a manager whose URL collides with a previous URL.
+			</p>
+			<p>The "president" status gives the user rights to do President duties, which currently include managing managers and managing request types.
+			Expansion of these duties to include 
+			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #meta_manager_body -->
 	</div> <!-- #meta_manager -->
