@@ -13,7 +13,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, ANONYMOUS_USERNAME
-# Stardard messages:
+# Standard messages:
 from farnsworth.settings import MESSAGES
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile, Thread, Message
@@ -21,6 +21,31 @@ from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm, R
 from datetime import datetime
 from django.utils.timezone import utc
 from django.contrib import messages
+import re
+
+def verify_username(username):
+	''' Verify a potential username.
+	Parameters:
+		username is the potential username
+	Returns True if username contains only characters a through z, A through Z, 0 through 9, or the characters . and _; returns false otherwise.
+	'''
+	return not bool(re.compile(r'[^a-zA-Z0-9_.]').search(username))
+
+def verify_name(name):
+	''' Verify a potential username.
+	Parameters:
+		name is the potential first or last name
+	Returns True if name doesn't contain ", <, >, &, ; returns false otherwise.
+	'''
+	return bool(re.compile(r"[^a-zA-Z']").search(name))
+
+def verify_email(email):
+	''' Verify a potential username.
+	Parameters:
+		email is the potential email
+	Returns True if username contains only characters a-z, A-Z, 0-9, the characters . and _ and contains at least one . and one @; returns false otherwise.
+	'''
+	return not bool(re.compile(r'[^a-zA-Z0-9_.@]').search(email))
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -47,7 +72,7 @@ def request_profile_view(request):
 	if request.user.is_authenticated():
 		return HttpResponseRedirect(reverse('homepage'))
 	class ProfileRequestForm(forms.Form):
-		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, ".", or "_"')
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
@@ -60,6 +85,8 @@ def request_profile_view(request):
 			last_name = form.cleaned_data['last_name']
 			email = form.cleaned_data['email']
 			affiliation = form.cleaned_data['affiliation_with_the_house']
+			if not verify_username(username):
+				
 			for profile in UserProfile.objects.all():
 				if profile.user.username == username:
 					non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
@@ -92,7 +119,7 @@ def modify_profile_request_view(request, request_pk):
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	profile_request = ProfileRequest.objects.get(pk=request_pk)
 	class AddUserForm(forms.Form):
-		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, ".", or "_"')
 		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
