@@ -33,11 +33,11 @@ System Packages
 ===
 On CentOS:
   
-    $ sudo yum install postgres python python-devel virtualenv gcc
+    $ sudo yum install postgres python python-devel virtualenv gcc mod_wsgi
 
 On Debian:
 
-    $ sudo apt-get install postgres python python-devel virtualenv gcc
+    $ sudo apt-get install postgres python python-devel virtualenv gcc libapache2-mod-wsgi
 
 Apache
 ===
@@ -63,7 +63,7 @@ virtualenv
     $ pip install -e git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master
     $ pip install django django-bootstrap-form psycopg2 south python-social-auth elasticsearch
 
-Postgres
+PostgreSQL
 ===
     $ sudo su - postgres
     $ createdb <house>
@@ -71,3 +71,13 @@ Postgres
     $ psql
     postgres=# GRANT ALL PRIVILEGES ON DATABASE <house> TO <house>_admin;
 
+SELinux
+===
+
+For PostgreSQL
+
+    # setsebool -P httpd_can_network_connect_db 1
+
+For elasticsearch:
+
+    # setsebool -P httpd_can_network_connect on
