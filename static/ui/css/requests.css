@@ -4,14 +4,6 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 */
 
-.requests {
-    float: middle;
-    margin-bottom: 10px;
-    box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
-    font-size: 15pt;
-    overflow: hidden;
-}
-
 label {
 	padding-left: 5px;
 }

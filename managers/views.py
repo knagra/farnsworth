@@ -417,11 +417,13 @@ def recount_view(request):
 	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
 	if not request.user.is_superuser:
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
+	requests_changed = 0
 	for req in Request.objects.all():
 		recount = Response.objects.filter(request=req).count()
 		if req.number_of_responses != recount:
 			req.number_of_responses = recount
 			req.save()
+	threads_changed = 0
 	for thread in Thread.objects.all():
 		recount = Message.objects.filter(thread=thread).count()
 		if thread.number_of_messages != recount:
@@ -866,29 +868,28 @@ def my_requests_view(request):
 	my_requests = Request.objects.filter(owner=userProfile)
 	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, downvote, vote_form),...])
 	for request_type in RequestType.objects.all():
-		if request_type.enabled:
-			type_manager = False
-			for position in request_type.managers.all():
-				if position.incumbent == userProfile:
-					type_manager = True
-					break
-			requests_list = list() # Items are of form (request, [list_of_request_responses], response_form),...])
-			type_requests = my_requests.filter(request_type=request_type)
-			for req in type_requests:
-				responses_list = Response.objects.filter(request=req)
-				if type_manager:
-					form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
-				else:
-					form = ResponseForm(initial={'request_pk': req.pk})
-					form.fields['mark_filled'].widget = forms.HiddenInput()
-					form.fields['mark_closed'].widget = forms.HiddenInput()
-				upvote = userProfile in req.upvotes.all()
-				downvote = userProfile in req.downvotes.all()
-				vote_form = VoteForm(initial={'request_pk': req.pk})
-				requests_list.append((req, responses_list, form, upvote, downvote, vote_form))
-			request_form = RequestForm(initial={'type_pk': request_type.pk})
-			request_form.fields['type_pk'].widget = forms.HiddenInput()
-			request_dict.append((request_type.name.title(), request_form, type_manager, requests_list))
+		type_manager = False
+		for position in request_type.managers.all():
+			if position.incumbent == userProfile:
+				type_manager = True
+				break
+		requests_list = list() # Items are of form (request, [list_of_request_responses], response_form),...])
+		type_requests = my_requests.filter(request_type=request_type)
+		for req in type_requests:
+			responses_list = Response.objects.filter(request=req)
+			if type_manager:
+				form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
+			else:
+				form = ResponseForm(initial={'request_pk': req.pk})
+				form.fields['mark_filled'].widget = forms.HiddenInput()
+				form.fields['mark_closed'].widget = forms.HiddenInput()
+			upvote = userProfile in req.upvotes.all()
+			downvote = userProfile in req.downvotes.all()
+			vote_form = VoteForm(initial={'request_pk': req.pk})
+			requests_list.append((req, responses_list, form, upvote, downvote, vote_form))
+		request_form = RequestForm(initial={'type_pk': request_type.pk})
+		request_form.fields['type_pk'].widget = forms.HiddenInput()
+		request_dict.append((request_type, request_form, type_manager, requests_list))
 	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 
 @login_required

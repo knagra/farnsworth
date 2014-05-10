@@ -50,7 +50,7 @@ ANONYMOUS_USERNAME = "spineless"
 
 # Standard messages sent to clients on errors.
 MESSAGES = {
-	'ADMINS_ONLY': "The domain /custom_admin/ is restricted to admins.",
+	'ADMINS_ONLY': "You do not have permission to view the page you were trying to access.",
 	'NO_PROFILE': "A profile for you could not be found.  Please contact a site admin.",
 	'UNKNOWN_FORM': "Your post request could not be processed.  Please contact a site admin.",
 	'MESSAGE_ERROR': "Your message post was not successful.  Please try again.",

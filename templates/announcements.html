@@ -40,7 +40,7 @@
 		</form>
 		{% endif %}
 	{% if not announcements_dict %}
-	<div class="field_wrapper">No announcements found.</div>
+	<div class="field_wrapper text-info">No announcements found.</div>
 	{% else %}
 	{% for announcement_tuple in announcements_dict %}
 		{% if forloop.counter > 1 %}
