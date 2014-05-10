@@ -423,13 +423,16 @@ def recount_view(request):
 		if req.number_of_responses != recount:
 			req.number_of_responses = recount
 			req.save()
+			requests_changed += 1
 	threads_changed = 0
 	for thread in Thread.objects.all():
 		recount = Message.objects.filter(thread=thread).count()
 		if thread.number_of_messages != recount:
 			thread.number_of_messages = recount
 			thread.save()
-	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'])
+			threads_changed += 1
+	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(requests_changed=requests_changed, request_count=Request.objects.all().count(),
+			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
 	return HttpResponseRedirect(reverse('utilities'))
 
 @login_required
@@ -925,10 +928,10 @@ def all_requests_view(request):
 	'''
 	Show user a list of enabled request types, the number of requests of each type and a link to see them all.
 	'''
-	types_dict = list() # Pseudo-dictionary, actually a list with items of form (request_type.name.title(), number_of_type_requests, name, enabled)
+	types_dict = list() # Pseudo-dictionary, actually a list with items of form (request_type.name.title(), number_of_type_requests, name, enabled, glyphicon)
 	for request_type in RequestType.objects.all():
 		number_of_requests = Request.objects.filter(request_type=request_type).count()
-		types_dict.append((request_type.name.title(), number_of_requests, request_type.url_name, request_type.enabled))
+		types_dict.append((request_type.name.title(), number_of_requests, request_type.url_name, request_type.enabled, request_type.glyphicon))
 	return render_to_response('all_requests.html', {'page_name': "Archives - All Requests", 'types_dict': types_dict}, context_instance=RequestContext(request))
 
 @login_required

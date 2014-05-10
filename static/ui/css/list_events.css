@@ -4,18 +4,11 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 */
 
-.table_container {
-    float: middle;
-    box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
-    overflow: hidden;
-}
-
 label {
 	padding-left: 5px;
 }
 
 .btn-group {
-	min-width: 90%;
 	max-width: 100%;
 }
 

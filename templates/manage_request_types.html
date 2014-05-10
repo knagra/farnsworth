@@ -36,7 +36,7 @@
 					{% if pos.incumbent %}
 					(<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
 					{% else %}
-					(No incumbent)
+					<span class="text-danger">(No incumbent)</span>
 					{% endif %}
 				{% endfor %}
 			</td>
