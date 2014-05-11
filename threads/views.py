@@ -9,12 +9,6 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, home_max_announcements, home_max_threads, ANONYMOUS_USERNAME
-# Standard messages:
-from farnsworth.settings import MESSAGES
-from models import UserProfile, Thread, Message
-from managers.models import RequestType, Manager, Request, Response, Announcement
-from events.models import Event
 from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -22,44 +16,24 @@ from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from django.contrib import messages
 
+from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, \
+    home_max_announcements, home_max_threads, ANONYMOUS_USERNAME, MESSAGES
+from threads.models import UserProfile, Thread, Message
 from threads.forms import *
+from threads.redirects import red_ext, red_home
+from threads.decorators import profile_exists
+from managers.models import RequestType, Manager, Request, Response, Announcement
 from managers.forms import ResponseForm, AnnouncementForm, ChangeUserPasswordForm
-
-def red_ext(request, message=None):
-	'''
-	The external landing.
-	Also a convenience function for redirecting users who don't have site access to the external page.
-	Parameters:
-		request - the request in the calling function
-		message - a message from the caller function
-	'''
-	if message:
-		messages.add_message(request, messages.ERROR, message)
-	return HttpResponseRedirect(reverse('external'))
+from events.models import Event
 
 def landing_view(request):
 	''' The external landing.'''
 	return render_to_response('external.html', {'page_name': "Landing"}, context_instance=RequestContext(request))
 
-def red_home(request, message):
-	'''
-	Convenience function for redirecting users who don't have access to a page to the home page.
-	Parameters:
-		request - the request in the calling function
-		message - a message from the caller function
-	'''
-	messages.add_message(request, messages.ERROR, message)
-	return HttpResponseRedirect(reverse('homepage'))
-
+@profile_exists(redirect_user='external', redirect_profile=red_ext)
 def homepage_view(request, message=None):
 	''' The view of the homepage. '''
-	if request.user.is_authenticated():
-		user = request.user
-		userProfile = UserProfile.objects.get(user=request.user)
-		if not userProfile:
-			return red_ext(request, MESSAGES['NO_PROFILE'])
-	else:
-		return HttpResponseRedirect(reverse('external'))
+	userProfile = UserProfile.objects.get(user=request.user)
 	request_types = RequestType.objects.filter(enabled=True)
 	manager_request_types = list() # List of request types for which the user is a relevant manager
 	for request_type in request_types:
