@@ -23,7 +23,7 @@ from managers.models import Manager, RequestType, ProfileRequest, Request, Respo
     Announcement
 from threads.models import UserProfile, Thread, Message
 from threads.redirects import red_ext, red_home
-from threads.decorators import admin_required, profile_required
+from threads.decorators import admin_required, profile_required, president_admin_required
 from managers.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, ChangeUserPasswordForm, \
 	ModifyProfileRequestForm, ManagerForm, RequestTypeForm, RequestForm, ResponseForm, ManagerResponseForm, \
 	VoteForm, AnnouncementForm, UnpinForm
