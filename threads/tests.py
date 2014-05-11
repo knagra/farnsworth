@@ -20,36 +20,42 @@ class SimpleTest(TestCase):
 
 class VerifyUser(TestCase):
 	def setUp(self):
-		self.user = User.objects.create_user(username="user", email="fake@email.com", first_name="john", last_name="doe", password="password")
-		self.user.save()
-		self.c = Client()
+		self.u = User.objects.create_user(username="u", email="u@email.com", first_name="john", last_name="doe", password="password")
+		self.st = User.objects.create_user(username="st", email="st@email.com", first_name="john", last_name="doe", password="password")
+		self.su = User.objects.create_user(username="su", email="su@email.com", first_name="john", last_name="doe", password="password")
+		self.st.is_staff = True
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.u.save()
+		self.st.save()
+		self.su.save()
 
 	def test_user_profile_created(self):
 		''' Test that the user profile for a user is automatically created when a user is created. '''
-		self.assertEqual(1, UserProfile.objects.filter(user=self.user).count())
-		self.assertEqual(self.user, UserProfile.objects.get(user=self.user).user)
+		self.assertEqual(1, UserProfile.objects.filter(user=self.u).count())
+		self.assertEqual(self.u, UserProfile.objects.get(user=self.u).user)
 
 	def test_login(self):
-		self.assertEqual(True, self.c.login(username="user", password="password"))
-		self.assertEqual(None, self.c.logout())
+		self.assertEqual(True, self.client.login(username="u", password="password"))
+		self.assertEqual(None, self.client.logout())
 
 	def test_homepage(self):
-		response = self.c.get("/")
+		response = self.client.get("/")
 		self.assertRedirects(response, "/landing/", status_code=302,
 				     target_status_code=200)
-		self.c.login(username="user", password="password")
+		self.client.login(username="u", password="password")
+		response = self.client.get("/")
 		self.assertEqual(response.status_code, 200)
-		self.c.logout()
-		response = self.c.get("/")
+		self.client.logout()
+		response = self.client.get("/")
 		self.assertRedirects(response, "/landing/", status_code=302,
 				     target_status_code=200)
 
 class VerifyThread(TestCase):
 	def setUp(self):
-		self.user = User.objects.create_user(username="user", email="fake@email.com", first_name="john", last_name="doe", password="password")
-		self.user.save()
+		self.u = User.objects.create_user(username="u", email="u@email.com", first_name="john", last_name="doe", password="password")
+		self.u.save()
 		now = datetime.now()
-		profile = UserProfile.objects.get(user=self.user)
+		profile = UserProfile.objects.get(user=self.u)
 		self.thread = Thread(owner=profile, subject="subject")
 		self.thread.save()
 
