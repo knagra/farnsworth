@@ -51,7 +51,7 @@ def add_context(request):
 			break
 	if request.user.username == ANONYMOUS_USERNAME:
 		request.session['ANONYMOUS_SESSION'] = True
-	ANONYMOUS_SESSION = request.session('ANONYMOUS_SESSION', False)
+	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
 	return {
 		'REQUEST_TYPES': RequestType.objects.filter(enabled=True),
 		'HOUSE': house,
