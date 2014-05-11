@@ -415,7 +415,7 @@ def meta_manager_view(request):
 	managerset = Manager.objects.all()
 	return render_to_response('meta_manager.html', {'page_name': "Admin - Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
 
-@profile_required
+@admin_required
 def add_manager_view(request):
 	''' View to add a new manager position. Restricted to superadmins and presidents. '''
 	userProfile = UserProfile.objects.get(user=request.user)
