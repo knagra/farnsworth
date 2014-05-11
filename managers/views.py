@@ -21,6 +21,7 @@ from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm, R
 from datetime import datetime
 from django.utils.timezone import utc
 from django.contrib import messages
+from managers.forms import *
 import re
 
 def verify_username(username):
@@ -85,12 +86,6 @@ def request_profile_view(request):
 	page_name = "Profile Request Page"
 	if request.user.is_authenticated():
 		return HttpResponseRedirect(reverse('homepage'))
-	class ProfileRequestForm(forms.Form):
-		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or "_".')
-		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
-		affiliation_with_the_house = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
 	if request.method == 'POST':
 		form = ProfileRequestForm(request.POST)
 		if form.is_valid():
@@ -133,24 +128,6 @@ def modify_profile_request_view(request, request_pk):
 	if not request.user.is_superuser:
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	profile_request = ProfileRequest.objects.get(pk=request_pk)
-	class AddUserForm(forms.Form):
-		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or "_".')
-		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
-		email_visible_to_others = forms.BooleanField(required=False)
-		phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
-		phone_visible_to_others = forms.BooleanField(required=False)
-		status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-		current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False)
-		is_active = forms.BooleanField(required=False)
-		is_staff = forms.BooleanField(required=False)
-		is_superuser = forms.BooleanField(required=False)
-		groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
-		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	if request.method == 'POST':
 		add_user_form = AddUserForm(request.POST)
 		if 'delete_request' in request.POST:
@@ -252,24 +229,6 @@ def custom_modify_user_view(request, targetUsername):
 		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
 		return render_to_response('custom_modify_user.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))	
-	class ModifyUserForm(forms.Form):
-		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		email_visible_to_others = forms.BooleanField(required=False)
-		phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
-		phone_visible_to_others = forms.BooleanField(required=False)
-		status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-		current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
-		is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
-		is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
-		groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
-	class ChangeUserPasswordForm(forms.Form):
-		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	groups_dict = {}
 	for grp in Group.objects.all():
 		if grp in targetUser.groups.all():
@@ -347,24 +306,6 @@ def custom_add_user_view(request):
 	page_name = "Admin - Add User"
 	if not request.user.is_superuser:
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
-	class AddUserForm(forms.Form):
-		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or "_".')
-		first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		email_visible_to_others = forms.BooleanField(required=False)
-		phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
-		phone_visible_to_others = forms.BooleanField(required=False)
-		status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-		current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False)
-		is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
-		is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
-		is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
-		groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
-		user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	if request.method == 'POST':
 		add_user_form = AddUserForm(request.POST)
 		if add_user_form.is_valid():
@@ -767,21 +708,13 @@ def requests_view(request, requestType):
 		if position.incumbent == userProfile:
 			manager = True
 			break
-	class RequestForm(forms.Form):
-		body = forms.CharField(widget=forms.Textarea())
 	if manager:
-		class ResponseForm(forms.Form):
-			request_pk = forms.IntegerField(widget=forms.HiddenInput())
-			body = forms.CharField(widget=forms.Textarea(), required=False)
-			mark_filled = forms.BooleanField(required=False)
-			mark_closed = forms.BooleanField(required=False)
+		form = ManagerRequestForm
 	else:
-		class ResponseForm(forms.Form):
-			request_pk = forms.IntegerField(widget=forms.HiddenInput())
-			body = forms.CharField(widget=forms.Textarea())
+		form = RequestForm
 	if request.method == 'POST':
 		if 'submit_request' in request.POST:
-			request_form = RequestForm(request.POST)
+			request_form = form(request.POST)
 			if request_form.is_valid():
 				body = request_form.cleaned_data['body']
 				new_request = Request(owner=userProfile, body=body, request_type=request_type)
@@ -828,7 +761,7 @@ def requests_view(request, requestType):
 				relevant_request.save()
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
-	request_form = RequestForm()
+	request_form = form()
 	x = 0 # number of requests loaded
 	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, downvote, vote_form)
 	for req in Request.objects.filter(request_type=request_type):
@@ -856,14 +789,6 @@ def my_requests_view(request):
 		userProfile = UserProfile.objects.get(user=request.user)
 	except:
 		return red_home(request, MESSAGES['NO_PROFILE'])
-	class RequestForm(forms.Form):
-		type_pk = forms.IntegerField()
-		body = forms.CharField(widget=forms.Textarea())
-	class ResponseForm(forms.Form):
-		request_pk = forms.IntegerField(widget=forms.HiddenInput())
-		body = forms.CharField(widget=forms.Textarea())
-		mark_filled = forms.BooleanField(required=False)
-		mark_closed = forms.BooleanField(required=False)
 	if request.method == 'POST':
 		if 'submit_request' in request.POST:
 			request_form = RequestForm(request.POST)
@@ -1018,10 +943,6 @@ def request_view(request, request_pk):
 		if position in relevant_request.request_type.managers.all():
 			manager = True
 			break
-	class ResponseForm(forms.Form):
-		body = forms.CharField(widget=forms.Textarea())
-		mark_filled = forms.BooleanField(required=False)
-		mark_closed = forms.BooleanField(required=False)
 	if request.method == 'POST':
 		if 'add_response' in request.POST:
 			response_form = ResponseForm(request.POST)
@@ -1078,10 +999,7 @@ def announcements_view(request):
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
-		class AnnouncementForm(forms.Form):
-			as_manager = forms.ModelChoiceField(queryset=manager_positions)
-			body = forms.CharField(widget=forms.Textarea())
-		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
+		announcement_form = AnnouncementForm(manager_positions)
 	if request.method == 'POST':
 		if 'unpin' in request.POST:
 			unpin_form = UnpinForm(request.POST)
@@ -1092,7 +1010,7 @@ def announcements_view(request):
 				relevant_announcement.save()
 				return HttpResponseRedirect(reverse('announcements'))
 		elif 'post_announcement' in request.POST:
-			announcement_form = AnnouncementForm(request.POST)
+			announcement_form = AnnouncementForm(manager_positions, post=request.POST)
 			if announcement_form.is_valid():
 				body = announcement_form.cleaned_data['body']
 				manager = announcement_form.cleaned_data['as_manager']
@@ -1119,10 +1037,7 @@ def all_announcements_view(request):
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
-		class AnnouncementForm(forms.Form):
-			as_manager = forms.ModelChoiceField(queryset=manager_positions)
-			body = forms.CharField(widget=forms.Textarea())
-		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
+		announcement_form = announcement_form(manager_positions)(initial={'as_manager': manager_positions[0].pk})
 	if request.method == 'POST':
 		if 'unpin' in request.POST:
 			unpin_form = UnpinForm(request.POST)
@@ -1136,7 +1051,7 @@ def all_announcements_view(request):
 				relevant_announcement.save()
 				return HttpResponseRedirect(reverse('all_announcements'))
 		elif ('post_announcement' in request.POST) and manager_positions:
-			announcement_form = AnnouncementForm(request.POST)
+			announcement_form = AnnouncementForm(manager_positions, post=request.POST)
 			if announcement_form.is_valid():
 				body = announcement_form.cleaned_data['body']
 				manager = announcement_form.cleaned_data['as_manager']
