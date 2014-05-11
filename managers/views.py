@@ -4,6 +4,8 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from datetime import datetime
+import re
 from django.shortcuts import render_to_response, render
 from django.http import HttpResponseRedirect
 from django import forms
@@ -12,17 +14,16 @@ from django.contrib.auth import hashers, logout, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, ANONYMOUS_USERNAME
-# Standard messages:
-from farnsworth.settings import MESSAGES
+from django.utils.timezone import utc
+from django.contrib import messages
+
+from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, \
+    ANONYMOUS_USERNAME, MESSAGES
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile, Thread, Message
 from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm, RequestTypeForm
-from datetime import datetime
-from django.utils.timezone import utc
-from django.contrib import messages
+from threads.decorators import admin_required, profile_required
 from managers.forms import *
-import re
 
 def verify_username(username):
 	''' Verify a potential username.
@@ -43,21 +44,23 @@ def verify_name(name):
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
 	PRESIDENT = False # whether the user has president privileges
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-		for pos in Manager.objects.filter(incumbent=userProfile):
-			if pos.president:
-				PRESIDENT = True
-				break
-	except:
-		pass
+	userProfile = UserProfile.objects.get(user=request.user)
+	for pos in Manager.objects.filter(incumbent=userProfile):
+		if pos.president:
+			PRESIDENT = True
+			break
 	if request.user.username == ANONYMOUS_USERNAME:
 		request.session['ANONYMOUS_SESSION'] = True
-	try:
-		ANONYMOUS_SESSION = request.session['ANONYMOUS_SESSION']
-	except:
-		ANONYMOUS_SESSION = False
-	return {'REQUEST_TYPES': RequestType.objects.filter(enabled=True), 'HOUSE': house, 'ANONYMOUS_USERNAME': ANONYMOUS_USERNAME, 'SHORT_HOUSE': short_house, 'ADMIN': ADMINS[0], 'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(), 'ANONYMOUS_SESSION': ANONYMOUS_SESSION, 'PRESIDENT': PRESIDENT}
+	ANONYMOUS_SESSION = request.session('ANONYMOUS_SESSION', False)
+	return {
+		'REQUEST_TYPES': RequestType.objects.filter(enabled=True),
+		'HOUSE': house,
+		'ANONYMOUS_USERNAME':ANONYMOUS_USERNAME,
+		'SHORT_HOUSE': short_house,
+		'ADMIN': ADMINS[0],
+		'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
+		'ANONYMOUS_SESSION': ANONYMOUS_SESSION, 'PRESIDENT': PRESIDENT,
+		}
 
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
@@ -88,21 +91,23 @@ def request_profile_view(request):
 		form = ProfileRequestForm()
 	return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
 
-@login_required
+@admin_required
 def manage_profile_requests_view(request):
 	''' The page to manager user profile requests. '''
 	page_name = "Admin - Manage Profile Requests"
-	if not request.user.is_superuser:
-		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	profile_requests = ProfileRequest.objects.all()
-	return render_to_response('manage_profile_requests.html', {'page_name': page_name, 'choices': UserProfile.STATUS_CHOICES, 'profile_requests': profile_requests}, context_instance=RequestContext(request))
+	return render_to_response(
+		'manage_profile_requests.html', {
+			'page_name': page_name,
+			'choices': UserProfile.STATUS_CHOICES,
+			'profile_requests': profile_requests
+			},
+		context_instance=RequestContext(request))
 
-@login_required
+@admin_required
 def modify_profile_request_view(request, request_pk):
 	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
 	page_name = "Admin - Profile Request"
-	if not request.user.is_superuser:
-		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	profile_request = ProfileRequest.objects.get(pk=request_pk)
 	if request.method == 'POST':
 		mod_form = ModifyProfileRequestForm(request.POST)
@@ -166,11 +171,9 @@ def modify_profile_request_view(request, request_pk):
 		mod_form = AddUserForm(initial={'status': profile_request.affiliation, 'username': profile_request.username, 'first_name': profile_request.first_name, 'last_name': profile_request.last_name, 'email': profile_request.email})
 	return render_to_response('modify_profile_request.html', {'page_name': page_name, 'add_user_form': mod_form}, context_instance=RequestContext(request))
 
-@login_required
+@admin_required
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
-	if not request.user.is_superuser:
-		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	residents = list()
 	boarders = list()
 	alumni = list()
@@ -183,23 +186,21 @@ def custom_manage_users_view(request):
 			alumni.append(profile)
 	return render_to_response('custom_manage_users.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
-@login_required
+@admin_required
 def custom_modify_user_view(request, targetUsername):
 	''' The page to modify a user. '''
 	if targetUsername == ANONYMOUS_USERNAME:
 		messages.add_message(request, messages.WARNING, MESSAGES['ANONYMOUS_EDIT'])
 	page_name = "Admin - Modify User"
-	if not request.user.is_superuser:
-		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	try:
 		targetUser = User.objects.get(username=targetUsername)
-	except:
+	except User.DoesNotExist:
 		page_name = "User Not Found"
 		message = "User %s does not exist or could not be found." % targetUsername
 		return render_to_response('custom_modify_user.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
 	try:
 		targetProfile = UserProfile.objects.get(user=targetUser)
-	except:
+	except UserProfile.DoesNotExist:
 		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
 		return render_to_response('custom_modify_user.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))	
@@ -274,12 +275,10 @@ def custom_modify_user_view(request, targetUsername):
 					change_user_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match"])
 	return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'page_name': page_name, 'modify_user_form': modify_user_form, 'change_user_password_form': change_user_password_form}, context_instance=RequestContext(request))
 
-@login_required
+@admin_required
 def custom_add_user_view(request):
 	''' The page to add a new user. '''
 	page_name = "Admin - Add User"
-	if not request.user.is_superuser:
-		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	if request.method == 'POST':
 		add_user_form = AddUserForm(request.POST)
 		if add_user_form.is_valid():
@@ -335,22 +334,18 @@ def custom_add_user_view(request):
 		add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
 	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
 
-@login_required
+@admin_required
 def utilities_view(request):
 	''' View for an admin to do maintenance tasks on the site. '''
-	if not request.user.is_superuser:
-		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	return render_to_response('utilities.html', {'page_name': "Admin - Site Utilities"}, context_instance=RequestContext(request))
 
-@login_required
+@admin_required
 def anonymous_login_view(request):
 	''' View for an admin to log her/himself out and login the anonymous user. '''
-	if not request.user.is_superuser:
-		return red_home(request, MESSAGES['ANONYMOUS_DENIED'])
 	logout(request)
 	try:
 		spineless = User.objects.get(username=ANONYMOUS_USERNAME)
-	except:
+	except User.DoesNotExist:
 		random_password = User.objects.make_random_password()
 		spineless = User.objects.create_user(username=ANONYMOUS_USERNAME, first_name="Anonymous", last_name="Coward", password=random_password)
 		spineless.is_active = False
@@ -364,20 +359,16 @@ def anonymous_login_view(request):
 	messages.add_message(request, messages.INFO, MESSAGES['ANONYMOUS_LOGIN'])
 	return HttpResponseRedirect(reverse('homepage'))
 
-@login_required
+@admin_required
 def end_anonymous_session_view(request):
 	''' End the anonymous session if the user is a superuser. '''
-	if not request.user.is_superuser:
-		return red_home(request, MESSAGES['ANONYMOUS_DENIED'])
 	request.session['ANONYMOUS_SESSION'] = False
 	messages.add_message(request, messages.INFO, MESSAGES['ANONYMOUS_SESSION_ENDED'])
 	return HttpResponseRedirect(reverse('utilities'))
 
-@login_required
+@admin_required
 def recount_view(request):
 	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
-	if not request.user.is_superuser:
-		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	requests_changed = 0
 	for req in Request.objects.all():
 		recount = Response.objects.filter(request=req).count()
@@ -396,13 +387,13 @@ def recount_view(request):
 			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
 	return HttpResponseRedirect(reverse('utilities'))
 
-@login_required
+@profile_required
 def list_managers_view(request):
 	''' Show a list of manager positions with links to view in detail. '''
 	managerset = Manager.objects.filter(active=True)
 	return render_to_response('list_managers.html', {'page_name': "Managers", 'managerset': managerset}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def manager_view(request, managerTitle):
 	''' View the details of a manager position.
 	Parameters:
@@ -411,7 +402,7 @@ def manager_view(request, managerTitle):
 	'''
 	try:
 		targetManager = Manager.objects.get(url_title=managerTitle)
-	except:
+	except Manager.DoesNotExist:
 		messages.add_message(request, messages.ERROR, MESSAGES['NO_MANAGER'].format(managerTitle=managerTitle))
 		return HttpResponseRedirect(reverse('list_managers'))
 	if not targetManager.active:
@@ -419,16 +410,13 @@ def manager_view(request, managerTitle):
 	else:
 		return render_to_response('view_manager.html', {'page_name': "View Manager", 'targetManager': targetManager}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def meta_manager_view(request):
 	'''
 	A manager of managers.  Display a list of current managers, with links to modify them.
 	Also display a link to add a new manager.  Restricted to presidents and superadmins.
 	'''
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	president = False # whether the user has president privileges
 	for pos in Manager.objects.filter(incumbent=userProfile):
 		if pos.president:
@@ -439,13 +427,10 @@ def meta_manager_view(request):
 	managerset = Manager.objects.all()
 	return render_to_response('meta_manager.html', {'page_name': "Admin - Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def add_manager_view(request):
 	''' View to add a new manager position. Restricted to superadmins and presidents. '''
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	president = False # whether the user has president privileges
 	for pos in Manager.objects.filter(incumbent=userProfile):
 		if pos.president:
@@ -480,17 +465,14 @@ def add_manager_view(request):
 		form = ManagerForm()
 	return render_to_response('edit_manager.html', {'page_name': "Admin - Add Manager", 'form': form}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def edit_manager_view(request, managerTitle):
 	''' View to modify an existing manager. 
 	Parameters:
 		request is an HTTP request
 		managerTitle is URL title of the manager.
 	'''
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	president = False # whether the user has president privileges
 	for pos in Manager.objects.filter(incumbent=userProfile):
 		if pos.president:
@@ -500,7 +482,7 @@ def edit_manager_view(request, managerTitle):
 		return red_home(request, MESSAGES['PRESIDENTS_ONLY'])
 	try:
 		targetManager = Manager.objects.get(url_title=managerTitle)
-	except:
+	except Manager.DoesNotExist:
 		messages.add_message(request, messages.ERROR, MESSAGES['NO_MANAGER'].format(managerTitle=managerTitle))
 		return HttpResponseRedirect(reverse('meta_manager'))
 	if request.method == 'POST':
@@ -540,15 +522,12 @@ def edit_manager_view(request, managerTitle):
 			'duties': targetManager.duties, 'email': targetManager.email, 'president': targetManager.president, 'workshift_manager': targetManager.workshift_manager, 'active': targetManager.active})
 	return render_to_response('edit_manager.html', {'page_name': "Admin - Edit Manager", 'form': form, 'manager_title': targetManager.title}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def manage_request_types_view(request):
 	''' Manage requests.  Display a list of request types with links to edit them.
 	Also display a link to add a new request type.  Restricted to presidents and superadmins.
 	'''
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	president = False # whether the user has president privileges
 	for pos in Manager.objects.filter(incumbent=userProfile):
 		if pos.president:
@@ -560,13 +539,10 @@ def manage_request_types_view(request):
 	return render_to_response('manage_request_types.html', {'page_name': "Admin - Manage Request Types", 'request_types': request_types},
 			context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def add_request_type_view(request):
 	''' View to add a new request type.  Restricted to presidents and superadmins. '''
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	president = False # whether the user has president privileges
 	for pos in Manager.objects.filter(incumbent=userProfile):
 		if pos.president:
@@ -600,17 +576,14 @@ def add_request_type_view(request):
 		form = RequestTypeForm()
 	return render_to_response('edit_request_type.html', {'page_name': "Admin - Add Request Type", 'form': form}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def edit_request_type_view(request, typeName):
 	''' View to edit a new request type.  Restricted to presidents and superadmins.
 	Parameters:
 		request is an HTTP request
 		typeName is the request type's URL name.
 	'''
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	president = False # whether the user has president privileges
 	for pos in Manager.objects.filter(incumbent=userProfile):
 		if pos.president:
@@ -620,7 +593,7 @@ def edit_request_type_view(request, typeName):
 		return red_home(request, MESSAGES['PRESIDENT'])
 	try:
 		requestType = RequestType.objects.get(url_name=typeName)
-	except:
+	except RequestType.DoesNotExist:
 		messages.add_message(request, messages.ERROR, MESSAGES['NO_REQUEST_TYPE'].format(typeName=typeName))
 		return HttpResponseRedirect(reverse('manage_request_types'))
 	if request.method == 'POST':
@@ -650,7 +623,7 @@ def edit_request_type_view(request, typeName):
 		form = RequestTypeForm(initial={'name': requestType.name, 'relevant_managers': requestType.managers.all(), 'enabled': requestType.enabled, 'glyphicon': requestType.glyphicon})
 	return render_to_response('edit_request_type.html', {'page_name': "Admin - Edit Request Type", 'form': form, 'requestType': requestType}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def requests_view(request, requestType):
 	'''
 	Generic request view.  Parameters:
@@ -658,13 +631,10 @@ def requests_view(request, requestType):
 		requestType is URL name of a RequestType.
 			e.g. "food", "maintenance", "network", "site" 
 	'''
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	try:
 		request_type = RequestType.objects.get(url_name=requestType)
-	except:
+	except RequestType.DoesNotExist:
 		return red_home(request, MESSAGES['NO_REQUEST_TYPE'].format(requestType=requestType))
 	page_name = "%s Requests" % request_type.name.title()
 	if not request_type.enabled:
@@ -747,16 +717,13 @@ def requests_view(request, requestType):
 			break
 	return render_to_response('requests.html', {'manager': manager, 'request_type': request_type.name.title(), 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def my_requests_view(request):
 	'''
 	Show user his/her requests, sorted by request_type.
 	'''
 	page_name = "My Requests"
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	if request.method == 'POST':
 		if 'submit_request' in request.POST:
 			request_form = RequestForm(request.POST)
@@ -765,7 +732,7 @@ def my_requests_view(request):
 				body = request_form.cleaned_data['body']
 				try:
 					request_type = RequestType.objects.get(pk=type_pk)
-				except:
+				except RequestType.DoesNotExist:
 					message = "The request type was not recognized.  Please contact an admin for support."
 					return red_home(request, message)
 				new_request = Request(owner=userProfile, body=body, request_type=request_type)
@@ -840,19 +807,16 @@ def my_requests_view(request):
 		request_dict.append((request_type, request_form, type_manager, requests_list))
 	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def list_my_requests_view(request):
 	'''
 	Show user his/her requests in list form.
 	'''
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	requests = Request.objects.filter(owner=userProfile)
 	return render_to_response('list_requests.html', {'page_name': "My Requests", 'requests': requests}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def list_user_requests_view(request, targetUsername):
 	'''
 	Show user his/her requests in list form.
@@ -862,13 +826,13 @@ def list_user_requests_view(request, targetUsername):
 	try:
 		targetUser = User.objects.get(username=targetUsername)
 		targetProfile = UserProfile.objects.get(user=targetUser)
-	except:
+	except User.DoesNotExist, UserProfile.DoesNotExist:
 		return render_to_response('list_requests.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
 	page_name = "%s's Requests" % targetUsername
 	requests = Request.objects.filter(owner=targetProfile)
 	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests, 'targetUsername': targetUsername}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def all_requests_view(request):
 	'''
 	Show user a list of enabled request types, the number of requests of each type and a link to see them all.
@@ -879,32 +843,29 @@ def all_requests_view(request):
 		types_dict.append((request_type.name.title(), number_of_requests, request_type.url_name, request_type.enabled, request_type.glyphicon))
 	return render_to_response('all_requests.html', {'page_name': "Archives - All Requests", 'types_dict': types_dict}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def list_all_requests_view(request, requestType):
 	'''
 	Show user his/her requests in list form.
 	'''
 	try:
 		request_type = RequestType.objects.get(url_name=requestType)
-	except:
+	except RequestType.DoesNotExist:
 		return render_to_response('list_requests.html', {'page_name': "Request Type Not Found"}, context_instance=RequestContext(request))
 	requests = Request.objects.filter(request_type=request_type)
 	page_name = "Archives - All %s Requests" % request_type.name.title()
 	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests, 'request_type': request_type}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def request_view(request, request_pk):
 	'''
 	The view of a single request.
 	'''
 	try:
 		relevant_request = Request.objects.get(pk=request_pk)
-	except:
+	except Request.DoesNotExist:
 		return render_to_response('view_request.html', {'page_name': "Request Not Found"}, context_instance=RequestContext(request))
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_ext(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	request_responses = Response.objects.filter(request=relevant_request)
 	manager = False # Whether the user is a relevant manager for this request
 	for position in Manager.objects.filter(incumbent=userProfile):
@@ -955,15 +916,12 @@ def request_view(request, request_pk):
 	vote_form = VoteForm()
 	return render_to_response('view_request.html', {'page_name': "View Request", 'relevant_request': relevant_request, 'request_responses': request_responses, 'upvote': upvote, 'downvote': downvote, 'vote_form': vote_form}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def announcements_view(request):
 	''' The view of manager announcements. '''
 	page_name = "Manager Announcements"
 	userProfile = None
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
@@ -994,14 +952,11 @@ def announcements_view(request):
 		announcements_dict.append((a, unpin_form))
 	return render_to_response('announcements.html', {'page_name': page_name, 'manager_positions': manager_positions, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form}, context_instance=RequestContext(request))
 
-@login_required
+@profile_required
 def all_announcements_view(request):
 	''' The view of manager announcements. '''
 	page_name = "Archives - All Announcements"
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except:
-		return red_home(request, MESSAGES['NO_PROFILE'])
+	userProfile = UserProfile.objects.get(user=request.user)
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
