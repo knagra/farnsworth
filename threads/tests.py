@@ -20,9 +20,9 @@ class SimpleTest(TestCase):
 
 class VerifyUser(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", first_name="john", last_name="doe", password="password")
-		self.st = User.objects.create_user(username="st", email="st@email.com", first_name="john", last_name="doe", password="password")
-		self.su = User.objects.create_user(username="su", email="su@email.com", first_name="john", last_name="doe", password="password")
+		self.u = User.objects.create_user(username="u", email="u@email.com", password="password")
+		self.st = User.objects.create_user(username="st", email="st@email.com", password="password")
+		self.su = User.objects.create_user(username="su", email="su@email.com", password="password")
 		self.st.is_staff = True
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.u.save()
@@ -52,7 +52,7 @@ class VerifyUser(TestCase):
 
 class VerifyThread(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", first_name="john", last_name="doe", password="password")
+		self.u = User.objects.create_user(username="u", email="u@email.com", password="password")
 		self.u.save()
 		now = datetime.now()
 		profile = UserProfile.objects.get(user=self.u)
