@@ -5,6 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 from django import forms
 from django.contrib.auth.models import Group
+from django.core.validators import validate_email
 
 from threads.models import UserProfile
 
@@ -12,14 +13,14 @@ class ProfileRequestForm(forms.Form):
 	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or "_".')
 	first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-	email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
+	email = forms.EmailField(max_length=100)
 	affiliation_with_the_house = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
 
 class AddUserForm(forms.Form):
 	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or "_".')
 	first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-	email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}))
+	email = EmailField(max_length=100, required=False)
 	email_visible_to_others = forms.BooleanField(required=False)
 	phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
 	phone_visible_to_others = forms.BooleanField(required=False)
@@ -37,7 +38,7 @@ class AddUserForm(forms.Form):
 class ModifyUserForm(forms.Form):
 	first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-	email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+	email = EmailField(max_length=100, required=False)
 	email_visible_to_others = forms.BooleanField(required=False)
 	phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
 	phone_visible_to_others = forms.BooleanField(required=False)
@@ -54,11 +55,11 @@ class ChangeUserPasswordForm(forms.Form):
 	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
-class AddUserForm(forms.Form):
+class ModifyProfileRequestsForm(forms.Form):
 	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or "_".')
 	first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-	email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+	email = EmailField(max_length=100, required=False)
 	email_visible_to_others = forms.BooleanField(required=False)
 	phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
 	phone_visible_to_others = forms.BooleanField(required=False)

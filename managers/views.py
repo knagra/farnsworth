@@ -40,28 +40,6 @@ def verify_name(name):
 	'''
 	return bool(re.compile(r"[^a-zA-Z']").search(name))
 
-def verify_email(email):
-	''' Verify a potential email.  THIS ALGORITHM COULD USE MORE ATTENTION AND GROWTH.
-	Parameters:
-		email is the potential email
-	Returns True if:
-		email contains at least one "."
-		email contains at least one @ in the string before the last "."
-		email contains only one @
-		email contains no spaces
-		email contains at least 1 character after the last "."
-		email contains at least 1 character before the "@" (which is assured to be the only one by Python's "and" implementation)
-		email contains at least 1 character before the last "." and after the "@"
-	Returns False otherwise.
-	'''
-	return (('.' in email) and
-			('@' in email.rsplit('.', 1)[0]) and
-			(len(email.split('@')) == 2) and
-			(' ' not in email) and
-			(len(email.rsplit('.', 1)[1]) > 0) and
-			(len(email.split('@')[0]) > 0) and
-			(len(email.rsplit('.', 1)[0].split('@')[1]) > 0))
-
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
 	PRESIDENT = False # whether the user has president privileges
@@ -96,8 +74,6 @@ def request_profile_view(request):
 			affiliation = form.cleaned_data['affiliation_with_the_house']
 			if not verify_username(username):
 				form._errors['username'] = form.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_"'])
-			elif not verify_email(email):
-				form._errors['email'] = form.error_class([u'Invalid e-mail address.  Please input a valid, complete e-mail address.'])
 			elif User.objects.filter(username=username).count():
 				non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
 				form.errors['__all__'] = form.error_class([non_field_error])
@@ -129,41 +105,39 @@ def modify_profile_request_view(request, request_pk):
 		return red_home(request, MESSAGES['ADMINS_ONLY'])
 	profile_request = ProfileRequest.objects.get(pk=request_pk)
 	if request.method == 'POST':
-		add_user_form = AddUserForm(request.POST)
+		mod_form = ModifyProfileRequestForm(request.POST)
 		if 'delete_request' in request.POST:
 			message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
 			messages.add_message(request, messages.WARNING, message)
 			profile_request.delete()
 			return HttpResponseRedirect(reverse('manage_profile_requests'))
 		elif 'add_user' in request.POST:
-			if add_user_form.is_valid():
-				username = add_user_form.cleaned_data['username']
-				first_name = add_user_form.cleaned_data['first_name']
-				last_name = add_user_form.cleaned_data['last_name']
-				email = add_user_form.cleaned_data['email']
-				email_visible_to_others = add_user_form.cleaned_data['email_visible_to_others']
-				phone_number = add_user_form.cleaned_data['phone_number']
-				phone_visible_to_others = add_user_form.cleaned_data['phone_visible_to_others']
-				status = add_user_form.cleaned_data['status']
-				current_room = add_user_form.cleaned_data['current_room']
-				former_rooms = add_user_form.cleaned_data['former_rooms']
-				former_houses = add_user_form.cleaned_data['former_houses']
-				is_active = add_user_form.cleaned_data['is_active']
-				is_staff = add_user_form.cleaned_data['is_staff']
-				is_superuser = add_user_form.cleaned_data['is_superuser']
-				groups = add_user_form.cleaned_data['groups']
-				user_password = add_user_form.cleaned_data['user_password']
-				confirm_password = add_user_form.cleaned_data['confirm_password']
+			if mod_form.is_valid():
+				username = mod_form.cleaned_data['username']
+				first_name = mod_form.cleaned_data['first_name']
+				last_name = mod_form.cleaned_data['last_name']
+				email = mod_form.cleaned_data['email']
+				email_visible_to_others = mod_form.cleaned_data['email_visible_to_others']
+				phone_number = mod_form.cleaned_data['phone_number']
+				phone_visible_to_others = mod_form.cleaned_data['phone_visible_to_others']
+				status = mod_form.cleaned_data['status']
+				current_room = mod_form.cleaned_data['current_room']
+				former_rooms = mod_form.cleaned_data['former_rooms']
+				former_houses = mod_form.cleaned_data['former_houses']
+				is_active = mod_form.cleaned_data['is_active']
+				is_staff = mod_form.cleaned_data['is_staff']
+				is_superuser = mod_form.cleaned_data['is_superuser']
+				groups = mod_form.cleaned_data['groups']
+				user_password = mod_form.cleaned_data['user_password']
+				confirm_password = mod_form.cleaned_data['confirm_password']
 				if not verify_username(username):
-					add_user_form._errors['username'] = forms.util.ErrorList([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_".'])
+					mod_form._errors['username'] = forms.util.ErrorList([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_".'])
 				elif User.objects.filter(username=username).count():
 					non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
-					add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
+					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
 				elif User.objects.filter(first_name=first_name, last_name=last_name):
 					non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
-					add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-				elif email and not verify_email(email):
-					add_user_form._errors['email'] = forms.util.ErrorList([u'Invalid e-mail address.  Please check the documentation for details on e-mail validation.'])
+					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
 				elif user_password == confirm_password:
 					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
 					new_user.is_active = is_active
@@ -186,11 +160,11 @@ def modify_profile_request_view(request, request_pk):
 					messages.add_message(request, messages.SUCCESS, message)
 					return HttpResponseRedirect(reverse('manage_profile_requests'))
 				else:
-					add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-					add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+					mod_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
+					mod_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	else:
-		add_user_form = AddUserForm(initial={'status': profile_request.affiliation, 'username': profile_request.username, 'first_name': profile_request.first_name, 'last_name': profile_request.last_name, 'email': profile_request.email})
-	return render_to_response('modify_profile_request.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
+		mod_form = AddUserForm(initial={'status': profile_request.affiliation, 'username': profile_request.username, 'first_name': profile_request.first_name, 'last_name': profile_request.last_name, 'email': profile_request.email})
+	return render_to_response('modify_profile_request.html', {'page_name': page_name, 'add_user_form': mod_form}, context_instance=RequestContext(request))
 
 @login_required
 def custom_manage_users_view(request):
@@ -271,7 +245,7 @@ def custom_modify_user_view(request, targetUsername):
 				targetProfile.former_rooms = former_rooms
 				targetProfile.former_houses = former_houses
 				targetProfile.save()
-				if verify_email(email) or not email:
+				if not email:
 					targetUser.email = email
 					targetUser.save()
 					message = MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username)
@@ -334,8 +308,6 @@ def custom_add_user_view(request):
 			elif User.objects.filter(first_name=first_name, last_name=last_name).count():
 				non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
 				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-			elif email and not verify_email(email):
-				add_user_form._errors['email'] = forms.util.ErrorList([u"Invalid e-mail address.  Please check the documentation for details on e-mail validation."])
 			elif user_password == confirm_password:
 				new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
 				new_user.is_active = is_active
@@ -497,8 +469,6 @@ def add_manager_view(request):
 				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
 			elif Manager.objects.filter(url_title=url_title).count():
 				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
-			elif email and not verify_email(email):
-				form._errors['email'] = forms.util.ErrorList([u"Invalid e-mail address.  Please check the documentation for details on e-mail validation."])
 			else:
 				new_manager = Manager(title=title, url_title=url_title, compensation=compensation, duties=duties, email=email, president=president, workshift_manager=workshift_manager, active=active)
 				if incumbent:
@@ -549,8 +519,6 @@ def edit_manager_view(request, managerTitle):
 				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
 			elif Manager.objects.filter(url_title=url_title).count() and Manager.objects.get(url_title=url_title) != targetManager:
 				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
-			elif email and not verify_email(email):
-				form._errors['email'] = forms.util.ErrorList([u"Invalid e-mail address.  Please check the documentation for details on e-mail validation."])
 			else:
 				targetManager.title = title
 				targetManager.url_title = url_title
