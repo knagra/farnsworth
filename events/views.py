@@ -183,7 +183,7 @@ def edit_event_view(request, event_pk):
 		return HttpResponseRedirect(reverse('events'))
 	manager_positions = Manager.objects.filter(incumbent=event.owner)
 	rsvpd = (userProfile in event.rsvps.all())
-	event_form = EventForm(initial={
+	event_form = EventForm(manager_positions, initial={
 			'title': event.title,
 			'description': event.description,
 			'location': event.location,
