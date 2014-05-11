@@ -22,56 +22,8 @@ from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from django.contrib import messages
 
-class ThreadForm(forms.Form):
-	''' Form to post a new thread. '''
-	subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
-	body = forms.CharField(widget=forms.Textarea())
-
-class MessageForm(forms.Form):
-	''' Form to post a new message. '''
-	thread_pk = forms.IntegerField(widget=forms.HiddenInput())
-	body = forms.CharField(widget=forms.Textarea())
-
-class VoteForm(forms.Form):
-	''' Form to cast an up or down vote for a request. '''
-	request_pk = forms.IntegerField(widget=forms.HiddenInput())
-
-class UnpinForm(forms.Form):
-	''' Form to repin or unpin an announcement. '''
-	announcement_pk = forms.IntegerField(widget=forms.HiddenInput())
-
-class RsvpForm(forms.Form):
-	''' Form to RSVP or un-RSVP from an event. '''
-	event_pk = forms.IntegerField(widget=forms.HiddenInput())
-
-class ManagerForm(forms.Form):
-	''' Form to create or modify a manager position. '''
-	title = forms.CharField(max_length=255, help_text="A unique title for this manager position.")
-	incumbent = forms.ModelChoiceField(queryset=UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS), help_text="Current incumbent for this manager position.  List excludes alumni.", required=False)
-	compensation = forms.CharField(widget=forms.Textarea(), required=False)
-	duties = forms.CharField(widget=forms.Textarea(), required=False)
-	email = forms.EmailField(max_length=255, required=False, help_text="Manager e-mail (optional)")
-	president = forms.BooleanField(help_text="Whether this manager has president privileges (edit and add managers, etc.)", required=False)
-	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
-	active = forms.BooleanField(help_text="Whether this is an active manager positions (visible in directory, etc.)", required=False)
-	
-	def clean(self):
-		''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
-		cleaned_data = super(ManagerForm, self).clean()
-		compensation = cleaned_data.get("compensation")
-		duties = cleaned_data.get("duties")
-		if compensation == '<br data-mce-bogus="1">':
-			cleaned_data["compensation"] = ""
-		if duties == '<br data-mce-bogus="1">':
-			cleaned_data["duties"] = ""
-		return cleaned_data
-
-class RequestTypeForm(forms.Form):
-	''' Form to add or modify a request type. '''
-	name = forms.CharField(max_length=255, help_text="A unique name identifying this request type. Capitalize first letter of each word.")
-	relevant_managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.filter(active=True), help_text="Managers responsible for addressing this type of request; list excludes inactive managers.", required=False)
-	enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
-	glyphicon = forms.CharField(max_length=100, required=False, help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.')
+from views.forms import *
+from managers.forms import ResponseForm, AnnouncementForm, ChangeUserPasswordForm
 
 def red_ext(request, message=None):
 	'''
@@ -116,11 +68,6 @@ def homepage_view(request, message=None):
 				manager_request_types.append(request_type)
 				break
 	requests_dict = list() # Pseudo-dictionary, list with items of form (request_type, (request, [list_of_request_responses], response_form))
-	class ResponseForm(forms.Form):
-		request_pk = forms.IntegerField(widget=forms.HiddenInput())
-		response_body = forms.CharField(widget=forms.Textarea())
-		mark_filled = forms.BooleanField(required=False)
-		mark_closed = forms.BooleanField(required=False)
 	# Generate a dict of unfilled, unclosed requests for each request_type for which the user is a relevant manager:
 	if manager_request_types:
 		for request_type in manager_request_types:
@@ -138,10 +85,7 @@ def homepage_view(request, message=None):
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
-		class AnnouncementForm(forms.Form):
-			as_manager = forms.ModelChoiceField(queryset=manager_positions)
-			announcement_body = forms.CharField(widget=forms.Textarea())
-		announcement_form = AnnouncementForm(initial={'as_manager': manager_positions[0].pk})
+		announcement_form = AnnouncementForm(manager_positions)
 	announcements_dict = list() # Pseudo-dictionary, list with items of form (announcement, announcement_unpin_form)
 	announcements = Announcement.objects.filter(pinned=True)
 	x = 0 # Number of announcements loaded
@@ -153,14 +97,6 @@ def homepage_view(request, message=None):
 		x += 1
 		if x >= home_max_announcements:
 			break
-	class EventForm(forms.Form):
-		title = forms.CharField(max_length=100, widget=forms.TextInput())
-		description = forms.CharField(widget=forms.Textarea())
-		location = forms.CharField(max_length=100, widget=forms.TextInput())
-		rsvp = forms.BooleanField(required=False, label="RSVP")
-		start_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=time_formats)
-		end_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=time_formats)
-		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
 	now = datetime.utcnow().replace(tzinfo=utc)
 	tomorrow = now + timedelta(hours=24)
 	# Get only next 24 hours of events:
@@ -199,7 +135,7 @@ def homepage_view(request, message=None):
 					messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_FILLED'])
 				return HttpResponseRedirect(reverse('homepage'))
 		elif 'post_announcement' in request.POST:
-			announcement_form = AnnouncementForm(request.POST)
+			announcement_form = AnnouncementForm(manager_positions, post=request.POST)
 			if announcement_form.is_valid():
 				body = announcement_form.cleaned_data['announcement_body']
 				manager = announcement_form.cleaned_data['as_manager']
@@ -288,19 +224,6 @@ def my_profile_view(request):
 	userProfile = UserProfile.objects.get(user=request.user)
 	if not userProfile:
 		return red_ext(request, MESSAGES['NO_PROFILE'])
-	class ChangePasswordForm(forms.Form):
-		current_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-		new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-		confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-	class UpdateProfileForm(forms.Form):
-		current_room = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		email_visible_to_others = forms.BooleanField(required=False)
-		phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-		phone_visible_to_others = forms.BooleanField(required=False)
-		enter_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	change_password_form = ChangePasswordForm()
 	update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'former_houses': userProfile.former_houses, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
 	if request.method == 'POST':
@@ -363,9 +286,6 @@ def login_view(request):
 	page_name = "Login Page"
 	if (request.user.is_authenticated() and not ANONYMOUS_SESSION) or (ANONYMOUS_SESSION and request.user.username != ANONYMOUS_USERNAME):
 		return HttpResponseRedirect(reverse('homepage'))
-	class LoginForm(forms.Form):
-		username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-		password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	form = LoginForm()
 	if request.method == 'POST':
 		form = LoginForm(request.POST)
