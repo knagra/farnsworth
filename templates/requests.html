@@ -49,7 +49,7 @@
 
   <div class="requests_table">
     {% if not requests_dict %}
-    <div class="field_wrapper">No {{ request_type }} requests found.</div>
+    <div class="field_wrapper text-info">No {{ request_type.lower }} requests found.</div>
     {% else %}
     {% for request_tuple in requests_dict %}
     {% if forloop.counter > 1 %}

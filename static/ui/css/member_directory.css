@@ -5,12 +5,7 @@ Author: Karandeep Singh Nagra
 */
 
 .table_container {
-    float: middle;
-    position: relative;
-    font-size: 15pt;
 	margin-bottom: 10px;
-    box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
-    overflow: hidden;
 }
 
 #residents_table {

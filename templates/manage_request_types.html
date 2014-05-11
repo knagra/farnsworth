@@ -17,7 +17,7 @@
 	</div> <!-- .header -->
 	<div class="main_table">
 	{% if not request_types %}
-		<div class="field_wrapper">No request types in database.</div>
+		<div class="field_wrapper text-warning">No request types found in database.</div>
 	{% else %}
 	<table class="table table-striped table-bordered table-condensed table-hover" id="managers_table" style="margin: 0px;">
 	<thead>
@@ -28,7 +28,7 @@
 	</thead>
 	<tbody>
 		{% for type in request_types %}
-		<tr><td><a title="Modify Request Type" href="{% url 'edit_request_type' typeName=type.url_name %}"><span class="glyphicon glyphicon-cog"></span> {{ type.name }}</a></td>
+		<tr><td><a title="Modify Request Type" href="{% url 'edit_request_type' typeName=type.url_name %}"><span class="glyphicon glyphicon-{% if type.glyphicon %}{{ type.glyphicon }}{% else %}cog{% endif %}"></span> {{ type.name }}</a></td>
 			<td>{% if type.enabled %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>
 			<td>{% for pos in type.managers.all %}
 				{% if forloop.counter > 1 %}, {% endif %}
@@ -36,7 +36,7 @@
 					{% if pos.incumbent %}
 					(<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
 					{% else %}
-					(No incumbent)
+					<span title="There is currently no incumbent for this position." class="text-danger">(No incumbent)</span>
 					{% endif %}
 				{% endfor %}
 			</td>

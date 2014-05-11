@@ -38,7 +38,7 @@
 			</div> <!-- .form-group -->
 		</form>
 	{% if not events_dict %}
-	<div class="field_wrapper">No events found.</div>
+	<div class="field_wrapper text-info">No events found.</div>
 	{% else %}
 	{% for event_tuple in events_dict %}
 		{% if forloop.counter > 1 %}

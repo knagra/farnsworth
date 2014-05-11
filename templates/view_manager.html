@@ -23,7 +23,11 @@
 	<tbody>
 		<tr><th>Title:</th><td class="field">{{ targetManager.title }}</td></tr>
 		<tr><th>Incumbent:</th><td class="field">{% if targetManager.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=targetManager.incumbent.user.username %}" >{{ targetManager.incumbent|display_user:user }}</a>{% endif %}</td></tr>
+		{% if targetManager.email %}
 		<tr><th>E-mail:</th><td class="field"><a title="Write E-mail" href="mailto:{{ targetManager.email }}">{{ targetManager.email }}</a></td></tr>
+		{% elif targetManager.incumbent.email_visible and targetManager.incumbent.user.email %}
+		<tr><th title="No e-mail address for this manager in database. This is the incumbent's personal e-mail address.">Personal E-mail:</th><td class="field"><a title="Write E-mail" href="mailto:{{ targetManager.incumbent.user.email }}">{{ targetManager.incumbent.user.email }}</a></td></tr>
+		{% endif %}
 		{% if targetManager.incumbent.phone_visible %}
 		<tr><th>Personal Phone:</th><td class="fields">{{ targetManager.incumbent.phone_number }}</td></tr>
 		{% endif %}

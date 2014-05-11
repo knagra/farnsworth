@@ -4,48 +4,37 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+import datetime
+from django.utils.timezone import utc
+from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django import forms
-from models import Event
 from django.core.urlresolvers import reverse
 from threads.models import UserProfile
 from managers.models import Manager
-from threads.views import red_ext, red_home, RsvpForm
-from farnsworth.settings import house, time_formats
+from threads.decorators import profile_required
+from threads.views import RsvpForm
+from threads.redirects import red_home, red_ext
 # Standard messages:
 from farnsworth.settings import MESSAGES
-import datetime
-from django.utils.timezone import utc
-from django.contrib import messages
 
+from events.models import Event
+from events.forms import *
+
+@profile_required
 def list_events_view(request):
 	''' A list view of upcoming events. '''
 	page_name = "Upcoming Events"
-	if request.user.is_authenticated():
-		userProfile = None
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except:
-			return red_home(request, MESSAGES['NO_PROFILE'])
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
-	class EventForm(forms.Form):
-		title = forms.CharField(max_length=100, widget=forms.TextInput())
-		description = forms.CharField(widget=forms.Textarea())
-		location = forms.CharField(max_length=100, widget=forms.TextInput())
-		rsvp = forms.BooleanField(required=False, label="RSVP")
-		start_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
-		end_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
-		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
-	event_form = EventForm(initial={'rsvp': True, 'location': house})
+	event_form = EventForm(manager_positions)
 	if not manager_positions:
 		event_form.fields['as_manager'].widget = forms.HiddenInput()
 	if request.method == 'POST':
 		if 'post_event' in request.POST:
-			event_form = EventForm(request.POST)
+			event_form = EventForm(manager_positions, post=request.POST)
 			if event_form.is_valid():
 				title = event_form.cleaned_data['title']
 				description = event_form.cleaned_data['description']
@@ -67,7 +56,7 @@ def list_events_view(request):
 					new_event.save()
 					return HttpResponseRedirect(reverse('events'))
 			else:
-				messages.add_message(request, messages.SUCCESS, MESSAGES['EVENT_ERROR'])
+				messages.add_message(request, messages.ERROR, MESSAGES['EVENT_ERROR'])
 		elif 'rsvp' in request.POST:
 			rsvp_form = RsvpForm(request.POST)
 			if rsvp_form.is_valid():
@@ -99,33 +88,19 @@ def list_events_view(request):
 		events_dict.append((event, ongoing, rsvpd, form))
 	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
 
+@profile_required
 def list_all_events_view(request):
 	''' A list view of all events.  Part of archives. '''
 	page_name = "Archives - All Events"
-	if request.user.is_authenticated():
-		userProfile = None
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except:
-			return red_home(request, MESSAGES['NO_PROFILE'])
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
-	class EventForm(forms.Form):
-		title = forms.CharField(max_length=100, widget=forms.TextInput())
-		description = forms.CharField(widget=forms.Textarea())
-		location = forms.CharField(max_length=100, widget=forms.TextInput())
-		rsvp = forms.BooleanField(required=False, label="RSVP")
-		start_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
-		end_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
-		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
-	event_form = EventForm(initial={'rsvp': True, 'location': house})
+	event_form = EventForm(manager_positions)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	if not manager_positions:
 		event_form.fields['as_manager'].widget = forms.HiddenInput()
 	if request.method == 'POST':
 		if 'post_event' in request.POST:
-			event_form = EventForm(request.POST)
+			event_form = EventForm(manager_positions, post=request.POST)
 			if event_form.is_valid():
 				title = event_form.cleaned_data['title']
 				description = event_form.cleaned_data['description']
@@ -179,39 +154,33 @@ def list_all_events_view(request):
 		events_dict.append((event, ongoing, rsvpd, form, already_past))
 	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
 
+@profile_required
 def edit_event_view(request, event_pk):
 	''' The view to edit an event. '''
 	page_name = "Edit Event"
-	if request.user.is_authenticated():
-		userProfile = None
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except:
-			return red_home(request, MESSAGES['NO_PROFILE'])
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
 	try:
 		event = Event.objects.get(pk=event_pk)
-	except:
+	except Event.DoesNotExist:
 		return HttpResponseRedirect(reverse('events'))
 	if not ((event.owner == userProfile) or (request.user.is_superuser)):
 		return HttpResponseRedirect(reverse('events'))
 	manager_positions = Manager.objects.filter(incumbent=event.owner)
-	class EventForm(forms.Form):
-		title = forms.CharField(max_length=100, widget=forms.TextInput())
-		description = forms.CharField(widget=forms.Textarea())
-		location = forms.CharField(max_length=100, widget=forms.TextInput())
-		rsvp = forms.BooleanField(required=False, label="RSVP")
-		cancelled = forms.BooleanField(required=False, label="Mark Cancelled")
-		start_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
-		end_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]), input_formats=time_formats)
-		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
 	rsvpd = (userProfile in event.rsvps.all())
-	event_form = EventForm(initial={'title': event.title, 'description': event.description, 'location': event.location, 'rsvp': rsvpd, 'start_time': event.start_time, 'end_time': event.end_time, 'as_manager': event.as_manager, 'cancelled': event.cancelled})
+	event_form = EventForm(manager_positions, initial={
+			'title': event.title,
+			'description': event.description,
+			'location': event.location,
+			'rsvp': rsvpd,
+			'start_time': event.start_time,
+			'end_time': event.end_time,
+			'as_manager': event.as_manager,
+			'cancelled': event.cancelled
+			})
 	if not manager_positions:
 		event_form.fields['as_manager'].widget = forms.HiddenInput()
 	if request.method == 'POST':
-		event_form = EventForm(request.POST)
+		event_form = EventForm(manager_positions, post=request.POST)
 		if event_form.is_valid():
 			title = event_form.cleaned_data['title']
 			description = event_form.cleaned_data['description']
@@ -221,23 +190,19 @@ def edit_event_view(request, event_pk):
 			start_time = event_form.cleaned_data['start_time']
 			end_time = event_form.cleaned_data['end_time']
 			as_manager = event_form.cleaned_data['as_manager']
-			if start_time > end_time:
-				messages.add_message(request, messages.ERROR, "Something went wrong.  Please try again.")
-				event_form.errors['__all__'] = event_form.error_class(["Start time is later than end time.  Unless this event involves time travel, please change the start or end time."])
-			else:
-				event.title = title
-				event.description = description
-				event.location = location
-				event.cancelled = cancelled
-				event.start_time = start_time
-				event.end_time = end_time
-				event.save()
-				if rsvp:
-					event.rsvps.add(userProfile)
-				if as_manager:
-					event.as_manager = as_manager
-				event.save()
-				message = MESSAGES['EVENT_UPDATED'].format(event=title)
-				messages.add_message(request, messages.SUCCESS, message)
-				return HttpResponseRedirect(reverse('events'))
+			event.title = title
+			event.description = description
+			event.location = location
+			event.cancelled = cancelled
+			event.start_time = start_time
+			event.end_time = end_time
+			event.save()
+			if rsvp:
+				event.rsvps.add(userProfile)
+			if as_manager:
+				event.as_manager = as_manager
+			event.save()
+			message = MESSAGES['EVENT_UPDATED'].format(event=title)
+			messages.add_message(request, messages.SUCCESS, message)
+			return HttpResponseRedirect(reverse('events'))
 	return render_to_response('edit_event.html', {'page_name': page_name, 'event_form': event_form}, context_instance=RequestContext(request))

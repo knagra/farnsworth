@@ -14,7 +14,7 @@
 	</div> <!-- .header -->
 	<div class="main_table">
 	{% if not managerset %}
-		<div class="field_wrapper">No managers in database.</div>
+		<div class="field_wrapper text-danger">No managers in database.</div>
 	{% else %}
 	<table class="table table-striped table-bordered table-condensed table-hover" id="managers_table" style="margin: 0px;">
 	<thead>
@@ -29,10 +29,10 @@
 		<tr><td><a title="See Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a></td>
 			<td>{% if pos.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent.user.get_full_name }}</a>{% endif %}</td>
 			<td>{% if pos.email %}
-					<a title="Write E-mail" href="mailto:{{ pos.email }}">{{ pos.email }}</a>
+					<a title="Write E-mail" href="mailto:{{ pos.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ pos.email }}</a>
 				{% elif pos.incumbent.email_visible and pos.incumbent.user.email %}
-					<a title="Write E-mail" href="mailto:{{ post.incumbent.user.email }}">{{ pos.incumbent.user.email }}</a>
-					<span title="This is a personal e-mail address.">(personal)</span>
+					<a title="Write E-mail" href="mailto:{{ post.incumbent.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ pos.incumbent.user.email }}</a>
+					<span title="No e-mail address for this manager in database. This is the incumbent's personal e-mail address.">(personal)</span>
 				{% endif %}
 			</td>
 			<td>{% if pos.incumbent.phone_visible %}{{ pos.incumbent.phone_number }}{% endif %}</td>

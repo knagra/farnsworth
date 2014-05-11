@@ -40,7 +40,8 @@
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle">Adding Users <a name="adding_users" title="A link to this sub-section" href="#adding_users">&sect;</a></h2>
 			<p>You can add a user from the <a target="_blank" href="{% url 'custom_add_user' %}">add user page</a>.  The process is fairly intuitive.
-			Usernames should be unique.  It is recommended that e-mails and phone numbers be kept hidden from other members when creating a user.
+			Usernames should be unique and a single word composed of alphanumeric characters or the underscore character.
+			It is recommended that e-mails and phone numbers be kept hidden from other members when creating a user.
 			A user can modify her/his own profile to reveal e-mail and phone number to other members.
 			</p>
 			<p>The "is active" status is an indicator of whether the user can login.  You can add inactive users, but you will probably be adding active users.
@@ -61,6 +62,11 @@
 			</p>
 			<p>The "is superuser" status toggles admin rights on the site.
 			A user with superuser privileges will able to access admin pages written into this interface and have full privileges in the Django admin.
+			</p>
+			<p>It can be useful to give users superadmin status and not give them staff status as all admin privileges in the custom admin are granted
+			with superadmin status, but access to the Django admin is restricted.
+			Effectively, superuser-not-staff status is a weak obfuscation-based security against users really messing things up by misusing the Django
+			admin.
 			</p>
 			<p>Groups are fully supported by Django but are not yet supported by the custom Farnsworth interface.
 			They are provided in this page in case someone wants to do further development of Django which involves groups.
@@ -229,7 +235,68 @@
 		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="meta_manager_body" class="toggleable">
 		<hr style="width: 75%;" />
-		
+			<p>Managers are managed from the <a href="{% url 'meta_manager' %}">meta-manager</a> page.</p>
+		<h2 class="sub_subtitle">Adding Managers <a name="adding_managers" title="A link to this sub-section" href="#adding_managers">&sect;</a></h2>
+			<p>You can add a new manager by clicking the top right button on the meta-manager page or by going directly to
+			the <a href="{% url 'add_manager' %}">add manager</a> page.  A manager position can have only one incumbent.  Keep this in mind.
+			</p>
+			<p>Since houses allow multiple members to hold the same position, an "active" status is available for these scenarios.
+			The recommended way to have multiple members hold the same position is to create multiple types of a singular position.
+			So, for example, to have a Kitchen Manager position that can have more than one incumbent, create two (or three or four, depending on your house)
+			instances of Kitchen Managers (Kitchen Manager 1, Kitchen Manager 2, ...) and then deactive the excess manager positions.
+			</p>
+			<p>Though this may seem a shortcoming of the site, in practical terms, it's a decision between a clean end-user experience
+			and a clean site admin experience.  Having multiple incumbents for the same position makes sorting and searching more cumbersome for the user.
+			A simple injective relation is optimal for understanding managers and incumbents.
+			</p>
+			<p>Yes, this implementation does mean slightly more work for you. But it means significantly less combined mental work for end-users.
+			</p>
+			<p>The form to add a new manager is fairly intuitive and has lots of help text.  All fields are optional except the manager title field.
+			Farnsworth auto-generates the URL key for the manager from the title you provide by lower-casing all letters and replacing spaces with underscore.
+			"Kitchen Manager 1" &rarr; "kitchen_manager_1", "WRM" &rarr; "wrm", etc.  These URLs are used to reference managers in the directory
+			and the meta-manager.  You will be thrown an error when adding a manager whose URL collides with a previous URL.
+			</p>
+			<p>The "president" status gives the user rights to do President duties, which currently include managing managers and managing request types.
+			Planned expansion of these duties include managing petitions, elections, and a few other things.
+			</p>
+			<p>The "workshift manager" status is currently not used but is included in case a workshift package is rolled out in the future.
+			</p>
+			<p>The "active" status indicates whether the manager is visible in the directory to the general membership 
+			</p>
+			<p>The e-mail form should be for official e-mails for that manager, not personal e-mails.  Personal e-mails are under individual users' control.
+			This field is optional as not all manager positions have dedicated e-mail addresses.
+			</p>
+			<p><b>If there is a manager position without an e-mail address and the incumbent has set her/his e-mail to be visible to everyone,
+			the incumbent's e-mail will be displayed in the manager directory and in individual manager descriptions,
+			with a short snippet saying that the listed e-mail address is a personal e-mail address.</b>
+			</p>
+			<p>So you don't need to go get the incumbent's permission and then add her/his e-mail to the manager record,
+			and then delete it again when the incumbent's e-mail or the incumbent herself changes.
+			Besides succinctness, this implementation gives users better control over their own information and its visibility.
+			</p>
+			<p>The incumbent field is optional and excludes all alumni.  Effectively, only residents and boarders can hold manager positions.
+			If an incumbent for the position doesn't exist, leave the option blank (displayed as a series of dashes)
+			and the position will be created without an incumbent.
+			</p>
+		<h2 class="sub_subtitle">Managing Managers <a name="managing_managers" title="A link to this sub-section" href="#managing_managers">&sect;</a></h2>
+			<p>There is a catch in that when a user is changed from a resident or boarder to an alumnus, s/he continues to be the incumbent for the position.
+			So, some maintenance on the site is required on your part at the beginning and end of each term,
+			or whenever a manager position is vacated/refilled.
+			</p>
+			<p>For this maintenance work, you will need to modify manager instances.
+			</p>
+			<p>You can see a list of managers and links to their modification pages, incumbent user profile pages, and manager e-mails from
+			the <a href="{% url 'meta_manager' %}">meta-manager</a> (a manager of managers) page.
+			This list will tell you most of the handy information about each manager, as well.
+			
+			When you click on the title of each manager, you will be directed to a page to modify that manager instance.
+			</p>
+			<p>This form is identical the add manager form; so details will not be covered here.
+			The same conditions apply and the same tests apply when you try to modify a manager as when you add a manager.
+			If you try to change a manager to have the same title a different existing manager, you will be thrown an error.
+			Similarly, if the URL name resolved from the title you gave collides with the URL of a different existing manager, you will be thrown an error.
+			
+			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #meta_manager_body -->
 	</div> <!-- #meta_manager -->
@@ -352,7 +419,7 @@ $(document).ready(function() {
 		if (wi <= 768 && $('a.toggle_div').next('div.toggleable')) {
 			$('a.toggle_div').parent().next('div.toggleable').hide();
 		} else {
-			$('a.toggle_div').parent().next('div').show();
+			$('a.toggle_div').parent().next('div.toggleable').show();
 		}
 	});
 	$('a.toggle_div').click(function() {

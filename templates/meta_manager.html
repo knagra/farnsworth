@@ -17,7 +17,7 @@
 	</div> <!-- .header -->
 	<div class="main_table">
 	{% if not managerset %}
-		<div class="field_wrapper">No managers in database.</div>
+		<div class="field_wrapper text-danger">No managers in database.</div>
 	{% else %}
 	<table class="table table-striped table-bordered table-condensed table-hover" id="managers_table" style="margin: 0px;">
 	<thead>
@@ -36,7 +36,7 @@
 			<td>{% if pos.active %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>
 			<td>{% if pos.president %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>
 			<td>{% if pos.workshift_manager %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>
-			<td>{% if pos.email %}<a title="Write E-mail" href="mailto:{{ pos.email }}">{{ pos.email }}</a>{% endif %}</td>
+			<td>{% if pos.email %}<a title="Write E-mail" href="mailto:{{ pos.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ pos.email }}</a>{% endif %}</td>
 		</tr>
 		{% endfor %}
 	</tbody>
