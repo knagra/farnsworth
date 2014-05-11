@@ -28,7 +28,7 @@ def list_events_view(request):
 		userProfile = None
 		try:
 			userProfile = UserProfile.objects.get(user=request.user)
-		except:
+		except UserProfile.DoesNotExist:
 			return red_home(request, MESSAGES['NO_PROFILE'])
 	else:
 		return HttpResponseRedirect(reverse('login'))
@@ -99,7 +99,7 @@ def list_all_events_view(request):
 		userProfile = None
 		try:
 			userProfile = UserProfile.objects.get(user=request.user)
-		except:
+		except UserProfile.DoesNotExist:
 			return red_home(request, MESSAGES['NO_PROFILE'])
 	else:
 		return HttpResponseRedirect(reverse('login'))
@@ -171,13 +171,13 @@ def edit_event_view(request, event_pk):
 		userProfile = None
 		try:
 			userProfile = UserProfile.objects.get(user=request.user)
-		except:
+		except UserProfile.DoesNotExist:
 			return red_home(request, MESSAGES['NO_PROFILE'])
 	else:
 		return HttpResponseRedirect(reverse('login'))
 	try:
 		event = Event.objects.get(pk=event_pk)
-	except:
+	except Event.DoesNotExist:
 		return HttpResponseRedirect(reverse('events'))
 	if not ((event.owner == userProfile) or (request.user.is_superuser)):
 		return HttpResponseRedirect(reverse('events'))
