@@ -234,19 +234,16 @@ def my_profile_view(request):
 				new_password = change_password_form.cleaned_data['new_password']
 				confirm_password = change_password_form.cleaned_data['confirm_password']
 				if hashers.check_password(current_password, user.password):
-					if new_password == confirm_password:
-						hashed_password = hashers.make_password(new_password)
-						if hashers.is_password_usable(hashed_password):
-							user.password = hashed_password
-							user.save()
-							messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
-							return HttpResponseRedirect(reverse('my_profile'))
-						else:
-							password_non_field_error = "Password didn't hash properly.  Please try again."
-							change_password_form.errors['__all__'] = change_password_form.error_class([password_non_field_error])
-							return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form}, context_instance=RequestContext(request))
+					hashed_password = hashers.make_password(new_password)
+					if hashers.is_password_usable(hashed_password):
+						user.password = hashed_password
+						user.save()
+						messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
+						return HttpResponseRedirect(reverse('my_profile'))
 					else:
-						change_password_form.errors['__all__'] = change_password_form.error_class([u"Passwords don't match."])
+						password_non_field_error = "Password didn't hash properly.  Please try again."
+						change_password_form.errors['__all__'] = change_password_form.error_class([password_non_field_error])
+						return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form}, context_instance=RequestContext(request))
 				else:
 					change_password_form._errors['current_password'] = forms.util.ErrorList([u"Wrong password."])
 		elif 'submit_profile_form' in request.POST:
@@ -279,56 +276,44 @@ def my_profile_view(request):
 
 def login_view(request):
 	''' The view of the login page. '''
-	try:
-		ANONYMOUS_SESSION = request.session['ANONYMOUS_SESSION']
-	except:
-		ANONYMOUS_SESSION = False
+	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
 	page_name = "Login Page"
 	if (request.user.is_authenticated() and not ANONYMOUS_SESSION) or (ANONYMOUS_SESSION and request.user.username != ANONYMOUS_USERNAME):
 		return HttpResponseRedirect(reverse('homepage'))
-	form = LoginForm()
-	if request.method == 'POST':
-		form = LoginForm(request.POST)
-		if form.is_valid():
-			username = form.cleaned_data['username']
-			password = form.cleaned_data['password']
-			if username == ANONYMOUS_USERNAME:
-				return red_ext(request, MESSAGES['ANONYMOUS_DENIED'])
-			try:
-				temp_user = User.objects.get(username=username)
-				if temp_user is not None:
-					if temp_user.is_active:
-						user = authenticate(username=username, password=password)
-						if user is not None:
-							login(request, user)
-							if ANONYMOUS_SESSION:
-								request.session['ANONYMOUS_SESSION'] = True
-							try:
-								next_url = request.REQUEST.get('next', '')
-								return HttpResponseRedirect(next_url)
-							except:
-								pass
-							return HttpResponseRedirect(reverse('homepage'))
-						else:
-							form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
+	form = LoginForm(request.POST or None)
+	if request.method == 'POST' and form.is_valid():
+		username = form.cleaned_data['username']
+		password = form.cleaned_data['password']
+		if username == ANONYMOUS_USERNAME:
+			return red_ext(request, MESSAGES['ANONYMOUS_DENIED'])
+		try:
+			temp_user = User.objects.get(username=username)
+			if temp_user is not None:
+				if temp_user.is_active:
+					user = authenticate(username=username, password=password)
+					if user is not None:
+						login(request, user)
+						if ANONYMOUS_SESSION:
+							request.session['ANONYMOUS_SESSION'] = True
+						next_url = request.REQUEST.get('next', reverse('homepage'))
+						return HttpResponseRedirect(next_url)
 					else:
-						form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
-			except:
-				form.errors['__all__'] = form.error_class(["User not found"])
+						form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
+				else:
+					form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
+		except User.DoesNotExist:
+			form.errors['__all__'] = form.error_class(["User not found"])
 	return render_to_response('login.html', {'page_name': page_name, 'form': form}, context_instance=RequestContext(request))
 
 def logout_view(request):
 	''' Log the user out. '''
-	try:
-		ANONYMOUS_SESSION = request.session['ANONYMOUS_SESSION']
-	except:
-		ANONYMOUS_SESSION = False
+	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
 	if ANONYMOUS_SESSION:
 		if request.user.username != ANONYMOUS_USERNAME:
 			logout(request)
 			try:
 				spineless = User.objects.get(username=ANONYMOUS_USERNAME)
-			except:
+			except User.DoesNotExist:
 				random_password = User.objects.make_random_password()
 				spineless = User.objects.create_user(username=ANONYMOUS_USERNAME, first_name="Anonymous", last_name="Coward", password=random_password)
 				spineless.is_active = False
@@ -529,7 +514,7 @@ def list_user_threads_view(request, targetUsername):
 	try:
 		targetUser = User.objects.get(username=targetUsername)
 		targetProfile = UserProfile.objects.get(user=targetUser)
-	except:
+	except User.DoesNotExist:
 		return render_to_response('list_threads.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
 	threads = Thread.objects.filter(owner=targetProfile)
 	page_name = "%s's Threads" % targetUsername
@@ -569,20 +554,21 @@ def member_profile_view(request, targetUsername):
 	userProfile = UserProfile.objects.get(user=request.user)
 	try:
 		targetUser = User.objects.get(username=targetUsername)
-	except:
+	except User.DoesNotExist:
 		page_name = "User Not Found"
 		message = "User %s does not exist or could not be found." % targetUsername
 		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
+
 	try:
 		targetProfile = UserProfile.objects.get(user=targetUser)
-	except:
+	except UserProfile.DoesNotExist:
 		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
 		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
-	else:
-		number_of_threads = Thread.objects.filter(owner=targetProfile).count()
-		number_of_requests = Request.objects.filter(owner=targetProfile).count()
-		return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile, 'number_of_threads': number_of_threads, 'number_of_requests': number_of_requests}, context_instance=RequestContext(request))
+
+	number_of_threads = Thread.objects.filter(owner=targetProfile).count()
+	number_of_requests = Request.objects.filter(owner=targetProfile).count()
+	return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile, 'number_of_threads': number_of_threads, 'number_of_requests': number_of_requests}, context_instance=RequestContext(request))
 
 @login_required
 def thread_view(request, thread_pk):
@@ -590,7 +576,7 @@ def thread_view(request, thread_pk):
 	userProfile = UserProfile.objects.get(user=request.user)
 	try:
 		thread = Thread.objects.get(pk=thread_pk)
-	except:
+	except Thread.DoesNotExist:
 		return render_to_response('view_thread.html', {'page_name': "Thread Not Found"}, context_instance=RequestContext(request))
 	messages_list = Message.objects.filter(thread=thread)
 	if request.method == 'POST':
