@@ -23,7 +23,8 @@ from models import Manager, RequestType, ProfileRequest, Request, Response, Anno
 from threads.models import UserProfile, Thread, Message
 from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm, RequestTypeForm
 from threads.decorators import admin_required, profile_required
-from managers.forms import *
+from managers.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, ChangeUserPasswordForm, \
+	ModifyProfileRequestForm, RequestForm, ManagerResponseForm, AnnouncementForm, ResponseForm
 
 def verify_username(username):
 	''' Verify a potential username.
