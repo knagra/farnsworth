@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from farnsworth.settings import MESSAGES
 from threads.models import UserProfile
-from managers.models import ProfileRequest
+from managers.models import ProfileRequest, Manager, RequestType
 
 class ManagementPermission(TestCase):
 	def setUp(self):
@@ -20,12 +20,22 @@ class ManagementPermission(TestCase):
 		self.np = User.objects.create_user(username="np", email="np@email.com", password="password")
 		self.st.is_staff = True
 		self.su.is_staff, self.su.is_superuser = True, True
-		# self.pu.president = True...
 		self.u.save()
 		self.st.save()
 		self.pu.save()
 		self.su.save()
 		self.np.save()
+
+		president = Manager(title="House President", url_title="president",
+				    president=True)
+		president.incumbent = UserProfile.objects.get(user=self.pu)
+		president.save()
+
+		food = RequestType(name="Food", url_name="food", enabled=True)
+		food.save()
+		food.managers = [president]
+		food.save()
+
 		UserProfile.objects.get(user=self.np).delete()
 		self.pr = ProfileRequest(username="pr", email="pr@email.com", affiliation=UserProfile.STATUS_CHOICES[0][0])
 		self.pr.save()
@@ -53,6 +63,44 @@ class ManagementPermission(TestCase):
 		self.client.logout()
 
 		self.client.login(username="su", password="password")
+		response = self.client.get(url)
+		if success_target is None:
+			self.assertEqual(response.status_code, 200)
+		else:
+			self.assertRedirects(response, success_target)
+		self.client.logout()
+
+	def _president_admin_required(self, url, success_target=None):
+		response = self.client.get(url)
+		self.assertRedirects(response, "/login/")
+
+		self.client.login(username="np", password="password")
+		response = self.client.get(url, follow=True)
+		self.assertRedirects(response, "/landing/")
+		self.assertIn(MESSAGES["NO_PROFILE"], response.content)
+		self.client.logout()
+
+		self.client.login(username="u", password="password")
+		response = self.client.get(url, follow=True)
+		self.assertRedirects(response, "/")
+		self.assertIn(MESSAGES["PRESIDENTS_ONLY"], response.content)
+		self.client.logout()
+
+		self.client.login(username="st", password="password")
+		response = self.client.get(url, follow=True)
+		self.assertRedirects(response, "/")
+		self.assertIn(MESSAGES["PRESIDENTS_ONLY"], response.content)
+		self.client.logout()
+
+		self.client.login(username="su", password="password")
+		response = self.client.get(url)
+		if success_target is None:
+			self.assertEqual(response.status_code, 200)
+		else:
+			self.assertRedirects(response, success_target)
+		self.client.logout()
+
+		self.client.login(username="pu", password="password")
 		response = self.client.get(url)
 		if success_target is None:
 			self.assertEqual(response.status_code, 200)
@@ -102,17 +150,9 @@ class ManagementPermission(TestCase):
 			"modify_user/{0}".format(self.u.username),
 			"add_user",
 			"utilities",
-			# "managers",
-			# "managers/manager_title",
-			# "add_manager",
-			# "request_types",
-			# "request_types/type_name",
-			# "add_request_type",
 			]
-
 		for page in pages:
 			self._admin_required("/custom_admin/" + page + "/")
-
 		self._admin_required("/custom_admin/recount/",
 				     success_target="/custom_admin/utilities/")
 		self._admin_required("/custom_admin/anonymous_login/",
@@ -120,19 +160,30 @@ class ManagementPermission(TestCase):
 		self._admin_required("/custom_admin/end_anonymous_session/",
 				     success_target="/custom_admin/utilities/")
 
+	def test_president_admin_required(self):
+		pages = [
+			"managers",
+			"managers/president",
+			"add_manager",
+			"request_types",
+			"request_types/food",
+			"add_request_type",
+			]
+		for page in pages:
+			self._president_admin_required("/custom_admin/" + page + "/")
+
 	def test_profile_required(self):
 		pages = [
 			"manager_directory",
-			# "manager_directory/manager_title",
+			"manager_directory/president",
 			"profile/{0}/requests".format(self.u.username),
-			# "requests/request_type"
+			"requests/food",
 			"archives/all_requests",
-			# "requests/request_type/all",
+			"requests/food/all",
 			"my_requests",
 			# "request/request_pk",
 			"archives/all_announcements",
 			]
-
 		for page in pages:
 			self._profile_required("/" + page + "/")
 			
