@@ -9,7 +9,7 @@ from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 from threads.models import UserProfile, Thread
-from managers.models import Manager, Announcement
+from managers.models import Manager, Announcement, RequestType
 
 class SimpleTest(TestCase):
 	def test_basic_addition(self):
@@ -65,6 +65,24 @@ class FromHome(TestCase):
 		self.manager = Manager(title="Super Manager", url_title="super")
 		self.manager.incumbent = UserProfile.objects.get(user=self.su)
 		self.manager.save()
+
+		self.rt = RequestType(name="Super", url_name="super", enabled=True)
+		self.rt.save()
+		self.rt.managers = [self.manager]
+		self.rt.save()
+
+	def test_homepage_view(self):
+		self.client.login(username="su", password="pwd")
+
+		response = self.client.get("/")
+
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Recent Threads", response.content)
+		self.assertIn("Recent Announcements", response.content)
+		self.assertIn("Today's Events", response.content)
+		self.assertIn("{0} Requests".format(self.rt.name), response.content)
+
+		self.client.logout()
 
 	def test_thread_post(self):
 		self.client.login(username="su", password="pwd")
