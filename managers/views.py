@@ -19,10 +19,11 @@ from django.contrib import messages
 
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, \
     ANONYMOUS_USERNAME, MESSAGES
-from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
+from managers.models import Manager, RequestType, ProfileRequest, Request, Response, \
+    Announcement
 from threads.models import UserProfile, Thread, Message
 from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm, RequestTypeForm
-from threads.decorators import admin_required, profile_required
+from threads.decorators import admin_required, profile_required, president_admin_required
 from managers.forms import *
 
 def verify_username(username):
@@ -375,7 +376,7 @@ def recount_view(request):
 			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
 	return HttpResponseRedirect(reverse('utilities'))
 
-@admin_required
+@profile_required
 def list_managers_view(request):
 	''' Show a list of manager positions with links to view in detail. '''
 	managerset = Manager.objects.filter(active=True)
@@ -398,34 +399,20 @@ def manager_view(request, managerTitle):
 	else:
 		return render_to_response('view_manager.html', {'page_name': "View Manager", 'targetManager': targetManager}, context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def meta_manager_view(request):
 	'''
 	A manager of managers.  Display a list of current managers, with links to modify them.
 	Also display a link to add a new manager.  Restricted to presidents and superadmins.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president=True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENTS_ONLY'])
 	managerset = Manager.objects.all()
 	return render_to_response('meta_manager.html', {'page_name': "Admin - Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
 
-@admin_required
+@president_admin_required
 def add_manager_view(request):
 	''' View to add a new manager position. Restricted to superadmins and presidents. '''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president=True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENTS_ONLY'])
 	if request.method == 'POST':
 		form = ManagerForm(request.POST)
 		if form.is_valid():
@@ -453,7 +440,7 @@ def add_manager_view(request):
 		form = ManagerForm()
 	return render_to_response('edit_manager.html', {'page_name': "Admin - Add Manager", 'form': form}, context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def edit_manager_view(request, managerTitle):
 	''' View to modify an existing manager. 
 	Parameters:
@@ -461,13 +448,6 @@ def edit_manager_view(request, managerTitle):
 		managerTitle is URL title of the manager.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president=True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENTS_ONLY'])
 	try:
 		targetManager = Manager.objects.get(url_title=managerTitle)
 	except Manager.DoesNotExist:
@@ -510,34 +490,20 @@ def edit_manager_view(request, managerTitle):
 			'duties': targetManager.duties, 'email': targetManager.email, 'president': targetManager.president, 'workshift_manager': targetManager.workshift_manager, 'active': targetManager.active})
 	return render_to_response('edit_manager.html', {'page_name': "Admin - Edit Manager", 'form': form, 'manager_title': targetManager.title}, context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def manage_request_types_view(request):
 	''' Manage requests.  Display a list of request types with links to edit them.
 	Also display a link to add a new request type.  Restricted to presidents and superadmins.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president = True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENT'])
 	request_types = RequestType.objects.all()
 	return render_to_response('manage_request_types.html', {'page_name': "Admin - Manage Request Types", 'request_types': request_types},
 			context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def add_request_type_view(request):
 	''' View to add a new request type.  Restricted to presidents and superadmins. '''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president = True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENT'])
 	if request.method == 'POST':
 		form = RequestTypeForm(request.POST)
 		if form.is_valid():
@@ -564,7 +530,7 @@ def add_request_type_view(request):
 		form = RequestTypeForm()
 	return render_to_response('edit_request_type.html', {'page_name': "Admin - Add Request Type", 'form': form}, context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def edit_request_type_view(request, typeName):
 	''' View to edit a new request type.  Restricted to presidents and superadmins.
 	Parameters:
@@ -572,13 +538,6 @@ def edit_request_type_view(request, typeName):
 		typeName is the request type's URL name.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president = True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENT'])
 	try:
 		requestType = RequestType.objects.get(url_name=typeName)
 	except RequestType.DoesNotExist:

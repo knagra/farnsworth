@@ -7,7 +7,6 @@ Replace this with more appropriate tests for your application.
 
 from datetime import datetime
 from django.test import TestCase
-from django.test.client import Client
 from django.contrib.auth.models import User
 from threads.models import UserProfile, Thread
 
@@ -21,13 +20,7 @@ class SimpleTest(TestCase):
 class VerifyUser(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="password")
-		self.st = User.objects.create_user(username="st", email="st@email.com", password="password")
-		self.su = User.objects.create_user(username="su", email="su@email.com", password="password")
-		self.st.is_staff = True
-		self.su.is_staff, self.su.is_superuser = True, True
 		self.u.save()
-		self.st.save()
-		self.su.save()
 
 	def test_user_profile_created(self):
 		''' Test that the user profile for a user is automatically created when a user is created. '''
@@ -49,20 +42,6 @@ class VerifyUser(TestCase):
 		response = self.client.get("/")
 		self.assertRedirects(response, "/landing/", status_code=302,
 				     target_status_code=200)
-
-	def test_manage_users(self):
-		self.client.login(username="u", password="password")
-		response = self.client.get("/custom_admin/manage_users/")
-		self.assertRedirects(response, "/", status_code=302, target_status_code=200)
-		self.client.logout()
-		self.client.login(username="st", password="password")
-		response = self.client.get("/custom_admin/manage_users/")
-		self.assertRedirects(response, "/", status_code=302, target_status_code=200)
-		self.client.logout()
-		self.client.login(username="su", password="password")
-		response = self.client.get("/custom_admin/manage_users/")
-		self.assertEqual(response.status_code, 200)
-		self.client.logout()
 
 class VerifyThread(TestCase):
 	def setUp(self):
