@@ -411,7 +411,7 @@ def meta_manager_view(request):
 			president=True
 			break
 	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENT'])
+		return red_home(request, MESSAGES['PRESIDENTS_ONLY'])
 	managerset = Manager.objects.all()
 	return render_to_response('meta_manager.html', {'page_name': "Admin - Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
 
