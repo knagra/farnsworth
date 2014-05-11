@@ -188,7 +188,7 @@ def site_map_view(request):
 	page_name = "Site Map"
 	return render_to_response('site_map.html', {'page_name': page_name}, context_instance=RequestContext(request))
 
-@login_required
+@profile_exists
 def my_profile_view(request):
 	''' The view of the profile page. '''
 	page_name = "Profile Page"
@@ -196,8 +196,6 @@ def my_profile_view(request):
 		return red_home(request, MESSAGES['SPINELESS'])
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
-	if not userProfile:
-		return red_ext(request, MESSAGES['NO_PROFILE'])
 	change_password_form = ChangePasswordForm()
 	update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'former_houses': userProfile.former_houses, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
 	if request.method == 'POST':
@@ -304,13 +302,11 @@ def logout_view(request):
 		logout(request)
 	return HttpResponseRedirect(reverse('homepage'))
 
-@login_required
+@profile_exists
 def member_forums_view(request):
 	''' Forums for current members. '''
 	page_name = "Member Forums"
 	userProfile = UserProfile.objects.get(user=request.user)
-	if not userProfile:
-		return red_ext(request, MESSAGES['NO_PROFILE'])
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -361,13 +357,11 @@ def member_forums_view(request):
 			break
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Active Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
-@login_required
+@profile_exists
 def all_threads_view(request):
 	''' View of all threads. '''
 	page_name = "Archives - All Threads"
 	userProfile = UserProfile.objects.get(user=request.user)
-	if not userProfile:
-		return red_ext(request, MESSAGES['NO_PROFILE'])
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -414,13 +408,11 @@ def all_threads_view(request):
 		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Archives - All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
-@login_required
+@profile_exists
 def my_threads_view(request):
 	''' View of my threads. '''
 	page_name = "My Threads"
 	userProfile = UserProfile.objects.get(user=request.user)
-	if not userProfile:
-		return red_ext(request, MESSAGES['NO_PROFILE'])
 	thread_form = ThreadForm()
 	if request.method == 'POST':
 		if 'submit_thread_form' in request.POST:
@@ -471,16 +463,14 @@ def my_threads_view(request):
 			break
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
-@login_required
+@profile_exists
 def list_my_threads_view(request):
 	''' View of my threads. '''
 	userProfile = UserProfile.objects.get(user=request.user)
-	if not userProfile:
-		return red_ext(request, MESSAGES['NO_PROFILE'])
 	threads = Thread.objects.filter(owner=userProfile)
 	return render_to_response('list_threads.html', {'page_name': "My Threads", 'threads': threads}, context_instance=RequestContext(request))
 
-@login_required
+@profile_exists
 def list_user_threads_view(request, targetUsername):
 	''' View of my threads. '''
 	if targetUsername == request.user.username:
@@ -494,7 +484,7 @@ def list_user_threads_view(request, targetUsername):
 	page_name = "%s's Threads" % targetUsername
 	return render_to_response('list_threads.html', {'page_name': page_name, 'threads': threads, 'targetUsername': targetUsername}, context_instance=RequestContext(request))
 
-@login_required
+@profile_exists
 def list_all_threads_view(request):
 	''' View of my threads. '''
 	userProfile = UserProfile.objects.get(user=request.user)
@@ -503,7 +493,7 @@ def list_all_threads_view(request):
 	threads = Thread.objects.all()
 	return render_to_response('list_threads.html', {'page_name': "Archives - All Threads", 'threads': threads}, context_instance=RequestContext(request))
 
-@login_required
+@profile_exists
 def member_directory_view(request):
 	''' View of member directory. '''
 	page_name = "Member Directory"
@@ -519,7 +509,7 @@ def member_directory_view(request):
 			alumni.append(profile)
 	return render_to_response('member_directory.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
-@login_required
+@profile_exists
 def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
 	if targetUsername == request.user.username and targetUsername != ANONYMOUS_USERNAME:
@@ -544,7 +534,7 @@ def member_profile_view(request, targetUsername):
 	number_of_requests = Request.objects.filter(owner=targetProfile).count()
 	return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile, 'number_of_threads': number_of_threads, 'number_of_requests': number_of_requests}, context_instance=RequestContext(request))
 
-@login_required
+@profile_exists
 def thread_view(request, thread_pk):
 	''' View an individual thread. '''
 	userProfile = UserProfile.objects.get(user=request.user)
