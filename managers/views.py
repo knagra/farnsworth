@@ -1037,7 +1037,7 @@ def all_announcements_view(request):
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
-		announcement_form = announcement_form(manager_positions)(initial={'as_manager': manager_positions[0].pk})
+		announcement_form = AnnouncementForm(manager_positions)
 	if request.method == 'POST':
 		if 'unpin' in request.POST:
 			unpin_form = UnpinForm(request.POST)
