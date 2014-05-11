@@ -33,7 +33,7 @@
   </form>
   <div class="threads_table">
     {% if not threads_dict %}
-    <div class="field_wrapper">No threads found.</div>
+    <div class="field_wrapper text-info">No threads found.</div>
     {% else %}
     {% for thread_tuple in threads_dict %}
     {% if forloop.counter > 1 %}

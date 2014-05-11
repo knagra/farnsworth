@@ -74,13 +74,13 @@ html {
 }
 
 #bottom {
-	color: #aeaeae;
-	font-size: 11pt;
+	color: #9c9c9c;
+	font-size: 10pt;
 	position: absolute;
 	bottom: 0px;
 	clear: both;
 	width: 100%;
-	height: 50px;
+	height: 40px;
 	overflow: auto;
 	padding-top: 19px;
 }

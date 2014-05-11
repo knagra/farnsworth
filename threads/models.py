@@ -5,7 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.db import models
-from django.contrib.auth.models import User, Group, Permission, AbstractBaseUser
+from django.contrib.auth.models import User, Group, Permission
 
 class UserProfile(models.Model):
 	'''

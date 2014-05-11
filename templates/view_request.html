@@ -21,7 +21,7 @@
   </div> <!-- table_header -->
   <div class="requests_table main_table">
     {% if not relevant_request %}
-    <div class="field_wrapper">Request not found.</div>
+    <div class="field_wrapper text-warning">Request not found.</div>
     {% else %}
 	<div class="request_name{% if relevant_request.filled %} bg-success" title="Filled"{% elif relevant_request.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
 		<div class="request_owner">

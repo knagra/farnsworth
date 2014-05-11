@@ -15,7 +15,7 @@
 			{% csrf_token %}
 			<div class="form-group">
 				{{ modify_user_form|bootstrap }}
-				<div class="text-center"><button type="submit" class="btn btn-lg btn-success" name="update_user_profile"><span class="glyphicon glyphicon-floppy-disk"></span> Update {{ targetUser.username }}'s Profile</button></div>
+				<div class="text-center"><button type="submit" class="btn btn-lg btn-success" name="update_user_profile"><span class="glyphicon glyphicon-floppy-disk"></span> Update User Profile</button></div>
 			</div>
 		</form>
 		</div> <!-- .main_table -->
@@ -27,7 +27,7 @@
 			{% csrf_token %}
 			<div class="form-group">
 				{{ change_user_password_form|bootstrap }}
-				<div class="text-center"><button type="submit" class="btn btn-lg btn-warning" name="change_user_password"><span class="glyphicon glyphicon-flash"></span> Change {{ targetUser.username }}'s Password</button></div>
+				<div class="text-center"><button type="submit" class="btn btn-lg btn-warning" name="change_user_password"><span class="glyphicon glyphicon-flash"></span> Change User Password</button></div>
 			</div>
 		</form>
 		</div> <!-- .main_table -->
