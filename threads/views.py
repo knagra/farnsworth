@@ -497,16 +497,9 @@ def list_all_threads_view(request):
 def member_directory_view(request):
 	''' View of member directory. '''
 	page_name = "Member Directory"
-	residents = list()
-	boarders = list()
-	alumni = list()
-	for profile in UserProfile.objects.all():
-		if profile.status == UserProfile.RESIDENT:
-			residents.append(profile)
-		elif profile.status == UserProfile.BOARDER:
-			boarders.append(profile)
-		elif profile.status == UserProfile.ALUMNUS:
-			alumni.append(profile)
+	residents = UserProfile.objects.filter(status=UserProfile.RESIDENT)
+	boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
+	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS)
 	return render_to_response('member_directory.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
 @profile_required

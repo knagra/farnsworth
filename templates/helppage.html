@@ -250,7 +250,7 @@
 			<p>You can add a new manager by clicking the top right button on the meta-manager page or by going directly to
 			the <a href="{% url 'add_manager' %}">add manager</a> page.  A manager position can have only one incumbent.  Keep this in mind.
 			</p>
-			<p>Since houses allow multiple members to hold the same position, an active status is available for these scenarios.
+			<p>Since houses allow multiple members to hold the same position, an "active" status is available for these scenarios.
 			The recommended way to have multiple members hold the same position is to create multiple types of a singular position.
 			So, for example, to have a Kitchen Manager position that can have more than one incumbent, create two (or three or four, depending on your house)
 			instances of Kitchen Managers (Kitchen Manager 1, Kitchen Manager 2, ...) and then deactive the excess manager positions.
@@ -270,6 +270,8 @@
 			Planned expansion of these duties include managing petitions, elections, and a few other things.
 			</p>
 			<p>The "workshift manager" status is currently not used but is included in case a workshift package is rolled out in the future.
+			</p>
+			<p>The "active" status indicates whether the manager is visible in the directory
 			</p>
 			<p>The e-mail form should be for official e-mails for that manager, not personal e-mails.  Personal e-mails are under individual users' control.
 			This field is optional as not all manager positions have dedicated e-mail addresses.
@@ -291,7 +293,19 @@
 			So, some maintenance on the site is required on your part at the beginning and end of each term,
 			or whenever a manager position is vacated/refilled.
 			</p>
-			<p>For this maintenance work, you will have to modify manager instances.
+			<p>For this maintenance work, you will need to modify manager instances.
+			</p>
+			<p>You can see a list of managers and links to their modification pages, incumbent user profile pages, and manager e-mails from
+			the <a href="{% url 'meta_manager' %}">meta-manager</a> (a manager of managers) page.
+			This list will tell you most of the handy information about each manager, as well.
+			
+			When you click on the title of each manager, you will be directed to a page to modify that manager instance.
+			</p>
+			<p>This form is identical the add manager form; so details will not be covered here.
+			The same conditions apply and the same tests apply when you try to modify a manager as when you add a manager.
+			If you try to change a manager to have the same title a different existing manager, you will be thrown an error.
+			Similarly, if the URL name resolved from the title you gave collides with the URL of a different existing manager, you will be thrown an error.
+			
 			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #meta_manager_body -->
