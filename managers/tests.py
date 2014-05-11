@@ -208,6 +208,22 @@ class ManagementPermission(TestCase):
 
 		self.client.logout()
 
+	def test_request_form(self):
+		urls = [
+			"/resquest/{0}/".format(self.request.pk),
+			"/requests/food/",
+			]
+		for url in urls:
+			self.client.login(username="u", password="pwd")
+			response = self.client.get(url)
+			self.assertNotIn("mark_filled", response.content)
+			self.client.logout()
+
+			self.client.login(username="pu", password="pwd")
+			response = self.client.get(url)
+			self.assertIn("mark_filled", response.content)
+			self.client.logout()
+
 	def test_profile_request(self):
 		self.client.login(username="su", password="pwd")
 
