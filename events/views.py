@@ -15,7 +15,8 @@ from django.core.urlresolvers import reverse
 from threads.models import UserProfile
 from managers.models import Manager
 from threads.decorators import profile_exists
-from threads.views import red_ext, RsvpForm
+from threads.views import RsvpForm
+from threads.redirects import red_home, red_ext
 # Standard messages:
 from farnsworth.settings import MESSAGES
 
