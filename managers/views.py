@@ -153,9 +153,8 @@ def modify_profile_request_view(request, request_pk):
 					new_user.is_active = is_active
 					new_user.is_staff = is_staff
 					new_user.is_superuser = is_superuser
+					new_user.groups = groups
 					new_user.save()
-					for group in groups:
-						group.user_set.add(new_user)
 					new_user_profile = UserProfile.objects.get(user=new_user)
 					new_user_profile.email_visible = email_visible_to_others
 					new_user_profile.phone_number = phone_number
@@ -202,11 +201,7 @@ def custom_modify_user_view(request, targetUsername):
 		page_name = "Profile Not Found"
 		message = "Profile for user %s could not be found." % targetUsername
 		return render_to_response('custom_modify_user.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))	
-	groups_dict = {}
-	for grp in Group.objects.all():
-		if grp in targetUser.groups.all():
-			groups_dict[grp.id] = True
-	modify_user_form = ModifyUserForm(initial={'first_name': targetUser.first_name, 'last_name': targetUser.last_name, 'email': targetUser.email, 'email_visible_to_others': targetProfile.email_visible, 'phone_number': targetProfile.phone_number, 'phone_visible_to_others': targetProfile.phone_visible, 'status': targetProfile.status, 'current_room': targetProfile.current_room, 'former_rooms': targetProfile.former_rooms, 'former_houses': targetProfile.former_houses, 'is_active': targetUser.is_active, 'is_staff': targetUser.is_staff, 'is_superuser': targetUser.is_superuser, 'groups': groups_dict})
+	modify_user_form = ModifyUserForm(initial={'first_name': targetUser.first_name, 'last_name': targetUser.last_name, 'email': targetUser.email, 'email_visible_to_others': targetProfile.email_visible, 'phone_number': targetProfile.phone_number, 'phone_visible_to_others': targetProfile.phone_visible, 'status': targetProfile.status, 'current_room': targetProfile.current_room, 'former_rooms': targetProfile.former_rooms, 'former_houses': targetProfile.former_houses, 'is_active': targetUser.is_active, 'is_staff': targetUser.is_staff, 'is_superuser': targetUser.is_superuser, 'groups': targetUser.groups.all()})
 	change_user_password_form = ChangeUserPasswordForm()
 	if request.method == 'POST':
 		if 'update_user_profile' in request.POST:
@@ -235,9 +230,8 @@ def custom_modify_user_view(request, targetUsername):
 					messages.add_message(request, messages.ERROR, MESSAGES['LAST_SUPERADMIN'])
 				else:
 					targetUser.is_superuser = is_superuser
+				targetUser.groups = groups
 				targetUser.save()
-				for group in groups:
-					group.user_set.add(targetUser)
 				targetProfile.email_visible = email_visible_to_others
 				targetProfile.phone_number = phone_number
 				targetProfile.phone_visible = phone_visible_to_others
@@ -307,9 +301,8 @@ def custom_add_user_view(request):
 				new_user.is_active = is_active
 				new_user.is_staff = is_staff
 				new_user.is_superuser = is_superuser
+				new_user.groups = groups
 				new_user.save()
-				for group in groups:
-					group.user_set.add(new_user)
 				new_user_profile = UserProfile.objects.get(user=new_user)
 				new_user_profile.email_visible = email_visible_to_others
 				new_user_profile.phone_number = phone_number
