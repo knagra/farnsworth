@@ -50,7 +50,7 @@ def president_admin_required(function=None, redirect_user='login', redirect_prof
 			if not request.user.is_authenticated():
 				return HttpResponseRedirect(reverse(redirect_user))
 			try:
-				UserProfile.objects.get(user=request.user)
+				userProfile = UserProfile.objects.get(user=request.user)
 			except UserProfile.DoesNotExist:
 				return redirect_profile(request, MESSAGES['NO_PROFILE'])
 			president = False # whether the user has president privileges
