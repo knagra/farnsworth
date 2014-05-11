@@ -515,7 +515,6 @@ def member_profile_view(request, targetUsername):
 		page_name = "User Not Found"
 		message = "User %s does not exist or could not be found." % targetUsername
 		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
-
 	try:
 		targetProfile = UserProfile.objects.get(user=targetUser)
 	except UserProfile.DoesNotExist:
