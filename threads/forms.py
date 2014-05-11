@@ -64,7 +64,7 @@ class UpdateProfileForm(forms.Form):
 	current_room = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 	former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	email = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+	email = forms.EmailField(max_length=255, required=False)
 	email_visible_to_others = forms.BooleanField(required=False)
 	phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 	phone_visible_to_others = forms.BooleanField(required=False)
