@@ -4,34 +4,29 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+import datetime
+from django.utils.timezone import utc
+from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django import forms
-from models import Event
 from django.core.urlresolvers import reverse
 from threads.models import UserProfile
 from managers.models import Manager
-from threads.views import red_ext, red_home, RsvpForm
+from threads.decorators import profile_exists
+from threads.views import red_ext, RsvpForm
 # Standard messages:
 from farnsworth.settings import MESSAGES
-import datetime
-from django.utils.timezone import utc
-from django.contrib import messages
 
+from events.models import Event
 from events.forms import *
 
+@profile_exists
 def list_events_view(request):
 	''' A list view of upcoming events. '''
 	page_name = "Upcoming Events"
-	if request.user.is_authenticated():
-		userProfile = None
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except UserProfile.DoesNotExist:
-			return red_home(request, MESSAGES['NO_PROFILE'])
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	event_form = EventForm(manager_positions)
 	if not manager_positions:
@@ -92,17 +87,11 @@ def list_events_view(request):
 		events_dict.append((event, ongoing, rsvpd, form))
 	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
 
+@profile_exists
 def list_all_events_view(request):
 	''' A list view of all events.  Part of archives. '''
 	page_name = "Archives - All Events"
-	if request.user.is_authenticated():
-		userProfile = None
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except UserProfile.DoesNotExist:
-			return red_home(request, MESSAGES['NO_PROFILE'])
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	event_form = EventForm(manager_positions)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
@@ -164,17 +153,11 @@ def list_all_events_view(request):
 		events_dict.append((event, ongoing, rsvpd, form, already_past))
 	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
 
+@profile_exists
 def edit_event_view(request, event_pk):
 	''' The view to edit an event. '''
 	page_name = "Edit Event"
-	if request.user.is_authenticated():
-		userProfile = None
-		try:
-			userProfile = UserProfile.objects.get(user=request.user)
-		except UserProfile.DoesNotExist:
-			return red_home(request, MESSAGES['NO_PROFILE'])
-	else:
-		return HttpResponseRedirect(reverse('login'))
+	userProfile = UserProfile.objects.get(user=request.user)
 	try:
 		event = Event.objects.get(pk=event_pk)
 	except Event.DoesNotExist:
