@@ -21,7 +21,7 @@ from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_f
 from threads.models import UserProfile, Thread, Message
 from threads.forms import *
 from threads.redirects import red_ext, red_home
-from threads.decorators import profile_exists
+from threads.decorators import profile_required
 from managers.models import RequestType, Manager, Request, Response, Announcement
 from managers.forms import ResponseForm, AnnouncementForm, ChangeUserPasswordForm
 from events.models import Event
@@ -30,7 +30,7 @@ def landing_view(request):
 	''' The external landing.'''
 	return render_to_response('external.html', {'page_name': "Landing"}, context_instance=RequestContext(request))
 
-@profile_exists(redirect_user='external', redirect_profile=red_ext)
+@profile_required(redirect_user='external', redirect_profile=red_ext)
 def homepage_view(request, message=None):
 	''' The view of the homepage. '''
 	userProfile = UserProfile.objects.get(user=request.user)
@@ -188,7 +188,7 @@ def site_map_view(request):
 	page_name = "Site Map"
 	return render_to_response('site_map.html', {'page_name': page_name}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def my_profile_view(request):
 	''' The view of the profile page. '''
 	page_name = "Profile Page"
@@ -302,7 +302,7 @@ def logout_view(request):
 		logout(request)
 	return HttpResponseRedirect(reverse('homepage'))
 
-@profile_exists
+@profile_required
 def member_forums_view(request):
 	''' Forums for current members. '''
 	page_name = "Member Forums"
@@ -357,7 +357,7 @@ def member_forums_view(request):
 			break
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Active Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def all_threads_view(request):
 	''' View of all threads. '''
 	page_name = "Archives - All Threads"
@@ -408,7 +408,7 @@ def all_threads_view(request):
 		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Archives - All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def my_threads_view(request):
 	''' View of my threads. '''
 	page_name = "My Threads"
@@ -463,14 +463,14 @@ def my_threads_view(request):
 			break
 	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def list_my_threads_view(request):
 	''' View of my threads. '''
 	userProfile = UserProfile.objects.get(user=request.user)
 	threads = Thread.objects.filter(owner=userProfile)
 	return render_to_response('list_threads.html', {'page_name': "My Threads", 'threads': threads}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def list_user_threads_view(request, targetUsername):
 	''' View of my threads. '''
 	if targetUsername == request.user.username:
@@ -484,7 +484,7 @@ def list_user_threads_view(request, targetUsername):
 	page_name = "%s's Threads" % targetUsername
 	return render_to_response('list_threads.html', {'page_name': page_name, 'threads': threads, 'targetUsername': targetUsername}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def list_all_threads_view(request):
 	''' View of my threads. '''
 	userProfile = UserProfile.objects.get(user=request.user)
@@ -493,7 +493,7 @@ def list_all_threads_view(request):
 	threads = Thread.objects.all()
 	return render_to_response('list_threads.html', {'page_name': "Archives - All Threads", 'threads': threads}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def member_directory_view(request):
 	''' View of member directory. '''
 	page_name = "Member Directory"
@@ -509,7 +509,7 @@ def member_directory_view(request):
 			alumni.append(profile)
 	return render_to_response('member_directory.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
 	if targetUsername == request.user.username and targetUsername != ANONYMOUS_USERNAME:
@@ -534,7 +534,7 @@ def member_profile_view(request, targetUsername):
 	number_of_requests = Request.objects.filter(owner=targetProfile).count()
 	return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile, 'number_of_threads': number_of_threads, 'number_of_requests': number_of_requests}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def thread_view(request, thread_pk):
 	''' View an individual thread. '''
 	userProfile = UserProfile.objects.get(user=request.user)

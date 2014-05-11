@@ -14,7 +14,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from threads.models import UserProfile
 from managers.models import Manager
-from threads.decorators import profile_exists
+from threads.decorators import profile_required
 from threads.views import RsvpForm
 from threads.redirects import red_home, red_ext
 # Standard messages:
@@ -23,7 +23,7 @@ from farnsworth.settings import MESSAGES
 from events.models import Event
 from events.forms import *
 
-@profile_exists
+@profile_required
 def list_events_view(request):
 	''' A list view of upcoming events. '''
 	page_name = "Upcoming Events"
@@ -88,7 +88,7 @@ def list_events_view(request):
 		events_dict.append((event, ongoing, rsvpd, form))
 	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def list_all_events_view(request):
 	''' A list view of all events.  Part of archives. '''
 	page_name = "Archives - All Events"
@@ -154,7 +154,7 @@ def list_all_events_view(request):
 		events_dict.append((event, ongoing, rsvpd, form, already_past))
 	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
 
-@profile_exists
+@profile_required
 def edit_event_view(request, event_pk):
 	''' The view to edit an event. '''
 	page_name = "Edit Event"

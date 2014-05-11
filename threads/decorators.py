@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from threads.models import UserProfile
 from threads.redirects import red_home
 
-def profile_exists(function=None, redirect_user='login', redirect_profile=red_home):
+def profile_required(function=None, redirect_user='login', redirect_profile=red_home):
 	def real_decorator(view_func):
 		def wrap(request, *args, **kwargs):
 			if not request.user.is_authenticated():
