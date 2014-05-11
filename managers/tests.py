@@ -210,7 +210,7 @@ class ManagementPermission(TestCase):
 
 	def test_request_form(self):
 		urls = [
-			"/resquest/{0}/".format(self.request.pk),
+			"/request/{0}/".format(self.request.pk),
 			"/requests/food/",
 			]
 		for url in urls:
