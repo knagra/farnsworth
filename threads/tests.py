@@ -50,6 +50,20 @@ class VerifyUser(TestCase):
 		self.assertRedirects(response, "/landing/", status_code=302,
 				     target_status_code=200)
 
+	def test_manage_users(self):
+		self.client.login(username="u", password="password")
+		response = self.client.get("/custom_admin/manage_users/")
+		self.assertRedirects(response, "/", status_code=302, target_status_code=200)
+		self.client.logout()
+		self.client.login(username="st", password="password")
+		response = self.client.get("/custom_admin/manage_users/")
+		self.assertRedirects(response, "/", status_code=302, target_status_code=200)
+		self.client.logout()
+		self.client.login(username="su", password="password")
+		response = self.client.get("/custom_admin/manage_users/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
 class VerifyThread(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="password")
