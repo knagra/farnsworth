@@ -19,9 +19,8 @@ from threads.views import RsvpForm
 from threads.redirects import red_home, red_ext
 # Standard messages:
 from farnsworth.settings import MESSAGES
-
 from events.models import Event
-from events.forms import *
+from events.forms import EventForm
 
 @profile_required
 def list_events_view(request):
