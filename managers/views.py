@@ -86,7 +86,7 @@ def request_profile_view(request):
 			email = form.cleaned_data['email']
 			affiliation = form.cleaned_data['affiliation_with_the_house']
 			if not verify_username(username):
-				
+				pass
 			for profile in UserProfile.objects.all():
 				if profile.user.username == username:
 					non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
