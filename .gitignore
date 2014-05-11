@@ -6,6 +6,7 @@ migrations/
 *.tmp
 .svn/
 farnsworth/whoosh_index/
+farnsworth/settings.py
 bin/
 build/
 include/
