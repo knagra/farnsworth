@@ -19,6 +19,17 @@ def EventForm(manager_positions, initial=None, post=None):
 					       input_formats=time_formats)
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False,
 						    label="As manager (if manager event)")
+
+		def is_valid(self):
+			if not super(InnerEventForm, self).is_valid():
+				return False
+			start_time = self.cleaned_data['start_time']
+			end_time = self.cleaned_data['end_time']
+			if start_time > end_time:
+				self.errors['__all__'] = self.error_class(["Start time is later than end time. Unless this event involves time travel, please change the start or end time."])
+				return False
+			return True
+
 	if post is None:
 		if initial is None:
 			return InnerEventForm(initial={'rsvp': True, 'location': house})

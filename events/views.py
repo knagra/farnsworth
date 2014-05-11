@@ -206,23 +206,19 @@ def edit_event_view(request, event_pk):
 			start_time = event_form.cleaned_data['start_time']
 			end_time = event_form.cleaned_data['end_time']
 			as_manager = event_form.cleaned_data['as_manager']
-			if start_time > end_time:
-				messages.add_message(request, messages.ERROR, "Something went wrong.  Please try again.")
-				event_form.errors['__all__'] = event_form.error_class(["Start time is later than end time.  Unless this event involves time travel, please change the start or end time."])
-			else:
-				event.title = title
-				event.description = description
-				event.location = location
-				event.cancelled = cancelled
-				event.start_time = start_time
-				event.end_time = end_time
-				event.save()
-				if rsvp:
-					event.rsvps.add(userProfile)
-				if as_manager:
-					event.as_manager = as_manager
-				event.save()
-				message = MESSAGES['EVENT_UPDATED'].format(event=title)
-				messages.add_message(request, messages.SUCCESS, message)
-				return HttpResponseRedirect(reverse('events'))
+			event.title = title
+			event.description = description
+			event.location = location
+			event.cancelled = cancelled
+			event.start_time = start_time
+			event.end_time = end_time
+			event.save()
+			if rsvp:
+				event.rsvps.add(userProfile)
+			if as_manager:
+				event.as_manager = as_manager
+			event.save()
+			message = MESSAGES['EVENT_UPDATED'].format(event=title)
+			messages.add_message(request, messages.SUCCESS, message)
+			return HttpResponseRedirect(reverse('events'))
 	return render_to_response('edit_event.html', {'page_name': page_name, 'event_form': event_form}, context_instance=RequestContext(request))
