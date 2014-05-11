@@ -23,7 +23,7 @@ from threads.forms import *
 from threads.redirects import red_ext, red_home
 from threads.decorators import profile_required
 from managers.models import RequestType, Manager, Request, Response, Announcement
-from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm
+from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, UnpinForm
 from events.models import Event
 from events.forms import RsvpForm
 
