@@ -375,7 +375,7 @@ def recount_view(request):
 			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
 	return HttpResponseRedirect(reverse('utilities'))
 
-@profile_required
+@admin_required
 def list_managers_view(request):
 	''' Show a list of manager positions with links to view in detail. '''
 	managerset = Manager.objects.filter(active=True)
