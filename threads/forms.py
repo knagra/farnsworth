@@ -73,3 +73,18 @@ class UpdateProfileForm(forms.Form):
 class LoginForm(forms.Form):
 	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+
+class ChangePasswordForm(forms.Form):
+	current_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+
+	def is_valid(self):
+		if not super(ChangePasswordForm, self).is_valid():
+			return False
+		new_password = self.cleaned_data['new_password']
+		confirm_password = self.cleaned_data['confirm_password']
+		if new_password != confirm_password:
+			self.errors['__all__'] = self.error_class([u"Passwords don't match."])
+			return False
+		return True
