@@ -179,16 +179,9 @@ def modify_profile_request_view(request, request_pk):
 @admin_required
 def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
-	residents = list()
-	boarders = list()
-	alumni = list()
-	for profile in UserProfile.objects.all():
-		if profile.status == UserProfile.RESIDENT:
-			residents.append(profile)
-		elif profile.status == UserProfile.BOARDER:
-			boarders.append(profile)
-		elif profile.status == UserProfile.ALUMNUS:
-			alumni.append(profile)
+	residents = UserProfile.objects.filter(status=UserProfile.RESIDENT)
+	boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
+	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS)
 	return render_to_response('custom_manage_users.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
 
 @admin_required
