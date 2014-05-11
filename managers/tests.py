@@ -18,8 +18,10 @@ class ManagementPermission(TestCase):
 		self.pu = User.objects.create_user(username="pu", email="su@email.com", password="pwd")
 		self.su = User.objects.create_user(username="su", email="su@email.com", password="pwd")
 		self.np = User.objects.create_user(username="np", email="np@email.com", password="pwd")
+
 		self.st.is_staff = True
 		self.su.is_staff, self.su.is_superuser = True, True
+
 		self.u.save()
 		self.st.save()
 		self.pu.save()
@@ -192,6 +194,26 @@ class ManagementPermission(TestCase):
 		for page in pages:
 			self._profile_required("/" + page + "/")
 
+class TestAdminFunctions(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
+		self.st = User.objects.create_user(username="st", email="st@email.com", password="pwd")
+		self.su = User.objects.create_user(username="su", email="su@email.com", password="pwd")
+		self.np = User.objects.create_user(username="np", email="np@email.com", password="pwd")
+
+		self.st.is_staff = True
+		self.su.is_staff, self.su.is_superuser = True, True
+
+		self.u.save()
+		self.st.save()
+		self.su.save()
+		self.np.save()
+
+		UserProfile.objects.get(user=self.np).delete()
+		self.pr = ProfileRequest(username="pr", email="pr@email.com",
+					 affiliation=UserProfile.STATUS_CHOICES[0][0])
+		self.pr.save()
+
 	def test_anonymous_user(self):
 		self.client.login(username="su", password="pwd")
 		response = self.client.get("/custom_admin/anonymous_login/", follow=True)
@@ -208,10 +230,42 @@ class ManagementPermission(TestCase):
 
 		self.client.logout()
 
+	def test_profile_request(self):
+		self.client.login(username="su", password="pwd")
+
+		response = self.client.get("/custom_admin/profile_requests/{0}/"
+					   .format(self.pr.pk))
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		# Test that we can approve requests?
+
+class TestRequestPages(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
+		self.pu = User.objects.create_user(username="pu", email="su@email.com", password="pwd")
+
+		self.u.save()
+		self.pu.save()
+
+		president = Manager(title="House President", url_title="president",
+				    president=True)
+		president.incumbent = UserProfile.objects.get(user=self.pu)
+		president.save()
+
+		self.food = RequestType(name="Food", url_name="food", enabled=True)
+		self.food.save()
+		self.food.managers = [president]
+		self.food.save()
+
+		self.request = Request(owner=UserProfile.objects.get(user=self.u),
+				       body="request body", request_type=self.food)
+		self.request.save()
+
 	def test_request_form(self):
 		urls = [
 			"/request/{0}/".format(self.request.pk),
-			"/requests/food/",
+			"/requests/{0}/".format(self.food.url_name),
 			]
 		for url in urls:
 			self.client.login(username="u", password="pwd")
@@ -224,12 +278,3 @@ class ManagementPermission(TestCase):
 			self.assertIn("mark_filled", response.content)
 			self.client.logout()
 
-	def test_profile_request(self):
-		self.client.login(username="su", password="pwd")
-
-		response = self.client.get("/custom_admin/profile_requests/{0}/"
-					   .format(self.pr.pk))
-		self.assertEqual(response.status_code, 200)
-		self.client.logout()
-
-		# Test that we can approve requests?
