@@ -28,7 +28,9 @@ from events.models import Event
 
 def landing_view(request):
 	''' The external landing.'''
-	return render_to_response('external.html', {'page_name': "Landing"}, context_instance=RequestContext(request))
+	return render_to_response('external.html', {
+			'page_name': "Landing",
+			}, context_instance=RequestContext(request))
 
 @profile_required(redirect_user='external', redirect_profile=red_ext)
 def homepage_view(request, message=None):
@@ -177,16 +179,28 @@ def homepage_view(request, message=None):
 				return HttpResponseRedirect(reverse('homepage'))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
-	return render_to_response('homepage.html', {'page_name': "Home", 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('homepage.html', {
+			'page_name': "Home",
+			'requests_dict': requests_dict,
+			'announcements_dict': announcements_dict,
+			'announcement_form': announcement_form,
+			'events_dict': events_dict, 
+			'threads': threads,
+			'thread_form': thread_form,
+			}, context_instance=RequestContext(request))
 	
 def help_view(request):
 	''' The view of the helppage. '''
-	return render_to_response('helppage.html', {'page_name': "Help Page"},  context_instance=RequestContext(request))
+	return render_to_response('helppage.html', {
+			'page_name': "Help Page",
+			},  context_instance=RequestContext(request))
 
 def site_map_view(request):
 	''' The view of the site map. '''
 	page_name = "Site Map"
-	return render_to_response('site_map.html', {'page_name': page_name}, context_instance=RequestContext(request))
+	return render_to_response('site_map.html', {
+			'page_name': page_name,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def my_profile_view(request):
@@ -244,7 +258,11 @@ def my_profile_view(request):
 					update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
-	return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form}, context_instance=RequestContext(request))
+	return render_to_response('my_profile.html', {
+			'page_name': page_name,
+			'update_profile_form': update_profile_form,
+			'change_password_form': change_password_form,
+			}, context_instance=RequestContext(request))
 
 def login_view(request):
 	''' The view of the login page. '''
@@ -275,7 +293,10 @@ def login_view(request):
 					form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
 		except User.DoesNotExist:
 			form.errors['__all__'] = form.error_class(["User not found"])
-	return render_to_response('login.html', {'page_name': page_name, 'form': form}, context_instance=RequestContext(request))
+	return render_to_response('login.html', {
+			'page_name': page_name,
+			'form': form,
+			}, context_instance=RequestContext(request))
 
 def logout_view(request):
 	''' Log the user out. '''
@@ -355,7 +376,12 @@ def member_forums_view(request):
 		x += 1
 		if x >= max_threads:
 			break
-	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Active Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {
+			'page_name': page_name,
+			'thread_title': 'Active Threads', 
+			'threads_dict': threads_dict,
+			'thread_form': thread_form,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def all_threads_view(request):
@@ -406,7 +432,12 @@ def all_threads_view(request):
 			more_messages = 0
 		thread_messages.reverse()
 		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
-	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'Archives - All Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {
+			'page_name': page_name,
+			'thread_title': 'Archives - All Threads',
+			'threads_dict': threads_dict,
+			'thread_form': thread_form,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def my_threads_view(request):
@@ -461,14 +492,22 @@ def my_threads_view(request):
 		x += 1
 		if x >= max_threads:
 			break
-	return render_to_response('threads.html', {'page_name': page_name, 'thread_title': 'My Threads', 'threads_dict': threads_dict, 'thread_form': thread_form}, context_instance=RequestContext(request))
+	return render_to_response('threads.html', {
+			'page_name': page_name,
+			'thread_title': 'My Threads',
+			'threads_dict': threads_dict,
+			'thread_form': thread_form,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def list_my_threads_view(request):
 	''' View of my threads. '''
 	userProfile = UserProfile.objects.get(user=request.user)
 	threads = Thread.objects.filter(owner=userProfile)
-	return render_to_response('list_threads.html', {'page_name': "My Threads", 'threads': threads}, context_instance=RequestContext(request))
+	return render_to_response('list_threads.html', {
+			'page_name': "My Threads", 
+			'threads': threads,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def list_user_threads_view(request, targetUsername):
@@ -482,7 +521,11 @@ def list_user_threads_view(request, targetUsername):
 		return render_to_response('list_threads.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
 	threads = Thread.objects.filter(owner=targetProfile)
 	page_name = "%s's Threads" % targetUsername
-	return render_to_response('list_threads.html', {'page_name': page_name, 'threads': threads, 'targetUsername': targetUsername}, context_instance=RequestContext(request))
+	return render_to_response('list_threads.html', {
+			'page_name': page_name,
+			'threads': threads, 
+			'targetUsername': targetUsername,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def list_all_threads_view(request):
@@ -491,7 +534,10 @@ def list_all_threads_view(request):
 	if not userProfile:
 		return red_ext(request, MESSAGES['NO_PROFILE'])
 	threads = Thread.objects.all()
-	return render_to_response('list_threads.html', {'page_name': "Archives - All Threads", 'threads': threads}, context_instance=RequestContext(request))
+	return render_to_response('list_threads.html', {
+			'page_name': "Archives - All Threads",
+			'threads': threads,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def member_directory_view(request):
@@ -500,7 +546,12 @@ def member_directory_view(request):
 	residents = UserProfile.objects.filter(status=UserProfile.RESIDENT)
 	boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
 	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS)
-	return render_to_response('member_directory.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
+	return render_to_response('member_directory.html', {
+			'page_name': page_name,
+			'residents': residents, 
+			'boarders': boarders,
+			'alumni': alumni,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def member_profile_view(request, targetUsername):
@@ -524,7 +575,13 @@ def member_profile_view(request, targetUsername):
 
 	number_of_threads = Thread.objects.filter(owner=targetProfile).count()
 	number_of_requests = Request.objects.filter(owner=targetProfile).count()
-	return render_to_response('member_profile.html', {'page_name': page_name, 'targetUser': targetUser, 'targetProfile': targetProfile, 'number_of_threads': number_of_threads, 'number_of_requests': number_of_requests}, context_instance=RequestContext(request))
+	return render_to_response('member_profile.html', {
+			'page_name': page_name,
+			'targetUser': targetUser, 
+			'targetProfile': targetProfile, 
+			'number_of_threads': number_of_threads,
+			'number_of_requests': number_of_requests,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def thread_view(request, thread_pk):
@@ -551,4 +608,8 @@ def thread_view(request, thread_pk):
 			messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 	else:
 		message_form = MessageForm(initial={'thread_pk': thread.pk})
-	return render_to_response('view_thread.html', {'thread': thread, 'page_name': "View Thread", 'messages_list': messages_list}, context_instance=RequestContext(request))
+	return render_to_response('view_thread.html', {
+			'thread': thread, 
+			'page_name': "View Thread", 
+			'messages_list': messages_list,
+			}, context_instance=RequestContext(request))
