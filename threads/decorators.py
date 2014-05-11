@@ -59,7 +59,7 @@ def president_admin_required(function=None, redirect_user='login', redirect_prof
 					president = True
 					break
 			if (not request.user.is_superuser) and (not president):
-				return redirect_profile(request, MESSAGES['PRESIDENT'])
+				return redirect_profile(request, MESSAGES['PRESIDENTS_ONLY'])
 			return view_func(request, *args, **kwargs)
 		return wrap
 	if function:
