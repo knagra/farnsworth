@@ -240,6 +240,32 @@ class TestAdminFunctions(TestCase):
 
 		# Test that we can approve requests?
 
+	def test_add_user(self):
+		self.client.login(username="su", password="pwd")
+		response = self.client.post("/custom_admin/add_user/", {
+				"username": "new_user",
+				"first_name": "First",
+				"last_name": "Last",
+				"email": "new@email.com",
+				"user_password": "newpwd",
+				"confirm_password": "newpwd",
+				"is_active": "true",
+				"status": UserProfile.STATUS_CHOICES[0][0],
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/add_user/")
+		self.assertIn("User {0} has successfully added.".format("new_user"),
+			      response.content)
+		self.assertNotEqual(0, User.objects.filter(username="new_user").count())
+		self.client.logout()
+
+		self.assertEqual(True, self.client.login(username="new_user", password="newpwd"))
+		response = self.client.get("/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		User.objects.get(username="new_user").delete()
+		self.assertEqual(False, self.client.login(username="new_user", password="new_pwd"))
+
 class TestRequestPages(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
