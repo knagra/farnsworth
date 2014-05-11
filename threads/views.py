@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from django.contrib import messages
 
-from views.forms import *
+from threads.forms import *
 from managers.forms import ResponseForm, AnnouncementForm, ChangeUserPasswordForm
 
 def red_ext(request, message=None):

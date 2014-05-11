@@ -4,6 +4,11 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from django import forms
+
+from managers.models import Manager
+from threads.models import UserProfile
+
 class ThreadForm(forms.Form):
 	''' Form to post a new thread. '''
 	subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}))
@@ -68,12 +73,3 @@ class UpdateProfileForm(forms.Form):
 class LoginForm(forms.Form):
 	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-
-class EventForm(forms.Form):
-	title = forms.CharField(max_length=100, widget=forms.TextInput())
-	description = forms.CharField(widget=forms.Textarea())
-	location = forms.CharField(max_length=100, widget=forms.TextInput())
-	rsvp = forms.BooleanField(required=False, label="RSVP")
-	start_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=time_formats)
-	end_time = forms.DateTimeField(widget=forms.DateTimeInput, input_formats=time_formats)
-	as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False, label="As manager (if manager event)")
