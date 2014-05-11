@@ -237,10 +237,12 @@ def custom_modify_user_view(request, targetUsername):
 				targetUser.last_name = last_name
 				targetUser.is_active = is_active
 				targetUser.is_staff = is_staff
+				targetUser.email = email
 				if (targetUser == request.user) and (User.objects.filter(is_superuser=True).count() <= 1):
 					messages.add_message(request, messages.ERROR, MESSAGES['LAST_SUPERADMIN'])
 				else:
 					targetUser.is_superuser = is_superuser
+				targetUser.save()
 				for group in groups:
 					group.user_set.add(targetUser)
 				targetProfile.email_visible = email_visible_to_others
@@ -251,14 +253,9 @@ def custom_modify_user_view(request, targetUsername):
 				targetProfile.former_rooms = former_rooms
 				targetProfile.former_houses = former_houses
 				targetProfile.save()
-				if not email:
-					targetUser.email = email
-					targetUser.save()
-					message = MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username)
-					messages.add_message(request, messages.SUCCESS, message)
-					return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
-				else:
-					modify_user_form._errors['email'] = forms.util.ErrorList([u"Invalid e-mail address.  Please check the documentation for details on e-mail validation."])
+				message = MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username)
+				messages.add_message(request, messages.SUCCESS, message)
+				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 		elif 'change_user_password' in request.POST:
 			change_user_password_form = ChangeUserPasswordForm(request.POST)
 			if change_user_password_form.is_valid():
