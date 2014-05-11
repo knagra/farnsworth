@@ -44,11 +44,15 @@ def verify_name(name):
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
 	PRESIDENT = False # whether the user has president privileges
-	userProfile = UserProfile.objects.get(user=request.user)
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			PRESIDENT = True
-			break
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except (UserProfile.DoesNotExist, TypeError):
+		pass
+	else:
+		for pos in Manager.objects.filter(incumbent=userProfile):
+			if pos.president:
+				PRESIDENT = True
+				break
 	if request.user.username == ANONYMOUS_USERNAME:
 		request.session['ANONYMOUS_SESSION'] = True
 	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
@@ -59,7 +63,8 @@ def add_context(request):
 		'SHORT_HOUSE': short_house,
 		'ADMIN': ADMINS[0],
 		'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
-		'ANONYMOUS_SESSION': ANONYMOUS_SESSION, 'PRESIDENT': PRESIDENT,
+		'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
+		'PRESIDENT': PRESIDENT,
 		}
 
 def request_profile_view(request):
@@ -826,7 +831,7 @@ def list_user_requests_view(request, targetUsername):
 	try:
 		targetUser = User.objects.get(username=targetUsername)
 		targetProfile = UserProfile.objects.get(user=targetUser)
-	except User.DoesNotExist, UserProfile.DoesNotExist:
+	except (User.DoesNotExist, UserProfile.DoesNotExist):
 		return render_to_response('list_requests.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
 	page_name = "%s's Requests" % targetUsername
 	requests = Request.objects.filter(owner=targetProfile)
