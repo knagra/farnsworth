@@ -55,7 +55,7 @@ class ChangeUserPasswordForm(forms.Form):
 	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
-class ModifyProfileRequestsForm(forms.Form):
+class ModifyProfileRequestForm(forms.Form):
 	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or "_".')
 	first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
