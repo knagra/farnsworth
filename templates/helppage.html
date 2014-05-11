@@ -267,7 +267,31 @@
 			and the meta-manager.  You will be thrown an error when adding a manager whose URL collides with a previous URL.
 			</p>
 			<p>The "president" status gives the user rights to do President duties, which currently include managing managers and managing request types.
-			Expansion of these duties to include 
+			Planned expansion of these duties include managing petitions, elections, and a few other things.
+			</p>
+			<p>The "workshift manager" status is currently not used but is included in case a workshift package is rolled out in the future.
+			</p>
+			<p>The e-mail form should be for official e-mails for that manager, not personal e-mails.  Personal e-mails are under individual users' control.
+			This field is optional as not all manager positions have dedicated e-mail addresses.
+			</p>
+			<p><b>If there is a manager position without an e-mail address and the incumbent has set her/his e-mail to be visible to everyone,
+			the incumbent's e-mail will be displayed in the manager directory and in individual manager descriptions,
+			with a short snippet saying that the listed e-mail address is a personal e-mail address.</b>
+			</p>
+			<p>So you don't need to go get the incumbent's permission and then add her/his e-mail to the manager record,
+			and then delete it again when the incumbent's e-mail or the incumbent herself changes.
+			Besides succinctness, this implementation gives users better control over their own information and its visibility.
+			</p>
+			<p>The incumbent field is optional and excludes all alumni.  Effectively, only residents and boarders can hold manager positions.
+			If an incumbent for the position doesn't exist, leave the option blank (displayed as a series of dashes)
+			and the position will be created without an incumbent.
+			</p>
+		<h2 class="sub_subtitle">Managing Managers <a name="managing_managers" title="A link to this sub-section" href="#managing_managers">&sect;</a></h2>
+			<p>There is a catch in that when a user is changed from a resident or boarder to an alumnus, s/he continues to be the incumbent for the position.
+			So, some maintenance on the site is required on your part at the beginning and end of each term,
+			or whenever a manager position is vacated/refilled.
+			</p>
+			<p>For this maintenance work, you will have to modify manager instances.
 			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #meta_manager_body -->
