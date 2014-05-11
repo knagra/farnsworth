@@ -111,7 +111,7 @@ def homepage_view(request, message=None):
 		elif 'post_announcement' in request.POST:
 			announcement_form = AnnouncementForm(manager_positions, post=request.POST)
 			if announcement_form.is_valid():
-				body = announcement_form.cleaned_data['announcement_body']
+				body = announcement_form.cleaned_data['body']
 				manager = announcement_form.cleaned_data['as_manager']
 				new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
 				new_announcement.save()
