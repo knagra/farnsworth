@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="requests">
+<div class="requests table_container">
   <div class="header">
 	{% if relevant_request %}
     <form action="{% url 'list_all_requests' requestType=relevant_request.request_type.url_name %}">

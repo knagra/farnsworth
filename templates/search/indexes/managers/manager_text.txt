@@ -1,9 +1,3 @@
-{{ object.title }} ({{ object.incumbent.user.get_full_name }})
-
-{{ object.email }}
-
-Compensation:
-{{ object.compensation|safe }}
-
-Duties:
-{{ object.duties|safe }}
+{{ object.title }} ({{ object.incumbent.user.get_full_name }}){% if object.email %} | {{ object.email }}{% endif %}
+{% if object.compensation %} | Compensation: {{ object.compensation|safe }}{% endif %}
+{% if object.duties %} | Duties: {{ object.duties|safe }}{% endif %}

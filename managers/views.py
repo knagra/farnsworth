@@ -21,10 +21,11 @@ from farnsworth.settings import house, short_house, ADMINS, max_requests, max_re
     ANONYMOUS_USERNAME, MESSAGES
 from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
 from threads.models import UserProfile, Thread, Message
-from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm, RequestTypeForm
+from threads.redirects import red_ext, red_home
 from threads.decorators import admin_required, profile_required
 from managers.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, ChangeUserPasswordForm, \
-	ModifyProfileRequestForm, RequestForm, ManagerResponseForm, AnnouncementForm, ResponseForm
+	ModifyProfileRequestForm, ManagerForm, RequestTypeForm, RequestForm, ResponseForm, ManagerResponseForm, \
+	VoteForm, AnnouncementForm, UnpinForm
 
 def verify_username(username):
 	''' Verify a potential username.
@@ -636,9 +637,9 @@ def requests_view(request, requestType):
 			manager = True
 			break
 	if manager:
-		form = ManagerRequestForm
+		form = ManagerResponseForm
 	else:
-		form = RequestForm
+		form = ResponseForm
 	if request.method == 'POST':
 		if 'submit_request' in request.POST:
 			request_form = form(request.POST)
@@ -648,7 +649,7 @@ def requests_view(request, requestType):
 				new_request.save()
 				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 		elif 'add_response' in request.POST:
-			response_form = ResponseForm(request.POST)
+			response_form = form(request.POST)
 			if response_form.is_valid():
 				request_pk = response_form.cleaned_data['request_pk']
 				body = response_form.cleaned_data['body']
@@ -688,19 +689,19 @@ def requests_view(request, requestType):
 				relevant_request.save()
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
-	request_form = form()
+	request_form = RequestForm()
 	x = 0 # number of requests loaded
 	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, downvote, vote_form)
 	for req in Request.objects.filter(request_type=request_type):
 		request_responses = Response.objects.filter(request=req)
 		if manager:
-			form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
+			resp_form = form(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
 		else:
-			form = ResponseForm(initial={'request_pk': req.pk})
+			resp_form = form(initial={'request_pk': req.pk})
 		upvote = userProfile in req.upvotes.all()
 		downvote = userProfile in req.downvotes.all()
 		vote_form = VoteForm(initial={'request_pk': req.pk})
-		requests_dict.append((req, request_responses, form, upvote, downvote, vote_form))
+		requests_dict.append((req, request_responses, resp_form, upvote, downvote, vote_form))
 		x += 1
 		if x >= max_requests:
 			break

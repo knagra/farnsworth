@@ -8,7 +8,14 @@ from django import forms
 from farnsworth.settings import house, time_formats
 
 def EventForm(manager_positions, initial=None, post=None):
+	''' Return a form with an as_manager position if the user is a manager.
+	Parameters:
+		manager_positions should be a choice set of manager positions the user making the request holds
+		initial should be a dictionary of initial values.
+		post should be a request.POST
+	'''
 	class InnerEventForm(forms.Form):
+		''' A form to post an event. '''
 		title = forms.CharField(max_length=100, widget=forms.TextInput())
 		description = forms.CharField(widget=forms.Textarea())
 		location = forms.CharField(max_length=100, widget=forms.TextInput())
@@ -38,3 +45,6 @@ def EventForm(manager_positions, initial=None, post=None):
 	else:
 		return InnerEventForm(post)
 
+class RsvpForm(forms.Form):
+	''' Form to RSVP or un-RSVP from an event. '''
+	event_pk = forms.IntegerField(widget=forms.HiddenInput())

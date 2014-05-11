@@ -23,8 +23,9 @@ from threads.forms import *
 from threads.redirects import red_ext, red_home
 from threads.decorators import profile_required
 from managers.models import RequestType, Manager, Request, Response, Announcement
-from managers.forms import ResponseForm, AnnouncementForm, ChangeUserPasswordForm
+from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm
 from events.models import Event
+from events.forms import RsvpForm
 
 def landing_view(request):
 	''' The external landing.'''
@@ -50,7 +51,7 @@ def homepage_view(request, message=None):
 			type_requests = Request.objects.filter(request_type=request_type, filled=False, closed=False)
 			for req in type_requests:
 				response_list = Response.objects.filter(request=req)
-				form = ResponseForm(initial={'request_pk': req.pk})
+				form = ManagerResponseForm(initial={'request_pk': req.pk})
 				upvote = userProfile in req.upvotes.all()
 				downvote = userProfile in req.downvotes.all()
 				vote_form = VoteForm(initial={'request_pk': req.pk})
@@ -91,10 +92,10 @@ def homepage_view(request, message=None):
 			break
 	if request.method == 'POST':
 		if 'add_response' in request.POST:
-			response_form = ResponseForm(request.POST)
+			response_form = ManagerResponseForm(request.POST)
 			if response_form.is_valid():
 				request_pk = response_form.cleaned_data['request_pk']
-				body = response_form.cleaned_data['response_body']
+				body = response_form.cleaned_data['body']
 				relevant_request = Request.objects.get(pk=request_pk)
 				new_response = Response(owner=userProfile, body=body, request=relevant_request)
 				relevant_request.closed = response_form.cleaned_data['mark_closed']
@@ -108,14 +109,18 @@ def homepage_view(request, message=None):
 				if relevant_request.filled:
 					messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_FILLED'])
 				return HttpResponseRedirect(reverse('homepage'))
+			else:
+				messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 		elif 'post_announcement' in request.POST:
 			announcement_form = AnnouncementForm(manager_positions, post=request.POST)
 			if announcement_form.is_valid():
-				body = announcement_form.cleaned_data['announcement_body']
+				body = announcement_form.cleaned_data['body']
 				manager = announcement_form.cleaned_data['as_manager']
 				new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
 				new_announcement.save()
 				return HttpResponseRedirect(reverse('homepage'))
+			else:
+				messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 		elif 'unpin' in request.POST:
 			unpin_form = UnpinForm(request.POST)
 			if unpin_form.is_valid():
@@ -124,6 +129,8 @@ def homepage_view(request, message=None):
 				relevant_announcement.pinned = False
 				relevant_announcement.save()
 				return HttpResponseRedirect(reverse('homepage'))
+			else:
+				messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 		elif 'rsvp' in request.POST:
 			rsvp_form = RsvpForm(request.POST)
 			if rsvp_form.is_valid():
@@ -139,6 +146,8 @@ def homepage_view(request, message=None):
 					messages.add_message(request, messages.SUCCESS, message)
 				relevant_event.save()
 				return HttpResponseRedirect(reverse('homepage'))
+			else:
+				messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 		elif 'submit_thread_form' in request.POST:
 			thread_form = ThreadForm(request.POST)
 			if thread_form.is_valid():
@@ -163,6 +172,8 @@ def homepage_view(request, message=None):
 					relevant_request.downvotes.remove(userProfile)
 				relevant_request.save()
 				return HttpResponseRedirect(reverse('homepage'))
+			else:
+				messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 		elif 'downvote' in request.POST:
 			vote_form = VoteForm(request.POST)
 			if vote_form.is_valid():
@@ -175,6 +186,8 @@ def homepage_view(request, message=None):
 					relevant_request.upvotes.remove(userProfile)
 				relevant_request.save()
 				return HttpResponseRedirect(reverse('homepage'))
+			else:
+				messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
 	return render_to_response('homepage.html', {'page_name': "Home", 'requests_dict': requests_dict, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form, 'events_dict': events_dict, 'threads': threads, 'thread_form': thread_form}, context_instance=RequestContext(request))
