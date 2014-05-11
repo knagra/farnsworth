@@ -78,12 +78,6 @@ class RequestForm(forms.Form):
 	type_pk = forms.IntegerField(required=False)
 	body = forms.CharField(widget=forms.Textarea())
 
-class ManagerResponseForm(RequestForm):
-	request_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-	body = forms.CharField(widget=forms.Textarea())
-	mark_filled = forms.BooleanField(required=False)
-	mark_closed = forms.BooleanField(required=False)
-
 def AnnouncementForm(manager_positions, post=None):
 	class InnerAnnouncementForm(forms.Form):
 		as_manager = forms.ModelChoiceField(queryset=manager_positions)
