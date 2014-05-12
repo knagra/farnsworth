@@ -26,16 +26,14 @@ class VerifyUser(TestCase):
 		self.assertEqual(None, self.client.logout())
 
 	def test_homepage(self):
-		response = self.client.get("/")
-		self.assertRedirects(response, "/landing/", status_code=302,
-				     target_status_code=200)
+		response = self.client.get("/", follow=True)
+		self.assertRedirects(response, "/landing/")
 		self.client.login(username="u", password="pwd")
 		response = self.client.get("/")
 		self.assertEqual(response.status_code, 200)
 		self.client.logout()
-		response = self.client.get("/")
-		self.assertRedirects(response, "/landing/", status_code=302,
-				     target_status_code=200)
+		response = self.client.get("/", follow=True)
+		self.assertRedirects(response, "/landing/")
 
 class VerifyThread(TestCase):
 	def setUp(self):
