@@ -42,16 +42,31 @@ class VerifyThread(TestCase):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
 		self.u.save()
 		profile = UserProfile.objects.get(user=self.u)
-		self.thread = Thread(owner=profile, subject="subject")
+		self.thread = Thread(owner=profile, subject="Default Thread Test")
 		self.thread.save()
+		self.client.login(username="u", password="pwd")
 
 	def test_thread_created(self):
 		self.assertEqual(1, Thread.objects.all().count())
 		self.assertEqual(self.thread, Thread.objects.get(pk=self.thread.pk))
-		self.assertEqual(1, Thread.objects.filter(subject="subject").count())
+		self.assertEqual(1, Thread.objects.filter(subject=self.thread.subject).count())
+		self.assertEqual(0, Thread.objects.filter(subject="Tabboo").count())
+
+	def test_thread_created(self):
+		urls = [
+			"/",
+			"/thread/{0}/".format(self.thread.pk),
+			"/archives/list_all_threads/",
+			"/member_forums/",
+			"/archives/all_threads/",
+			]
+			
+		for url in urls:
+			response = self.client.get(url)
+			self.assertEqual(response.status_code, 200)
+			self.assertIn(self.thread.subject, response.content)
 
 	def test_create_thread(self):
-		self.client.login(username="u", password="pwd")
 		urls = [
 			"/my_threads/",
 			"/member_forums/",
@@ -69,13 +84,11 @@ class VerifyThread(TestCase):
 
 			Thread.objects.get(subject="Thread Subject Test").delete()
 
-		self.client.logout()
-
 	def test_post_reply(self):
-		self.client.login(username="u", password="pwd")
 		urls = [
 			"/member_forums/",
 			"/thread/{0}/".format(self.thread.pk),
+			"/archives/all_threads/",
 			]
 
 		for url in urls:
@@ -89,8 +102,6 @@ class VerifyThread(TestCase):
 
 			Message.objects.all()[0].delete()
 			self.assertEqual(0, Message.objects.all().count())
-
-		self.client.logout()
 
 class FromHome(TestCase):
 	def setUp(self):
