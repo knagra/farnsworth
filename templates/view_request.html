@@ -62,9 +62,13 @@
 	  	<div class="form-group">
 			<label for="id_body">Add Response</label>
 			<textarea name="body"></textarea>
+			{% if manager %}
+			<div class="checkbox">{{ response_form.mark_filled }}<label for="id_mark_filled">Filled</label></div>
+			<div class="checkbox">{{ response_form.mark_closed }}<label for="id_mark_closed">Closed</label></div>
+			{% endif %}
 			<div class="text-center">
 			<div class="btn-group">
-				<button type="submit" class="btn btn-success" name="submit_response_form"><span class="glyphicon glyphicon-paperclip"></span> Post Response</button>
+				<button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-paperclip"></span> Post Response</button>
 				<button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_message_form('add_response_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
 			</div>
 			</div>
