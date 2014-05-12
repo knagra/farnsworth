@@ -38,3 +38,22 @@ class TestEvent(TestCase):
 			self.assertEqual(response.status_code, 200)
 			self.assertIn(self.ev.title, response.content)
 
+	def test_rsvp(self):
+		urls = [
+			"/events/",
+			"/archives/all_events/",
+			]
+		for url in urls:
+			response = self.client.post(url, {
+					"rsvp": "",
+					"event_pk": "{0}".format(self.ev.pk),
+					}, follow=True)
+			self.assertRedirects(response, url)
+			self.assertIn('title="Un-RSVP"', response.content)
+
+			response = self.client.post(url, {
+					"rsvp": "",
+					"event_pk": "{0}".format(self.ev.pk),
+					}, follow=True)
+			self.assertRedirects(response, url)
+			self.assertIn('title="RSVP"', response.content)
