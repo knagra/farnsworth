@@ -3,12 +3,29 @@ Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 '''
+import re
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.validators import validate_email
 
 from threads.models import UserProfile
 from managers.models import Manager
+
+def verify_username(username):
+	''' Verify a potential username.
+	Parameters:
+		username is the potential username
+	Returns True if username contains only characters a through z, A through Z, 0 through 9, or the _; returns false otherwise.
+	'''
+	return not bool(re.compile(r'[^a-zA-Z0-9_]').search(username))
+
+def verify_name(name):
+	''' Verify a potential first or last name.
+	Parameters:
+		name is the potential first or last name
+	Returns True if name doesn't contain ", <, >, &, ; returns false otherwise.
+	'''
+	return bool(re.compile(r"[^a-zA-Z']").search(name))
 
 class ProfileRequestForm(forms.Form):
 	''' Form to create a new profile request. '''
@@ -17,6 +34,20 @@ class ProfileRequestForm(forms.Form):
 	last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	email = forms.EmailField(max_length=100)
 	affiliation_with_the_house = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
+	password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	
+	def is_valid(self):
+		if not super(ProfileRequestForm, self).is_valid():
+			return False
+		elif not verify_username(self.cleaned_data['username']):
+			self._errors['username'] = self.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_"'])
+			return False
+		elif self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
+			self._errors['password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			return False
+		return True
 
 class AddUserForm(forms.Form):
 	''' Form to add a new user and associated profile. '''
@@ -37,6 +68,18 @@ class AddUserForm(forms.Form):
 	groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
 	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	
+	def is_valid(self):
+		if not super(AddUserForm, self).is_valid():
+			return False
+		elif not verify_username(self.cleaned_data['username']):
+			self._errors['username'] = self.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_"'])
+			return False
+		elif self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
+			self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			return False
+		return True
 
 class ModifyUserForm(forms.Form):
 	''' Form to modify an existing user and profile. '''
@@ -59,6 +102,15 @@ class ChangeUserPasswordForm(forms.Form):
 	''' Form for an admin to change a user's password. '''
 	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	
+	def is_valid(self):
+		if not super(ChangeUserPasswordForm, self).is_valid():
+			return False
+		elif self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
+			self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			return False
+		return True
 
 class ModifyProfileRequestForm(forms.Form):
 	''' Form to modify a profile request. '''
@@ -77,8 +129,14 @@ class ModifyProfileRequestForm(forms.Form):
 	is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
 	is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
 	groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
-	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	
+	def is_valid(self):
+		if not super(ModifyProfileRequestForm, self).is_valid():
+			return False
+		elif not verify_username(self.cleaned_data['username']):
+			self._errors['username'] = self.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_"'])
+			return False
+		return True
 
 class ManagerForm(forms.Form):
 	''' Form to create or modify a manager position. '''

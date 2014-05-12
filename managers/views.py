@@ -28,22 +28,6 @@ from managers.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, Chan
 	ModifyProfileRequestForm, ManagerForm, RequestTypeForm, RequestForm, ResponseForm, ManagerResponseForm, \
 	VoteForm, AnnouncementForm, UnpinForm
 
-def verify_username(username):
-	''' Verify a potential username.
-	Parameters:
-		username is the potential username
-	Returns True if username contains only characters a through z, A through Z, 0 through 9, or the _; returns false otherwise.
-	'''
-	return not bool(re.compile(r'[^a-zA-Z0-9_]').search(username))
-
-def verify_name(name):
-	''' Verify a potential first or last name.
-	Parameters:
-		name is the potential first or last name
-	Returns True if name doesn't contain ", <, >, &, ; returns false otherwise.
-	'''
-	return bool(re.compile(r"[^a-zA-Z']").search(name))
-
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
 	PRESIDENT = False # whether the user has president privileges
@@ -83,13 +67,17 @@ def request_profile_view(request):
 			last_name = form.cleaned_data['last_name']
 			email = form.cleaned_data['email']
 			affiliation = form.cleaned_data['affiliation_with_the_house']
-			if not verify_username(username):
-				form._errors['username'] = form.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_"'])
-			elif User.objects.filter(username=username).count():
+			password = form.cleaned_data['password']
+			confirm_password = form.cleaned_data['confirm_password']
+			hashed_password = hashers.make_password(password)
+			if User.objects.filter(username=username).count():
 				non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
 				form.errors['__all__'] = form.error_class([non_field_error])
+			elif not hashers.is_password_usable(hashed_password):
+				error = "Could not hash password.  Please try again."
+				form.errors['__all__'] = form.error_class([error])
 			else:
-				profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation)
+				profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation, password=hashed_password)
 				profile_request.save()
 				messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
 				return HttpResponseRedirect(reverse('external'))
@@ -141,18 +129,15 @@ def modify_profile_request_view(request, request_pk):
 				is_staff = mod_form.cleaned_data['is_staff']
 				is_superuser = mod_form.cleaned_data['is_superuser']
 				groups = mod_form.cleaned_data['groups']
-				user_password = mod_form.cleaned_data['user_password']
-				confirm_password = mod_form.cleaned_data['confirm_password']
-				if not verify_username(username):
-					mod_form._errors['username'] = forms.util.ErrorList([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_".'])
-				elif User.objects.filter(username=username).count():
+				if User.objects.filter(username=username).count():
 					non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
 					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
 				elif User.objects.filter(first_name=first_name, last_name=last_name):
 					non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
 					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
-				elif user_password == confirm_password:
-					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
+				else:
+					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
+					new_user.password = profile_request.password
 					new_user.is_active = is_active
 					new_user.is_staff = is_staff
 					new_user.is_superuser = is_superuser
@@ -171,11 +156,8 @@ def modify_profile_request_view(request, request_pk):
 					message = MESSAGES['USER_ADDED'].format(username=username)
 					messages.add_message(request, messages.SUCCESS, message)
 					return HttpResponseRedirect(reverse('manage_profile_requests'))
-				else:
-					mod_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-					mod_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	else:
-		mod_form = AddUserForm(initial={'status': profile_request.affiliation, 'username': profile_request.username, 'first_name': profile_request.first_name, 'last_name': profile_request.last_name, 'email': profile_request.email})
+		mod_form = ModifyProfileRequestForm(initial={'status': profile_request.affiliation, 'username': profile_request.username, 'first_name': profile_request.first_name, 'last_name': profile_request.last_name, 'email': profile_request.email})
 	return render_to_response('modify_profile_request.html', {'page_name': page_name, 'add_user_form': mod_form}, context_instance=RequestContext(request))
 
 @admin_required
@@ -251,20 +233,16 @@ def custom_modify_user_view(request, targetUsername):
 			if change_user_password_form.is_valid():
 				user_password = change_user_password_form.cleaned_data['user_password']
 				confirm_password = change_user_password_form.cleaned_data['confirm_password']
-				if user_password == confirm_password:
-					hashed_password = hashers.make_password(user_password)
-					if hashers.is_password_usable(hashed_password):
-						targetUser.password = hashed_password
-						targetUser.save()
-						message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
-						messages.add_message(request, messages.SUCCESS, message)
-						return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
-					else:
-						error = "Could not hash password.  Please try again."
-						change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
+				hashed_password = hashers.make_password(user_password)
+				if hashers.is_password_usable(hashed_password):
+					targetUser.password = hashed_password
+					targetUser.save()
+					message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
+					messages.add_message(request, messages.SUCCESS, message)
+					return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 				else:
-					change_user_password_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match"])
-					change_user_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match"])
+					error = "Could not hash password.  Please try again."
+					change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
 	return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'page_name': page_name, 'modify_user_form': modify_user_form, 'change_user_password_form': change_user_password_form}, context_instance=RequestContext(request))
 
 @admin_required
@@ -291,15 +269,13 @@ def custom_add_user_view(request):
 			groups = add_user_form.cleaned_data['groups']
 			user_password = add_user_form.cleaned_data['user_password']
 			confirm_password = add_user_form.cleaned_data['confirm_password']
-			if not verify_username(username):
-				add_user_form._errors['username'] = forms.util.ErrorList([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_"'])
-			elif User.objects.filter(username=username).count():
+			if User.objects.filter(username=username).count():
 				non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
 				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
 			elif User.objects.filter(first_name=first_name, last_name=last_name).count():
 				non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
 				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-			elif user_password == confirm_password:
+			else:
 				new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
 				new_user.is_active = is_active
 				new_user.is_staff = is_staff
@@ -318,9 +294,6 @@ def custom_add_user_view(request):
 				message = MESSAGES['USER_ADDED'].format(username=username)
 				messages.add_message(request, messages.SUCCESS, message)
 				return HttpResponseRedirect(reverse('custom_add_user'))
-			else:
-				add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-				add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	else:
 		add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
 	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
@@ -483,8 +456,7 @@ def edit_manager_view(request, managerTitle):
 			else:
 				targetManager.title = title
 				targetManager.url_title = url_title
-				if incumbent:
-					targetManager.incumbent = incumbent
+				targetManager.incumbent = incumbent
 				targetManager.compensation = compensation
 				targetManager.duties = duties
 				targetManager.email = email
@@ -578,7 +550,7 @@ def edit_request_type_view(request, typeName):
 				requestType.url_name = url_name
 				requestType.managers = relevant_managers
 				requestType.enabled = enabled
-				glyphicon = glyphicon
+				requestType.glyphicon = glyphicon
 				requestType.save()
 				messages.add_message(request, messages.SUCCESS, MESSAGES['REQUEST_TYPE_SAVED'].format(typeName=name))
 				return HttpResponseRedirect(reverse('manage_request_types'))
