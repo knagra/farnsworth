@@ -23,6 +23,7 @@ class TestEvent(TestCase):
 		one_day = timedelta(days=1)
 
 		self.ev = Event(owner=profile, title="Event Title Test",
+				description="Event Description Test",
 				start_time=now, end_time=now + one_day)
 		self.ev.save()
 
@@ -37,6 +38,7 @@ class TestEvent(TestCase):
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 200)
 			self.assertIn(self.ev.title, response.content)
+			self.assertIn(self.ev.description, response.content)
 
 	def test_rsvp(self):
 		urls = [
@@ -57,3 +59,15 @@ class TestEvent(TestCase):
 					}, follow=True)
 			self.assertRedirects(response, url)
 			self.assertIn('title="RSVP"', response.content)
+
+	def test_edit(self):
+		response = self.client.post("/edit_event/{0}/".format(self.ev.pk), {
+				"title": "New Title Test",
+				"description": self.ev.description,
+				"location": self.ev.location,
+				"start_time": self.ev.start_time.strftime("%m/%d/%Y %R %p"),
+				"end_time": self.ev.end_time.strftime("%m/%d/%Y %R %p"),
+				"as_manager": "",
+				}, follow=True)
+		self.assertIn("New Title Test", response.content)
+		self.assertRedirects(response, "/events/")
