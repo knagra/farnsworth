@@ -20,6 +20,7 @@ Author: Karandeep Singh Nagra
 	display: inline-block;
 	float: right;
 	position: relative;
+	right: -3px;
 }
 
 .requests_row {
@@ -98,6 +99,7 @@ Author: Karandeep Singh Nagra
 	display: inline-block;
 	float: right;
 	position: relative;
+	right: -3px;
 }
 
 #threads_table {

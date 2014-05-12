@@ -65,6 +65,7 @@ label {
 	float: right;
 	position: relative;
 	top: -1px;
+	right: -3px;
 }
 
 #new_event_form {
