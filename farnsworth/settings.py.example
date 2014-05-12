@@ -7,6 +7,7 @@ Author: Karandeep Singh Nagra
 '''
 
 import os.path
+import sys
 from django.conf import global_settings
 
 DEBUG = True
@@ -114,6 +115,12 @@ DATABASES = {
 		'PORT': '',
 	}
 }'''
+
+if 'test' in sys.argv:
+	PASSWORD_HASHERS = (
+		'django.contrib.auth.hashers.MD5PasswordHasher',
+	)
+	DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
