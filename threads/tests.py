@@ -5,11 +5,13 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils.timezone import utc
 from threads.models import UserProfile, Thread, Message
 from managers.models import Manager, Announcement, RequestType, Request
+from events.models import Event
 
 class VerifyUser(TestCase):
 	def setUp(self):
@@ -103,10 +105,10 @@ class VerifyThread(TestCase):
 
 class FromHome(TestCase):
 	def setUp(self):
-		self.su = User.objects.create_user(username="su", email="su@email.com", password="pwd")
-		self.su.save()
+		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
+		self.u.save()
 
-		profile = UserProfile.objects.get(user=self.su)
+		profile = UserProfile.objects.get(user=self.u)
 		self.manager = Manager(title="Super Manager", url_title="super")
 		self.manager.incumbent = profile
 		self.manager.save()
@@ -119,22 +121,25 @@ class FromHome(TestCase):
 		self.req = Request(owner=profile, request_type=self.rt)
 		self.req.save()
 
-	def test_homepage_view(self):
-		self.client.login(username="su", password="pwd")
+		now = datetime.utcnow().replace(tzinfo=utc)
+		one_day = timedelta(days=1)
+		self.ev = Event(owner=profile, title="Event Title Test",
+				start_time=now, end_time=now + one_day)
+		self.ev.save()
 
+		self.client.login(username="u", password="pwd")
+
+	def test_homepage_view(self):
 		response = self.client.get("/")
 
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Recent Threads", response.content)
 		self.assertIn("Recent Announcements", response.content)
 		self.assertIn("Today's Events", response.content)
+		self.assertIn(self.ev.title, response.content)
 		self.assertIn("{0} Requests".format(self.rt.name), response.content)
 
-		self.client.logout()
-
 	def test_thread_post(self):
-		self.client.login(username="su", password="pwd")
-
 		response = self.client.post("/", {
 				"submit_thread_form": "",
 				"subject": "Thread Subject Test",
@@ -144,16 +149,11 @@ class FromHome(TestCase):
 		self.assertIn("Thread Subject Test", response.content)
 
 		thread = Thread.objects.get(subject="Thread Subject Test")
-		user = User.objects.get(username="su")
-		profile = UserProfile.objects.get(user=user)
+		profile = UserProfile.objects.get(user=self.u)
 		self.assertEqual(thread.owner, profile)
 		thread.delete()
 
-		self.client.logout()
-
 	def test_announcment_post(self):
-		self.client.login(username="su", password="pwd")
-
 		response = self.client.post("/", {
 				"post_announcement": "",
 				"as_manager": "1",
@@ -163,9 +163,21 @@ class FromHome(TestCase):
 		self.assertIn("Announcement Body Text Test", response.content)
 
 		announcement = Announcement.objects.get(body="Announcement Body Text Test")
-		user = User.objects.get(username="su")
-		profile = UserProfile.objects.get(user=user)
+		profile = UserProfile.objects.get(user=self.u)
 		self.assertEqual(announcement.incumbent, profile)
 		announcement.delete()
 
-		self.client.logout()
+	def test_rsvp_post(self):
+		response = self.client.post("/", {
+				"rsvp": "",
+				"event_pk": "{0}".format(self.ev.pk),
+				}, follow=True)
+		self.assertRedirects(response, "/")
+		self.assertIn('title="Un-RSVP"', response.content)
+
+		response = self.client.post("/", {
+				"rsvp": "",
+				"event_pk": "{0}".format(self.ev.pk),
+				}, follow=True)
+		self.assertRedirects(response, "/")
+		self.assertIn('title="RSVP"', response.content)
