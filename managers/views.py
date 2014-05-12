@@ -923,7 +923,6 @@ def request_view(request, request_pk):
 			'request_responses': request_responses,
 			'upvote': upvote, 'downvote': downvote,
 			'response_form': response_form,
-			'manager': manager,
 			'vote_form': vote_form,
 			'response_form': response_form,
 			}, context_instance=RequestContext(request))
