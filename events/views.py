@@ -17,7 +17,7 @@ from managers.models import Manager
 from threads.decorators import profile_required
 from threads.redirects import red_home, red_ext
 # Standard messages:
-from farnsworth.settings import MESSAGES
+from utils.variables import MESSAGES
 from events.models import Event
 from events.forms import EventForm, RsvpForm
 

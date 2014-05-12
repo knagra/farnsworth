@@ -3,29 +3,13 @@ Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 '''
-import re
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.validators import validate_email
 
 from threads.models import UserProfile
 from managers.models import Manager
-
-def verify_username(username):
-	''' Verify a potential username.
-	Parameters:
-		username is the potential username
-	Returns True if username contains only characters a through z, A through Z, 0 through 9, or the _; returns false otherwise.
-	'''
-	return not bool(re.compile(r'[^a-zA-Z0-9_]').search(username))
-
-def verify_name(name):
-	''' Verify a potential first or last name.
-	Parameters:
-		name is the potential first or last name
-	Returns True if name doesn't contain ", <, >, &, ; returns false otherwise.
-	'''
-	return bool(re.compile(r"[^a-zA-Z']").search(name))
+from utils.funcs import verify_username
 
 class ProfileRequestForm(forms.Form):
 	''' Form to create a new profile request. '''

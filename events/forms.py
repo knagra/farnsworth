@@ -5,7 +5,8 @@ Author: Karandeep Singh Nagra
 '''
 
 from django import forms
-from farnsworth.settings import house, time_formats
+from farnsworth.settings import house
+from utils.variables import time_formats
 
 def EventForm(manager_positions, initial=None, post=None):
 	''' Return a form with an as_manager position if the user is a manager.

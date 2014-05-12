@@ -50,7 +50,7 @@ function hide_form(form_id) {
 	<div class="request_name bg-warning" title="Open">
 		<div class="request_owner">
 		{% if not request_tuple.0.owner.user = user %}
-		<form class="inline-form" style="float: right; position: relative; top: -8px; padding-right: 2px;" method="POST" action="">
+		<form class="inline-form" style="float: right; position: relative; top: -6px; padding-right: 2px;" method="POST" action="">
 			{% csrf_token %}
 			{{ request_tuple.5 }}
 			<div class="btn-group btn-group-xs">

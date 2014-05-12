@@ -7,7 +7,7 @@ Author: Karandeep Singh Nagra
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
-from farnsworth.settings import MESSAGES
+from utils.variables import MESSAGES
 from threads.models import UserProfile
 from threads.redirects import red_home
 from managers.models import Manager

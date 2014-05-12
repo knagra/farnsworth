@@ -17,8 +17,8 @@ from django.template import RequestContext
 from django.utils.timezone import utc
 from django.contrib import messages
 
-from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, \
-    ANONYMOUS_USERNAME, MESSAGES
+from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
+from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from managers.models import Manager, RequestType, ProfileRequest, Request, Response, \
     Announcement
 from threads.models import UserProfile, Thread, Message

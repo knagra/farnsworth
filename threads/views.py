@@ -16,8 +16,9 @@ from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from django.contrib import messages
 
-from farnsworth.settings import house, ADMINS, max_threads, max_messages, time_formats, \
-    home_max_announcements, home_max_threads, ANONYMOUS_USERNAME, MESSAGES
+from farnsworth.settings import house, ADMINS, max_threads, max_messages, \
+    home_max_announcements, home_max_threads
+from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from threads.models import UserProfile, Thread, Message
 from threads.forms import *
 from threads.redirects import red_ext, red_home
