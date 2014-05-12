@@ -11,13 +11,6 @@ from django.contrib.auth.models import User
 from threads.models import UserProfile, Thread
 from managers.models import Manager, Announcement, RequestType, Request
 
-class SimpleTest(TestCase):
-	def test_basic_addition(self):
-		"""
-		Tests that 1 + 1 always equals 2.
-		"""
-		self.assertEqual(1 + 1, 2)
-
 class VerifyUser(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
