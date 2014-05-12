@@ -326,7 +326,7 @@ class TestAdminFunctions(TestCase):
 				"status": UserProfile.STATUS_CHOICES[0][0],
 				 }, follow=True)
 		self.assertRedirects(response, "/custom_admin/add_user/")
-		self.assertIn("User {0} has successfully added.".format("new_user"),
+		self.assertIn("User {0} was successfully added.".format("new_user"),
 			      response.content)
 		self.assertNotEqual(0, User.objects.filter(username="new_user").count())
 		self.client.logout()
