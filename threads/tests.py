@@ -146,6 +146,7 @@ class FromHome(TestCase):
 
 	def test_homepage_requests_filled(self):
 		self.req.filled = True
+		self.req.save()
 		response = self.client.get("/")
 		self.assertNotIn("{0} Requests".format(self.rt.name), response.content)
 
