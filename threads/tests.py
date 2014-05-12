@@ -139,6 +139,16 @@ class FromHome(TestCase):
 		self.assertIn(self.ev.title, response.content)
 		self.assertIn("{0} Requests".format(self.rt.name), response.content)
 
+	def test_homepage_no_requests(self):
+		self.req.delete()
+		response = self.client.get("/")
+		self.assertNotIn("{0} Requests".format(self.rt.name), response.content)
+
+	def test_homepage_requests_filled(self):
+		self.req.filled = True
+		response = self.client.get("/")
+		self.assertNotIn("{0} Requests".format(self.rt.name), response.content)
+
 	def test_thread_post(self):
 		response = self.client.post("/", {
 				"submit_thread_form": "",
