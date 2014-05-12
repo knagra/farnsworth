@@ -30,7 +30,6 @@ function hide_form(form_id) {
 {% block content %}
 {% if requests_dict %}
 {% for type_tuple in requests_dict %}
-{% if type_tuple.1 %}
 <div class="row" style="margin-bottom: 10px;">
 <div class="col-lg-12">
 <div class="requests table_container">
@@ -119,7 +118,6 @@ function hide_form(form_id) {
 </div> <!-- .requests -->
 </div> <!-- .col-md-12 -->
 </div> <!-- .row -->
-{% endif %}
 {% endfor %}
 {% endif %}
 

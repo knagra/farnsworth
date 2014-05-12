@@ -9,7 +9,7 @@ from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 from threads.models import UserProfile, Thread
-from managers.models import Manager, Announcement, RequestType
+from managers.models import Manager, Announcement, RequestType, Request
 
 class SimpleTest(TestCase):
 	def test_basic_addition(self):
@@ -62,14 +62,18 @@ class FromHome(TestCase):
 		self.su = User.objects.create_user(username="su", email="su@email.com", password="pwd")
 		self.su.save()
 
+		profile = UserProfile.objects.get(user=self.su)
 		self.manager = Manager(title="Super Manager", url_title="super")
-		self.manager.incumbent = UserProfile.objects.get(user=self.su)
+		self.manager.incumbent = profile
 		self.manager.save()
 
 		self.rt = RequestType(name="Super", url_name="super", enabled=True)
 		self.rt.save()
 		self.rt.managers = [self.manager]
 		self.rt.save()
+
+		self.req = Request(owner=profile, request_type=self.rt)
+		self.req.save()
 
 	def test_homepage_view(self):
 		self.client.login(username="su", password="pwd")

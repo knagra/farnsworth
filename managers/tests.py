@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from farnsworth.settings import MESSAGES
 from threads.models import UserProfile
-from managers.models import ProfileRequest, Manager, RequestType, Request
+from managers.models import ProfileRequest, Manager, RequestType, Request, Response
 
 class ManagementPermission(TestCase):
 	def setUp(self):
@@ -285,22 +285,40 @@ class TestRequestPages(TestCase):
 		self.food.save()
 
 		self.request = Request(owner=UserProfile.objects.get(user=self.u),
-				       body="request body", request_type=self.food)
+				       body="Request Body", request_type=self.food)
 		self.request.save()
+
+		self.response = Response(owner=UserProfile.objects.get(user=self.pu),
+					 body="Response Body", request=self.request,
+					 manager=True)
+		self.response.save()
 
 	def test_request_form(self):
 		urls = [
 			"/request/{0}/".format(self.request.pk),
 			"/requests/{0}/".format(self.food.url_name),
 			]
-		for url in urls:
-			self.client.login(username="u", password="pwd")
+
+		self.client.login(username="u", password="pwd")
+		for url in urls + ["/my_requests/"]:
 			response = self.client.get(url)
+			self.assertIn("Request Body", response.content)
+			self.assertIn("Response Body", response.content)
 			self.assertNotIn("mark_filled", response.content)
-			self.client.logout()
+		self.client.logout()
 
-			self.client.login(username="pu", password="pwd")
+		self.client.login(username="pu", password="pwd")
+		for url in urls:
 			response = self.client.get(url)
+			self.assertIn("Request Body", response.content)
+			self.assertIn("Response Body", response.content)
 			self.assertIn("mark_filled", response.content)
-			self.client.logout()
 
+		response = self.client.get("/my_requests/")
+		self.assertNotIn("Request Body", response.content)
+		self.assertNotIn("Response Body", response.content)
+		self.assertNotIn("mark_filled", response.content)
+
+		self.client.logout()
+
+		

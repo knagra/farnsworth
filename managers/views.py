@@ -681,7 +681,7 @@ def requests_view(request, requestType):
 					'mark_closed': req.closed,
 					})
 		else:
-			resp_form = form(initial={'request_pk': req.pk})
+			resp_form = ResponseForm(initial={'request_pk': req.pk})
 		upvote = userProfile in req.upvotes.all()
 		downvote = userProfile in req.downvotes.all()
 		vote_form = VoteForm(initial={'request_pk': req.pk})
@@ -922,6 +922,8 @@ def request_view(request, request_pk):
 			'relevant_request': relevant_request,
 			'request_responses': request_responses,
 			'upvote': upvote, 'downvote': downvote,
+			'response_form': response_form,
+			'manager': manager,
 			'vote_form': vote_form,
 			'response_form': response_form,
 			}, context_instance=RequestContext(request))
