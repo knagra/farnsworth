@@ -65,8 +65,8 @@ class TestEvent(TestCase):
 				"title": "New Title Test",
 				"description": self.ev.description,
 				"location": self.ev.location,
-				"start_time": self.ev.start_time.strftime("%m/%d/%Y %R %p"),
-				"end_time": self.ev.end_time.strftime("%m/%d/%Y %R %p"),
+				"start_time": self.ev.start_time.strftime("%Y-%m-%d %H:%M:%S"),
+				"end_time": self.ev.end_time.strftime("%Y-%m-%d %H:%M:%S"),
 				"as_manager": "",
 				}, follow=True)
 		self.assertIn("New Title Test", response.content)
