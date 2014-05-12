@@ -635,7 +635,7 @@ def requests_view(request, requestType):
 				body = response_form.cleaned_data['body']
 				relevant_request = Request.objects.get(pk=request_pk)
 				new_response = Response(owner=userProfile, body=body, request=relevant_request)
-				if hasattr(response_form, "mark_filled"):
+				if manager:
 					mark_filled = response_form.cleaned_data['mark_filled']
 					mark_closed = response_form.cleaned_data['mark_closed']
 					relevant_request.closed = mark_closed
@@ -675,7 +675,7 @@ def requests_view(request, requestType):
 	for req in Request.objects.filter(request_type=request_type):
 		request_responses = Response.objects.filter(request=req)
 		if manager:
-			form = ManagerResponseForm(initial={
+			resp_form = ManagerResponseForm(initial={
 					'request_pk': req.pk,
 					'mark_filled': req.filled,
 					'mark_closed': req.closed,
@@ -876,7 +876,7 @@ def request_view(request, request_pk):
 				request_pk = response_form.cleaned_data['request_pk']
 				body = response_form.cleaned_data['body']
 				new_response = Response(owner=userProfile, body=body, request=relevant_request)
-				if hasattr(response_form, "mark_filed"):
+				if manager:
 					relevant_request.filled = response_form.cleaned_data['mark_filled']
 					relevant_request.closed = response_form.cleaned_data['mark_closed']
 					relevant_request.number_of_responses += 1
@@ -923,6 +923,7 @@ def request_view(request, request_pk):
 			'request_responses': request_responses,
 			'upvote': upvote, 'downvote': downvote,
 			'vote_form': vote_form,
+			'response_form': response_form,
 			}, context_instance=RequestContext(request))
 
 @profile_required

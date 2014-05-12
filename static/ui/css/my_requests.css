@@ -20,12 +20,6 @@ label {
 	margin-top: 5px;
 }
 
-.form-group {
-	padding-bottom: 5px;
-	border-top: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;
-}
-
 .add_request {
     float: right;
     margin-top: 3px;

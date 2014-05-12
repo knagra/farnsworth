@@ -35,16 +35,16 @@
   <div class="main_table">
   <form id="new_request_form" method="post" action="">
     {% csrf_token %}
-    <div class="form-group">
-      <label for="id_body">New Request</label>
-      <textarea id="id_body" name="body"></textarea>
+      <div class="form-group">
+		<label for="id_body">New Request</label>
+		<textarea id="id_body" name="body"></textarea>
+	  </div>
       <div class="text-center">
       <div class="btn-group">
       <button type="submit" class="btn btn-success" name="submit_request"><span class="glyphicon glyphicon-inbox"></span> Submit Request</button>
       <button type="button" class="btn btn-default" name="cancel_request_form" onclick="hide_new_request_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-      </div>
-      </div>
-    </div>
+      </div> <!-- btn-group -->
+      </div> <!-- .text-center -->
   </form>
 
   <div class="requests_table">
@@ -102,19 +102,24 @@
 	      {% csrf_token %}
 	      {{ request_tuple.2.request_pk }}
 	      <div class="form-group">
-		<label for="id_body">Add Response</label>
+			<label for="id_body">Add Response</label>
 	        <textarea class="response" name="body"></textarea>
+	      </div> <!-- form-group -->
 	        {% if manager %}
-		      <div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
-		      <div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
+	        <hr class="main_divider" style="width: 75%;" />
+			<div class="col-sm-6">
+				<div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
+			</div>
+			<div class="col-sm-6">
+				<div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
+			</div>
 	        {% endif %}
 	        <div class="text-center">
 	        <div class="btn-group">
 	          <button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-send"></span> Post Message</button>
 	          <button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-	        </div>
-	        </div>
-	      </div> <!-- form-group -->
+	        </div> <!-- .btn-group -->
+	        </div> <!-- .text-center -->
 	    </form>
 	    {% endwith %}
 	    {% endwith %}

@@ -91,17 +91,22 @@ function hide_form(form_id) {
 				{% csrf_token %}
 				{{ request_tuple.2.request_pk }}
 				<div class="form-group">
-				<label for="id_response_body">Add Response</label>
-				<textarea class="response" name="body"></textarea>
-				<div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
-				<div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
+					<label for="id_response_body">Add Response</label>
+					<textarea class="response" name="body"></textarea>
+				</div> <!-- .form-group -->
+				<hr class="main_divider" style="width: 75%;" />
+				<div class="col-sm-6">
+					<div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
+				</div>
+				<div class="col-sm-6">
+					<div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
+				</div>
 				<div class="text-center">
 				<div class="btn-group">
 					<button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-send"></span> Add Response</button>
 					<button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
 				</div> <!-- .btn-group -->
 				</div> <!-- .text-center -->
-				</div> <!-- .form-group -->
 			</form>
 			{% endwith %}
 			{% endwith %}
@@ -187,9 +192,11 @@ function hide_form(form_id) {
 		<form id="new_announcement_form" class="main_form" method="post" action="">
 			{% csrf_token %}
 			<div class="form-group">
+				<label class="control-label" for="id_as_manager">As Manager</label>
 				{{ announcement_form.as_manager }}
 			</div>
 			<div class="form-group">
+				<label class="control-label" for="id_announcement_body">Body</label>
 				<textarea id="id_announcement_body" name="body"></textarea>
 			</div>
 			<div class="text-center">

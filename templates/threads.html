@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="threads">
+<div class="table_container">
   <div class="header">
     <button class="btn btn-primary add_thread" align="right" onclick="show_new_thread_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
     <h3 class="table_title{% if thread_title|longer_than:'12345678901234567890' %} medium_title{% elif thread_title|longer_than:'12345678901234' %} small_title{% endif %}">{{ thread_title }}</h3>
@@ -19,17 +19,20 @@
   <div class="main_table">
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}
-    <div class="form-group">
-      <label for="id_subject">Subject</label>
-      <input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
-      <textarea class="thread" id="id_body" name="body"></textarea>
+      <div class="form-group">
+        <label class="control-label for="id_subject">Subject</label>
+        <input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
+      </div> <!-- .form-group -->
+      <div class="form-group">
+		<label class="control-label" for="id_body">Body</label>
+        <textarea class="thread" id="id_body" name="body"></textarea>
+      </div>
       <div class="text-center">
       <div class="btn-group">
         <button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Start Thread</button>
         <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_new_thread_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-      </div>
-      </div>
-    </div>
+      </div> <!-- .btn-group -->
+      </div> <!-- .text-center" -->
   </form>
   <div class="threads_table">
     {% if not threads_dict %}
@@ -63,16 +66,16 @@
 	  <form class="new_message_form" id="{{ message_form_id }}" method="post" action="">
 	    {% csrf_token %}
 	    <input id="id_thread_pk" name="thread_pk" type="hidden" value="{{ thread_tuple.2 }}">
-	  	<div class="form-group">
-			<label for="id_body">Add Message</label>
-			<textarea name="body"></textarea>
+			<div class="form-group">
+				<label class="for="id_body">Add Message</label>
+				<textarea name="body"></textarea>
+			</div>
 			<div class="text-center">
 			<div class="btn-group">
 				<button type="submit" class="btn btn-success" name="submit_message_form"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
 				<button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_new_message_form('{{ message_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-			</div>
-			</div>
-		</div>
+			</div> <!-- .btn-group -->
+			</div> <!-- .text-center -->
 	  </form>
 	  {% endwith %}
 	  {% endwith %}

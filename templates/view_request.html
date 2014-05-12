@@ -2,6 +2,7 @@
 
 {% load static from staticfiles %}
 {% load thread_tags %}
+{% load bootstrap %}
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
@@ -59,16 +60,13 @@
 	</div>
 	  <form class="new_response_form add_response" id="add_response_form" method="post" action="">
 	    {% csrf_token %}
-	  	<div class="form-group">
-			<label for="id_body">Add Response</label>
-			<textarea name="body"></textarea>
-			<div class="text-center">
-			<div class="btn-group">
-				<button type="submit" class="btn btn-success" name="submit_response_form"><span class="glyphicon glyphicon-paperclip"></span> Post Response</button>
-				<button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_message_form('add_response_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-			</div>
-			</div>
-		</div>
+	    {{ response_form|bootstrap }}
+		<div class="text-center">
+		<div class="btn-group">
+			<button type="submit" class="btn btn-success" name="submit_response_form"><span class="glyphicon glyphicon-paperclip"></span> Post Response</button>
+			<button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_message_form('add_response_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+		</div> <!-- .btn-group -->
+		</div> <!-- .text-center -->
 	  </form>
 	</div>
 	</div>
@@ -87,5 +85,13 @@
   document.getElementById(message_form_id).style.display="none";
   document.getElementById(button_id).style.display="inline";
   }
+  /* Realign checkboxes horizontally if manager response form. */
+  $(document).ready(function() {
+	  $('.checkbox').parent().parent().addClass('col-sm-6');
+	  $('.checkbox').parent().parent().removeClass('form-group');
+	  if ($('.checkbox').length) {
+		$('<hr class="main_divider" style="width:75%" />').insertAfter($('textarea').parent().parent());
+	  }
+  });
 </script>
 {% endblock %}

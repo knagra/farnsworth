@@ -104,11 +104,17 @@
 	      {% csrf_token %}
 	      {{ request_tuple.2.request_pk }}
 	      <div class="form-group">
-		<label for="id_body">Add Response</label>
-	      <textarea class="response" name="body"></textarea>
+			<label for="id_body" class="control-label">Add Response</label>
+			<textarea class="response" name="body"></textarea>
+	      </div> <!-- form-group -->
 	      {% if type_tuple.2 %}
+			<hr class="main_divider" style="width: 75%;" />
+			<div class="col-sm-6">
 		      <div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
+		    </div>
+		    <div class="col-sm-6">
 		      <div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
+		    </div>
 	      {% endif %}
 	      <div class="text-center">
 	      <div class="btn-group">
@@ -116,7 +122,6 @@
 	      <button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
 	      </div>
 	      </div>
-	      </div> <!-- form-group -->
 	    </form>
 	    {% endwith %}
 	    {% endwith %}
