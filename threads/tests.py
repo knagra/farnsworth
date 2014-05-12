@@ -8,7 +8,7 @@ Replace this with more appropriate tests for your application.
 from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
-from threads.models import UserProfile, Thread
+from threads.models import UserProfile, Thread, Message
 from managers.models import Manager, Announcement, RequestType, Request
 
 class VerifyUser(TestCase):
@@ -49,6 +49,48 @@ class VerifyThread(TestCase):
 		self.assertEqual(1, Thread.objects.all().count())
 		self.assertEqual(self.thread, Thread.objects.get(pk=self.thread.pk))
 		self.assertEqual(1, Thread.objects.filter(subject="subject").count())
+
+	def test_create_thread(self):
+		self.client.login(username="u", password="pwd")
+		urls = [
+			"/my_threads/",
+			"/member_forums/",
+			"/archives/all_threads/",
+			]
+		for url in urls:
+			response = self.client.post(url, {
+					"submit_thread_form": "",
+					"subject": "Thread Subject Test",
+					"body": "Thread Body Test",
+					}, follow=True)
+			self.assertRedirects(response, url)
+			self.assertIn("Thread Subject Test", response.content)
+			self.assertIn("Thread Body Test", response.content)
+
+			Thread.objects.get(subject="Thread Subject Test").delete()
+
+		self.client.logout()
+
+	def test_post_reply(self):
+		self.client.login(username="u", password="pwd")
+		urls = [
+			"/member_forums/",
+			"/thread/{0}/".format(self.thread.pk),
+			]
+
+		for url in urls:
+			response = self.client.post(url, {
+					"submit_message_form": "",
+					"thread_pk": "{0}".format(self.thread.pk),
+					"body": "Message Body Test",
+					}, follow=True)
+			self.assertRedirects(response, url)
+			self.assertIn("Message Body Test", response.content)
+
+			Message.objects.all()[0].delete()
+			self.assertEqual(0, Message.objects.all().count())
+
+		self.client.logout()
 
 class FromHome(TestCase):
 	def setUp(self):
