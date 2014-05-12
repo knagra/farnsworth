@@ -27,6 +27,7 @@ def EventForm(manager_positions, initial=None, post=None):
 					       input_formats=time_formats)
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False,
 						    label="As manager (if manager event)")
+		cancelled = forms.BooleanField(required=False, label="Mark Cancelled")
 
 		def is_valid(self):
 			if not super(InnerEventForm, self).is_valid():
