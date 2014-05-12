@@ -63,7 +63,7 @@
 		<form style="display: inline; float: right; position: relative; margin-right: 2px;" method="POST" action="">
 			{% csrf_token %}
 			{{ request_tuple.5 }}
-		<div class="btn-group btn-group-xs">
+		<div class="btn-group btn-group-xs" style="border: none;">
 			<button type="submit" class="btn btn-{% if request_tuple.3 %}success" title="Cancel Up Vote"{% else %}default" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
 			<button type="submit" class="btn btn-{% if request_tuple.4 %}danger" title="Cancel Down Vote"{% else %}default" title="Down Vote"{% endif %} name="downvote"><span class="glyphicon glyphicon-thumbs-down"></span></button>
 		</div>

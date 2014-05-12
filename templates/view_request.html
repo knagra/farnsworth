@@ -27,10 +27,10 @@
 	<div class="request_name{% if relevant_request.filled %} bg-success" title="Filled"{% elif relevant_request.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
 		<div class="request_owner">
 		{% if not relevant_request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
-		<form class="inline-form" style="float: right; position: relative; top: -6px; margin-right: 2px;" method="POST" action="">
+		<form class="inline-form" style="float: right; position: relative; margin-right: 2px;" method="POST" action="">
 			{% csrf_token %}
 			{{ vote_form }}
-		<div class="btn-group btn-group-xs">
+		<div class="btn-group btn-group-xs" style="border: none;">
 			<button type="submit" class="btn btn-{% if upvote %}success" title="Cancel Up Vote"{% else %}default" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
 			<button type="submit" class="btn btn-{% if downvote %}danger" title="Cancel Down Vote"{% else %}default" title="Down Vote"{% endif %} name="downvote"><span class="glyphicon glyphicon-thumbs-down"></span></button>
 		</div>
