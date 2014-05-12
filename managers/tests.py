@@ -7,6 +7,7 @@ Replace this with more appropriate tests for your application.
 
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 from farnsworth.settings import MESSAGES
 from threads.models import UserProfile
 from managers.models import ProfileRequest, Manager, RequestType, Request, Response
@@ -230,7 +231,7 @@ class TestAdminFunctions(TestCase):
 
 		self.client.logout()
 
-	def test_profile_request(self):
+	def test_profile_request_view(self):
 		self.client.login(username="su", password="pwd")
 
 		response = self.client.get("/custom_admin/profile_requests/{0}/"
@@ -239,6 +240,78 @@ class TestAdminFunctions(TestCase):
 		self.client.logout()
 
 		# Test that we can approve requests?
+
+	def test_request_profile(self):
+		response = self.client.post("/request_profile/", {
+				"username": "request",
+				"first_name": "first",
+				"last_name": "last",
+				"email": "request@email.com",
+				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"password": "pwd",
+				"confirm_password": "pwd",
+				}, follow=True)
+		self.assertRedirects(response, reverse("external"))
+
+		self.client.login(username="su", password="pwd")
+		response = self.client.get("/custom_admin/profile_requests/{0}"
+					   .format(self.pr.pk + 1))
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		pr = ProfileRequest.objects.get(username="request")
+		self.assertEqual(pr.email, "request@email.com")
+		pr.delete()
+
+	def test_bad_profile_requests(self):
+		response = self.client.post("/request_profile/", {
+				"username": "request",
+				"first_name": "first",
+				"last_name": "last",
+				"email": "request@email.com",
+				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"password": "pwd",
+				"confirm_password": "pwd2",
+				}, follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Passwords don&#39;t match.", response.content)
+
+		response = self.client.post("/request_profile/", {
+				"username": "request",
+				"last_name": "last",
+				"email": "request@email.com",
+				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"password": "pwd",
+				"confirm_password": "pwd2",
+				}, follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("This field is required.", response.content)
+
+		response = self.client.post("/request_profile/", {
+				"username": "*******", # hunter2
+				"first_name": "first",
+				"last_name": "last",
+				"email": "request@email.com",
+				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"password": "pwd",
+				"confirm_password": "pwd2",
+				}, follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or &quot;_&quot;",
+			      response.content)
+
+		response = self.client.post("/request_profile/", {
+				"username": "request",
+				"first_name": "first",
+				"last_name": "last",
+				"email": "request@email.com",
+				"affiliation_with_the_house": "123",
+				"password": "pwd",
+				"confirm_password": "pwd",
+				}, follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Select a valid choice. 123 is not one of the available choices.",
+			      response.content)
 
 	def test_add_user(self):
 		self.client.login(username="su", password="pwd")
