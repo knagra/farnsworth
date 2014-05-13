@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="threads">
+<div class="table_container">
   <div class="header">
     <form action="{% url 'member_forums' %}">
 	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-comment"></span><span class="hidden-xs"> Member Forums</span></button>
@@ -42,15 +42,15 @@
 	    {% csrf_token %}
 	    <input id="id_thread_pk" name="thread_pk" type="hidden" value="{{ thread.pk }}">
 	  	<div class="form-group">
-			<label for="id_body">Add Message</label>
+			<label class="control-label" for="id_body">Add Message</label>
 			<textarea name="body"></textarea>
+		</div>
 			<div class="text-center">
 			<div class="btn-group">
 				<button type="submit" class="btn btn-success" name="submit_message_form"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
 				<button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-			</div>
-			</div>
-		</div>
+			</div> <!-- .btn-group -->
+			</div> <!-- .text-center -->
 	  </form>
       </div> <!-- message_table -->
     </div> <!-- thread_messages -->

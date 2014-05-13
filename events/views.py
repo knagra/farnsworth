@@ -15,13 +15,11 @@ from django.core.urlresolvers import reverse
 from threads.models import UserProfile
 from managers.models import Manager
 from threads.decorators import profile_required
-from threads.views import RsvpForm
 from threads.redirects import red_home, red_ext
 # Standard messages:
-from farnsworth.settings import MESSAGES
-
+from utils.variables import MESSAGES
 from events.models import Event
-from events.forms import *
+from events.forms import EventForm, RsvpForm
 
 @profile_required
 def list_events_view(request):
@@ -32,6 +30,7 @@ def list_events_view(request):
 	event_form = EventForm(manager_positions)
 	if not manager_positions:
 		event_form.fields['as_manager'].widget = forms.HiddenInput()
+	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	if request.method == 'POST':
 		if 'post_event' in request.POST:
 			event_form = EventForm(manager_positions, post=request.POST)
@@ -60,11 +59,11 @@ def list_events_view(request):
 		elif 'rsvp' in request.POST:
 			rsvp_form = RsvpForm(request.POST)
 			if rsvp_form.is_valid():
+				event_pk = rsvp_form.cleaned_data['event_pk']
+				relevant_event = Event.objects.get(pk=event_pk)
 				if relevant_event.end_time <= now:
 					messages.add_message(request, messages.ERROR, MESSAGES['ALREADY_PAST'])
 				else:
-					event_pk = rsvp_form.cleaned_data['event_pk']
-					relevant_event = Event.objects.get(pk=event_pk)
 					if userProfile in relevant_event.rsvps.all():
 						relevant_event.rsvps.remove(userProfile)
 						message = MESSAGES['RSVP_REMOVE'].format(event=relevant_event.title)
@@ -77,7 +76,6 @@ def list_events_view(request):
 				return HttpResponseRedirect(reverse('events'))
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
-	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	upcoming_events = Event.objects.filter(end_time__gte=now)
 	events_dict = list() # a pseudo-dictionary, actually a list with items of form (event, ongoing, rsvpd, rsvp_form), where ongoing is a boolean of whether the event is currently ongoing, rsvpd is a boolean of whether the user has rsvp'd to the event
 	for event in upcoming_events:
@@ -126,11 +124,11 @@ def list_all_events_view(request):
 		elif 'rsvp' in request.POST:
 			rsvp_form = RsvpForm(request.POST)
 			if rsvp_form.is_valid():
+				event_pk = rsvp_form.cleaned_data['event_pk']
+				relevant_event = Event.objects.get(pk=event_pk)
 				if relevant_event.end_time <= now:
 					messages.add_message(request, messages.ERROR, MESSAGES['ALREADY_PAST'])
 				else:
-					event_pk = rsvp_form.cleaned_data['event_pk']
-					relevant_event = Event.objects.get(pk=event_pk)
 					if userProfile in relevant_event.rsvps.all():
 						relevant_event.rsvps.remove(userProfile)
 						message = MESSAGES['RSVP_REMOVE'].format(event=relevant_event.title)
