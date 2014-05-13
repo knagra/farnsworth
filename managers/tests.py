@@ -212,20 +212,6 @@ class TestAdminFunctions(TestCase):
 					 affiliation=UserProfile.STATUS_CHOICES[0][0])
 		self.pr.save()
 
-	def test_anonymous_user(self):
-		self.client.login(username="su", password="pwd")
-
-		response = self.client.get("/custom_admin/anonymous_login/", follow=True)
-		self.assertRedirects(response, "/")
-
-		response = self.client.get("/")
-		self.assertIn("Anonymous Coward", response.content)
-
-		self.client.login(username="su", password="pwd")
-		response = self.client.get("/custom_admin/end_anonymous_session/", follow=True)
-		self.assertRedirects(response, "/custom_admin/utilities/")
-		self.assertIn(MESSAGES["ANONYMOUS_SESSION_ENDED"], response.content)
-
 	def test_profile_request_view(self):
 		self.client.login(username="su", password="pwd")
 
@@ -280,6 +266,78 @@ class TestAdminFunctions(TestCase):
 
 		User.objects.get(username="new_user").delete()
 		self.assertEqual(False, self.client.login(username="new_user", password="new_pwd"))
+
+class TestAnonymousUser(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", email="u@email.com",
+						  password="pwd")
+		self.su = User.objects.create_user(username="su", email="su@email.com",
+						   password="pwd")
+
+		self.su.is_staff, self.su.is_superuser = True, True
+
+		self.u.save()
+		self.su.save()
+
+		self.client.login(username="su", password="pwd")
+
+	def test_anonymous_start(self):
+		response = self.client.get("/")
+		self.assertNotIn("Logged in as anonymous user Anonymous Coward",
+				 response.content)
+
+		response = self.client.get("/custom_admin/anonymous_login/", follow=True)
+		self.assertRedirects(response, "/")
+		self.assertIn("Logged in as anonymous user Anonymous Coward",
+			      response.content)
+
+	def test_anonymous_end(self):
+		self.client.get("/custom_admin/anonymous_login/")
+		self.client.login(username="su", password="pwd")
+
+		response = self.client.get("/custom_admin/end_anonymous_session/",
+					   follow=True)
+		self.assertRedirects(response, "/custom_admin/utilities/")
+		self.assertIn(MESSAGES["ANONYMOUS_SESSION_ENDED"], response.content)
+		self.assertNotIn("Logged in as anonymous user Anonymous Coward",
+				 response.content)
+
+	def test_anonymous_profile(self):
+		self.client.get("/custom_admin/anonymous_login/")
+
+		response = self.client.get("/profile/", follow=True)
+		self.assertRedirects(response, "/")
+		self.assertIn(MESSAGES['SPINELESS'], response.content)
+
+	def test_anonymous_logout(self):
+		self.client.get("/custom_admin/anonymous_login/")
+
+		response = self.client.get("/logout/", follow=True)
+		self.assertRedirects(response, "/")
+		self.assertIn(MESSAGES['ANONYMOUS_DENIED'], response.content)
+
+	def test_anonymous_user_login_logout(self):
+		self.client.get("/custom_admin/anonymous_login/")
+
+		# Need to be careful here, client.login and client.logout clear the
+		# session cookies, causing this test to break
+		self.client.post("/login/", {
+				 "username": "u",
+				 "password": "pwd",
+				 })
+
+		response = self.client.get("/")
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn("Logged in as anonymous user Anonymous Coward",
+				 response.content)
+
+		response = self.client.get("/logout/", follow=True)
+		self.assertRedirects(response, "/")
+
+		response = self.client.get("/")
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Logged in as anonymous user Anonymous Coward",
+			      response.content)
 
 class TestProfileRequests(TestCase):
 	def test_bad_username(self):
