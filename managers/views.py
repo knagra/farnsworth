@@ -370,6 +370,7 @@ def manager_view(request, managerTitle):
 		return HttpResponseRedirect(reverse('list_managers'))
 	if not targetManager.active:
 		messages.add_message(request, messages.ERROR, MESSAGES['INACTIVE_MANAGER'].format(managerTitle=targetManager.title))
+		return HttpResponseRedirect(reverse('list_managers'))
 	else:
 		return render_to_response('view_manager.html', {
 				'page_name': "View Manager",

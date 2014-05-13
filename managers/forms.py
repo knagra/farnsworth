@@ -155,7 +155,7 @@ class ManagerForm(forms.Form):
 		Return True if the form is valid by Django's requirements and the title obeys the parameters.
 		Return False otherwise.
 		'''
-		if not super(RequestTypeForm, self).is_valid():
+		if not super(ManagerForm, self).is_valid():
 			return False
 		elif not verify_url(self.cleaned_data['title']):
 			self._errors['title'] = self.error_class([u'Invalid title. Must be characters A-Z, a-z, 0-9, or "_"'])
