@@ -8,7 +8,7 @@ Replace this with more appropriate tests for your application.
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from farnsworth.settings import MESSAGES
+from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from threads.models import UserProfile
 from managers.models import ProfileRequest, Manager, RequestType, Request, Response
 
@@ -303,11 +303,24 @@ class TestAnonymousUser(TestCase):
 				 response.content)
 
 	def test_anonymous_profile(self):
+		# Failing because anonymous user is not created before it is logged in
+		response = self.client.get("/profile/{0}/".format(ANONYMOUS_USERNAME))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Anonymous Coward", response.content)
+
 		self.client.get("/custom_admin/anonymous_login/")
 
 		response = self.client.get("/profile/", follow=True)
 		self.assertRedirects(response, "/")
 		self.assertIn(MESSAGES['SPINELESS'], response.content)
+
+	def test_anonymous_edit_profile(self):
+		# Failing because anonymous user is not created before it is logged in
+		response = self.client.get("/custom_admin/modify_user/{0}/"
+					   .format(ANONYMOUS_USERNAME))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Anonymous Coward", response.content)
+		self.assertIn(MESSAGES['ANONYMOUS_EDIT'], response.content)
 
 	def test_anonymous_logout(self):
 		self.client.get("/custom_admin/anonymous_login/")
