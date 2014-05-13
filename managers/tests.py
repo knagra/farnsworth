@@ -263,6 +263,105 @@ class TestAdminFunctions(TestCase):
 		self.assertEqual(pr.email, "request@email.com")
 		pr.delete()
 
+	def test_add_user(self):
+		self.client.login(username="su", password="pwd")
+		response = self.client.post("/custom_admin/add_user/", {
+				"username": "new_user",
+				"first_name": "First",
+				"last_name": "Last",
+				"email": "new@email.com",
+				"user_password": "newpwd",
+				"confirm_password": "newpwd",
+				"is_active": "true",
+				"status": UserProfile.STATUS_CHOICES[0][0],
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/add_user/")
+		self.assertIn("User {0} was successfully added.".format("new_user"),
+			      response.content)
+		self.assertNotEqual(0, User.objects.filter(username="new_user").count())
+		self.client.logout()
+
+		self.assertEqual(True, self.client.login(username="new_user", password="newpwd"))
+		response = self.client.get("/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		User.objects.get(username="new_user").delete()
+		self.assertEqual(False, self.client.login(username="new_user", password="new_pwd"))
+
+class TestProfileRequests(TestCase):
+	def test_bad_username(self):
+		usernames = [
+			"user&name",
+			"user.name",
+			"user,name",
+			"user>name",
+			"user<name",
+			"user^name",
+			"user%name",
+			"user:name",
+			"user+name",
+			"\"username",
+			"-username",
+			"~username",
+			"\'username",
+			]
+
+		for username in usernames:
+			response = self.client.post("/request_profile/", {
+					"username": username,
+					"first_name": "first",
+					"last_name": "last",
+					"email": "request@email.com",
+					"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+					"password": "pwd",
+					"confirm_password": "pwd",
+					}, follow=True)
+			self.assertEqual(response.status_code, 200)
+			self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or &quot;_&quot;",
+				      response.content)
+
+	def test_good_username(self):
+		usernames = [
+			"u",
+			"U",
+			"1",
+			"_",
+			"____________________",
+			"aA_1",
+			"zZ_9",
+			"9_Fg",
+			]
+
+		for username in usernames:
+			response = self.client.post("/request_profile/", {
+					"username": username,
+					"first_name": "first",
+					"last_name": "last",
+					"email": "request@email.com",
+					"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+					"password": "pwd",
+					"confirm_password": "pwd",
+					}, follow=True)
+			self.assertRedirects(response, reverse("external"))
+
+	def test_duplicate_request(self):
+		u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
+		u.save()
+
+		response = self.client.post("/request_profile/", {
+				"username": "u",
+				"first_name": "first",
+				"last_name": "last",
+				"email": "request@email.com",
+				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"password": "pwd",
+				"confirm_password": "pwd",
+				}, follow=True)
+		self.assertIn("This usename is taken.  Try one of u_1 through u_10.",
+			      response.content)
+		self.assertEqual(response.status_code, 200)
+
 	def test_bad_profile_requests(self):
 		response = self.client.post("/request_profile/", {
 				"username": "request",
@@ -312,32 +411,6 @@ class TestAdminFunctions(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Select a valid choice. 123 is not one of the available choices.",
 			      response.content)
-
-	def test_add_user(self):
-		self.client.login(username="su", password="pwd")
-		response = self.client.post("/custom_admin/add_user/", {
-				"username": "new_user",
-				"first_name": "First",
-				"last_name": "Last",
-				"email": "new@email.com",
-				"user_password": "newpwd",
-				"confirm_password": "newpwd",
-				"is_active": "true",
-				"status": UserProfile.STATUS_CHOICES[0][0],
-				 }, follow=True)
-		self.assertRedirects(response, "/custom_admin/add_user/")
-		self.assertIn("User {0} was successfully added.".format("new_user"),
-			      response.content)
-		self.assertNotEqual(0, User.objects.filter(username="new_user").count())
-		self.client.logout()
-
-		self.assertEqual(True, self.client.login(username="new_user", password="newpwd"))
-		response = self.client.get("/")
-		self.assertEqual(response.status_code, 200)
-		self.client.logout()
-
-		User.objects.get(username="new_user").delete()
-		self.assertEqual(False, self.client.login(username="new_user", password="new_pwd"))
 
 class TestRequestPages(TestCase):
 	def setUp(self):
