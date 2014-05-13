@@ -321,13 +321,12 @@ class TestAnonymousUser(TestCase):
 
 		# Need to be careful here, client.login and client.logout clear the
 		# session cookies, causing this test to break
-		self.client.post("/login/", {
-				 "username": "u",
-				 "password": "pwd",
-				 })
+		response = self.client.post("/login/", {
+				"username": "u",
+				"password": "pwd",
+				}, follow=True)
 
-		response = self.client.get("/")
-		self.assertEqual(response.status_code, 200)
+		self.assertRedirects(response, "/")
 		self.assertNotIn("Logged in as anonymous user Anonymous Coward",
 				 response.content)
 
