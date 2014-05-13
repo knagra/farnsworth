@@ -12,7 +12,7 @@ from farnsworth.settings import MESSAGES
 from threads.models import UserProfile
 from managers.models import ProfileRequest, Manager, RequestType, Request, Response
 
-class ManagementPermission(TestCase):
+class TestManagementPermissions(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
 		self.st = User.objects.create_user(username="st", email="st@email.com", password="pwd")
@@ -200,7 +200,6 @@ class TestAdminFunctions(TestCase):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
 		self.st = User.objects.create_user(username="st", email="st@email.com", password="pwd")
 		self.su = User.objects.create_user(username="su", email="su@email.com", password="pwd")
-		self.np = User.objects.create_user(username="np", email="np@email.com", password="pwd")
 
 		self.st.is_staff = True
 		self.su.is_staff, self.su.is_superuser = True, True
@@ -208,28 +207,24 @@ class TestAdminFunctions(TestCase):
 		self.u.save()
 		self.st.save()
 		self.su.save()
-		self.np.save()
 
-		UserProfile.objects.get(user=self.np).delete()
 		self.pr = ProfileRequest(username="pr", email="pr@email.com",
 					 affiliation=UserProfile.STATUS_CHOICES[0][0])
 		self.pr.save()
 
 	def test_anonymous_user(self):
 		self.client.login(username="su", password="pwd")
+
 		response = self.client.get("/custom_admin/anonymous_login/", follow=True)
 		self.assertRedirects(response, "/")
+
 		response = self.client.get("/")
 		self.assertIn("Anonymous Coward", response.content)
-
-		# Test that we are "Anonymous Coward"?
 
 		self.client.login(username="su", password="pwd")
 		response = self.client.get("/custom_admin/end_anonymous_session/", follow=True)
 		self.assertRedirects(response, "/custom_admin/utilities/")
 		self.assertIn(MESSAGES["ANONYMOUS_SESSION_ENDED"], response.content)
-
-		self.client.logout()
 
 	def test_profile_request_view(self):
 		self.client.login(username="su", password="pwd")
@@ -257,11 +252,9 @@ class TestAdminFunctions(TestCase):
 		response = self.client.get("/custom_admin/profile_requests/{0}"
 					   .format(self.pr.pk + 1))
 		self.assertEqual(response.status_code, 200)
-		self.client.logout()
 
 		pr = ProfileRequest.objects.get(username="request")
 		self.assertEqual(pr.email, "request@email.com")
-		pr.delete()
 
 	def test_add_user(self):
 		self.client.login(username="su", password="pwd")
@@ -284,7 +277,6 @@ class TestAdminFunctions(TestCase):
 		self.assertEqual(True, self.client.login(username="new_user", password="newpwd"))
 		response = self.client.get("/")
 		self.assertEqual(response.status_code, 200)
-		self.client.logout()
 
 		User.objects.get(username="new_user").delete()
 		self.assertEqual(False, self.client.login(username="new_user", password="new_pwd"))
@@ -464,7 +456,5 @@ class TestRequestPages(TestCase):
 		self.assertNotIn("Request Body", response.content)
 		self.assertNotIn("Response Body", response.content)
 		self.assertNotIn("mark_filled", response.content)
-
-		self.client.logout()
 
 		
