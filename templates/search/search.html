@@ -47,7 +47,6 @@
 	{% endif %}
 	{% endfor %}
 	</div>
-	<hr class="main_divider" style="width: 50%;" />
 {% endif %}
 {% if facets.fields.exact_manager %}
 	<h4 class="text-center"><small>By</small> Manager</h4>
@@ -58,7 +57,6 @@
 	{% endif %}
 	{% endfor %}
 	</div>
-	<hr class="main_divider" style="width: 50%;" />
 {% endif %}
 {% if facets.fields.exact_location %}
 	<h4 class="text-center"><small>By</small> Location</h4>
@@ -69,7 +67,6 @@
 	{% endif %}
 	{% endfor %}
 	</div>
-	<hr class="main_divider" style="width: 50%;" />
 {% endif %}
 {% if facets.fields.exact_status %}
 	<h4 class="text-center"><small>By</small> Member Status</h4>
@@ -80,7 +77,6 @@
 	{% endif %}
 	{% endfor %}
 	</div>
-	<hr class="main_divider" style="width: 50%;" />
 {% endif %}
 {% endif %}
 <div class="text-center hide_facets">
@@ -117,10 +113,10 @@
 {% endfor %}
 
 {% if page.has_previous or page.has_next %}
-	<div class="text-center">
-	{% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+	<div class="text-center field_wrapper">
+	{% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}<span class="glyphicon glyphicon-chevron-left"></span> Previous{% if page.has_previous %}</a>{% endif %}
 	|
-	{% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+	{% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next <span class="glyphicon glyphicon-chevron-right"></span>{% if page.has_next %}</a>{% endif %}
 	</div> <!-- text-center" -->
 {% endif %}
 </div> <!-- .results_container -->

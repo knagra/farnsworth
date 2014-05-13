@@ -7,10 +7,10 @@
 		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">+{{ vote_count }}</a>
 		<ul class="dropdown-menu">
 		{% for voter in vote_count_request.upvotes.all %}
-			<li class="list-group-item-success"><a href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
+			<li class="list-group-item-success"><a title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
 		{% endfor %}
 		{% for voter in vote_count_request.downvotes.all %}
-			<li class="list-group-item-danger"><a href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
+			<li class="list-group-item-danger"><a title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
 		{% endfor %}
 		</ul>
 	</li></ul>
@@ -19,10 +19,10 @@
 		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">{{ vote_count }}</a>
 		<ul class="dropdown-menu">
 		{% for voter in vote_count_request.upvotes.all %}
-			<li class="list-group-item-success"><a class="success" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
+			<li class="list-group-item-success"><a class="success" title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
 		{% endfor %}
 		{% for voter in vote_count_request.downvotes.all %}
-			<li class="list-group-item-danger"><a class="danger" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
+			<li class="list-group-item-danger"><a class="danger" title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
 		{% endfor %}
 		</ul>
 	</li></ul>
@@ -32,10 +32,10 @@
 		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">+0</a>
 		<ul class="dropdown-menu">
 		{% for voter in vote_count_request.upvotes.all %}
-			<li class="list-group-item-success"><a class="success" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
+			<li class="list-group-item-success"><a class="success" title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
 		{% endfor %}
 		{% for voter in vote_count_request.downvotes.all %}
-			<li class="list-group-item-danger"><a class="danger" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
+			<li class="list-group-item-danger"><a class="danger" title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
 		{% endfor %}
 		</ul>
 	</li></ul>

@@ -2,6 +2,7 @@
 
 {% load static from staticfiles %}
 {% load thread_tags %}
+{% load bootstrap %}
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
@@ -10,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="requests">
+<div class="requests table_container">
   <div class="header">
 	{% if relevant_request %}
     <form action="{% url 'list_all_requests' requestType=relevant_request.request_type.url_name %}">
@@ -26,10 +27,10 @@
 	<div class="request_name{% if relevant_request.filled %} bg-success" title="Filled"{% elif relevant_request.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
 		<div class="request_owner">
 		{% if not relevant_request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
-		<form class="inline-form" style="float: right; position: relative; top: -6px; margin-right: 2px;" method="POST" action="">
+		<form class="inline-form" style="float: right; position: relative; margin-right: 2px;" method="POST" action="">
 			{% csrf_token %}
 			{{ vote_form }}
-		<div class="btn-group btn-group-xs">
+		<div class="btn-group btn-group-xs" style="border: none;">
 			<button type="submit" class="btn btn-{% if upvote %}success" title="Cancel Up Vote"{% else %}default" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
 			<button type="submit" class="btn btn-{% if downvote %}danger" title="Cancel Down Vote"{% else %}default" title="Down Vote"{% endif %} name="downvote"><span class="glyphicon glyphicon-thumbs-down"></span></button>
 		</div>
@@ -59,16 +60,13 @@
 	</div>
 	  <form class="new_response_form add_response" id="add_response_form" method="post" action="">
 	    {% csrf_token %}
-	  	<div class="form-group">
-			<label for="id_body">Add Response</label>
-			<textarea name="body"></textarea>
-			<div class="text-center">
-			<div class="btn-group">
-				<button type="submit" class="btn btn-success" name="submit_response_form"><span class="glyphicon glyphicon-paperclip"></span> Post Response</button>
-				<button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_message_form('add_response_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-			</div>
-			</div>
-		</div>
+	    {{ response_form|bootstrap }}
+		<div class="text-center">
+		<div class="btn-group">
+			<button type="submit" class="btn btn-success" name="submit_response_form"><span class="glyphicon glyphicon-paperclip"></span> Post Response</button>
+			<button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_message_form('add_response_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+		</div> <!-- .btn-group -->
+		</div> <!-- .text-center -->
 	  </form>
 	</div>
 	</div>
@@ -87,5 +85,13 @@
   document.getElementById(message_form_id).style.display="none";
   document.getElementById(button_id).style.display="inline";
   }
+  /* Realign checkboxes horizontally if manager response form. */
+  $(document).ready(function() {
+	  $('.checkbox').parent().parent().addClass('col-sm-6');
+	  $('.checkbox').parent().parent().removeClass('form-group');
+	  if ($('.checkbox').length) {
+		$('<hr class="main_divider" style="width:75%" />').insertAfter($('textarea').parent().parent());
+	  }
+  });
 </script>
 {% endblock %}

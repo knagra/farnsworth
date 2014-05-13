@@ -5,7 +5,6 @@ Author: Karandeep Singh Nagra
 '''
 
 from datetime import datetime
-import re
 from django.shortcuts import render_to_response, render
 from django.http import HttpResponseRedirect
 from django import forms
@@ -17,29 +16,16 @@ from django.template import RequestContext
 from django.utils.timezone import utc
 from django.contrib import messages
 
-from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses, \
-    ANONYMOUS_USERNAME, MESSAGES
-from models import Manager, RequestType, ProfileRequest, Request, Response, Announcement
+from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
+from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+from managers.models import Manager, RequestType, ProfileRequest, Request, Response, \
+    Announcement
 from threads.models import UserProfile, Thread, Message
-from threads.views import red_ext, red_home, UnpinForm, VoteForm, ManagerForm, RequestTypeForm
-from threads.decorators import admin_required, profile_required
-from managers.forms import *
-
-def verify_username(username):
-	''' Verify a potential username.
-	Parameters:
-		username is the potential username
-	Returns True if username contains only characters a through z, A through Z, 0 through 9, or the _; returns false otherwise.
-	'''
-	return not bool(re.compile(r'[^a-zA-Z0-9_]').search(username))
-
-def verify_name(name):
-	''' Verify a potential first or last name.
-	Parameters:
-		name is the potential first or last name
-	Returns True if name doesn't contain ", <, >, &, ; returns false otherwise.
-	'''
-	return bool(re.compile(r"[^a-zA-Z']").search(name))
+from threads.redirects import red_ext, red_home
+from threads.decorators import admin_required, profile_required, president_admin_required
+from managers.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, ChangeUserPasswordForm, \
+	ModifyProfileRequestForm, ManagerForm, RequestTypeForm, RequestForm, ResponseForm, ManagerResponseForm, \
+	VoteForm, AnnouncementForm, UnpinForm
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -80,13 +66,17 @@ def request_profile_view(request):
 			last_name = form.cleaned_data['last_name']
 			email = form.cleaned_data['email']
 			affiliation = form.cleaned_data['affiliation_with_the_house']
-			if not verify_username(username):
-				form._errors['username'] = form.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_"'])
-			elif User.objects.filter(username=username).count():
+			password = form.cleaned_data['password']
+			confirm_password = form.cleaned_data['confirm_password']
+			hashed_password = hashers.make_password(password)
+			if User.objects.filter(username=username).count():
 				non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
-				form.errors['__all__'] = form.error_class([non_field_error])
+				form._errors['username'] = forms.util.ErrorList([non_field_error])
+			elif not hashers.is_password_usable(hashed_password):
+				error = "Could not hash password.  Please try again."
+				form.errors['__all__'] = form.error_class([error])
 			else:
-				profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation)
+				profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation, password=hashed_password)
 				profile_request.save()
 				messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
 				return HttpResponseRedirect(reverse('external'))
@@ -138,18 +128,15 @@ def modify_profile_request_view(request, request_pk):
 				is_staff = mod_form.cleaned_data['is_staff']
 				is_superuser = mod_form.cleaned_data['is_superuser']
 				groups = mod_form.cleaned_data['groups']
-				user_password = mod_form.cleaned_data['user_password']
-				confirm_password = mod_form.cleaned_data['confirm_password']
-				if not verify_username(username):
-					mod_form._errors['username'] = forms.util.ErrorList([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_".'])
-				elif User.objects.filter(username=username).count():
+				if User.objects.filter(username=username).count():
 					non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
 					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
 				elif User.objects.filter(first_name=first_name, last_name=last_name):
 					non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
 					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
-				elif user_password == confirm_password:
-					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
+				else:
+					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
+					new_user.password = profile_request.password
 					new_user.is_active = is_active
 					new_user.is_staff = is_staff
 					new_user.is_superuser = is_superuser
@@ -168,11 +155,8 @@ def modify_profile_request_view(request, request_pk):
 					message = MESSAGES['USER_ADDED'].format(username=username)
 					messages.add_message(request, messages.SUCCESS, message)
 					return HttpResponseRedirect(reverse('manage_profile_requests'))
-				else:
-					mod_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-					mod_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	else:
-		mod_form = AddUserForm(initial={'status': profile_request.affiliation, 'username': profile_request.username, 'first_name': profile_request.first_name, 'last_name': profile_request.last_name, 'email': profile_request.email})
+		mod_form = ModifyProfileRequestForm(initial={'status': profile_request.affiliation, 'username': profile_request.username, 'first_name': profile_request.first_name, 'last_name': profile_request.last_name, 'email': profile_request.email})
 	return render_to_response('modify_profile_request.html', {'page_name': page_name, 'add_user_form': mod_form}, context_instance=RequestContext(request))
 
 @admin_required
@@ -248,20 +232,16 @@ def custom_modify_user_view(request, targetUsername):
 			if change_user_password_form.is_valid():
 				user_password = change_user_password_form.cleaned_data['user_password']
 				confirm_password = change_user_password_form.cleaned_data['confirm_password']
-				if user_password == confirm_password:
-					hashed_password = hashers.make_password(user_password)
-					if hashers.is_password_usable(hashed_password):
-						targetUser.password = hashed_password
-						targetUser.save()
-						message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
-						messages.add_message(request, messages.SUCCESS, message)
-						return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
-					else:
-						error = "Could not hash password.  Please try again."
-						change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
+				hashed_password = hashers.make_password(user_password)
+				if hashers.is_password_usable(hashed_password):
+					targetUser.password = hashed_password
+					targetUser.save()
+					message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
+					messages.add_message(request, messages.SUCCESS, message)
+					return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 				else:
-					change_user_password_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match"])
-					change_user_password_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match"])
+					error = "Could not hash password.  Please try again."
+					change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
 	return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'page_name': page_name, 'modify_user_form': modify_user_form, 'change_user_password_form': change_user_password_form}, context_instance=RequestContext(request))
 
 @admin_required
@@ -288,15 +268,13 @@ def custom_add_user_view(request):
 			groups = add_user_form.cleaned_data['groups']
 			user_password = add_user_form.cleaned_data['user_password']
 			confirm_password = add_user_form.cleaned_data['confirm_password']
-			if not verify_username(username):
-				add_user_form._errors['username'] = forms.util.ErrorList([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_"'])
-			elif User.objects.filter(username=username).count():
+			if User.objects.filter(username=username).count():
 				non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
 				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
 			elif User.objects.filter(first_name=first_name, last_name=last_name).count():
 				non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
 				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-			elif user_password == confirm_password:
+			else:
 				new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
 				new_user.is_active = is_active
 				new_user.is_staff = is_staff
@@ -315,9 +293,6 @@ def custom_add_user_view(request):
 				message = MESSAGES['USER_ADDED'].format(username=username)
 				messages.add_message(request, messages.SUCCESS, message)
 				return HttpResponseRedirect(reverse('custom_add_user'))
-			else:
-				add_user_form._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-				add_user_form._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 	else:
 		add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
 	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
@@ -395,37 +370,30 @@ def manager_view(request, managerTitle):
 		return HttpResponseRedirect(reverse('list_managers'))
 	if not targetManager.active:
 		messages.add_message(request, messages.ERROR, MESSAGES['INACTIVE_MANAGER'].format(managerTitle=targetManager.title))
+		return HttpResponseRedirect(reverse('list_managers'))
 	else:
-		return render_to_response('view_manager.html', {'page_name': "View Manager", 'targetManager': targetManager}, context_instance=RequestContext(request))
+		return render_to_response('view_manager.html', {
+				'page_name': "View Manager",
+				'targetManager': targetManager,
+				}, context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def meta_manager_view(request):
 	'''
 	A manager of managers.  Display a list of current managers, with links to modify them.
 	Also display a link to add a new manager.  Restricted to presidents and superadmins.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president=True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENT'])
 	managerset = Manager.objects.all()
-	return render_to_response('meta_manager.html', {'page_name': "Admin - Meta-Manager", 'managerset': managerset}, context_instance=RequestContext(request))
+	return render_to_response('meta_manager.html', {
+			'page_name': "Admin - Meta-Manager",
+			'managerset': managerset,
+			}, context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def add_manager_view(request):
 	''' View to add a new manager position. Restricted to superadmins and presidents. '''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president=True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENTS_ONLY'])
 	if request.method == 'POST':
 		form = ManagerForm(request.POST)
 		if form.is_valid():
@@ -451,9 +419,12 @@ def add_manager_view(request):
 				return HttpResponseRedirect(reverse('add_manager'))
 	else:
 		form = ManagerForm()
-	return render_to_response('edit_manager.html', {'page_name': "Admin - Add Manager", 'form': form}, context_instance=RequestContext(request))
+	return render_to_response('edit_manager.html', {
+			'page_name': "Admin - Add Manager",
+			'form': form,
+			}, context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def edit_manager_view(request, managerTitle):
 	''' View to modify an existing manager. 
 	Parameters:
@@ -461,13 +432,6 @@ def edit_manager_view(request, managerTitle):
 		managerTitle is URL title of the manager.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president=True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENTS_ONLY'])
 	try:
 		targetManager = Manager.objects.get(url_title=managerTitle)
 	except Manager.DoesNotExist:
@@ -492,8 +456,7 @@ def edit_manager_view(request, managerTitle):
 			else:
 				targetManager.title = title
 				targetManager.url_title = url_title
-				if incumbent:
-					targetManager.incumbent = incumbent
+				targetManager.incumbent = incumbent
 				targetManager.compensation = compensation
 				targetManager.duties = duties
 				targetManager.email = email
@@ -508,36 +471,26 @@ def edit_manager_view(request, managerTitle):
 	else:
 		form = ManagerForm(initial={'title': targetManager.title, 'incumbent': targetManager.incumbent, 'compensation': targetManager.compensation,
 			'duties': targetManager.duties, 'email': targetManager.email, 'president': targetManager.president, 'workshift_manager': targetManager.workshift_manager, 'active': targetManager.active})
-	return render_to_response('edit_manager.html', {'page_name': "Admin - Edit Manager", 'form': form, 'manager_title': targetManager.title}, context_instance=RequestContext(request))
+	return render_to_response('edit_manager.html', {
+			'page_name': "Admin - Edit Manager",
+			'form': form,
+			'manager_title': targetManager.title,
+			}, context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def manage_request_types_view(request):
 	''' Manage requests.  Display a list of request types with links to edit them.
 	Also display a link to add a new request type.  Restricted to presidents and superadmins.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president = True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENT'])
 	request_types = RequestType.objects.all()
 	return render_to_response('manage_request_types.html', {'page_name': "Admin - Manage Request Types", 'request_types': request_types},
 			context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def add_request_type_view(request):
 	''' View to add a new request type.  Restricted to presidents and superadmins. '''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president = True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENT'])
 	if request.method == 'POST':
 		form = RequestTypeForm(request.POST)
 		if form.is_valid():
@@ -562,9 +515,12 @@ def add_request_type_view(request):
 			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 	else:
 		form = RequestTypeForm()
-	return render_to_response('edit_request_type.html', {'page_name': "Admin - Add Request Type", 'form': form}, context_instance=RequestContext(request))
+	return render_to_response('edit_request_type.html', {
+			'page_name': "Admin - Add Request Type",
+			'form': form,
+			}, context_instance=RequestContext(request))
 
-@profile_required
+@president_admin_required
 def edit_request_type_view(request, typeName):
 	''' View to edit a new request type.  Restricted to presidents and superadmins.
 	Parameters:
@@ -572,13 +528,6 @@ def edit_request_type_view(request, typeName):
 		typeName is the request type's URL name.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	president = False # whether the user has president privileges
-	for pos in Manager.objects.filter(incumbent=userProfile):
-		if pos.president:
-			president = True
-			break
-	if (not request.user.is_superuser) and (not president):
-		return red_home(request, MESSAGES['PRESIDENT'])
 	try:
 		requestType = RequestType.objects.get(url_name=typeName)
 	except RequestType.DoesNotExist:
@@ -601,15 +550,24 @@ def edit_request_type_view(request, typeName):
 				requestType.url_name = url_name
 				requestType.managers = relevant_managers
 				requestType.enabled = enabled
-				glyphicon = glyphicon
+				requestType.glyphicon = glyphicon
 				requestType.save()
 				messages.add_message(request, messages.SUCCESS, MESSAGES['REQUEST_TYPE_SAVED'].format(typeName=name))
 				return HttpResponseRedirect(reverse('manage_request_types'))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 	else:
-		form = RequestTypeForm(initial={'name': requestType.name, 'relevant_managers': requestType.managers.all(), 'enabled': requestType.enabled, 'glyphicon': requestType.glyphicon})
-	return render_to_response('edit_request_type.html', {'page_name': "Admin - Edit Request Type", 'form': form, 'requestType': requestType}, context_instance=RequestContext(request))
+		form = RequestTypeForm(initial={
+				'name': requestType.name,
+				'relevant_managers': requestType.managers.all(),
+				'enabled': requestType.enabled,
+				'glyphicon': requestType.glyphicon,
+				})
+	return render_to_response('edit_request_type.html', {
+			'page_name': "Admin - Edit Request Type",
+			'form': form,
+			'requestType': requestType,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def requests_view(request, requestType):
@@ -629,25 +587,21 @@ def requests_view(request, requestType):
 		message = "%s requests have been disabled." % request_type.name.title()
 		return red_home(request, message)
 	relevant_managers = request_type.managers.all()
-	manager = False #if the user is a relevant manager
-	for position in relevant_managers:
-		if position.incumbent == userProfile:
-			manager = True
-			break
-	if manager:
-		form = ManagerRequestForm
-	else:
-		form = RequestForm
+	manager = any(i.incumbent == userProfile for i in relevant_managers)
 	if request.method == 'POST':
 		if 'submit_request' in request.POST:
-			request_form = form(request.POST)
+			request_form = RequestForm(request.POST)
 			if request_form.is_valid():
 				body = request_form.cleaned_data['body']
 				new_request = Request(owner=userProfile, body=body, request_type=request_type)
 				new_request.save()
 				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 		elif 'add_response' in request.POST:
-			response_form = ResponseForm(request.POST)
+			if manager:
+				form = ManagerResponseForm
+			else:
+				form = ResponseForm
+			response_form = form(request.POST)
 			if response_form.is_valid():
 				request_pk = response_form.cleaned_data['request_pk']
 				body = response_form.cleaned_data['body']
@@ -687,23 +641,33 @@ def requests_view(request, requestType):
 				relevant_request.save()
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
-	request_form = form()
+	request_form = RequestForm()
 	x = 0 # number of requests loaded
 	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, downvote, vote_form)
 	for req in Request.objects.filter(request_type=request_type):
 		request_responses = Response.objects.filter(request=req)
 		if manager:
-			form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
+			resp_form = ManagerResponseForm(initial={
+					'request_pk': req.pk,
+					'mark_filled': req.filled,
+					'mark_closed': req.closed,
+					})
 		else:
-			form = ResponseForm(initial={'request_pk': req.pk})
+			resp_form = ResponseForm(initial={'request_pk': req.pk})
 		upvote = userProfile in req.upvotes.all()
 		downvote = userProfile in req.downvotes.all()
 		vote_form = VoteForm(initial={'request_pk': req.pk})
-		requests_dict.append((req, request_responses, form, upvote, downvote, vote_form))
+		requests_dict.append((req, request_responses, resp_form, upvote, downvote, vote_form))
 		x += 1
 		if x >= max_requests:
 			break
-	return render_to_response('requests.html', {'manager': manager, 'request_type': request_type.name.title(), 'page_name': page_name, 'request_form': request_form, 'requests_dict': requests_dict}, context_instance=RequestContext(request))
+	return render_to_response('requests.html', {
+			'manager': manager,
+			'request_type': request_type.name.title(),
+			'page_name': page_name,
+			'request_form': request_form,
+			'requests_dict': requests_dict,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def my_requests_view(request):
@@ -727,7 +691,7 @@ def my_requests_view(request):
 				new_request.save()
 				return HttpResponseRedirect(reverse('my_requests'))
 		elif 'add_response' in request.POST:
-			response_form = ResponseForm(request.POST)
+			response_form = ManagerResponseForm(request.POST)
 			if response_form.is_valid():
 				request_pk = response_form.cleaned_data['request_pk']
 				body = response_form.cleaned_data['body']
@@ -771,21 +735,20 @@ def my_requests_view(request):
 	my_requests = Request.objects.filter(owner=userProfile)
 	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, downvote, vote_form),...])
 	for request_type in RequestType.objects.all():
-		type_manager = False
-		for position in request_type.managers.all():
-			if position.incumbent == userProfile:
-				type_manager = True
-				break
+		relevant_managers = request_type.managers.all()
+		type_manager = any(i.incumbent == userProfile for i in relevant_managers)
 		requests_list = list() # Items are of form (request, [list_of_request_responses], response_form),...])
 		type_requests = my_requests.filter(request_type=request_type)
 		for req in type_requests:
 			responses_list = Response.objects.filter(request=req)
 			if type_manager:
-				form = ResponseForm(initial={'request_pk': req.pk, 'mark_filled': req.filled, 'mark_closed': req.closed})
+				form = ManagerResponseForm(initial={
+						'request_pk': req.pk,
+						'mark_filled': req.filled,
+						'mark_closed': req.closed,
+						})
 			else:
 				form = ResponseForm(initial={'request_pk': req.pk})
-				form.fields['mark_filled'].widget = forms.HiddenInput()
-				form.fields['mark_closed'].widget = forms.HiddenInput()
 			upvote = userProfile in req.upvotes.all()
 			downvote = userProfile in req.downvotes.all()
 			vote_form = VoteForm(initial={'request_pk': req.pk})
@@ -793,7 +756,10 @@ def my_requests_view(request):
 		request_form = RequestForm(initial={'type_pk': request_type.pk})
 		request_form.fields['type_pk'].widget = forms.HiddenInput()
 		request_dict.append((request_type, request_form, type_manager, requests_list))
-	return render_to_response('my_requests.html', {'page_name': page_name, 'request_dict': request_dict}, context_instance=RequestContext(request))
+	return render_to_response('my_requests.html', {
+			'page_name': page_name,
+			'request_dict': request_dict,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def list_my_requests_view(request):
@@ -802,7 +768,10 @@ def list_my_requests_view(request):
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
 	requests = Request.objects.filter(owner=userProfile)
-	return render_to_response('list_requests.html', {'page_name': "My Requests", 'requests': requests}, context_instance=RequestContext(request))
+	return render_to_response('list_requests.html', {
+			'page_name': "My Requests",
+			'requests': requests,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def list_user_requests_view(request, targetUsername):
@@ -818,7 +787,11 @@ def list_user_requests_view(request, targetUsername):
 		return render_to_response('list_requests.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
 	page_name = "%s's Requests" % targetUsername
 	requests = Request.objects.filter(owner=targetProfile)
-	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests, 'targetUsername': targetUsername}, context_instance=RequestContext(request))
+	return render_to_response('list_requests.html', {
+			'page_name': page_name,
+			'requests': requests,
+			'targetUsername': targetUsername,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def all_requests_view(request):
@@ -839,10 +812,16 @@ def list_all_requests_view(request, requestType):
 	try:
 		request_type = RequestType.objects.get(url_name=requestType)
 	except RequestType.DoesNotExist:
-		return render_to_response('list_requests.html', {'page_name': "Request Type Not Found"}, context_instance=RequestContext(request))
+		return render_to_response('list_requests.html', {
+				'page_name': "Request Type Not Found",
+				}, context_instance=RequestContext(request))
 	requests = Request.objects.filter(request_type=request_type)
 	page_name = "Archives - All %s Requests" % request_type.name.title()
-	return render_to_response('list_requests.html', {'page_name': page_name, 'requests': requests, 'request_type': request_type}, context_instance=RequestContext(request))
+	return render_to_response('list_requests.html', {
+			'page_name': page_name,
+			'requests': requests,
+			'request_type': request_type,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def request_view(request, request_pk):
@@ -852,17 +831,19 @@ def request_view(request, request_pk):
 	try:
 		relevant_request = Request.objects.get(pk=request_pk)
 	except Request.DoesNotExist:
-		return render_to_response('view_request.html', {'page_name': "Request Not Found"}, context_instance=RequestContext(request))
+		return render_to_response('view_request.html', {
+				'page_name': "Request Not Found",
+				}, context_instance=RequestContext(request))
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_responses = Response.objects.filter(request=relevant_request)
-	manager = False # Whether the user is a relevant manager for this request
-	for position in Manager.objects.filter(incumbent=userProfile):
-		if position in relevant_request.request_type.managers.all():
-			manager = True
-			break
+	relevant_managers = relevant_request.request_type.managers.all()
+	manager = any(i.incumbent == userProfile for i in relevant_managers)
 	if request.method == 'POST':
 		if 'add_response' in request.POST:
-			response_form = ResponseForm(request.POST)
+			if manager:
+				response_form = ManagerResponseForm(request.POST)
+			else:
+				response_form = ResponseForm(request.POST)
 			if response_form.is_valid():
 				request_pk = response_form.cleaned_data['request_pk']
 				body = response_form.cleaned_data['body']
@@ -892,17 +873,31 @@ def request_view(request, request_pk):
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	else:
-		response_form = ResponseForm(initial={'mark_filled': relevant_request.filled, 'mark_closed': relevant_request.closed})
+		if manager:
+			response_form = ManagerResponseForm(initial={
+					'request_pk': relevant_request.pk,
+					'mark_filled': relevant_request.filled,
+					'mark_closed': relevant_request.closed,
+					})
+		else:
+			response_form = ResponseForm(initial={
+					'request_pk': relevant_request.pk,
+					})
 		upvote = userProfile in relevant_request.upvotes.all()
 		downvote = userProfile in relevant_request.downvotes.all()
 		vote_form = VoteForm()
-		if not manager:
-			response_form.fields['mark_filled'].widget = forms.HiddenInput()
-			response_form.fields['mark_closed'].widget = forms.HiddenInput()
 	upvote = userProfile in relevant_request.upvotes.all()
 	downvote = userProfile in relevant_request.downvotes.all()
 	vote_form = VoteForm()
-	return render_to_response('view_request.html', {'page_name': "View Request", 'relevant_request': relevant_request, 'request_responses': request_responses, 'upvote': upvote, 'downvote': downvote, 'vote_form': vote_form}, context_instance=RequestContext(request))
+	return render_to_response('view_request.html', {
+			'page_name': "View Request",
+			'relevant_request': relevant_request,
+			'request_responses': request_responses,
+			'upvote': upvote, 'downvote': downvote,
+			'response_form': response_form,
+			'vote_form': vote_form,
+			'response_form': response_form,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def announcements_view(request):
@@ -938,7 +933,12 @@ def announcements_view(request):
 		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
 			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
 		announcements_dict.append((a, unpin_form))
-	return render_to_response('announcements.html', {'page_name': page_name, 'manager_positions': manager_positions, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form}, context_instance=RequestContext(request))
+	return render_to_response('announcements.html', {
+			'page_name': page_name,
+			'manager_positions': manager_positions,
+			'announcements_dict': announcements_dict,
+			'announcement_form': announcement_form,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def all_announcements_view(request):
@@ -978,4 +978,9 @@ def all_announcements_view(request):
 		elif ((a.manager.incumbent == userProfile) or request.user.is_superuser) and a.pinned:
 			form = UnpinForm(initial={'announcement_pk': a.pk})
 		announcements_dict.append((a, form))
-	return render_to_response('announcements.html', {'page_name': page_name, 'manager_positions': manager_positions, 'announcements_dict': announcements_dict, 'announcement_form': announcement_form}, context_instance=RequestContext(request))
+	return render_to_response('announcements.html', {
+			'page_name': page_name,
+			'manager_positions': manager_positions,
+			'announcements_dict': announcements_dict,
+			'announcement_form': announcement_form,
+			}, context_instance=RequestContext(request))

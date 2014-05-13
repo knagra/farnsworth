@@ -125,8 +125,11 @@
 			<p>The form in the modify profile request page is almost identical to the one in the add user page
 			(detailed <a href="#adding_users">above</a>), with two exceptions.
 			First, the information the user provided in her/his profile request is used to fill some of the fields of the form.
-			And second, there is a button next to the add user button that allows you to delete the request permanently.
-			If a request is deleted, there is no way to retrieve it.  The user will have to fill another request, or you can add the user manually
+			Second, there is a button next to the add user button that allows you to delete the request permanently.
+			And third, there is no password field since the user provided her/his own password when submitting the request.
+			</p>
+			<p>Please note that if a request is deleted, there is no way to retrieve it.
+			The user will have to fill another request, or you can add the user manually
 			(check the <a href="#adding_users">adding users</a> section above for more info).
 			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
@@ -235,8 +238,9 @@
 		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="meta_manager_body" class="toggleable">
 		<hr style="width: 75%;" />
-			<p>Managers are managed from the <a href="{% url 'meta_manager' %}">meta-manager</a> page.</p>
 		<h2 class="sub_subtitle">Adding Managers <a name="adding_managers" title="A link to this sub-section" href="#adding_managers">&sect;</a></h2>
+			<p>Managers are managed from the <a href="{% url 'meta_manager' %}">meta-manager</a> page.
+			</p>
 			<p>You can add a new manager by clicking the top right button on the meta-manager page or by going directly to
 			the <a href="{% url 'add_manager' %}">add manager</a> page.  A manager position can have only one incumbent.  Keep this in mind.
 			</p>
@@ -288,14 +292,15 @@
 			<p>You can see a list of managers and links to their modification pages, incumbent user profile pages, and manager e-mails from
 			the <a href="{% url 'meta_manager' %}">meta-manager</a> (a manager of managers) page.
 			This list will tell you most of the handy information about each manager, as well.
-			
-			When you click on the title of each manager, you will be directed to a page to modify that manager instance.
+			Unlike the manager directory, this list does not show incumbents' personal e-mails.
+			The meta-manager table is sortable, just like any other table in Farnsworth.  You can hold down the Shift key and click multiple table headers
+			to sort by all of the ones you select.
 			</p>
-			<p>This form is identical the add manager form; so details will not be covered here.
+			<p>When you click on the title of each manager, you will be directed to a page to modify that manager instance.
+			This form is identical to the add manager form; so details will not be covered here.
 			The same conditions apply and the same tests apply when you try to modify a manager as when you add a manager.
-			If you try to change a manager to have the same title a different existing manager, you will be thrown an error.
+			If you try to change a manager to have the same title as a different existing manager, you will be thrown an error.
 			Similarly, if the URL name resolved from the title you gave collides with the URL of a different existing manager, you will be thrown an error.
-			
 			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #meta_manager_body -->
@@ -306,7 +311,13 @@
 		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="request_types_body" class="toggleable">
 		<hr style="width: 75%;" />
-		
+		<h2 class="sub_subtitle">About Request Types <a name="about_request_types" title="A link to this sub-section" href="#about_request_types">&sect;</a></h2>
+			<p>Farnsworth abstracts manager requests so that different ones can be created on the fly as needed.
+			A request type is simple.  It has a name, relevant managers, an enabled status, and an optional glyphicon.
+			Names should be unique and resolve to unique URLs.  URLs are resolved by lowercasing all letters and replacing space characters with underscores.
+			A request type's relevant managers are all the managers to whom that requests of that type are made.
+			The enabled status controls whether new requests of that type can be made.
+			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- # request_types_body -->
 	</div> <!-- #request_types -->
