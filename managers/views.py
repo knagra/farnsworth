@@ -5,7 +5,6 @@ Author: Karandeep Singh Nagra
 '''
 
 from datetime import datetime
-import re
 from django.shortcuts import render_to_response, render
 from django.http import HttpResponseRedirect
 from django import forms
@@ -72,7 +71,7 @@ def request_profile_view(request):
 			hashed_password = hashers.make_password(password)
 			if User.objects.filter(username=username).count():
 				non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
-				form.errors['__all__'] = form.error_class([non_field_error])
+				form._errors['username'] = forms.util.ErrorList([non_field_error])
 			elif not hashers.is_password_usable(hashed_password):
 				error = "Could not hash password.  Please try again."
 				form.errors['__all__'] = form.error_class([error])

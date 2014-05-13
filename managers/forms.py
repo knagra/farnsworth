@@ -9,7 +9,7 @@ from django.core.validators import validate_email
 
 from threads.models import UserProfile
 from managers.models import Manager
-from utils.funcs import verify_username
+from utils.funcs import verify_username, verify_url
 
 class ProfileRequestForm(forms.Form):
 	''' Form to create a new profile request. '''
@@ -22,6 +22,10 @@ class ProfileRequestForm(forms.Form):
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	
 	def is_valid(self):
+		''' Validate form.
+		Return True if Django validates the form, the username obeys the parameters, and passwords match.
+		Return False otherwise.
+		'''
 		if not super(ProfileRequestForm, self).is_valid():
 			return False
 		elif not verify_username(self.cleaned_data['username']):
@@ -54,6 +58,10 @@ class AddUserForm(forms.Form):
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	
 	def is_valid(self):
+		''' Validate form.
+		Return True if Django validates the form, the username obeys the parameters, and passwords match.
+		Return False otherwise.
+		'''
 		if not super(AddUserForm, self).is_valid():
 			return False
 		elif not verify_username(self.cleaned_data['username']):
@@ -88,6 +96,10 @@ class ChangeUserPasswordForm(forms.Form):
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	
 	def is_valid(self):
+		''' Validate form.
+		Return True if Django validates form and the passwords match.
+		Return False otherwise.
+		'''
 		if not super(ChangeUserPasswordForm, self).is_valid():
 			return False
 		elif self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
@@ -115,6 +127,10 @@ class ModifyProfileRequestForm(forms.Form):
 	groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
 	
 	def is_valid(self):
+		''' Validate form.
+		Return True if the form is valid by Django's requirements and the username obeys the parameters.
+		Return False otherwise.
+		'''
 		if not super(ModifyProfileRequestForm, self).is_valid():
 			return False
 		elif not verify_username(self.cleaned_data['username']):
@@ -124,7 +140,7 @@ class ModifyProfileRequestForm(forms.Form):
 
 class ManagerForm(forms.Form):
 	''' Form to create or modify a manager position. '''
-	title = forms.CharField(max_length=255, help_text="A unique title for this manager position.")
+	title = forms.CharField(max_length=255, help_text='A unique title for this manager position. Characters A-Z, a-z, 0-9, or "_".')
 	incumbent = forms.ModelChoiceField(queryset=UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS),
 		help_text="Current incumbent for this manager position.  List excludes alumni.", required=False)
 	compensation = forms.CharField(widget=forms.Textarea(), required=False)
@@ -133,6 +149,18 @@ class ManagerForm(forms.Form):
 	president = forms.BooleanField(help_text="Whether this manager has president privileges (edit and add managers, etc.)", required=False)
 	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
 	active = forms.BooleanField(help_text="Whether this is an active manager positions (visible in directory, etc.)", required=False)
+	
+	def is_valid(self):
+		''' Validate form.
+		Return True if the form is valid by Django's requirements and the title obeys the parameters.
+		Return False otherwise.
+		'''
+		if not super(RequestTypeForm, self).is_valid():
+			return False
+		elif not verify_url(self.cleaned_data['title']):
+			self._errors['title'] = self.error_class([u'Invalid title. Must be characters A-Z, a-z, 0-9, or "_"'])
+			return False
+		return True
 	
 	def clean(self):
 		''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
@@ -147,12 +175,24 @@ class ManagerForm(forms.Form):
 
 class RequestTypeForm(forms.Form):
 	''' Form to add or modify a request type. '''
-	name = forms.CharField(max_length=255, help_text="A unique name identifying this request type. Capitalize first letter of each word.")
-	relevant_managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.filter(active=True),
+	name = forms.CharField(max_length=255, help_text='Unique name identifying this request type. Characters A-Z, a-z, 0-9, or "_". Capitalize first letter of each word.')
+	relevant_managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.all(),
 		help_text="Managers responsible for addressing this type of request; list excludes inactive managers.", required=False)
 	enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
 	glyphicon = forms.CharField(max_length=100, required=False,
 		help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.')
+	
+	def is_valid(self):
+		''' Validate form.
+		Return True if the form is valid by Django's requirements and the name obeys the parameters.
+		Return False otherwise.
+		'''
+		if not super(RequestTypeForm, self).is_valid():
+			return False
+		elif not verify_url(self.cleaned_data['name']):
+			self._errors['name'] = self.error_class([u'Invalid name. Must be characters A-Z, a-z, 0-9, or "_"'])
+			return False
+		return True
 
 class RequestForm(forms.Form):
 	''' Form to create a new Request. '''

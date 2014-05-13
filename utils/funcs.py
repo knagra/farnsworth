@@ -23,3 +23,10 @@ def verify_name(name):
 	Returns True if name doesn't contain ", <, >, &, ; returns false otherwise.
 	'''
 	return bool(re.compile(r"[^a-zA-Z']").search(name))
+
+def verify_url(potential_url):
+	''' Verify that potential_url can be converted to a URL by lowercasing and replacing spaces by underscores.
+	Parameters:
+		potential_url is a potential name, title, etc. to be used in a URL.
+	'''
+	return not bool(re.complie(r'[^a-zA-Z0-9 ]').search(potential_url))

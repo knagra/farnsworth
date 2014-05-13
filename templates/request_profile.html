@@ -7,6 +7,14 @@
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/request_profile.css' %}" />
 {% endblock %}
 
+{% block title %}
+<div class="alert alert-info">
+When you fill out and submit this form, your request will be saved for an admin to approve.
+Upon approval, you can login with the password you provide here.
+All passwords are hashed before storage.  We do not store raw passwords.
+If your request is not approved, it will be deleted along with all information you provide here.
+</div>
+{% endblock %}
 {% block content %}
 	<div id="profile_request_form">
 		<div class="header"><h3 class="table_title medium_title">Request a User Profile</h3></div>
