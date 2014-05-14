@@ -282,8 +282,9 @@ def login_view(request):
 	''' The view of the login page. '''
 	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
 	page_name = "Login Page"
+	redirect_to = request.REQUEST.get('next', reverse('homepage'))
 	if (request.user.is_authenticated() and not ANONYMOUS_SESSION) or (ANONYMOUS_SESSION and request.user.username != ANONYMOUS_USERNAME):
-		return HttpResponseRedirect(reverse('homepage'))
+		return HttpResponseRedirect(redirect_to)
 	form = LoginForm(request.POST or None)
 	if request.method == 'POST' and form.is_valid():
 		username = form.cleaned_data['username']
@@ -299,8 +300,7 @@ def login_view(request):
 						login(request, user)
 						if ANONYMOUS_SESSION:
 							request.session['ANONYMOUS_SESSION'] = True
-						next_url = request.REQUEST.get('next', reverse('homepage'))
-						return HttpResponseRedirect(next_url)
+						return HttpResponseRedirect(redirect_to)
 					else:
 						form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
 				else:
