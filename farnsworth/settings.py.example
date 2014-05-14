@@ -268,8 +268,20 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+# http://psa.matiasaguirre.net/docs/backends/github.html#github
 SOCIAL_AUTH_GITHUB_KEY = ''
 SOCIAL_AUTH_GITHUB_SECRET = ''
+
+# http://psa.matiasaguirre.net/docs/backends/google.html#google-oauth2
+# https://console.developers.google.com/project
+# => Create Project
+# => Project -> APIs & auth -> Credentials
+# => "Create New Client ID"
+#       AUTHORIZED JAVASCRIPT ORIGINS: https://www.example.com
+#       AUTHORIZED REDIRECT URI: https://www.example.com/complete/google-oauth2/
+# => Copy "Client ID" and "Client secret"
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 
 LOGIN_URL = BASE_URL + "/login/"
 LOGOUT_URL = BASE_URL + "/logout/"
