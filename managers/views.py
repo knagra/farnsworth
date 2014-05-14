@@ -199,15 +199,7 @@ def custom_modify_user_view(request, targetUsername):
 		messages.add_message(request, messages.WARNING, MESSAGES['ANONYMOUS_EDIT'])
 	page_name = "Admin - Modify User"
 	targetUser = get_object_or_404(User, username=targetUsername)
-	try:
-		targetProfile = UserProfile.objects.get(user=targetUser)
-	except UserProfile.DoesNotExist:
-		page_name = "Profile Not Found"
-		message = "Profile for user %s could not be found." % targetUsername
-		return render_to_response('custom_modify_user.html', {
-				'page_name': page_name,
-				'message': message,
-				}, context_instance=RequestContext(request))
+	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 
 	modify_user_form = ModifyUserForm(initial={
 			'first_name': targetUser.first_name,
@@ -842,13 +834,7 @@ def list_user_requests_view(request, targetUsername):
 		return list_my_requests_view(request)
 
 	targetUser = get_object_or_404(User, username=targetUsername)
-
-	try:
-		targetProfile = UserProfile.objects.get(user=targetUser)
-	except UserProfile.DoesNotExist:
-		return render_to_response('list_requests.html', {
-				'page_name': "Profile not created",
-				}, context_instance=RequestContext(request))
+	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	page_name = "%s's Requests" % targetUsername
 	requests = Request.objects.filter(owner=targetProfile)
 	return render_to_response('list_requests.html', {
