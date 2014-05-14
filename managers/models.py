@@ -5,6 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.db import models
+from picklefield.fields import PickledObjectField
 from threads.models import UserProfile
 
 class Manager(models.Model):
@@ -97,11 +98,12 @@ class ProfileRequest(models.Model):
 	email = models.CharField(blank=False, null=False, max_length=255, help_text="E-mail address if user is created.")
 	request_date = models.DateTimeField(auto_now_add=True, help_text="Whether this request has been granted.")
 	affiliation = models.CharField(max_length=1, choices=UserProfile.STATUS_CHOICES, default=UserProfile.RESIDENT, help_text="User's affiliation with the house.")
-	password = models.CharField(max_length=255, help_text="User's password.  Stored as hash")
-	
+	password = models.CharField(null=True, max_length=255, help_text="User's password.  Stored as hash")
+	social_kwargs = PickledObjectField(null=True)
+
 	def __unicode__(self):
 		return "Profile request for account '%s %s (%s)' on %s" % (self.first_name, self.last_name, self.username, self.request_date)
-	
+
 	def is_profilerequest(self):
 		return True
 
