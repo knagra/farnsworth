@@ -16,6 +16,8 @@ from django.template import RequestContext
 from django.utils.timezone import utc
 from django.contrib import messages
 
+from social.apps.django_app.default.models import UserSocialAuth
+
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from managers.models import Manager, RequestType, ProfileRequest, Request, Response, \
@@ -142,6 +144,15 @@ def modify_profile_request_view(request, request_pk):
 					new_user.is_superuser = is_superuser
 					new_user.groups = groups
 					new_user.save()
+
+					if profile_request.provider and profile_request.uid:
+						social = UserSocialAuth(
+							user=new_user,
+							provider = profile_request.provider,
+							uid = profile_request.uid,
+							)
+						social.save()
+
 					new_user_profile = UserProfile.objects.get(user=new_user)
 					new_user_profile.email_visible = email_visible_to_others
 					new_user_profile.phone_number = phone_number
