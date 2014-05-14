@@ -14,11 +14,11 @@ from managers.models import ProfileRequest, Manager, RequestType, Request, Respo
 
 class TestManagementPermissions(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
-		self.st = User.objects.create_user(username="st", email="st@email.com", password="pwd")
-		self.pu = User.objects.create_user(username="pu", email="su@email.com", password="pwd")
-		self.su = User.objects.create_user(username="su", email="su@email.com", password="pwd")
-		self.np = User.objects.create_user(username="np", email="np@email.com", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.st = User.objects.create_user(username="st", password="pwd")
+		self.pu = User.objects.create_user(username="pu", password="pwd")
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.np = User.objects.create_user(username="np", password="pwd")
 
 		self.st.is_staff = True
 		self.su.is_staff, self.su.is_superuser = True, True
@@ -197,27 +197,21 @@ class TestManagementPermissions(TestCase):
 
 class TestAdminFunctions(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
-		self.st = User.objects.create_user(username="st", email="st@email.com", password="pwd")
-		self.su = User.objects.create_user(username="su", email="su@email.com", password="pwd")
-
-		self.st.is_staff = True
+		self.su = User.objects.create_user(username="su", password="pwd")
 		self.su.is_staff, self.su.is_superuser = True, True
-
-		self.u.save()
-		self.st.save()
 		self.su.save()
 
 		self.pr = ProfileRequest(username="pr", email="pr@email.com",
 					 affiliation=UserProfile.STATUS_CHOICES[0][0])
 		self.pr.save()
 
-	def test_profile_request_view(self):
+	def test_approve_profile_request_view(self):
 		self.client.login(username="su", password="pwd")
 
 		response = self.client.get("/custom_admin/profile_requests/{0}/"
 					   .format(self.pr.pk))
 		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.pr.email, response.content)
 
 	def test_approve_profile_request(self):
 		self.client.login(username="su", password="pwd")
@@ -290,10 +284,8 @@ class TestAdminFunctions(TestCase):
 
 class TestAnonymousUser(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com",
-						  password="pwd")
-		self.su = User.objects.create_user(username="su", email="su@email.com",
-						   password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.su = User.objects.create_user(username="su", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True
 
@@ -429,7 +421,7 @@ class TestProfileRequests(TestCase):
 			self.assertRedirects(response, reverse("external"))
 
 	def test_duplicate_request(self):
-		u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
+		u = User.objects.create_user(username="u", password="pwd")
 		u.save()
 
 		response = self.client.post("/request_profile/", {
@@ -497,8 +489,8 @@ class TestProfileRequests(TestCase):
 
 class TestRequestPages(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
-		self.pu = User.objects.create_user(username="pu", email="su@email.com", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.pu = User.objects.create_user(username="pu", password="pwd")
 
 		self.u.save()
 		self.pu.save()
@@ -548,4 +540,46 @@ class TestRequestPages(TestCase):
 		self.assertNotIn("Response Body", response.content)
 		self.assertNotIn("mark_filled", response.content)
 
-		
+class TestSocialRequest(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.pr = ProfileRequest(username="pr", email="pr@email.com",
+					 affiliation=UserProfile.STATUS_CHOICES[0][0],
+					 provider="github", uid="1234567890")
+		self.pr.save()
+
+	def test_profile_request_view(self):
+		self.client.login(username="su", password="pwd")
+
+		response = self.client.get("/custom_admin/profile_requests/{0}/"
+					   .format(self.pr.pk))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.pr.email, response.content)
+
+	def test_approve_profile_request(self):
+		self.client.login(username="su", password="pwd")
+
+		username = self.pr.username
+
+		response = self.client.post("/custom_admin/profile_requests/{0}/"
+					    .format(self.pr.pk), {
+				"username": username,
+				"first_name": "first",
+				"last_name": "last",
+				"email": self.pr.email,
+				"phone_number": "",
+				"status": self.pr.affiliation,
+				"current_room": "",
+				"former_rooms": "",
+				"former_houses": "",
+				"is_active": "on",
+				"add_user": "",
+				}, follow=True)
+
+		self.assertRedirects(response, "/custom_admin/profile_requests/")
+		self.assertIn("User {0} was successfully added".format(username),
+			      response.content)
+
