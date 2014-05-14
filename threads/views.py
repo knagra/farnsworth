@@ -4,7 +4,7 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
@@ -225,7 +225,15 @@ def my_profile_view(request):
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
 	change_password_form = ChangePasswordForm()
-	update_profile_form = UpdateProfileForm(initial={'current_room': userProfile.current_room, 'former_rooms': userProfile.former_rooms, 'former_houses': userProfile.former_houses, 'email': user.email, 'email_visible_to_others': userProfile.email_visible, 'phone_number': userProfile.phone_number, 'phone_visible_to_others': userProfile.phone_visible})
+	update_profile_form = UpdateProfileForm(initial={
+			'current_room': userProfile.current_room,
+			'former_rooms': userProfile.former_rooms,
+			'former_houses': userProfile.former_houses,
+			'email': user.email,
+			'email_visible_to_others': userProfile.email_visible,
+			'phone_number': userProfile.phone_number,
+			'phone_visible_to_others': userProfile.phone_visible,
+			})
 	if request.method == 'POST':
 		if 'submit_password_form' in request.POST:
 			change_password_form = ChangePasswordForm(request.POST)
@@ -243,7 +251,11 @@ def my_profile_view(request):
 					else:
 						password_non_field_error = "Password didn't hash properly.  Please try again."
 						change_password_form.errors['__all__'] = change_password_form.error_class([password_non_field_error])
-						return render_to_response('my_profile.html', {'page_name': page_name, 'update_profile_form': update_profile_form, 'change_password_form': change_password_form}, context_instance=RequestContext(request))
+						return render_to_response('my_profile.html', {
+								'page_name': page_name,
+								'update_profile_form': update_profile_form,
+								'change_password_form': change_password_form,
+								}, context_instance=RequestContext(request))
 				else:
 					change_password_form._errors['current_password'] = forms.util.ErrorList([u"Wrong password."])
 		elif 'submit_profile_form' in request.POST:
@@ -528,11 +540,8 @@ def list_user_threads_view(request, targetUsername):
 	''' View of my threads. '''
 	if targetUsername == request.user.username:
 		return list_my_threads_view(request)
-	try:
-		targetUser = User.objects.get(username=targetUsername)
-		targetProfile = UserProfile.objects.get(user=targetUser)
-	except User.DoesNotExist:
-		return render_to_response('list_threads.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
+	targetUser = get_object_or_404(User, username=targetUsername)
+	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	threads = Thread.objects.filter(owner=targetProfile)
 	page_name = "%s's Threads" % targetUsername
 	return render_to_response('list_threads.html', {
@@ -544,9 +553,6 @@ def list_user_threads_view(request, targetUsername):
 @profile_required
 def list_all_threads_view(request):
 	''' View of my threads. '''
-	userProfile = UserProfile.objects.get(user=request.user)
-	if not userProfile:
-		return red_ext(request, MESSAGES['NO_PROFILE'])
 	threads = Thread.objects.all()
 	return render_to_response('list_threads.html', {
 			'page_name': "Archives - All Threads",
@@ -574,19 +580,8 @@ def member_profile_view(request, targetUsername):
 		return HttpResponseRedirect(reverse('my_profile'))
 	page_name = "%s's Profile" % targetUsername
 	userProfile = UserProfile.objects.get(user=request.user)
-	try:
-		targetUser = User.objects.get(username=targetUsername)
-	except User.DoesNotExist:
-		page_name = "User Not Found"
-		message = "User %s does not exist or could not be found." % targetUsername
-		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
-	try:
-		targetProfile = UserProfile.objects.get(user=targetUser)
-	except UserProfile.DoesNotExist:
-		page_name = "Profile Not Found"
-		message = "Profile for user %s could not be found." % targetUsername
-		return render_to_response('member_profile.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
-
+	targetUser = get_object_or_404(User, username=targetUsername)
+	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	number_of_threads = Thread.objects.filter(owner=targetProfile).count()
 	number_of_requests = Request.objects.filter(owner=targetProfile).count()
 	return render_to_response('member_profile.html', {
@@ -601,10 +596,7 @@ def member_profile_view(request, targetUsername):
 def thread_view(request, thread_pk):
 	''' View an individual thread. '''
 	userProfile = UserProfile.objects.get(user=request.user)
-	try:
-		thread = Thread.objects.get(pk=thread_pk)
-	except Thread.DoesNotExist:
-		return render_to_response('view_thread.html', {'page_name': "Thread Not Found"}, context_instance=RequestContext(request))
+	thread = get_object_or_404(Thread, pk=thread_pk)
 	messages_list = Message.objects.filter(thread=thread)
 	if request.method == 'POST':
 		message_form = MessageForm(request.POST)
@@ -617,7 +609,9 @@ def thread_view(request, thread_pk):
 			thread.number_of_messages += 1
 			thread.change_date = datetime.utcnow().replace(tzinfo=utc)
 			thread.save()
-			return HttpResponseRedirect(reverse('view_thread', kwargs={'thread_pk': thread_pk}))
+			return HttpResponseRedirect(reverse('view_thread', kwargs={
+						'thread_pk': thread_pk,
+						}))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 	else:
