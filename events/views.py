@@ -7,7 +7,7 @@ Author: Karandeep Singh Nagra
 import datetime
 from django.utils.timezone import utc
 from django.contrib import messages
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django import forms
@@ -84,7 +84,12 @@ def list_events_view(request):
 		ongoing = ((event.start_time <= now) and (event.end_time >= now))
 		rsvpd = (userProfile in event.rsvps.all())
 		events_dict.append((event, ongoing, rsvpd, form))
-	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
+	return render_to_response('list_events.html', {
+			'page_name': page_name,
+			'events_dict': events_dict,
+			'now': now,
+			'event_form': event_form,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def list_all_events_view(request):
@@ -150,17 +155,19 @@ def list_all_events_view(request):
 		rsvpd = (userProfile in event.rsvps.all())
 		already_past = (event.end_time <= now)
 		events_dict.append((event, ongoing, rsvpd, form, already_past))
-	return render_to_response('list_events.html', {'page_name': page_name, 'events_dict': events_dict, 'now': now, 'event_form': event_form}, context_instance=RequestContext(request))
+	return render_to_response('list_events.html', {
+			'page_name': page_name,
+			'events_dict': events_dict,
+			'now': now,
+			'event_form': event_form,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def edit_event_view(request, event_pk):
 	''' The view to edit an event. '''
 	page_name = "Edit Event"
 	userProfile = UserProfile.objects.get(user=request.user)
-	try:
-		event = Event.objects.get(pk=event_pk)
-	except Event.DoesNotExist:
-		return HttpResponseRedirect(reverse('events'))
+	event = get_object_or_404(Event, pk=event_pk)
 	if not ((event.owner == userProfile) or (request.user.is_superuser)):
 		return HttpResponseRedirect(reverse('events'))
 	manager_positions = Manager.objects.filter(incumbent=event.owner)
@@ -203,4 +210,7 @@ def edit_event_view(request, event_pk):
 			message = MESSAGES['EVENT_UPDATED'].format(event=title)
 			messages.add_message(request, messages.SUCCESS, message)
 			return HttpResponseRedirect(reverse('events'))
-	return render_to_response('edit_event.html', {'page_name': page_name, 'event_form': event_form}, context_instance=RequestContext(request))
+	return render_to_response('edit_event.html', {
+			'page_name': page_name,
+			'event_form': event_form,
+			}, context_instance=RequestContext(request))
