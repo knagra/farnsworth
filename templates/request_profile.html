@@ -35,10 +35,11 @@ If your request is not approved, it will be deleted along with all information y
     <div id="oauth_request_form">
       <div class="main_table">
 	<div class="header"><h3 class="table_title medium_title">Use OAuth</h3></div>
-	<div class="form-group">
-	  <a href="{% url 'social:begin' 'google-oauth2' %}">Google</a> <br />
-	  <a href="{% url 'social:begin' 'github' %}">GitHub</a> <br />
-	</div>
+	<ul>
+	  <li><a href="{% url 'social:begin' 'google-oauth2' %}">Google</a></li>
+	  <li><a href="{% url 'social:begin' 'github' %}">GitHub</a></li>
+	</ul>
+	</div> <!-- .form-group -->
       </div> <!-- .main_table -->
     </div> <!-- #oauth_request_form -->
   </div> <!-- .col-md-4 -->

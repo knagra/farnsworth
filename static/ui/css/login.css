@@ -4,12 +4,16 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 */
 
-#login_form {
-	position: relative;
+#social_login_form {
 	margin: 0 auto;
 	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
 	overflow: hidden;
-	width: 60%;
+}
+
+#login_form {
+	margin: 0 auto;
+	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+	overflow: hidden;
 }
 
 .form-group {
