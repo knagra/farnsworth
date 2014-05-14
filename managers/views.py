@@ -5,7 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 
 from datetime import datetime
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
@@ -103,7 +103,7 @@ def manage_profile_requests_view(request):
 def modify_profile_request_view(request, request_pk):
 	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
 	page_name = "Admin - Profile Request"
-	profile_request = ProfileRequest.objects.get(pk=request_pk)
+	profile_request = get_object_or_404(ProfileRequest, pk=request_pk)
 	if request.method == 'POST':
 		mod_form = ModifyProfileRequestForm(request.POST)
 		if 'delete_request' in request.POST:
