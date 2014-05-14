@@ -4,7 +4,11 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from django.conf import settings
 from django.db import models
+
+from social.utils import setting_name
+
 from threads.models import UserProfile
 
 class Manager(models.Model):
@@ -87,6 +91,8 @@ class Response(models.Model):
 	def is_response(self):
 		return True
 
+UID_LENGTH = getattr(settings, setting_name('UID_LENGTH'), 255)
+
 class ProfileRequest(models.Model):
 	'''
 	The ProfileRequest model.  A request to create a user account on the site.
@@ -97,11 +103,13 @@ class ProfileRequest(models.Model):
 	email = models.CharField(blank=False, null=False, max_length=255, help_text="E-mail address if user is created.")
 	request_date = models.DateTimeField(auto_now_add=True, help_text="Whether this request has been granted.")
 	affiliation = models.CharField(max_length=1, choices=UserProfile.STATUS_CHOICES, default=UserProfile.RESIDENT, help_text="User's affiliation with the house.")
-	password = models.CharField(max_length=255, help_text="User's password.  Stored as hash")
-	
+	password = models.CharField(blank=True, max_length=255, help_text="User's password.  Stored as hash")
+	provider = models.CharField(blank=True, max_length=32)
+	uid = models.CharField(blank=True, max_length=UID_LENGTH)
+
 	def __unicode__(self):
 		return "Profile request for account '%s %s (%s)' on %s" % (self.first_name, self.last_name, self.username, self.request_date)
-	
+
 	def is_profilerequest(self):
 		return True
 

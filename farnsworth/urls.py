@@ -18,6 +18,7 @@ urlpatterns = patterns('',
 	url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^search/$', login_required(FacetedSearchView(form_class=FacetedSearchForm, searchqueryset=sqs)), name='haystack_search'),
+	url(r'', include('social.apps.django_app.urls', namespace='social')),
 )
 
 urlpatterns += patterns('threads.views',
