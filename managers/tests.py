@@ -218,9 +218,30 @@ class TestAdminFunctions(TestCase):
 		response = self.client.get("/custom_admin/profile_requests/{0}/"
 					   .format(self.pr.pk))
 		self.assertEqual(response.status_code, 200)
-		self.client.logout()
 
-		# Test that we can approve requests?
+	def test_approve_profile_request(self):
+		self.client.login(username="su", password="pwd")
+
+		username = self.pr.username
+
+		response = self.client.post("/custom_admin/profile_requests/{0}/"
+					    .format(self.pr.pk), {
+				"username": username,
+				"first_name": "first",
+				"last_name": "last",
+				"email": self.pr.email,
+				"phone_number": "",
+				"status": self.pr.affiliation,
+				"current_room": "",
+				"former_rooms": "",
+				"former_houses": "",
+				"is_active": "on",
+				"add_user": "",
+				}, follow=True)
+
+		self.assertRedirects(response, "/custom_admin/profile_requests/")
+		self.assertIn("User {0} was successfully added".format(username),
+			      response.content)
 
 	def test_request_profile(self):
 		response = self.client.post("/request_profile/", {
