@@ -35,7 +35,7 @@ def request_user(strategy, details, user=None, request=None, is_new=False, uid=N
 	if user:
 		return
 	elif is_new:
-		username = details["username"]
+		username = details["username"].replace(".", "_")
 
 		try:
 			ProfileRequest.objects.get(username=username)
