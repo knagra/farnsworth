@@ -6,7 +6,6 @@ Author: Karandeep Singh Nagra
 
 from django.conf import settings
 from django.db import models
-from django.contrib import admin
 from django.contrib.auth.models import User, Group, Permission
 
 from social.utils import setting_name
@@ -41,33 +40,6 @@ class UserProfile(models.Model):
 	def is_userprofile(self):
 		return True
 
-class UserProfileAdmin(admin.ModelAdmin):
-	list_display = ('user', 'get_info', 'status', 'get_email', 'phone_number', 'current_room')
-	search_fields = ('get_last', 'get_first', 'get_user', 'get_email', 'phone_number', 'current_room')
-	list_filter = ('status', 'current_room')
-	ordering = ('-status', )
-	
-	def get_email(self, obj):
-		return obj.user.email
-	
-	def get_info(self, obj):
-		return "%s %s" % (obj.user.first_name, obj.user.last_name)
-	
-	def get_first(self, obj):
-		return obj.user.first_name
-	
-	def get_last(self, obj):
-		return obj.user.last_name
-	
-	def get_user(self, obj):
-		return obj.user.username
-	
-	get_email.short_description = 'E-mail'
-	get_info.short_description = 'First Last'
-	get_first.short_description = 'First name'
-	get_last.short_description = 'Last name'
-	get_user.short_description = 'Username'
-
 class ProfileRequest(models.Model):
 	'''
 	The ProfileRequest model.  A request to create a user account on the site.
@@ -100,5 +72,3 @@ def create_user_profile(sender, instance, created, **kwargs):
 # Connect signals with their respective functions from above.
 # When a user is created, create a user profile associated with that user.
 models.signals.post_save.connect(create_user_profile, sender=User)
-
-admin.site.register(UserProfile, UserProfileAdmin)
