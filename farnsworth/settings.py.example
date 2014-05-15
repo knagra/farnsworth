@@ -222,7 +222,7 @@ SOCIAL_AUTH_GITHUB_SCOPE = ['email']
 # => Copy "Client ID" and "Client secret"
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email']
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', "https://www.googleapis.com/auth/userinfo.profile"]
 
 # https://api.stackexchange.com/
 SOCIAL_AUTH_STACKOVERFLOW_KEY = ''
