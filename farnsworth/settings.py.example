@@ -187,7 +187,6 @@ INSTALLED_APPS = (
 	'events',
 	'managers',
 	'bootstrapform',
-	'south',
 	'haystack',
 	'django.contrib.admin',
 	'django.contrib.admindocs',
