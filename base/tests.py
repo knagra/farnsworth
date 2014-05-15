@@ -8,6 +8,8 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
+
+from utils.variables import MESSAGES
 from base.models import UserProfile, ProfileRequest
 from threads.models import Thread, Message
 from managers.models import Manager, Announcement, RequestType, Request
@@ -431,13 +433,55 @@ class TestProfileAdmin(TestCase):
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
 
-		self.u = User.objects.create_user(username="u", email="u@email.com")
+		self.u = User.objects.create_user(username="u", password="pwd")
 		self.u.save()
+
+		self.ou = User.objects.create_user(
+			username="ou", email="ou@email.com",
+			first_name="Test First", last_name="Test Last",
+			)
+		self.ou.save()
+
+		self.profile = UserProfile.objects.get(user=self.ou)
+		self.profile.phone_number = "(222) 222-2222"
+		self.profile.save()
+
+	def test_set_visible(self):
+		self.client.login(username="u", password="pwd")
+
+		response = self.client.get("/profile/{0}/".format(self.ou.username))
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn(self.ou.email, response.content)
+		self.assertNotIn(self.profile.phone_number, response.content)
+
+		self.client.logout()
 
 		self.client.login(username="su", password="pwd")
 
-	def test_set_visible(self):
-		pass
+		url = "/custom_admin/modify_user/{0}/" .format(self.ou.username)
+		response = self.client.post(url, {
+				"email_visible_to_others": "on",
+				"phone_visible_to_others": "on",
+				"email": self.ou.email,
+				"phone_number": self.profile.phone_number,
+				"first_name": self.ou.first_name,
+				"last_name": self.ou.last_name,
+				"status": self.profile.status,
+				"update_user_profile": "",
+				}, follow=True)
+		self.assertRedirects(response, url)
+		self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username)
+			      .replace("'", "&#39;"),
+			      response.content)
+
+		self.client.logout()
+
+		self.client.login(username="u", password="pwd")
+
+		response = self.client.get("/profile/{0}/".format(self.ou.username))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.ou.email, response.content)
+		self.assertIn(self.profile.phone_number, response.content)
 
 	def test_set_profile_status(self):
 		pass
