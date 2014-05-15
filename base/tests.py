@@ -134,7 +134,7 @@ class TestRequestAccount(TestCase):
 		self.su.save()
 
 		self.pr = ProfileRequest(username="pr", email="pr@email.com",
-					 affiliation=UserProfile.STATUS_CHOICES[0][0])
+					 affiliation=UserProfile.RESIDENT)
 		self.pr.save()
 
 	def test_approve_profile_request_view(self):
@@ -175,7 +175,7 @@ class TestRequestAccount(TestCase):
 				"first_name": "first",
 				"last_name": "last",
 				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"affiliation_with_the_house": UserProfile.RESIDENT,
 				"password": "pwd",
 				"confirm_password": "pwd",
 				}, follow=True)
@@ -213,7 +213,7 @@ class TestProfileRequests(TestCase):
 					"first_name": "first",
 					"last_name": "last",
 					"email": "request@email.com",
-					"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+					"affiliation_with_the_house": UserProfile.RESIDENT,
 					"password": "pwd",
 					"confirm_password": "pwd",
 					}, follow=True)
@@ -239,7 +239,7 @@ class TestProfileRequests(TestCase):
 					"first_name": "first",
 					"last_name": "last",
 					"email": "request@email.com",
-					"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+					"affiliation_with_the_house": UserProfile.RESIDENT,
 					"password": "pwd",
 					"confirm_password": "pwd",
 					}, follow=True)
@@ -254,7 +254,7 @@ class TestProfileRequests(TestCase):
 				"first_name": "first",
 				"last_name": "last",
 				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"affiliation_with_the_house": UserProfile.RESIDENT,
 				"password": "pwd",
 				"confirm_password": "pwd",
 				}, follow=True)
@@ -268,7 +268,7 @@ class TestProfileRequests(TestCase):
 				"first_name": "first",
 				"last_name": "last",
 				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"affiliation_with_the_house": UserProfile.RESIDENT,
 				"password": "pwd",
 				"confirm_password": "pwd2",
 				}, follow=True)
@@ -279,7 +279,7 @@ class TestProfileRequests(TestCase):
 				"username": "request",
 				"last_name": "last",
 				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"affiliation_with_the_house": UserProfile.RESIDENT,
 				"password": "pwd",
 				"confirm_password": "pwd2",
 				}, follow=True)
@@ -291,7 +291,7 @@ class TestProfileRequests(TestCase):
 				"first_name": "first",
 				"last_name": "last",
 				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
+				"affiliation_with_the_house": UserProfile.RESIDENT,
 				"password": "pwd",
 				"confirm_password": "pwd2",
 				}, follow=True)
@@ -319,7 +319,7 @@ class TestSocialRequest(TestCase):
 		self.su.save()
 
 		self.pr = ProfileRequest(username="pr", email="pr@email.com",
-					 affiliation=UserProfile.STATUS_CHOICES[0][0],
+					 affiliation=UserProfile.RESIDENT,
 					 provider="github", uid="1234567890")
 		self.pr.save()
 
@@ -354,3 +354,36 @@ class TestSocialRequest(TestCase):
 		self.assertRedirects(response, "/custom_admin/profile_requests/")
 		self.assertIn("User {0} was successfully added".format(username),
 			      response.content)
+
+class TestProfilePages(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
+		self.u.save()
+
+		self.profile = UserProfile.objects.get(user=self.u)
+		self.profile.current_room = "Test Current Room"
+		self.profile.former_rooms = "Test Former Room, Test Formerer Room"
+		self.profile.former_houses = "Test House, Test Houser, Test Housest"
+		self.profile.phone_number = "(111) 111-111"
+		self.profile.email_visible = True
+		self.profile.phone_visible = True
+		self.profile.status = UserProfile.RESIDENT
+		self.profile.save()
+
+		self.client.login(username="u", password="pwd")
+
+	def test_profile_pages(self):
+		urls = [
+			"/profile/",
+			"/profile/{0}/".format(self.u.username),
+			]
+		for url in urls:
+			response = self.client.get(url)
+			print url
+			print response.content
+			self.assertIn(self.u.username, response.content)
+			self.assertIn(self.profile.current_room, response.content)
+			self.assertIn(self.profile.former_rooms, response.content)
+			self.assertIn(self.profile.former_houses, response.content)
+			self.assertIn(self.profile.phone_number, response.content)
+			# self.assertIn(UserProfile.STATUS_CHOICES[0][1], response.content)
