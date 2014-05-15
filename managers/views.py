@@ -5,7 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 
 from datetime import datetime
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django import forms
 from django.core.urlresolvers import reverse
@@ -15,6 +15,8 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.utils.timezone import utc
 from django.contrib import messages
+
+from social.apps.django_app.default.models import UserSocialAuth
 
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
@@ -104,7 +106,7 @@ def manage_profile_requests_view(request):
 def modify_profile_request_view(request, request_pk):
 	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
 	page_name = "Admin - Profile Request"
-	profile_request = ProfileRequest.objects.get(pk=request_pk)
+	profile_request = get_object_or_404(ProfileRequest, pk=request_pk)
 	if request.method == 'POST':
 		mod_form = ModifyProfileRequestForm(request.POST)
 		if 'delete_request' in request.POST:
@@ -143,6 +145,15 @@ def modify_profile_request_view(request, request_pk):
 					new_user.is_superuser = is_superuser
 					new_user.groups = groups
 					new_user.save()
+
+					if profile_request.provider and profile_request.uid:
+						social = UserSocialAuth(
+							user=new_user,
+							provider = profile_request.provider,
+							uid = profile_request.uid,
+							)
+						social.save()
+
 					new_user_profile = UserProfile.objects.get(user=new_user)
 					new_user_profile.email_visible = email_visible_to_others
 					new_user_profile.phone_number = phone_number
@@ -157,8 +168,17 @@ def modify_profile_request_view(request, request_pk):
 					messages.add_message(request, messages.SUCCESS, message)
 					return HttpResponseRedirect(reverse('manage_profile_requests'))
 	else:
-		mod_form = ModifyProfileRequestForm(initial={'status': profile_request.affiliation, 'username': profile_request.username, 'first_name': profile_request.first_name, 'last_name': profile_request.last_name, 'email': profile_request.email})
-	return render_to_response('modify_profile_request.html', {'page_name': page_name, 'add_user_form': mod_form}, context_instance=RequestContext(request))
+		mod_form = ModifyProfileRequestForm(initial={
+				'status': profile_request.affiliation,
+				'username': profile_request.username,
+				'first_name': profile_request.first_name,
+				'last_name': profile_request.last_name,
+				'email': profile_request.email,
+				})
+	return render_to_response('modify_profile_request.html', {
+			'page_name': page_name,
+			'add_user_form': mod_form,
+			}, context_instance=RequestContext(request))
 
 @admin_required
 def custom_manage_users_view(request):
@@ -166,7 +186,12 @@ def custom_manage_users_view(request):
 	residents = UserProfile.objects.filter(status=UserProfile.RESIDENT)
 	boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
 	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS)
-	return render_to_response('custom_manage_users.html', {'page_name': page_name, 'residents': residents, 'boarders': boarders, 'alumni': alumni}, context_instance=RequestContext(request))
+	return render_to_response('custom_manage_users.html', {
+			'page_name': page_name,
+			'residents': residents,
+			'boarders': boarders,
+			'alumni': alumni,
+			}, context_instance=RequestContext(request))
 
 @admin_required
 def custom_modify_user_view(request, targetUsername):
@@ -174,19 +199,25 @@ def custom_modify_user_view(request, targetUsername):
 	if targetUsername == ANONYMOUS_USERNAME:
 		messages.add_message(request, messages.WARNING, MESSAGES['ANONYMOUS_EDIT'])
 	page_name = "Admin - Modify User"
-	try:
-		targetUser = User.objects.get(username=targetUsername)
-	except User.DoesNotExist:
-		page_name = "User Not Found"
-		message = "User %s does not exist or could not be found." % targetUsername
-		return render_to_response('custom_modify_user.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))
-	try:
-		targetProfile = UserProfile.objects.get(user=targetUser)
-	except UserProfile.DoesNotExist:
-		page_name = "Profile Not Found"
-		message = "Profile for user %s could not be found." % targetUsername
-		return render_to_response('custom_modify_user.html', {'page_name': page_name, 'message': message}, context_instance=RequestContext(request))	
-	modify_user_form = ModifyUserForm(initial={'first_name': targetUser.first_name, 'last_name': targetUser.last_name, 'email': targetUser.email, 'email_visible_to_others': targetProfile.email_visible, 'phone_number': targetProfile.phone_number, 'phone_visible_to_others': targetProfile.phone_visible, 'status': targetProfile.status, 'current_room': targetProfile.current_room, 'former_rooms': targetProfile.former_rooms, 'former_houses': targetProfile.former_houses, 'is_active': targetUser.is_active, 'is_staff': targetUser.is_staff, 'is_superuser': targetUser.is_superuser, 'groups': targetUser.groups.all()})
+	targetUser = get_object_or_404(User, username=targetUsername)
+	targetProfile = get_object_or_404(UserProfile, user=targetUser)
+
+	modify_user_form = ModifyUserForm(initial={
+			'first_name': targetUser.first_name,
+			'last_name': targetUser.last_name,
+			'email': targetUser.email,
+			'email_visible_to_others': targetProfile.email_visible,
+			'phone_number': targetProfile.phone_number,
+			'phone_visible_to_others': targetProfile.phone_visible,
+			'status': targetProfile.status,
+			'current_room': targetProfile.current_room,
+			'former_rooms': targetProfile.former_rooms,
+			'former_houses': targetProfile.former_houses,
+			'is_active': targetUser.is_active,
+			'is_staff': targetUser.is_staff,
+			'is_superuser': targetUser.is_superuser,
+			'groups': targetUser.groups.all(),
+			})
 	change_user_password_form = ChangeUserPasswordForm()
 	if request.method == 'POST':
 		if 'update_user_profile' in request.POST:
@@ -243,7 +274,13 @@ def custom_modify_user_view(request, targetUsername):
 				else:
 					error = "Could not hash password.  Please try again."
 					change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
-	return render_to_response('custom_modify_user.html', {'targetUser': targetUser, 'targetProfile': targetProfile, 'page_name': page_name, 'modify_user_form': modify_user_form, 'change_user_password_form': change_user_password_form}, context_instance=RequestContext(request))
+	return render_to_response('custom_modify_user.html', {
+			'targetUser': targetUser,
+			'targetProfile': targetProfile,
+			'page_name': page_name,
+			'modify_user_form': modify_user_form,
+			'change_user_password_form': change_user_password_form,
+			}, context_instance=RequestContext(request))
 
 @admin_required
 def custom_add_user_view(request):
@@ -296,12 +333,17 @@ def custom_add_user_view(request):
 				return HttpResponseRedirect(reverse('custom_add_user'))
 	else:
 		add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
-	return render_to_response('custom_add_user.html', {'page_name': page_name, 'add_user_form': add_user_form}, context_instance=RequestContext(request))
+	return render_to_response('custom_add_user.html', {
+			'page_name': page_name,
+			'add_user_form': add_user_form,
+			}, context_instance=RequestContext(request))
 
 @admin_required
 def utilities_view(request):
 	''' View for an admin to do maintenance tasks on the site. '''
-	return render_to_response('utilities.html', {'page_name': "Admin - Site Utilities"}, context_instance=RequestContext(request))
+	return render_to_response('utilities.html', {
+			'page_name': "Admin - Site Utilities",
+			}, context_instance=RequestContext(request))
 
 @admin_required
 def anonymous_login_view(request):
@@ -355,7 +397,10 @@ def recount_view(request):
 def list_managers_view(request):
 	''' Show a list of manager positions with links to view in detail. '''
 	managerset = Manager.objects.filter(active=True)
-	return render_to_response('list_managers.html', {'page_name': "Managers", 'managerset': managerset}, context_instance=RequestContext(request))
+	return render_to_response('list_managers.html', {
+			'page_name': "Managers",
+			'managerset': managerset,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def manager_view(request, managerTitle):
@@ -364,11 +409,8 @@ def manager_view(request, managerTitle):
 		request is an HTTP request
 		managerTitle is the URL title of the manager.
 	'''
-	try:
-		targetManager = Manager.objects.get(url_title=managerTitle)
-	except Manager.DoesNotExist:
-		messages.add_message(request, messages.ERROR, MESSAGES['NO_MANAGER'].format(managerTitle=managerTitle))
-		return HttpResponseRedirect(reverse('list_managers'))
+	targetManager = get_object_or_404(Manager, url_title=managerTitle)
+
 	if not targetManager.active:
 		messages.add_message(request, messages.ERROR, MESSAGES['INACTIVE_MANAGER'].format(managerTitle=targetManager.title))
 		return HttpResponseRedirect(reverse('list_managers'))
@@ -412,11 +454,20 @@ def add_manager_view(request):
 			elif Manager.objects.filter(url_title=url_title).count():
 				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
 			else:
-				new_manager = Manager(title=title, url_title=url_title, compensation=compensation, duties=duties, email=email, president=president, workshift_manager=workshift_manager, active=active)
+				new_manager = Manager(
+					title=title,
+					url_title=url_title,
+					compensation=compensation,
+					duties=duties, email=email,
+					president=president,
+					workshift_manager=workshift_manager,
+					active=active,
+					)
 				if incumbent:
 					new_manager.incumbent = incumbent
 				new_manager.save()
-				messages.add_message(request, messages.SUCCESS, MESSAGES['MANAGER_ADDED'].format(managerTitle=title))
+				messages.add_message(request, messages.SUCCESS,
+						     MESSAGES['MANAGER_ADDED'].format(managerTitle=title))
 				return HttpResponseRedirect(reverse('add_manager'))
 	else:
 		form = ManagerForm()
@@ -433,11 +484,8 @@ def edit_manager_view(request, managerTitle):
 		managerTitle is URL title of the manager.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	try:
-		targetManager = Manager.objects.get(url_title=managerTitle)
-	except Manager.DoesNotExist:
-		messages.add_message(request, messages.ERROR, MESSAGES['NO_MANAGER'].format(managerTitle=managerTitle))
-		return HttpResponseRedirect(reverse('meta_manager'))
+	targetManager = get_object_or_404(Manager, url_title=managerTitle)
+
 	if request.method == 'POST':
 		form = ManagerForm(request.POST)
 		if form.is_valid():
@@ -470,8 +518,16 @@ def edit_manager_view(request, managerTitle):
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 	else:
-		form = ManagerForm(initial={'title': targetManager.title, 'incumbent': targetManager.incumbent, 'compensation': targetManager.compensation,
-			'duties': targetManager.duties, 'email': targetManager.email, 'president': targetManager.president, 'workshift_manager': targetManager.workshift_manager, 'active': targetManager.active})
+		form = ManagerForm(initial={
+				'title': targetManager.title,
+				'incumbent': targetManager.incumbent,
+				'compensation': targetManager.compensation,
+				'duties': targetManager.duties,
+				'email': targetManager.email,
+				'president': targetManager.president,
+				'workshift_manager': targetManager.workshift_manager,
+				'active': targetManager.active,
+				})
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Edit Manager",
 			'form': form,
@@ -485,7 +541,9 @@ def manage_request_types_view(request):
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_types = RequestType.objects.all()
-	return render_to_response('manage_request_types.html', {'page_name': "Admin - Manage Request Types", 'request_types': request_types},
+	return render_to_response('manage_request_types.html', {
+			'page_name': "Admin - Manage Request Types",
+			'request_types': request_types},
 			context_instance=RequestContext(request))
 
 @president_admin_required
@@ -529,11 +587,8 @@ def edit_request_type_view(request, typeName):
 		typeName is the request type's URL name.
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	try:
-		requestType = RequestType.objects.get(url_name=typeName)
-	except RequestType.DoesNotExist:
-		messages.add_message(request, messages.ERROR, MESSAGES['NO_REQUEST_TYPE'].format(typeName=typeName))
-		return HttpResponseRedirect(reverse('manage_request_types'))
+	requestType = get_object_or_404(RequestType, url_name=typeName)
+
 	if request.method == 'POST':
 		form = RequestTypeForm(request.POST)
 		if form.is_valid():
@@ -579,10 +634,7 @@ def requests_view(request, requestType):
 			e.g. "food", "maintenance", "network", "site" 
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
-	try:
-		request_type = RequestType.objects.get(url_name=requestType)
-	except RequestType.DoesNotExist:
-		return red_home(request, MESSAGES['NO_REQUEST_TYPE'].format(requestType=requestType))
+	request_type = get_object_or_404(RequestType, url_name=requestType)
 	page_name = "%s Requests" % request_type.name.title()
 	if not request_type.enabled:
 		message = "%s requests have been disabled." % request_type.name.title()
@@ -781,11 +833,9 @@ def list_user_requests_view(request, targetUsername):
 	'''
 	if targetUsername == request.user.username:
 		return list_my_requests_view(request)
-	try:
-		targetUser = User.objects.get(username=targetUsername)
-		targetProfile = UserProfile.objects.get(user=targetUser)
-	except (User.DoesNotExist, UserProfile.DoesNotExist):
-		return render_to_response('list_requests.html', {'page_name': "User Not Found"}, context_instance=RequestContext(request))
+
+	targetUser = get_object_or_404(User, username=targetUsername)
+	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	page_name = "%s's Requests" % targetUsername
 	requests = Request.objects.filter(owner=targetProfile)
 	return render_to_response('list_requests.html', {
@@ -803,19 +853,17 @@ def all_requests_view(request):
 	for request_type in RequestType.objects.all():
 		number_of_requests = Request.objects.filter(request_type=request_type).count()
 		types_dict.append((request_type.name.title(), number_of_requests, request_type.url_name, request_type.enabled, request_type.glyphicon))
-	return render_to_response('all_requests.html', {'page_name': "Archives - All Requests", 'types_dict': types_dict}, context_instance=RequestContext(request))
+	return render_to_response('all_requests.html', {
+			'page_name': "Archives - All Requests",
+			'types_dict': types_dict,
+			}, context_instance=RequestContext(request))
 
 @profile_required
 def list_all_requests_view(request, requestType):
 	'''
 	Show user his/her requests in list form.
 	'''
-	try:
-		request_type = RequestType.objects.get(url_name=requestType)
-	except RequestType.DoesNotExist:
-		return render_to_response('list_requests.html', {
-				'page_name': "Request Type Not Found",
-				}, context_instance=RequestContext(request))
+	request_type = get_object_or_404(RequestType, url_name=requestType)
 	requests = Request.objects.filter(request_type=request_type)
 	page_name = "Archives - All %s Requests" % request_type.name.title()
 	return render_to_response('list_requests.html', {
@@ -829,12 +877,7 @@ def request_view(request, request_pk):
 	'''
 	The view of a single request.
 	'''
-	try:
-		relevant_request = Request.objects.get(pk=request_pk)
-	except Request.DoesNotExist:
-		return render_to_response('view_request.html', {
-				'page_name': "Request Not Found",
-				}, context_instance=RequestContext(request))
+	relevant_request = get_object_or_404(Request, pk=request_pk)
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_responses = Response.objects.filter(request=relevant_request)
 	relevant_managers = relevant_request.request_type.managers.all()
