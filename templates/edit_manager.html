@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-	<div id="update_profile">
+	<div id="update_profile" class="table_container">
 		<div class="header">
 			{% if page_name = 'Admin - Edit Manager' %}
 			<h3 class="table_title{% if manager_title|longer_than:'123456789012345' %} medium_title{% elif manager_title|longer_than:'123456789012' %} small_title{% endif %}">Modify {{ manager_title }}</h3>
