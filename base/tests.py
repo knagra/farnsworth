@@ -373,17 +373,14 @@ class TestProfilePages(TestCase):
 		self.client.login(username="u", password="pwd")
 
 	def test_profile_pages(self):
-		urls = [
-			"/profile/",
-			"/profile/{0}/".format(self.u.username),
-			]
-		for url in urls:
-			response = self.client.get(url)
-			print url
-			print response.content
-			self.assertIn(self.u.username, response.content)
-			self.assertIn(self.profile.current_room, response.content)
-			self.assertIn(self.profile.former_rooms, response.content)
-			self.assertIn(self.profile.former_houses, response.content)
-			self.assertIn(self.profile.phone_number, response.content)
-			# self.assertIn(UserProfile.STATUS_CHOICES[0][1], response.content)
+		response = self.client.get("/profile/")
+		self.assertIn("Update Your Profile", response.content)
+		self.assertIn(self.profile.current_room, response.content)
+		self.assertIn(self.profile.former_rooms, response.content)
+		self.assertIn(self.profile.former_houses, response.content)
+		self.assertIn(self.profile.phone_number, response.content)
+		# self.assertIn(UserProfile.STATUS_CHOICES[0][1], response.content)
+
+		response = self.client.get("/profile/{0}/".format(self.u.username),
+					   follow=True)
+		self.assertRedirects(response, "/profile/")
