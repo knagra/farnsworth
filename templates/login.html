@@ -27,8 +27,11 @@
   <div class="col-md-4">
     <div id="social_login_form">
 	  <p class="text-info">Login via:</p>
+	  <a class="oauth_link" title="Facebook" href="{% url 'social:begin' 'facebook' %}">Facebook</a>
 	  <a class="oauth_link" title="Google" href="{% url 'social:begin' 'google-oauth2' %}"><img src="//www.google.com/images/google_favicon_128.png" width="40" height="40" id="google_logo"></a>
 	  <a class="oauth_link" title="GitHub" href="{% url 'social:begin' 'github' %}"><img src="//assets-cdn.github.com/favicon.ico" width="40" height="40" id="github_logo"></a>
+	  <a class="oauth_link" title="Steam" href="{% url 'social:begin' 'steam'' %}">Steam</a>
+	  <a class="oauth_link" title="Stack Overflow" href="{% url 'social:begin' 'stackoverflow'' %}">Stack Overflow</a>
       </div> <!-- .main_table -->
     </div> <!-- #social_login_form -->
   </div> <!-- .col-md-4 -->
