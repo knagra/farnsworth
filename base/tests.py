@@ -29,15 +29,24 @@ class VerifyUser(TestCase):
 		self.assertEqual(True, self.client.login(username="u", password="pwd"))
 		self.assertEqual(None, self.client.logout())
 
+		response = self.client.post("/login/", {
+				"username": self.u.username,
+				"password": "pwd",
+				}, follow=True)
+		self.assertRedirects(response, "/")
+
+		response = self.client.get("/logout/", follow=True)
+		self.assertRedirects(response, reverse('external'))
+
 	def test_homepage(self):
 		response = self.client.get("/", follow=True)
-		self.assertRedirects(response, "/landing/")
+		self.assertRedirects(response, reverse('external'))
 		self.client.login(username="u", password="pwd")
 		response = self.client.get("/")
 		self.assertEqual(response.status_code, 200)
 		self.client.logout()
 		response = self.client.get("/", follow=True)
-		self.assertRedirects(response, "/landing/")
+		self.assertRedirects(response, reverse('external'))
 
 class FromHome(TestCase):
 	def setUp(self):
