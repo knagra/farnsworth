@@ -18,6 +18,7 @@ from django.contrib import messages
 
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+from utils.funcs import convert_to_url
 from managers.models import Manager, RequestType, ProfileRequest, Request, Response, \
     Announcement
 from threads.models import UserProfile, Thread, Message
@@ -405,7 +406,7 @@ def add_manager_view(request):
 			president = form.cleaned_data['president']
 			workshift_manager = form.cleaned_data['workshift_manager']
 			active = form.cleaned_data['active']
-			url_title = title.lower().replace(' ', '_')
+			url_title = convert_to_url(title)
 			if Manager.objects.filter(title=title).count():
 				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
 			elif Manager.objects.filter(url_title=url_title).count():
@@ -448,7 +449,7 @@ def edit_manager_view(request, managerTitle):
 			president = form.cleaned_data['president']
 			workshift_manager = form.cleaned_data['workshift_manager']
 			active = form.cleaned_data['active']
-			url_title = title.lower().replace(' ', '_')
+			url_title = convert_to_url(title)
 			if Manager.objects.filter(title=title).count() and Manager.objects.get(title=title) != targetManager:
 				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
 			elif Manager.objects.filter(url_title=url_title).count() and Manager.objects.get(url_title=url_title) != targetManager:
@@ -498,7 +499,7 @@ def add_request_type_view(request):
 			relevant_managers = form.cleaned_data['relevant_managers']
 			enabled = form.cleaned_data['enabled']
 			glyphicon = form.cleaned_data['glyphicon']
-			url_name = name.lower().replace(' ', '_')
+			url_name = convert_to_url(name)
 			if RequestType.objects.filter(name=name).count():
 				form._errors['name'] = forms.util.ErrorList([u"A request type with this name already exists."])
 			elif RequestType.objects.filter(url_name=url_name).count():
@@ -540,7 +541,7 @@ def edit_request_type_view(request, typeName):
 			relevant_managers = form.cleaned_data['relevant_managers']
 			enabled = form.cleaned_data['enabled']
 			glyphicon = form.cleaned_data['glyphicon']
-			url_name = name.lower().replace(' ', '_')
+			url_name = convert_to_url(name)
 			if RequestType.objects.filter(name=name).count() and RequestType.objects.get(name=name) != requestType:
 				form._errors['name'] = forms.util.ErrorList([u"A request type with this name already exists."])
 			elif RequestType.objects.filter(url_name=url_name).count() and RequestType.objects.get(url_name=url_name) != requestType:

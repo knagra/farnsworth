@@ -134,13 +134,13 @@ class ModifyProfileRequestForm(forms.Form):
 		if not super(ModifyProfileRequestForm, self).is_valid():
 			return False
 		elif not verify_username(self.cleaned_data['username']):
-			self._errors['username'] = self.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_"'])
+			self._errors['username'] = self.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or "_".'])
 			return False
 		return True
 
 class ManagerForm(forms.Form):
 	''' Form to create or modify a manager position. '''
-	title = forms.CharField(max_length=255, help_text='A unique title for this manager position. Characters A-Z, a-z, 0-9, or "_".')
+	title = forms.CharField(max_length=255, help_text="A unique title for this manager position. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
 	incumbent = forms.ModelChoiceField(queryset=UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS),
 		help_text="Current incumbent for this manager position.  List excludes alumni.", required=False)
 	compensation = forms.CharField(widget=forms.Textarea(), required=False)
@@ -158,7 +158,7 @@ class ManagerForm(forms.Form):
 		if not super(ManagerForm, self).is_valid():
 			return False
 		elif not verify_url(self.cleaned_data['title']):
-			self._errors['title'] = self.error_class([u'Invalid title. Must be characters A-Z, a-z, 0-9, or "_"'])
+			self._errors['title'] = self.error_class([u"Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,"])
 			return False
 		return True
 	
@@ -175,7 +175,8 @@ class ManagerForm(forms.Form):
 
 class RequestTypeForm(forms.Form):
 	''' Form to add or modify a request type. '''
-	name = forms.CharField(max_length=255, help_text='Unique name identifying this request type. Characters A-Z, a-z, 0-9, or "_". Capitalize first letter of each word.')
+	name = forms.CharField(max_length=255,
+		help_text="Unique name identifying this request type. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,. Capitalize first letter of each word.")
 	relevant_managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.all(),
 		help_text="Managers responsible for addressing this type of request; list excludes inactive managers.", required=False)
 	enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
@@ -190,7 +191,7 @@ class RequestTypeForm(forms.Form):
 		if not super(RequestTypeForm, self).is_valid():
 			return False
 		elif not verify_url(self.cleaned_data['name']):
-			self._errors['name'] = self.error_class([u'Invalid name. Must be characters A-Z, a-z, 0-9, or "_"'])
+			self._errors['name'] = self.error_class([u"Invalid name. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,"])
 			return False
 		return True
 

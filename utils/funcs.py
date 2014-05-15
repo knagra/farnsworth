@@ -25,9 +25,21 @@ def verify_name(name):
 	return bool(re.compile(r"[^a-zA-Z']").search(name))
 
 def verify_url(potential_url):
-	''' Verify that potential_url can be converted to a URL by lowercasing and replacing spaces by underscores.
+	''' Verify that potential_url can be converted to a URL by lowercasing and replacing characters as specified in convert_to_url.
 	Parameters:
 		potential_url is a potential name, title, etc. to be used in a URL.
-	Returns True if username contains only characters a through z, A through Z, 0 through 9, or the space character; returns false otherwise.
+	Returns True if potential_url only contains characters a through z, A through Z, 0 through 9, space, or selected other characters.
 	'''
-	return not bool(re.compile(r'[^a-zA-Z0-9 ]').search(potential_url))
+	return not bool(re.compile(r"[^a-zA-Z0-9 _&'?$^%@!#*()=+;:|/.,]").search(potential_url))
+
+def convert_to_url(actual):
+	''' Convert a string into a URL-usable word.
+	Parameters:
+		actual is a string to be converted into a URL-usable word.
+	Returns a string after the following operations:
+		lowercase name
+		replace the space character by underscore
+		remove the characters '?$^%@!#*()=+\;:/.,
+		replace the character & by the string 'and'
+	'''
+	return re.sub("['?$^%@!#*()=+;:|/.,]", '', actual.lower().replace(' ', '_').replace('&', 'and'))
