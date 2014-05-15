@@ -360,30 +360,74 @@ class TestProfilePages(TestCase):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
 		self.u.save()
 
+		self.ou = User.objects.create_user(username="ou", email="ou@email.com", password="pwd")
+		self.ou.save()
+
 		self.profile = UserProfile.objects.get(user=self.u)
 		self.profile.current_room = "Test Current Room"
 		self.profile.former_rooms = "Test Former Room, Test Formerer Room"
 		self.profile.former_houses = "Test House, Test Houser, Test Housest"
-		self.profile.phone_number = "(111) 111-111"
-		self.profile.email_visible = True
-		self.profile.phone_visible = True
+		self.profile.phone_number = "(111) 111-1111"
+		self.profile.email_visible = False
+		self.profile.phone_visible = False
 		self.profile.status = UserProfile.RESIDENT
 		self.profile.save()
 
+		self.oprofile = UserProfile.objects.get(user=self.ou)
+		self.oprofile.current_room = "Other Test Current Room"
+		self.oprofile.former_rooms = "Other Test Former Room, Test Formerer Room"
+		self.oprofile.former_houses = "Other Test House, Test Houser, Test Housest"
+		self.oprofile.phone_number = "(222) 222-2222"
+		self.oprofile.email_visible = False
+		self.oprofile.phone_visible = False
+		self.oprofile.status = UserProfile.RESIDENT
+		self.oprofile.save()
+
 		self.client.login(username="u", password="pwd")
 
-	def test_profile_pages(self):
+	def test_profile_page(self):
 		response = self.client.get("/profile/")
+
+		self.assertEqual(response.status_code, 200)
 		self.assertIn("Update Your Profile", response.content)
+		self.assertIn(self.u.email, response.content)
 		self.assertIn(self.profile.current_room, response.content)
 		self.assertIn(self.profile.former_rooms, response.content)
 		self.assertIn(self.profile.former_houses, response.content)
 		self.assertIn(self.profile.phone_number, response.content)
-		# self.assertIn(UserProfile.STATUS_CHOICES[0][1], response.content)
 
 		response = self.client.get("/profile/{0}/".format(self.u.username),
 					   follow=True)
 		self.assertRedirects(response, "/profile/")
+
+	def test_other_profile_page(self):
+		response = self.client.get("/profile/{0}/".format(self.ou.username))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn(self.ou.email, response.content)
+		self.assertIn("{0} {1}".format(self.ou.first_name, self.ou.last_name),
+			      response.content)
+		self.assertIn(UserProfile.STATUS_CHOICES[0][1], response.content)
+		self.assertIn(self.oprofile.current_room, response.content)
+		self.assertIn(self.oprofile.former_rooms, response.content)
+		self.assertIn(self.oprofile.former_houses, response.content)
+		self.assertNotIn(self.oprofile.phone_number, response.content)
+		self.assertIn("Threads Started", response.content)
+		self.assertIn("Requests Posted", response.content)
+
+	def test_visible(self):
+		self.oprofile.email_visible = True
+		self.oprofile.phone_visible = True
+		self.oprofile.save()
+
+		response = self.client.get("/profile/{0}/".format(self.ou.username))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.ou.email, response.content)
+		self.assertIn(self.oprofile.phone_number, response.content)
+
+	def test_bad_profile(self):
+		response = self.client.get("/profile/404/")
+		self.assertEqual(response.status_code, 404)
 
 class TestAdminFunctions(TestCase):
 	def setUp(self):
