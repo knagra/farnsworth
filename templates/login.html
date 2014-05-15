@@ -10,7 +10,7 @@
 {% block content %}
 <div class="container">
   <div class="col-md-8">
-    <div id="login_form">
+    <div id="login_form" class="table_container">
       <div class="header"><h3 class="table_title">Login</h3></div>
       <div class="main_table">
 	<form method="post" action="">
@@ -18,20 +18,17 @@
 	  <div class="form-group">
 	    {{ form|bootstrap }}
 	    <div class="text-center"><button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-lock"></span>Enter</button></div>
-	  </div>
+	  </div> <!-- .form-group -->
 	</form>
       </div> <!-- .main_table -->
     </div> <!-- #login_form -->
   </div> <!-- .col-md-8 -->
+  <br class="hidden-md hidden-lg" />
   <div class="col-md-4">
     <div id="social_login_form">
-      <div class="header"><h3 class="table_title">Login using OAuth</h3></div>
-      <div class="main_table">
-	<ul>
-	  <li><a href="{% url 'social:begin' 'google-oauth2' %}">Google</a></li>
-	  <li><a href="{% url 'social:begin' 'github' %}">GitHub</a></li>
-	</ul>
-	</div> <!-- .form-group -->
+	  <p class="text-info">Login via:</p>
+	  <a class="oauth_link" title="Google" href="{% url 'social:begin' 'google-oauth2' %}"><img src="//www.google.com/images/google_favicon_128.png" width="40" height="40" id="google_logo"></a>
+	  <a class="oauth_link" title="GitHub" href="{% url 'social:begin' 'github' %}"><img src="//assets-cdn.github.com/favicon.ico" width="40" height="40" id="github_logo"></a>
       </div> <!-- .main_table -->
     </div> <!-- #social_login_form -->
   </div> <!-- .col-md-4 -->
