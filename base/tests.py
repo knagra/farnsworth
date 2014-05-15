@@ -129,67 +129,7 @@ class FromHome(TestCase):
 		self.assertRedirects(response, "/")
 		self.assertIn('title="RSVP"', response.content)
 
-class TestRequestAccount(TestCase):
-	def setUp(self):
-		self.su = User.objects.create_user(username="su", password="pwd")
-		self.su.is_staff, self.su.is_superuser = True, True
-		self.su.save()
-
-		self.pr = ProfileRequest(username="pr", email="pr@email.com",
-					 first_name="Test First Name",
-					 last_name="Test Last Name",
-					 affiliation=UserProfile.RESIDENT)
-		self.pr.save()
-
-	def test_missing_profile_request(self):
-		self.client.login(username="su", password="pwd")
-
-		response = self.client.post("/custom_admin/profile_requests/{0}/"
-					    .format(self.pr.pk + 1), {
-				"username": self.pr.username,
-				"first_name": self.pr.first_name,
-				"last_name": self.pr.last_name,
-				"email": self.pr.email,
-				"phone_number": "",
-				"status": self.pr.affiliation,
-				"current_room": "",
-				"former_rooms": "",
-				"former_houses": "",
-				"is_active": "on",
-				"add_user": "",
-				})
-		self.assertEqual(response.status_code, 404)
-
-	def test_approve_profile_request_view(self):
-		self.client.login(username="su", password="pwd")
-
-		response = self.client.get("/custom_admin/profile_requests/{0}/"
-					   .format(self.pr.pk))
-		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.pr.email, response.content)
-
-	def test_approve_profile_request(self):
-		self.client.login(username="su", password="pwd")
-
-		response = self.client.post("/custom_admin/profile_requests/{0}/"
-					    .format(self.pr.pk), {
-				"username": self.pr.username,
-				"first_name": self.pr.first_name,
-				"last_name": self.pr.last_name,
-				"email": self.pr.email,
-				"phone_number": "",
-				"status": self.pr.affiliation,
-				"current_room": "",
-				"former_rooms": "",
-				"former_houses": "",
-				"is_active": "on",
-				"add_user": "",
-				}, follow=True)
-
-		self.assertRedirects(response, "/custom_admin/profile_requests/")
-		self.assertIn("User {0} was successfully added".format(self.pr.username),
-			      response.content)
-
+class TestRequestProfile(TestCase):
 	def test_request_profile(self):
 		response = self.client.post("/request_profile/", {
 				"username": "request",
@@ -201,16 +141,8 @@ class TestRequestAccount(TestCase):
 				"confirm_password": "pwd",
 				}, follow=True)
 		self.assertRedirects(response, reverse("external"))
+		self.assertEqual(1, ProfileRequest.objects.filter(username="request").count())
 
-		self.client.login(username="su", password="pwd")
-		response = self.client.get("/custom_admin/profile_requests/{0}"
-					   .format(self.pr.pk + 1))
-		self.assertEqual(response.status_code, 200)
-
-		pr = ProfileRequest.objects.get(username="request")
-		self.assertEqual(pr.email, "request@email.com")
-
-class TestProfileRequests(TestCase):
 	def test_bad_username(self):
 		usernames = [
 			"user&name",
@@ -237,10 +169,11 @@ class TestProfileRequests(TestCase):
 					"affiliation_with_the_house": UserProfile.RESIDENT,
 					"password": "pwd",
 					"confirm_password": "pwd",
-					}, follow=True)
+					})
 			self.assertEqual(response.status_code, 200)
 			self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or &quot;_&quot;",
 				      response.content)
+			self.assertEqual(0, ProfileRequest.objects.filter(username=username).count())
 
 	def test_good_username(self):
 		usernames = [
@@ -265,13 +198,14 @@ class TestProfileRequests(TestCase):
 					"confirm_password": "pwd",
 					}, follow=True)
 			self.assertRedirects(response, reverse("external"))
+			self.assertEqual(1, ProfileRequest.objects.filter(username=username).count())
 
 	def test_duplicate_request(self):
-		u = User.objects.create_user(username="u")
+		u = User.objects.create_user(username="request")
 		u.save()
 
 		response = self.client.post("/request_profile/", {
-				"username": "u",
+				"username": "request",
 				"first_name": "first",
 				"last_name": "last",
 				"email": "request@email.com",
@@ -279,9 +213,11 @@ class TestProfileRequests(TestCase):
 				"password": "pwd",
 				"confirm_password": "pwd",
 				}, follow=True)
-		self.assertIn("This usename is taken.  Try one of u_1 through u_10.",
+		self.assertIn("This usename is taken.  Try one of {0}_1 through {0}_10."
+			      .format("request"),
 			      response.content)
 		self.assertEqual(response.status_code, 200)
+		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
 	def test_bad_profile_requests(self):
 		response = self.client.post("/request_profile/", {
@@ -295,6 +231,7 @@ class TestProfileRequests(TestCase):
 				}, follow=True)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Passwords don&#39;t match.", response.content)
+		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
 		response = self.client.post("/request_profile/", {
 				"username": "request",
@@ -306,6 +243,7 @@ class TestProfileRequests(TestCase):
 				}, follow=True)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("This field is required.", response.content)
+		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
 		response = self.client.post("/request_profile/", {
 				"username": "*******", # hunter2
@@ -319,6 +257,7 @@ class TestProfileRequests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or &quot;_&quot;",
 			      response.content)
+		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
 		response = self.client.post("/request_profile/", {
 				"username": "request",
@@ -332,6 +271,7 @@ class TestProfileRequests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Select a valid choice. 123 is not one of the available choices.",
 			      response.content)
+		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
 class TestSocialRequest(TestCase):
 	def setUp(self):
@@ -371,6 +311,66 @@ class TestSocialRequest(TestCase):
 		self.assertRedirects(response, "/custom_admin/profile_requests/")
 		self.assertIn("User {0} was successfully added".format(self.pr.username),
 			      response.content)
+
+class TestApproveProfileRequest(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.pr = ProfileRequest(username="pr", email="pr@email.com",
+					 first_name="Test First Name",
+					 last_name="Test Last Name",
+					 affiliation=UserProfile.RESIDENT)
+		self.pr.save()
+
+		self.client.login(username="su", password="pwd")
+
+	def test_view(self):
+		response = self.client.get("/custom_admin/profile_requests/{0}/"
+					   .format(self.pr.pk))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.pr.email, response.content)
+
+	def test_approve(self):
+		response = self.client.post("/custom_admin/profile_requests/{0}/"
+					    .format(self.pr.pk), {
+				"username": self.pr.username,
+				"first_name": self.pr.first_name,
+				"last_name": self.pr.last_name,
+				"email": self.pr.email,
+				"phone_number": "",
+				"status": self.pr.affiliation,
+				"current_room": "",
+				"former_rooms": "",
+				"former_houses": "",
+				"is_active": "on",
+				"add_user": "",
+				}, follow=True)
+
+		self.assertRedirects(response, "/custom_admin/profile_requests/")
+		self.assertIn("User {0} was successfully added".format(self.pr.username),
+			      response.content)
+
+		u = User.objects.get(username=self.pr.username)
+		self.assertEqual(u.email, self.pr.email)
+
+	def test_missing(self):
+		response = self.client.post("/custom_admin/profile_requests/{0}/"
+					    .format(self.pr.pk + 1), {
+				"username": self.pr.username,
+				"first_name": self.pr.first_name,
+				"last_name": self.pr.last_name,
+				"email": self.pr.email,
+				"phone_number": "",
+				"status": self.pr.affiliation,
+				"current_room": "",
+				"former_rooms": "",
+				"former_houses": "",
+				"is_active": "on",
+				"add_user": "",
+				})
+		self.assertEqual(response.status_code, 404)
 
 class TestProfilePages(TestCase):
 	def setUp(self):
