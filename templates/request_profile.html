@@ -4,21 +4,19 @@
 {% load bootstrap %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/request_profile.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/login.css' %}" />
 {% endblock %}
 
-{% block title %}
-<div class="alert alert-info">
-When you fill out and submit this form, your request will be saved for an admin to approve.
-Upon approval, you can login with the password you provide here.
-All passwords are hashed before storage.  We do not store raw passwords.
-If your request is not approved, it will be deleted along with all information you provide here.
-</div>
-{% endblock %}
 {% block content %}
 <div id="request_form" class="container">
   <div class="col-md-8">
-    <div id="profile_request_form">
+	<div class="alert alert-info">
+		When you fill out and submit this form, your request will be saved for an admin to approve.
+		Upon approval, you can login with the password you provide here.
+		All passwords are hashed before storage.  We do not store raw passwords.
+		If your request is not approved, it will be deleted along with all information you provide here.
+	</div>
+    <div id="profile_request_form" class="table_container">
       <div class="header"><h3 class="table_title medium_title">Request a User Profile</h3></div>
       <div class="main_table">
 	<form method="post" action="">
@@ -26,22 +24,26 @@ If your request is not approved, it will be deleted along with all information y
 	  <div class="form-group">
 	    {{ form|bootstrap }}
 	    <div class="text-center"><button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-send"></span> Submit</button></div>
-	  </div>
+		</div> <!-- .form-group -->
 	</form>
       </div> <!-- .main_table -->
     </div> <!-- #profile_request_form -->
   </div> <!-- .col-md-8 -->
+  <br class="hidden-md hidden-lg" />
   <div class="col-md-4">
+	<div class="alert alert-info">
+	Alternatively, you can request access to the site using authentication from the providers below.
+	Once your request is approved, you can login via the provider you selected.
+	</div> <!-- .alert -->
     <div id="oauth_request_form">
-      <div class="main_table">
-	<div class="header"><h3 class="table_title medium_title">Use OAuth</h3></div>
-	<ul>
-	  <li><a href="{% url 'social:begin' 'google-oauth2' %}">Google</a></li>
-	  <li><a href="{% url 'social:begin' 'github' %}">GitHub</a></li>
-	</ul>
-	</div> <!-- .form-group -->
-      </div> <!-- .main_table -->
+		<a class="oauth_link" title="Google" href="{% url 'social:begin' 'google-oauth2' %}"><img src="//www.google.com/images/google_favicon_128.png" width="40" height="40" id="google_logo"></a>
+		<a class="oauth_link" title="GitHub" href="{% url 'social:begin' 'github' %}"><img src="//assets-cdn.github.com/favicon.ico" width="40" height="40" id="github_logo"></a>
     </div> <!-- #oauth_request_form -->
   </div> <!-- .col-md-4 -->
 </div>
+{% endblock %}
+
+{% block endscripts %}
+<script>
+</script>
 {% endblock %}

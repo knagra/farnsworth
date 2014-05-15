@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-	<div id="update_profile">
+	<div id="update_profile" class="table_container">
 		<div class="header">
 			{% if page_name = 'Admin - Edit Request Type' %}
 			<h3 class="table_title{% if requestType.name|longer_than:'1234567890123' %} large_title{% elif requestType.name|longer_than:'12345678' %} medium_title{% else %} small_title{% endif %}">"{{ requestType.name }}" Request Type</h3>
