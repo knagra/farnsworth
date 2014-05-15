@@ -12,7 +12,7 @@ from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from base.models import UserProfile, ProfileRequest
 from managers.models import Manager, RequestType, Request, Response
 
-class TestManagementPermissions(TestCase):
+class TestPermissions(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
 		self.st = User.objects.create_user(username="st", password="pwd")
