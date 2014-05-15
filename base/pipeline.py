@@ -10,8 +10,7 @@ from django.core.urlresolvers import reverse
 
 from social.pipeline.partial import partial
 
-from threads.models import UserProfile
-from managers.models import ProfileRequest
+from base.models import UserProfile, ProfileRequest
 
 def _get_first_last(details):
 	"""
