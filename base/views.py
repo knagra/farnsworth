@@ -15,10 +15,10 @@ from django.contrib import messages
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, \
     home_max_announcements, home_max_threads
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+from base.redirects import red_ext, red_home
+from base.decorators import profile_required
 from threads.models import UserProfile, Thread, Message
 from threads.forms import *
-from threads.redirects import red_ext, red_home
-from threads.decorators import profile_required
 from managers.models import RequestType, Manager, Request, Response, Announcement
 from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, UnpinForm
 from events.models import Event

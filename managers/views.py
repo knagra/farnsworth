@@ -21,11 +21,11 @@ from social.apps.django_app.default.models import UserSocialAuth
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from utils.funcs import convert_to_url
+from base.decorators import admin_required, profile_required, president_admin_required
 from base.models import UserProfile, ProfileRequest
-from managers.models import Manager, RequestType, Request, Response, Announcement
+from base.redirects import red_ext, red_home
 from threads.models import Thread, Message
-from threads.redirects import red_ext, red_home
-from threads.decorators import admin_required, profile_required, president_admin_required
+from managers.models import Manager, RequestType, Request, Response, Announcement
 from managers.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, ChangeUserPasswordForm, \
 	ModifyProfileRequestForm, ManagerForm, RequestTypeForm, RequestForm, ResponseForm, ManagerResponseForm, \
 	VoteForm, AnnouncementForm, UnpinForm

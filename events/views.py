@@ -13,12 +13,11 @@ from django.template import RequestContext
 from django import forms
 from django.core.urlresolvers import reverse
 
-from base.models import UserProfile
-from managers.models import Manager
-from threads.decorators import profile_required
-from threads.redirects import red_home, red_ext
-# Standard messages:
 from utils.variables import MESSAGES
+from base.decorators import profile_required
+from base.models import UserProfile
+from base.redirects import red_home, red_ext
+from managers.models import Manager
 from events.models import Event
 from events.forms import EventForm, RsvpForm
 
