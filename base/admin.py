@@ -7,8 +7,6 @@ Author: Karandeep Singh Nagra
 from django.contrib import admin
 from base.models import UserProfile
 
-from base.models import UserProfile
-
 class UserProfileAdmin(admin.ModelAdmin):
 	list_display = ('user', 'get_info', 'status', 'get_email', 'phone_number', 'current_room')
 	search_fields = ('get_last', 'get_first', 'get_user', 'get_email', 'phone_number', 'current_room')
