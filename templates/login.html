@@ -13,26 +13,30 @@
     <div id="login_form" class="table_container">
       <div class="header"><h3 class="table_title">Login</h3></div>
       <div class="main_table">
-	<form method="post" action="">
-	  {% csrf_token %}
-	  <div class="form-group">
+		<form method="post" action="">
+		{% csrf_token %}
+		<div class="form-group">
 	    {{ form|bootstrap }}
-	    <div class="text-center"><button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-lock"></span>Enter</button></div>
-	  </div> <!-- .form-group -->
-	</form>
+	    <div class="text-center">
+			<button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-lock"></span>Enter</button>
+		</div> <!-- .text-center -->
+		</div> <!-- .form-group -->
+		</form>
       </div> <!-- .main_table -->
     </div> <!-- #login_form -->
   </div> <!-- .col-md-8 -->
   <br class="hidden-md hidden-lg" />
   <div class="col-md-4">
-    <div id="social_login_form">
-	  <p class="text-info">Login via:</p>
-	  <a class="oauth_link" title="Facebook" href="{% url 'social:begin' 'facebook' %}">Facebook</a>
-	  <a class="oauth_link" title="Google" href="{% url 'social:begin' 'google-oauth2' %}"><img src="//www.google.com/images/google_favicon_128.png" width="40" height="40" id="google_logo"></a>
-	  <a class="oauth_link" title="GitHub" href="{% url 'social:begin' 'github' %}"><img src="//assets-cdn.github.com/favicon.ico" width="40" height="40" id="github_logo"></a>
-	  <a class="oauth_link" title="Steam" href="{% url 'social:begin' 'steam' %}">Steam</a>
-	  <a class="oauth_link" title="Stack Overflow" href="{% url 'social:begin' 'stackoverflow' %}">Stack Overflow</a>
-      </div> <!-- .main_table -->
-    </div> <!-- #social_login_form -->
+	<div class="table_container">
+	<div class="header"><h3 class="table_title">OAuth Login</h3></div>
+    <ul id="oauth_request_form" class="list-group">
+	  <a class="list-group-item" style="border-radius: 0;" title="Facebook" href="{% url 'social:begin' 'facebook' %}"><img height="30" width="30" src="{% static 'ui/images/oauth/fb.png' %}"> Facebook</a>
+	  <a class="list-group-item" title="Google" href="{% url 'social:begin' 'google-oauth2' %}"><img height="30" width="30" src="{% static 'ui/images/oauth/google.png' %}"> Google</a>
+	  <a class="list-group-item" title="GitHub" href="{% url 'social:begin' 'github' %}"><img height="30" width="30" src="{% static 'ui/images/oauth/github.ico' %}"> GitHub</a>
+	  <a class="list-group-item" title="Steam" href="{% url 'social:begin' 'steam' %}"><img height="30" width="30" src="{% static 'ui/images/oauth/steam.png' %}"> Steam</a>
+	  <a class="list-group-item" style="border-radius: 0;" title="Stack Overflow" href="{% url 'social:begin' 'stackoverflow' %}"><img height="30" width="30" src="{% static 'ui/images/oauth/stackoverflow.png' %}"> Stack Overflow</a>
+    </ul> <!-- #oauth_request_form -->
+    </div> <!-- .table_container -->
   </div> <!-- .col-md-4 -->
+</div> <!-- .container -->
 {% endblock %}
