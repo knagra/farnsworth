@@ -136,8 +136,29 @@ class TestRequestAccount(TestCase):
 		self.su.save()
 
 		self.pr = ProfileRequest(username="pr", email="pr@email.com",
+					 first_name="Test First Name",
+					 last_name="Test Last Name",
 					 affiliation=UserProfile.RESIDENT)
 		self.pr.save()
+
+	def test_missing_profile_request(self):
+		self.client.login(username="su", password="pwd")
+
+		response = self.client.post("/custom_admin/profile_requests/{0}/"
+					    .format(self.pr.pk + 1), {
+				"username": self.pr.username,
+				"first_name": self.pr.first_name,
+				"last_name": self.pr.last_name,
+				"email": self.pr.email,
+				"phone_number": "",
+				"status": self.pr.affiliation,
+				"current_room": "",
+				"former_rooms": "",
+				"former_houses": "",
+				"is_active": "on",
+				"add_user": "",
+				})
+		self.assertEqual(response.status_code, 404)
 
 	def test_approve_profile_request_view(self):
 		self.client.login(username="su", password="pwd")
@@ -150,13 +171,11 @@ class TestRequestAccount(TestCase):
 	def test_approve_profile_request(self):
 		self.client.login(username="su", password="pwd")
 
-		username = self.pr.username
-
 		response = self.client.post("/custom_admin/profile_requests/{0}/"
 					    .format(self.pr.pk), {
-				"username": username,
-				"first_name": "first",
-				"last_name": "last",
+				"username": self.pr.username,
+				"first_name": self.pr.first_name,
+				"last_name": self.pr.last_name,
 				"email": self.pr.email,
 				"phone_number": "",
 				"status": self.pr.affiliation,
@@ -168,7 +187,7 @@ class TestRequestAccount(TestCase):
 				}, follow=True)
 
 		self.assertRedirects(response, "/custom_admin/profile_requests/")
-		self.assertIn("User {0} was successfully added".format(username),
+		self.assertIn("User {0} was successfully added".format(self.pr.username),
 			      response.content)
 
 	def test_request_profile(self):
