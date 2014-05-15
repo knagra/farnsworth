@@ -246,7 +246,7 @@ class TestProfileRequests(TestCase):
 			self.assertRedirects(response, reverse("external"))
 
 	def test_duplicate_request(self):
-		u = User.objects.create_user(username="u", password="pwd")
+		u = User.objects.create_user(username="u")
 		u.save()
 
 		response = self.client.post("/request_profile/", {
@@ -323,22 +323,18 @@ class TestSocialRequest(TestCase):
 					 provider="github", uid="1234567890")
 		self.pr.save()
 
-	def test_profile_request_view(self):
 		self.client.login(username="su", password="pwd")
 
+	def test_profile_request_view(self):
 		response = self.client.get("/custom_admin/profile_requests/{0}/"
 					   .format(self.pr.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.pr.email, response.content)
 
 	def test_approve_profile_request(self):
-		self.client.login(username="su", password="pwd")
-
-		username = self.pr.username
-
 		response = self.client.post("/custom_admin/profile_requests/{0}/"
 					    .format(self.pr.pk), {
-				"username": username,
+				"username": self.pr.username,
 				"first_name": "first",
 				"last_name": "last",
 				"email": self.pr.email,
@@ -352,7 +348,7 @@ class TestSocialRequest(TestCase):
 				}, follow=True)
 
 		self.assertRedirects(response, "/custom_admin/profile_requests/")
-		self.assertIn("User {0} was successfully added".format(username),
+		self.assertIn("User {0} was successfully added".format(self.pr.username),
 			      response.content)
 
 class TestProfilePages(TestCase):
@@ -360,7 +356,7 @@ class TestProfilePages(TestCase):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
 		self.u.save()
 
-		self.ou = User.objects.create_user(username="ou", email="ou@email.com", password="pwd")
+		self.ou = User.objects.create_user(username="ou", email="ou@email.com")
 		self.ou.save()
 
 		self.profile = UserProfile.objects.get(user=self.u)
@@ -428,6 +424,23 @@ class TestProfilePages(TestCase):
 	def test_bad_profile(self):
 		response = self.client.get("/profile/404/")
 		self.assertEqual(response.status_code, 404)
+
+class TestProfileAdmin(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.u = User.objects.create_user(username="u", email="u@email.com")
+		self.u.save()
+
+		self.client.login(username="su", password="pwd")
+
+	def test_set_visible(self):
+		pass
+
+	def test_set_profile_status(self):
+		pass
 
 class TestAdminFunctions(TestCase):
 	def setUp(self):
