@@ -47,7 +47,6 @@ urlpatterns += patterns('threads.views',
 	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
 	url(r'^thread/(?P<thread_pk>\w+)/$', 'thread_view', name='view_thread'),
 	url(r'^profile/(?P<targetUsername>\w+)/threads/$', 'list_user_threads_view', name="list_user_threads"),
-	url(r'^custom_admin/recount/$', 'recount_view', name='recount'),
 )
 
 urlpatterns += patterns('events.views',
@@ -75,6 +74,7 @@ urlpatterns += patterns('managers.views',
 	url(r'^request/(?P<request_pk>\w+)/$', 'request_view', name='view_request'),
 	url(r'^announcements/$', 'announcements_view', name='announcements'),
 	url(r'^archives/all_announcements/$', 'all_announcements_view', name='all_announcements'),
+	url(r'^custom_admin/recount/$', 'recount_view', name='recount'),
 )
 
 # Catch any other urls here

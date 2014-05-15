@@ -263,24 +263,3 @@ def thread_view(request, thread_pk):
 			'page_name': "View Thread", 
 			'messages_list': messages_list,
 			}, context_instance=RequestContext(request))
-
-@admin_required
-def recount_view(request):
-	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
-	requests_changed = 0
-	for req in Request.objects.all():
-		recount = Response.objects.filter(request=req).count()
-		if req.number_of_responses != recount:
-			req.number_of_responses = recount
-			req.save()
-			requests_changed += 1
-	threads_changed = 0
-	for thread in Thread.objects.all():
-		recount = Message.objects.filter(thread=thread).count()
-		if thread.number_of_messages != recount:
-			thread.number_of_messages = recount
-			thread.save()
-			threads_changed += 1
-	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(requests_changed=requests_changed, request_count=Request.objects.all().count(),
-			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
-	return HttpResponseRedirect(reverse('utilities'))

@@ -21,7 +21,7 @@ from base.models import UserProfile, ProfileRequest
 from base.redirects import red_ext, red_home
 from base.decorators import profile_required, admin_required
 from base.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, \
-    ModifyProfileRequestForm
+    ModifyProfileRequestForm, ChangeUserPasswordForm
 from threads.models import Thread, Message
 from threads.forms import *
 from managers.models import RequestType, Manager, Request, Response, Announcement

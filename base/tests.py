@@ -384,3 +384,34 @@ class TestProfilePages(TestCase):
 		response = self.client.get("/profile/{0}/".format(self.u.username),
 					   follow=True)
 		self.assertRedirects(response, "/profile/")
+
+class TestAdminFunctions(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+	def test_add_user(self):
+		self.client.login(username="su", password="pwd")
+		response = self.client.post("/custom_admin/add_user/", {
+				"username": "new_user",
+				"first_name": "First",
+				"last_name": "Last",
+				"email": "new@email.com",
+				"user_password": "newpwd",
+				"confirm_password": "newpwd",
+				"is_active": "true",
+				"status": UserProfile.STATUS_CHOICES[0][0],
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/add_user/")
+		self.assertIn("User {0} was successfully added.".format("new_user"),
+			      response.content)
+		self.assertNotEqual(0, User.objects.filter(username="new_user").count())
+		self.client.logout()
+
+		self.assertEqual(True, self.client.login(username="new_user", password="newpwd"))
+		response = self.client.get("/")
+		self.assertEqual(response.status_code, 200)
+
+		User.objects.get(username="new_user").delete()
+		self.assertEqual(False, self.client.login(username="new_user", password="new_pwd"))
