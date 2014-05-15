@@ -25,6 +25,7 @@ bootstrap-datetime-picker (included in static/bootstrap/js and static/ui/css)
 Django-Haystack 2.1.1-dev (from GitHub, read 'Get started' on haystacksearch.org)
 elasticsearch 1.1.1 (https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.1.deb)
 Python elasticsearch (pip install elasticsearch)
+Python Social Auth 0.1.23
 
 Deployment
 ==
