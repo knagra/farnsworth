@@ -447,37 +447,6 @@ class TestProfileAdmin(TestCase):
 		self.profile.save()
 
 	def test_set_visible(self):
-		url = "/custom_admin/modify_user/{0}/" .format(self.ou.username)
-
-		for status, title in UserProfile.STATUS_CHOICES:
-			self.client.login(username="su", password="pwd")
-
-			response = self.client.post(url, {
-					"email_visible_to_others": "on",
-					"phone_visible_to_others": "on",
-					"email": self.ou.email,
-					"phone_number": self.profile.phone_number,
-					"first_name": self.ou.first_name,
-					"last_name": self.ou.last_name,
-					"status": status,
-					"update_user_profile": "",
-					}, follow=True)
-			self.assertRedirects(response, url)
-			self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username)
-				      .replace("'", "&#39;"),
-				      response.content)
-
-			self.client.logout()
-
-			self.client.login(username="u", password="pwd")
-
-			response = self.client.get("/profile/{0}/".format(self.ou.username))
-			self.assertEqual(response.status_code, 200)
-			self.assertIn(title, response.content)
-
-			self.client.logout()
-
-	def test_set_profile_status(self):
 		self.client.login(username="u", password="pwd")
 
 		response = self.client.get("/profile/{0}/".format(self.ou.username))
@@ -514,7 +483,36 @@ class TestProfileAdmin(TestCase):
 		self.assertIn(self.ou.email, response.content)
 		self.assertIn(self.profile.phone_number, response.content)
 
-		pass
+	def test_set_profile_status(self):
+		url = "/custom_admin/modify_user/{0}/" .format(self.ou.username)
+
+		for status, title in UserProfile.STATUS_CHOICES:
+			self.client.login(username="su", password="pwd")
+
+			response = self.client.post(url, {
+					"email_visible_to_others": "on",
+					"phone_visible_to_others": "on",
+					"email": self.ou.email,
+					"phone_number": self.profile.phone_number,
+					"first_name": self.ou.first_name,
+					"last_name": self.ou.last_name,
+					"status": status,
+					"update_user_profile": "",
+					}, follow=True)
+			self.assertRedirects(response, url)
+			self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username)
+				      .replace("'", "&#39;"),
+				      response.content)
+
+			self.client.logout()
+
+			self.client.login(username="u", password="pwd")
+
+			response = self.client.get("/profile/{0}/".format(self.ou.username))
+			self.assertEqual(response.status_code, 200)
+			self.assertIn(title, response.content)
+
+			self.client.logout()
 
 class TestAdminFunctions(TestCase):
 	def setUp(self):
