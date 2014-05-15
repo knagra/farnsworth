@@ -7,7 +7,7 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.core.validators import validate_email
 
-from threads.models import UserProfile
+from base.models import UserProfile
 from managers.models import Manager
 from utils.funcs import verify_username, verify_url
 

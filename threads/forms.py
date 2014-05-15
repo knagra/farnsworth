@@ -6,7 +6,7 @@ Author: Karandeep Singh Nagra
 
 from django import forms
 
-from threads.models import UserProfile
+from base.models import UserProfile
 
 class ThreadForm(forms.Form):
 	''' Form to post a new thread. '''

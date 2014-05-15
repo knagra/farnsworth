@@ -12,7 +12,8 @@ from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django import forms
 from django.core.urlresolvers import reverse
-from threads.models import UserProfile
+
+from base.models import UserProfile
 from managers.models import Manager
 from threads.decorators import profile_required
 from threads.redirects import red_home, red_ext

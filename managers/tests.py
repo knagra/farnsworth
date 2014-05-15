@@ -9,8 +9,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
-from threads.models import UserProfile
-from managers.models import ProfileRequest, Manager, RequestType, Request, Response
+from base.models import UserProfile, ProfileRequest
+from managers.models import Manager, RequestType, Request, Response
 
 class TestManagementPermissions(TestCase):
 	def setUp(self):

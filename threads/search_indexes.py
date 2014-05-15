@@ -8,7 +8,9 @@ Search indexes for the threads app.
 
 from datetime import datetime
 from haystack import indexes
-from models import UserProfile, Thread, Message
+
+from base.models import UserProfile
+from threads.models import Thread, Message
 from utils.variables import ANONYMOUS_USERNAME
 
 class UserProfileIndex(indexes.SearchIndex, indexes.Indexable):

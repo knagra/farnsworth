@@ -21,21 +21,24 @@ urlpatterns = patterns('',
 	url(r'', include('social.apps.django_app.urls', namespace='social')),
 )
 
-urlpatterns += patterns('threads.views',
+urlpatterns += patterns('base.views',
 	url(r'^$', 'homepage_view', name='homepage'),
 	url(r'^landing/$', 'landing_view', name='external'),
 	url(r'^help/$', 'help_view', name='helppage'),
 	url(r'^login/$', 'login_view', name='login'),
 	url(r'^logout/$', 'logout_view', name='logout'),
+	url(r'^site_map/$', 'site_map_view', name='site_map'),
+	url(r'^member_directory/$', 'member_directory_view', name='member_directory'),
+	url(r'^profile/$', 'my_profile_view', name='my_profile'),
+	url(r'^profile/(?P<targetUsername>\w+)/$', 'member_profile_view', name='member_profile'),
+)
+
+urlpatterns += patterns('threads.views',
 	url(r'^member_forums/$', 'member_forums_view', name='member_forums'),
 	url(r'^archives/all_threads/$', 'all_threads_view', name='all_threads'),
 	url(r'^archives/list_all_threads/$', 'list_all_threads_view', name="list_all_threads"),
 	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
 	url(r'^thread/(?P<thread_pk>\w+)/$', 'thread_view', name='view_thread'),
-	url(r'^site_map/$', 'site_map_view', name='site_map'),
-	url(r'^member_directory/$', 'member_directory_view', name='member_directory'),
-	url(r'^profile/$', 'my_profile_view', name='my_profile'),
-	url(r'^profile/(?P<targetUsername>\w+)/$', 'member_profile_view', name='member_profile'),
 	url(r'^profile/(?P<targetUsername>\w+)/threads/$', 'list_user_threads_view', name="list_user_threads"),
 )
 
@@ -75,6 +78,6 @@ urlpatterns += patterns('managers.views',
 )
 
 # Catch any other urls here
-urlpatterns += patterns('threads.views',
+urlpatterns += patterns('base.views',
 	url(r'', 'homepage_view', name='homepage'),
 )
