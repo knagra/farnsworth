@@ -19,8 +19,8 @@
     <thead>
       <tr>
 	<th>Username</th>
-	<th>Last Name</th>
 	<th>First Name</th>
+	<th>Last Name</th>
 	<th>Email</th>
 	<th>Phone</th>
 	<th>Room</th>
@@ -30,10 +30,10 @@
       {% for member in residents %}
       <tr>
 	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}" title="View Profile"><span class="glyphicon glyphicon-user"></span> {{ member.user.username }}</a></td>
-	<td>{{ member.user.last_name }}</td>
 	<td>{{ member.user.first_name }}</td>
-	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
-	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.phone_number %}{{ member.phone_number }}{% endif %}</td>
+	<td>{{ member.user.last_name }}</td>
+	<td>{% if member.email_visible and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
+	<td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
 	<td>{% if member.current_room %}{{ member.current_room }}{% endif %}</td>
       </tr>
       {% endfor %}
@@ -52,8 +52,8 @@
     <thead>
       <tr>
 	<th>Username</th>
-	<th>Last Name</th>
 	<th>First Name</th>
+	<th>Last Name</th>
 	<th>Email</th>
 	<th>Phone</th>
       </tr>
@@ -62,10 +62,10 @@
       {% for member in boarders %}
       <tr>
 	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}" title="View Profile"><span class="glyphicon glyphicon-user"></span> {{ member.user.username }}</a></td>
-	<td>{{ member.user.last_name }}</td>
 	<td>{{ member.user.first_name }}</td>
-	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
-	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
+	<td>{{ member.user.last_name }}</td>
+	<td>{% if member.email_visible and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
+	<td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -83,8 +83,8 @@
     <thead>
       <tr>
 	<th>Username</th>
-	<th>Last Name</th>
 	<th>First Name</th>
+	<th>Last Name</th>
 	<th>Email</th>
 	<th>Phone</th>
 	<th>Former Rooms</th>
@@ -95,10 +95,10 @@
       {% if member.user.username != ANONYMOUS_USERNAME %}
       <tr>
 	<td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}" title="View Profile"><span class="glyphicon glyphicon-user"></span> {{ member.user.username }}</a></td>
-	<td>{{ member.user.last_name }}</td>
 	<td>{{ member.user.first_name }}</td>
-	<td>{% if member.email_visible and member.user.email or member.user == user and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
-	<td>{% if member.phone_visible and member.phone_number or member.user == user and member.user.phone_number %}{{ member.phone_number }}{% endif %}</td>
+	<td>{{ member.user.last_name }}</td>
+	<td>{% if member.email_visible and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
+	<td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
 	<td>{% if member.former_rooms %}{{ member.former_rooms }}{% endif %}</td>
       </tr>
       {% endif %}
