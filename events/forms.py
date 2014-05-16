@@ -21,9 +21,9 @@ def EventForm(manager_positions, initial=None, post=None):
 		description = forms.CharField(widget=forms.Textarea())
 		location = forms.CharField(max_length=100, widget=forms.TextInput())
 		rsvp = forms.BooleanField(required=False, label="RSVP")
-		start_time = forms.DateTimeField(widget=forms.DateTimeInput(format="%m/%d/%Y %I:%M %p"),
+		start_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]),
 						 input_formats=time_formats)
-		end_time = forms.DateTimeField(widget=forms.DateTimeInput(format="%m/%d/%Y %I:%M %p"),
+		end_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]),
 					       input_formats=time_formats)
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False,
 						    label="As manager (if manager event)")
