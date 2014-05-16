@@ -87,7 +87,7 @@ class TestLogin(TestCase):
 		response = self.client.get("/", follow=True)
 		self.assertRedirects(response, reverse('external'))
 
-class FromHome(TestCase):
+class TestHomepage(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
 		self.u.save()
