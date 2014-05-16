@@ -201,8 +201,6 @@ class TestAnonymousUser(TestCase):
 		self.su = User.objects.create_user(username="su", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True
-
-		self.u.save()
 		self.su.save()
 
 		self.client.login(username="su", password="pwd")
@@ -342,3 +340,27 @@ class TestRequestPages(TestCase):
 		self.assertNotIn("Request Body", response.content)
 		self.assertNotIn("Response Body", response.content)
 		self.assertNotIn("mark_filled", response.content)
+
+class TestManager(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.client.login(username="su", password="pwd")
+
+	def test_add_manager(self):
+		response = self.client.post("/custom_admin/add_manager/", {
+				"title": "Test Manager",
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				}, follow=True)
+		self.assertRedirects(response, "/custom_admin/add_manager/")
+		self.assertIn(MESSAGES['MANAGER_ADDED'].format(managerTitle="Test Manager"),
+			      response.content)
