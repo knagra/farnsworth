@@ -321,7 +321,7 @@ class TestSocialRequest(TestCase):
 		self.assertIn("User {0} was successfully added".format(self.pr.username),
 			      response.content)
 
-class TestApproveProfileRequest(TestCase):
+class TestProfileRequestAdmin(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
 		self.su.is_staff, self.su.is_superuser = True, True
