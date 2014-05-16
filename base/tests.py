@@ -699,14 +699,14 @@ class TestMemberDirectory(TestCase):
 		self.buprofile = UserProfile.objects.get(user=self.bu)
 		self.auprofile = UserProfile.objects.get(user=self.au)
 
-		self.ruprofile.phone = "(000) 000-0000"
+		self.ruprofile.phone_number = "(000) 000-0000"
 
 		self.buprofile.status = UserProfile.BOARDER
-		self.buprofile.phone = "(111) 111-1111"
+		self.buprofile.phone_number = "(111) 111-1111"
 		self.buprofile.email_visible = True
 
 		self.auprofile.status = UserProfile.ALUMNUS
-		self.auprofile.phone = "(222) 222-2222"
+		self.auprofile.phone_number = "(222) 222-2222"
 		self.auprofile.phone_visible = True
 
 		self.ruprofile.save()
@@ -724,9 +724,9 @@ class TestMemberDirectory(TestCase):
 		self.assertIn(self.bu.email, response.content)
 		self.assertNotIn(self.au.email, response.content)
 
-		self.assertNotIn(self.ru.phone, response.content)
-		self.assertNotIn(self.bu.phone, response.content)
-		self.assertIn(self.au.phone, response.content)
+		self.assertNotIn(self.ruprofile.phone_number, response.content)
+		self.assertNotIn(self.buprofile.phone_number, response.content)
+		self.assertIn(self.auprofile.phone_number, response.content)
 
 		self.assertIn(self.ru.username, response.content)
 		self.assertIn(self.bu.username, response.content)
@@ -735,9 +735,5 @@ class TestMemberDirectory(TestCase):
 		self.assertIn("Residents", response.content)
 		self.assertIn("Boarders", response.content)
 		self.assertIn("Alumni", response.content)
-
-		self.assertNotIn("No residents in database.", response.content)
-		self.assertNotIn("No boarders in database.", response.content)
-		self.assertNotIn("No alumni in database.", response.content)
 
 		self.assertNotIn("pwd", response.content)
