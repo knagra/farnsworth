@@ -21,8 +21,6 @@ class TestLogin(TestCase):
 		self.iu = User.objects.create_user(username="iu", password="pwd")
 
 		self.iu.is_active = False
-
-		self.u.save()
 		self.iu.save()
 
 	def test_user_profile_created(self):
@@ -90,9 +88,9 @@ class TestLogin(TestCase):
 class TestHomepage(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
-		self.u.save()
 
 		profile = UserProfile.objects.get(user=self.u)
+
 		self.manager = Manager(title="Super Manager", url_title="super")
 		self.manager.incumbent = profile
 		self.manager.save()
@@ -250,7 +248,6 @@ class TestRequestProfile(TestCase):
 
 	def test_duplicate_request(self):
 		u = User.objects.create_user(username="request")
-		u.save()
 
 		response = self.client.post("/request_profile/", {
 				"username": "request",
@@ -363,6 +360,7 @@ class TestSocialRequest(TestCase):
 class TestProfileRequestAdmin(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
+
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
 
@@ -435,10 +433,7 @@ class TestProfileRequestAdmin(TestCase):
 class TestProfilePages(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
-		self.u.save()
-
 		self.ou = User.objects.create_user(username="ou", email="ou@email.com")
-		self.ou.save()
 
 		self.profile = UserProfile.objects.get(user=self.u)
 		self.profile.current_room = "Test Current Room"
@@ -509,17 +504,14 @@ class TestProfilePages(TestCase):
 class TestModifyUser(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
-		self.su.is_staff, self.su.is_superuser = True, True
-		self.su.save()
-
 		self.u = User.objects.create_user(username="u", password="pwd")
-		self.u.save()
-
 		self.ou = User.objects.create_user(
 			username="ou", email="ou@email.com",
 			first_name="Test First", last_name="Test Last",
 			)
-		self.ou.save()
+
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
 
 		self.profile = UserProfile.objects.get(user=self.ou)
 		self.profile.phone_number = "(222) 222-2222"
@@ -600,11 +592,8 @@ class TestModifyUser(TestCase):
 class TestAdminFunctions(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
-		self.u = User.objects.create_user(username="u", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True
-
-		self.u.save()
 		self.su.save()
 
 		self.client.login(username="su", password="pwd")
@@ -698,3 +687,15 @@ class TestAdminFunctions(TestCase):
 	def test_delete_user(self):
 		# No function in /custom_admin/ to delete users yet
 		pass
+
+class TestMemberDirectory(TestCase):
+	def setUp(self):
+		self.ru = User.objects.create_user(username="ru", password="pwd")
+		self.bu = User.objects.create_user(username="bu")
+		self.au = User.objects.create_user(username="au")
+
+		self.client.login(username="ru", password="pwd")
+
+	def test_member_directory_view(self):
+		response = self.client.get("/member_directory/")
+		self.assertEqual(response.status_code, 200)
