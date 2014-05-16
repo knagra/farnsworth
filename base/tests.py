@@ -44,6 +44,9 @@ class TestLogin(TestCase):
 		self.assertRedirects(response, reverse('external'))
 
 	def test_bad_login(self):
+		self.assertEqual(False, self.client.login(username=self.iu.username, password="bad pwd"))
+		self.assertEqual(False, self.client.login(username="baduser", password="pwd"))
+
 		response = self.client.post("/login/", {
 				"username": self.u.username,
 				"password": "bad pwd",
@@ -61,6 +64,8 @@ class TestLogin(TestCase):
 			      response.content)
 
 	def test_inactive_login(self):
+		self.assertEqual(False, self.client.login(username=self.iu.username, password="pwd"))
+
 		response = self.client.post("/login/", {
 				"username": self.iu.username,
 				"password": "pwd",
