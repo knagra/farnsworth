@@ -524,7 +524,11 @@ class TestProfileAdmin(TestCase):
 		self.assertIn(self.profile.phone_number, response.content)
 
 	def test_set_profile_status(self):
-		url = "/custom_admin/modify_user/{0}/" .format(self.ou.username)
+		"""
+		Test modifying profiles to have different user statuses (Resident, Boarder,
+		Alumni).
+		"""
+		url = "/custom_admin/modify_user/{0}/".format(self.ou.username)
 
 		for status, title in UserProfile.STATUS_CHOICES:
 			self.client.login(username="su", password="pwd")
@@ -557,30 +561,101 @@ class TestProfileAdmin(TestCase):
 class TestAdminFunctions(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+
 		self.su.is_staff, self.su.is_superuser = True, True
+
+		self.u.save()
 		self.su.save()
 
-	def test_add_user(self):
 		self.client.login(username="su", password="pwd")
+
+	def test_add_user(self):
 		response = self.client.post("/custom_admin/add_user/", {
-				"username": "new_user",
+				"username": "nu",
 				"first_name": "First",
 				"last_name": "Last",
-				"email": "new@email.com",
+				"email": "nu@email.com",
+				"phone_number": "(222) 222-2222",
 				"user_password": "newpwd",
 				"confirm_password": "newpwd",
 				"is_active": "true",
-				"status": UserProfile.STATUS_CHOICES[0][0],
+				"status": UserProfile.RESIDENT,
 				 }, follow=True)
 		self.assertRedirects(response, "/custom_admin/add_user/")
-		self.assertIn("User {0} was successfully added.".format("new_user"),
+		self.assertIn("User {0} was successfully added.".format("nu"),
 			      response.content)
-		self.assertNotEqual(0, User.objects.filter(username="new_user").count())
+		self.assertEqual(1, User.objects.filter(username="nu").count())
+
+		response = self.client.get("/profile/{0}/".format("nu"))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn("nu@email.com", response.content)
+		self.assertNotIn("(222) 222-2222", response.content)
+
 		self.client.logout()
 
-		self.assertEqual(True, self.client.login(username="new_user", password="newpwd"))
+		self.assertEqual(False, self.client.login(username="nu", password="pwd"))
+		self.assertEqual(True, self.client.login(username="nu", password="newpwd"))
 		response = self.client.get("/")
 		self.assertEqual(response.status_code, 200)
 
-		User.objects.get(username="new_user").delete()
-		self.assertEqual(False, self.client.login(username="new_user", password="new_pwd"))
+		User.objects.get(username="nu").delete()
+		self.assertEqual(False, self.client.login(username="nu", password="newpwd"))
+
+	def test_add_visible(self):
+		response = self.client.post("/custom_admin/add_user/", {
+				"username": "nu",
+				"first_name": "First",
+				"last_name": "Last",
+				"email": "nu@email.com",
+				"phone_number": "(222) 222-2222",
+				"user_password": "newpwd",
+				"confirm_password": "newpwd",
+				"is_active": "true",
+				"email_visible_to_others": "on",
+				"phone_visible_to_others": "on",
+				"status": UserProfile.RESIDENT,
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/add_user/")
+		self.assertIn("User {0} was successfully added.".format("nu"),
+			      response.content)
+		self.assertEqual(1, User.objects.filter(username="nu").count())
+
+		response = self.client.get("/profile/{0}/".format("nu"))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("nu@email.com", response.content)
+		self.assertIn("(222) 222-2222", response.content)
+
+	def test_set_add_status(self):
+		"""
+		Test adding users with different statuses (Resident, Boarder, Alumni).
+		"""
+		url = "/custom_admin/add_user/"
+
+		for status, title in UserProfile.STATUS_CHOICES:
+			response = self.client.post(url, {
+					"username": "nu",
+					"first_name": "First",
+					"last_name": "Last",
+					"email": "nu@email.com",
+					"phone_number": "(222) 222-2222",
+					"user_password": "newpwd",
+					"confirm_password": "newpwd",
+					"is_active": "true",
+					"status": status,
+					}, follow=True)
+			self.assertRedirects(response, url)
+			self.assertIn(MESSAGES['USER_ADDED'].format(username="nu"),
+				      response.content)
+
+			response = self.client.get("/profile/{0}/".format("nu"))
+			self.assertEqual(response.status_code, 200)
+			self.assertIn(title, response.content)
+
+			User.objects.get(username="nu").delete()
+
+	def test_delete_user(self):
+		# No function in /custom_admin/ to delete users yet
+		pass
