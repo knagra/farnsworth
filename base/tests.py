@@ -700,6 +700,8 @@ class TestMemberDirectory(TestCase):
 		self.auprofile = UserProfile.objects.get(user=self.au)
 
 		self.ruprofile.phone = "(000) 000-0000"
+		self.ruprofile.email_visible = False
+		self.ruprofile.phone_visible = False
 
 		self.buprofile.status = UserProfile.BOARDER
 		self.buprofile.phone = "(111) 111-1111"
