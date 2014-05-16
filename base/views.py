@@ -319,7 +319,7 @@ def login_view(request):
 				else:
 					form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
 		except User.DoesNotExist:
-			form.errors['__all__'] = form.error_class(["User not found"])
+			form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
 	return render_to_response('login.html', {
 			'page_name': page_name,
 			'form': form,
