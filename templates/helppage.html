@@ -323,10 +323,12 @@
 		<div id="request_types_body" class="toggleable">
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle">About Request Types <a name="about_request_types" title="A link to this sub-section" href="#about_request_types">&sect;</a></h2>
-			<p>Farnsworth abstracts manager requests so that different ones can be created on the fly as needed.
+			<p>Farnsworth abstracts manager requests so that request types can be created on the fly as needed.
 			A request type is simple.  It has a name, relevant managers, an enabled status, and an optional glyphicon.
-			Names should be unique and resolve to unique URLs.  URLs are resolved by lowercasing all letters and replacing space characters with underscores.
-			A request type's relevant managers are all the managers to whom that requests of that type are made.
+			Names should be unique and resolve to unique URLs.  URLs are resolved by lowercasing all letters, replacing space characters with underscores,
+			replacing &amp; by "and", and removing special characters such as *, $, !, and ?.
+			</p>
+			<p>A request type's relevant managers are all the managers to whom that requests of that type are made.
 			The enabled status controls whether new requests of that type can be made.
 			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
