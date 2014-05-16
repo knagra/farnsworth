@@ -31,6 +31,13 @@ urlpatterns += patterns('base.views',
 	url(r'^member_directory/$', 'member_directory_view', name='member_directory'),
 	url(r'^profile/$', 'my_profile_view', name='my_profile'),
 	url(r'^profile/(?P<targetUsername>\w+)/$', 'member_profile_view', name='member_profile'),
+	url(r'^request_profile/$', 'request_profile_view', name='request_profile'),
+	url(r'^custom_admin/profile_requests/$', 'manage_profile_requests_view', name='manage_profile_requests'),
+	url(r'^custom_admin/profile_requests/(?P<request_pk>\w+)/$', 'modify_profile_request_view', name='modify_profile_request'),
+	url(r'^custom_admin/manage_users/$', 'custom_manage_users_view', name='custom_manage_users'),
+	url(r'^custom_admin/modify_user/(?P<targetUsername>\w+)/$', 'custom_modify_user_view', name='custom_modify_user'),
+	url(r'^custom_admin/add_user/$', 'custom_add_user_view', name='custom_add_user'),
+	url(r'^custom_admin/utilities/$', 'utilities_view', name='utilities'),
 )
 
 urlpatterns += patterns('threads.views',
@@ -49,16 +56,8 @@ urlpatterns += patterns('events.views',
 )
 
 urlpatterns += patterns('managers.views',
-	url(r'^request_profile/$', 'request_profile_view', name='request_profile'),
-	url(r'^custom_admin/profile_requests/$', 'manage_profile_requests_view', name='manage_profile_requests'),
-	url(r'^custom_admin/profile_requests/(?P<request_pk>\w+)/$', 'modify_profile_request_view', name='modify_profile_request'),
-	url(r'^custom_admin/manage_users/$', 'custom_manage_users_view', name='custom_manage_users'),
-	url(r'^custom_admin/modify_user/(?P<targetUsername>\w+)/$', 'custom_modify_user_view', name='custom_modify_user'),
-	url(r'^custom_admin/add_user/$', 'custom_add_user_view', name='custom_add_user'),
-	url(r'^custom_admin/utilities/$', 'utilities_view', name='utilities'),
 	url(r'^custom_admin/anonymous_login/$', 'anonymous_login_view', name='anonymous_login'),
 	url(r'^custom_admin/end_anonymous_session/$', 'end_anonymous_session_view', name='end_anonymous_session'),
-	url(r'^custom_admin/recount/$', 'recount_view', name='recount'),
 	url(r'^manager_directory/(?P<managerTitle>\w+)/$', 'manager_view', name='view_manager'),
 	url(r'^manager_directory/$', 'list_managers_view', name='list_managers'),
 	url(r'^custom_admin/add_manager/$', 'add_manager_view', name='add_manager'),
@@ -75,6 +74,7 @@ urlpatterns += patterns('managers.views',
 	url(r'^request/(?P<request_pk>\w+)/$', 'request_view', name='view_request'),
 	url(r'^announcements/$', 'announcements_view', name='announcements'),
 	url(r'^archives/all_announcements/$', 'all_announcements_view', name='all_announcements'),
+	url(r'^custom_admin/recount/$', 'recount_view', name='recount'),
 )
 
 # Catch any other urls here

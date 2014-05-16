@@ -16,19 +16,16 @@ from django.template import RequestContext
 from django.utils.timezone import utc
 from django.contrib import messages
 
-from social.apps.django_app.default.models import UserSocialAuth
-
 from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from utils.funcs import convert_to_url
+from base.decorators import admin_required, profile_required, president_admin_required
 from base.models import UserProfile, ProfileRequest
-from managers.models import Manager, RequestType, Request, Response, Announcement
+from base.redirects import red_ext, red_home
 from threads.models import Thread, Message
-from threads.redirects import red_ext, red_home
-from threads.decorators import admin_required, profile_required, president_admin_required
-from managers.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, ChangeUserPasswordForm, \
-	ModifyProfileRequestForm, ManagerForm, RequestTypeForm, RequestForm, ResponseForm, ManagerResponseForm, \
-	VoteForm, AnnouncementForm, UnpinForm
+from managers.models import Manager, RequestType, Request, Response, Announcement
+from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseForm, \
+    ManagerResponseForm, VoteForm, AnnouncementForm, UnpinForm
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -56,295 +53,6 @@ def add_context(request):
 		'PRESIDENT': PRESIDENT,
 		}
 
-def request_profile_view(request):
-	''' The page to request a user profile on the site. '''
-	page_name = "Profile Request Page"
-	if request.user.is_authenticated():
-		return HttpResponseRedirect(reverse('homepage'))
-	if request.method == 'POST':
-		form = ProfileRequestForm(request.POST)
-		if form.is_valid():
-			username = form.cleaned_data['username']
-			first_name = form.cleaned_data['first_name']
-			last_name = form.cleaned_data['last_name']
-			email = form.cleaned_data['email']
-			affiliation = form.cleaned_data['affiliation_with_the_house']
-			password = form.cleaned_data['password']
-			confirm_password = form.cleaned_data['confirm_password']
-			hashed_password = hashers.make_password(password)
-			if User.objects.filter(username=username).count():
-				non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
-				form._errors['username'] = forms.util.ErrorList([non_field_error])
-			elif not hashers.is_password_usable(hashed_password):
-				error = "Could not hash password.  Please try again."
-				form.errors['__all__'] = form.error_class([error])
-			else:
-				profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation, password=hashed_password)
-				profile_request.save()
-				messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
-				return HttpResponseRedirect(reverse('external'))
-		else:
-			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
-	else:
-		form = ProfileRequestForm()
-	return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
-
-@admin_required
-def manage_profile_requests_view(request):
-	''' The page to manager user profile requests. '''
-	page_name = "Admin - Manage Profile Requests"
-	profile_requests = ProfileRequest.objects.all()
-	return render_to_response(
-		'manage_profile_requests.html', {
-			'page_name': page_name,
-			'choices': UserProfile.STATUS_CHOICES,
-			'profile_requests': profile_requests
-			},
-		context_instance=RequestContext(request))
-
-@admin_required
-def modify_profile_request_view(request, request_pk):
-	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
-	page_name = "Admin - Profile Request"
-	profile_request = get_object_or_404(ProfileRequest, pk=request_pk)
-	if request.method == 'POST':
-		mod_form = ModifyProfileRequestForm(request.POST)
-		if 'delete_request' in request.POST:
-			message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
-			messages.add_message(request, messages.WARNING, message)
-			profile_request.delete()
-			return HttpResponseRedirect(reverse('manage_profile_requests'))
-		elif 'add_user' in request.POST:
-			if mod_form.is_valid():
-				username = mod_form.cleaned_data['username']
-				first_name = mod_form.cleaned_data['first_name']
-				last_name = mod_form.cleaned_data['last_name']
-				email = mod_form.cleaned_data['email']
-				email_visible_to_others = mod_form.cleaned_data['email_visible_to_others']
-				phone_number = mod_form.cleaned_data['phone_number']
-				phone_visible_to_others = mod_form.cleaned_data['phone_visible_to_others']
-				status = mod_form.cleaned_data['status']
-				current_room = mod_form.cleaned_data['current_room']
-				former_rooms = mod_form.cleaned_data['former_rooms']
-				former_houses = mod_form.cleaned_data['former_houses']
-				is_active = mod_form.cleaned_data['is_active']
-				is_staff = mod_form.cleaned_data['is_staff']
-				is_superuser = mod_form.cleaned_data['is_superuser']
-				groups = mod_form.cleaned_data['groups']
-				if User.objects.filter(username=username).count():
-					non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
-					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
-				elif User.objects.filter(first_name=first_name, last_name=last_name):
-					non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
-					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
-				else:
-					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
-					new_user.password = profile_request.password
-					new_user.is_active = is_active
-					new_user.is_staff = is_staff
-					new_user.is_superuser = is_superuser
-					new_user.groups = groups
-					new_user.save()
-
-					if profile_request.provider and profile_request.uid:
-						social = UserSocialAuth(
-							user=new_user,
-							provider = profile_request.provider,
-							uid = profile_request.uid,
-							)
-						social.save()
-
-					new_user_profile = UserProfile.objects.get(user=new_user)
-					new_user_profile.email_visible = email_visible_to_others
-					new_user_profile.phone_number = phone_number
-					new_user_profile.phone_visible = phone_visible_to_others
-					new_user_profile.status = status
-					new_user_profile.current_room = current_room
-					new_user_profile.former_rooms = former_rooms
-					new_user_profile.former_houses = former_houses
-					new_user_profile.save()
-					profile_request.delete()
-					message = MESSAGES['USER_ADDED'].format(username=username)
-					messages.add_message(request, messages.SUCCESS, message)
-					return HttpResponseRedirect(reverse('manage_profile_requests'))
-	else:
-		mod_form = ModifyProfileRequestForm(initial={
-				'status': profile_request.affiliation,
-				'username': profile_request.username,
-				'first_name': profile_request.first_name,
-				'last_name': profile_request.last_name,
-				'email': profile_request.email,
-				})
-	return render_to_response('modify_profile_request.html', {
-			'page_name': page_name,
-			'add_user_form': mod_form,
-			}, context_instance=RequestContext(request))
-
-@admin_required
-def custom_manage_users_view(request):
-	page_name = "Admin - Manage Users"
-	residents = UserProfile.objects.filter(status=UserProfile.RESIDENT)
-	boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
-	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS)
-	return render_to_response('custom_manage_users.html', {
-			'page_name': page_name,
-			'residents': residents,
-			'boarders': boarders,
-			'alumni': alumni,
-			}, context_instance=RequestContext(request))
-
-@admin_required
-def custom_modify_user_view(request, targetUsername):
-	''' The page to modify a user. '''
-	if targetUsername == ANONYMOUS_USERNAME:
-		messages.add_message(request, messages.WARNING, MESSAGES['ANONYMOUS_EDIT'])
-	page_name = "Admin - Modify User"
-	targetUser = get_object_or_404(User, username=targetUsername)
-	targetProfile = get_object_or_404(UserProfile, user=targetUser)
-
-	modify_user_form = ModifyUserForm(initial={
-			'first_name': targetUser.first_name,
-			'last_name': targetUser.last_name,
-			'email': targetUser.email,
-			'email_visible_to_others': targetProfile.email_visible,
-			'phone_number': targetProfile.phone_number,
-			'phone_visible_to_others': targetProfile.phone_visible,
-			'status': targetProfile.status,
-			'current_room': targetProfile.current_room,
-			'former_rooms': targetProfile.former_rooms,
-			'former_houses': targetProfile.former_houses,
-			'is_active': targetUser.is_active,
-			'is_staff': targetUser.is_staff,
-			'is_superuser': targetUser.is_superuser,
-			'groups': targetUser.groups.all(),
-			})
-	change_user_password_form = ChangeUserPasswordForm()
-	if request.method == 'POST':
-		if 'update_user_profile' in request.POST:
-			modify_user_form = ModifyUserForm(request.POST)
-			if modify_user_form.is_valid():
-				first_name = modify_user_form.cleaned_data['first_name']
-				last_name = modify_user_form.cleaned_data['last_name']
-				email = modify_user_form.cleaned_data['email']
-				email_visible_to_others = modify_user_form.cleaned_data['email_visible_to_others']
-				phone_number = modify_user_form.cleaned_data['phone_number']
-				phone_visible_to_others = modify_user_form.cleaned_data['phone_visible_to_others']
-				status = modify_user_form.cleaned_data['status']
-				current_room = modify_user_form.cleaned_data['current_room']
-				former_rooms = modify_user_form.cleaned_data['former_rooms']
-				former_houses = modify_user_form.cleaned_data['former_houses']
-				is_active = modify_user_form.cleaned_data['is_active']
-				is_staff = modify_user_form.cleaned_data['is_staff']
-				is_superuser = modify_user_form.cleaned_data['is_superuser']
-				groups = modify_user_form.cleaned_data['groups']
-				targetUser.first_name = first_name
-				targetUser.last_name = last_name
-				targetUser.is_active = is_active
-				targetUser.is_staff = is_staff
-				targetUser.email = email
-				if (targetUser == request.user) and (User.objects.filter(is_superuser=True).count() <= 1):
-					messages.add_message(request, messages.ERROR, MESSAGES['LAST_SUPERADMIN'])
-				else:
-					targetUser.is_superuser = is_superuser
-				targetUser.groups = groups
-				targetUser.save()
-				targetProfile.email_visible = email_visible_to_others
-				targetProfile.phone_number = phone_number
-				targetProfile.phone_visible = phone_visible_to_others
-				targetProfile.status = status
-				targetProfile.current_room = current_room
-				targetProfile.former_rooms = former_rooms
-				targetProfile.former_houses = former_houses
-				targetProfile.save()
-				message = MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username)
-				messages.add_message(request, messages.SUCCESS, message)
-				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
-		elif 'change_user_password' in request.POST:
-			change_user_password_form = ChangeUserPasswordForm(request.POST)
-			if change_user_password_form.is_valid():
-				user_password = change_user_password_form.cleaned_data['user_password']
-				confirm_password = change_user_password_form.cleaned_data['confirm_password']
-				hashed_password = hashers.make_password(user_password)
-				if hashers.is_password_usable(hashed_password):
-					targetUser.password = hashed_password
-					targetUser.save()
-					message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
-					messages.add_message(request, messages.SUCCESS, message)
-					return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
-				else:
-					error = "Could not hash password.  Please try again."
-					change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
-	return render_to_response('custom_modify_user.html', {
-			'targetUser': targetUser,
-			'targetProfile': targetProfile,
-			'page_name': page_name,
-			'modify_user_form': modify_user_form,
-			'change_user_password_form': change_user_password_form,
-			}, context_instance=RequestContext(request))
-
-@admin_required
-def custom_add_user_view(request):
-	''' The page to add a new user. '''
-	page_name = "Admin - Add User"
-	if request.method == 'POST':
-		add_user_form = AddUserForm(request.POST)
-		if add_user_form.is_valid():
-			username = add_user_form.cleaned_data['username']
-			first_name = add_user_form.cleaned_data['first_name']
-			last_name = add_user_form.cleaned_data['last_name']
-			email = add_user_form.cleaned_data['email']
-			email_visible_to_others = add_user_form.cleaned_data['email_visible_to_others']
-			phone_number = add_user_form.cleaned_data['phone_number']
-			phone_visible_to_others = add_user_form.cleaned_data['phone_visible_to_others']
-			status = add_user_form.cleaned_data['status']
-			current_room = add_user_form.cleaned_data['current_room']
-			former_rooms = add_user_form.cleaned_data['former_rooms']
-			former_houses = add_user_form.cleaned_data['former_houses']
-			is_active = add_user_form.cleaned_data['is_active']
-			is_staff = add_user_form.cleaned_data['is_staff']
-			is_superuser = add_user_form.cleaned_data['is_superuser']
-			groups = add_user_form.cleaned_data['groups']
-			user_password = add_user_form.cleaned_data['user_password']
-			confirm_password = add_user_form.cleaned_data['confirm_password']
-			if User.objects.filter(username=username).count():
-				non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
-				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-			elif User.objects.filter(first_name=first_name, last_name=last_name).count():
-				non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
-				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-			else:
-				new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
-				new_user.is_active = is_active
-				new_user.is_staff = is_staff
-				new_user.is_superuser = is_superuser
-				new_user.groups = groups
-				new_user.save()
-				new_user_profile = UserProfile.objects.get(user=new_user)
-				new_user_profile.email_visible = email_visible_to_others
-				new_user_profile.phone_number = phone_number
-				new_user_profile.phone_visible = phone_visible_to_others
-				new_user_profile.status = status
-				new_user_profile.current_room = current_room
-				new_user_profile.former_rooms = former_rooms
-				new_user_profile.former_houses = former_houses
-				new_user_profile.save()
-				message = MESSAGES['USER_ADDED'].format(username=username)
-				messages.add_message(request, messages.SUCCESS, message)
-				return HttpResponseRedirect(reverse('custom_add_user'))
-	else:
-		add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
-	return render_to_response('custom_add_user.html', {
-			'page_name': page_name,
-			'add_user_form': add_user_form,
-			}, context_instance=RequestContext(request))
-
-@admin_required
-def utilities_view(request):
-	''' View for an admin to do maintenance tasks on the site. '''
-	return render_to_response('utilities.html', {
-			'page_name': "Admin - Site Utilities",
-			}, context_instance=RequestContext(request))
-
 @admin_required
 def anonymous_login_view(request):
 	''' View for an admin to log her/himself out and login the anonymous user. '''
@@ -370,27 +78,6 @@ def end_anonymous_session_view(request):
 	''' End the anonymous session if the user is a superuser. '''
 	request.session['ANONYMOUS_SESSION'] = False
 	messages.add_message(request, messages.INFO, MESSAGES['ANONYMOUS_SESSION_ENDED'])
-	return HttpResponseRedirect(reverse('utilities'))
-
-@admin_required
-def recount_view(request):
-	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
-	requests_changed = 0
-	for req in Request.objects.all():
-		recount = Response.objects.filter(request=req).count()
-		if req.number_of_responses != recount:
-			req.number_of_responses = recount
-			req.save()
-			requests_changed += 1
-	threads_changed = 0
-	for thread in Thread.objects.all():
-		recount = Message.objects.filter(thread=thread).count()
-		if thread.number_of_messages != recount:
-			thread.number_of_messages = recount
-			thread.save()
-			threads_changed += 1
-	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(requests_changed=requests_changed, request_count=Request.objects.all().count(),
-			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
 	return HttpResponseRedirect(reverse('utilities'))
 
 @profile_required
@@ -1028,3 +715,24 @@ def all_announcements_view(request):
 			'announcements_dict': announcements_dict,
 			'announcement_form': announcement_form,
 			}, context_instance=RequestContext(request))
+
+@admin_required
+def recount_view(request):
+	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
+	requests_changed = 0
+	for req in Request.objects.all():
+		recount = Response.objects.filter(request=req).count()
+		if req.number_of_responses != recount:
+			req.number_of_responses = recount
+			req.save()
+			requests_changed += 1
+	threads_changed = 0
+	for thread in Thread.objects.all():
+		recount = Message.objects.filter(thread=thread).count()
+		if thread.number_of_messages != recount:
+			thread.number_of_messages = recount
+			thread.save()
+			threads_changed += 1
+	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(requests_changed=requests_changed, request_count=Request.objects.all().count(),
+			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
+	return HttpResponseRedirect(reverse('utilities'))

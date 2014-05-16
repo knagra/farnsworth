@@ -8,8 +8,8 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
 from utils.variables import MESSAGES
+from base.redirects import red_home
 from threads.models import UserProfile
-from threads.redirects import red_home
 from managers.models import Manager
 
 def profile_required(function=None, redirect_user='login', redirect_profile=red_home):

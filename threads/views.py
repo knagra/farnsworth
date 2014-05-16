@@ -20,9 +20,9 @@ from farnsworth.settings import house, ADMINS, max_threads, max_messages, \
     home_max_announcements, home_max_threads
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from base.models import UserProfile
+from base.decorators import profile_required, admin_required
 from threads.models import Thread, Message
 from threads.forms import *
-from base.decorators import profile_required
 
 @profile_required
 def member_forums_view(request):

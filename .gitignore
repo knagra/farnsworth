@@ -1,6 +1,7 @@
 *.pyc
 *.db
 *.py~
+.#*
 migrations/
 *.swp
 *.tmp
