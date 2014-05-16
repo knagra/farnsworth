@@ -568,7 +568,9 @@ def custom_modify_user_view(request, targetUsername):
 				targetUser.is_active = is_active
 				targetUser.is_staff = is_staff
 				targetUser.email = email
-				if (targetUser == request.user) and (User.objects.filter(is_superuser=True).count() <= 1):
+				if (targetUser == request.user and
+				    User.objects.filter(is_superuser=True).count() <= 1 and
+				    not is_superuser):
 					messages.add_message(request, messages.ERROR, MESSAGES['LAST_SUPERADMIN'])
 				else:
 					targetUser.is_superuser = is_superuser
