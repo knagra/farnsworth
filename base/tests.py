@@ -381,6 +381,18 @@ class TestProfileRequestAdmin(TestCase):
 				})
 		self.assertEqual(response.status_code, 404)
 
+	def test_delete(self):
+		response = self.client.post("/custom_admin/profile_requests/{0}/"
+					    .format(self.pr.pk), {
+				"delete_request": "",
+				}, follow=True)
+		self.assertRedirects(response, reverse('manage_profile_requests'))
+		self.assertIn(MESSAGES['PREQ_DEL'].format(first_name=self.pr.first_name,
+							  last_name=self.pr.last_name,
+							  username=self.pr.username),
+			      response.content)
+		
+
 class TestProfilePages(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
