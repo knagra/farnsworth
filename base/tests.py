@@ -15,10 +15,15 @@ from threads.models import Thread, Message
 from managers.models import Manager, Announcement, RequestType, Request
 from events.models import Event
 
-class VerifyUser(TestCase):
+class TestLogin(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
+		self.iu = User.objects.create_user(username="iu", password="pwd")
+
+		self.iu.is_active = False
+
 		self.u.save()
+		self.iu.save()
 
 	def test_user_profile_created(self):
 		''' Test that the user profile for a user is automatically created when a user is created. '''
@@ -36,6 +41,35 @@ class VerifyUser(TestCase):
 		self.assertRedirects(response, "/")
 
 		response = self.client.get("/logout/", follow=True)
+		self.assertRedirects(response, reverse('external'))
+
+	def test_bad_login(self):
+		response = self.client.post("/login/", {
+				"username": self.u.username,
+				"password": "bad pwd",
+				})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Invalid username/password combination.  Please try again.",
+			      response.content)
+
+		response = self.client.post("/login/", {
+				"username": "baduser",
+				"password": "pwd",
+				})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Invalid username/password combination.  Please try again.",
+			      response.content)
+
+	def test_inactive_login(self):
+		response = self.client.post("/login/", {
+				"username": self.iu.username,
+				"password": "pwd",
+				})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Your account is not active.  Please contact the site administrator to activate your account.",
+			      response.content)
+
+		response = self.client.get("/", follow=True)
 		self.assertRedirects(response, reverse('external'))
 
 	def test_homepage(self):
@@ -467,7 +501,7 @@ class TestProfilePages(TestCase):
 		response = self.client.get("/profile/404/")
 		self.assertEqual(response.status_code, 404)
 
-class TestProfileAdmin(TestCase):
+class TestModifyUser(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
 		self.su.is_staff, self.su.is_superuser = True, True
@@ -583,7 +617,7 @@ class TestAdminFunctions(TestCase):
 				"status": UserProfile.RESIDENT,
 				 }, follow=True)
 		self.assertRedirects(response, "/custom_admin/add_user/")
-		self.assertIn("User {0} was successfully added.".format("nu"),
+		self.assertIn(MESSAGES['USER_ADDED'].format(username="nu"),
 			      response.content)
 		self.assertEqual(1, User.objects.filter(username="nu").count())
 
@@ -618,7 +652,7 @@ class TestAdminFunctions(TestCase):
 				"status": UserProfile.RESIDENT,
 				 }, follow=True)
 		self.assertRedirects(response, "/custom_admin/add_user/")
-		self.assertIn("User {0} was successfully added.".format("nu"),
+		self.assertIn(MESSAGES['USER_ADDED'].format(username="nu"),
 			      response.content)
 		self.assertEqual(1, User.objects.filter(username="nu").count())
 
