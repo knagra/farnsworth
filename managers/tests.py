@@ -8,7 +8,9 @@ Replace this with more appropriate tests for your application.
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+from utils.funcs import convert_to_url
 from base.models import UserProfile, ProfileRequest
 from managers.models import Manager, RequestType, Request, Response
 
@@ -364,3 +366,5 @@ class TestManager(TestCase):
 		self.assertRedirects(response, "/custom_admin/add_manager/")
 		self.assertIn(MESSAGES['MANAGER_ADDED'].format(managerTitle="Test Manager"),
 			      response.content)
+		self.assertEqual(1, Manager.objects.filter(title="Test Manager").count())
+		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url("Test Manager")).count())
