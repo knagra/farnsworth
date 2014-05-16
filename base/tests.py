@@ -743,7 +743,3 @@ class TestMemberDirectory(TestCase):
 		self.assertNotIn("No alumni in database.", response.content)
 
 		self.assertNotIn("pwd", response.content)
-
-	def email_view(self):
-		pass
-
