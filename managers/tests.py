@@ -349,6 +349,13 @@ class TestManager(TestCase):
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
 
+		self.m = Manager(
+			title="setUp Manager",
+			incumbent=UserProfile.objects.get(user=self.su),
+			)
+		self.m.url_title = convert_to_url(self.m.title)
+		self.m.save()
+
 		self.client.login(username="su", password="pwd")
 
 	def test_add_manager(self):
@@ -368,3 +375,26 @@ class TestManager(TestCase):
 			      response.content)
 		self.assertEqual(1, Manager.objects.filter(title="Test Manager").count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url("Test Manager")).count())
+
+	def test_duplicate_manager(self):
+		pass
+
+	def test_edit_manager(self):
+		new_title = "New setUp Manager"
+		response = self.client.post("/custom_admin/managers/{0}/"
+					    .format(self.m.url_title), {
+				"title": new_title,
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				}, follow=True)
+		self.assertRedirects(response, "/custom_admin/managers/")
+		self.assertIn(MESSAGES['MANAGER_SAVED'].format(managerTitle=new_title),
+			      response.content)
+		self.assertEqual(1, Manager.objects.filter(title=new_title).count())
+		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url(new_title)).count())
