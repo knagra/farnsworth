@@ -355,7 +355,8 @@ def member_directory_view(request):
 	page_name = "Member Directory"
 	residents = UserProfile.objects.filter(status=UserProfile.RESIDENT)
 	boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
-	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS)
+	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS) \
+	    .exclude(user__username=ANONYMOUS_USERNAME)
 	return render_to_response('member_directory.html', {
 			'page_name': page_name,
 			'residents': residents, 
