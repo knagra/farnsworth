@@ -690,12 +690,58 @@ class TestAdminFunctions(TestCase):
 
 class TestMemberDirectory(TestCase):
 	def setUp(self):
-		self.ru = User.objects.create_user(username="ru", password="pwd")
-		self.bu = User.objects.create_user(username="bu")
-		self.au = User.objects.create_user(username="au")
+		self.ru = User.objects.create_user(username="ru", password="pwd",
+						   email="ru@email.com")
+		self.bu = User.objects.create_user(username="bu", email="bu@email.com")
+		self.au = User.objects.create_user(username="au", email="au@email.com")
+
+		self.ruprofile = UserProfile.objects.get(user=self.ru)
+		self.buprofile = UserProfile.objects.get(user=self.bu)
+		self.auprofile = UserProfile.objects.get(user=self.au)
+
+		self.ruprofile.phone = "(000) 000-0000"
+
+		self.buprofile.status = UserProfile.BOARDER
+		self.buprofile.phone = "(111) 111-1111"
+		self.buprofile.email_visible = True
+
+		self.auprofile.status = UserProfile.ALUMNUS
+		self.auprofile.phone = "(222) 222-2222"
+		self.auprofile.phone_visible = True
+
+		self.ruprofile.save()
+		self.buprofile.save()
+		self.auprofile.save()
 
 		self.client.login(username="ru", password="pwd")
 
 	def test_member_directory_view(self):
 		response = self.client.get("/member_directory/")
+
 		self.assertEqual(response.status_code, 200)
+
+		self.assertIn(self.ru.email, response.content)
+		self.assertIn(self.bu.email, response.content)
+		self.assertNotIn(self.au.email, response.content)
+
+		self.assertIn(self.ru.phone, response.content)
+		self.assertNotIn(self.bu.phone, response.content)
+		self.assertIn(self.au.phone, response.content)
+
+		self.assertIn(self.ru.username, response.content)
+		self.assertIn(self.bu.username, response.content)
+		self.assertIn(self.au.username, response.content)
+
+		self.assertIn("Residents", response.content)
+		self.assertIn("Boarders", response.content)
+		self.assertIn("Alumni", response.content)
+
+		self.assertNotIn("No residents in database.", response.content)
+		self.assertNotIn("No boarders in database.", response.content)
+		self.assertNotIn("No alumni in database.", response.content)
+
+		self.assertNotIn("pwd", response.content)
+
+	def email_view(self):
+		pass
+
