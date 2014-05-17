@@ -11,6 +11,7 @@
 <html>
 <head>
 	<title>{{ SHORT_HOUSE }}{% if page_name %} - {{ page_name }}{% else %}{% block template_page_name %}{% endblock %}{% endif %}</title>
+	{% load sekizai_tags wiki_tags %}
     {% load static from staticfiles %}
 	<link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
 	<meta name="viewport" content="width: device-width, initial-scale=1" />
@@ -18,6 +19,7 @@
 	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
 	<link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
 	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
+	{% render_block "css" %}
 </head>
 <body id="html_body">
 	<div class="navbar navbar-default navbar-static-top" role="navigation">
@@ -253,5 +255,6 @@
 		});
 	</script>
     {% block endscripts %}{% endblock %}
+	{% render_block "js" %}
   </body>
 </html>

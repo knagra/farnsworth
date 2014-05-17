@@ -106,6 +106,8 @@
 		{% include "search/announcement.html" %}
 	{% elif result.object.is_event %}
 		{% include "search/event.html" %}
+	{% else %}
+		<a href="{% url 'wiki:get' article_id=result.object.id %}">{{ result.object.current_revision.title }}</a>
 	{% endif %}
 	</div> <!-- .hover_row -->
 {% empty %}

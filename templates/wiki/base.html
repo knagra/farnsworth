@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load sekizai_tags wiki_tags %}
+{% load static from staticfiles %}
+
+{% block headers %}
+{% endblock %}
+
+{% block content %}
+	{% block wiki_breadcrumbs %}{% endblock %}
+
+	{% block wiki_contents %}{% endblock %}
+{% endblock %}
+{% block gallery %}
+	<div style="margin-top: 40px;">{% block wiki_footer_prepend %}{% endblock %}</div>
+{% endblock %}
+{% block endscripts %}
+<script src="{% static 'wiki/js/core.js' %}"></script>
+<script src="{% static 'wiki/js/respond.min.js"></script>
+<script>
+$(document).ready(function() {
+	$('h1').css('font-weight', '300');
+	$('h2').css('font-weight', '300');
+	$('.icon-search').addClass('glyphicon glyphicon-search');
+	$('.page-header').css('margin-top', '0');
+});
+</script>
+{% endblock %}

@@ -29,3 +29,18 @@ class UserProfileIndex(indexes.SearchIndex, indexes.Indexable):
 	
 	def index_queryset(self, using=None):
 		return self.get_model().objects.all().exclude(user__username=ANONYMOUS_USERNAME)
+
+# Wiki index
+from haystack import indexes
+from wiki.models import Article
+
+class ArticleIndex(indexes.SearchIndex, indexes.Indexable):
+	text = indexes.EdgeNgramField(document=True, use_template=True)
+	created = indexes.DateTimeField(model_attr='created')
+	modified = indexes.DateTimeField(model_attr='modified')
+	
+	def get_model(self):
+		return Article
+	
+	def index_queryset(self, using=None):
+		return self.get_model().objects.all()

@@ -1,0 +1,37 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n humanize %}
+{% load url from future %}
+
+{% block wiki_pagetitle %}{% trans "Search results for:" %} {{ search_query }}{% endblock %}
+
+{% block wiki_contents %}
+
+<h1 class="page-header">{% trans "Wiki search results for:" %} {{ search_query }}</h1>
+
+<p class="lead">
+  <p>{% blocktrans with paginator.object_list.count as cnt %}Your search returned <strong>{{ cnt }}</strong> results.{% endblocktrans %}</p>
+  <div class="clearfix"></div>
+</p>
+
+<table class="table table-striped">
+  <tr>
+    <th style="width: 75%">{% trans "Title" %}</th>
+    <th>{% trans "Last modified" %}</th>
+  </tr>
+  {% for article in articles %}
+    {% block wiki_search_loop %}
+    {% include "wiki/includes/searchresult.html" %}
+    {% endblock %}
+    {% empty%}
+    <tr>
+      <td colspan="100">
+        <em>{% trans "There are no articles in this level" %}</em>
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+
+{% include "wiki/includes/pagination.html" %}
+
+{% endblock %}
+
