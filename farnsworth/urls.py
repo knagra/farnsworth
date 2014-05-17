@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from haystack.forms import FacetedSearchForm
 from haystack.query import SearchQuerySet
 from haystack.views import FacetedSearchView
+from wiki.urls import get_pattern as get_wiki_pattern
+from django_notify.urls import get_pattern as get_notify_pattern
 admin.autodiscover()
 
 sqs = SearchQuerySet().facet('exact_user').facet('exact_location').facet('exact_manager').facet('exact_status')
@@ -18,6 +20,8 @@ urlpatterns = patterns('',
 	url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^search/$', login_required(FacetedSearchView(form_class=FacetedSearchForm, searchqueryset=sqs)), name='haystack_search'),
+	url(r'^notify/', get_notify_pattern()),
+	url(r'^wiki/', get_wiki_pattern()),
 	url(r'', include('social.apps.django_app.urls', namespace='social')),
 )
 
