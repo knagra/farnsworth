@@ -9,10 +9,9 @@
 	{% block wiki_breadcrumbs %}{% endblock %}
 
 	{% block wiki_contents %}{% endblock %}
-{% endblock %}
-{% block gallery %}
 	<div style="margin-top: 40px;">{% block wiki_footer_prepend %}{% endblock %}</div>
 {% endblock %}
+
 {% block endscripts %}
 <script src="{% static 'wiki/js/core.js' %}"></script>
 <script src="{% static 'wiki/js/respond.min.js"></script>
@@ -20,6 +19,8 @@
 $(document).ready(function() {
 	$('h1').css('font-weight', '300');
 	$('h2').css('font-weight', '300');
+	$('h3').css('font-weight', '300');
+	$('h4').css('font-weight', '400');
 	$('.icon-search').addClass('glyphicon glyphicon-search');
 	$('.page-header').css('margin-top', '0');
 });
