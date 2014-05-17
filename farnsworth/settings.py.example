@@ -50,7 +50,7 @@ home_max_threads = 15
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("managers.views.add_context",)
 
 TEMPLATE_CONTEXT_PROCESSORS += (
-    'social.apps.django_app.default',
+    'social.apps.django_app.context_processors.backends',
 )
 
 # SQLite3 setup
