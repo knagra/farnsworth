@@ -26,14 +26,15 @@ class ProfileRequestForm(forms.Form):
 		'''
 		if not super(ProfileRequestForm, self).is_valid():
 			return False
-		elif not verify_username(self.cleaned_data['username']):
+		validity = True
+		if not verify_username(self.cleaned_data['username']):
 			self._errors['username'] = self.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or _.'])
-			return False
-		elif self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
+			validity = False
+		if self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
 			self._errors['password'] = forms.util.ErrorList([u"Passwords don't match."])
 			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
-			return False
-		return True
+			validity = False
+		return validity
 
 class AddUserForm(forms.Form):
 	''' Form to add a new user and associated profile. '''
@@ -62,14 +63,15 @@ class AddUserForm(forms.Form):
 		'''
 		if not super(AddUserForm, self).is_valid():
 			return False
-		elif not verify_username(self.cleaned_data['username']):
+		validity = True
+		if not verify_username(self.cleaned_data['username']):
 			self._errors['username'] = self.error_class([u'Invalid username. Must be characters A-Z, a-z, 0-9, or _.'])
-			return False
-		elif self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
+			validity = False
+		if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
 			self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
 			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
-			return False
-		return True
+			validity = False
+		return validity
 
 class ModifyUserForm(forms.Form):
 	''' Form to modify an existing user and profile. '''

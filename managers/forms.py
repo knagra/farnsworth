@@ -29,11 +29,11 @@ class ManagerForm(forms.ModelForm):
 			self._errors['title'] = self.error_class([u"Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,"])
 			return False
 		if Manager.objects.filter(title=title).count() > 0:
-			form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
+			self._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
 			return False
 		url_title = convert_to_url(title)
 		if Manager.objects.filter(url_title=url_title).count() > 0:
-			form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
+			self._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
 			return False
 
 		return True
