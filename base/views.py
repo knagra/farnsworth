@@ -1,4 +1,3 @@
-from django.shortcuts import render
 
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
@@ -350,6 +349,7 @@ def logout_view(request):
 	else:
 		logout(request)
 	return HttpResponseRedirect(reverse('homepage'))
+
 @profile_required
 def member_directory_view(request):
 	''' View of member directory. '''
