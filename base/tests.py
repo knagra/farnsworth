@@ -29,7 +29,7 @@ class TestLogin(TestCase):
 		self.assertEqual(self.u, UserProfile.objects.get(user=self.u).user)
 
 	def test_login(self):
-		self.assertEqual(True, self.client.login(username="u", password="pwd"))
+		self.assertTrue(self.client.login(username="u", password="pwd"))
 		self.assertEqual(None, self.client.logout())
 
 		response = self.client.post("/login/", {
@@ -42,8 +42,8 @@ class TestLogin(TestCase):
 		self.assertRedirects(response, reverse('external'))
 
 	def test_bad_login(self):
-		self.assertEqual(False, self.client.login(username=self.iu.username, password="bad pwd"))
-		self.assertEqual(False, self.client.login(username="baduser", password="pwd"))
+		self.assertFalse(self.client.login(username=self.iu.username, password="bad pwd"))
+		self.assertFalse(self.client.login(username="baduser", password="pwd"))
 
 		response = self.client.post("/login/", {
 				"username": self.u.username,
@@ -62,7 +62,7 @@ class TestLogin(TestCase):
 			      response.content)
 
 	def test_inactive_login(self):
-		self.assertEqual(False, self.client.login(username=self.iu.username, password="pwd"))
+		self.assertFalse(self.client.login(username=self.iu.username, password="pwd"))
 
 		response = self.client.post("/login/", {
 				"username": self.iu.username,
@@ -623,13 +623,13 @@ class TestAdminFunctions(TestCase):
 
 		self.client.logout()
 
-		self.assertEqual(False, self.client.login(username="nu", password="pwd"))
-		self.assertEqual(True, self.client.login(username="nu", password="newpwd"))
+		self.assertFalse(self.client.login(username="nu", password="pwd"))
+		self.assertTrue(self.client.login(username="nu", password="newpwd"))
 		response = self.client.get("/")
 		self.assertEqual(response.status_code, 200)
 
 		User.objects.get(username="nu").delete()
-		self.assertEqual(False, self.client.login(username="nu", password="newpwd"))
+		self.assertFalse(self.client.login(username="nu", password="newpwd"))
 
 	def test_add_visible(self):
 		response = self.client.post("/custom_admin/add_user/", {
@@ -737,3 +737,32 @@ class TestMemberDirectory(TestCase):
 		self.assertIn("Alumni", response.content)
 
 		self.assertNotIn("pwd", response.content)
+
+class TestSearch(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", password="pwd")
+
+		self.profile = UserProfile.objects.get(user=self.u)
+		self.profile.first_name = "FirstName"
+		self.profile.last_name = "LastName"
+		self.profile.save()
+
+		self.client.login(username="u", password="pwd")
+
+	def test_search_view(self):
+		response = self.client.get("/search/")
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Search", response.content)
+
+	def test_search_results(self):
+		response = self.client.get("/search/?q={0}".format(self.profile.first_name))
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn("No results found.", response.content)
+		self.assertIn(self.profile.first_name, response.content)
+		self.assertIn(self.profile.last_name, response.content)
+
+		response = self.client.get("/search/?q={0}".format(self.profile.last_name))
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn("No results found.", response.content)
+		self.assertIn(self.profile.first_name, response.content)
+		self.assertIn(self.profile.last_name, response.content)
