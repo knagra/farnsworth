@@ -9,13 +9,19 @@ from django.contrib.auth.models import Group
 from base.models import UserProfile
 from managers.models import Manager
 
-from utils.funcs import convert_to_url, verify_url
+from utils.funcs import verify_url
 
-class ManagerForm(forms.ModelForm):
+class ManagerForm(forms.Form):
 	''' Form to create or modify a manager position. '''
-	class Meta:
-		model = Manager
-		exclude = ['url_title']
+	title = forms.CharField(max_length=255, help_text="A unique title for this manager position. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
+	incumbent = forms.ModelChoiceField(queryset=UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS),
+		help_text="Current incumbent for this manager position.  List excludes alumni.", required=False)
+	compensation = forms.CharField(widget=forms.Textarea(), required=False)
+	duties = forms.CharField(widget=forms.Textarea(), required=False)
+	email = forms.EmailField(max_length=255, required=False, help_text="Manager e-mail (optional)")
+	president = forms.BooleanField(help_text="Whether this manager has president privileges (edit and add managers, etc.)", required=False)
+	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
+	active = forms.BooleanField(help_text="Whether this is an active manager positions (visible in directory, etc.)", required=False)
 	
 	def is_valid(self):
 		''' Validate form.
@@ -24,18 +30,9 @@ class ManagerForm(forms.ModelForm):
 		'''
 		if not super(ManagerForm, self).is_valid():
 			return False
-		title = self.cleaned_data['title']
-		if not verify_url(title):
+		elif not verify_url(self.cleaned_data['title']):
 			self._errors['title'] = self.error_class([u"Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,"])
 			return False
-		if Manager.objects.filter(title=title).count() > 0:
-			self._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
-			return False
-		url_title = convert_to_url(title)
-		if Manager.objects.filter(url_title=url_title).count() > 0:
-			self._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
-			return False
-
 		return True
 	
 	def clean(self):

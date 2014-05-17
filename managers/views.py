@@ -127,14 +127,35 @@ def add_manager_view(request):
 	if request.method == 'POST':
 		form = ManagerForm(request.POST)
 		if form.is_valid():
-			new_manager = form.save(commit=False)
-			new_manager.url_title = convert_to_url(new_manager.title)
-			new_manager.save()
-			messages.add_message(
-				request, messages.SUCCESS,
-				MESSAGES['MANAGER_ADDED'].format(managerTitle=new_manager.title),
-				)
-			return HttpResponseRedirect(reverse('add_manager'))
+			title = form.cleaned_data['title']
+			incumbent = form.cleaned_data['incumbent']
+			compensation = form.cleaned_data['compensation']
+			duties = form.cleaned_data['duties']
+			email = form.cleaned_data['email']
+			president = form.cleaned_data['president']
+			workshift_manager = form.cleaned_data['workshift_manager']
+			active = form.cleaned_data['active']
+			url_title = convert_to_url(title)
+			if Manager.objects.filter(title=title).count():
+				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
+			elif Manager.objects.filter(url_title=url_title).count():
+				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
+			else:
+				new_manager = Manager(
+					title=title,
+					url_title=url_title,
+					compensation=compensation,
+					duties=duties, email=email,
+					president=president,
+					workshift_manager=workshift_manager,
+					active=active,
+					)
+				if incumbent:
+					new_manager.incumbent = incumbent
+				new_manager.save()
+				messages.add_message(request, messages.SUCCESS,
+						     MESSAGES['MANAGER_ADDED'].format(managerTitle=title))
+				return HttpResponseRedirect(reverse('add_manager'))
 	else:
 		form = ManagerForm()
 	return render_to_response('edit_manager.html', {
@@ -152,18 +173,48 @@ def edit_manager_view(request, managerTitle):
 	userProfile = UserProfile.objects.get(user=request.user)
 	targetManager = get_object_or_404(Manager, url_title=managerTitle)
 
-	if request.method == "POST":
-		form = ManagerForm(request.POST, instance=targetManager)
+	if request.method == 'POST':
+		form = ManagerForm(request.POST)
 		if form.is_valid():
-			manager = form.save(commit=False)
-			manager.url_title = convert_to_url(manager.title)
-			manager.save()
-			messages.add_message(request, messages.SUCCESS, MESSAGES['MANAGER_SAVED'].format(managerTitle=manager.title))
-			return HttpResponseRedirect(reverse('meta_manager'))
+			title = form.cleaned_data['title']
+			incumbent = form.cleaned_data['incumbent']
+			compensation = form.cleaned_data['compensation']
+			duties = form.cleaned_data['duties']
+			email = form.cleaned_data['email']
+			president = form.cleaned_data['president']
+			workshift_manager = form.cleaned_data['workshift_manager']
+			active = form.cleaned_data['active']
+			url_title = convert_to_url(title)
+			if Manager.objects.filter(title=title).count() and Manager.objects.get(title=title) != targetManager:
+				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
+			elif Manager.objects.filter(url_title=url_title).count() and Manager.objects.get(url_title=url_title) != targetManager:
+				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
+			else:
+				targetManager.title = title
+				targetManager.url_title = url_title
+				targetManager.incumbent = incumbent
+				targetManager.compensation = compensation
+				targetManager.duties = duties
+				targetManager.email = email
+				targetManager.president = president
+				targetManager.workshift_manager = workshift_manager
+				targetManager.active = active
+				targetManager.save()
+				messages.add_message(request, messages.SUCCESS, MESSAGES['MANAGER_SAVED'].format(managerTitle=title))
+				return HttpResponseRedirect(reverse('meta_manager'))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
 	else:
-		form = ManagerForm(instance=targetManager)
+		form = ManagerForm(initial={
+				'title': targetManager.title,
+				'incumbent': targetManager.incumbent,
+				'compensation': targetManager.compensation,
+				'duties': targetManager.duties,
+				'email': targetManager.email,
+				'president': targetManager.president,
+				'workshift_manager': targetManager.workshift_manager,
+				'active': targetManager.active,
+				})
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Edit Manager",
 			'form': form,
