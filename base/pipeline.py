@@ -4,6 +4,8 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+import re
+
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -34,7 +36,7 @@ def request_user(strategy, details, user=None, request=None, is_new=False, uid=N
 	if user:
 		return
 	elif is_new:
-		username = details["username"].replace(".", "_")
+		username = re.sub("[^a-zA-Z0-9_]", "_", details["username"].lower())
 
 		try:
 			ProfileRequest.objects.get(username=username)
