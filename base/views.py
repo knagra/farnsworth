@@ -350,6 +350,7 @@ def logout_view(request):
 	else:
 		logout(request)
 	return HttpResponseRedirect(reverse('homepage'))
+
 @profile_required
 def member_directory_view(request):
 	''' View of member directory. '''
