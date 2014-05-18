@@ -198,19 +198,18 @@ AUTHENTICATION_BACKENDS = (
     'social.backends.github.GithubOAuth2',
     'social.backends.google.GoogleOAuth2',
     'social.backends.stackoverflow.StackoverflowOAuth2',
-    'social.backends.steam.SteamOpenId',
     'django.contrib.auth.backends.ModelBackend',
 )
 
 # http://developers.facebook.com/docs/authentication/
 SOCIAL_AUTH_FACEBOOK_KEY = ''
 SOCIAL_AUTH_FACEBOOK_SECRET = ''
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'public_profile']
 
 # http://psa.matiasaguirre.net/docs/backends/github.html#github
 SOCIAL_AUTH_GITHUB_KEY = ''
 SOCIAL_AUTH_GITHUB_SECRET = ''
-SOCIAL_AUTH_GITHUB_SCOPE = ['email']
+SOCIAL_AUTH_GITHUB_SCOPE = ['user:email']
 
 # http://psa.matiasaguirre.net/docs/backends/google.html#google-oauth2
 # https://console.developers.google.com/project
@@ -229,9 +228,6 @@ SOCIAL_AUTH_STACKOVERFLOW_KEY = ''
 SOCIAL_AUTH_STACKOVERFLOW_SECRET = ''
 SOCIAL_AUTH_STACKOVERFLOW_API_KEY = ''
 SOCIAL_AUTH_STACKOVERFLOW_SCOPE = ['email']
-
-# http://steamcommunity.com/dev/apikey
-SOCIAL_AUTH_STEAM_API_KEY = ''
 
 LOGIN_URL = BASE_URL + "/login/"
 LOGOUT_URL = BASE_URL + "/logout/"
