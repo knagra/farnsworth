@@ -47,6 +47,7 @@ urlpatterns += patterns('threads.views',
 	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
 	url(r'^thread/(?P<thread_pk>\w+)/$', 'thread_view', name='view_thread'),
 	url(r'^profile/(?P<targetUsername>\w+)/threads/$', 'list_user_threads_view', name="list_user_threads"),
+	url(r'^house_map/$', 'house_map_view', name='house_map'),
 )
 
 urlpatterns += patterns('events.views',
