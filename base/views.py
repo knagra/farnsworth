@@ -371,7 +371,7 @@ def member_profile_view(request, targetUsername):
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
 	page_name = "Profile Request Page"
-	if request.user.is_authenticated():
+	if request.user.is_authenticated() and request.user.username != ANONYMOUS_USERNAME:
 		return HttpResponseRedirect(reverse('homepage'))
 	if request.method == 'POST':
 		form = ProfileRequestForm(request.POST)
