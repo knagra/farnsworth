@@ -10,6 +10,9 @@
 {% block content %}
 <div class="container">
   <div class="col-md-8">
+	{% if ANONYMOUS_SESSION %}
+	<div class="alert alert-info">Don't have an account?  <a href="{% url 'request_profile' %}">Click to request an account</a>.</div>
+	{% endif %}
     <div id="login_form" class="table_container">
       <div class="header"><h3 class="table_title">Login</h3></div>
       <div class="main_table">
