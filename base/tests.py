@@ -9,6 +9,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
 
+from django.core.management import call_command
+import haystack
 from haystack.query import SearchQuerySet
 
 from utils.variables import MESSAGES
@@ -742,6 +744,10 @@ class TestMemberDirectory(TestCase):
 
 class TestSearch(TestCase):
 	def setUp(self):
+		for key, opts in haystack.connections.connections_info.items():
+			haystack.connections.reload(key)
+			call_command('clear_index', interactive=False, verbosity=0)
+
 		self.u = User.objects.create_user(username="u", password="pwd")
 
 		self.u.first_name = "FirstName"
@@ -765,6 +771,10 @@ class TestSearch(TestCase):
 		self.assertEqual(UserProfile.objects.count(),
 				 self.sqs.models(UserProfile).count())
 		self.assertEqual(self.profile,
+				 self.sqs.facet(self.u.first_name)[0].object)
+		self.assertEqual(self.profile,
+				 self.sqs.facet(self.u.last_name)[0].object)
+		self.assertEqual(self.profile,
 				 self.sqs.facet(self.profile.phone_number)[0].object)
 
 	def test_search_results(self):
@@ -779,3 +789,10 @@ class TestSearch(TestCase):
 		self.assertNotIn("No results found.", response.content)
 		self.assertIn(self.u.first_name, response.content)
 		self.assertIn(self.u.last_name, response.content)
+
+		# Searching by phone number not enabled
+		number = self.profile.phone_number.replace(" ", "+") \
+		    .replace("(", "%28").replace(")", "%29")
+		response = self.client.get("/search/?q={0}".format(number))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("No results found.", response.content)
