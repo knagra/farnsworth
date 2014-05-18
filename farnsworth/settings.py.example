@@ -220,7 +220,7 @@ SOCIAL_AUTH_GITHUB_SCOPE = ['user:email']
 # => Copy "Client ID" and "Client secret"
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', "https://www.googleapis.com/auth/userinfo.profile"]
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email']
 
 LOGIN_URL = BASE_URL + "/login/"
 LOGOUT_URL = BASE_URL + "/logout/"
