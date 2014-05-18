@@ -38,11 +38,7 @@ def request_user(strategy, details, user=None, request=None, is_new=False, uid=N
 	elif is_new:
 		username = re.sub("[^a-zA-Z0-9_]", "_", details["username"].lower())
 
-		try:
-			ProfileRequest.objects.get(username=username)
-		except ProfileRequest.DoesNotExist:
-			pass
-		else:
+		if ProfileRequest.objects.filter(username=username).count() > 0:
 			messages.add_message(request, messages.WARNING,
 					     "Profile request already submitted")
 			return redirect(reverse('request_profile'))

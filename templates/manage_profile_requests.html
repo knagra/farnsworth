@@ -28,8 +28,8 @@ $(document).ready(function() {
 	<thead>
 	<tr>
 		<th>Username</th>
-		<th>Last Name</th>
 		<th>First Name</th>
+		<th>Last Name</th>
 		<th>E-mail</th>
 		<th>Request Date</th>
 		<th>Affiliation</th>
@@ -39,8 +39,8 @@ $(document).ready(function() {
 	{% for r in profile_requests %}
 		<tr>
 			<td><a class="page_link" href="{% url 'modify_profile_request' request_pk=r.pk %}" title="Modify Profile Request"><span class="glyphicon glyphicon-plus"></span> {{ r.username }}</a></td>
-			<td>{{ r.last_name }}</td>
 			<td>{{ r.first_name }}</td>
+			<td>{{ r.last_name }}</td>
 			<td><a class="page_link" title="Write E-mail" href="mailto:{{ r.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ r.email }}</a></td>
 			<td>{{ r.request_date }}</td>
 			<td>{% for choice in choices %}{% if r.affiliation == choice.0 %}{{ choice.1 }}{% endif %}{% endfor %}</td>
