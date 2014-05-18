@@ -16,8 +16,17 @@ p {
 	padding-top: 10px;
 }
 
-#google_map {
+#google_map_large {
 	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+#google_map_small {
+	max-width: 400px;
 	margin-left: auto;
 	margin-right: auto;
 	position: relative;
