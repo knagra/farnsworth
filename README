@@ -7,4 +7,4 @@ Uses Django's auth backend to manage users and groups.  Tested on PostgreSQL.
 
 Some images of the site can be seen at https://drive.google.com/folderview?id=0B6FB1m6Sj6jQMVkwR3VsTkoxdG8&usp=sharing.
 
-A live version of the site can be accessed at https://kingmanhall.org/farnsworth/.
+Live versions of the site can be accessed at https://kingmanhall.org/internal/, https://kingmanhall.org/afro/, and https://kingmanhall.org/hoyt/.
