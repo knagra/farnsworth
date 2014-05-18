@@ -48,7 +48,8 @@ class AddUserForm(forms.Form):
 	status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
 	current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 	former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False)
+	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
+		help_text="Other houses where this user has boarded or lived.")
 	is_active = forms.BooleanField(required=False)
 	is_staff = forms.BooleanField(required=False)
 	is_superuser = forms.BooleanField(required=False)
@@ -84,7 +85,8 @@ class ModifyUserForm(forms.Form):
 	status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
 	current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 	former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
+		help_text="Other houses where this user has boarded or lived.")
 	is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
 	is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
 	is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
@@ -120,7 +122,8 @@ class ModifyProfileRequestForm(forms.Form):
 	status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
 	current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 	former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False)
+	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
+		help_text="Other houses where this user has boarded or lived.")
 	is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
 	is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
 	is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
@@ -142,11 +145,13 @@ class UpdateProfileForm(forms.Form):
 	''' Form for a user to update own profile. '''
 	current_room = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
 	former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
+		help_text="Other houses where you have boarded or lived.")
 	email = forms.EmailField(max_length=255, required=False)
-	email_visible_to_others = forms.BooleanField(required=False)
-	phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	phone_visible_to_others = forms.BooleanField(required=False)
+	email_visible_to_others = forms.BooleanField(required=False, help_text="Whether others can see your e-mail address.")
+	phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}), required=False,
+		help_text="In format #-###-###-####, for best sortability.")
+	phone_visible_to_others = forms.BooleanField(required=False, help_text="Whether others can see your phone number.")
 	enter_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
 class LoginForm(forms.Form):
