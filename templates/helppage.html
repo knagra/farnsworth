@@ -20,21 +20,22 @@
 {% block content %}
 <div class="row">
 {% if user.is_authenticated %}
-<div class="col-sm-5 col-md-4 col-lg-3">
+<div class="col-sm-5 col-md-4">
 <h1 class="sub_title"><small><a name="contents" title="A link to contents" href="#contents">&Dagger;</a></small> Contents</h1>
 <hr />
-<ol type="I">
+<a id="show_content_list"><span class="glyphicon glyphicon-collapse-down"></span> show</a>
+<ol id="content_list" type="1">
 	<li><a href="#welcome">Welcome</a></li>
 	{% if user.is_superuser %}
 	<li><a href="#managing_users">Admin: Managing Users</a>
-		<ol type="A">
+		<ol type="a">
 			<li><a href="#adding_users">Adding Users</a></li>
 			<li><a href="#modifying_users">Modifying Users</a></li>
 			<li><a href="#profile_requests">Profile Requests</a></li>
 		</ol>
 	</li>
 	<li><a href="#admin_miscellaneous">Admin: Miscellaneous</a>
-		<ol type="A">
+		<ol type="a">
 			<li><a href="#anonymous_user">Anonymous User</a></li>
 			<li><a href="#recounts">Model Recounts</a></li>
 			<li><a href="#django">Django Admin</a></li>
@@ -43,13 +44,13 @@
 	{% endif %}
 	{% if user.is_superuser or PRESIDENT %}
 	<li><a href="#meta_manager">President: Meta-Manager</a>
-		<ol type="A">
+		<ol type="a">
 			<li><a href="#adding_managers">Adding Managers</a></li>
 			<li><a href="#managing_managers">Managing Managers</a></li>
 		</ol>
 	</li>
 	<li><a href="#request_types">President: Request Types</a>
-		<ol type="A">
+		<ol type="a">
 			<li><a href="#about_request_types">About Request Types</a></li>
 			<li><a href="#adding_request_types">Adding Request Types</a></li>
 			<li><a href="#managing_request_types">Managing Request Types</a></li>
@@ -59,25 +60,33 @@
 	<li><a href="#navigation">Navigation</a></li>
 	<li><a href="#tips">General Tips</a></li>
 	<li><a href="#profile_management">Profile Management</a>
-		<ol type="A">
+		<ol type="a">
 			<li><a href="#profile">Profile Details</a></li>
 			<li><a href="#password">Password</a></li>
+			<li><a href="#profile_history">Profile History</a></li>
 		</ol>
 	</li>
-	<li><a href="#threads">Threads</a></li>
+	<li><a href="#threads">Threads</a>
+		<ol type="a">
+			<li><a href="#starting_threads">Starting Threads</a></li>
+			<li><a href="#adding_messages">Adding Messages</a></li>
+		</ol>
+	</li>
 	<li><a href="#requests">Requests</a></li>
 	<li><a href="#announcements">Announcements</a></li>
 	<li><a href="#events">Events</a></li>
 	<li><a href="#miscellaneous">Miscellaneous</a>
-		<ol type="A">
+		<ol type="a">
 			<li><a href="#tinymce">TinyMCE</a></li>
 			<li><a href="#datetime">Date-Time Picker</a></li>
+			<li><a href="#search">Search</a></li>
 		</ol>
 	</li>
 </ol>
+<a id="hide_content_list"><span class="glyphicon glyphicon-collapse-up"></span> hide</a>
 <hr />
 </div> <!-- .col-md-4 -->
-<div class="col-sm-7 col-md-8 col-lg-9">
+<div class="col-sm-7 col-md-8">
 	<h1 class="text-center sub_title">
 		<small><a name="welcome" title="A link to this section" href="#welcome">&sect;</a></small>
 		Welcome to {{ HOUSE }}
@@ -91,6 +100,13 @@
 	<p>If you are a new member, you can request an account by clicking <a href="{% url 'request_profile' %}">here</a> or on the request profile link
 	in the menu above.  Once your request is submitted, an admin will contact you.
 	If you are currently a member, please login to access member forums, manager requests, event postings, and announcements.
+	</p>
+	{% else %}
+	<p>This help page is quite lengthy and tries to be as exhaustive as possible about how to use this website.
+	If you find that this page is lacking in information or clarity, please feel free to contact Karandeep.
+	Or better yet, you can open up the source code and update this page yourself.
+	</p>
+	<p>For quick links, please refer to the <a href="#contents">table of contents</a>.
 	</p>
 	{% endif %}
 	<p>This website is an instance of a project called "Farnsworth," planned and executed by <a href="https://.github.com/knagra/">Karandeep Singh Nagra</a>
@@ -533,6 +549,11 @@
 			<p>All tables in Farnsworth are sortable.  If you click on the header of a table, you will sort by the items in that column.
 			You can hold down <code>Shift</code> and click multiple column headers to sort by each one successively.
 			</p>
+			<p><b>Be careful of what you post on the site.</b>
+			If you post something on the site, it is a tedious process for the admin to delete your post.
+			Admins may refuse to do so since the process can sometimes be dangerous to database integrity.
+			<b>Admins are discouraged from deleting posts in Farnsworth's documentation due to this risk.</b>
+			</p>
 			<p>The site collapses to a mobile version when the screen size reduces down to an extra small size (&lt; 768px in width) or if
 			the site is launched with a small screen size.
 			Several things happen dynamically:
@@ -549,6 +570,14 @@
 			<p>Learning to use the site is done best on large screens, as the mobile version is essentially reduced in visual aids,
 			such as the text in container header buttons.
 			Using the mobile version is not cumbersome, still.
+			</p>
+			<p>The contents of containers will sometimes be too large for containment, especially on extra small screens.
+			In these cases, the overflow contents of containers become horizontally scrollable.
+			On mobile devices, you can tap and drag the contents of a table to scroll horizontally.
+			Try this out on a small smart phone screen with the threads list on the homepage.
+			</p>
+			<p>The site uses several third-party packages, like TinyMCE, Bootstrap Datetime-Picker, and Django-Haystack.
+			Details on how to use these check the <a href="#miscellaneous">miscellaneous</a> section.
 			</p>
 		</div> <!-- #tips_body -->
 	</div> <!-- #tips -->
@@ -568,7 +597,48 @@
 			You can access this page from anywhere from the top menu.
 			Links to this page are also sprinkled across the website - a link appears anywhere you posted an event, request, thread message, etc.
 			</p>
+			<p>Please note, <b>you cannot edit your first or last names, but you can request your site admin to do it for you.</b>
+			</p>
+			<p>By default, your first &amp; last names and username are visible to all users, but your e-mail and phone number are only visible
+			to the site admin and no one else.
+			</p>
+			<p>However, you can allow others to see your e-mail address and phone number by toggling the e-mail visible and phone visible checkboxes
+			in the update profile container.
+			Doing so will display your phone and e-mail in the member directory and in your profile.
+			Your e-mail will also become searchable when it is made visible; so that others can search for your profile by your e-mail.
+			</p>
+			<p>Enabling phone visible will also display your phone number in the manager directory and the manager details
+			for all manager positions you hold.
+			Enabling e-mail visible will display your e-mail if a manager e-mail does not exist for a position you hold.
+			</p>
+			<p>The current room, former rooms, and other houses fields are also indexed for search, meaning people can find you by your room
+			or affiliation with other houses if you input this information.
+			</p>
+			<p>Whenever you remove information, it is removed from the indexes.
+			So if you later decide that you don't people to be able to search for you by a particular field, you can erase the field.
+			</p>
 		<h2 class="sub_subtitle"><a name="password" title="A link to this sub-section" href="#password">&sect;</a> Password</h2>
+			<p>You can change your password from the same page using the change password form at the bottom.
+			</p>
+			<p>For your security, your password is hashed before storage.
+			Hashing is a function that takes a regular value converts it to a value that is impossible to decrypt back to its original value
+			using the current technology.
+			Hashing makes your passwords safe and it's commonly done throughout the IT industry.
+			</p>
+			<p>This means that admins cannot see your password.
+			You and only you should know your own password.
+			However, if you ever forget or lose your password, an admin can reset it for you.
+			</p>
+		<h2 class="sub_subtitle"><a name="profile_history" title="A link to this sub-section" href="#profile_history">&sect;</a> Profile History</h2>
+			<p>You can see some parts of your profile history from the profile dropdown menu items in the top navbar.
+			These include links to see all your requests and all the threads you have started.
+			You cannot see all the messages you have posted, but you can search for threads you have posted to
+			or search for the thread subject itself.
+			</p>
+			<p>There are two views each of these two types of pages, but the ones that are linked in the menu are the concise ones.
+			These will simply list your requests or threads with meta-data and some core details about them.
+			The expanded views can be slow to load, but you ca load them from the simple views using the buttons in the container headers.
+			</p>
 		</div> <!-- #profile_body -->
 	</div> <!-- #profile -->
 	</div> <!-- .row -->
@@ -582,6 +652,25 @@
 		</h1>
 		<div id="threads_body" class="toggleable">
 		<hr style="width: 75%;" />
+		<h2 class="sub_subtitle"><a name="starting_threads" title="A link to this sub-section" href="#starting_threads">&sect;</a> Starting Threads</h2>
+			<p>Threads in Farnsworth are designed like e-mail threads in most ways.
+			You can start threads from various pages, including the homepage and the member forums page.  The form is identical from any page.
+			Both the subject and the body of the form are required.
+			The subject will constitute a title for the thread and the body will constitute the first message in the thread.
+			</p>
+			<p>After you have started a thread, anyone can add a message to that thread.
+			Messages in threads are sorted by date.
+			The old message (the one used to start the thread) is always listed first, and the most recent message is always listed last.
+			</p>
+			<p>Threads are not deactivated and can be "revived" by simply posting another message in the thread.
+			For reference, the homepage grabs the most recently modified threads to list.
+			So if you add another message to a really old thread, it will be pushed to the top of the list on the homepage,
+			grabbing attention for the thread from the entire membership.
+			</p>
+		<h2 class="sub_subtitle"><a name="adding_messages" title="A link to this sub-section" href="#adding_messages">&sect;</a> Adding Messages</h2>
+			<p>You can add a message to a thread from a view with the thread.
+			Generally this will be from the member forums
+			</p>
 		</div> <!-- #threads_body -->
 	</div> <!-- #threads -->
 	</div> <!-- .row -->
@@ -638,7 +727,7 @@
 			<p>Farnsworth includes a "what you see is what you get" (WYSIWYG) editor called TinyMCE used in several places through the site.
 			TinyMCE is feature rich and does extensive security checks on its own.  Using it is fairly intuitive.
 			TinyMCE allows image and video inserts via <code>iframe</code>s or URL links.
-			Both of these methods can be done through the buttons in the TinyMCE interface.
+			Both of these methods can be used through the buttons in the TinyMCE interface.
 			<p>Using URLs is the more straightforward and approachable way to insert videos.
 			TinyMCE will do the work for you in finding the video from the URL you enter and inserting it into your message.
 			This may not work properly sometimes (e.g., when more than one video is on a page).
@@ -655,12 +744,91 @@
 			The buttons available will allow you greater control over your formatting.
 			You can insert headings, change font size or font, and insert text to be rendered as code - like so:
 			</p>
-				<pre>python hello_world.py</pre>
+			<pre>python hello_world.py</pre>
+			<p>TinyMCE also supports inline code, like so: <code>print "Hello, world!"</code>, divs, paragraphs, and blockquotes,
+			like so:
+			</p>
+			<blockquote>Cogito ergo sum.</blockquote>
+			<p>These options can be selected from the blocks sub-menu in the formats dropdown menu inside TinyMCE.
+			</p>	
 			<p>TinyMCE also supports keyboard shortcuts to copy (<code>CTRL + C</code>), cut (<code>CTRL + X</code>), or paste (<code>CTRL + P</code>)
-			text from or to the text field.
+			text from or to the text field, along with several other keyboard shortcuts.
+			</p>
+			<p><b>However, please note that TinyMCE will preserve the formatting of text you paste into the editor,
+			including background color.</b>
+			So, it is recommended that you paste input as plain text, an option offered by TinyMCE.
+			You can click the paste as plaintext button, which render anything you paste as plaintext until you toggle
+			the plaintext button to off.
+			</p>
+			<p>You can also align your text however you please and undo/redo your changes.
+			</p>
+			<p>However, a downside of using TinyMCE is that your input will not be preserved between attempts to submit forms.
+			So it is crucial that you input all required fields to ensure that the form is submitted on the first try.
+			</p>
+		<h2 class="sub_subtitle"><a name="datetime" title="A link to this sub-section" href="#datetime">&sect;</a> Date-Time Picker</h2>
+			<p>Bootstrap Datetime Picker is used in Farnsworth to pick date and time for events.
+			Using this small widget is fairly intuitive.
+			It allows the selection of a date and then a time from a box that drops down when a datetime field is clicked.
+			The widget allows you to quickly move through dates through several means.
+			</p>
+			<p>You can click on the arrows at the top of the dropdown calendar to flip through the months.
+			If you click on the month year field between the arrows, the widget will swith to a month view,
+			with a year at the top and months listed below.
+			From here, if you click the arrows, you can quickly flip through years, or you can click the year field,
+			which will switch the widget to a year view.
+			From here, you can quickly flip through decades via the arrows at the top.
+			</p>
+			<p>If you click the clock icon <span class="glyphicon glyphicon-time"></span> at the bottom of the calendar,
+			the widget will switch to a time view.
+			From here you can select a time, in hours, minutes, and AM/PM.
+			To switch back to the calendar view, click the calendar icon <span class="glyphicon glyphicon-calendar"></span>
+			at the top of the widget.
+			If you click on the hour button, the widget will switch to an hour selector, form where you can select an hour.
+			If you click the minute button, the widget will switch to a minute selector, allowing you to select a minute field in 3 minutes increments.
+			</p>
+		<h2 class="sub_subtitle"><a name="search" title="A link to this sub-section" href="#search">&sect;</a> Search</h2>
+			<p>Farnsworth uses Django-Haystack for search.
+			Haystack serves as a wrapper around an engine of your setup's choosing.
+			Most likely, your version of Farnsworth was deployed with Elasticsearch, an implementation of Lucene,
+			a pure Java search engine.
+			</p>
+			<p>You can search the entire site from any page via the search bar in the navigation bar.
+			The indexes are updated live; so results should always be up to date.
+			</p>
+			<p>Farnsworth's implementation is designed to use partial-word search.
+			You can search for parts of a word and get effective results.
+			Haystack matches 2-letter combinations for parts of the words you type with parts of all words in the database.
+			</p>
+			<p>As a drawback to this implementation, you will often get results you aren't looking for.
+			But most likely, if you are specific with your search, you will get results you are looking for.
+			</p>
+			<p>Search results can be filtered by clicking the filter button at the top and selecting one of the filter choices, if any.
+			</p>
+			<p>Results are paginated for presentability.
+			Undoubtedly, as the database grows larger, more results will be returned.
+			So, you can click through the pages at the bottom to look through the results for your query.
 			</p>
 		</div> <!-- #misc_body -->
 	</div> <!-- #misc -->
 	</div> <!-- .row -->
 {% endif %}
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+	$('#content_list').hide();
+	$('#hide_content_list').hide();
+	$('#show_content_list').click(function() {
+		$('#content_list').show();
+		$('#hide_content_list').show();
+		$('#show_content_list').hide();
+	});
+	$('#hide_content_list').click(function() {
+		$('#content_list').hide();
+		$('#hide_content_list').hide();
+		$('#show_content_list').show();
+	});
+});
+</script>
 {% endblock %}
