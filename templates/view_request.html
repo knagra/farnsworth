@@ -30,10 +30,7 @@
 		<form class="inline-form" style="float: right; position: relative; margin-right: 2px;" method="POST" action="">
 			{% csrf_token %}
 			{{ vote_form }}
-		<div class="btn-group btn-group-xs" style="border: none;">
-			<button type="submit" class="btn btn-{% if upvote %}success" title="Cancel Up Vote"{% else %}default" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
-			<button type="submit" class="btn btn-{% if downvote %}danger" title="Cancel Down Vote"{% else %}default" title="Down Vote"{% endif %} name="downvote"><span class="glyphicon glyphicon-thumbs-down"></span></button>
-		</div>
+			<button type="submit" class="btn btn-xs btn-{% if upvote %}warning" title="Cancel Up Vote"{% else %}success" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
 		</form>
 		{% endif %}
 		{% with vote_count_request=relevant_request %}

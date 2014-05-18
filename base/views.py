@@ -50,16 +50,15 @@ def homepage_view(request, message=None):
 	# Generate a dict of unfilled, unclosed requests for each request_type for which the user is a relevant manager:
 	if manager_request_types:
 		for request_type in manager_request_types:
-			requests_list = list() # Items of form (request, [list_of_request_responses], response_form, upvote, downvote, vote_form)
+			requests_list = list() # Items of form (request, [list_of_request_responses], response_form, upvote, vote_form)
 			# Select only unclosed, unfilled requests of type request_type:
 			type_requests = Request.objects.filter(request_type=request_type, filled=False, closed=False)
 			for req in type_requests:
 				response_list = Response.objects.filter(request=req)
 				form = ManagerResponseForm(initial={'request_pk': req.pk})
 				upvote = userProfile in req.upvotes.all()
-				downvote = userProfile in req.downvotes.all()
 				vote_form = VoteForm(initial={'request_pk': req.pk})
-				requests_list.append((req, response_list, form, upvote, downvote, vote_form))
+				requests_list.append((req, response_list, form, upvote, vote_form))
 			requests_dict.append((request_type, requests_list))
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
@@ -173,21 +172,6 @@ def homepage_view(request, message=None):
 					relevant_request.upvotes.remove(userProfile)
 				else:
 					relevant_request.upvotes.add(userProfile)
-					relevant_request.downvotes.remove(userProfile)
-				relevant_request.save()
-				return HttpResponseRedirect(reverse('homepage'))
-			else:
-				messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
-		elif 'downvote' in request.POST:
-			vote_form = VoteForm(request.POST)
-			if vote_form.is_valid():
-				request_pk = vote_form.cleaned_data['request_pk']
-				relevant_request = Request.objects.get(pk=request_pk)
-				if userProfile in relevant_request.downvotes.all():
-					relevant_request.downvotes.remove(userProfile)
-				else:
-					relevant_request.downvotes.add(userProfile)
-					relevant_request.upvotes.remove(userProfile)
 				relevant_request.save()
 				return HttpResponseRedirect(reverse('homepage'))
 			else:

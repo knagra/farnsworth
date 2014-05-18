@@ -366,24 +366,12 @@ def requests_view(request, requestType):
 					relevant_request.upvotes.remove(userProfile)
 				else:
 					relevant_request.upvotes.add(userProfile)
-					relevant_request.downvotes.remove(userProfile)
-				relevant_request.save()
-		elif 'downvote' in request.POST:
-			vote_form = VoteForm(request.POST)
-			if vote_form.is_valid():
-				request_pk = vote_form.cleaned_data['request_pk']
-				relevant_request = Request.objects.get(pk=request_pk)
-				if userProfile in relevant_request.downvotes.all():
-					relevant_request.downvotes.remove(userProfile)
-				else:
-					relevant_request.downvotes.add(userProfile)
-					relevant_request.upvotes.remove(userProfile)
 				relevant_request.save()
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	request_form = RequestForm()
 	x = 0 # number of requests loaded
-	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, downvote, vote_form)
+	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, vote_form)
 	for req in Request.objects.filter(request_type=request_type):
 		request_responses = Response.objects.filter(request=req)
 		if manager:
@@ -395,9 +383,8 @@ def requests_view(request, requestType):
 		else:
 			resp_form = ResponseForm(initial={'request_pk': req.pk})
 		upvote = userProfile in req.upvotes.all()
-		downvote = userProfile in req.downvotes.all()
 		vote_form = VoteForm(initial={'request_pk': req.pk})
-		requests_dict.append((req, request_responses, resp_form, upvote, downvote, vote_form))
+		requests_dict.append((req, request_responses, resp_form, upvote, vote_form))
 		x += 1
 		if x >= max_requests:
 			break
@@ -457,23 +444,11 @@ def my_requests_view(request):
 					relevant_request.upvotes.remove(userProfile)
 				else:
 					relevant_request.upvotes.add(userProfile)
-					relevant_request.downvotes.remove(userProfile)
-				relevant_request.save()
-		elif 'downvote' in request.POST:
-			vote_form = VoteForm(request.POST)
-			if vote_form.is_valid():
-				request_pk = vote_form.cleaned_data['request_pk']
-				relevant_request = Request.objects.get(pk=request_pk)
-				if userProfile in relevant_request.downvotes.all():
-					relevant_request.downvotes.remove(userProfile)
-				else:
-					relevant_request.downvotes.add(userProfile)
-					relevant_request.upvotes.remove(userProfile)
 				relevant_request.save()
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	my_requests = Request.objects.filter(owner=userProfile)
-	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, downvote, vote_form),...])
+	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...])
 	for request_type in RequestType.objects.all():
 		relevant_managers = request_type.managers.all()
 		type_manager = any(i.incumbent == userProfile for i in relevant_managers)
@@ -490,9 +465,8 @@ def my_requests_view(request):
 			else:
 				form = ResponseForm(initial={'request_pk': req.pk})
 			upvote = userProfile in req.upvotes.all()
-			downvote = userProfile in req.downvotes.all()
 			vote_form = VoteForm(initial={'request_pk': req.pk})
-			requests_list.append((req, responses_list, form, upvote, downvote, vote_form))
+			requests_list.append((req, responses_list, form, upvote, vote_form))
 		request_form = RequestForm(initial={'type_pk': request_type.pk})
 		request_form.fields['type_pk'].widget = forms.HiddenInput()
 		request_dict.append((request_type, request_form, type_manager, requests_list))
@@ -569,6 +543,18 @@ def request_view(request, request_pk):
 	request_responses = Response.objects.filter(request=relevant_request)
 	relevant_managers = relevant_request.request_type.managers.all()
 	manager = any(i.incumbent == userProfile for i in relevant_managers)
+	if manager:
+		response_form = ManagerResponseForm(initial={
+				'request_pk': relevant_request.pk,
+				'mark_filled': relevant_request.filled,
+				'mark_closed': relevant_request.closed,
+				})
+	else:
+		response_form = ResponseForm(initial={
+				'request_pk': relevant_request.pk,
+				})
+	upvote = userProfile in relevant_request.upvotes.all()
+	vote_form = VoteForm()
 	if request.method == 'POST':
 		if 'add_response' in request.POST:
 			if manager:
@@ -587,44 +573,33 @@ def request_view(request, request_pk):
 					relevant_request.save()
 					new_response.manager = True
 				new_response.save()
+				return HttpResponseRedirect(reverse('view_request', kwargs={'request_pk': relevant_request.pk}))
 		elif 'upvote' in request.POST:
 			if userProfile in relevant_request.upvotes.all():
 				relevant_request.upvotes.remove(userProfile)
 			else:
 				relevant_request.upvotes.add(userProfile)
-				relevant_request.downvotes.remove(userProfile)
 			relevant_request.save()
-		elif 'downvote' in request.POST:
-			if userProfile in relevant_request.downvotes.all():
-				relevant_request.downvotes.remove(userProfile)
-			else:
-				relevant_request.downvotes.add(userProfile)
-				relevant_request.upvotes.remove(userProfile)
-			relevant_request.save()
+			return HttpResponseRedirect(reverse('view_request', kwargs={'request_pk': relevant_request.pk}))
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
+	if manager:
+		response_form = ManagerResponseForm(initial={
+				'request_pk': relevant_request.pk,
+				'mark_filled': relevant_request.filled,
+				'mark_closed': relevant_request.closed,
+				})
 	else:
-		if manager:
-			response_form = ManagerResponseForm(initial={
-					'request_pk': relevant_request.pk,
-					'mark_filled': relevant_request.filled,
-					'mark_closed': relevant_request.closed,
-					})
-		else:
-			response_form = ResponseForm(initial={
-					'request_pk': relevant_request.pk,
-					})
-		upvote = userProfile in relevant_request.upvotes.all()
-		downvote = userProfile in relevant_request.downvotes.all()
-		vote_form = VoteForm()
+		response_form = ResponseForm(initial={
+				'request_pk': relevant_request.pk,
+				})
 	upvote = userProfile in relevant_request.upvotes.all()
-	downvote = userProfile in relevant_request.downvotes.all()
 	vote_form = VoteForm()
 	return render_to_response('view_request.html', {
 			'page_name': "View Request",
 			'relevant_request': relevant_request,
 			'request_responses': request_responses,
-			'upvote': upvote, 'downvote': downvote,
+			'upvote': upvote,
 			'response_form': response_form,
 			'vote_form': vote_form,
 			'response_form': response_form,
