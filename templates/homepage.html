@@ -54,9 +54,7 @@ function hide_form(form_id) {
 		<form class="inline-form" style="float: right; position: relative; top: -6px; padding-right: 1px;" method="POST" action="">
 			{% csrf_token %}
 			{{ request_tuple.4 }}
-			<div class="btn-group btn-group-xs">
-				<button type="submit" class="btn btn-{% if request_tuple.3 %}success" title="Cancel Up Vote"{% else %}default" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
-			</div>
+			<button type="submit" class="btn btn-xs btn-{% if request_tuple.3 %}warning" title="Cancel Up Vote"{% else %}success" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
 		</form>
 		{% endif %}
 		{% with vote_count_request=request_tuple.0 %}

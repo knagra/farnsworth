@@ -58,7 +58,6 @@ class Request(models.Model):
 	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
 	number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
 	upvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Up votes for this request.", related_name="up_votes")
-	downvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Down votes for this request.", related_name="down_votes")
 	
 	def __unicode__(self):
 		return "%s request by %s on %s" % (self.request_type.name, self.owner, self.post_date)

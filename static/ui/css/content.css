@@ -54,6 +54,13 @@ Author: Karandeep Singh Nagra
 	overflow: hidden;
 }
 
+.float_form {
+	float: right;
+	position: relative;
+	top: -6px;
+	padding-right: 1px;
+}
+
 .main_table {
 	width: 100%;
 	overflow-x: auto;

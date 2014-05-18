@@ -367,6 +367,7 @@ def requests_view(request, requestType):
 				else:
 					relevant_request.upvotes.add(userProfile)
 				relevant_request.save()
+				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	request_form = RequestForm()
