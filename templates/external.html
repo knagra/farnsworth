@@ -24,10 +24,7 @@
 		<img class="carousel_img" src="{% static 'ui/images/ext_1.jpg' %}">
 		<div class="container">
 			<div class="carousel-caption">
-			<h1 class="img_heading_lg visible-lg">Welcome to Hoyt!</h1>
-			<h1 class="img_heading_md visible-md">Welcome to Hoyt!</h1>
-			<h1 class="img_heading_sm visible-sm">Welcome to Hoyt!</h1>
-			<h1 class="img_heading_xs visible-xs">Welcome to Hoyt!</h1>
+			<h1 class="img_heading">Welcome to Hoyt.</h1>
 			<p class="description">We're a member house of the <a class="carousel_link" href="//www.bsc.coop">Berkeley Student Cooperative.</a></p>
 			<p class="info">We're an all-women co-op on North Side, nestled in the North Berkeley hills.</p>
 			</div> <!-- .carousel-caption -->
@@ -37,11 +34,8 @@
 		<img class="carousel_img" src="{% static 'ui/images/ext_2.jpg' %}">
 		<div class="container">
 			<div class="carousel-caption">
-			<h1 class="img_heading_lg visible-lg">This is our coffee pot.</h1>
-			<h1 class="img_heading_md visible-md">This is our coffee pot.</h1>
-			<h1 class="img_heading_sm visible-sm">This is our coffee pot.</h1>
-			<h1 class="img_heading_xs visible-xs">This is our coffee pot.</h1>
-			<p class="description">If you're into exotic coffee, come board at Hoyt!  Information about boarding can be found at
+			<h1 class="img_heading">This is our coffee pot.</h1>
+			<p class="description">If you're into exquisite coffee, board at Hoyt!  Information about boarding can be found at
 			<a class="carousel_link" href="//www.bsc.coop/food/meal-contract-info-rates">this page</a>.
 			</p>
 			<p class="info">Or drop by for an exceptional cuppa.  We're accepting house-level boarders.</p>
@@ -52,10 +46,7 @@
 		<img class="carousel_img" src="{% static 'ui/images/ext_4.jpg' %}">
 		<div class="container">
 			<div class="carousel-caption">
-			<h1 class="img_heading_lg visible-lg">Join us on our roof.</h1>
-			<h1 class="img_heading_md visible-md">Join us on our roof.</h1>
-			<h1 class="img_heading_sm visible-sm">Join us on our roof.</h1>
-			<h1 class="img_heading_xs visible-xs">Join us on our roof.</h1>
+			<h1 class="img_heading">Join us on our roof.</h1>
 			<p class="description">Our parties start here.</p>
 			</div> <!-- .carousel-caption -->
 		</div> <!-- .container -->
@@ -64,12 +55,8 @@
 		<img class="carousel_img" src="{% static 'ui/images/ext_5.jpg' %}">
 		<div class="container">
 			<div class="carousel-caption">
-			<h1 class="img_heading_lg visible-lg">Our piano room.</h1>
-			<h1 class="img_heading_md visible-md">Our piano room.</h1>
-			<h1 class="img_heading_sm visible-sm">Our piano room.</h1>
-			<h1 class="img_heading_xs visible-xs">Our piano room.</h1>
-			<p class="description">This is not a stock photo.</p>
-			<p class="info">We welcome all piano players, amateur and professional.</p>
+			<h1 class="img_heading">Our piano room.</h1>
+			<p class="description">We welcome all piano players, amateur and professional.</p>
 			</div> <!-- .carousel-caption -->
 		</div> <!-- .container -->
 	</div> <!-- .item -->
@@ -77,10 +64,7 @@
 		<img class="carousel_img" src="{% static 'ui/images/ext_6.jpg' %}">
 		<div class="container">
 			<div class="carousel-caption">
-			<h1 class="img_heading_lg visible-lg">Our kitchen.</h1>
-			<h1 class="img_heading_md visible-md">Our kitchen.</h1>
-			<h1 class="img_heading_sm visible-sm">Our kitchen.</h1>
-			<h1 class="img_heading_xs visible-xs">Our kitchen.</h1>
+			<h1 class="img_heading">Our kitchen.</h1>
 			<p class="description">Always well-stocked.</p>
 			</div> <!-- .carousel-caption -->
 		</div> <!-- .container -->
@@ -89,10 +73,7 @@
 		<img class="carousel_img" src="{% static 'ui/images/ext_7.jpg' %}">
 		<div class="container">
 			<div class="carousel-caption">
-			<h1 class="img_heading_lg visible-lg">Come check out our house!</h1>
-			<h1 class="img_heading_md visible-md">Come check out our house!</h1>
-			<h1 class="img_heading_sm visible-sm">Come check out our house!</h1>
-			<h1 class="img_heading_xs visible-xs">Come check out our house!</h1>
+			<h1 class="img_heading">Come check out our house!</h1>
 			<p class="description">Knock on our door.  We'll give you a tour.</p>
 			<p class="info">We're located at 2519 Ridge Road, just a block away from campus
 			(<a class="carousel_link" href="{% url 'house_map' %}">click for map</a>).</p>
@@ -112,6 +93,82 @@ $(document).ready(function() {
 	$('.navbar').css('margin-bottom', '0');
 	$('#bottom').hide();
 	$('#body').hide();
+	<!-- change display format for some things depending on window width -->
+	var wi = $(window).width();
+	if (wi <= 300) {
+		$('.img_heading').css('font-size', '100%');
+		$('.description').hide();
+		$('.info').hide();
+	} else if (wi <= 480) {
+		$('.img_heading').css('font-size', '200%');
+		$('.description').show();
+		$('.info').show();
+		$('.description').css('font-size', '70%');
+		$('.info').css('font-size', '60%');
+	} else if (wi <= 768) {
+		$('.img_heading').css('font-size', '350%');
+		$('.description').show();
+		$('.info').show();
+		$('.description').css('font-size', '100%');
+		$('.info').css('font-size', '90%');
+	} else if (wi < 990) {
+		$('.img_heading').css('font-size', '450%');
+		$('.description').show();
+		$('.info').show();
+		$('.description').css('font-size', '130%');
+		$('.info').css('font-size', '110%');
+	} else if (wi <= 1200) {
+		$('.img_heading').css('font-size', '700%');
+		$('.description').show();
+		$('.info').show();
+		$('.description').css('font-size', '150%');
+		$('.info').css('font-size', '130%');
+	} else if (wi > 1200) {
+		$('.img_heading').css('font-size', '900%');
+		$('.description').show();
+		$('.info').show();
+		$('.description').css('font-size', '180%');
+		$('.info').css('font-size', '150%');
+	}
+	
+	$(window).resize(function() {
+		var wi = $(window).width();
+		if (wi <= 300) {
+			$('.img_heading').css('font-size', '100%');
+			$('.description').hide();
+			$('.info').hide();
+		} else if (wi <= 480) {
+			$('.img_heading').css('font-size', '200%');
+			$('.description').show();
+			$('.info').show();
+			$('.description').css('font-size', '70%');
+			$('.info').css('font-size', '60%');
+		} else if (wi <= 768) {
+			$('.img_heading').css('font-size', '250%');
+			$('.description').show();
+			$('.info').show();
+			$('.description').css('font-size', '100%');
+			$('.info').css('font-size', '90%');
+		} else if (wi < 990) {
+			$('.img_heading').css('font-size', '450%');
+			$('.description').show();
+			$('.info').show();
+			$('.description').css('font-size', '130%');
+			$('.info').css('font-size', '110%');
+		} else if (wi <= 1200) {
+			$('.img_heading').css('font-size', '700%');
+			$('.description').show();
+			$('.info').show();
+			$('.description').css('font-size', '150%');
+			$('.info').css('font-size', '130%');
+		} else if (wi > 1200) {
+			$('.img_heading').css('font-size', '900%');
+			$('.description').show();
+			$('.info').show();
+			$('.description').css('font-size', '180%');
+			$('.info').css('font-size', '150%');
+		}
+	});
 });
 </script>
 {% endblock %}
