@@ -37,12 +37,9 @@
 	</div> <!-- .alert -->
 	<div class="table_container">
 	<div class="header"><h3 class="table_title">OAuth Request</h3></div>
-    <ul id="oauth_request_form" class="list-group">
 	  <a class="list-group-item" style="border-radius: 0;" title="Facebook" href="{% url 'social:begin' 'facebook' %}"><img height="30" width="30" src="{% static 'ui/images/oauth/fb.png' %}"> Facebook</a>
 	  <a class="list-group-item" title="Google" href="{% url 'social:begin' 'google-oauth' %}"><img height="30" width="30" src="{% static 'ui/images/oauth/google.png' %}"> Google</a>
 	  <a class="list-group-item" title="GitHub" href="{% url 'social:begin' 'github' %}"><img height="30" width="30" src="{% static 'ui/images/oauth/github.ico' %}"> GitHub</a>
-	  <a class="list-group-item" style="border-radius: 0;" title="Stack Overflow" href="{% url 'social:begin' 'stackoverflow' %}"><img height="30" width="30" src="{% static 'ui/images/oauth/stackoverflow.png' %}"> Stack Overflow</a>
-    </ul> <!-- #oauth_request_form -->
     </div> <!-- .table_container -->
   </div> <!-- .col-md-4 -->
 </div>

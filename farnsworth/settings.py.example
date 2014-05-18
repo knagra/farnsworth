@@ -197,7 +197,6 @@ AUTHENTICATION_BACKENDS = (
     'social.backends.facebook.FacebookOAuth2',
     'social.backends.github.GithubOAuth2',
     'social.backends.google.GoogleOAuth2',
-    'social.backends.stackoverflow.StackoverflowOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -222,12 +221,6 @@ SOCIAL_AUTH_GITHUB_SCOPE = ['user:email']
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', "https://www.googleapis.com/auth/userinfo.profile"]
-
-# https://api.stackexchange.com/
-SOCIAL_AUTH_STACKOVERFLOW_KEY = ''
-SOCIAL_AUTH_STACKOVERFLOW_SECRET = ''
-SOCIAL_AUTH_STACKOVERFLOW_API_KEY = ''
-SOCIAL_AUTH_STACKOVERFLOW_SCOPE = ['email']
 
 LOGIN_URL = BASE_URL + "/login/"
 LOGOUT_URL = BASE_URL + "/logout/"
