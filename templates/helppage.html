@@ -18,20 +18,88 @@
 {% endblock %}
 
 {% block content %}
-{% if not user.is_authenticated %}
+<div class="row">
+{% if user.is_authenticated %}
+<div class="col-sm-5 col-md-4 col-lg-3">
+<h1 class="sub_title"><small><a name="contents" title="A link to contents" href="#contents">&Dagger;</a></small> Contents</h1>
+<hr />
+<ol type="I">
+	<li><a href="#welcome">Welcome</a></li>
+	{% if user.is_superuser %}
+	<li><a href="#managing_users">Admin: Managing Users</a>
+		<ol type="A">
+			<li><a href="#adding_users">Adding Users</a></li>
+			<li><a href="#modifying_users">Modifying Users</a></li>
+			<li><a href="#profile_requests">Profile Requests</a></li>
+		</ol>
+	</li>
+	<li><a href="#admin_miscellaneous">Admin: Miscellaneous</a>
+		<ol type="A">
+			<li><a href="#anonymous_user">Anonymous User</a></li>
+			<li><a href="#recounts">Model Recounts</a></li>
+			<li><a href="#django">Django Admin</a></li>
+		</ol>
+	</li>
+	{% endif %}
+	{% if user.is_superuser or PRESIDENT %}
+	<li><a href="#meta_manager">President: Meta-Manager</a>
+		<ol type="A">
+			<li><a href="#adding_managers">Adding Managers</a></li>
+			<li><a href="#managing_managers">Managing Managers</a></li>
+		</ol>
+	</li>
+	<li><a href="#request_types">President: Request Types</a>
+		<ol type="A">
+			<li><a href="#about_request_types">About Request Types</a></li>
+			<li><a href="#adding_request_types">Adding Request Types</a></li>
+			<li><a href="#managing_request_types">Managing Request Types</a></li>
+		</ol>
+	</li>
+	{% endif %}
+	<li><a href="#navigation">Navigation</a></li>
+	<li><a href="#tips">General Tips</a></li>
+	<li><a href="#profile_management">Profile Management</a>
+		<ol type="A">
+			<li><a href="#profile">Profile Details</a></li>
+			<li><a href="#password">Password</a></li>
+		</ol>
+	</li>
+	<li><a href="#threads">Threads</a></li>
+	<li><a href="#requests">Requests</a></li>
+	<li><a href="#announcements">Announcements</a></li>
+	<li><a href="#events">Events</a></li>
+	<li><a href="#miscellaneous">Miscellaneous</a>
+		<ol type="A">
+			<li><a href="#tinymce">TinyMCE</a></li>
+			<li><a href="#datetime">Date-Time Picker</a></li>
+		</ol>
+	</li>
+</ol>
+<hr />
+</div> <!-- .col-md-4 -->
+<div class="col-sm-7 col-md-8 col-lg-9">
+	<h1 class="text-center sub_title">
+		<small><a name="welcome" title="A link to this section" href="#welcome">&sect;</a></small>
+		Welcome to {{ HOUSE }}
+	</h1>
+{% else %}
+<div class="col-sm-12">
+{% endif %}
 	<p>Welcome!  This is a virtual gathering place for members of {{ HOUSE }} as well as a community outreach and general information site.
 	</p>
+	{% if not user.is_authenticated %}
 	<p>If you are a new member, you can request an account by clicking <a href="{% url 'request_profile' %}">here</a> or on the request profile link
 	in the menu above.  Once your request is submitted, an admin will contact you.
 	If you are currently a member, please login to access member forums, manager requests, event postings, and announcements.
 	</p>
-	<p>This website is an instance of a project called "Farnsworth," planned and executed by <a href="https://.github.com/knagra/">Karandeep Singh Nagra</a>,
-	with help from <a href="https://.github.com/naderm">Nader Morshed</a>.
+	{% endif %}
+	<p>This website is an instance of a project called "Farnsworth," planned and executed by <a href="https://.github.com/knagra/">Karandeep Singh Nagra</a>
+	and <a href="https://.github.com/naderm">Nader Morshed</a>.
 	It was originally developed to encourage the use of new technologies in the <a href="http://bsc.coop">Berkeley Student Cooperative</a>
 	and provide a better online presence for houses in the cooperative.
 	The site is designed abstractly and easily set up for any other house with a few settings changes.
 	Several example implementations of Farnsworth exist for you to mimic.
-	If you would like to implement an instance of Farnsworth for your house, please contact Karandeep at
+	If you would like to implement an instance of Farnsworth for another house, please contact Karandeep at
 	<a href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>.
 	</p>
 	<p>Farnsworth is free and open source software.  The source code is freely available in
@@ -41,15 +109,20 @@
 	If you would like to contribute to this project, see the <a href="https://github.com/knagra/farnsworth/blob/master/DOCS/roadmap">roadmap</a>
 	for a list of features you can implement.  Pull requests to the repository are welcomed.
 	</p>
-{% else %}
+</div> <!-- #general_info -->
+</div> <!-- .row -->
+{% if user.is_authenticated %}
 	{% if user.is_superuser %}
 	<div class="row">
-	<div id="managing_users" class="col-md-6">
-		<h1 class="sub_title text-center">Admin: Managing Users <small><a name="managing_users" title="A link to this section" href="#managing_users">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	<div id="managing_users" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="managing_users" title="A link to this section" href="#managing_users">&sect;</a></small>
+			Admin: Managing Users
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="managing_users_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle">Adding Users <a name="adding_users" title="A link to this sub-section" href="#adding_users">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="adding_users" title="A link to this sub-section" href="#adding_users">&sect;</a> Adding Users</h2>
 			<p>You can add a user from the <a target="_blank" href="{% url 'custom_add_user' %}">add user page</a>.  The process is fairly intuitive.
 			Usernames should be unique and a single word composed of alphanumeric characters or the underscore character.
 			It is recommended that e-mails and phone numbers be kept hidden from other members when creating a user.
@@ -88,11 +161,11 @@
 			(alumni, for example), it is recommended that you toggle off the "is active" option for the user.  You can toggle it back on later by modifying
 			the user when the user wants access to the site.
 			</p>
-		<h2 class="sub_subtitle">Modifying Users <a name="modifying_users" title="A link to this sub-section" href="#modify_users">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="modifying_users" title="A link to this sub-section" href="#modifying_users">&sect;</a> Modifying Users</h2>
 			<p>A list of all users can be seen at the <a target="_blank" href="{% url 'custom_manage_users' %}">manage users page</a>.
 			This page will give you a quick run-down of users, their e-mail addresses, phone numbers, and active, staff and superuser statuses.
 			The tables are sortable.  You can click on any heading to sort the table by that column.
-			You can also hold shift and click multiple column headings to sort by all those columns successively.
+			You can also hold <code>Shift</code> and click multiple column headings to sort by all those columns successively.
 			By default, the tables are sorted by last name and then first name.
 			Clicking on an e-mail address will prompt you to send an e-mail to that address.
 			You can click on any user's name from the manage users page to edit that user's profile.
@@ -126,7 +199,7 @@
 			You can update the profile or change the password for the user, but not both in one HTTP request.
 			AJAX is not currently supported.  This is another cool feature, if you care to implement it.
 			</p>
-		<h2 class="sub_subtitle">Profile Requests <a name="profile_requests" title="A link to this sub-section" href="#profile_requests">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="profile_requests" title="A link to this sub-section" href="#profile_requests">&sect;</a> Profile Requests</h2>
 			<p>Sometimes - especially at the beginning of the semester - you will get requests for new profiles.
 			These can be managed from the <a href="{% url 'manage_profile_requests' %}">manage profile requests</a> page.
 			Profile requests contain most of the information affiliated with a prospective user profile.
@@ -143,15 +216,20 @@
 			The user will have to fill another request, or you can add the user manually
 			(check the <a href="#adding_users">adding users</a> section above for more info).
 			</p>
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #managing_users_body -->
 	</div> <!-- #managing_users -->
-	<div id="admin_misc" class="col-md-6">
-		<h1 class="sub_title text-center">Admin: Miscellaneous <small><a name="admin_miscellaneous" title="A link to this section" href="#admin_miscellaneous">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	</div> <!-- .row -->
+
+	<div class="row">
+	<div id="admin_misc" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="admin_miscellaneous" title="A link to this section" href="#admin_miscellaneous">&sect;</a></small>
+			Admin: Miscellaneous
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="admin_misc_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle">Anonymous User <a name="anonymous_user" title="A link to this sub-section" href="#anonymous_user">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="anonymous_user" title="A link to this sub-section" href="#anonymous_user">&sect;</a> Anonymous User</h2>
 			<p>Farnsworth comes prepackaged with an anonymous user.  This user (and profile) is autogenerated the first time you start an anonymous session.
 			The default username is {{ ANONYMOUS_USERNAME }}.  This can be changed from the settings file (/path/to/head/farnsworth/settings.py)
 			<b>before starting a first anonymous session.  Don't change this setting if the anonymous user already exists.</b>
@@ -177,7 +255,7 @@
 			An error message will be displayed if a user tries to modify the anonymous user profile from the my profile page.
 			The member directory excludes the anonymous user and the profile for the anonymous user
 			</p>
-		<h2 class="sub_subtitle">Model Recounts <a name="recounts" title="A link to this sub-section" href="#recounts">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="recounts" title="A link to this sub-section" href="#recounts">&sect;</a> Model Recounts</h2>
 			<p>To save processor power and increase efficiency, Farnsworth counts thread messages and request responses very infrequently.
 			These fields are incremented whenever a new message or response is posted.
 			However, if messages or responses are deleted (only through the Django admin interface), or users or user profiles are deleted
@@ -198,7 +276,7 @@
 			<p>Even still, the recount process may still take a while.
 			Avoid having to use this utility by not messing with the Django admin interface often.
 			</p>
-		<h2 class="sub_subtitle">Django Admin <a name="django" title="A link to this sub-section" href="#django">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="django" title="A link to this sub-section" href="#django">&sect;</a> Django Admin</h2>
 			<p>If you absolutely must use the Django admin interface, here are a few quick tips on how to use it.
 			</p>
 			<p>Django arranges its admin interface by application.  There are several applications that make up the whole of Farnsworth.
@@ -234,22 +312,22 @@
 			</p>
 			<p>Managing all models is identical through the Django admin interface.  The interface for modifying a model isntance is fairly intuitive.
 			</p>
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #admin_misc_body -->
 	</div> <!-- #admin_misc -->
 	</div> <!-- .row -->
-	<br />
-	<hr class="main_divider" />
 	{% endif %}
 	
 	{% if user.is_superuser or PRESIDENT %}
 	<div class="row">
-	<div id="meta_manager" class="col-md-6">
-		<h1 class="sub_title text-center">President: Meta-Manager <small><a name="meta_manager" title="A link to this section" href="#meta_manager">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	<div id="meta_manager" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="meta_manager" title="A link to this section" href="#meta_manager">&sect;</a></small>
+			President: Meta-Manager
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="meta_manager_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle">Adding Managers <a name="adding_managers" title="A link to this sub-section" href="#adding_managers">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="adding_managers" title="A link to this sub-section" href="#adding_managers">&sect;</a> Adding Managers</h2>
 			<p>Managers are managed from the <a href="{% url 'meta_manager' %}">meta-manager</a> page.
 			</p>
 			<p>You can add a new manager by clicking the top right button on the meta-manager page or by going directly to
@@ -294,7 +372,7 @@
 			If an incumbent for the position doesn't exist, leave the option blank (displayed as a series of dashes)
 			and the position will be created without an incumbent.
 			</p>
-		<h2 class="sub_subtitle">Managing Managers <a name="managing_managers" title="A link to this sub-section" href="#managing_managers">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="managing_managers" title="A link to this sub-section" href="#managing_managers">&sect;</a> Managing Managers</h2>
 			<p>There is a catch in that when a user is changed from a resident or boarder to an alumnus, s/he continues to be the incumbent for the position.
 			So, some maintenance on the site is required on your part at the beginning and end of each term,
 			or whenever a manager position is vacated/refilled.
@@ -305,8 +383,8 @@
 			the <a href="{% url 'meta_manager' %}">meta-manager</a> (a manager of managers) page.
 			This list will tell you most of the handy information about each manager, as well.
 			Unlike the manager directory, this list does not show incumbents' personal e-mails.
-			The meta-manager table is sortable, just like any other table in Farnsworth.  You can hold down the Shift key and click multiple table headers
-			to sort by all of the ones you select.
+			The meta-manager table is sortable, just like any other table in Farnsworth.
+			You can hold down the <code>Shift</code> key and click multiple table headers to sort by all of the ones you select.
 			</p>
 			<p>When you click on the title of each manager, you will be directed to a page to modify that manager instance.
 			This form is identical to the add manager form; so details will not be covered here.
@@ -314,16 +392,20 @@
 			If you try to change a manager to have the same title as a different existing manager, you will be thrown an error.
 			Similarly, if the URL name resolved from the title you gave collides with the URL of a different existing manager, you will be thrown an error.
 			</p>
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #meta_manager_body -->
 	</div> <!-- #meta_manager -->
+	</div> <!-- .row -->
 	
-	<div id="request_types" class="col-md-6">
-		<h1 class="sub_title text-center">President: Request Types <small><a name="request_types" title="A link to this section" href="#request_types">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	<div class="row">
+	<div id="request_types" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="request_types" title="A link to this section" href="#request_types">&sect;</a></small>
+			President: Request Types
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="request_types_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle">About Request Types <a name="about_request_types" title="A link to this sub-section" href="#about_request_types">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="about_request_types" title="A link to this sub-section" href="#about_request_types">&sect;</a> About Request Types</h2>
 			<p>Farnsworth abstracts manager requests so that request types can be created on the fly as needed.
 			A request type is simple.  It has a name, relevant managers, an enabled status, and an optional glyphicon.
 			Names should be unique and resolve to unique URLs.  URLs are resolved by lowercasing all letters, replacing space characters with underscores,
@@ -341,7 +423,7 @@
 			</p>
 			<p>You can see a list of request types from the <a href="{% url 'manage_request_types' %}">manage request types</a> page.
 			</p>
-		<h2 class="sub_subtitle">Adding Request Types <a name="adding_request_types" title="A link to this sub-section" href="#adding_request_types">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="adding_request_types" title="A link to this sub-section" href="#adding_request_types">&sect;</a> Adding Request Types</h2>
 			<p>The Add Request Type button on the <a href="{% url 'manage_request_types' %}">manage request types</a> page will take you to the
 			<a href="{% url 'add_request_type' %}">add request type</a> page.  Filling out and submitting this form will add a new request type.
 			</p>
@@ -384,7 +466,7 @@
 			Also in these cases, it is especially crucial to type the glyphicon correctly as the buttons will be empty (since there is no glyphicon)
 			if the glyphicon is mistyped.
 			</p>
-		<h2 class="sub_subtitle">Managing Request Types <a name="managing_request_types" title="A link to this sub-section" href="#managing_request_types">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="managing_request_types" title="A link to this sub-section" href="#managing_request_types">&sect;</a> Managing Request Types</h2>
 			<p>You can see a list of all the request types with links to modify them, relevant managers, and whether they are enabled from the
 			<a href="{% url 'manage_request_types' %}">manage request types</a> page.
 			From here, you can also see links to view relevant managers or their incumbents.
@@ -392,18 +474,18 @@
 			</p>
 			<p>This form is identical to the add request type page.
 			</p>
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- # request_types_body -->
 	</div> <!-- #request_types -->
 	</div> <!-- .row -->
-	<br />
-	<hr class="main_divider" />
 	{% endif %}
 	
 	<div class="row">
-	<div id="navigation" class="col-md-6">
-		<h1 class="sub_title text-center">Navigation <small><a name="navigation" title="A link to this section" href="#navigation">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	<div id="navigation" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="navigation" title="A link to this section" href="#navigation">&sect;</a></small>
+			Navigation
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="navigation_body" class="toggleable">
 		<hr style="width: 75%;" />
 			<p>The site is quite expansive and has dynamically generated content and pages.
@@ -435,116 +517,150 @@
 			The most common of these are links to profile pages.
 			But there are also links to see manager details, members' posted threads and requests, and other pages.
 			</p>
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #navigation_body -->
 	</div> <!-- #navigation -->
-	<div id="tips" class="col-md-6">
-		<h1 class="sub_title text-center">General Tips <small><a name="tips" title="A link to this section" href="#tips">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	</div> <!-- .row -->
+
+	<div class="row">
+	<div id="tips" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="tips" title="A link to this section" href="#tips">&sect;</a></small>
+			General Tips
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="tips_body" class="toggleable">
 		<hr style="width: 75%;" />
 			<p>All tables in Farnsworth are sortable.  If you click on the header of a table, you will sort by the items in that column.
-			You can hold down Shift and click multiple column headers to sort by each one successively.
+			You can hold down <code>Shift</code> and click multiple column headers to sort by each one successively.
 			</p>
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
+			<p>The site collapses to a mobile version when the screen size reduces down to an extra small size (&lt; 768px in width) or if
+			the site is launched with a small screen size.
+			Several things happen dynamically:
+			</p>
+			<ul style="list-style: none">
+				<li>Font size in container headers (colored horizontal bars at top of containers) changes as screen size changes.</li>
+				<li>Text from container header buttons disappears when the screen gets to the extra small size.</li>
+				<li>Certain text elements are replaced by others upon screen size change.</li>
+				<li>Certain images and maps are replaced by others or disappear entirely when the screen is extra small.</li>
+				<li>Some containers rearrange themselves depending on the site of the screen.
+				Some containers will be side-by-side on larger screens but one-above-the-other in smaller screens.
+				</li>
+			</ul>
+			<p>Learning to use the site is done best on large screens, as the mobile version is essentially reduced in visual aids,
+			such as the text in container header buttons.
+			Using the mobile version is not cumbersome, still.
+			</p>
 		</div> <!-- #tips_body -->
 	</div> <!-- #tips -->
 	</div> <!-- .row -->
+
 	<div class="row">
-	<div id="profile" class="col-md-6">
-		<h1 class="sub_title text-center">Profile Management <small><a name="profile_management" title="A link to this section" href="#profile_management">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	<div id="profile" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="profile_management" title="A link to this section" href="#profile_management">&sect;</a></small>
+			Profile Management
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="profile_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle">Profile Details <a name="profile" title="A link to this sub-section" href="#profile">&sect;</a></h2>
+		<h2 class="sub_subtitle"><a name="profile" title="A link to this sub-section" href="#profile">&sect;</a> Profile Details</h2>
 			<p>Control over your profile is handled through the <a href="{% url 'my_profile' %}">my profile page</a>.
 			You can access this page from anywhere from the top menu.
 			Links to this page are also sprinkled across the website - a link appears anywhere you posted an event, request, thread message, etc.
 			</p>
-			<p>
-			</p>
-		<h2 class="sub_subtitle">Password <a name="password" title="A link to this sub-section" href="#password">&sect;</a></h2>
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
+		<h2 class="sub_subtitle"><a name="password" title="A link to this sub-section" href="#password">&sect;</a> Password</h2>
 		</div> <!-- #profile_body -->
 	</div> <!-- #profile -->
-	<br class="visible-xs visible-sm" />
-	<div id="threads" class="col-md-6">
-		<h1 class="sub_title text-center">Threads <small><a name="threads" title="A link to this section" href="#threads">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	</div> <!-- .row -->
+	
+	<div class="row">
+	<div id="threads" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="threads" title="A link to this section" href="#threads">&sect;</a></small>
+			Threads
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="threads_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #threads_body -->
 	</div> <!-- #threads -->
 	</div> <!-- .row -->
-	<br />
+	
 	<div class="row">
-	<div id="requests" class="col-md-6">
-		<h1 class="sub_title text-center">Requests <small><a name="requests" title="A link to this section" href="#requests">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	<div id="requests" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="requests" title="A link to this section" href="#requests">&sect;</a></small>
+			Requests
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="requests_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #requests_body -->
 	</div> <!-- #requests -->
-	<br class="visible-xs visible-sm" />
-	<div id="announcements" class="col-md-6">
-		<h1 class="sub_title text-center">Announcements <small><a name="announcements" title="A link to this section" href="#announcements">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	</div> <!-- .row -->
+	
+	<div class="row">
+	<div id="announcements" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="announcements" title="A link to this section" href="#announcements">&sect;</a></small>
+			Announcements
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="announcements_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #announcements_body -->
 	</div> <!-- #announcements -->
 	</div> <!-- .row -->
+	
 	<div class="row">
-	<div id="events" class="col-md-6">
-		<h1 class="sub_title text-center">Events <small><a name="events" title="A link to this section" href="#events">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	<div id="events" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="events" title="A link to this section" href="#events">&sect;</a></small>
+			Events
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div id="events_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #events_body -->
 	</div> <!-- #events -->
-	<br class="visible-xs visible-sm" />
-	<div id="misc" class="col-md-6">
-		<h1 class="sub_title text-center">Miscellaneous <small><a name="miscellaneous" title="A link to this section" href="#miscellaneous">&sect;</a></small></h1>
-		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
+	</div> <!-- .row -->
+	
+	<div class="row">
+	<div id="misc" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+		<h1 class="sub_title text-center">
+			<small><a name="miscellaneous" title="A link to this section" href="#miscellaneous">&sect;</a></small>
+			Miscellaneous
+			<small><a href="#contents" title="To contents">&Dagger;</a></small>
+		</h1>
 		<div class="misc_body" class="toggleable">
 		<hr style="width: 75%;" />
-		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
+		<h2 class="sub_subtitle"><a name="tinymce" title="A link to this sub-section" href="#tinymce">&sect;</a> TinyMCE</h2>
+			<p>Farnsworth includes a "what you see is what you get" (WYSIWYG) editor called TinyMCE used in several places through the site.
+			TinyMCE is feature rich and does extensive security checks on its own.  Using it is fairly intuitive.
+			TinyMCE allows image and video inserts via <code>iframe</code>s or URL links.
+			Both of these methods can be done through the buttons in the TinyMCE interface.
+			<p>Using URLs is the more straightforward and approachable way to insert videos.
+			TinyMCE will do the work for you in finding the video from the URL you enter and inserting it into your message.
+			This may not work properly sometimes (e.g., when more than one video is on a page).
+			</p>
+			<p>In these cases, you can use the <code>iframe</code> option, which is slightly more work.
+			You will have to get the <code>iframe</code> code from the video you are trying to insert
+			and then paste the code into the text field in the "Embed" tab of the insert/edit video popup of TinyMCE.
+			</p>
+			<p>TinyMCE also supports inserting emoticons, special characters, links, ordered &amp; unordered lists, and horizontal rules.
+			These can all be accessed from the buttons in the interface.
+			</p>
+			<p>Formatting can be done via keyboard as well as the buttons in the interface.
+			For example, you can press <code>CTRL + B</code> to <b>bold</b> or <code>CTRL + I</code> to <i>italicize</i> text.
+			The buttons available will allow you greater control over your formatting.
+			You can insert headings, change font size or font, and insert text to be rendered as code - like so:
+			</p>
+				<pre>python hello_world.py</pre>
+			<p>TinyMCE also supports keyboard shortcuts to copy (<code>CTRL + C</code>), cut (<code>CTRL + X</code>), or paste (<code>CTRL + P</code>)
+			text from or to the text field.
+			</p>
 		</div> <!-- #misc_body -->
 	</div> <!-- #misc -->
 	</div> <!-- .row -->
 {% endif %}
-{% endblock %}
-
-{% block endscripts %}
-<script>
-$(document).ready(function() {
-	var wi = $(window).width();
-	if (wi <= 768 && $('a.toggle_div').parent().next('div.toggleable')) {
-		$('a.toggle_div').parent().next('div.toggleable').hide();
-	} else {
-		$('a.toggle_div').parent().next('div').show();
-		$('a.toggle_div').parent().next('div').addClass('toggleable');
-	}
-	$(window).resize(function() {
-		var wi = $(window).width();
-		if (wi <= 768 && $('a.toggle_div').next('div.toggleable')) {
-			$('a.toggle_div').parent().next('div.toggleable').hide();
-		} else {
-			$('a.toggle_div').parent().next('div.toggleable').show();
-		}
-	});
-	$('a.toggle_div').click(function() {
-		$(this).parent().next('div').toggle();
-		$(this).parent().next('div').toggleClass('toggleable');
-	});
-	$('a.inner_toggle').click(function() {
-		$(this).parent().parent().toggle();
-		$(this).parent().parent().toggleClass('toggleable');
-	});
-});
-</script>
 {% endblock %}
