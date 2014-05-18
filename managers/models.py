@@ -5,7 +5,8 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.db import models
-from threads.models import UserProfile
+
+from base.models import UserProfile
 
 class Manager(models.Model):
 	'''
@@ -57,7 +58,6 @@ class Request(models.Model):
 	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
 	number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
 	upvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Up votes for this request.", related_name="up_votes")
-	downvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Down votes for this request.", related_name="down_votes")
 	
 	def __unicode__(self):
 		return "%s request by %s on %s" % (self.request_type.name, self.owner, self.post_date)
@@ -85,24 +85,6 @@ class Response(models.Model):
 		ordering = ['post_date']
 	
 	def is_response(self):
-		return True
-
-class ProfileRequest(models.Model):
-	'''
-	The ProfileRequest model.  A request to create a user account on the site.
-	'''
-	username = models.CharField(blank=False, null=True, max_length=100, help_text="Username if this user is created.")
-	first_name = models.CharField(blank=False, null=False, max_length=100, help_text="First name if user is created.")
-	last_name = models.CharField(blank=False, null=False, max_length=100, help_text="Last name if user is created.")
-	email = models.CharField(blank=False, null=False, max_length=255, help_text="E-mail address if user is created.")
-	request_date = models.DateTimeField(auto_now_add=True, help_text="Whether this request has been granted.")
-	affiliation = models.CharField(max_length=1, choices=UserProfile.STATUS_CHOICES, default=UserProfile.RESIDENT, help_text="User's affiliation with the house.")
-	password = models.CharField(max_length=255, help_text="User's password.  Stored as hash")
-	
-	def __unicode__(self):
-		return "Profile request for account '%s %s (%s)' on %s" % (self.first_name, self.last_name, self.username, self.request_date)
-	
-	def is_profilerequest(self):
 		return True
 
 class Announcement(models.Model):

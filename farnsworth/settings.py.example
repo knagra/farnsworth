@@ -49,6 +49,10 @@ home_max_threads = 15
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("managers.views.add_context",)
 
+TEMPLATE_CONTEXT_PROCESSORS += (
+    'social.apps.django_app.context_processors.backends',
+)
+
 # SQLite3 setup
 DATABASES = {
     'default': {
@@ -178,19 +182,69 @@ INSTALLED_APPS = (
 	'django.contrib.sites',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
+	'base',
 	'threads',
 	'events',
 	'managers',
 	'bootstrapform',
-	'south',
 	'haystack',
 	'django.contrib.admin',
 	'django.contrib.admindocs',
+	'social.apps.django_app.default',
 )
+
+AUTHENTICATION_BACKENDS = (
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.github.GithubOAuth2',
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.stackoverflow.StackoverflowOAuth2',
+    'social.backends.steam.SteamOpenId',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# http://developers.facebook.com/docs/authentication/
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+
+# http://psa.matiasaguirre.net/docs/backends/github.html#github
+SOCIAL_AUTH_GITHUB_KEY = ''
+SOCIAL_AUTH_GITHUB_SECRET = ''
+SOCIAL_AUTH_GITHUB_SCOPE = ['email']
+
+# http://psa.matiasaguirre.net/docs/backends/google.html#google-oauth2
+# https://console.developers.google.com/project
+# => Create Project
+# => Project -> APIs & auth -> Credentials
+# => "Create New Client ID"
+#       AUTHORIZED JAVASCRIPT ORIGINS: https://www.example.com
+#       AUTHORIZED REDIRECT URI: https://www.example.com/complete/google-oauth2/
+# => Copy "Client ID" and "Client secret"
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', "https://www.googleapis.com/auth/userinfo.profile"]
+
+# https://api.stackexchange.com/
+SOCIAL_AUTH_STACKOVERFLOW_KEY = ''
+SOCIAL_AUTH_STACKOVERFLOW_SECRET = ''
+SOCIAL_AUTH_STACKOVERFLOW_API_KEY = ''
+SOCIAL_AUTH_STACKOVERFLOW_SCOPE = ['email']
+
+# http://steamcommunity.com/dev/apikey
+SOCIAL_AUTH_STEAM_API_KEY = ''
 
 LOGIN_URL = BASE_URL + "/login/"
 LOGOUT_URL = BASE_URL + "/logout/"
 LOGIN_REDIRECT_URL = BASE_URL
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.user.get_username',
+    'base.pipeline.require_email',
+)
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 

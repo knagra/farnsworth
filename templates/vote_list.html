@@ -7,41 +7,12 @@
 		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">+{{ vote_count }}</a>
 		<ul class="dropdown-menu">
 		{% for voter in vote_count_request.upvotes.all %}
-			<li class="list-group-item-success"><a title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
-		{% endfor %}
-		{% for voter in vote_count_request.downvotes.all %}
-			<li class="list-group-item-danger"><a title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
-		{% endfor %}
-		</ul>
-	</li></ul>
-{% elif 0 > vote_count %}
-	<ul class="vote_list"><li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">{{ vote_count }}</a>
-		<ul class="dropdown-menu">
-		{% for voter in vote_count_request.upvotes.all %}
-			<li class="list-group-item-success"><a class="success" title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
-		{% endfor %}
-		{% for voter in vote_count_request.downvotes.all %}
-			<li class="list-group-item-danger"><a class="danger" title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
+			<li class="list-group-item-success"><a title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">{{ voter|display_user:user }}</a></li>
 		{% endfor %}
 		</ul>
 	</li></ul>
 {% else %}
-	{% if vote_count_request.upvotes.all or vote_count_request.downvotes.all %}
-	<ul class="vote_list"><li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">+0</a>
-		<ul class="dropdown-menu">
-		{% for voter in vote_count_request.upvotes.all %}
-			<li class="list-group-item-success"><a class="success" title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">+{{ voter|display_user:user }}</a></li>
-		{% endfor %}
-		{% for voter in vote_count_request.downvotes.all %}
-			<li class="list-group-item-danger"><a class="danger" title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">-{{ voter|display_user:user }}</a></li>
-		{% endfor %}
-		</ul>
-	</li></ul>
-	{% else %}
 	<span title="No Votes">+0</span>
-	{% endif %}
 {% endif %}
 {% endwith %}
 ({{ vote_count_request.post_date }}):

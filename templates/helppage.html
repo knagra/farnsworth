@@ -27,8 +27,9 @@
 	<p>Farnsworth is free and open source software.  The source code is freely available in
 	<a href="https://github.com/knagra/farnsworth/">this GitHub repository</a>.
 	You are encouraged to modify, expand, and share this software with others.
-	The several branches of this repository represent difference implementation of Farnsworth for difference houses.
-	If you would like to contribute to this project, 
+	The several branches of this repository represent different implementations of Farnsworth for difference houses.
+	If you would like to contribute to this project, see the <a href="https://github.com/knagra/farnsworth/blob/master/DOCS/roadmap">roadmap</a>
+	for a list of features you can implement.  Pull requests to the repository are welcomed.
 	</p>
 {% else %}
 	{% if user.is_superuser %}
@@ -256,7 +257,8 @@
 			<p>Yes, this implementation does mean slightly more work for you. But it means significantly less combined mental work for end-users.
 			</p>
 			<p>The form to add a new manager is fairly intuitive and has lots of help text.  All fields are optional except the manager title field.
-			Farnsworth auto-generates the URL key for the manager from the title you provide by lower-casing all letters and replacing spaces with underscore.
+			Farnsworth auto-generates the URL key for the manager from the title you provide by lower-casing all letters, replacing spaces with underscore,
+			and a few other things that are covered in the documentation.
 			"Kitchen Manager 1" &rarr; "kitchen_manager_1", "WRM" &rarr; "wrm", etc.  These URLs are used to reference managers in the directory
 			and the meta-manager.  You will be thrown an error when adding a manager whose URL collides with a previous URL.
 			</p>
@@ -312,11 +314,73 @@
 		<div id="request_types_body" class="toggleable">
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle">About Request Types <a name="about_request_types" title="A link to this sub-section" href="#about_request_types">&sect;</a></h2>
-			<p>Farnsworth abstracts manager requests so that different ones can be created on the fly as needed.
+			<p>Farnsworth abstracts manager requests so that request types can be created on the fly as needed.
 			A request type is simple.  It has a name, relevant managers, an enabled status, and an optional glyphicon.
-			Names should be unique and resolve to unique URLs.  URLs are resolved by lowercasing all letters and replacing space characters with underscores.
-			A request type's relevant managers are all the managers to whom that requests of that type are made.
+			Names should be unique and resolve to unique URLs.  URLs are resolved by lowercasing all letters, replacing space characters with underscores,
+			replacing &amp;'s with "and"s, and removing special characters such as *, $, !, and ?.
+			</p>
+			<p>A request type's relevant managers are all the managers to whom requests of that type are made.
 			The enabled status controls whether new requests of that type can be made.
+			However, even if a request type is disabled, users will be able to post new responses to requests.
+			Disabling request types can be useful when a manager position has been vacated, managers are being harassed on the site, etc.
+			</p>
+			<p>When there are no existing or enabled request types, the Requests dropdown menu will disappear.
+			The dropdown menu only appears when there is at least one enabled request type.
+			When request types are enabled, they will automatically be added to the list in the dropdown menu.
+			When request types are disabled, they will automatically be removed from the list.
+			</p>
+			<p>You can see a list of request types from the <a href="{% url 'manage_request_types' %}">manage request types</a> page.
+			</p>
+		<h2 class="sub_subtitle">Adding Request Types <a name="adding_request_types" title="A link to this sub-section" href="#adding_request_types">&sect;</a></h2>
+			<p>The Add Request Type button on the <a href="{% url 'manage_request_types' %}">manage request types</a> page will take you to the
+			<a href="{% url 'add_request_type' %}">add request type</a> page.  Filling out and submitting this form will add a new request type.
+			</p>
+			<p>The directions and documentation in the form are quite informative, and the process of adding a new request type should be fairly intuitive.
+			It is recommended, for presentability that request types be treated as titles (first letter of each word capitalized, unless an acronym).
+			Request type names are converted to URLs in the same manner as the manager titles; so the same rules apply to request type names as manager titles.
+			</p>
+			<p>Glyphicons are optional.  If you leave the field blank, the default icon (the inbox icon used for the Requests dropdown menu) will be used
+			for the request type.
+			If you mistype the glyphicon, however, no icon will be displayed.
+			There is a link in the form (which opens in a new tab) to all the currently available glyphicons.
+			You can use any of them, but it might be better to steer clear of a few key ones used elsewhere in Farnsworth and others that serve
+			as warning symbols.
+			</p>
+			<p>Here is a list of some of the glyphicons and their recommended use:
+			</p>
+			<ul style="list-style: none;">
+				<li>Food: cutlery - <span class="glyphicon glyphicon-cutlery"></span></li>
+				<li>Maintenance: wrench - <span class="glyphicon glyphicon-wrench"></span></li>
+				<li>Health: heart - <span class="glyphicon glyphicon-heart"></span>
+					or heart-empty - <span class="glyphicon glyphicon-heart-empty"></span></li>
+				<li>Garden: tree-conifer - <span class="glyphicon glyphicon-tree-conifer"></span>
+					or tree-deciduous - <span class="glyphicon glyphicon-tree-deciduous"></span></li>
+				<li>Social: glass - <span class="glyphicon glyphicon-glass"></span></li>
+				<li>House Manager: credit-card - <span class="glyphicon glyphicon-credit-card"></span></li>
+				<li>Site: globe - <span class="glyphicon glyphicon-globe"></span></li>
+				<li>Network: signal - <span class="glyphicon glyphicon-signal"></span></li>
+				<li>Supplies: shopping-cart - <span class="glyphicon glyphicon-shopping-cart"></span></li>
+				<li>Geek Social: film - <span class="glyphicon glyphicon-film"></span></li>
+				<li>Waste Reduction: trash - <span class="glyphicon glyphicon-trash"></span></li>
+				<li>Historian: camera - <span class="glyphicon glyphicon-camera"></span></li>
+			</ul>
+			<p>There is no hard limitation preventing you from using the same glyphicon for multiple request types,
+			but it will greatly enhance user experience if you use glyphicons intelligently.
+			</p>
+			<p>When users access this site from a small screen (smart phones, etc. &lt; 768px in width), text from certain buttons is not displayed,
+			and only the glyphicon in those buttons is displayed.
+			In these cases, it can help to have an intuitive glyphicon for users to know what request type they are accessing, to which page they are
+			navigating, etc.
+			Also in these cases, it is especially crucial to type the glyphicon correctly as the buttons will be empty (since there is no glyphicon)
+			if the glyphicon is mistyped.
+			</p>
+		<h2 class="sub_subtitle">Managing Request Types <a name="managing_request_types" title="A link to this sub-section" href="#managing_request_types">&sect;</a></h2>
+			<p>You can see a list of all the request types with links to modify them, relevant managers, and whether they are enabled from the
+			<a href="{% url 'manage_request_types' %}">manage request types</a> page.
+			From here, you can also see links to view relevant managers or their incumbents.
+			When you click on the name of a request type, you will be taken to the modify request type page.
+			</p>
+			<p>This form is identical to the add request type page.
 			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- # request_types_body -->
@@ -332,7 +396,35 @@
 		<div class="text-center"><a class="toggle_div"><span class="glyphicon glyphicon-collapse-down"></span> toggle display <span class="glyphicon glyphicon-collapse-up"></span></a></div>
 		<div id="navigation_body" class="toggleable">
 		<hr style="width: 75%;" />
-		
+			<p>The site is quite expansive and has dynamically generated content and pages.
+			It grows as the site is used more - as more users are added, more user profile pages (and ancillary pages) are available;
+			as more requests or threads are started, more pages to view them in detail are added.
+			</p>
+			<p>Most navigation is done from the navigation bar at the top of every page.
+			The menu options are fairly clear.
+			</p>
+			<p>The first link redirects to the home page, which presents recent and important information, including events in the next 24 hours,
+			pinned manager announcements, recently active threads, and, if you are a manager responsible for addressing certain request types,
+			you will be presented with all open, unfilled requests of those request types, as well.
+			</p>
+			<p>The second is a dropdown menu regarding your profile.
+			From here, you can access pages to edit your profile, update your password, see all your requests and all your threads,
+			and a link to logout of the site.
+			</p>
+			<p>If there are any enabled request types, the next link will be a dropdown menu for requests.
+			From here, you can see recent requests for a selected request type.
+			</p>
+			<p>The next choice is the Go menu, which contains a bulk of links to various pages.
+			First come the two directories - one for members and one for managers.
+			Next, a page with pinned manager announcements.
+			Then a list of all upcoming events, and then a link to see the external landing to the page.
+			Below that are several links to archives for threads, announcements, events, and requests.
+			Below that are links to this help page and the <a href="{% url 'site_map' %}">site map</a> page.
+			</p>
+			<p>However, interspersed throughout the site are links to various pages.
+			The most common of these are links to profile pages.
+			But there are also links to see manager details, members' posted threads and requests, and other pages.
+			</p>
 		<div class="text-center"><a class="inner_toggle"><span class="glyphicon glyphicon-collapse-up"></span> hide</a></div>
 		</div> <!-- #navigation_body -->
 	</div> <!-- #navigation -->

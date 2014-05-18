@@ -5,7 +5,8 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.contrib import admin
-from managers.models import Manager, RequestType, Request, Response, ProfileRequest, Announcement
+from base.models import ProfileRequest
+from managers.models import Manager, RequestType, Request, Response, Announcement
 
 class ManagerAdmin(admin.ModelAdmin):
 	list_display = ('title', 'incumbent', 'email')
