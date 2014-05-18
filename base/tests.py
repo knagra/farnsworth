@@ -9,6 +9,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
 
+from haystack.query import SearchQuerySet
+
 from utils.variables import MESSAGES
 from base.models import UserProfile, ProfileRequest
 from threads.models import Thread, Message
@@ -742,10 +744,15 @@ class TestSearch(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
 
+		self.u.first_name = "FirstName"
+		self.u.last_name = "LastName"
+		self.u.save()
+
 		self.profile = UserProfile.objects.get(user=self.u)
-		self.profile.first_name = "FirstName"
-		self.profile.last_name = "LastName"
+		self.profile.phone_number = "(111) 111-1111"
 		self.profile.save()
+
+		self.sqs = SearchQuerySet()
 
 		self.client.login(username="u", password="pwd")
 
@@ -754,15 +761,21 @@ class TestSearch(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Search", response.content)
 
-	def test_search_results(self):
-		response = self.client.get("/search/?q={0}".format(self.profile.first_name))
-		self.assertEqual(response.status_code, 200)
-		self.assertNotIn("No results found.", response.content)
-		self.assertIn(self.profile.first_name, response.content)
-		self.assertIn(self.profile.last_name, response.content)
+	def test_model_backend(self):
+		self.assertEqual(UserProfile.objects.count(),
+				 self.sqs.models(UserProfile).count())
+		self.assertEqual(self.profile,
+				 self.sqs.facet(self.profile.phone_number)[0].object)
 
-		response = self.client.get("/search/?q={0}".format(self.profile.last_name))
+	def test_search_results(self):
+		response = self.client.get("/search/?q={0}".format(self.u.first_name))
 		self.assertEqual(response.status_code, 200)
 		self.assertNotIn("No results found.", response.content)
-		self.assertIn(self.profile.first_name, response.content)
-		self.assertIn(self.profile.last_name, response.content)
+		self.assertIn(self.u.first_name, response.content)
+		self.assertIn(self.u.last_name, response.content)
+
+		response = self.client.get("/search/?q={0}".format(self.u.last_name))
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn("No results found.", response.content)
+		self.assertIn(self.u.first_name, response.content)
+		self.assertIn(self.u.last_name, response.content)
