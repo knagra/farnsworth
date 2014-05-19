@@ -440,7 +440,7 @@ class TestAnnouncements(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.a.body, response.content)
 
-	def test_individual_announcement(self):
+	def test_individual(self):
 		response = self.client.get("/announcements/{0}/".format(self.a.pk))
 
 		self.assertEqual(response.status_code, 200)
@@ -452,3 +452,34 @@ class TestAnnouncements(TestCase):
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.a.body, response.content)
+
+		new_body = "New Test Announcement Body"
+		response = self.client.post("/announcements/{0}/edit/".format(self.a.pk), {
+				"body": new_body,
+				"as_manager": self.a.manager.pk,
+				}, follow=True)
+
+		self.assertRedirects(response, "/announcements/{0}/".format(self.a.pk))
+		self.assertIn(new_body, response.content)
+
+		self.assertEqual(new_body, Announcement.objects.get(pk=self.a.pk).body)
+
+	def test_unpin(self):
+		response = self.client.post("/announcements/", {
+				"announcement_pk": self.a.pk,
+				"unpin": "",
+				}, follow=True)
+		self.assertRedirects(response, "/announcements/")
+		self.assertNotIn(self.a.body, response.content)
+
+	def test_unpin_individual(self):
+		url = "/announcements/{0}/".format(self.a.pk)
+		response = self.client.post(url, {
+				"unpin": "",
+				}, follow=True)
+		self.assertRedirects(response, url)
+		self.assertIn(self.a.body, response.content)
+
+		response = self.client.get("/announcements/")
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn(self.a.body, response.content)
