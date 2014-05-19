@@ -4,9 +4,11 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from random import choice
+
 from django import template
 
-from utils.variables import ANONYMOUS_USERNAME
+from utils.variables import ANONYMOUS_USERNAME, SUBTEXTS_404
 
 register = template.Library()
 
@@ -22,3 +24,11 @@ def display_user(value, arg):
 		return "You"
 	else:
 		return value.user.get_full_name()
+
+@register.filter
+def show_404_subtext(value):
+	''' Return a random string to show underneath the 404 title in the 404 page.
+		Parameters:
+			value is anything at all; it's not actually used in this function at all.
+	'''
+	return choice(SUBTEXTS_404)
