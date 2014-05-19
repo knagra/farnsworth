@@ -45,6 +45,11 @@ EMAIL_HOST_USER = 'youremail@gmail.com'
 EMAIL_HOST_PASSWORD = 'yourpassword'
 EMAIL_PORT = 587
 
+# E-mail blacklist.  E-mails will not be sent these addresses no matter what.
+# Add e-mails here, separated by commas, to prevent the site from sending e-mails
+# to select addresses.
+EMAIL_BLACKLIST = ()
+
 # Max number of threads loaded in member_forums.
 max_threads = 20
 
