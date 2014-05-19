@@ -14,11 +14,17 @@ from events.models import Event
 
 class VerifyThread(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
-		self.u.save()
-		profile = UserProfile.objects.get(user=self.u)
-		self.thread = Thread(owner=profile, subject="Default Thread Test")
+		self.u = User.objects.create_user(username="u", password="pwd")
+
+		self.profile = UserProfile.objects.get(user=self.u)
+
+		self.thread = Thread(owner=self.profile, subject="Default Thread Test")
 		self.thread.save()
+
+		self.message = Message(owner=self.profile, body="Default Reply Test",
+							   thread=self.thread)
+		self.message.save()
+
 		self.client.login(username="u", password="pwd")
 
 	def test_thread_created(self):
@@ -30,12 +36,14 @@ class VerifyThread(TestCase):
 	def test_thread_created(self):
 		urls = [
 			"/",
-			"/thread/{0}/".format(self.thread.pk),
-			"/archives/list_all_threads/",
-			"/member_forums/",
-			"/archives/all_threads/",
+			"/threads/",
+			"/threads/{0}/".format(self.thread.pk),
+			"/threads/all/",
+            "/threads/list/",
+			"/my_threads/",
+			"/profile/{0}/threads/".format(self.u.username),
 			]
-			
+
 		for url in urls:
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 200)
@@ -44,36 +52,52 @@ class VerifyThread(TestCase):
 	def test_create_thread(self):
 		urls = [
 			"/my_threads/",
-			"/member_forums/",
-			"/archives/all_threads/",
+			"/threads/",
+			"/threads/all/",
 			]
+		subject = "Thread Subject Test"
+		body = "Thread Body Test"
 		for url in urls:
 			response = self.client.post(url, {
 					"submit_thread_form": "",
-					"subject": "Thread Subject Test",
-					"body": "Thread Body Test",
+					"subject": subject,
+					"body": body,
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn("Thread Subject Test", response.content)
-			self.assertIn("Thread Body Test", response.content)
+			self.assertIn(subject, response.content)
+			self.assertIn(body, response.content)
 
-			Thread.objects.get(subject="Thread Subject Test").delete()
+			thread = Thread.objects.get(subject=subject)
+
+			self.assertNotEqual(thread, None)
+			self.assertEqual(Message.objects.filter(thread=thread).count(), 1)
+			self.assertEqual(Message.objects.get(thread=thread).body, body)
+
+			thread.delete()
 
 	def test_post_reply(self):
 		urls = [
-			"/member_forums/",
-			"/thread/{0}/".format(self.thread.pk),
-			"/archives/all_threads/",
+			"/threads/",
+			"/threads/{0}/".format(self.thread.pk),
+			"/threads/all/",
 			]
-
+		body = "Reply Body Test"
 		for url in urls:
 			response = self.client.post(url, {
 					"submit_message_form": "",
 					"thread_pk": "{0}".format(self.thread.pk),
-					"body": "Message Body Test",
+					"body": body,
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn("Message Body Test", response.content)
+			self.assertIn(body, response.content)
 
-			Message.objects.all()[0].delete()
-			self.assertEqual(0, Message.objects.all().count())
+			thread = Thread.objects.get(pk=self.thread.pk)
+
+			self.assertNotEqual(thread, None)
+			self.assertEqual(Message.objects.filter(thread=thread).count(), 2)
+
+			message = Message.objects.get(thread=thread, body=body)
+
+			self.assertNotEqual(message, None)
+
+			message.delete()
