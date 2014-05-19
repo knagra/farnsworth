@@ -722,11 +722,11 @@ class TestAdminFunctions(TestCase):
 			User.objects.get(username="nu").delete()
 
 	def test_delete_user(self):
-		response = self.client.post("/custom_admin/delete_user/", {
-				"username": "u",
+		response = self.client.post("/custom_admin/modify_user/{0}/".format(self.u.username), {
+				"username": self.u.username,
 				"delete_user": "",
 				 }, follow=True)
-		self.assertRedirects(response, "/custom_admin/delete_user/")
+		self.assertRedirects(response, "/custom_admin/manage_users/")
 		self.assertIn(MESSAGES['USER_DELETED'].format(username="u"),
 			      response.content)
 		self.assertEqual(0, User.objects.filter(username="u").count())

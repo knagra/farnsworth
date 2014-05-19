@@ -37,7 +37,6 @@ urlpatterns += patterns('base.views',
 	url(r'^custom_admin/manage_users/$', 'custom_manage_users_view', name='custom_manage_users'),
 	url(r'^custom_admin/modify_user/(?P<targetUsername>\w+)/$', 'custom_modify_user_view', name='custom_modify_user'),
 	url(r'^custom_admin/add_user/$', 'custom_add_user_view', name='custom_add_user'),
-	url(r'^custom_admin/delete_user/$', 'custom_delete_user_view', name='custom_delete_user'),
 	url(r'^custom_admin/utilities/$', 'utilities_view', name='utilities'),
 )
 

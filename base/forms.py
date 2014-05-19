@@ -77,7 +77,7 @@ class AddUserForm(forms.Form):
 
 class DeleteUserForm(forms.Form):
 	''' Form to add a new user and associated profile. '''
-	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or _.')
+	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text="Enter member's username to confirm deletion.")
 
 	def is_valid(self):
 		''' Validate form.

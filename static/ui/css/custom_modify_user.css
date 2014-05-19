@@ -17,6 +17,13 @@ Author: Karandeep Singh Nagra
 	width: 60%;
 }
 
+#delete_user {
+	position: relative;
+	margin: 0px auto;
+	margin-top: 20px;
+	width: 60%;
+}
+
 .form-group {
 	padding-left: 5px;
 	padding-right: 5px;
