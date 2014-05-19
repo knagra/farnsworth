@@ -7,23 +7,28 @@ Author: Karandeep Singh Nagra
 p {
 	padding-top: 10px;
 	clear: left;
-}
-
-.page_container {
-	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
-	overflow-x: auto;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .slider-wrapper {
 	width: 100%;
-	padding-top: 20px;
+	padding-top: 10px;
 }
 
-#google_map {
+#google_map_large {
 	max-width: 600px;
 	margin-left: auto;
 	margin-right: auto;
 	position: relative;
 	margin-top: 20px;
 	margin-bottom: 10px;
+}
+
+#google_map_small {
+	max-width: 400px;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	margin-top: 10px;
 }

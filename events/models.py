@@ -5,8 +5,8 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.db import models
-from threads.models import UserProfile
-from requests.models import Manager
+from base.models import UserProfile
+from managers.models import Manager
 
 class Event(models.Model):
 	'''

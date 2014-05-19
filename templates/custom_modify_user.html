@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-	<div id="update_profile">
+	<div id="update_profile" class="table_container">
 		<div class="header"><h3 class="table_title medium_title">Modify {{ targetUser.username }}'s Profile</h3></div>
 		<div class="main_table">
 		<form method="post" action="">
@@ -20,7 +20,7 @@
 		</form>
 		</div> <!-- .main_table -->
 	</div> <!-- #update_profile -->
-	<div id="change_password">
+	<div id="change_password" class="table_container">
 		<div class="header"><h3 class="table_title large_title">Change {{ targetUser.username }}'s Password</h3></div>
 		<div class="main_table">
 		<form method="post" action="">

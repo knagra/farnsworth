@@ -9,13 +9,15 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
-from threads.models import UserProfile, Thread, Message
 
+from utils.variables import time_formats
+from base.models import UserProfile
+from threads.models import Thread, Message
 from events.models import Event
 
 class TestEvent(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
 		self.u.save()
 
 		profile = UserProfile.objects.get(user=self.u)
@@ -65,8 +67,8 @@ class TestEvent(TestCase):
 				"title": "New Title Test",
 				"description": self.ev.description,
 				"location": self.ev.location,
-				"start_time": self.ev.start_time.strftime("%Y-%m-%d %H:%M:%S"),
-				"end_time": self.ev.end_time.strftime("%Y-%m-%d %H:%M:%S"),
+				"start_time": self.ev.start_time.strftime(time_formats[0]),
+				"end_time": self.ev.end_time.strftime(time_formats[0]),
 				"as_manager": "",
 				}, follow=True)
 		self.assertIn("New Title Test", response.content)

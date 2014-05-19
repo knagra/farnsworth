@@ -8,17 +8,19 @@ Replace this with more appropriate tests for your application.
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from utils.variables import ANONYMOUS_USERNAME, MESSAGES
-from threads.models import UserProfile
-from managers.models import ProfileRequest, Manager, RequestType, Request, Response
 
-class TestManagementPermissions(TestCase):
+from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+from utils.funcs import convert_to_url
+from base.models import UserProfile, ProfileRequest
+from managers.models import Manager, RequestType, Request, Response
+
+class TestPermissions(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
-		self.st = User.objects.create_user(username="st", email="st@email.com", password="pwd")
-		self.pu = User.objects.create_user(username="pu", email="su@email.com", password="pwd")
-		self.su = User.objects.create_user(username="su", email="su@email.com", password="pwd")
-		self.np = User.objects.create_user(username="np", email="np@email.com", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.st = User.objects.create_user(username="st", password="pwd")
+		self.pu = User.objects.create_user(username="pu", password="pwd")
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.np = User.objects.create_user(username="np", password="pwd")
 
 		self.st.is_staff = True
 		self.su.is_staff, self.su.is_superuser = True, True
@@ -195,88 +197,12 @@ class TestManagementPermissions(TestCase):
 		for page in pages:
 			self._profile_required("/" + page + "/")
 
-class TestAdminFunctions(TestCase):
-	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
-		self.st = User.objects.create_user(username="st", email="st@email.com", password="pwd")
-		self.su = User.objects.create_user(username="su", email="su@email.com", password="pwd")
-
-		self.st.is_staff = True
-		self.su.is_staff, self.su.is_superuser = True, True
-
-		self.u.save()
-		self.st.save()
-		self.su.save()
-
-		self.pr = ProfileRequest(username="pr", email="pr@email.com",
-					 affiliation=UserProfile.STATUS_CHOICES[0][0])
-		self.pr.save()
-
-	def test_profile_request_view(self):
-		self.client.login(username="su", password="pwd")
-
-		response = self.client.get("/custom_admin/profile_requests/{0}/"
-					   .format(self.pr.pk))
-		self.assertEqual(response.status_code, 200)
-		self.client.logout()
-
-		# Test that we can approve requests?
-
-	def test_request_profile(self):
-		response = self.client.post("/request_profile/", {
-				"username": "request",
-				"first_name": "first",
-				"last_name": "last",
-				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
-				"password": "pwd",
-				"confirm_password": "pwd",
-				}, follow=True)
-		self.assertRedirects(response, reverse("external"))
-
-		self.client.login(username="su", password="pwd")
-		response = self.client.get("/custom_admin/profile_requests/{0}"
-					   .format(self.pr.pk + 1))
-		self.assertEqual(response.status_code, 200)
-
-		pr = ProfileRequest.objects.get(username="request")
-		self.assertEqual(pr.email, "request@email.com")
-
-	def test_add_user(self):
-		self.client.login(username="su", password="pwd")
-		response = self.client.post("/custom_admin/add_user/", {
-				"username": "new_user",
-				"first_name": "First",
-				"last_name": "Last",
-				"email": "new@email.com",
-				"user_password": "newpwd",
-				"confirm_password": "newpwd",
-				"is_active": "true",
-				"status": UserProfile.STATUS_CHOICES[0][0],
-				 }, follow=True)
-		self.assertRedirects(response, "/custom_admin/add_user/")
-		self.assertIn("User {0} was successfully added.".format("new_user"),
-			      response.content)
-		self.assertNotEqual(0, User.objects.filter(username="new_user").count())
-		self.client.logout()
-
-		self.assertEqual(True, self.client.login(username="new_user", password="newpwd"))
-		response = self.client.get("/")
-		self.assertEqual(response.status_code, 200)
-
-		User.objects.get(username="new_user").delete()
-		self.assertEqual(False, self.client.login(username="new_user", password="new_pwd"))
-
 class TestAnonymousUser(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com",
-						  password="pwd")
-		self.su = User.objects.create_user(username="su", email="su@email.com",
-						   password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.su = User.objects.create_user(username="su", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True
-
-		self.u.save()
 		self.su.save()
 
 		self.client.login(username="su", password="pwd")
@@ -303,23 +229,36 @@ class TestAnonymousUser(TestCase):
 				 response.content)
 
 	def test_anonymous_profile(self):
-		# Failing because anonymous user is not created before it is logged in
+		# Failing before anonymous user is first logged in
+		response = self.client.get("/profile/{0}/".format(ANONYMOUS_USERNAME))
+		self.assertEqual(response.status_code, 404)
+
+		self.client.get("/custom_admin/anonymous_login/")
+
 		response = self.client.get("/profile/{0}/".format(ANONYMOUS_USERNAME))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Anonymous Coward", response.content)
-
-		self.client.get("/custom_admin/anonymous_login/")
 
 		response = self.client.get("/profile/", follow=True)
 		self.assertRedirects(response, "/")
 		self.assertIn(MESSAGES['SPINELESS'], response.content)
 
 	def test_anonymous_edit_profile(self):
-		# Failing because anonymous user is not created before it is logged in
+		# Failing before anonymous user is first logged in
+		response = self.client.get("/custom_admin/modify_user/{0}/"
+					   .format(ANONYMOUS_USERNAME))
+		self.assertEqual(response.status_code, 404)
+
+		self.client.get("/custom_admin/anonymous_login/")
+		self.client.get("/logout/", follow=True)
+
+		self.client.login(username="su", password="pwd")
+
 		response = self.client.get("/custom_admin/modify_user/{0}/"
 					   .format(ANONYMOUS_USERNAME))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Anonymous Coward", response.content)
+		self.assertIn("Anonymous", response.content)
+		self.assertIn("Coward", response.content)
 		self.assertIn(MESSAGES['ANONYMOUS_EDIT'], response.content)
 
 	def test_anonymous_logout(self):
@@ -351,133 +290,10 @@ class TestAnonymousUser(TestCase):
 		self.assertIn("Logged in as anonymous user Anonymous Coward",
 			      response.content)
 
-class TestProfileRequests(TestCase):
-	def test_bad_username(self):
-		usernames = [
-			"user&name",
-			"user.name",
-			"user,name",
-			"user>name",
-			"user<name",
-			"user^name",
-			"user%name",
-			"user:name",
-			"user+name",
-			"\"username",
-			"-username",
-			"~username",
-			"\'username",
-			]
-
-		for username in usernames:
-			response = self.client.post("/request_profile/", {
-					"username": username,
-					"first_name": "first",
-					"last_name": "last",
-					"email": "request@email.com",
-					"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
-					"password": "pwd",
-					"confirm_password": "pwd",
-					}, follow=True)
-			self.assertEqual(response.status_code, 200)
-			self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or &quot;_&quot;",
-				      response.content)
-
-	def test_good_username(self):
-		usernames = [
-			"u",
-			"U",
-			"1",
-			"_",
-			"____________________",
-			"aA_1",
-			"zZ_9",
-			"9_Fg",
-			]
-
-		for username in usernames:
-			response = self.client.post("/request_profile/", {
-					"username": username,
-					"first_name": "first",
-					"last_name": "last",
-					"email": "request@email.com",
-					"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
-					"password": "pwd",
-					"confirm_password": "pwd",
-					}, follow=True)
-			self.assertRedirects(response, reverse("external"))
-
-	def test_duplicate_request(self):
-		u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
-		u.save()
-
-		response = self.client.post("/request_profile/", {
-				"username": "u",
-				"first_name": "first",
-				"last_name": "last",
-				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
-				"password": "pwd",
-				"confirm_password": "pwd",
-				}, follow=True)
-		self.assertIn("This usename is taken.  Try one of u_1 through u_10.",
-			      response.content)
-		self.assertEqual(response.status_code, 200)
-
-	def test_bad_profile_requests(self):
-		response = self.client.post("/request_profile/", {
-				"username": "request",
-				"first_name": "first",
-				"last_name": "last",
-				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
-				"password": "pwd",
-				"confirm_password": "pwd2",
-				}, follow=True)
-		self.assertEqual(response.status_code, 200)
-		self.assertIn("Passwords don&#39;t match.", response.content)
-
-		response = self.client.post("/request_profile/", {
-				"username": "request",
-				"last_name": "last",
-				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
-				"password": "pwd",
-				"confirm_password": "pwd2",
-				}, follow=True)
-		self.assertEqual(response.status_code, 200)
-		self.assertIn("This field is required.", response.content)
-
-		response = self.client.post("/request_profile/", {
-				"username": "*******", # hunter2
-				"first_name": "first",
-				"last_name": "last",
-				"email": "request@email.com",
-				"affiliation_with_the_house": UserProfile.STATUS_CHOICES[0][0],
-				"password": "pwd",
-				"confirm_password": "pwd2",
-				}, follow=True)
-		self.assertEqual(response.status_code, 200)
-		self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or &quot;_&quot;",
-			      response.content)
-
-		response = self.client.post("/request_profile/", {
-				"username": "request",
-				"first_name": "first",
-				"last_name": "last",
-				"email": "request@email.com",
-				"affiliation_with_the_house": "123",
-				"password": "pwd",
-				"confirm_password": "pwd",
-				}, follow=True)
-		self.assertEqual(response.status_code, 200)
-		self.assertIn("Select a valid choice. 123 is not one of the available choices.",
-			      response.content)
-
 class TestRequestPages(TestCase):
 	def setUp(self):
-		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
-		self.pu = User.objects.create_user(username="pu", email="su@email.com", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.pu = User.objects.create_user(username="pu", password="pwd")
 
 		self.u.save()
 		self.pu.save()
@@ -527,4 +343,58 @@ class TestRequestPages(TestCase):
 		self.assertNotIn("Response Body", response.content)
 		self.assertNotIn("mark_filled", response.content)
 
-		
+class TestManager(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.m = Manager(
+			title="setUp Manager",
+			incumbent=UserProfile.objects.get(user=self.su),
+			)
+		self.m.url_title = convert_to_url(self.m.title)
+		self.m.save()
+
+		self.client.login(username="su", password="pwd")
+
+	def test_add_manager(self):
+		response = self.client.post("/custom_admin/add_manager/", {
+				"title": "Test Manager",
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				}, follow=True)
+		self.assertRedirects(response, "/custom_admin/add_manager/")
+		self.assertIn(MESSAGES['MANAGER_ADDED'].format(managerTitle="Test Manager"),
+			      response.content)
+		self.assertEqual(1, Manager.objects.filter(title="Test Manager").count())
+		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url("Test Manager")).count())
+
+	def test_duplicate_manager(self):
+		pass
+
+	def test_edit_manager(self):
+		new_title = "New setUp Manager"
+		response = self.client.post("/custom_admin/managers/{0}/"
+					    .format(self.m.url_title), {
+				"title": new_title,
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				}, follow=True)
+		self.assertRedirects(response, "/custom_admin/managers/")
+		self.assertIn(MESSAGES['MANAGER_SAVED'].format(managerTitle=new_title),
+			      response.content)
+		self.assertEqual(1, Manager.objects.filter(title=new_title).count())
+		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url(new_title)).count())
