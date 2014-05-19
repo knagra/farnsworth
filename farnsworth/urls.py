@@ -74,9 +74,9 @@ urlpatterns += patterns('managers.views',
 	url(r'^my_requests/$', 'my_requests_view', name='my_requests'),
 	url(r'^request/(?P<request_pk>\w+)/$', 'request_view', name='view_request'),
 	url(r'^announcements/$', 'announcements_view', name='announcements'),
-	url(r'^announcements/(?P<announcement_pk>\w+)/$', 'announcement_view', name='view_announcement'),
-	url(r'^announcements/(?P<announcement_pk>\w+)/edit/$', 'edit_announcement_view', name='edit_announcement'),
-	url(r'^archives/all_announcements/$', 'all_announcements_view', name='all_announcements'),
+	url(r'^announcements/(?P<announcement_pk>\d+)/$', 'announcement_view', name='view_announcement'),
+	url(r'^announcements/(?P<announcement_pk>\d+)/edit/$', 'edit_announcement_view', name='edit_announcement'),
+	url(r'^announcements/all/$', 'all_announcements_view', name='all_announcements'),
 	url(r'^custom_admin/recount/$', 'recount_view', name='recount'),
 )
 

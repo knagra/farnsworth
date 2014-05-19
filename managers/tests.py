@@ -203,8 +203,9 @@ class TestPermissions(TestCase):
 			"my_requests",
 			"request/{0}".format(self.request.pk),
 			"announcements",
-			"archives/all_announcements",
 			"announcements/{0}".format(self.a.pk),
+			"announcements/{0}/edit".format(self.a.pk),
+			"announcements/all",
 			]
 		for page in pages:
 			self._profile_required("/" + page + "/")
@@ -414,7 +415,7 @@ class TestManager(TestCase):
 class TestAnnouncements(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
-        self.ou = User.objects.create_user(username="ou", password="pwd")
+		self.ou = User.objects.create_user(username="ou", password="pwd")
 		self.su = User.objects.create_user(username="su", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True

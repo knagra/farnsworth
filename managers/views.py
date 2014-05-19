@@ -165,7 +165,7 @@ def add_manager_view(request):
 
 @president_admin_required
 def edit_manager_view(request, managerTitle):
-	''' View to modify an existing manager. 
+	''' View to modify an existing manager.
 	Parameters:
 		request is an HTTP request
 		managerTitle is URL title of the manager.
@@ -318,7 +318,7 @@ def requests_view(request, requestType):
 	Generic request view.  Parameters:
 		request is the HTTP request
 		requestType is URL name of a RequestType.
-			e.g. "food", "maintenance", "network", "site" 
+			e.g. "food", "maintenance", "network", "site"
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_type = get_object_or_404(RequestType, url_name=requestType)
@@ -649,7 +649,7 @@ def edit_announcement_view(request, announcement_pk):
 	initial = {"body": announce.body}
 	if announce.manager in manager_positions:
 		initial["as_manager"] = announce.manager.pk
-	else:
+	elif manager_positions:
 		initial["as_manager"] = manager_positions[0].pk
 
 	announcement_form = AnnouncementForm(manager_positions, initial=initial,
