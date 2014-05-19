@@ -109,20 +109,24 @@
 	<p>For quick links, please refer to the <a href="#contents">table of contents</a>.
 	</p>
 	{% endif %}
-	<p>This website is an instance of a project called "Farnsworth," planned and executed by <a href="https://.github.com/knagra/">Karandeep Singh Nagra</a>
-	and <a href="https://.github.com/naderm">Nader Morshed</a>.
+	<p>This website is an instance of a project called "Farnsworth," planned and executed by
+	<a title="Opens in new tab" target="_blank" href="https://www.github.com/knagra/"><span class="glyphicon glyphicon-new-window"></span> Karandeep Singh Nagra</a>
+	and <a title="Opens in new tab" target="_blank" href="https://www.github.com/naderm"><span class="glyphicon glyphicon-new-window"></span> Nader Morshed</a>.
 	It was originally developed to encourage the use of new technologies in the <a href="http://bsc.coop">Berkeley Student Cooperative</a>
 	and provide a better online presence for houses in the cooperative.
 	The site is designed abstractly and easily set up for any other house with a few settings changes.
 	Several example implementations of Farnsworth exist for you to mimic.
 	If you would like to implement an instance of Farnsworth for another house, please contact Karandeep at
-	<a href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>.
+	<a title="Write E-mail" href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>.
 	</p>
 	<p>Farnsworth is free and open source software.  The source code is freely available in
-	<a href="https://github.com/knagra/farnsworth/">this GitHub repository</a>.
+	<a title="Opens in new tab" target="_blank" href="https://github.com/knagra/farnsworth/"><span class="glyphicon glyphicon-new-window"></span>
+	this GitHub repository</a>.
 	You are encouraged to modify, expand, and share this software with others.
 	The several branches of this repository represent different implementations of Farnsworth for difference houses.
-	If you would like to contribute to this project, see the <a href="https://github.com/knagra/farnsworth/blob/master/DOCS/roadmap">roadmap</a>
+	If you would like to contribute to this project, see the
+	<a title="Opens in new tab" target="_blank" href="https://github.com/knagra/farnsworth/blob/master/DOCS/roadmap">
+		<span class="glyphicon glyphicon-new-window"></span> roadmap</a>
 	for a list of features you can implement.  Pull requests to the repository are welcomed.
 	</p>
 </div> <!-- #general_info -->
@@ -669,7 +673,18 @@
 			</p>
 		<h2 class="sub_subtitle"><a name="adding_messages" title="A link to this sub-section" href="#adding_messages">&sect;</a> Adding Messages</h2>
 			<p>You can add a message to a thread from a view with the thread.
-			Generally this will be from the member forums
+			Generally this will be from the member forums or the thread view page.
+			Messages require only a body and are fully editable and just like the body of a new thread.
+			</p>
+			<p>New messages are added to the end of a thread and displayed below all prior messages.
+			Threads are therefore designed completely linearly, rather than as trees
+			- how some forums on the Internet are designed.
+			</p>
+			<p>For the growth and spread of discussions, you are encouraged to branch threads by
+			creating new ones similar subjects to steer the discussion is a different direction or to focus
+			in on a specific issue in the parent discussion.
+			</p>
+			<p>Doing so will keep threads clear and concise while allowing for full discussion.
 			</p>
 		</div> <!-- #threads_body -->
 	</div> <!-- #threads -->
@@ -684,6 +699,35 @@
 		</h1>
 		<div id="requests_body" class="toggleable">
 		<hr style="width: 75%;" />
+		<h2 class="sub_subtitle"><a name="about_requests" title="A link to this sub-section" href="#about_requests">&sect;</a> About Requests</h2>
+			<p>If your House President adds and enables request types, you will see a requests dropdown menu appear in the navigation bar.
+			From here, you can select a request type and add requests of that type for managers to address.
+			</p>
+			<p>Each request type has a list of relevant managers.
+			For example, for food requests, the relevant manager might be your Kitchen Manager or Food Manager
+			or multiple Food Managers or Kitchen Managers.
+			</p>
+			<p>When a relevant manager posts a response to a request, the body of the reponse will be colored a light blue
+			and have hover text indicating that the response is a manager response.
+			</p>
+			<p>Relevant managers also have the ability to mark requests closed or filled.
+			A filled request will have a light green body and a closed request will have a light red body.
+			Hovering over the body of a request will display hover text indicating the request's status (open, filled, or closed).
+			</p>
+			<p>Requests also keep a running record of up votes.
+			All user up votes are recorded and the number tabulated upon display of requests.
+			</p>
+		<h2 class="sub_subtitle"><a name="working_with_requests" title="A link to this sub-section" href="#working_with_requests">&sect;</a> Working with Requests</h2>
+			<p>You can add a new request of a certain request type from that request type's request page.
+			Requests contain just a body that is fully editable like the body of a thread or message.
+			</p>
+			<p>After you have posted your request, you or anyone else can add a response to the request.
+			Others can also up vote your request to express support for your request.
+			If you up vote a request, you can cancel your up vote if you want to by clicking the up vote icon
+			<span class="glyphicon glyphicon-thumbs-up"></span> button again.
+			The up vote button will change color when you have up vote a request, and the hover text will change from
+			saying "Up Vote" to "Cancel Up Vote".
+			</p>
 		</div> <!-- #requests_body -->
 	</div> <!-- #requests -->
 	</div> <!-- .row -->
@@ -724,7 +768,7 @@
 		<div class="misc_body" class="toggleable">
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle"><a name="tinymce" title="A link to this sub-section" href="#tinymce">&sect;</a> TinyMCE</h2>
-			<p>Farnsworth includes a "what you see is what you get" (WYSIWYG) editor called TinyMCE used in several places through the site.
+			<p>Farnsworth includes a "what you see is what you get" (WYSIWYG) editor called TinyMCE used in several places in the site.
 			TinyMCE is feature rich and does extensive security checks on its own.  Using it is fairly intuitive.
 			TinyMCE allows image and video inserts via <code>iframe</code>s or URL links.
 			Both of these methods can be used through the buttons in the TinyMCE interface.
@@ -740,7 +784,8 @@
 			These can all be accessed from the buttons in the interface.
 			</p>
 			<p>Formatting can be done via keyboard as well as the buttons in the interface.
-			For example, you can press <code>CTRL + B</code> to <b>bold</b> or <code>CTRL + I</code> to <i>italicize</i> text.
+			For example, you can press <code>CTRL + B</code> to <b>bold</b>, <code>CTRL + I</code> to <i>italicize</i>,
+			or <code>CTRL + U</code> to <u>underline</u> text.
 			The buttons available will allow you greater control over your formatting.
 			You can insert headings, change font size or font, and insert text to be rendered as code - like so:
 			</p>
