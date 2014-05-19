@@ -17,7 +17,8 @@ from datetime import datetime, timedelta
 from social.apps.django_app.default.models import UserSocialAuth
 
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, \
-    home_max_announcements, home_max_threads, SEND_EMAILS, EMAIL_HOST_USER
+    home_max_announcements, home_max_threads, SEND_EMAILS, EMAIL_HOST_USER, \
+    EMAIL_BLACKLIST
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
 	APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
 	SUBMISSION_EMAIL
@@ -427,7 +428,7 @@ def request_profile_view(request):
 				affiliation=affiliation, password=hashed_password)
 			profile_request.save()
 			messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
-			if SEND_EMAILS:
+			if SEND_EMAILS and (email not in EMAIL_BLACKLIST):
 				submission_subject = SUBMISSION_SUBJECT.format(house=house)
 				submission_email = SUBMISSION_EMAIL.format(house=house, full_name=first_name + " " + last_name, admin_name=ADMINS[0][0],
 					admin_email=ADMINS[0][1])
@@ -465,7 +466,7 @@ def modify_profile_request_view(request, request_pk):
 	if request.method == 'POST':
 		mod_form = ModifyProfileRequestForm(request.POST)
 		if 'delete_request' in request.POST:
-			if SEND_EMAILS:
+			if SEND_EMAILS and (profile_request.email not in EMAIL_BLACKLIST):
 				deletion_subject = DELETION_SUBJECT.format(house=house)
 				deletion_email = DELETION_EMAIL.format(house=house, full_name=profile_request.first_name + " " + profile_request.last_name,
 					admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
@@ -527,7 +528,7 @@ def modify_profile_request_view(request, request_pk):
 					new_user_profile.former_rooms = former_rooms
 					new_user_profile.former_houses = former_houses
 					new_user_profile.save()
-					if SEND_EMAILS and new_user.is_active:
+					if new_user.is_active and SEND_EMAILS and (email not in EMAIL_BLACKLIST):
 						approval_subject = APPROVAL_SUBJECT.format(house=house)
 						if new_user.username == profile_request.username:
 							username_bit = "the username and"
