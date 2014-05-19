@@ -9,11 +9,7 @@
 
 {% block content %}
 <div id="request_form" class="container">
-  {% if oauth_providers %}
-  <div class="col-sm-8">
-  {% else %}
-  <div class="col-sm-12">
-  {% endif %}
+  <div class="col-sm-8{% if not oauth_providers %} col-sm-offset-2 {% endif %}">
     <div class="alert alert-info">
       When you fill out and submit this form, your request will be saved for an admin to approve.
       Upon approval, you can login with the password you provide here.
@@ -46,7 +42,7 @@
       <a class="list-group-item" {% if forloop.first or forloop.last %}style="border-radius: 0;" {% endif %}title="{{ provider.1 }}" href="{% url 'social:begin' provider.0 %}"><img height="30" width="30" src="{% static 'ui/images/oauth/' %}{{ provider.2 }}"> {{ provider.1 }}</a>
       {% endfor %}
     </div> <!-- .table_container -->
-  </div> <!-- .col-md-4 -->
+  </div> <!-- .col-sm-4 -->
   {% endif %}
 </div>
 {% endblock %}

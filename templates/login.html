@@ -9,11 +9,8 @@
 
 {% block content %}
 <div class="container">
-  {% if oauth_providers %}
-  <div class="col-md-8">
-  {% else %}
-  <div class="col-dm-12">
-  {% endif %}
+
+  <div class="col-sm-8{% if not oauth_providers %} col-sm-offset-2 {% endif %}">
     {% if ANONYMOUS_SESSION %}
     <div class="alert alert-info">Don't have an account?  <a href="{% url 'request_profile' %}">Click to request an account</a>.</div>
     {% endif %}
@@ -31,17 +28,17 @@
 	</form>
       </div> <!-- .main_table -->
     </div> <!-- #login_form -->
-  </div> <!-- .col-md-8 -->
+  </div> <!-- .col-sm-8 -->
   {% if oauth_providers %}
   <br class="hidden-md hidden-lg" />
-  <div class="col-md-4">
+  <div class="col-sm-4">
     <div class="table_container">
       <div class="header"><h3 class="table_title">OAuth Login</h3></div>
       {% for provider in oauth_providers %}
       <a class="list-group-item" {% if forloop.first or forloop.last %}style="border-radius: 0;" {% endif %}title="{{ provider.1 }}" href="{% url 'social:begin' provider.0 %}"><img height="30" width="30" src="{% static 'ui/images/oauth/' %}{{ provider.2 }}"> {{ provider.1 }}</a>
       {% endfor %}
     </div> <!-- .table_container -->
-  </div> <!-- .col-md-4 -->
+  </div> <!-- .col-sm-4 -->
   {% endif %}
 </div> <!-- .container -->
 {% endblock %}
