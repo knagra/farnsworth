@@ -260,6 +260,7 @@ class TestRequestProfile(TestCase):
 					}, follow=True)
 			self.assertRedirects(response, reverse("external"))
 			self.assertEqual(1, ProfileRequest.objects.filter(username=username).count())
+			ProfileRequest.objects.get(username=username).delete()
 
 	def test_duplicate_request(self):
 		u = User.objects.create_user(username="request")
