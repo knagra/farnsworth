@@ -182,13 +182,13 @@ class TestHomepage(TestCase):
 	def test_bad_page(self):
 		response = self.client.get("/bad_page/")
 		self.assertEqual(response.status_code, 404)
-		self.assertIn("Page not found", response.content)
+		self.assertIn("Page Not Found", response.content)
 
 		self.client.logout()
 
 		response = self.client.get("/bad_page/")
 		self.assertEqual(response.status_code, 404)
-		self.assertIn("Page not found", response.content)
+		self.assertIn("Page Not Found", response.content)
 
 class TestRequestProfile(TestCase):
 	def test_request_profile(self):
@@ -260,12 +260,13 @@ class TestRequestProfile(TestCase):
 					}, follow=True)
 			self.assertRedirects(response, reverse("external"))
 			self.assertEqual(1, ProfileRequest.objects.filter(username=username).count())
+			ProfileRequest.objects.get(username=username).delete()
 
-	def test_duplicate_request(self):
+	def test_duplicate_user(self):
 		u = User.objects.create_user(username="request")
 
 		response = self.client.post("/request_profile/", {
-				"username": "request",
+				"username": u.username,
 				"first_name": "first",
 				"last_name": "last",
 				"email": "request@email.com",
@@ -273,11 +274,33 @@ class TestRequestProfile(TestCase):
 				"password": "pwd",
 				"confirm_password": "pwd",
 				}, follow=True)
-		self.assertIn("This usename is taken.  Try one of {0}_1 through {0}_10."
-			      .format("request"),
+		self.assertIn(MESSAGES["USERNAME_TAKEN"].format(username=u.username),
 			      response.content)
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
+
+	def test_duplicate_request(self):
+		pr = ProfileRequest(
+			username="request",
+			first_name="Tester",
+			last_name="Tested",
+			)
+		pr.save()
+
+		response = self.client.post("/request_profile/", {
+				"username": "request2",
+				"first_name": pr.first_name,
+				"last_name": pr.last_name,
+				"email": "request2@email.com",
+				"affiliation_with_the_house": UserProfile.RESIDENT,
+				"password": "pwd",
+				"confirm_password": "pwd",
+				}, follow=True)
+		self.assertIn(MESSAGES["PROFILE_TAKEN"].format(
+				first_name=pr.first_name, last_name=pr.last_name),
+			      response.content)
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(0, ProfileRequest.objects.filter(username="request2").count())
 
 	def test_bad_profile_requests(self):
 		response = self.client.post("/request_profile/", {
@@ -607,6 +630,7 @@ class TestModifyUser(TestCase):
 class TestAdminFunctions(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
@@ -700,8 +724,21 @@ class TestAdminFunctions(TestCase):
 			User.objects.get(username="nu").delete()
 
 	def test_delete_user(self):
-		# No function in /custom_admin/ to delete users yet
-		pass
+		response = self.client.post("/custom_admin/delete_user/", {
+				"username": "u",
+				"delete_user": "",
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/delete_user/")
+		self.assertIn(MESSAGES['USER_DELETED'].format(username="u"),
+			      response.content)
+		self.assertEqual(0, User.objects.filter(username="u").count())
+
+		response = self.client.get("/profile/{0}/".format("u"))
+		self.assertEqual(response.status_code, 404)
+
+		self.client.logout()
+
+		self.assertFalse(self.client.login(username="u", password="pwd"))
 
 class TestMemberDirectory(TestCase):
 	def setUp(self):
