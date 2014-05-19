@@ -625,7 +625,7 @@ def announcement_view(request, announcement_pk):
 			announce.pinned = True
 		announce.save()
 		return HttpResponseRedirect(
-			reverse('announcement', kwargs={"announcement_pk": announcement_pk}),
+			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
 	return render_to_response('view_announcement.html', {
 			'page_name': page_name,
@@ -641,7 +641,7 @@ def edit_announcement_view(request, announcement_pk):
 	profile = UserProfile.objects.get(user=request.user)
 	if not (announce.incumbent == profile or request.user.is_superuser):
 		return HttpResponseRedirect(
-			reverse('announcement', kwargs={"announcement_pk": announcement_pk}),
+			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
 	page_name = "Edit Announcement"
 	manager_positions = Manager.objects.filter(incumbent=profile)
@@ -659,7 +659,7 @@ def edit_announcement_view(request, announcement_pk):
 		announce.manager = announcement_form.cleaned_data['as_manager']
 		announce.save()
 		return HttpResponseRedirect(
-			reverse('announcement', kwargs={"announcement_pk": announcement_pk}),
+			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
 
 	return render_to_response('edit_announcement.html', {
