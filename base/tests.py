@@ -630,6 +630,7 @@ class TestModifyUser(TestCase):
 class TestAdminFunctions(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
@@ -723,8 +724,21 @@ class TestAdminFunctions(TestCase):
 			User.objects.get(username="nu").delete()
 
 	def test_delete_user(self):
-		# No function in /custom_admin/ to delete users yet
-		pass
+		response = self.client.post("/custom_admin/delete_user/", {
+				"username": "u",
+				"delete_user": "",
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/delete_user/")
+		self.assertIn(MESSAGES['USER_DELETED'].format(username="u"),
+			      response.content)
+		self.assertEqual(0, User.objects.filter(username="u").count())
+
+		response = self.client.get("/profile/{0}/".format("u"))
+		self.assertEqual(response.status_code, 404)
+
+		self.client.logout()
+
+		self.assertFalse(self.client.login(username="u", password="pwd"))
 
 class TestMemberDirectory(TestCase):
 	def setUp(self):
