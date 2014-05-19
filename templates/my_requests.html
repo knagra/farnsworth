@@ -61,6 +61,21 @@
   {% endif %}
   {% endwith %}
   <div class="requests_table">
+	{% if type_tuple.4 %}
+    <div class="field_wrapper text-info">{{ type_tuple.0.name.capitalize }} requests are made to:
+		{% for pos in type_tuple.4 %}
+			{% if forloop.counter > 1 %}, {% endif %}
+			<a title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+			{% if pos.incumbent %}
+				(<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
+			{% else %}
+				(<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
+			{% endif %}
+		{% endfor %}
+    </div>
+    {% else %}
+    <div class="field_wrapper text-danger">No active managers are currently responsible for addressing {{ type_tuple.0.name.lower }} requests.</div>
+    {% endif %}
     {% if not type_tuple.3 %}
     <div class="field_wrapper text-info">You have no {{ type_tuple.0.name.lower }} requests.</div>
     {% else %}
