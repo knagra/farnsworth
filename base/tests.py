@@ -179,6 +179,10 @@ class TestHomepage(TestCase):
 		self.assertRedirects(response, "/")
 		self.assertIn('title="RSVP"', response.content)
 
+	def test_bad_page(self):
+		response = self.client.get("/bad_page/", follow=True)
+		self.assertEqual(response.status_code, 404)
+
 class TestRequestProfile(TestCase):
 	def test_request_profile(self):
 		response = self.client.post("/request_profile/", {
@@ -432,7 +436,7 @@ class TestProfileRequestAdmin(TestCase):
 							  last_name=self.pr.last_name,
 							  username=self.pr.username),
 			      response.content)
-		
+
 
 class TestProfilePages(TestCase):
 	def setUp(self):

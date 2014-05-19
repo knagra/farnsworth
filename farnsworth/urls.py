@@ -79,8 +79,3 @@ urlpatterns += patterns('managers.views',
 	url(r'^announcements/all/$', 'all_announcements_view', name='all_announcements'),
 	url(r'^custom_admin/recount/$', 'recount_view', name='recount'),
 )
-
-# Catch any other urls here
-urlpatterns += patterns('base.views',
-	url(r'', 'homepage_view', name='homepage'),
-)
