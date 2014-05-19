@@ -232,8 +232,7 @@ class TestRequestProfile(TestCase):
 					"confirm_password": "pwd",
 					})
 			self.assertEqual(response.status_code, 200)
-			self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or _",
-				      response.content)
+			self.assertIn(MESSAGES["INVALID_USERNAME"], response.content)
 			self.assertEqual(0, ProfileRequest.objects.filter(username=username).count())
 
 	def test_good_username(self):
@@ -338,8 +337,7 @@ class TestRequestProfile(TestCase):
 				"confirm_password": "pwd2",
 				}, follow=True)
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or _",
-			      response.content)
+		self.assertIn(MESSAGES["INVALID_USERNAME"], response.content)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
 		response = self.client.post("/request_profile/", {
