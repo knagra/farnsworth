@@ -33,18 +33,26 @@ class TestPermissions(TestCase):
 		self.su.save()
 		self.np.save()
 
-		president = Manager(title="House President", url_title="president",
+		self.m = Manager(title="House President", url_title="president",
 				    president=True)
-		president.incumbent = UserProfile.objects.get(user=self.pu)
-		president.save()
+		self.m.incumbent = UserProfile.objects.get(user=self.pu)
+		self.m.save()
 
-		food = RequestType(name="Food", url_name="food", enabled=True)
-		food.save()
-		food.managers = [president]
-		food.save()
+		self.rt = RequestType(name="Food", url_name="food", enabled=True)
+		self.rt.save()
+		self.rt.managers = [self.m]
+		self.rt.save()
+
+		self.a = Announcement(
+			manager=self.m,
+			incumbent=self.m.incumbent,
+			body="Test Announcement Body",
+			post_date=datetime.now(),
+			)
+		self.a.save()
 
 		self.request = Request(owner=UserProfile.objects.get(user=self.u),
-				       body="request body", request_type=food)
+				       body="request body", request_type=self.rt)
 		self.request.save()
 
 		UserProfile.objects.get(user=self.np).delete()
@@ -178,7 +186,7 @@ class TestPermissions(TestCase):
 			"managers/president",
 			"add_manager",
 			"request_types",
-			"request_types/food",
+			"request_types/{0}".format(self.rt.url_name),
 			"add_request_type",
 			]
 		for page in pages:
@@ -189,13 +197,14 @@ class TestPermissions(TestCase):
 			"manager_directory",
 			"manager_directory/president",
 			"profile/{0}/requests".format(self.u.username),
-			"requests/food",
+			"requests/{0}".format(self.rt.url_name),
 			"archives/all_requests",
-			"requests/food/all",
+			"requests/{0}/all".format(self.rt.url_name),
 			"my_requests",
 			"request/{0}".format(self.request.pk),
 			"announcements",
 			"archives/all_announcements",
+			"announcements/{0}".format(self.a.pk),
 			]
 		for page in pages:
 			self._profile_required("/" + page + "/")
@@ -301,18 +310,18 @@ class TestRequestPages(TestCase):
 		self.u.save()
 		self.pu.save()
 
-		president = Manager(title="House President", url_title="president",
+		self.m = Manager(title="House President", url_title="president",
 				    president=True)
-		president.incumbent = UserProfile.objects.get(user=self.pu)
-		president.save()
+		self.m.incumbent = UserProfile.objects.get(user=self.pu)
+		self.m.save()
 
-		self.food = RequestType(name="Food", url_name="food", enabled=True)
-		self.food.save()
-		self.food.managers = [president]
-		self.food.save()
+		self.rt = RequestType(name="Food", url_name="food", enabled=True)
+		self.rt.save()
+		self.rt.managers = [self.m]
+		self.rt.save()
 
 		self.request = Request(owner=UserProfile.objects.get(user=self.u),
-				       body="Request Body", request_type=self.food)
+				       body="Request Body", request_type=self.rt)
 		self.request.save()
 
 		self.response = Response(owner=UserProfile.objects.get(user=self.pu),
@@ -323,7 +332,7 @@ class TestRequestPages(TestCase):
 	def test_request_form(self):
 		urls = [
 			"/request/{0}/".format(self.request.pk),
-			"/requests/{0}/".format(self.food.url_name),
+			"/requests/{0}/".format(self.rt.url_name),
 			]
 
 		self.client.login(username="u", password="pwd")
@@ -408,18 +417,16 @@ class TestAnnouncements(TestCase):
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
 
-		self.profile = UserProfile.objects.get(user=self.su)
-
 		self.m = Manager(
 			title="setUp Manager",
-			incumbent=self.profile,
+			incumbent=UserProfile.objects.get(user=self.su),
 			)
 		self.m.url_title = convert_to_url(self.m.title)
 		self.m.save()
 
 		self.a = Announcement(
 			manager=self.m,
-			incumbent=self.profile,
+			incumbent=self.m.incumbent,
 			body="Test Announcement Body",
 			post_date=datetime.now(),
 			)
@@ -430,5 +437,18 @@ class TestAnnouncements(TestCase):
 	def test_announcements(self):
 		response = self.client.get("/announcements/")
 
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.a.body, response.content)
+
+	def test_individual_announcement(self):
+		response = self.client.get("/announcements/{0}/".format(self.a.pk))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.a.body, response.content)
+
+	def test_edit_announcement(self):
+		url = "/announcements/{0}/edit/".format(self.a.pk)
+
+		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.a.body, response.content)
