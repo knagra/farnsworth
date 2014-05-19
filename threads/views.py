@@ -29,38 +29,39 @@ def member_forums_view(request):
 	''' Forums for current members. '''
 	page_name = "Member Forums"
 	userProfile = UserProfile.objects.get(user=request.user)
-	thread_form = ThreadForm()
-	if request.method == 'POST':
-		if 'submit_thread_form' in request.POST:
-			thread_form = ThreadForm(request.POST)
-			if thread_form.is_valid():
-				subject = thread_form.cleaned_data['subject']
-				body = thread_form.cleaned_data['body']
-				thread = Thread(owner=userProfile, subject=subject, number_of_messages=1, active=True)
-				thread.save()
-				message = Message(body=body, owner=userProfile, thread=thread)
-				message.save()
-				return HttpResponseRedirect(reverse('member_forums'))
-			else:
-				messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
-		elif 'submit_message_form' in request.POST:
-			message_form = MessageForm(request.POST)
-			if message_form.is_valid():
-				thread_pk = message_form.cleaned_data['thread_pk']
-				body = message_form.cleaned_data['body']
-				thread = Thread.objects.get(pk=thread_pk)
-				message = Message(body=body, owner=userProfile, thread=thread)
-				message.save()
-				thread.number_of_messages += 1
-				thread.change_date = datetime.utcnow().replace(tzinfo=utc)
-				thread.save()
-				return HttpResponseRedirect(reverse('member_forums'))
-			else:
-				messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
+	thread_form = ThreadForm(request.POST or None)
+	message_form = MessageForm(request.POST or None)
+
+	if 'submit_thread_form' in request.POST:
+		if thread_form.is_valid():
+			subject = thread_form.cleaned_data['subject']
+			body = thread_form.cleaned_data['body']
+			thread = Thread(owner=userProfile, subject=subject, number_of_messages=1, active=True)
+			thread.save()
+			message = Message(body=body, owner=userProfile, thread=thread)
+			message.save()
+			return HttpResponseRedirect(reverse('member_forums'))
 		else:
-			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
+			messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
+	elif 'submit_message_form' in request.POST:
+		if message_form.is_valid():
+			thread_pk = message_form.cleaned_data['thread_pk']
+			body = message_form.cleaned_data['body']
+			thread = Thread.objects.get(pk=thread_pk)
+			message = Message(body=body, owner=userProfile, thread=thread)
+			message.save()
+			thread.number_of_messages += 1
+			thread.change_date = datetime.utcnow().replace(tzinfo=utc)
+			thread.save()
+			return HttpResponseRedirect(reverse('member_forums'))
+		else:
+			messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
+	elif request.method == 'POST':
+		messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
 	x = 0 # number of threads loaded
-	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
+	threads_dict = list()
+	# A pseudo-dictionary, actually a list with items of form:
+	# (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	for thread in Thread.objects.all():
 		y = 0 # number of messages loaded
 		thread_messages = list()
@@ -89,37 +90,38 @@ def all_threads_view(request):
 	''' View of all threads. '''
 	page_name = "Archives - All Threads"
 	userProfile = UserProfile.objects.get(user=request.user)
-	thread_form = ThreadForm()
-	if request.method == 'POST':
-		if 'submit_thread_form' in request.POST:
-			thread_form = ThreadForm(request.POST)
-			if thread_form.is_valid():
-				subject = thread_form.cleaned_data['subject']
-				body = thread_form.cleaned_data['body']
-				thread = Thread(owner=userProfile, subject=subject, number_of_messages=1, active=True)
-				thread.save()
-				message = Message(body=body, owner=userProfile, thread=thread)
-				message.save()
-				return HttpResponseRedirect(reverse('all_threads'))
-			else:
-				messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
-		elif 'submit_message_form' in request.POST:
-			message_form = MessageForm(request.POST)
-			if message_form.is_valid():
-				thread_pk = message_form.cleaned_data['thread_pk']
-				body = message_form.cleaned_data['body']
-				thread = Thread.objects.get(pk=thread_pk)
-				message = Message(body=body, owner=userProfile, thread=thread)
-				message.save()
-				thread.number_of_messages += 1
-				thread.change_date = datetime.utcnow().replace(tzinfo=utc)
-				thread.save()
-				return HttpResponseRedirect(reverse('all_threads'))
-			else:
-				messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
+	thread_form = ThreadForm(request.POST or None)
+	message_form = MessageForm(request.POST or None)
+
+	if 'submit_thread_form' in request.POST:
+		if thread_form.is_valid():
+			subject = thread_form.cleaned_data['subject']
+			body = thread_form.cleaned_data['body']
+			thread = Thread(owner=userProfile, subject=subject, number_of_messages=1, active=True)
+			thread.save()
+			message = Message(body=body, owner=userProfile, thread=thread)
+			message.save()
+			return HttpResponseRedirect(reverse('all_threads'))
 		else:
-			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
-	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
+			messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
+	elif 'submit_message_form' in request.POST:
+		if message_form.is_valid():
+			thread_pk = message_form.cleaned_data['thread_pk']
+			body = message_form.cleaned_data['body']
+			thread = Thread.objects.get(pk=thread_pk)
+			message = Message(body=body, owner=userProfile, thread=thread)
+			message.save()
+			thread.number_of_messages += 1
+			thread.change_date = datetime.utcnow().replace(tzinfo=utc)
+			thread.save()
+			return HttpResponseRedirect(reverse('all_threads'))
+		else:
+			messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
+	elif request.method == 'POST':
+		messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
+	# A pseudo-dictionary, actually a list with items of form
+	# (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
+	threads_dict = list()
 	for thread in Thread.objects.all():
 		y = 0 # number of messages loaded
 		thread_messages = list()
@@ -145,38 +147,39 @@ def my_threads_view(request):
 	''' View of my threads. '''
 	page_name = "My Threads"
 	userProfile = UserProfile.objects.get(user=request.user)
-	thread_form = ThreadForm()
-	if request.method == 'POST':
-		if 'submit_thread_form' in request.POST:
-			thread_form = ThreadForm(request.POST)
-			if thread_form.is_valid():
-				subject = thread_form.cleaned_data['subject']
-				body = thread_form.cleaned_data['body']
-				thread = Thread(owner=userProfile, subject=subject, number_of_messages=1, active=True)
-				thread.save()
-				message = Message(body=body, owner=userProfile, thread=thread)
-				message.save()
-				return HttpResponseRedirect(reverse('my_threads'))
-			else:
-				messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
-		elif 'submit_message_form' in request.POST:
-			message_form = MessageForm(request.POST)
-			if message_form.is_valid():
-				thread_pk = message_form.cleaned_data['thread_pk']
-				body = message_form.cleaned_data['body']
-				thread = Thread.objects.get(pk=thread_pk)
-				message = Message(body=body, owner=userProfile, thread=thread)
-				message.save()
-				thread.number_of_messages += 1
-				thread.change_date = datetime.utcnow().replace(tzinfo=utc)
-				thread.save()
-				return HttpResponseRedirect(reverse('my_threads'))
-			else:
-				messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
+	thread_form = ThreadForm(request.POST or None)
+	message_form = MessageForm(request.POST or None)
+
+	if 'submit_thread_form' in request.POST:
+		if thread_form.is_valid():
+			subject = thread_form.cleaned_data['subject']
+			body = thread_form.cleaned_data['body']
+			thread = Thread(owner=userProfile, subject=subject, number_of_messages=1, active=True)
+			thread.save()
+			message = Message(body=body, owner=userProfile, thread=thread)
+			message.save()
+			return HttpResponseRedirect(reverse('my_threads'))
 		else:
-			messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
+			messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
+	elif 'submit_message_form' in request.POST:
+		if message_form.is_valid():
+			thread_pk = message_form.cleaned_data['thread_pk']
+			body = message_form.cleaned_data['body']
+			thread = Thread.objects.get(pk=thread_pk)
+			message = Message(body=body, owner=userProfile, thread=thread)
+			message.save()
+			thread.number_of_messages += 1
+			thread.change_date = datetime.utcnow().replace(tzinfo=utc)
+			thread.save()
+			return HttpResponseRedirect(reverse('my_threads'))
+		else:
+			messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
+	elif request.method == 'POST':
+		messages.add_message(request, messages.ERROR, MESSAGES['UNKNOWN_FORM'])
 	x = 0 # number of threads loaded
-	threads_dict = list() # A pseudo-dictionary, actually a list with items of form (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
+	# A pseudo-dictionary, actually a list with items of form:
+	# (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
+	threads_dict = list()
 	for thread in Thread.objects.filter(owner=userProfile):
 		y = 0 # number of messages loaded
 		thread_messages = list()
@@ -240,24 +243,23 @@ def thread_view(request, thread_pk):
 	userProfile = UserProfile.objects.get(user=request.user)
 	thread = get_object_or_404(Thread, pk=thread_pk)
 	messages_list = Message.objects.filter(thread=thread)
-	if request.method == 'POST':
-		message_form = MessageForm(request.POST)
-		if message_form.is_valid():
-			thread_pk = message_form.cleaned_data['thread_pk']
-			body = message_form.cleaned_data['body']
-			thread = Thread.objects.get(pk=thread_pk)
-			message = Message(body=body, owner=userProfile, thread=thread)
-			message.save()
-			thread.number_of_messages += 1
-			thread.change_date = datetime.utcnow().replace(tzinfo=utc)
-			thread.save()
-			return HttpResponseRedirect(reverse('view_thread', kwargs={
-						'thread_pk': thread_pk,
-						}))
-		else:
-			messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
-	else:
-		message_form = MessageForm(initial={'thread_pk': thread.pk})
+	message_form = MessageForm(request.POST or None, initial={
+			'thread_pk': thread_pk,
+			})
+	if message_form.is_valid():
+		thread_pk = message_form.cleaned_data['thread_pk']
+		body = message_form.cleaned_data['body']
+		thread = Thread.objects.get(pk=thread_pk)
+		message = Message(body=body, owner=userProfile, thread=thread)
+		message.save()
+		thread.number_of_messages += 1
+		thread.change_date = datetime.utcnow().replace(tzinfo=utc)
+		thread.save()
+		return HttpResponseRedirect(reverse('view_thread', kwargs={
+					'thread_pk': thread_pk,
+					}))
+	elif request.method == 'POST':
+		messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 	return render_to_response('view_thread.html', {
 			'thread': thread, 
 			'page_name': "View Thread", 
