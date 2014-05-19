@@ -262,11 +262,11 @@ class TestRequestProfile(TestCase):
 			self.assertEqual(1, ProfileRequest.objects.filter(username=username).count())
 			ProfileRequest.objects.get(username=username).delete()
 
-	def test_duplicate_request(self):
+	def test_duplicate_user(self):
 		u = User.objects.create_user(username="request")
 
 		response = self.client.post("/request_profile/", {
-				"username": "request",
+				"username": u.username,
 				"first_name": "first",
 				"last_name": "last",
 				"email": "request@email.com",
@@ -274,11 +274,33 @@ class TestRequestProfile(TestCase):
 				"password": "pwd",
 				"confirm_password": "pwd",
 				}, follow=True)
-		self.assertIn("This usename is taken.  Try one of {0}_1 through {0}_10."
-			      .format("request"),
+		self.assertIn(MESSAGES["USERNAME_TAKEN"].format(username=u.username),
 			      response.content)
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
+
+	def test_duplicate_request(self):
+		pr = ProfileRequest(
+			username="request",
+			first_name="Tester",
+			last_name="Tested",
+			)
+		pr.save()
+
+		response = self.client.post("/request_profile/", {
+				"username": "request2",
+				"first_name": pr.first_name,
+				"last_name": pr.last_name,
+				"email": "request2@email.com",
+				"affiliation_with_the_house": UserProfile.RESIDENT,
+				"password": "pwd",
+				"confirm_password": "pwd",
+				}, follow=True)
+		self.assertIn(MESSAGES["PROFILE_TAKEN"].format(
+				first_name=pr.first_name, last_name=pr.last_name),
+			      response.content)
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(0, ProfileRequest.objects.filter(username="request2").count())
 
 	def test_bad_profile_requests(self):
 		response = self.client.post("/request_profile/", {
