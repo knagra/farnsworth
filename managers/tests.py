@@ -9,10 +9,12 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
+from datetime import datetime
+
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from utils.funcs import convert_to_url
 from base.models import UserProfile, ProfileRequest
-from managers.models import Manager, RequestType, Request, Response
+from managers.models import Manager, RequestType, Request, Response, Announcement
 
 class TestPermissions(TestCase):
 	def setUp(self):
@@ -192,6 +194,7 @@ class TestPermissions(TestCase):
 			"requests/food/all",
 			"my_requests",
 			"request/{0}".format(self.request.pk),
+			"announcements",
 			"archives/all_announcements",
 			]
 		for page in pages:
@@ -398,3 +401,34 @@ class TestManager(TestCase):
 			      response.content)
 		self.assertEqual(1, Manager.objects.filter(title=new_title).count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url(new_title)).count())
+
+class TestAnnouncements(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.profile = UserProfile.objects.get(user=self.su)
+
+		self.m = Manager(
+			title="setUp Manager",
+			incumbent=self.profile,
+			)
+		self.m.url_title = convert_to_url(self.m.title)
+		self.m.save()
+
+		self.a = Announcement(
+			manager=self.m,
+			incumbent=self.profile,
+			body="Test Announcement Body",
+			post_date=datetime.now(),
+			)
+		self.a.save()
+
+		self.client.login(username="su", password="pwd")
+
+	def test_announcements(self):
+		response = self.client.get("/announcements/")
+
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.a.body, response.content)
