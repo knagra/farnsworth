@@ -17,7 +17,8 @@ def profile_required(function=None, redirect_no_user='login', redirect_profile=r
 		def wrap(request, *args, **kwargs):
 			if not request.user.is_authenticated():
 				redirect_to = reverse(redirect_no_user)
-				redirect_to += "?next=" + request.path
+				if redirect_no_user == "login":
+					redirect_to += "?next=" + request.path
 				return HttpResponseRedirect(redirect_to)
 			try:
 				UserProfile.objects.get(user=request.user)
@@ -34,7 +35,8 @@ def admin_required(function=None, redirect_no_user='login', redirect_profile=red
 		def wrap(request, *args, **kwargs):
 			if not request.user.is_authenticated():
 				redirect_to = reverse(redirect_no_user)
-				redirect_to += "?next=" + request.path
+				if redirect_no_user == "login":
+					redirect_to += "?next=" + request.path
 				return HttpResponseRedirect(redirect_to)
 			try:
 				UserProfile.objects.get(user=request.user)
@@ -53,7 +55,8 @@ def president_admin_required(function=None, redirect_no_user='login', redirect_p
 		def wrap(request, *args, **kwargs):
 			if not request.user.is_authenticated():
 				redirect_to = reverse(redirect_no_user)
-				redirect_to += "?next=" + request.path
+				if redirect_no_user == "login":
+					redirect_to += "?next=" + request.path
 				return HttpResponseRedirect(redirect_to)
 			try:
 				userProfile = UserProfile.objects.get(user=request.user)
