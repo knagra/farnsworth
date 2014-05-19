@@ -64,8 +64,8 @@ virtualenv
     $ cd /path/to/farnsworth
     $ virtualenv .
     $ source bin/activate
-    $ pip install -e git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master
     $ pip install django django-bootstrap-form psycopg2 python-social-auth elasticsearch
+    $ pip install -e git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master
 
 PostgreSQL
 ===
