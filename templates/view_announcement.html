@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+{% load thread_tags %}
+{% block headers %}
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/announcements.css' %}" />
+<script>
+  function show_new_announcement_form() {
+  document.getElementById("new_announcement_form").style.display="inline";
+  }
+  function hide_new_announcement_form() {
+  document.getElementById("new_announcement_form").style.display="none";
+  }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="table_container">
+  <div class="header">{% if manager_positions %}
+    <button class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+    {% endif %}<h3 class="table_title medium_title">{{ page_name }}</h3>
+  </div> <!-- .header -->
+  {% if can_edit %}
+  <form action="{% url 'edit_announcement' announcement_pk=announcement.pk %}">
+    <button class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit</button>
+  </form>
+  {% endif %}
+  <div class="announcement_owner">
+    <a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=announcement.manager.url_title %}">{{ announcement.manager }}</a>
+    (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=announcement.incumbent.user.username %}">{{ announcement.incumbent|display_user:user }}</a>), {{ announcement.post_date }}:
+    <form class="unpin_form" method="post" action="">
+      {% csrf_token %}
+      {{ unpin_form }}
+      {% if announcement.pinned %}
+      <button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-warning" name="unpin" title="Unpin"><span class="glyphicon glyphicon-ban-circle"></span></button>
+      {% else %}
+      <button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-success" name="unpin" title="Repin"><span class="glyphicon glyphicon-pushpin"></span></button>
+      {% endif %}
+    </form>
+  </div> <!-- .announcement_owner -->
+  <div class="announcement_body">{{ announcement.body|safe }}</div>
+</div> <!-- .table_container -->
+{% endblock %}
