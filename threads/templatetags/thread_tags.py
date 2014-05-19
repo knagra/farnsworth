@@ -6,6 +6,8 @@ Author: Karandeep Singh Nagra
 
 from django import template
 
+from utils.variables import ANONYMOUS_USERNAME
+
 register = template.Library()
 
 @register.filter
@@ -16,7 +18,7 @@ def display_user(value, arg):
 			arg should be another user.
 		Ideally, value should be a userprofile from an object and arg the user logged in.
 	'''
-	if value.user == arg:
+	if value.user == arg and arg.username != ANONYMOUS_USERNAME:
 		return "You"
 	else:
 		return value.user.get_full_name()
