@@ -31,7 +31,7 @@ MESSAGES = {
 	'REQ_CLOSED': "Request successfully marked closed.",
 	'REQ_FILLED': "Request successfully marked filled.",
 	'SPINELESS': "You cannot modify the anonymous user profile.",
-	'ANONYMOUS_EDIT': "THIS IS THE ANONYMOUS USER PROFILE.  IT IS HIGHLY RECOMMENDED THAT YOU NOT MODIFY IT.",
+	'ANONYMOUS_EDIT': "THIS IS THE ANONYMOUS USER PROFILE.  IT IS HIGHLY RECOMMENDED THAT YOU NOT MODIFY IT. IT SHOULD BE INACTIVE TO PREVENT USERS FROM TRYING TO MANUALLY LOGIN AS THE ANONYMOUS USER.",
 	'ANONYMOUS_DENIED': "Only superadmins are allowed to login the anonymous user or end the anonymous session.",
 	'ANONYMOUS_LOGIN': "You have successfully logged out and started an anonymous session on this machine.",
 	'ANONYMOUS_SESSION_ENDED': "You have successfully ended the anonymous session on this machine.",
