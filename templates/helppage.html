@@ -4,7 +4,13 @@
 
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/helppage.css' %}" />
+<style>
+p {
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -13,7 +19,9 @@
 <div class="col-sm-5 col-md-4">
 <h1 class="sub_title"><small><a name="contents" title="A link to contents" href="#contents">&Dagger;</a></small> Contents</h1>
 <hr />
-<a id="show_content_list"><span class="glyphicon glyphicon-collapse-down"></span> show</a>
+<div class="text-center">
+	<a id="show_content_list" title="Show table of contents"><span class="glyphicon glyphicon-collapse-down"></span> show</a>
+</div>
 <ol id="content_list" type="1">
 	<li><a href="#welcome">Welcome</a></li>
 	{% if user.is_superuser %}
@@ -62,7 +70,12 @@
 			<li><a href="#adding_messages">Adding Messages</a></li>
 		</ol>
 	</li>
-	<li><a href="#requests">Requests</a></li>
+	<li><a href="#requests">Requests</a>
+		<ol type="a">
+			<li><a href="#about_requests">About Requests</a></li>
+			<li><a href="#working_with_requests">Working with Requests</a></li>
+		</ol>
+	</li>
 	<li><a href="#announcements">Announcements</a></li>
 	<li><a href="#events">Events</a></li>
 	<li><a href="#miscellaneous">Miscellaneous</a>
@@ -73,7 +86,9 @@
 		</ol>
 	</li>
 </ol>
-<a id="hide_content_list"><span class="glyphicon glyphicon-collapse-up"></span> hide</a>
+<div class="text-center">
+	<a id="hide_content_list" title="Hide table of contents"><span class="glyphicon glyphicon-collapse-up"></span> hide</a>
+</div>
 <hr />
 </div> <!-- .col-md-4 -->
 <div class="col-sm-7 col-md-8">
