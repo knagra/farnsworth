@@ -413,7 +413,9 @@ class TestManager(TestCase):
 
 class TestAnnouncements(TestCase):
 	def setUp(self):
+		self.u = User.objects.create_user(username="u", password="pwd")
 		self.su = User.objects.create_user(username="su", password="pwd")
+
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
 
@@ -471,6 +473,13 @@ class TestAnnouncements(TestCase):
 				}, follow=True)
 		self.assertRedirects(response, "/announcements/")
 		self.assertNotIn(self.a.body, response.content)
+
+	def test_no_edit(self):
+		self.client.logout()
+		self.client.login(username="u", password="pwd")
+
+		response = self.client.get("/announcements/{0}/edit/".format(self.a.pk))
+		self.assertRedirects(response, "/announcements/{0}/".format(self.a.pk))
 
 	def test_unpin_individual(self):
 		url = "/announcements/{0}/".format(self.a.pk)
