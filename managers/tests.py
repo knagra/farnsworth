@@ -203,8 +203,9 @@ class TestPermissions(TestCase):
 			"my_requests",
 			"request/{0}".format(self.request.pk),
 			"announcements",
-			"archives/all_announcements",
 			"announcements/{0}".format(self.a.pk),
+			"announcements/{0}/edit".format(self.a.pk),
+			"announcements/all",
 			]
 		for page in pages:
 			self._profile_required("/" + page + "/")
@@ -414,6 +415,7 @@ class TestManager(TestCase):
 class TestAnnouncements(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
+		self.ou = User.objects.create_user(username="ou", password="pwd")
 		self.su = User.objects.create_user(username="su", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True
@@ -421,7 +423,7 @@ class TestAnnouncements(TestCase):
 
 		self.m = Manager(
 			title="setUp Manager",
-			incumbent=UserProfile.objects.get(user=self.su),
+			incumbent=UserProfile.objects.get(user=self.u),
 			)
 		self.m.url_title = convert_to_url(self.m.title)
 		self.m.save()
@@ -434,7 +436,7 @@ class TestAnnouncements(TestCase):
 			)
 		self.a.save()
 
-		self.client.login(username="su", password="pwd")
+		self.client.login(username="u", password="pwd")
 
 	def test_announcements(self):
 		response = self.client.get("/announcements/")
@@ -476,10 +478,16 @@ class TestAnnouncements(TestCase):
 
 	def test_no_edit(self):
 		self.client.logout()
-		self.client.login(username="u", password="pwd")
+		self.client.login(username="ou", password="pwd")
 
 		response = self.client.get("/announcements/{0}/edit/".format(self.a.pk))
 		self.assertRedirects(response, "/announcements/{0}/".format(self.a.pk))
+
+		self.client.logout()
+		self.client.login(username="su", password="pwd")
+
+		response = self.client.get("/announcements/{0}/edit/".format(self.a.pk))
+		self.assertEqual(response.status_code, 200)
 
 	def test_unpin_individual(self):
 		url = "/announcements/{0}/".format(self.a.pk)
