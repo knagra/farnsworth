@@ -689,7 +689,12 @@ def announcements_view(request):
 		if announcement_form.is_valid():
 			body = announcement_form.cleaned_data['body']
 			manager = announcement_form.cleaned_data['as_manager']
-			new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
+			new_announcement = Announcement(
+				manager=manager,
+				body=body,
+				incumbent=userProfile,
+				pinned=True,
+				)
 			new_announcement.save()
 			return HttpResponseRedirect(reverse('announcements'))
 	announcements = Announcement.objects.filter(pinned=True)
@@ -772,6 +777,10 @@ def recount_view(request):
 			thread.number_of_messages = recount
 			thread.save()
 			threads_changed += 1
-	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(requests_changed=requests_changed, request_count=Request.objects.all().count(),
-			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
+	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
+			requests_changed=requests_changed,
+			request_count=Request.objects.all().count(),
+			threads_changed=threads_changed,
+			thread_count=Thread.objects.all().count()),
+			     )
 	return HttpResponseRedirect(reverse('utilities'))
