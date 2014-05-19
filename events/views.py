@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django import forms
 from django.core.urlresolvers import reverse
 
-from utils.variables import MESSAGES
+from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from base.decorators import profile_required
 from base.models import UserProfile
 from base.redirects import red_home, red_ext
@@ -30,6 +30,8 @@ def list_events_view(request):
 	event_form = EventForm(manager_positions)
 	if not manager_positions:
 		event_form.fields['as_manager'].widget = forms.HiddenInput()
+	if request.user.username == ANONYMOUS_USERNAME:
+		event_form.fields['rsvp'].widget = forms.HiddenInput()
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	if request.method == 'POST':
 		if 'post_event' in request.POST:
@@ -48,7 +50,7 @@ def list_events_view(request):
 				else:
 					new_event = Event(owner=userProfile, title=title, description=description, location=location, start_time=start_time, end_time=end_time)
 					new_event.save()
-					if rsvp:
+					if rsvp and request.user.username != ANONYMOUS_USERNAME:
 						new_event.rsvps.add(userProfile)
 					if as_manager:
 						new_event.as_manager = as_manager
@@ -101,6 +103,8 @@ def list_all_events_view(request):
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	if not manager_positions:
 		event_form.fields['as_manager'].widget = forms.HiddenInput()
+	if request.user.username == ANONYMOUS_USERNAME:
+		event_form.fields['rsvp'].widget = forms.HiddenInput()
 	if request.method == 'POST':
 		if 'post_event' in request.POST:
 			event_form = EventForm(manager_positions, post=request.POST)
@@ -118,7 +122,7 @@ def list_all_events_view(request):
 				else:
 					new_event = Event(owner=userProfile, title=title, description=description, location=location, start_time=start_time, end_time=end_time)
 					new_event.save()
-					if rsvp:
+					if rsvp and request.user.username != ANONYMOUS_USERNAME:
 						new_event.rsvps.add(userProfile)
 					if as_manager:
 						new_event.as_manager = as_manager
@@ -184,6 +188,8 @@ def edit_event_view(request, event_pk):
 			})
 	if not manager_positions:
 		event_form.fields['as_manager'].widget = forms.HiddenInput()
+	if request.user.username == ANONYMOUS_USERNAME:
+		event_form.fields['rsvp'].widget = forms.HiddenInput()
 	if request.method == 'POST':
 		event_form = EventForm(manager_positions, post=request.POST)
 		if event_form.is_valid():
@@ -202,7 +208,7 @@ def edit_event_view(request, event_pk):
 			event.start_time = start_time
 			event.end_time = end_time
 			event.save()
-			if rsvp:
+			if rsvp and request.user.username != ANONYMOUS_USERNAME:
 				event.rsvps.add(userProfile)
 			if as_manager:
 				event.as_manager = as_manager
