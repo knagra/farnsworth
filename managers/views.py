@@ -617,7 +617,7 @@ def announcement_view(request, announcement_pk):
 	unpin_form = UnpinForm(request.POST or None, initial={
 			'announcement_pk': announcement_pk,
 			})
-	can_edit = announce.incumbent == profile or user.profile.is_superuser
+	can_edit = announce.incumbent == profile or request.user.is_superuser
 	if 'unpin' in request.POST and unpin_form.is_valid():
 		if announce.pinned:
 			announce.pinned = False
@@ -639,8 +639,10 @@ def edit_announcement_view(request, announcement_pk):
 	''' The view of a single manager announcement. '''
 	announce = get_object_or_404(Announcement, pk=announcement_pk)
 	profile = UserProfile.objects.get(user=request.user)
-	if not (announce.incumbent == profile or user.profile.is_superuser):
-		return HttpResponseRedirect(reverse("announcements"))
+	if not (announce.incumbent == profile or request.user.is_superuser):
+		return HttpResponseRedirect(
+			reverse('announcement', kwargs={"announcement_pk": announcement_pk}),
+			)
 	page_name = "Edit Announcement"
 	manager_positions = Manager.objects.filter(incumbent=profile)
 
