@@ -182,13 +182,13 @@ class TestHomepage(TestCase):
 	def test_bad_page(self):
 		response = self.client.get("/bad_page/")
 		self.assertEqual(response.status_code, 404)
-		self.assertIn("Page not found", response.content)
+		self.assertIn("Page Not Found", response.content)
 
 		self.client.logout()
 
 		response = self.client.get("/bad_page/")
 		self.assertEqual(response.status_code, 404)
-		self.assertIn("Page not found", response.content)
+		self.assertIn("Page Not Found", response.content)
 
 class TestRequestProfile(TestCase):
 	def test_request_profile(self):
