@@ -84,7 +84,7 @@ SUBTEXTS_404 = ("The number you have dialed has crashed into a planet.  Please m
 	"Oh my, yes.",
 	"Better yet, I'll build a page to replace it for you.  Some kind of gamma powered mechanical monster, with freeway on-ramps for arms and a heart as black as coal...",
 	"We tore the universe a new space-hole, all right.  And now it's clenching shut.",
-	"You still have your old pal Zoidberg!  YOU ALL HAVE ZOIDBERG!!!",
+	"You still have your old pal Zoidberg.  YOU ALL HAVE ZOIDBERG!!!",
 	"Woob woob woob woob woob!",
 	)
 
