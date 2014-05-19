@@ -52,7 +52,7 @@ class TestPermissions(TestCase):
 
 	def _admin_required(self, url, success_target=None):
 		response = self.client.get(url)
-		self.assertRedirects(response, "/login/")
+		self.assertRedirects(response, "/login/?next=" + url)
 
 		self.client.login(username="np", password="pwd")
 		response = self.client.get(url, follow=True)
@@ -82,7 +82,7 @@ class TestPermissions(TestCase):
 
 	def _president_admin_required(self, url, success_target=None):
 		response = self.client.get(url)
-		self.assertRedirects(response, "/login/")
+		self.assertRedirects(response, "/login/?next=" + url)
 
 		self.client.login(username="np", password="pwd")
 		response = self.client.get(url, follow=True)
@@ -120,7 +120,7 @@ class TestPermissions(TestCase):
 
 	def _profile_required(self, url, success_target=None):
 		response = self.client.get(url)
-		self.assertRedirects(response, "/login/")
+		self.assertRedirects(response, "/login/?next=" + url)
 
 		self.client.login(username="np", password="pwd")
 		response = self.client.get(url, follow=True)

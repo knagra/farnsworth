@@ -37,7 +37,7 @@ def landing_view(request):
 			'page_name': "Landing",
 			}, context_instance=RequestContext(request))
 
-@profile_required(redirect_user='external', redirect_profile=red_ext)
+@profile_required(redirect_no_user='external', redirect_profile=red_ext)
 def homepage_view(request, message=None):
 	''' The view of the homepage. '''
 	userProfile = UserProfile.objects.get(user=request.user)
@@ -211,6 +211,10 @@ def my_profile_view(request):
 		return red_home(request, MESSAGES['SPINELESS'])
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
+	try:
+		social_auth = UserSocialAuth.objects.get(user=user)
+	except UserSocialAuth.DoesNotExist:
+		social_auth = None
 	change_password_form = ChangePasswordForm()
 	update_profile_form = UpdateProfileForm(initial={
 			'current_room': userProfile.current_room,
@@ -256,7 +260,7 @@ def my_profile_view(request):
 				phone_number = update_profile_form.cleaned_data['phone_number']
 				phone_visible_to_others = update_profile_form.cleaned_data['phone_visible_to_others']
 				enter_password = update_profile_form.cleaned_data['enter_password']
-				if hashers.check_password(enter_password, user.password):
+				if social_auth or hashers.check_password(enter_password, user.password):
 					userProfile.current_room = current_room
 					userProfile.former_rooms = former_rooms
 					userProfile.former_houses = former_houses
@@ -311,6 +315,7 @@ def login_view(request):
 			'page_name': page_name,
 			'form': form,
 			'oauth_providers': _get_oauth_providers(),
+			'redirect_to': redirect_to,
 			}, context_instance=RequestContext(request))
 
 def _get_oauth_providers():
@@ -396,38 +401,35 @@ def member_profile_view(request, targetUsername):
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
 	page_name = "Profile Request Page"
+	redirect_to = request.REQUEST.get('next', reverse('homepage'))
 	if request.user.is_authenticated() and request.user.username != ANONYMOUS_USERNAME:
-		return HttpResponseRedirect(reverse('homepage'))
-	if request.method == 'POST':
-		form = ProfileRequestForm(request.POST)
-		if form.is_valid():
-			username = form.cleaned_data['username']
-			first_name = form.cleaned_data['first_name']
-			last_name = form.cleaned_data['last_name']
-			email = form.cleaned_data['email']
-			affiliation = form.cleaned_data['affiliation_with_the_house']
-			password = form.cleaned_data['password']
-			confirm_password = form.cleaned_data['confirm_password']
-			hashed_password = hashers.make_password(password)
-			if User.objects.filter(username=username).count():
-				non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
-				form._errors['username'] = forms.util.ErrorList([non_field_error])
-			elif not hashers.is_password_usable(hashed_password):
-				error = "Could not hash password.  Please try again."
-				form.errors['__all__'] = form.error_class([error])
-			else:
-				profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation, password=hashed_password)
-				profile_request.save()
-				messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
-				return HttpResponseRedirect(reverse('external'))
+		return HttpResponseRedirect(redirect_to)
+	form = ProfileRequestForm(request.POST or None)
+	if form.is_valid():
+		username = form.cleaned_data['username']
+		first_name = form.cleaned_data['first_name']
+		last_name = form.cleaned_data['last_name']
+		email = form.cleaned_data['email']
+		affiliation = form.cleaned_data['affiliation_with_the_house']
+		password = form.cleaned_data['password']
+		confirm_password = form.cleaned_data['confirm_password']
+		hashed_password = hashers.make_password(password)
+		if User.objects.filter(username=username).count():
+			non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
+			form._errors['username'] = forms.util.ErrorList([non_field_error])
+		elif not hashers.is_password_usable(hashed_password):
+			error = "Could not hash password.  Please try again."
+			form.errors['__all__'] = form.error_class([error])
 		else:
-			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
-	else:
-		form = ProfileRequestForm()
+			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation, password=hashed_password)
+			profile_request.save()
+			messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
+			return HttpResponseRedirect(redirect_to)
 	return render(request, 'request_profile.html', {
 			'form': form,
 			'page_name': page_name,
 			'oauth_providers': _get_oauth_providers(),
+			'redirect_to': redirect_to,
 			})
 
 @admin_required
