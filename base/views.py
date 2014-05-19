@@ -418,16 +418,16 @@ def request_profile_view(request):
 		confirm_password = form.cleaned_data['confirm_password']
 		hashed_password = hashers.make_password(password)
 		if User.objects.filter(username=username).count():
-			non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
-			form._errors['username'] = forms.util.ErrorList([non_field_error])
+			form._errors['first_name'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
+		elif ProfileRequest.objects.filter(first_name=first_name, last_name=last_name).count():
+			form.errors['__all__'] = form.error_class([MESSAGES["PROFILE_TAKEN"].format(first_name=first_name, last_name=last_name)])
 		elif not hashers.is_password_usable(hashed_password):
-			error = "Could not hash password.  Please try again."
-			form.errors['__all__'] = form.error_class([error])
+			form.errors['__all__'] = form.error_class([MESSAGES['PASSWORD_UNHASHABLE']])
 		else:
 			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email,
 				affiliation=affiliation, password=hashed_password)
 			profile_request.save()
-			messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
+			messages.add_message(request, messages.SUCCESS, MESSAGES['PROFILE_SUBMITTED'])
 			if SEND_EMAILS and (email not in EMAIL_BLACKLIST):
 				submission_subject = SUBMISSION_SUBJECT.format(house=house)
 				submission_email = SUBMISSION_EMAIL.format(house=house, full_name=first_name + " " + last_name, admin_name=ADMINS[0][0],
