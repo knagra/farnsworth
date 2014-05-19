@@ -43,7 +43,7 @@ DELETION_SUBJECT = "[Farnsworth - {house}] DO NOT REPLY - Profile Request Delete
 # The e-mail template used when sending profile request approval messages.
 DELETION_EMAIL = '''Dear {full_name},
 
-Your request for an account on the house site for {house} has be rejected.
+Your request for an account on the house site for {house} has been rejected.
 All the information you have provided has been permanently deleted from our database.
 
 If you believe this has been done in error, please contact us at {admin_email}.
