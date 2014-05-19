@@ -89,7 +89,7 @@ class VoteForm(forms.Form):
 	''' Form to cast an up or down vote for a request. '''
 	request_pk = forms.IntegerField(widget=forms.HiddenInput())
 
-def AnnouncementForm(manager_positions, post=None):
+def AnnouncementForm(manager_positions, initial=None, post=None):
 	''' Return a form to post an announcement, has an as_manager field if the user is a manager.
 	Parameters:
 		manager_positions should be a choice set containing manager positions the user making the request currently holds.
@@ -98,11 +98,13 @@ def AnnouncementForm(manager_positions, post=None):
 	class InnerAnnouncementForm(forms.Form):
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, empty_label=None)
 		body = forms.CharField(widget=forms.Textarea())
+	if initial is None:
+		initial={'as_manager': manager_positions[0].pk}
 	if post is None:
-		return InnerAnnouncementForm(initial={'as_manager': manager_positions[0].pk})
+		return InnerAnnouncementForm(initial=initial)
 	else:
 		return InnerAnnouncementForm(post)
 
 class UnpinForm(forms.Form):
 	''' Form to repin or unpin an announcement. '''
-	announcement_pk = forms.IntegerField(widget=forms.HiddenInput())
+	announcement_pk = forms.IntegerField(required=False, widget=forms.HiddenInput())

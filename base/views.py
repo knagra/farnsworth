@@ -1,21 +1,26 @@
-
-from django.shortcuts import render_to_response, render, get_object_or_404
-from django.http import HttpResponseRedirect
+from smtplib import SMTPException
 from django import forms
-from django.core.urlresolvers import reverse
-from django.template import RequestContext
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from datetime import datetime, timedelta
+from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response, render, get_object_or_404
+from django.template import RequestContext
 from django.utils.timezone import utc
-from django.contrib import messages
+
+from datetime import datetime, timedelta
 
 from social.apps.django_app.default.models import UserSocialAuth
 
 from farnsworth.settings import house, ADMINS, max_threads, max_messages, \
-    home_max_announcements, home_max_threads
-from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+    home_max_announcements, home_max_threads, SEND_EMAILS, EMAIL_HOST_USER
+from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
+	APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
+	SUBMISSION_EMAIL
 from base.models import UserProfile, ProfileRequest
 from base.redirects import red_ext, red_home
 from base.decorators import profile_required, admin_required
@@ -35,7 +40,7 @@ def landing_view(request):
 			'page_name': "Landing",
 			}, context_instance=RequestContext(request))
 
-@profile_required(redirect_user='external', redirect_profile=red_ext)
+@profile_required(redirect_no_user='external', redirect_profile=red_ext)
 def homepage_view(request, message=None):
 	''' The view of the homepage. '''
 	userProfile = UserProfile.objects.get(user=request.user)
@@ -209,6 +214,10 @@ def my_profile_view(request):
 		return red_home(request, MESSAGES['SPINELESS'])
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
+	try:
+		social_auth = UserSocialAuth.objects.get(user=user)
+	except UserSocialAuth.DoesNotExist:
+		social_auth = None
 	change_password_form = ChangePasswordForm()
 	update_profile_form = UpdateProfileForm(initial={
 			'current_room': userProfile.current_room,
@@ -254,7 +263,7 @@ def my_profile_view(request):
 				phone_number = update_profile_form.cleaned_data['phone_number']
 				phone_visible_to_others = update_profile_form.cleaned_data['phone_visible_to_others']
 				enter_password = update_profile_form.cleaned_data['enter_password']
-				if hashers.check_password(enter_password, user.password):
+				if social_auth or hashers.check_password(enter_password, user.password):
 					userProfile.current_room = current_room
 					userProfile.former_rooms = former_rooms
 					userProfile.former_houses = former_houses
@@ -304,10 +313,33 @@ def login_view(request):
 					form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
 		except User.DoesNotExist:
 			form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
+
 	return render_to_response('login.html', {
 			'page_name': page_name,
 			'form': form,
+			'oauth_providers': _get_oauth_providers(),
+			'redirect_to': redirect_to,
 			}, context_instance=RequestContext(request))
+
+def _get_oauth_providers():
+	matches = {
+		"facebook": ("Facebook", "fb.png"),
+		"google-oauth": ("Google", "google.png"),
+		"google-oauth2": ("Google", "google.png"),
+		"github": ("Github", "github.ico"),
+		}
+		
+	providers = []
+	for provider in settings.AUTHENTICATION_BACKENDS:
+		if provider.startswith("social"):
+			module_name, backend = provider.rsplit(".", 1)
+			module = __import__(module_name, fromlist=[''])
+			if module and getattr(module, backend, ""):
+				backend_name = getattr(module, backend).name
+				full_name, icon = matches.get(backend_name,
+							      ("Unknown", "unknown.png"))
+				providers.append((backend_name, full_name, icon))
+	return providers
 
 def logout_view(request):
 	''' Log the user out. '''
@@ -371,35 +403,46 @@ def member_profile_view(request, targetUsername):
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
 	page_name = "Profile Request Page"
+	redirect_to = request.REQUEST.get('next', reverse('homepage'))
 	if request.user.is_authenticated() and request.user.username != ANONYMOUS_USERNAME:
-		return HttpResponseRedirect(reverse('homepage'))
-	if request.method == 'POST':
-		form = ProfileRequestForm(request.POST)
-		if form.is_valid():
-			username = form.cleaned_data['username']
-			first_name = form.cleaned_data['first_name']
-			last_name = form.cleaned_data['last_name']
-			email = form.cleaned_data['email']
-			affiliation = form.cleaned_data['affiliation_with_the_house']
-			password = form.cleaned_data['password']
-			confirm_password = form.cleaned_data['confirm_password']
-			hashed_password = hashers.make_password(password)
-			if User.objects.filter(username=username).count():
-				non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
-				form._errors['username'] = forms.util.ErrorList([non_field_error])
-			elif not hashers.is_password_usable(hashed_password):
-				error = "Could not hash password.  Please try again."
-				form.errors['__all__'] = form.error_class([error])
-			else:
-				profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation, password=hashed_password)
-				profile_request.save()
-				messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
-				return HttpResponseRedirect(reverse('external'))
+		return HttpResponseRedirect(redirect_to)
+	form = ProfileRequestForm(request.POST or None)
+	if form.is_valid():
+		username = form.cleaned_data['username']
+		first_name = form.cleaned_data['first_name']
+		last_name = form.cleaned_data['last_name']
+		email = form.cleaned_data['email']
+		affiliation = form.cleaned_data['affiliation_with_the_house']
+		password = form.cleaned_data['password']
+		confirm_password = form.cleaned_data['confirm_password']
+		hashed_password = hashers.make_password(password)
+		if User.objects.filter(username=username).count():
+			non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
+			form._errors['username'] = forms.util.ErrorList([non_field_error])
+		elif not hashers.is_password_usable(hashed_password):
+			error = "Could not hash password.  Please try again."
+			form.errors['__all__'] = form.error_class([error])
 		else:
-			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
-	else:
-		form = ProfileRequestForm()
-	return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
+			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email,
+				affiliation=affiliation, password=hashed_password)
+			profile_request.save()
+			messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
+			if SEND_EMAILS:
+				submission_subject = SUBMISSION_SUBJECT.format(house=house)
+				submission_email = SUBMISSION_EMAIL.format(house=house, full_name=first_name + " " + last_name, admin_name=ADMINS[0][0],
+					admin_email=ADMINS[0][1])
+				try:
+					send_mail(submission_subject, submission_email, EMAIL_HOST_USER, [email], fail_silently=False)
+					# Add logging here
+				except SMTPException:
+					pass # Add logging here
+			return HttpResponseRedirect(redirect_to)
+	return render(request, 'request_profile.html', {
+			'form': form,
+			'page_name': page_name,
+			'oauth_providers': _get_oauth_providers(),
+			'redirect_to': redirect_to,
+			})
 
 @admin_required
 def manage_profile_requests_view(request):
@@ -422,9 +465,18 @@ def modify_profile_request_view(request, request_pk):
 	if request.method == 'POST':
 		mod_form = ModifyProfileRequestForm(request.POST)
 		if 'delete_request' in request.POST:
+			if SEND_EMAILS:
+				deletion_subject = DELETION_SUBJECT.format(house=house)
+				deletion_email = DELETION_EMAIL.format(house=house, full_name=profile_request.first_name + " " + profile_request.last_name,
+					admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
+				try:
+					send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
+					# Add logging here
+				except SMTPException:
+					pass # Add logging here
+			profile_request.delete()
 			message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
 			messages.add_message(request, messages.WARNING, message)
-			profile_request.delete()
 			return HttpResponseRedirect(reverse('manage_profile_requests'))
 		elif 'add_user' in request.POST:
 			if mod_form.is_valid():
@@ -475,6 +527,20 @@ def modify_profile_request_view(request, request_pk):
 					new_user_profile.former_rooms = former_rooms
 					new_user_profile.former_houses = former_houses
 					new_user_profile.save()
+					if SEND_EMAILS and new_user.is_active:
+						approval_subject = APPROVAL_SUBJECT.format(house=house)
+						if new_user.username == profile_request.username:
+							username_bit = "the username and"
+						else:
+							username_bit = "the username %s and the" % new_user.username
+						login_url = request.build_absolute_uri(reverse('login'))
+						approval_email = APPROVAL_EMAIL.format(house=house, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
+							admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
+						try:
+							send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [email], fail_silently=False)
+							# Add logging here
+						except SMTPException:
+							pass # Add logging here
 					profile_request.delete()
 					message = MESSAGES['USER_ADDED'].format(username=username)
 					messages.add_message(request, messages.SUCCESS, message)
@@ -486,6 +552,7 @@ def modify_profile_request_view(request, request_pk):
 				'first_name': profile_request.first_name,
 				'last_name': profile_request.last_name,
 				'email': profile_request.email,
+				'is_active': True,
 				})
 	return render_to_response('modify_profile_request.html', {
 			'page_name': page_name,
