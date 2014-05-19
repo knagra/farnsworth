@@ -261,6 +261,7 @@ function hide_form(form_id) {
 		{% else %}
 			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>, {{ tuple.0.change_date }}:
 		{% endif %}
+		{% if user.username != ANONYMOUS_USERNAME %}
 		<form class="rsvp_form" method="post" action="">
 			{% csrf_token %}
 				{{ tuple.3 }}
@@ -270,6 +271,7 @@ function hide_form(form_id) {
 					<button type="submit" class="btn btn-xs btn-success" name="rsvp" title="RSVP"><span class="glyphicon glyphicon-star"></span></button>
 				{% endif %}
 		</form>
+		{% endif %}
 		</div> <!-- .main_owner -->
 		<div class="event_body">
 			<div class="text-center">

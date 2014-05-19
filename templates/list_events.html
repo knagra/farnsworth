@@ -54,6 +54,7 @@
 		{% else %}
 			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>, {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
 		{% endif %}
+		{% if user.username != ANONYMOUS_USERNAME %}
 		<form class="rsvp_form" method="post" action="">
 			{% csrf_token %}
 				{{ event_tuple.3 }}
@@ -65,6 +66,7 @@
 				{% endif %}
 				{% endif %}
 		</form>
+		{% endif %}
 		</div> <!-- .event_owner -->
 		<div class="event_body">
 			<div class="text-center">

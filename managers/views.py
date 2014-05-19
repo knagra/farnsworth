@@ -165,7 +165,7 @@ def add_manager_view(request):
 
 @president_admin_required
 def edit_manager_view(request, managerTitle):
-	''' View to modify an existing manager. 
+	''' View to modify an existing manager.
 	Parameters:
 		request is an HTTP request
 		managerTitle is URL title of the manager.
@@ -318,7 +318,7 @@ def requests_view(request, requestType):
 	Generic request view.  Parameters:
 		request is the HTTP request
 		requestType is URL name of a RequestType.
-			e.g. "food", "maintenance", "network", "site" 
+			e.g. "food", "maintenance", "network", "site"
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_type = get_object_or_404(RequestType, url_name=requestType)
@@ -607,38 +607,106 @@ def request_view(request, request_pk):
 			}, context_instance=RequestContext(request))
 
 @profile_required
+def announcement_view(request, announcement_pk):
+	''' The view of a single manager announcement. '''
+	announce = get_object_or_404(Announcement, pk=announcement_pk)
+	page_name = "View Announcement"
+	profile = UserProfile.objects.get(user=request.user)
+	announcement_form = None
+	manager_positions = Manager.objects.filter(incumbent=profile)
+	unpin_form = UnpinForm(request.POST or None, initial={
+			'announcement_pk': announcement_pk,
+			})
+	can_edit = announce.incumbent == profile or request.user.is_superuser
+	if 'unpin' in request.POST and unpin_form.is_valid():
+		if announce.pinned:
+			announce.pinned = False
+		else:
+			announce.pinned = True
+		announce.save()
+		return HttpResponseRedirect(
+			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
+			)
+	return render_to_response('view_announcement.html', {
+			'page_name': page_name,
+			'unpin_form': unpin_form,
+			'can_edit': can_edit,
+			'announcement': announce,
+			}, context_instance=RequestContext(request))
+
+@profile_required
+def edit_announcement_view(request, announcement_pk):
+	''' The view of a single manager announcement. '''
+	announce = get_object_or_404(Announcement, pk=announcement_pk)
+	profile = UserProfile.objects.get(user=request.user)
+	if not (announce.incumbent == profile or request.user.is_superuser):
+		return HttpResponseRedirect(
+			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
+			)
+	page_name = "Edit Announcement"
+	manager_positions = Manager.objects.filter(incumbent=profile)
+
+	initial = {"body": announce.body}
+	if announce.manager in manager_positions:
+		initial["as_manager"] = announce.manager.pk
+	elif manager_positions:
+		initial["as_manager"] = manager_positions[0].pk
+
+	announcement_form = AnnouncementForm(manager_positions, initial=initial,
+					     post=request.POST or None)
+	if announcement_form.is_valid():
+		announce.body = announcement_form.cleaned_data['body']
+		announce.manager = announcement_form.cleaned_data['as_manager']
+		announce.save()
+		return HttpResponseRedirect(
+			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
+			)
+
+	return render_to_response('edit_announcement.html', {
+			'page_name': page_name,
+			'announcement_form': announcement_form,
+			}, context_instance=RequestContext(request))
+
+@profile_required
 def announcements_view(request):
 	''' The view of manager announcements. '''
 	page_name = "Manager Announcements"
-	userProfile = None
 	userProfile = UserProfile.objects.get(user=request.user)
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
+	unpin_form = UnpinForm(request.POST or None)
 	if manager_positions:
-		announcement_form = AnnouncementForm(manager_positions)
-	if request.method == 'POST':
-		if 'unpin' in request.POST:
-			unpin_form = UnpinForm(request.POST)
-			if unpin_form.is_valid():
-				announcement_pk = unpin_form.cleaned_data['announcement_pk']
-				relevant_announcement = Announcement.objects.get(pk=announcement_pk)
-				relevant_announcement.pinned = False
-				relevant_announcement.save()
-				return HttpResponseRedirect(reverse('announcements'))
-		elif 'post_announcement' in request.POST:
-			announcement_form = AnnouncementForm(manager_positions, post=request.POST)
-			if announcement_form.is_valid():
-				body = announcement_form.cleaned_data['body']
-				manager = announcement_form.cleaned_data['as_manager']
-				new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
-				new_announcement.save()
-				return HttpResponseRedirect(reverse('announcements'))
+		announcement_form = AnnouncementForm(manager_positions,
+						     post=request.POST or None)
+	if 'unpin' in request.POST:
+		if unpin_form.is_valid():
+			announcement_pk = unpin_form.cleaned_data['announcement_pk']
+			relevant_announcement = Announcement.objects.get(pk=announcement_pk)
+			relevant_announcement.pinned = False
+			relevant_announcement.save()
+			return HttpResponseRedirect(reverse('announcements'))
+	elif 'post_announcement' in request.POST:
+		if announcement_form.is_valid():
+			body = announcement_form.cleaned_data['body']
+			manager = announcement_form.cleaned_data['as_manager']
+			new_announcement = Announcement(
+				manager=manager,
+				body=body,
+				incumbent=userProfile,
+				pinned=True,
+				)
+			new_announcement.save()
+			return HttpResponseRedirect(reverse('announcements'))
 	announcements = Announcement.objects.filter(pinned=True)
-	announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_unpin_form)
+	# A pseudo-dictionary, actually a list with items of form:
+	# (announcement, announcement_unpin_form)
+	announcements_dict = list()
 	for a in announcements:
 		unpin_form = None
 		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
-			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
+			unpin_form = UnpinForm(initial={
+					'announcement_pk': a.pk,
+					})
 		announcements_dict.append((a, unpin_form))
 	return render_to_response('announcements.html', {
 			'page_name': page_name,
@@ -655,27 +723,27 @@ def all_announcements_view(request):
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
-		announcement_form = AnnouncementForm(manager_positions)
-	if request.method == 'POST':
-		if 'unpin' in request.POST:
-			unpin_form = UnpinForm(request.POST)
-			if unpin_form.is_valid():
-				announcement_pk = unpin_form.cleaned_data['announcement_pk']
-				relevant_announcement = Announcement.objects.get(pk=announcement_pk)
-				if relevant_announcement.pinned:
-					relevant_announcement.pinned = False
-				else:
-					relevant_announcement.pinned = True
-				relevant_announcement.save()
-				return HttpResponseRedirect(reverse('all_announcements'))
-		elif ('post_announcement' in request.POST) and manager_positions:
-			announcement_form = AnnouncementForm(manager_positions, post=request.POST)
-			if announcement_form.is_valid():
-				body = announcement_form.cleaned_data['body']
-				manager = announcement_form.cleaned_data['as_manager']
-				new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
-				new_announcement.save()
-				return HttpResponseRedirect(reverse('all_announcements'))
+		announcement_form = AnnouncementForm(manager_positions,
+						     post=request.POST or None)
+	unpin_form = UnpinForm(request.POST or None)
+	if 'unpin' in request.POST:
+		if unpin_form.is_valid():
+			announcement_pk = unpin_form.cleaned_data['announcement_pk']
+			relevant_announcement = Announcement.objects.get(pk=announcement_pk)
+			if relevant_announcement.pinned:
+				relevant_announcement.pinned = False
+			else:
+				relevant_announcement.pinned = True
+			relevant_announcement.save()
+			return HttpResponseRedirect(reverse('all_announcements'))
+	elif ('post_announcement' in request.POST) and manager_positions:
+		if announcement_form.is_valid():
+			body = announcement_form.cleaned_data['body']
+			manager = announcement_form.cleaned_data['as_manager']
+			new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
+			new_announcement.save()
+			return HttpResponseRedirect(reverse('all_announcements'))
+
 	announcements = Announcement.objects.all()
 	announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_pin_form)
 	for a in announcements:
@@ -709,6 +777,10 @@ def recount_view(request):
 			thread.number_of_messages = recount
 			thread.save()
 			threads_changed += 1
-	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(requests_changed=requests_changed, request_count=Request.objects.all().count(),
-			threads_changed=threads_changed, thread_count=Thread.objects.all().count()))
+	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
+			requests_changed=requests_changed,
+			request_count=Request.objects.all().count(),
+			threads_changed=threads_changed,
+			thread_count=Thread.objects.all().count()),
+			     )
 	return HttpResponseRedirect(reverse('utilities'))
