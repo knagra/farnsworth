@@ -35,7 +35,7 @@
     <div class="table_container">
       <div class="header"><h3 class="table_title">OAuth Login</h3></div>
       {% for provider in oauth_providers %}
-      <a class="list-group-item" {% if forloop.first or forloop.last %}style="border-radius: 0;" {% endif %}title="{{ provider.1 }}" href="{% url 'social:begin' provider.0 %}"><img height="30" width="30" src="{% static 'ui/images/oauth/' %}{{ provider.2 }}"> {{ provider.1 }}</a>
+      <a class="list-group-item" {% if forloop.first or forloop.last %}style="border-radius: 0;" {% endif %}title="{{ provider.1 }}" href="{% url 'social:begin' provider.0 %}?next={{ redirect_to }}"><img height="30" width="30" src="{% static 'ui/images/oauth/' %}{{ provider.2 }}"> {{ provider.1 }}</a>
       {% endfor %}
     </div> <!-- .table_container -->
   </div> <!-- .col-sm-4 -->

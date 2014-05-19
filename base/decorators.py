@@ -12,11 +12,13 @@ from base.redirects import red_home
 from threads.models import UserProfile
 from managers.models import Manager
 
-def profile_required(function=None, redirect_user='login', redirect_profile=red_home):
+def profile_required(function=None, redirect_no_user='login', redirect_profile=red_home):
 	def real_decorator(view_func):
 		def wrap(request, *args, **kwargs):
 			if not request.user.is_authenticated():
-				return HttpResponseRedirect(reverse(redirect_user))
+				redirect_to = reverse(redirect_no_user)
+				redirect_to += "?next=" + request.path
+				return HttpResponseRedirect(redirect_to)
 			try:
 				UserProfile.objects.get(user=request.user)
 			except UserProfile.DoesNotExist:
@@ -27,11 +29,13 @@ def profile_required(function=None, redirect_user='login', redirect_profile=red_
 		return real_decorator(function)
 	return real_decorator
 
-def admin_required(function=None, redirect_user='login', redirect_profile=red_home):
+def admin_required(function=None, redirect_no_user='login', redirect_profile=red_home):
 	def real_decorator(view_func):
 		def wrap(request, *args, **kwargs):
 			if not request.user.is_authenticated():
-				return HttpResponseRedirect(reverse(redirect_user))
+				redirect_to = reverse(redirect_no_user)
+				redirect_to += "?next=" + request.path
+				return HttpResponseRedirect(redirect_to)
 			try:
 				UserProfile.objects.get(user=request.user)
 			except UserProfile.DoesNotExist:
@@ -44,11 +48,13 @@ def admin_required(function=None, redirect_user='login', redirect_profile=red_ho
 		return real_decorator(function)
 	return real_decorator
 
-def president_admin_required(function=None, redirect_user='login', redirect_profile=red_home):
+def president_admin_required(function=None, redirect_no_user='login', redirect_profile=red_home):
 	def real_decorator(view_func):
 		def wrap(request, *args, **kwargs):
 			if not request.user.is_authenticated():
-				return HttpResponseRedirect(reverse(redirect_user))
+				redirect_to = reverse(redirect_no_user)
+				redirect_to += "?next=" + request.path
+				return HttpResponseRedirect(redirect_to)
 			try:
 				userProfile = UserProfile.objects.get(user=request.user)
 			except UserProfile.DoesNotExist:
