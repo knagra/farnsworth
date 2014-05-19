@@ -1,15 +1,17 @@
 
-from django.shortcuts import render_to_response, render, get_object_or_404
-from django.http import HttpResponseRedirect
 from django import forms
-from django.core.urlresolvers import reverse
-from django.template import RequestContext
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from datetime import datetime, timedelta
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response, render, get_object_or_404
+from django.template import RequestContext
 from django.utils.timezone import utc
-from django.contrib import messages
+
+from datetime import datetime, timedelta
 
 from social.apps.django_app.default.models import UserSocialAuth
 
@@ -304,10 +306,33 @@ def login_view(request):
 					form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
 		except User.DoesNotExist:
 			form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
+
 	return render_to_response('login.html', {
 			'page_name': page_name,
 			'form': form,
+			'oauth_providers': _get_oauth_providers(),
 			}, context_instance=RequestContext(request))
+
+def _get_oauth_providers():
+	matches = {
+		"facebook": ("Facebook", "fb.png"),
+		"google-oauth": ("Google", "google.png"),
+		"google-oauth2": ("Google", "google.png"),
+		"github": ("Github", "github.ico"),
+		}
+		
+	providers = []
+	for provider in settings.AUTHENTICATION_BACKENDS:
+		if provider.startswith("social"):
+			module_name, backend = provider.rsplit(".", 1)
+			module = __import__(module_name, fromlist=[''])
+			if module and getattr(module, backend, ""):
+				backend_name = getattr(module, backend).name
+				full_name, icon = matches.get(backend_name,
+							      ("Unknown", "unknown.png"))
+				providers.append((backend_name, full_name, icon))
+	return providers
+
 
 def logout_view(request):
 	''' Log the user out. '''
@@ -399,7 +424,11 @@ def request_profile_view(request):
 			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
 	else:
 		form = ProfileRequestForm()
-	return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
+	return render(request, 'request_profile.html', {
+			'form': form,
+			'page_name': page_name,
+			'oauth_providers': _get_oauth_providers(),
+			})
 
 @admin_required
 def manage_profile_requests_view(request):
