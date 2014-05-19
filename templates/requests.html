@@ -30,7 +30,7 @@
 <div class="requests table_container">
   <div class="header">
     <button type="button" class="btn btn-primary add_request" onclick="show_new_request_form()"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
-    <h3 class="table_title {%if request_type|longer_than:'123' %}medium{% else %}small{% endif %}_title">Recent {{ request_type|title }} Requests</h3>
+    <h3 class="table_title {% if request_type|longer_than:'123456789012' %}large{% elif request_type|longer_than:'123' %}medium{% else %}small{% endif %}_title">Recent {{ request_type|title }} Requests</h3>
   </div> <!-- table_header -->
   <div class="main_table">
   <form id="new_request_form" method="post" action="">
@@ -48,6 +48,21 @@
   </form>
 
   <div class="requests_table">
+	{% if relevant_managers %}
+    <div class="field_wrapper text-info">{{ request_type.capitalize }} requests are made to:
+		{% for pos in relevant_managers %}
+			{% if forloop.counter > 1 %}, {% endif %}
+			<a title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+			{% if pos.incumbent %}
+				(<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
+			{% else %}
+				(<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
+			{% endif %}
+		{% endfor %}
+    </div>
+    {% else %}
+    <div class="field_wrapper text-danger">No active managers are currently responsible for addressing {{ request_type.lower }} requests.</div>
+    {% endif %}
     {% if not requests_dict %}
     <div class="field_wrapper text-info">No {{ request_type.lower }} requests found.</div>
     {% else %}

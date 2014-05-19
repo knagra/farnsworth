@@ -326,7 +326,7 @@ def requests_view(request, requestType):
 	if not request_type.enabled:
 		message = "%s requests have been disabled." % request_type.name.title()
 		return red_home(request, message)
-	relevant_managers = request_type.managers.all()
+	relevant_managers = request_type.managers.filter(active=True)
 	manager = any(i.incumbent == userProfile for i in relevant_managers)
 	if request.method == 'POST':
 		if 'submit_request' in request.POST:
@@ -395,6 +395,7 @@ def requests_view(request, requestType):
 			'page_name': page_name,
 			'request_form': request_form,
 			'requests_dict': requests_dict,
+			'relevant_managers': relevant_managers,
 			}, context_instance=RequestContext(request))
 
 @profile_required
@@ -449,9 +450,9 @@ def my_requests_view(request):
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	my_requests = Request.objects.filter(owner=userProfile)
-	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...])
+	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...], relevant_managers)
 	for request_type in RequestType.objects.all():
-		relevant_managers = request_type.managers.all()
+		relevant_managers = request_type.managers.filter(active=True)
 		type_manager = any(i.incumbent == userProfile for i in relevant_managers)
 		requests_list = list() # Items are of form (request, [list_of_request_responses], response_form),...])
 		type_requests = my_requests.filter(request_type=request_type)
@@ -470,7 +471,7 @@ def my_requests_view(request):
 			requests_list.append((req, responses_list, form, upvote, vote_form))
 		request_form = RequestForm(initial={'type_pk': request_type.pk})
 		request_form.fields['type_pk'].widget = forms.HiddenInput()
-		request_dict.append((request_type, request_form, type_manager, requests_list))
+		request_dict.append((request_type, request_form, type_manager, requests_list, relevant_managers))
 	return render_to_response('my_requests.html', {
 			'page_name': page_name,
 			'request_dict': request_dict,
@@ -542,7 +543,7 @@ def request_view(request, request_pk):
 	relevant_request = get_object_or_404(Request, pk=request_pk)
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_responses = Response.objects.filter(request=relevant_request)
-	relevant_managers = relevant_request.request_type.managers.all()
+	relevant_managers = relevant_request.request_type.managers.filter(active=True)
 	manager = any(i.incumbent == userProfile for i in relevant_managers)
 	if manager:
 		response_form = ManagerResponseForm(initial={
@@ -604,6 +605,7 @@ def request_view(request, request_pk):
 			'response_form': response_form,
 			'vote_form': vote_form,
 			'response_form': response_form,
+			'relevant_managers': relevant_managers,
 			}, context_instance=RequestContext(request))
 
 @profile_required

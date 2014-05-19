@@ -48,7 +48,7 @@ def homepage_view(request, message=None):
 	request_types = RequestType.objects.filter(enabled=True)
 	manager_request_types = list() # List of request types for which the user is a relevant manager
 	for request_type in request_types:
-		for position in request_type.managers.all():
+		for position in request_type.managers.filter(active=True):
 			if userProfile == position.incumbent:
 				manager_request_types.append(request_type)
 				break

@@ -13,17 +13,27 @@
 {% block content %}
 <div class="requests table_container">
   <div class="header">
-	{% if relevant_request %}
     <form action="{% url 'list_all_requests' requestType=relevant_request.request_type.url_name %}">
 	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-{% if relevant_request.request_type.glyphicon %}{{ relevant_request.request_type.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> List All Requests</span></button>
 	</form>
-	{% endif %}
     <h3 class="table_title">{{ page_name }}</h3>
   </div> <!-- table_header -->
   <div class="requests_table main_table">
-    {% if not relevant_request %}
-    <div class="field_wrapper text-warning">Request not found.</div>
+	{% if relevant_managers %}
+    <div class="field_wrapper text-info">{{ relevant_request.request_type.name.capitalize }} requests are made to:
+		{% for pos in relevant_managers %}
+			{% if forloop.counter > 1 %}, {% endif %}
+			<a title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+			{% if pos.incumbent %}
+				(<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
+			{% else %}
+				(<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
+			{% endif %}
+		{% endfor %}
+    </div>
     {% else %}
+    <div class="field_wrapper text-danger">No managers are currently responsible for addressing {{ relevant_request.request_type.name.lower }} requests.</div>
+    {% endif %}
 	<div class="request_name{% if relevant_request.filled %} bg-success" title="Filled"{% elif relevant_request.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
 		<div class="request_owner">
 		{% if not relevant_request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
@@ -67,7 +77,6 @@
 	  </form>
 	</div>
 	</div>
-    {% endif %}
   </div> <!-- thread_table -->
 </div>
 {% endblock %}
