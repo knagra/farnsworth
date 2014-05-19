@@ -41,11 +41,11 @@ urlpatterns += patterns('base.views',
 )
 
 urlpatterns += patterns('threads.views',
-	url(r'^member_forums/$', 'member_forums_view', name='member_forums'),
-	url(r'^archives/all_threads/$', 'all_threads_view', name='all_threads'),
-	url(r'^archives/list_all_threads/$', 'list_all_threads_view', name="list_all_threads"),
+	url(r'^threads/$', 'member_forums_view', name='member_forums'),
+	url(r'^threads/(?P<thread_pk>\d+)/$', 'thread_view', name='view_thread'),
+	url(r'^threads/all/$', 'all_threads_view', name='all_threads'),
+	url(r'^threads/list/$', 'list_all_threads_view', name="list_all_threads"),
 	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
-	url(r'^thread/(?P<thread_pk>\w+)/$', 'thread_view', name='view_thread'),
 	url(r'^profile/(?P<targetUsername>\w+)/threads/$', 'list_user_threads_view', name="list_user_threads"),
 )
 
