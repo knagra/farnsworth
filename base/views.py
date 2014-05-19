@@ -27,7 +27,7 @@ from base.redirects import red_ext, red_home
 from base.decorators import profile_required, admin_required
 from base.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, \
     ModifyProfileRequestForm, ChangeUserPasswordForm, LoginForm, ChangePasswordForm, \
-    UpdateProfileForm
+    UpdateProfileForm, DeleteUserForm
 from threads.models import Thread, Message
 from threads.forms import ThreadForm, MessageForm
 from managers.models import RequestType, Manager, Request, Response, Announcement
@@ -189,11 +189,11 @@ def homepage_view(request, message=None):
 			'requests_dict': requests_dict,
 			'announcements_dict': announcements_dict,
 			'announcement_form': announcement_form,
-			'events_dict': events_dict, 
+			'events_dict': events_dict,
 			'threads': threads,
 			'thread_form': thread_form,
 			}, context_instance=RequestContext(request))
-	
+
 def help_view(request):
 	''' The view of the helppage. '''
 	return render_to_response('helppage.html', {
@@ -329,7 +329,7 @@ def _get_oauth_providers():
 		"google-oauth2": ("Google", "google.png"),
 		"github": ("Github", "github.ico"),
 		}
-		
+
 	providers = []
 	for provider in settings.AUTHENTICATION_BACKENDS:
 		if provider.startswith("social"):
@@ -377,7 +377,7 @@ def member_directory_view(request):
 	    .exclude(user__username=ANONYMOUS_USERNAME)
 	return render_to_response('member_directory.html', {
 			'page_name': page_name,
-			'residents': residents, 
+			'residents': residents,
 			'boarders': boarders,
 			'alumni': alumni,
 			}, context_instance=RequestContext(request))
@@ -395,8 +395,8 @@ def member_profile_view(request, targetUsername):
 	number_of_requests = Request.objects.filter(owner=targetProfile).count()
 	return render_to_response('member_profile.html', {
 			'page_name': page_name,
-			'targetUser': targetUser, 
-			'targetProfile': targetProfile, 
+			'targetUser': targetUser,
+			'targetProfile': targetProfile,
 			'number_of_threads': number_of_threads,
 			'number_of_requests': number_of_requests,
 			}, context_instance=RequestContext(request))
@@ -668,56 +668,72 @@ def custom_modify_user_view(request, targetUsername):
 def custom_add_user_view(request):
 	''' The page to add a new user. '''
 	page_name = "Admin - Add User"
-	if request.method == 'POST':
-		add_user_form = AddUserForm(request.POST)
-		if add_user_form.is_valid():
-			username = add_user_form.cleaned_data['username']
-			first_name = add_user_form.cleaned_data['first_name']
-			last_name = add_user_form.cleaned_data['last_name']
-			email = add_user_form.cleaned_data['email']
-			email_visible_to_others = add_user_form.cleaned_data['email_visible_to_others']
-			phone_number = add_user_form.cleaned_data['phone_number']
-			phone_visible_to_others = add_user_form.cleaned_data['phone_visible_to_others']
-			status = add_user_form.cleaned_data['status']
-			current_room = add_user_form.cleaned_data['current_room']
-			former_rooms = add_user_form.cleaned_data['former_rooms']
-			former_houses = add_user_form.cleaned_data['former_houses']
-			is_active = add_user_form.cleaned_data['is_active']
-			is_staff = add_user_form.cleaned_data['is_staff']
-			is_superuser = add_user_form.cleaned_data['is_superuser']
-			groups = add_user_form.cleaned_data['groups']
-			user_password = add_user_form.cleaned_data['user_password']
-			confirm_password = add_user_form.cleaned_data['confirm_password']
-			if User.objects.filter(username=username).count():
-				non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
-				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-			elif User.objects.filter(first_name=first_name, last_name=last_name).count():
-				non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
-				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-			else:
-				new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
-				new_user.is_active = is_active
-				new_user.is_staff = is_staff
-				new_user.is_superuser = is_superuser
-				new_user.groups = groups
-				new_user.save()
-				new_user_profile = UserProfile.objects.get(user=new_user)
-				new_user_profile.email_visible = email_visible_to_others
-				new_user_profile.phone_number = phone_number
-				new_user_profile.phone_visible = phone_visible_to_others
-				new_user_profile.status = status
-				new_user_profile.current_room = current_room
-				new_user_profile.former_rooms = former_rooms
-				new_user_profile.former_houses = former_houses
-				new_user_profile.save()
-				message = MESSAGES['USER_ADDED'].format(username=username)
-				messages.add_message(request, messages.SUCCESS, message)
-				return HttpResponseRedirect(reverse('custom_add_user'))
-	else:
-		add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
+	add_user_form = AddUserForm(request.POST or None, initial={
+		'status': UserProfile.RESIDENT,
+		})
+	if add_user_form.is_valid():
+		username = add_user_form.cleaned_data['username']
+		first_name = add_user_form.cleaned_data['first_name']
+		last_name = add_user_form.cleaned_data['last_name']
+		email = add_user_form.cleaned_data['email']
+		email_visible_to_others = add_user_form.cleaned_data['email_visible_to_others']
+		phone_number = add_user_form.cleaned_data['phone_number']
+		phone_visible_to_others = add_user_form.cleaned_data['phone_visible_to_others']
+		status = add_user_form.cleaned_data['status']
+		current_room = add_user_form.cleaned_data['current_room']
+		former_rooms = add_user_form.cleaned_data['former_rooms']
+		former_houses = add_user_form.cleaned_data['former_houses']
+		is_active = add_user_form.cleaned_data['is_active']
+		is_staff = add_user_form.cleaned_data['is_staff']
+		is_superuser = add_user_form.cleaned_data['is_superuser']
+		groups = add_user_form.cleaned_data['groups']
+		user_password = add_user_form.cleaned_data['user_password']
+		confirm_password = add_user_form.cleaned_data['confirm_password']
+		if User.objects.filter(username=username).count():
+			error = MESSAGES["USERNAME_TAKEN"].format(username=username)
+			add_user_form.errors['__all__'] = add_user_form.error_class([error])
+		elif User.objects.filter(first_name=first_name, last_name=last_name).count():
+			non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
+			add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
+		else:
+			new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
+			new_user.is_active = is_active
+			new_user.is_staff = is_staff
+			new_user.is_superuser = is_superuser
+			new_user.groups = groups
+			new_user.save()
+			new_user_profile = UserProfile.objects.get(user=new_user)
+			new_user_profile.email_visible = email_visible_to_others
+			new_user_profile.phone_number = phone_number
+			new_user_profile.phone_visible = phone_visible_to_others
+			new_user_profile.status = status
+			new_user_profile.current_room = current_room
+			new_user_profile.former_rooms = former_rooms
+			new_user_profile.former_houses = former_houses
+			new_user_profile.save()
+			message = MESSAGES['USER_ADDED'].format(username=username)
+			messages.add_message(request, messages.SUCCESS, message)
+			return HttpResponseRedirect(reverse('custom_add_user'))
 	return render_to_response('custom_add_user.html', {
 			'page_name': page_name,
 			'add_user_form': add_user_form,
+			}, context_instance=RequestContext(request))
+
+@admin_required
+def custom_delete_user_view(request):
+	''' The page to delete a user. '''
+	page_name = "Admin - Delete User"
+	delete_user_form = DeleteUserForm(request.POST or None)
+	if delete_user_form.is_valid():
+		username = delete_user_form.cleaned_data['username']
+		user = User.objects.get(username=username)
+		user.delete()
+		message = MESSAGES['USER_DELETED'].format(username=username)
+		messages.add_message(request, messages.SUCCESS, message)
+		return HttpResponseRedirect(reverse('custom_delete_user'))
+	return render_to_response('custom_delete_user.html', {
+			'page_name': page_name,
+			'delete_user_form': delete_user_form,
 			}, context_instance=RequestContext(request))
 
 @admin_required
