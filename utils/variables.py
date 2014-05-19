@@ -84,7 +84,7 @@ SUBTEXTS_404 = ("The number you have dialed has crashed into a planet.  Please m
 	"Oh my, yes.",
 	"Better yet, I'll build a page to replace it for you.  Some kind of gamma powered mechanical monster, with freeway on-ramps for arms and a heart as black as coal...",
 	"We tore the universe a new space-hole, all right.  And now it's clenching shut.",
-	"You still have your old pal Zoidberg!  YOU ALL HAVE ZOIDBERG!!!",
+	"You still have your old pal Zoidberg.  YOU ALL HAVE ZOIDBERG!!!",
 	"Woob woob woob woob woob!",
 	)
 
@@ -99,6 +99,10 @@ MESSAGES = {
 	'PREQ_DEL': "Profile request by {first_name} {last_name} for username {username} successfully deleted.",
 	'USER_PROFILE_SAVED': "User {username}'s profile has been successfully updated.",
 	'USER_PW_CHANGED': "User {username}'s password has been successfully changed.",
+        'PASSWORD_UNHASHABLE': "Could not hash password.  Please try again.",
+        'PROFILE_SUBMITTED': "Your request has been submitted.  An admin will contact you soon.",
+        'PROFILE_TAKEN': "An account request for {first_name} {last_name} has already been made.",
+        'USERNAME_TAKEN': "This usename is taken.  Try one of {username}_1 through {username}_10.",
 	'EVENT_ERROR': "Your event post was not successful.  Please check for errors and try again.",
 	'RSVP_ADD': "You've been successfully added to the list of RSVPs for {event}.",
 	'RSVP_REMOVE': "You've been successfully removed from the list of RSVPs for {event}.",
