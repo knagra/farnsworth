@@ -43,6 +43,8 @@ On Debian:
 
     $ sudo apt-get install postgres python python-devel virtualenv gcc libapache2-mod-wsgi
 
+See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html on installing elasticsearch on either distribution.
+
 Apache
 ===
 Add the following lines to the httpd.conf file for Apache:
