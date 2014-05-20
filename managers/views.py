@@ -353,6 +353,7 @@ def requests_view(request, requestType):
 					relevant_request.closed = mark_closed
 					relevant_request.filled = mark_filled
 					new_response.manager = True
+				relevant_request.number_of_responses += 1
 				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
 				relevant_request.save()
 				new_response.save()
@@ -432,21 +433,13 @@ def my_requests_view(request):
 						mark_closed = response_form.cleaned_data['mark_closed']
 						relevant_request.filled = mark_filled
 						relevant_request.closed = mark_closed
-						relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-						relevant_request.save()
 						new_response.manager = True
 						break
-				new_response.save()
-		elif 'upvote' in request.POST:
-			vote_form = VoteForm(request.POST)
-			if vote_form.is_valid():
-				request_pk = vote_form.cleaned_data['request_pk']
-				relevant_request = Request.objects.get(pk=request_pk)
-				if userProfile in relevant_request.upvotes.all():
-					relevant_request.upvotes.remove(userProfile)
-				else:
-					relevant_request.upvotes.add(userProfile)
+				relevant_request.number_of_responses += 1
+				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
 				relevant_request.save()
+				new_response.save()
+				return HttpResponseRedirect(reverse('my_requests'))
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	my_requests = Request.objects.filter(owner=userProfile)

@@ -27,7 +27,7 @@ BASE_URL = "/farnsworth"
 # Name of the house
 house = "African-American Theme House"
 
-# Short name of the house
+# Short name of the house.  Alphabet only; otherwise, search won't work.
 short_house = "Afro"
 
 # Whether e-mails are sent for certain events.
@@ -45,9 +45,12 @@ EMAIL_HOST_USER = 'youremail@gmail.com'
 EMAIL_HOST_PASSWORD = 'yourpassword'
 EMAIL_PORT = 587
 
-# E-mail blacklist.  E-mails will not be sent these addresses no matter what.
-# Add e-mails here, separated by commas, to prevent the site from sending e-mails
-# to select addresses.
+# E-mail blacklist.  E-mails will not be sent to these addresses no matter what.
+# Add e-mails here as strings separated by commas, to prevent the site from sending e-mails
+# to select addresses.  Here's an example:
+# EXAMPLE_EMAIL_BLACKLIST = ('karandeepsnagra@gmail.com',
+#	'some_user@some_domain.com',
+#	)
 EMAIL_BLACKLIST = ()
 
 # Max number of threads loaded in member_forums.
@@ -305,7 +308,7 @@ HAYSTACK_CONNECTIONS = {
 	'default': {
 		'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
 		'URL': 'http://localhost:9200/',
-		'INDEX_NAME': 'haystack',
+		'INDEX_NAME': short_house.lower(),
 	},
 }
 
