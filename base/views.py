@@ -563,6 +563,8 @@ def modify_profile_request_view(request, request_pk):
 	return render_to_response('modify_profile_request.html', {
 			'page_name': page_name,
 			'add_user_form': mod_form,
+			'provider': profile_request.provider,
+			'uid': profile_request.uid,
 			}, context_instance=RequestContext(request))
 
 @admin_required
