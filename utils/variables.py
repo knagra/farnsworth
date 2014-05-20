@@ -17,13 +17,14 @@ time_formats = ['%m/%d/%Y %I:%M %p', '%m/%d/%Y %I:%M:%S %p', '%Y-%m-%d %H:%M:%S'
 APPROVAL_SUBJECT = "[Farnsworth - {house}] DO NOT REPLY - Profile Request Approved"
 
 # The e-mail template used when sending profile request approval messages.
-# username_bit should be "the username and" or "the username <username> and the"
-# depending on whether the original username provided by the user was used to
+# username_bit should be "the username and password you selected",
+# "the username <username> and the password you selected",
+# or "<OAuth_provider.title()>" depending on whether the original username provided by the user was used to
 # create the new user.
 APPROVAL_EMAIL = '''Dear {full_name},
 
 Your request for an account on the house site for {house} has been approved.
-You may now login at {login_url} using {username_bit} password you selected.
+You may now login at {login_url} using {username_bit}.
 
 A profile request using this e-mail address and the name above was submitted to us on {request_date}.
 If you believe this was done in error, please e-mail us at {admin_email} immediately.

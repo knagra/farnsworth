@@ -533,10 +533,12 @@ def modify_profile_request_view(request, request_pk):
 					new_user_profile.save()
 					if new_user.is_active and SEND_EMAILS and (email not in EMAIL_BLACKLIST):
 						approval_subject = APPROVAL_SUBJECT.format(house=house)
-						if new_user.username == profile_request.username:
-							username_bit = "the username and"
+						if profile_request.provider:
+							username_bit = profile_request.provider.title()
+						elif new_user.username == profile_request.username:
+							username_bit = "the username and password you selected"
 						else:
-							username_bit = "the username %s and the" % new_user.username
+							username_bit = "the username %s and the password you selected" % new_user.username
 						login_url = request.build_absolute_uri(reverse('login'))
 						approval_email = APPROVAL_EMAIL.format(house=house, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
 							admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
