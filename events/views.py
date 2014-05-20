@@ -226,35 +226,36 @@ def edit_event_view(request, event_pk):
 			})
 	if not manager_positions:
 		event_form.fields['as_manager'].widget = forms.HiddenInput()
-	event_form = EventForm(manager_positions, post=request.POST or None)
 	if request.user.username == ANONYMOUS_USERNAME:
 		event_form.fields['rsvp'].widget = forms.HiddenInput()
-	if event_form.is_valid():
-		title = event_form.cleaned_data['title']
-		description = event_form.cleaned_data['description']
-		location = event_form.cleaned_data['location']
-		rsvp = event_form.cleaned_data['rsvp']
-		cancelled = event_form.cleaned_data['cancelled']
-		start_time = event_form.cleaned_data['start_time']
-		end_time = event_form.cleaned_data['end_time']
-		as_manager = event_form.cleaned_data['as_manager']
-		event.title = title
-		event.description = description
-		event.location = location
-		event.cancelled = cancelled
-		event.start_time = start_time
-		event.end_time = end_time
-		event.save()
-		if rsvp and request.user.username != ANONYMOUS_USERNAME:
-			event.rsvps.add(profile)
-		if as_manager:
-			event.as_manager = as_manager
-		event.save()
-		message = MESSAGES['EVENT_UPDATED'].format(event=title)
-		messages.add_message(request, messages.SUCCESS, message)
-		return HttpResponseRedirect(
-			reverse('view_event', kwargs={"event_pk": event_pk}),
-			)
+	if request.method == 'POST':
+		event_form = EventForm(request.POST)
+		if event_form.is_valid():
+			title = event_form.cleaned_data['title']
+			description = event_form.cleaned_data['description']
+			location = event_form.cleaned_data['location']
+			rsvp = event_form.cleaned_data['rsvp']
+			cancelled = event_form.cleaned_data['cancelled']
+			start_time = event_form.cleaned_data['start_time']
+			end_time = event_form.cleaned_data['end_time']
+			as_manager = event_form.cleaned_data['as_manager']
+			event.title = title
+			event.description = description
+			event.location = location
+			event.cancelled = cancelled
+			event.start_time = start_time
+			event.end_time = end_time
+			event.save()
+			if rsvp and request.user.username != ANONYMOUS_USERNAME:
+				event.rsvps.add(profile)
+			if as_manager:
+				event.as_manager = as_manager
+			event.save()
+			message = MESSAGES['EVENT_UPDATED'].format(event=title)
+			messages.add_message(request, messages.SUCCESS, message)
+			return HttpResponseRedirect(
+				reverse('view_event', kwargs={"event_pk": event_pk}),
+				)
 	return render_to_response('edit_event.html', {
 			'page_name': page_name,
 			'event_form': event_form,
