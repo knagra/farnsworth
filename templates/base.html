@@ -52,8 +52,10 @@
 	      <li class="dropdown">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-inbox"></span> Requests <b class="caret"></b></a>
 		<ul class="dropdown-menu">
-			{% for request_type in REQUEST_TYPES %}
-				<li><a href="{% url 'requests' requestType=request_type.url_name %}" ><span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span> {{ request_type.name }}</a></li>
+			{% for type_tuple in REQUEST_TYPES %}
+				<li><a href="{% url 'requests' requestType=type_tuple.0.url_name %}" ><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span>
+				{{ type_tuple.0.name }}
+				<span title="{{ type_tuple.1 }} open request{{ type_tuple.1|pluralize }}" class="badge pull-right">{{ type_tuple.1 }}</span></a></li>
 			{% endfor %}
 		</ul>
 	      </li>
@@ -90,7 +92,7 @@
 			<li class="dropdown-header">Users</li>
 		  <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
 		  <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
-		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-inbox"></span> Profile Requests ({{ NUM_OF_PROFILE_REQUESTS }})</a></li>
+		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-inbox"></span> Profile Requests <span class="badge pull-right">{{ NUM_OF_PROFILE_REQUESTS }}</span></a></li>
 		  <li class="divider"></li>
 		  <li class="dropdown-header">President Duties</li>
 		  <li><a href="{% url 'meta_manager' %}"><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>

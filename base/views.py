@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 from social.apps.django_app.default.models import UserSocialAuth
 
-from farnsworth.settings import house, ADMINS, max_threads, max_messages, \
+from farnsworth.settings import house, short_house, ADMINS, max_threads, max_messages, \
     home_max_announcements, home_max_threads, SEND_EMAILS, EMAIL_HOST_USER, \
     EMAIL_BLACKLIST
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
@@ -34,6 +34,35 @@ from managers.models import RequestType, Manager, Request, Response, Announcemen
 from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, UnpinForm
 from events.models import Event
 from events.forms import RsvpForm
+
+def add_context(request):
+	''' Add variables to all dictionaries passed to templates. '''
+	PRESIDENT = False # whether the user has president privileges
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except (UserProfile.DoesNotExist, TypeError):
+		pass
+	else:
+		for pos in Manager.objects.filter(incumbent=userProfile):
+			if pos.president:
+				PRESIDENT = True
+				break
+	if request.user.username == ANONYMOUS_USERNAME:
+		request.session['ANONYMOUS_SESSION'] = True
+	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
+	request_types = list() # A list with items of form (RequestType, number_of_open_requests)
+	for request_type in RequestType.objects.filter(enabled=True):
+		request_types.append((request_type, Request.objects.filter(filled=False, closed=False).count()))
+	return {
+		'REQUEST_TYPES': request_types,
+		'HOUSE': house,
+		'ANONYMOUS_USERNAME':ANONYMOUS_USERNAME,
+		'SHORT_HOUSE': short_house,
+		'ADMIN': ADMINS[0],
+		'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
+		'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
+		'PRESIDENT': PRESIDENT,
+		}
 
 def landing_view(request):
 	''' The external landing.'''
