@@ -232,8 +232,7 @@ class TestRequestProfile(TestCase):
 					"confirm_password": "pwd",
 					})
 			self.assertEqual(response.status_code, 200)
-			self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or _",
-				      response.content)
+			self.assertIn(MESSAGES["INVALID_USERNAME"], response.content)
 			self.assertEqual(0, ProfileRequest.objects.filter(username=username).count())
 
 	def test_good_username(self):
@@ -338,8 +337,7 @@ class TestRequestProfile(TestCase):
 				"confirm_password": "pwd2",
 				}, follow=True)
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or _",
-			      response.content)
+		self.assertIn(MESSAGES["INVALID_USERNAME"], response.content)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
 		response = self.client.post("/request_profile/", {
@@ -724,11 +722,11 @@ class TestAdminFunctions(TestCase):
 			User.objects.get(username="nu").delete()
 
 	def test_delete_user(self):
-		response = self.client.post("/custom_admin/delete_user/", {
-				"username": "u",
+		response = self.client.post("/custom_admin/modify_user/{0}/".format(self.u.username), {
+				"username": self.u.username,
 				"delete_user": "",
 				 }, follow=True)
-		self.assertRedirects(response, "/custom_admin/delete_user/")
+		self.assertRedirects(response, "/custom_admin/manage_users/")
 		self.assertIn(MESSAGES['USER_DELETED'].format(username="u"),
 			      response.content)
 		self.assertEqual(0, User.objects.filter(username="u").count())
