@@ -52,7 +52,7 @@ def add_context(request):
 	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
 	request_types = list() # A list with items of form (RequestType, number_of_open_requests)
 	for request_type in RequestType.objects.filter(enabled=True):
-		request_types.append((request_type, Request.objects.filter(filled=False, closed=False).count()))
+		request_types.append((request_type, Request.objects.filter(request_type=request_type, filled=False, closed=False).count()))
 	return {
 		'REQUEST_TYPES': request_types,
 		'HOUSE': house,
