@@ -7,7 +7,6 @@
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/events.css' %}" />
 <script>
   function show_new_event_form() {
   document.getElementById("new_event_form").style.display="inline";
@@ -27,41 +26,24 @@
 	{% endif %}
     <h3 class="table_title medium_title">{{ page_name }}</h3>
   </div> <!-- .header -->
+  <div class="main_body hover_row{% if event.cancelled %} bg-danger" title="Cancelled"{% elif ongoing %} bg-success" title="Happening Now"{% else %}"{% endif %}>
   <div class="event_owner" style="padding-left: 5px;">
-    (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">{{ event.owner|display_user:user }}</a>), {{ event.post_date }}:
-    <form style="position: relative; float: right; padding-right: 1px;" method="post" action="">
-      {% csrf_token %}
-      {{ unpin_form }}
-      {% if event.pinned %}
-      <button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-warning" name="unpin" title="Unpin"><span class="glyphicon glyphicon-ban-circle"></span></button>
-      {% else %}
-      <button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-success" name="unpin" title="Repin"><span class="glyphicon glyphicon-pushpin"></span></button>
-      {% endif %}
-    </form>
-  </div> <!-- .event_owner -->
-  <div class="event_body" style="padding-left: 5px; padding-right: 5px;">{{ event.body|safe }}</div>
-</div> <!-- .table_container -->
-
-
-<div class="event_row hover_row{% if event.cancelled %} bg-danger" title="Cancelled{% elif ongoing %} bg-success" title="Happening Now{% endif %}">
-  <div class="event_owner">
 	{% if event.as_manager %}
-	<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=event.as_manager.url_title %}">
-	  {{ event.as_manager }}</a>
+	<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=event.as_manager.url_title %}">{{ event.as_manager }}</a>
 	(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">
 	  {{ event.owner|display_user:user }}</a>), {{ event.post_date }} (updated {{ event.change_date }}):
 	{% else %}
 	<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">{{ event.owner|display_user:user }}</a>, {{ event.post_date }} (updated {{ event.change_date }}):
 	{% endif %}
-	<form class="rsvp_form" method="post" action="">
+	<form style="position: relative; float: right; padding-right: 1px;" method="post" action="">
 	  {% csrf_token %}
 	  {{ rsvp_form }}
 	  {% if not already_passed %}
-	  {% if rsvpd %}
-	  <button type="submit" class="btn btn-xs btn-warning" name="rsvp" title="Un-RSVP"><span class="glyphicon glyphicon-star-empty"></span></button>
-	  {% else %}
-	  <button type="submit" class="btn btn-xs btn-success" name="rsvp" title="RSVP"><span class="glyphicon glyphicon-star"></span></button>
-	  {% endif %}
+		{% if rsvpd %}
+			<button type="submit" class="btn btn-xs btn-warning" name="rsvp" title="Un-RSVP"><span class="glyphicon glyphicon-star-empty"></span></button>
+		{% else %}
+			<button type="submit" class="btn btn-xs btn-success" name="rsvp" title="RSVP"><span class="glyphicon glyphicon-star"></span></button>
+		{% endif %}
 	  {% endif %}
 	</form>
   </div> <!-- .event_owner -->
@@ -88,5 +70,6 @@
 	  {% endif %}
 	</div>
   </div> <!-- .event_body -->
-</div> <!-- .event_row -->
+  </div> <!-- .main_body -->
+</div> <!-- .table_container -->
 {% endblock %}

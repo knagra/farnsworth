@@ -170,7 +170,7 @@ def event_view(request, event_pk):
 	page_name = "View Event"
 	profile = UserProfile.objects.get(user=request.user)
 	event_form = None
-	can_edit = event.owner == profile or request.user.is_superuser
+	can_edit = (event.owner == profile or request.user.is_superuser)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	ongoing = event.start_time <= now and event.end_time >= now
 	rsvpd = profile in event.rsvps.all()
@@ -229,7 +229,7 @@ def edit_event_view(request, event_pk):
 	if request.user.username == ANONYMOUS_USERNAME:
 		event_form.fields['rsvp'].widget = forms.HiddenInput()
 	if request.method == 'POST':
-		event_form = EventForm(request.POST)
+		event_form = EventForm(manager_positions, post=request.POST)
 		if event_form.is_valid():
 			title = event_form.cleaned_data['title']
 			description = event_form.cleaned_data['description']
@@ -245,7 +245,6 @@ def edit_event_view(request, event_pk):
 			event.cancelled = cancelled
 			event.start_time = start_time
 			event.end_time = end_time
-			event.save()
 			if rsvp and request.user.username != ANONYMOUS_USERNAME:
 				event.rsvps.add(profile)
 			if as_manager:
