@@ -464,6 +464,7 @@ def modify_profile_request_view(request, request_pk):
 	page_name = "Admin - Profile Request"
 	profile_request = get_object_or_404(ProfileRequest, pk=request_pk)
 	if request.method == 'POST':
+		addendum = ""
 		mod_form = ModifyProfileRequestForm(request.POST)
 		if 'delete_request' in request.POST:
 			if SEND_EMAILS and (profile_request.email not in EMAIL_BLACKLIST):
@@ -472,12 +473,14 @@ def modify_profile_request_view(request, request_pk):
 					admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
 				try:
 					send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
-					# Add logging here
+					addendum = MESSAGES['PROFILE_REQUEST_DELETION_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
+						email=profile_request.email)
 				except SMTPException:
-					pass # Add logging here
+					message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
+					messages.add_message(request, messages.ERROR, message)
 			profile_request.delete()
 			message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
-			messages.add_message(request, messages.WARNING, message)
+			messages.add_message(request, messages.WARNING, message + addendum)
 			return HttpResponseRedirect(reverse('manage_profile_requests'))
 		elif 'add_user' in request.POST:
 			if mod_form.is_valid():
@@ -539,12 +542,14 @@ def modify_profile_request_view(request, request_pk):
 							admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
 						try:
 							send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [email], fail_silently=False)
-							# Add logging here
-						except SMTPException:
-							pass # Add logging here
+							addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
+								email=profile_request.email)
+						except SMTPException as e:
+							message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
+							messages.add_message(request, messages.ERROR, message)
 					profile_request.delete()
 					message = MESSAGES['USER_ADDED'].format(username=username)
-					messages.add_message(request, messages.SUCCESS, message)
+					messages.add_message(request, messages.SUCCESS, message + addendum)
 					return HttpResponseRedirect(reverse('manage_profile_requests'))
 	else:
 		mod_form = ModifyProfileRequestForm(initial={
@@ -565,7 +570,7 @@ def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
 	residents = UserProfile.objects.filter(status=UserProfile.RESIDENT)
 	boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
-	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS)
+	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS).exclude(user__username=ANONYMOUS_USERNAME)
 	return render_to_response('custom_manage_users.html', {
 			'page_name': page_name,
 			'residents': residents,
@@ -582,7 +587,7 @@ def custom_modify_user_view(request, targetUsername):
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 
-	modify_user_form = ModifyUserForm(request.POST or None, initial={
+	modify_user_form = ModifyUserForm(initial={
 			'first_name': targetUser.first_name,
 			'last_name': targetUser.last_name,
 			'email': targetUser.email,
@@ -598,9 +603,16 @@ def custom_modify_user_view(request, targetUsername):
 			'is_superuser': targetUser.is_superuser,
 			'groups': targetUser.groups.all(),
 			})
-	change_user_password_form = ChangeUserPasswordForm(request.POST or None)
-	delete_user_form = DeleteUserForm(request.POST or None)
+	change_user_password_form = ChangeUserPasswordForm()
+	delete_user_form = DeleteUserForm()
+	thread_count = Thread.objects.filter(owner=targetProfile).count(),
+	message_count = Message.objects.filter(owner=targetProfile).count(),
+	request_count = Request.objects.filter(owner=targetProfile).count(),
+	response_count = Response.objects.filter(owner=targetProfile).count(),
+	announcement_count = Announcement.objects.filter(incumbent=targetProfile).count(),
+	event_count = Event.objects.filter(owner=targetProfile).count(),
 	if 'update_user_profile' in request.POST:
+		modify_user_form = ModifyUserForm(request.POST)
 		if modify_user_form.is_valid():
 			first_name = modify_user_form.cleaned_data['first_name']
 			last_name = modify_user_form.cleaned_data['last_name']
@@ -641,7 +653,10 @@ def custom_modify_user_view(request, targetUsername):
 			messages.add_message(request, messages.SUCCESS, message)
 			return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 	elif 'change_user_password' in request.POST:
-		if change_user_password_form.is_valid():
+		change_user_password_form = ChangeUserPasswordForm(request.POST)
+		if targetUser == request.user:
+			messages.add_message(request, messages.ERROR, MESSAGES['ADMIN_PASSWORD'])
+		elif change_user_password_form.is_valid():
 			user_password = change_user_password_form.cleaned_data['user_password']
 			confirm_password = change_user_password_form.cleaned_data['confirm_password']
 			hashed_password = hashers.make_password(user_password)
@@ -655,9 +670,15 @@ def custom_modify_user_view(request, targetUsername):
 				error = "Could not hash password.  Please try again."
 				change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
 	elif 'delete_user' in request.POST:
-		if delete_user_form.is_valid():
+		delete_user_form = DeleteUserForm(request.POST)
+		if targetUser == request.user:
+			messages.add_message(request, messages.ERROR, MESSAGES['SELF_DELETE'])
+		elif delete_user_form.is_valid():
 			username = delete_user_form.cleaned_data['username']
-			if username == targetUsername:
+			password = delete_user_form.cleaned_data['password']
+			if not hashers.check_password(password, request.user.password):
+				delete_user_form._errors['password'] = forms.util.ErrorList([u"Wrong password."])
+			elif username == targetUsername:
 				targetUser.delete()
 				message = MESSAGES['USER_DELETED'].format(username=username)
 				messages.add_message(request, messages.SUCCESS, message)
@@ -673,6 +694,12 @@ def custom_modify_user_view(request, targetUsername):
 			'modify_user_form': modify_user_form,
 			'change_user_password_form': change_user_password_form,
 			'delete_user_form': delete_user_form,
+			'thread_count': Thread.objects.filter(owner=targetProfile).count(),
+			'message_count': Message.objects.filter(owner=targetProfile).count(),
+			'request_count': Request.objects.filter(owner=targetProfile).count(),
+			'response_count': Response.objects.filter(owner=targetProfile).count(),
+			'announcement_count': Announcement.objects.filter(incumbent=targetProfile).count(),
+			'event_count': Event.objects.filter(owner=targetProfile).count(),
 			}, context_instance=RequestContext(request))
 
 @admin_required

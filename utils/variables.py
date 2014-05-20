@@ -86,11 +86,22 @@ SUBTEXTS_404 = ("The number you have dialed has crashed into a planet.  Please m
 	"We tore the universe a new space-hole, all right.  And now it's clenching shut.",
 	"You still have your old pal Zoidberg.  YOU ALL HAVE ZOIDBERG!!!",
 	"Woob woob woob woob woob!",
+	"Science cannot move forward without heaps!",
+	"It's nothing a lawsuit won't cure.",
+	"Well, we're boned.",
+	"Sweet Yeti of the Serengeti! She's gone crazy Eddie in the heady!",
+	"Have you ever thought about turning off the TV, sitting down with your children, and hitting them?",
+	"I'm back, baby!",
+	"Let's go, alreadaaaay!",
+	"Yeah, well, I'm gonna go make my own theme park.  With blackjack.  And hookers! In fact, forget the park!",
+	"Fine, I'll go build my own lunar lander.  With blackjack.  And hookers!  In fact, forget the lunar lander and the blackjack!  Eeeh, screw the whole thing!",
 	)
 
 # Standard messages sent to clients on errors.
 MESSAGES = {
 	'ADMINS_ONLY': "You do not have permission to view the page you were trying to access.",
+	'ADMIN_PASSWORD': "You are not allowed to change your own password from this page.",
+	'SELF_DELETE': "You are not allowed to delete yourself.",
 	'NO_PROFILE': "A profile for you could not be found.  Please contact a site admin.",
 	'UNKNOWN_FORM': "Your post request could not be processed.  Please contact a site admin.",
 	'MESSAGE_ERROR': "Your message post was not successful.  Please try again.",
@@ -129,4 +140,7 @@ MESSAGES = {
 	'INACTIVE_MANAGER': "{managerTitle} is currently deactivated.",
 	'REQUEST_TYPE_ADDED': "Request type {typeName} has been successfully added.",
 	'REQUEST_TYPE_SAVED': "Request type {typeName} has been successfully saved.",
+	'PROFILE_REQUEST_APPROVAL_EMAIL': ' A profile request approval e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}">{email}</a>.', # The initial space is necessary.
+	'PROFILE_REQUEST_DELETION_EMAIL': ' A profile request deletion e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}">{email}</a>.', # The initial space is necessary.
+	'EMAIL_FAIL': ' Farnsworth failed at sending an e-mail to <a title="Write E-mail" href="mailto:{email}">{email}</a>.', # Initial space necessary.
 }
