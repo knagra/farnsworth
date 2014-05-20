@@ -16,7 +16,7 @@ from django.template import RequestContext
 from django.utils.timezone import utc
 from django.contrib import messages
 
-from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
+from farnsworth.settings import house, max_requests, max_responses
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from utils.funcs import convert_to_url
 from base.decorators import admin_required, profile_required, president_admin_required
@@ -26,32 +26,6 @@ from threads.models import Thread, Message
 from managers.models import Manager, RequestType, Request, Response, Announcement
 from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseForm, \
     ManagerResponseForm, VoteForm, AnnouncementForm, UnpinForm
-
-def add_context(request):
-	''' Add variables to all dictionaries passed to templates. '''
-	PRESIDENT = False # whether the user has president privileges
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except (UserProfile.DoesNotExist, TypeError):
-		pass
-	else:
-		for pos in Manager.objects.filter(incumbent=userProfile):
-			if pos.president:
-				PRESIDENT = True
-				break
-	if request.user.username == ANONYMOUS_USERNAME:
-		request.session['ANONYMOUS_SESSION'] = True
-	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
-	return {
-		'REQUEST_TYPES': RequestType.objects.filter(enabled=True),
-		'HOUSE': house,
-		'ANONYMOUS_USERNAME':ANONYMOUS_USERNAME,
-		'SHORT_HOUSE': short_house,
-		'ADMIN': ADMINS[0],
-		'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
-		'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
-		'PRESIDENT': PRESIDENT,
-		}
 
 @admin_required
 def anonymous_login_view(request):
