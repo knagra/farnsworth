@@ -63,7 +63,7 @@ SUBMISSION_SUBJECT = "[Farnsworth - {house}] DO NOT REPLY - Profile Request Rece
 # The e-mail template used when sending profile request submission messages.
 SUBMISSION_EMAIL = '''Dear {full_name},
 
-Your request for a profile on the house website for {house} has been submitted to us.
+Your request for a profile on the house website for {house} has been received.
 If you did not make this request or you are not {full_name}, please contact us at {admin_email} immediately.
 
 Thank you,
