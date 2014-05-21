@@ -30,16 +30,22 @@
   <div class="announcement_owner" style="padding-left: 5px;">
     <a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=announcement.manager.url_title %}">{{ announcement.manager }}</a>
     (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=announcement.incumbent.user.username %}">{{ announcement.incumbent|display_user:user }}</a>), {{ announcement.post_date }}:
-    <form style="position: relative; float: right; padding-right: 1px;" method="post" action="">
+  </div> <!-- .announcement_owner -->
+  <div class="announcement_body" style="padding-left: 5px; padding-right: 5px;">{{ announcement.body|safe }}
+  {% if announcement.incumbent.user = user or user.is_superuser %}
+    <form class="pull-right" method="post" action="">
       {% csrf_token %}
       {{ unpin_form }}
       {% if announcement.pinned %}
-      <button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-warning" name="unpin" title="Unpin"><span class="glyphicon glyphicon-ban-circle"></span></button>
+      <button type="submit" class="main_link warning_link" name="unpin" title="Unpin this announcement">Unpin</button>
       {% else %}
-      <button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-success" name="unpin" title="Repin"><span class="glyphicon glyphicon-pushpin"></span></button>
+      <button type="submit" class="main_link success_link" name="unpin" title="Repin this announcement">Repin</button>
       {% endif %}
     </form>
-  </div> <!-- .announcement_owner -->
-  <div class="announcement_body" style="padding-left: 5px; padding-right: 5px;">{{ announcement.body|safe }}</div>
+	<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=announcement.pk %}">
+		<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
+	</form>
+  {% endif %}
+  </div>
 </div> <!-- .table_container -->
 {% endblock %}

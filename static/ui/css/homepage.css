@@ -16,13 +16,6 @@ Author: Karandeep Singh Nagra
 	border-bottom: 1px solid #eee;
 }
 
-.unpin_form {
-	display: inline-block;
-	float: right;
-	position: relative;
-	right: -3px;
-}
-
 .requests_row {
 	width: 100%;
 	color: black;
@@ -93,13 +86,6 @@ Author: Karandeep Singh Nagra
 	font-size: 11pt;
 	word-wrap: break-work;
 	overflow-x: auto;
-}
-
-.rsvp_form {
-	display: inline-block;
-	float: right;
-	position: relative;
-	right: -3px;
 }
 
 #threads_table {

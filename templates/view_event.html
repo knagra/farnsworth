@@ -35,30 +35,15 @@
 	{% else %}
 	<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">{{ event.owner|display_user:user }}</a>, {{ event.post_date }} (updated {{ event.change_date }}):
 	{% endif %}
-	<form style="position: relative; float: right; padding-right: 1px;" method="post" action="">
-	  {% csrf_token %}
-	  {{ rsvp_form }}
-	  {% if not already_passed %}
-		{% if rsvpd %}
-			<button type="submit" class="btn btn-xs btn-warning" name="rsvp" title="Un-RSVP"><span class="glyphicon glyphicon-star-empty"></span></button>
-		{% else %}
-			<button type="submit" class="btn btn-xs btn-success" name="rsvp" title="RSVP"><span class="glyphicon glyphicon-star"></span></button>
-		{% endif %}
-	  {% endif %}
-	</form>
   </div> <!-- .event_owner -->
   <div class="event_body">
 	<div class="text-center">
 	  <h3 class="event_header">{{ event.title }} <small>{{ event.start_time }} to {{ event.end_time }}</small></h3>
 	  {% if event.owner.user == user or user.is_superuser %}
-	  <form action="{% url 'edit_event' event_pk=event.pk %}">
-		<button class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit</button>
-	  </form>
 	  {% endif %}
 	  <hr style="width: 75%;">
 	</div>
 	{{ event.description|safe }}
-	<div class="text-center">
 	  <hr style="width: 75%;" />
 	  {% if event.rsvps.all %}
 	  RSVPs: {% for member in event.rsvps.all %}
@@ -68,7 +53,20 @@
 	  {% else %}
 	  No RSVPs.
 	  {% endif %}
-	</div>
+	<form class="pull-right" method="post" action="">
+	  {% csrf_token %}
+	  {{ rsvp_form }}
+	  {% if not already_passed %}
+		{% if rsvpd %}
+			<button type="submit" class="main_link warning_link" name="rsvp" title="Remove yourself from the RSVPs for this event">Un-RSVP</button>
+		{% else %}
+			<button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
+		{% endif %}
+	  {% endif %}
+	</form>
+	<form class="pull-right" action="{% url 'edit_event' event_pk=event.pk %}">
+		<button type="submit" class="main_link primary_link" title="Edit this event">Edit</button>
+	</form>
   </div> <!-- .event_body -->
   </div> <!-- .main_body -->
 </div> <!-- .table_container -->
