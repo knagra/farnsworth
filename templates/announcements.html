@@ -50,19 +50,23 @@
 		<div class="announcement_owner">
 			<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=announcement_tuple.0.manager.url_title %}">{{ announcement_tuple.0.manager }}</a>
 			(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=announcement_tuple.0.incumbent.user.username %}">{{ announcement_tuple.0.incumbent|display_user:user }}</a>), {{ announcement_tuple.0.post_date }}:
+		</div> <!-- .announcement_owner -->
+		<div class="announcement_body">{{ announcement_tuple.0.body|safe }}
 		{% if announcement_tuple.1 %}
-			<form class="unpin_form" method="post" action="">
+			<form class="pull-right" method="post" action="">
 				{% csrf_token %}
 				{{ announcement_tuple.1 }}
 				{% if announcement_tuple.0.pinned %}
-					<button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-warning" name="unpin" title="Unpin"><span class="glyphicon glyphicon-ban-circle"></span></button>
+					<button type="submit" class="main_link warning_link" name="unpin" title="Unpin this announcement">Unpin</button>
 				{% else %}
-					<button type="submit" style="margin-top: 0px;" class="btn btn-xs btn-success" name="unpin" title="Repin"><span class="glyphicon glyphicon-pushpin"></span></button>
+					<button type="submit" class="main_link success_link" name="unpin" title="Repin this announcement">Repin</button>
 				{% endif %}
 			</form>
+			<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=announcement_tuple.0.pk %}">
+				<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
+			</form>
 		{% endif %}
-		</div> <!-- .announcement_owner -->
-		<div class="announcement_body">{{ announcement_tuple.0.body|safe }}</div>
+		</div>
 		</div> <!-- .announcement_row -->
 	{% endfor %}
 	{% endif %}

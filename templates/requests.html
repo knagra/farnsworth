@@ -74,18 +74,23 @@
     <div class="requests_row">
       <div class="request_name{% if request_tuple.0.filled %} bg-success" title="Filled"{% elif request_tuple.0.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
 	<div class="request_owner">
-		{% if not request_tuple.0.owner.user = user and user.username != ANONYMOUS_USERNAME %}
-		<form style="display: inline; float: right; position: relative; top: -3px; margin-right: 1px;" method="POST" action="">
-			{% csrf_token %}
-			{{ request_tuple.4 }}
-			<button type="submit" class="btn btn-xs btn-{% if request_tuple.3 %}warning" title="Cancel Up Vote"{% else %}success" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
-		</form>
-		{% endif %}
 		{% with vote_count_request=request_tuple.0 %}
 		{% include "vote_list.html" %}
 		{% endwith %}
 	</div> <!-- request_owner -->
-	<div class="request_body">{{ request_tuple.0.body|safe }}</div>
+	<div class="request_body">{{ request_tuple.0.body|safe }}
+		{% if not request_tuple.0.owner.user = user and user.username != ANONYMOUS_USERNAME %}
+		<form class="pull-right" method="POST" action="">
+			{% csrf_token %}
+			{{ request_tuple.4 }}
+			{% if request_tuple.3 %}
+				<button type="submit" class="main_link warning_link" title="Remove yourself from the up votes for this request" name="upvote">Cancel Up Vote</button>
+			{% else %}
+				<button type="submit" class="main_link success_link" title="Up vote this request" name="upvote">Up Vote</button>
+			{% endif %}
+		</form>
+		{% endif %}
+	</div>
       </div> <!-- request_name -->
 
       <div class="request_responses">
