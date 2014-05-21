@@ -709,6 +709,7 @@ p {
 			From here, you can select a request type and add requests of that type for managers to address.
 			</p>
 			<p>Each request type has a list of relevant managers.
+			Active relevant managers and their incumbents will be displayed whenever you visit a request page.
 			For example, for food requests, the relevant manager might be your Kitchen Manager or Food Manager
 			or multiple Food Managers or Kitchen Managers.
 			</p>
@@ -750,6 +751,15 @@ p {
 		</h1>
 		<div id="announcements_body" class="toggleable">
 		<hr style="width: 75%;" />
+			<p>If you are a manager, you can make an announcement that will be pinned to the home page
+			and the manager announcements page until you unpin it.
+			If you unpin an announcement and want it to be repinned, you can visit the
+			<a href="{% url 'all_announcements' %}">all announcements</a> page to repin it to the home page and
+			the manager announcement page.
+			</p>
+			<p>Announcements are meant to be high priority addresses to the entire house.
+			You can use announcements to warn the house about emergencies or provide critial information.
+			</p>
 		</div> <!-- #announcements_body -->
 	</div> <!-- #announcements -->
 	</div> <!-- .row -->

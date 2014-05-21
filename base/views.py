@@ -509,7 +509,7 @@ def modify_profile_request_view(request, request_pk):
 					messages.add_message(request, messages.ERROR, message)
 			profile_request.delete()
 			message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
-			messages.add_message(request, messages.WARNING, message + addendum)
+			messages.add_message(request, messages.SUCCESS, message + addendum)
 			return HttpResponseRedirect(reverse('manage_profile_requests'))
 		elif 'add_user' in request.POST:
 			if mod_form.is_valid():

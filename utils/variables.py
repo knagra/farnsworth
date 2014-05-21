@@ -96,6 +96,9 @@ SUBTEXTS_404 = ("The number you have dialed has crashed into a planet.  Please m
 	"Let's go, alreadaaaay!",
 	"Yeah, well, I'm gonna go make my own theme park.  With blackjack.  And hookers! In fact, forget the park!",
 	"Fine, I'll go build my own lunar lander.  With blackjack.  And hookers!  In fact, forget the lunar lander and the blackjack!  Eeeh, screw the whole thing!",
+	"Kill all humans...kill all humans...",
+	"Like most of life's problems, this one can be solved by bending.",
+	"Tempers are wearing thin.  Let's just hope some robot doesn't kill everybody.",
 	)
 
 # Standard messages sent to clients on errors.
