@@ -47,7 +47,7 @@ DELETION_EMAIL = '''Dear {full_name},
 Your request for an account on the house site for {house} has been rejected.
 All the information you have provided has been permanently deleted from our database.
 
-If you believe this has been done in error, please contact us at {admin_email}.
+If you believe this was done in error, please contact us at {admin_email}.
 
 Thank you,
 {admin_name}
@@ -99,6 +99,7 @@ SUBTEXTS_404 = ("The number you have dialed has crashed into a planet.  Please m
 	"Kill all humans...kill all humans...",
 	"Like most of life's problems, this one can be solved by bending.",
 	"Tempers are wearing thin.  Let's just hope some robot doesn't kill everybody.",
+	"It worked for me.  I used to be a little blonde girl named Virginia.",
 	)
 
 # Standard messages sent to clients on errors.
