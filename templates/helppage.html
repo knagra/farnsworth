@@ -148,7 +148,7 @@ p {
 		<div id="managing_users_body" class="toggleable">
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle"><a name="adding_users" title="A link to this sub-section" href="#adding_users">&sect;</a> Adding Users</h2>
-			<p>You can add a user from the <a target="_blank" href="{% url 'custom_add_user' %}">add user page</a>.  The process is fairly intuitive.
+			<p>You can add a user from the <a target="_blank" href="{% url 'custom_add_user' %}">add user page</a>.
 			Usernames should be unique and a single word composed of alphanumeric characters or the underscore character.
 			It is recommended that e-mails and phone numbers be kept hidden from other members when creating a user.
 			A user can modify her/his own profile to reveal e-mail and phone number to other members.
@@ -200,9 +200,16 @@ p {
 			Everything else will be saved when you try to change your own profile as the only admin.
 			</p>
 			<p><b>It is highly recommended that users not be deleted.  You should instead deactivate them.</b>
-			But if you really need to delete a user, you can do so from the <a target="_blank" href="{% url 'admin:index' %}">Django admin pages</a>.
-			Doing so will delete all threads and requests the user posted, all messages and responses the user posted, as well as all events.
+			But if you really need to delete a user, you can do so from the modify user page for that user.
+			Doing so will delete all threads and requests the user posted, all messages and responses the user posted, as well as all events
+			and all announcements the user posted.
 			This can mess up all manner of things.  So it's recommended that you not do it.
+			</p>
+			<p>You will be required to provide your password to delete a user.
+			</p>
+			<p>To prevent someone from maliciously changing your password if you leave yourself logged in somewhere,
+			you are prevented from changing your own password from the modify user page.
+			You can instead change your password from the <a href="{% url 'my_profile' %}">my profile</a> page.
 			</p>
 			<p>You cannot modify usernames from the custom admin pages, but you can do so from the Django admin pages.
 			It doesn't seem productive to allow such a change as the user who owns the account will locked out of his/her account and unable even to know
@@ -232,7 +239,7 @@ p {
 			You can click on the e-mail link to write an e-mail to the user or click the user's proposed username to modify the request.
 			</p>
 			<p>The form in the modify profile request page is almost identical to the one in the add user page
-			(detailed <a href="#adding_users">above</a>), with two exceptions.
+			(detailed <a href="#adding_users">above</a>), with a few exceptions.
 			First, the information the user provided in her/his profile request is used to fill some of the fields of the form.
 			Second, there is a button next to the add user button that allows you to delete the request permanently.
 			And third, there is no password field since the user provided her/his own password when submitting the request.
@@ -335,7 +342,8 @@ p {
 			to see only users who are in that semester group.  This feature is not currently on the roadmap for Farnsworth but would be a useful
 			feature for the future, especially as the number of users grows linearly every semester.
 			</p>
-			<p>Managing all models is identical through the Django admin interface.  The interface for modifying a model isntance is fairly intuitive.
+			<p>Managing all models is identical through the Django admin interface.
+			Please refer to Django's documentation for more on how to use the admin interface to manage model instances.
 			</p>
 		</div> <!-- #admin_misc_body -->
 	</div> <!-- #admin_misc -->
@@ -369,7 +377,7 @@ p {
 			</p>
 			<p>Yes, this implementation does mean slightly more work for you. But it means significantly less combined mental work for end-users.
 			</p>
-			<p>The form to add a new manager is fairly intuitive and has lots of help text.  All fields are optional except the manager title field.
+			<p>All fields in the form to add a new manager are optional except the manager title field.
 			Farnsworth auto-generates the URL key for the manager from the title you provide by lower-casing all letters, replacing spaces with underscore,
 			and a few other things that are covered in the documentation.
 			"Kitchen Manager 1" &rarr; "kitchen_manager_1", "WRM" &rarr; "wrm", etc.  These URLs are used to reference managers in the directory
@@ -452,8 +460,7 @@ p {
 			<p>The Add Request Type button on the <a href="{% url 'manage_request_types' %}">manage request types</a> page will take you to the
 			<a href="{% url 'add_request_type' %}">add request type</a> page.  Filling out and submitting this form will add a new request type.
 			</p>
-			<p>The directions and documentation in the form are quite informative, and the process of adding a new request type should be fairly intuitive.
-			It is recommended, for presentability that request types be treated as titles (first letter of each word capitalized, unless an acronym).
+			<p>It is recommended, for presentability, that request types be treated as titles (first letter of each word capitalized, unless an acronym).
 			Request type names are converted to URLs in the same manner as the manager titles; so the same rules apply to request type names as manager titles.
 			</p>
 			<p>Glyphicons are optional.  If you leave the field blank, the default icon (the inbox icon used for the Requests dropdown menu) will be used
@@ -757,6 +764,24 @@ p {
 			<p>Announcements are meant to be high priority addresses to the entire house.
 			You can use announcements to warn the house about emergencies or provide critial information.
 			</p>
+			<p>Once you have posted an announcement, it will automatically be pinned to the home page and the
+			manager announcement page.
+			You can unpin the announcement by clicking the unpin link at the bottom right side of the announcement.
+			Doing so will move your announcement to the archives, where it can still be seen.
+			</p>
+			<p>If you accidentally unpin an announcement and want to repin it, you can go to the
+			<a href="{% url 'all_announcements' %}">all announcements</a> page and repin it from there.
+			</p>
+			<p>You can edit an announcement by clicking the edit link at the bottom right side of the announcement.
+			Once you edit an announcement and save it, you will be taken to a page that shows you the modified
+			version of the announcement.  From here, if you approve, you can navigate anywhere else.
+			Your announcement is already updated and saved.
+			If you disapprove, you can click edit again and modify the announcement again.
+			</p>
+			<p><b>You cannot modify the announcement of a previous incumbent for a position you hold.</b>
+			However, you can copy paste it and start a new announcement.
+			You can also ask the site admin to modify it or unpin/repin the announcement for you.
+			</p>
 		</div> <!-- #announcements_body -->
 	</div> <!-- #announcements -->
 	</div> <!-- .row -->
@@ -770,6 +795,24 @@ p {
 		</h1>
 		<div id="events_body" class="toggleable">
 		<hr style="width: 75%;" />
+			<p>Events can be posted from the <a href="{% url 'events' %}">upcoming events</a> page or the
+			<a href="{% url 'all_events' %}">all events</a> page.
+			All fields except the RSVP and Mark Cancelled checkboxes are required in this form.
+			By default, {{ HOUSE }} will set as the location of the event and the RSVP box will be checked.
+			</p>
+			<p>For picking the date and time of the event, Farnsworth uses Bootstrap Date Time picker, details on which
+			can be found in the <a href="#datetime">Date-Time Picker</a> sub-section of the
+			<a href="#miscellaneous">Miscellaneous</a> section.
+			</p>
+			<p>Once you're posted an event, others can RSVP to it.
+			The list of RSVPs will be displayed with every event.
+			You are by default RSVP'd to the event you posted.
+			You can un-RSVP to the event by clicking the Un-RSVP link at the bottom right of the event.
+			</p>
+			<p>If you need to edit the event, you can do so by clicking the edit link at the bottom right of the event.
+			Once you've modified and saved your event, you will be taken to a view of that event.
+			Your event already updated and saved.  You can edit it again or navigate anywhere you'd like.
+			</p>
 		</div> <!-- #events_body -->
 	</div> <!-- #events -->
 	</div> <!-- .row -->
@@ -785,7 +828,7 @@ p {
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle"><a name="tinymce" title="A link to this sub-section" href="#tinymce">&sect;</a> TinyMCE</h2>
 			<p>Farnsworth includes a "what you see is what you get" (WYSIWYG) editor called TinyMCE used in several places in the site.
-			TinyMCE is feature rich and does extensive security checks on its own.  Using it is fairly intuitive.
+			TinyMCE is feature rich and does extensive security checks on its own.
 			TinyMCE allows image and video inserts via <code>iframe</code>s or URL links.
 			Both of these methods can be used through the buttons in the TinyMCE interface.
 			<p>Using URLs is the more straightforward and approachable way to insert videos.
@@ -803,11 +846,10 @@ p {
 			For example, you can press <code>CTRL + B</code> to <b>bold</b>, <code>CTRL + I</code> to <i>italicize</i>,
 			or <code>CTRL + U</code> to <u>underline</u> text.
 			The buttons available will allow you greater control over your formatting.
-			You can insert headings, change font size or font, and insert text to be rendered as code - like so:
+			You can insert headings, change font size or font, strikethrough text - <strike>like this</strike> - and insert text to be rendered as code - like so:
 			</p>
 			<pre>python hello_world.py</pre>
-			<p>TinyMCE also supports inline code, like so: <code>print "Hello, world!"</code>, divs, paragraphs, and blockquotes,
-			like so:
+			<p>TinyMCE also supports inline code, like so: <code>print "Hello, world!"</code>, divs, paragraphs, and blockquotes:
 			</p>
 			<blockquote>Cogito ergo sum.</blockquote>
 			<p>These options can be selected from the blocks sub-menu in the formats dropdown menu inside TinyMCE.
@@ -828,7 +870,6 @@ p {
 			</p>
 		<h2 class="sub_subtitle"><a name="datetime" title="A link to this sub-section" href="#datetime">&sect;</a> Date-Time Picker</h2>
 			<p>Bootstrap Datetime Picker is used in Farnsworth to pick date and time for events.
-			Using this small widget is fairly intuitive.
 			It allows the selection of a date and then a time from a box that drops down when a datetime field is clicked.
 			The widget allows you to quickly move through dates through several means.
 			</p>

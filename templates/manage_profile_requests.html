@@ -50,5 +50,10 @@ $(document).ready(function() {
 	</table>
 	{% endif %}
 	</div> <!-- .main_table -->
+</div> <!-- .table_container -->
+<div class="alert alert-info" style="margin-top: 10px;">
+Don't know how profile requests work?  Check out the
+<a target="_blank" href="{% url 'helppage' %}#profile_requests"><span class="glyphicon glyphicon-new-window"></span> Profile Requests sub-section</a>
+of the <a target="_blank" href="{% url 'helppage' %}"><span class="glyphicon glyphicon-new-window"></span> help page</a>.
 </div>
 {% endblock %}
