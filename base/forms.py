@@ -167,10 +167,12 @@ class UpdateProfileForm(forms.Form):
 	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
 		help_text="Other houses where you have boarded or lived.")
 	email = forms.EmailField(max_length=255, required=False)
-	email_visible_to_others = forms.BooleanField(required=False, help_text="Whether others can see your e-mail address.")
+	email_visible_to_others = forms.BooleanField(required=False,
+		help_text="Make your e-mail address visible to other members in member directory, your profile, and elsewhere.")
 	phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}), required=False,
 		help_text="In format #-###-###-####, for best sortability.")
-	phone_visible_to_others = forms.BooleanField(required=False, help_text="Whether others can see your phone number.")
+	phone_visible_to_others = forms.BooleanField(required=False,
+		help_text="Make your phone number visible to other members in member directory, your profile, and elsewhere.")
 	enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
 class LoginForm(forms.Form):
