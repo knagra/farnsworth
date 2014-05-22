@@ -136,6 +136,8 @@
 	  </div>
     </div> <!-- .container -->
     </div> <!-- .navbar -->
+		{% block jumbotron %}{% endblock %}
+    <div class="container">
 		{% if messages %}
 		{% for message in messages %}
 			<div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}">
@@ -144,8 +146,6 @@
 			</div>
 		{% endfor %}
 		{% endif %}
-		{% block jumbotron %}{% endblock %}
-    <div class="container">
 		{% block title %}{% endblock %}
     <div id="body">
 	<div id="content">
