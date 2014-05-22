@@ -1,3 +1,6 @@
 {% load highlight %}
-<h3 class="result_title">{{ result.object.title }}, {{ result.object.start_time }} - {{ result.object.end_time }} <small>Event</small></h3>
+<h3 class="result_title">{% if result.object.cancelled %}<small class="text-danger">Cancelled</small>
+	{% endif %}<a title="View Event" href="{% url 'view_event' event_pk=result.object.pk %}">{{ result.object.title }}</a>
+	<small>Event</small></h3>
+<div class="result_description">{{ result.object.location }}, {{ result.object.start_time }} - {{ result.object.end_time }} </div>
 <div class="result_highlight">{% highlight result.text with query %}</div>

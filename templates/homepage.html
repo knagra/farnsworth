@@ -38,11 +38,12 @@ function hide_form(form_id) {
 		<form style="display: inline-block; position: relative; top: -3px; float: right; margin-right: 3px;" action="{% url 'requests' requestType=type_tuple.0.url_name %}">
 			<button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> Requests Page</span></button>
 		</form>
-		<h3 class="table_title{% if type_tuple.0.name|longer_than:'123456789012345' %} medium_title{% elif type_tuple.0.name|longer_than:'1234567890' %} small_title{% endif %}">
+		<h3 class="table_title{% if type_tuple.0.name|longer_than:'1234567890123456789012' %} large_title{% elif type_tuple.0.name|longer_than:'123456789012345' %} medium_title{% elif type_tuple.0.name|longer_than:'1234567' %} small_title{% endif %}">
 			{{ type_tuple.0.name }} Requests
 		</h3>
 	</div>
 	<div class="main_table">
+    <div class="field_wrapper text-info">You are responsible for addressing these requests.</div>
 	{% for request_tuple in type_tuple.1 %}
 	{% if forloop.counter > 1 %}
 	<hr style="margin-top: 3px; margin-bottom: 3px;"/>
@@ -50,18 +51,23 @@ function hide_form(form_id) {
 	<div class="request_row">
 	<div class="request_name bg-warning" title="Open">
 		<div class="request_owner">
-		{% if not request_tuple.0.owner.user = user %}
-		<form class="inline-form" style="float: right; position: relative; top: -6px; padding-right: 1px;" method="POST" action="">
-			{% csrf_token %}
-			{{ request_tuple.4 }}
-			<button type="submit" class="btn btn-xs btn-{% if request_tuple.3 %}warning" title="Cancel Up Vote"{% else %}success" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
-		</form>
-		{% endif %}
 		{% with vote_count_request=request_tuple.0 %}
 		{% include "vote_list.html" %}
 		{% endwith %}
 		</div> <!-- .request_owner -->
-		<div class="request_body">{{ request_tuple.0.body|safe }}</div>
+		<div class="request_body">{{ request_tuple.0.body|safe }}
+			{% if not request_tuple.0.owner.user = user %}
+			<form class="pull-right" method="POST" action="">
+				{% csrf_token %}
+				{{ request_tuple.4 }}
+				{% if request_tuple.3 %}
+					<button type="submit" class="main_link warning_link" title="Remove yourself from the up votes for this request" name="upvote">Cancel Up Vote</button>
+				{% else %}
+					<button type="submit" class="main_link success_link" title="Up vote this request" name="upvote">Up Vote</button>
+				{% endif %}
+			</form>
+			{% endif %}
+		</div>
 	</div> <!-- .request_name -->
 	<div class="request_responses">
 		<div class="response_table">
@@ -216,15 +222,19 @@ function hide_form(form_id) {
 				<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
 				(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">
 					{{ tuple.0.incumbent|display_user:user }}</a>), {{ tuple.0.post_date }}:
+			</div> <!-- .announcement_owner -->
+			<div class="announcement_body">{{ tuple.0.body|safe }}
 				{% if tuple.1 %}
-					<form class="unpin_form" method="post" action="">
+					<form class="pull-right" method="post" action="">
 						{% csrf_token %}
 						{{ tuple.1 }}
-						<button type="submit" class="btn btn-xs btn-warning" name="unpin" title="Unpin"><span class="glyphicon glyphicon-ban-circle"></span></button>
+						<button type="submit" class="main_link warning_link" name="unpin" title="Unpin this announcement">Unpin</button>
+					</form>
+					<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=tuple.0.pk %}">
+						<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
 					</form>
 				{% endif %}
-			</div> <!-- .announcement_owner -->
-			<div class="announcement_body">{{ tuple.0.body|safe }}</div>
+			</div>
 			</div> <!-- .announcement_row -->
 		{% endfor %}
 		{% endif %}
@@ -261,30 +271,13 @@ function hide_form(form_id) {
 		{% else %}
 			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>, {{ tuple.0.change_date }}:
 		{% endif %}
-		{% if user.username != ANONYMOUS_USERNAME %}
-		<form class="rsvp_form" method="post" action="">
-			{% csrf_token %}
-				{{ tuple.3 }}
-				{% if tuple.2 %}
-					<button type="submit" class="btn btn-xs btn-warning" name="rsvp" title="Un-RSVP"><span class="glyphicon glyphicon-star-empty"></span></button>
-				{% else %}
-					<button type="submit" class="btn btn-xs btn-success" name="rsvp" title="RSVP"><span class="glyphicon glyphicon-star"></span></button>
-				{% endif %}
-		</form>
-		{% endif %}
 		</div> <!-- .main_owner -->
 		<div class="event_body">
 			<div class="text-center">
 				<h4 class="event_header">{{ tuple.0.title }} <small>{{ tuple.0.start_time }} to {{ tuple.0.end_time }}</small></h4>
-				{% if tuple.0.owner.user == user or user.is_superuser %}
-					<form action="{% url 'edit_event' event_pk=tuple.0.pk %}">
-						<button class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit</button>
-					</form>
-				{% endif %}
 				<hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;">
 			</div> <!-- .text-center -->
 			{{ tuple.0.description|safe }}
-			<div class="text-center">
 			<hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;" />
 			{% if tuple.0.rsvps.all %}
 				RSVPs: {% for member in tuple.0.rsvps.all %}
@@ -294,7 +287,22 @@ function hide_form(form_id) {
 			{% else %}
 				No RSVPs.
 			{% endif %}
-			</div> <!-- text-center -->
+			{% if user.username != ANONYMOUS_USERNAME %}
+			<form class="pull-right" method="post" action="">
+				{% csrf_token %}
+					{{ tuple.3 }}
+					{% if tuple.2 %}
+						<button type="submit" class="main_link warning_link" name="rsvp" title="Un-RSVP to this event">Un-RSVP</button>
+					{% else %}
+						<button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
+					{% endif %}
+			</form>
+			{% endif %}
+			{% if tuple.0.owner.user == user or user.is_superuser %}
+				<form class="pull-right" action="{% url 'edit_event' event_pk=tuple.0.pk %}">
+					<button class="main_link primary_link" title="Edit this event">Edit</button>
+				</form>
+			{% endif %}
 		</div> <!-- .event_body -->
 	</div> <!-- .main_row -->
 	{% endfor %}

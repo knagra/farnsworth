@@ -13,7 +13,7 @@ class WorkshiftType(models.Model):
 	A workshift type; for example, a "Pots" workshift type.
 	'''
 	name = models.CharField(blank=False, null=False, unique=True, max_length=255, help_text='The name of this workshift type (e.g., "Pots"), must be unique.')
-	description = models.TextField(blank=True, null=True, help_text="A description for this workshift.")
+	description = models.TextField(blank=True, null=True, help_text="A description for this workshift type.")
 	quick_tips = models.TextField(blank=True, null=True, help_text="Quick tips to the workshifter.")
 	
 	def __unicode__(self):

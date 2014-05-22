@@ -16,7 +16,7 @@ from django.template import RequestContext
 from django.utils.timezone import utc
 from django.contrib import messages
 
-from farnsworth.settings import house, short_house, ADMINS, max_requests, max_responses
+from farnsworth.settings import house, max_requests, max_responses
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from utils.funcs import convert_to_url
 from base.decorators import admin_required, profile_required, president_admin_required
@@ -26,32 +26,6 @@ from threads.models import Thread, Message
 from managers.models import Manager, RequestType, Request, Response, Announcement
 from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseForm, \
     ManagerResponseForm, VoteForm, AnnouncementForm, UnpinForm
-
-def add_context(request):
-	''' Add variables to all dictionaries passed to templates. '''
-	PRESIDENT = False # whether the user has president privileges
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except (UserProfile.DoesNotExist, TypeError):
-		pass
-	else:
-		for pos in Manager.objects.filter(incumbent=userProfile):
-			if pos.president:
-				PRESIDENT = True
-				break
-	if request.user.username == ANONYMOUS_USERNAME:
-		request.session['ANONYMOUS_SESSION'] = True
-	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
-	return {
-		'REQUEST_TYPES': RequestType.objects.filter(enabled=True),
-		'HOUSE': house,
-		'ANONYMOUS_USERNAME':ANONYMOUS_USERNAME,
-		'SHORT_HOUSE': short_house,
-		'ADMIN': ADMINS[0],
-		'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
-		'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
-		'PRESIDENT': PRESIDENT,
-		}
 
 @admin_required
 def anonymous_login_view(request):
@@ -326,7 +300,7 @@ def requests_view(request, requestType):
 	if not request_type.enabled:
 		message = "%s requests have been disabled." % request_type.name.title()
 		return red_home(request, message)
-	relevant_managers = request_type.managers.all()
+	relevant_managers = request_type.managers.filter(active=True)
 	manager = any(i.incumbent == userProfile for i in relevant_managers)
 	if request.method == 'POST':
 		if 'submit_request' in request.POST:
@@ -353,6 +327,7 @@ def requests_view(request, requestType):
 					relevant_request.closed = mark_closed
 					relevant_request.filled = mark_filled
 					new_response.manager = True
+				relevant_request.number_of_responses += 1
 				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
 				relevant_request.save()
 				new_response.save()
@@ -395,6 +370,7 @@ def requests_view(request, requestType):
 			'page_name': page_name,
 			'request_form': request_form,
 			'requests_dict': requests_dict,
+			'relevant_managers': relevant_managers,
 			}, context_instance=RequestContext(request))
 
 @profile_required
@@ -431,27 +407,19 @@ def my_requests_view(request):
 						mark_closed = response_form.cleaned_data['mark_closed']
 						relevant_request.filled = mark_filled
 						relevant_request.closed = mark_closed
-						relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-						relevant_request.save()
 						new_response.manager = True
 						break
-				new_response.save()
-		elif 'upvote' in request.POST:
-			vote_form = VoteForm(request.POST)
-			if vote_form.is_valid():
-				request_pk = vote_form.cleaned_data['request_pk']
-				relevant_request = Request.objects.get(pk=request_pk)
-				if userProfile in relevant_request.upvotes.all():
-					relevant_request.upvotes.remove(userProfile)
-				else:
-					relevant_request.upvotes.add(userProfile)
+				relevant_request.number_of_responses += 1
+				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
 				relevant_request.save()
+				new_response.save()
+				return HttpResponseRedirect(reverse('my_requests'))
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	my_requests = Request.objects.filter(owner=userProfile)
-	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...])
+	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...], relevant_managers)
 	for request_type in RequestType.objects.all():
-		relevant_managers = request_type.managers.all()
+		relevant_managers = request_type.managers.filter(active=True)
 		type_manager = any(i.incumbent == userProfile for i in relevant_managers)
 		requests_list = list() # Items are of form (request, [list_of_request_responses], response_form),...])
 		type_requests = my_requests.filter(request_type=request_type)
@@ -470,7 +438,7 @@ def my_requests_view(request):
 			requests_list.append((req, responses_list, form, upvote, vote_form))
 		request_form = RequestForm(initial={'type_pk': request_type.pk})
 		request_form.fields['type_pk'].widget = forms.HiddenInput()
-		request_dict.append((request_type, request_form, type_manager, requests_list))
+		request_dict.append((request_type, request_form, type_manager, requests_list, relevant_managers))
 	return render_to_response('my_requests.html', {
 			'page_name': page_name,
 			'request_dict': request_dict,
@@ -542,7 +510,7 @@ def request_view(request, request_pk):
 	relevant_request = get_object_or_404(Request, pk=request_pk)
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_responses = Response.objects.filter(request=relevant_request)
-	relevant_managers = relevant_request.request_type.managers.all()
+	relevant_managers = relevant_request.request_type.managers.filter(active=True)
 	manager = any(i.incumbent == userProfile for i in relevant_managers)
 	if manager:
 		response_form = ManagerResponseForm(initial={
@@ -604,6 +572,7 @@ def request_view(request, request_pk):
 			'response_form': response_form,
 			'vote_form': vote_form,
 			'response_form': response_form,
+			'relevant_managers': relevant_managers,
 			}, context_instance=RequestContext(request))
 
 @profile_required

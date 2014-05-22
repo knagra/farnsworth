@@ -30,7 +30,7 @@
 <div class="requests table_container">
   <div class="header">
     <button type="button" class="btn btn-primary add_request" onclick="show_new_request_form()"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
-    <h3 class="table_title {%if request_type|longer_than:'123' %}medium{% else %}small{% endif %}_title">Recent {{ request_type|title }} Requests</h3>
+    <h3 class="table_title {% if request_type|longer_than:'123456789012' %}large{% elif request_type|longer_than:'123' %}medium{% else %}small{% endif %}_title">Recent {{ request_type|title }} Requests</h3>
   </div> <!-- table_header -->
   <div class="main_table">
   <form id="new_request_form" method="post" action="">
@@ -48,6 +48,21 @@
   </form>
 
   <div class="requests_table">
+	{% if relevant_managers %}
+    <div class="field_wrapper text-info">{{ request_type.capitalize }} requests are made to:
+		{% for pos in relevant_managers %}
+			{% if forloop.counter > 1 %}, {% endif %}
+			<a title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+			{% if pos.incumbent %}
+				(<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
+			{% else %}
+				(<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
+			{% endif %}
+		{% endfor %}
+    </div>
+    {% else %}
+    <div class="field_wrapper text-danger">No active managers are currently responsible for addressing {{ request_type.lower }} requests.</div>
+    {% endif %}
     {% if not requests_dict %}
     <div class="field_wrapper text-info">No {{ request_type.lower }} requests found.</div>
     {% else %}
@@ -59,18 +74,23 @@
     <div class="requests_row">
       <div class="request_name{% if request_tuple.0.filled %} bg-success" title="Filled"{% elif request_tuple.0.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
 	<div class="request_owner">
-		{% if not request_tuple.0.owner.user = user and user.username != ANONYMOUS_USERNAME %}
-		<form style="display: inline; float: right; position: relative; top: -3px; margin-right: 1px;" method="POST" action="">
-			{% csrf_token %}
-			{{ request_tuple.4 }}
-			<button type="submit" class="btn btn-xs btn-{% if request_tuple.3 %}warning" title="Cancel Up Vote"{% else %}success" title="Up Vote"{% endif %} name="upvote"><span class="glyphicon glyphicon-thumbs-up"></span></button>
-		</form>
-		{% endif %}
 		{% with vote_count_request=request_tuple.0 %}
 		{% include "vote_list.html" %}
 		{% endwith %}
 	</div> <!-- request_owner -->
-	<div class="request_body">{{ request_tuple.0.body|safe }}</div>
+	<div class="request_body">{{ request_tuple.0.body|safe }}
+		{% if not request_tuple.0.owner.user = user and user.username != ANONYMOUS_USERNAME %}
+		<form class="pull-right" method="POST" action="">
+			{% csrf_token %}
+			{{ request_tuple.4 }}
+			{% if request_tuple.3 %}
+				<button type="submit" class="main_link warning_link" title="Remove yourself from the up votes for this request" name="upvote">Cancel Up Vote</button>
+			{% else %}
+				<button type="submit" class="main_link success_link" title="Up vote this request" name="upvote">Up Vote</button>
+			{% endif %}
+		</form>
+		{% endif %}
+	</div>
       </div> <!-- request_name -->
 
       <div class="request_responses">
