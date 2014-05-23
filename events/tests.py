@@ -62,7 +62,7 @@ class TestEvent(TestCase):
 					"event_pk": "{0}".format(self.ev.pk),
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn('title="Un-RSVP"', response.content)
+			self.assertIn('Un-RSVP', response.content)
 			self.assertIn(MESSAGES['RSVP_ADD'].format(event=self.ev.title)
 						  .replace("'", "&#39;"),
 						  response.content)
