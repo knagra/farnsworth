@@ -170,14 +170,14 @@ class TestHomepage(TestCase):
 				"event_pk": "{0}".format(self.ev.pk),
 				}, follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn('title="Un-RSVP"', response.content)
+		self.assertIn('Un-RSVP', response.content)
 
 		response = self.client.post("/", {
 				"rsvp": "",
 				"event_pk": "{0}".format(self.ev.pk),
 				}, follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn('title="RSVP"', response.content)
+		self.assertIn('RSVP', response.content)
 
 	def test_bad_page(self):
 		response = self.client.get("/bad_page/")
@@ -577,8 +577,7 @@ class TestModifyUser(TestCase):
 				"update_user_profile": "",
 				}, follow=True)
 		self.assertRedirects(response, url)
-		self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username)
-			      .replace("'", "&#39;"),
+		self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
 			      response.content)
 
 		self.client.logout()
@@ -611,8 +610,7 @@ class TestModifyUser(TestCase):
 					"update_user_profile": "",
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username)
-				      .replace("'", "&#39;"),
+			self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
 				      response.content)
 
 			self.client.logout()
