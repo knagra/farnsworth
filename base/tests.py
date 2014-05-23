@@ -724,6 +724,7 @@ class TestAdminFunctions(TestCase):
 	def test_delete_user(self):
 		response = self.client.post("/custom_admin/modify_user/{0}/".format(self.u.username), {
 				"username": self.u.username,
+				"password": "pwd",
 				"delete_user": "",
 				 }, follow=True)
 		self.assertRedirects(response, "/custom_admin/manage_users/")
@@ -737,6 +738,39 @@ class TestAdminFunctions(TestCase):
 		self.client.logout()
 
 		self.assertFalse(self.client.login(username="u", password="pwd"))
+
+	def test_deleted_content(self):
+		profile = UserProfile.objects.get(user=self.u)
+
+		self.client.logout()
+		self.assertTrue(self.client.login(username="u", password="pwd"))
+
+		response = self.client.post("/threads/", {
+				"submit_thread_form": "",
+				"subject": "Test Subject",
+				"body": "Test Body",
+				}, follow=True)
+		self.assertRedirects(response, "/threads/")
+
+		self.assertEqual(1, Thread.objects.filter(owner=profile).count())
+		self.assertEqual(1, Message.objects.filter(owner=profile).count())
+
+		self.client.logout()
+		self.assertTrue(self.client.login(username="su", password="pwd"))
+
+		response = self.client.post("/custom_admin/modify_user/{0}/"
+									.format(self.u.username), {
+				"username": self.u.username,
+				"password": "pwd",
+				"delete_user": "",
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/manage_users/")
+		self.assertIn(MESSAGES['USER_DELETED'].format(username="u"),
+					  response.content)
+		self.assertEqual(0, User.objects.filter(username="u").count())
+
+		self.assertEqual(0, Thread.objects.filter(owner=profile).count())
+		self.assertEqual(0, Message.objects.filter(owner=profile).count())
 
 class TestMemberDirectory(TestCase):
 	def setUp(self):
