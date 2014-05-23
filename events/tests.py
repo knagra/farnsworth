@@ -63,8 +63,7 @@ class TestEvent(TestCase):
 					}, follow=True)
 			self.assertRedirects(response, url)
 			self.assertIn('Un-RSVP', response.content)
-			self.assertIn(MESSAGES['RSVP_ADD'].format(event=self.ev.title)
-						  .replace("'", "&#39;"),
+			self.assertIn(MESSAGES['RSVP_ADD'].format(event=self.ev.title),
 						  response.content)
 
 			self.assertEqual(1, self.ev.rsvps.count())
@@ -75,9 +74,8 @@ class TestEvent(TestCase):
 					"event_pk": "{0}".format(self.ev.pk),
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn('title="RSVP"', response.content)
-			self.assertIn(MESSAGES['RSVP_REMOVE'].format(event=self.ev.title)
-						  .replace("'", "&#39;"),
+			self.assertIn('RSVP', response.content)
+			self.assertIn(MESSAGES['RSVP_REMOVE'].format(event=self.ev.title),
 						  response.content)
 
 			self.assertEqual(0, self.ev.rsvps.count())
