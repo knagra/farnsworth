@@ -156,7 +156,7 @@ function hide_form(form_id) {
       <tr>
 	<th>Subject</th>
 	<th>Thread Owner</th>
-	<th>Messages</th>
+	<th>Replies</th>
 	<th>Posted</th>
 	<th>Updated</th>
       </tr>
@@ -166,7 +166,7 @@ function hide_form(form_id) {
       <tr>
 	<td><a title="View Thread" class="page_link" href="{% url 'view_thread' thread_pk=thread.pk %}">{{ thread.subject|truncatechars:60 }}</a></td>
 	<td><a class="page_link" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">{{ thread.owner.user.get_full_name }}</a></td>
-	<td>{{ thread.number_of_messages }}</td>
+	<td>{{ thread.number_of_messages|add:"-1" }}</td>
 	<td>{{ thread.start_date|date:"m/d/Y, h:i A" }}</td>
 	<td>{{ thread.change_date|date:"m/d/Y, h:i A" }}</td>
       </tr>
