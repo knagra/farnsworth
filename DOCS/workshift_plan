@@ -1,9 +1,10 @@
 Semester-by-semester implementation.
 Preserve previous semester records.  Allow superuser to delete records.
 
-Modify Manager model to hold summer and semester hours per week fields.  Toggle giving workshift by active status.
+[DONE] Modify Manager model to hold summer and semester hours per week fields.  Toggle giving workshift by active status.
 
-Semester ("Summer" | "Fall" | "Spring", Year, Workshift Managers [manytomany Manager], default required hours, fine rate)
+Semester ("Summer" | "Fall" | "Spring", Year, Workshift Managers [manytomany Manager], default required hours, workshift rate, start date, end date,
+		fine dates)
 	Unique together: "Fall" etc. & Year
 	e.g., "Summer, 2014, So-and-So workshift manager, 5 hours per week standard, 13.30"
 
@@ -11,16 +12,16 @@ WorkshiftType (title [unique], description of dutes, default hours, show_in_pref
 	Use these for preference selection and to standardize changes to workshift descriptions.
 	e.g., "Pots, clean all the pots, 2 hours by default [can be changed upon instantiation of workshift], active"
 
-TimeBlock ("Busy" | "Free" | "Preferred", start time, end time)
+TimeBlock manytomany field and objects ("Busy" | "Free" | "Preferred", start time, end time)
 	For preferences, delete these at end of semester
 	e.g., "Busy Monday 8AM-6PM"
 
-WorkshiftType rating (WorkshiftType, + | - | 0)
+WorkshiftRating manytomany field and objects (WorkshiftType, + | - | 0)
 
-Workshift preferences (TimeBlocks, manytomany WorkshifType ratings)
-
-WorkshiftProfile (user foreign key, Semester, workshift preferences, weekly hours required [pre-fill], standing, hour adjustment)
-	e.g., "Karandeep Nagra, Summer 2014, <list of time blocks>, 5, up 5 hours, +/- 0 hours adjusted)"
+WorkshiftProfile (user foreign key, Semester, timeblocks, workshift ratings, weekly hours required [pre-fill], standing, hour adjustment, manager note,
+		list of tuples of form (fine date, standing))
+	e.g., "Karandeep Nagra, Summer 2014, <list of time blocks>, 5, up 5 hours, -2 hours adjusted, 'gone for a few days in the semester',
+		[(30 July 2014, +250 hours), (15 August 2014, +500 hours)])"
 
 WeeklyWorkshift (WorkshiftType foreign key, title [pre-fill], day-of-week, hours [pre-fill], active boolean [pre-fill], current_assignee (workshift profile),
 		start_time, end_time, description addendum)
@@ -30,6 +31,6 @@ WeeklyWorkShiftInstance (WeeklyWorkshift, semester, date, workshifter [workshift
 
 SemesterlyWorkshift (WorkshiftType [optional], description/addendum, number required per semester, title, hours, active)
 
-SemesteryWorkshiftInstance (SemesterWorkshift, start_time, end_time, assignee [workshift profile])
+SemesteryWorkshiftInstance (SemesterlyWorkshift, semester, start_time, end_time, assignee [workshift profile])
 
 OneTimeWorkshift (workshift profile, hours, datetime)

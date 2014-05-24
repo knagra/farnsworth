@@ -5,8 +5,42 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.db import models
+
 from threads.models import UserProfile
 from managers.models import Manager
+from workshift.fields import MultipleDatesField
+
+Semester ("Summer" | "Fall" | "Spring", Year, Workshift Managers [manytomany user], default required hours, workshift rate, start date, end date,
+		fine dates)
+	Unique together: "Fall" etc. & Year
+	e.g., "Summer, 2014, So-and-So workshift manager, 5 hours per week standard, 13.30"
+	
+class Semester(models.Model):
+	'''
+	A semester instance, used to hold records, settings, and to separate workshifts into contained units.
+	'''
+	SPRING = 'P'
+	SUMMER = 'U'
+	FALL = 'F'
+	SEASON_CHOICES = (
+		(SPRING, 'Spring'),
+		(SUMMER, 'Summer'),
+		(FALL, 'Fall')
+		)
+	season = models.Charfield(max_length=1, default=SPRING, help_text="Season of the year (spring, summer, fall) of this semester.")
+	year = models.PositiveSmallIntegerField(max_length=4, help_text="Year of this semester.")
+	workshift_managers = models.ManyToManyField(User, null=True, blank=True, help_text="The users who were/are Workshift Managers for this semester.")
+	required_hours = models.PositiveSmallIntegerField(max_length=1, default=5, help_text="Default regular workshift hours required per week.")
+	rate = models.DecimalField(null=True, blank=True, help_text="Workshift rate for this semester.")
+	start_date = models.DateField(help_text="Start date of this semester.")
+	end_date = models.DateField(help_text="End date of this semester.")
+	fine_dates = MultipleDatesField(help_text="Fine dates for this semester.")
+	
+	class Meta:
+		unique_together = ("season", "year")
+		
+	def __unicode__(self):
+		return self.get_season_display + ' ' + str(self.year)
 
 class WorkshiftType(models.Model):
 	'''
