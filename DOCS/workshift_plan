@@ -3,7 +3,7 @@ Preserve previous semester records.  Allow superuser to delete records.
 
 [DONE] Modify Manager model to hold summer and semester hours per week fields.  Toggle giving workshift by active status.
 
-Semester ("Summer" | "Fall" | "Spring", Year, Workshift Managers [manytomany Manager], default required hours, workshift rate, start date, end date,
+[DONE] Semester ("Summer" | "Fall" | "Spring", Year, Workshift Managers [manytomany Manager], default required hours, workshift rate, start date, end date,
 		fine dates)
 	Unique together: "Fall" etc. & Year
 	e.g., "Summer, 2014, So-and-So workshift manager, 5 hours per week standard, 13.30"

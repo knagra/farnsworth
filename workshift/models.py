@@ -5,15 +5,9 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.db import models
+from django.contrib.auth.models import User
 
 from threads.models import UserProfile
-from managers.models import Manager
-from workshift.fields import MultipleDatesField
-
-Semester ("Summer" | "Fall" | "Spring", Year, Workshift Managers [manytomany user], default required hours, workshift rate, start date, end date,
-		fine dates)
-	Unique together: "Fall" etc. & Year
-	e.g., "Summer, 2014, So-and-So workshift manager, 5 hours per week standard, 13.30"
 	
 class Semester(models.Model):
 	'''
@@ -34,7 +28,9 @@ class Semester(models.Model):
 	rate = models.DecimalField(null=True, blank=True, help_text="Workshift rate for this semester.")
 	start_date = models.DateField(help_text="Start date of this semester.")
 	end_date = models.DateField(help_text="End date of this semester.")
-	fine_dates = MultipleDatesField(help_text="Fine dates for this semester.")
+	first_fine_date = models.DateField(null=True, blank=True, help_text="First fine date for this semester, optional.")
+	second_fine_date = models.DateField(null=True, blank=True, help_text="Second fine date for this semester, optional.")
+	third_fine_date = models.DateField(null=True, blank=True, help_text="Third fine date for this semester, optional.")
 	
 	class Meta:
 		unique_together = ("season", "year")
@@ -49,9 +45,31 @@ class WorkshiftType(models.Model):
 	name = models.CharField(blank=False, null=False, unique=True, max_length=255, help_text='The name of this workshift type (e.g., "Pots"), must be unique.')
 	description = models.TextField(blank=True, null=True, help_text="A description for this workshift type.")
 	quick_tips = models.TextField(blank=True, null=True, help_text="Quick tips to the workshifter.")
+	hours = models.PositiveSmallIntegerField(default=1, help_text="Default hours for these types of shifts, helpful for pre-filling workshifts.")
+	rateable = models.BooleanField(default=True, help_text="Whether this workshift type is shown in preferences.")
 	
 	def __unicode__(self):
-		return self.name	
+		return self.name
+	
+	def __unicode__(self):
+		return self.name
+
+WorkshiftProfile (user foreign key, Semester, timeblocks, workshift ratings, weekly hours required [pre-fill], standing, hour adjustment, manager note,
+		list of tuples of form (fine date, standing))
+	e.g., "Karandeep Nagra, Summer 2014, <list of time blocks>, 5, up 5 hours, -2 hours adjusted, 'gone for a few days in the semester',
+		[(30 July 2014, +250 hours), (15 August 2014, +500 hours)])"
+
+WeeklyWorkshift (WorkshiftType foreign key, title [pre-fill], day-of-week, hours [pre-fill], active boolean [pre-fill], current_assignee (workshift profile),
+		start_time, end_time, description addendum)
+	e.g., "Pots, Afternoon Pots, Saturday, 1 hour, active, Karandeep Nagra"
+
+WeeklyWorkShiftInstance (WeeklyWorkshift, semester, date, workshifter [workshift profile], verifier [workshift profile], completed boolean)
+
+SemesterlyWorkshift (WorkshiftType [optional], description/addendum, number required per semester, title, hours, active)
+
+SemesteryWorkshiftInstance (SemesterlyWorkshift, semester, start_time, end_time, assignee [workshift profile])
+
+OneTimeWorkshift (description, assignee [workshift profile], hours, datetime)
 
 class RegularWorkshift(models.Model):
 	'''
