@@ -8,7 +8,7 @@ Semester ("Summer" | "Fall" | "Spring", Year, Workshift Managers [manytomany Man
 	Unique together: "Fall" etc. & Year
 	e.g., "Summer, 2014, So-and-So workshift manager, 5 hours per week standard, 13.30"
 
-WorkshiftType (title [unique], description of dutes, default hours, show_in_preferences boolean).
+WorkshiftType (title [unique], description of duties, default hours, show_in_preferences boolean).
 	Use these for preference selection and to standardize changes to workshift descriptions.
 	e.g., "Pots, clean all the pots, 2 hours by default [can be changed upon instantiation of workshift], active"
 
@@ -33,4 +33,4 @@ SemesterlyWorkshift (WorkshiftType [optional], description/addendum, number requ
 
 SemesteryWorkshiftInstance (SemesterlyWorkshift, semester, start_time, end_time, assignee [workshift profile])
 
-OneTimeWorkshift (workshift profile, hours, datetime)
+OneTimeWorkshift (description, assignee [workshift profile], hours, datetime)
