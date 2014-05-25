@@ -500,3 +500,12 @@ class TestAnnouncements(TestCase):
 		response = self.client.get("/announcements/")
 		self.assertEqual(response.status_code, 200)
 		self.assertNotIn(self.a.body, response.content)
+
+class TestPreFill(TestCase):
+	def test_pre_fill(self):
+		from pre_fill import main, REQUESTS, MANAGERS
+		main([])
+		for title in [i[0] for i in MANAGERS]:
+			self.assertEqual(1, Manager.objects.filter(title=title).count())
+		for name in [i[0] for i in REQUESTS]:
+			self.assertEqual(1, RequestType.objects.filter(name=name).count())
