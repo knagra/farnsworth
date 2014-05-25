@@ -8,14 +8,13 @@ from django.conf import settings
 from utils.funcs import convert_to_url
 from managers.models import Manager, RequestType
 
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "farnsworth.settings")
+this_dir = os.path.abspath(os.path.dirname(__file__))
+if this_dir not in sys.path:
+	sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-def _main(args):
-	# Add Managers
-	managers = [
-		("President", "5 hours/week", "hp",
-		 """<ol>
+MANAGERS = [
+	("President", "5 hours/week", "hp", """<ol>
 <li>Ensure that each manager has a copy of the house Constitution and a copy of the list of duties from the list of house policies pertaining to his/her office</li>
 <li>Facilitate all house councils, held at least one every two weeks, but usually every week, with the times and place to be set by the President.</li>
 <li>Ensure that the major managers are fulfilling their duties.</li>
@@ -27,7 +26,7 @@ def _main(args):
 <li>The house President will maintain a suggestion box and regularly post results.</li>
 <li>Keep house records in order (see Record-Keeping Bylaw).</li>
 </ol>"""),
-		("Vice President", "3 hours/week", "", """<ol>
+	("Vice President", "3 hours/week", "", """<ol>
 <li>Take and post the minutes of house meetings.</li>
 <li>Assist the President to administer elections.</li>
 <li>Act as President when the President is unable to serve.</li>
@@ -35,10 +34,10 @@ def _main(args):
 <li>Record the attendance of the manager and the board rep at the beginning and the end of council.</li>
 <li>Give the president a paper copy of each week's minutes, dated and copy of all the semester's minutes with the VP's name at the end of the semester.</li>
 </ol>"""),
-		("Board Representative", "5 hours/week", "br", """<ol>
+	("Board Representative", "5 hours/week", "br", """<ol>
 <li>Attend central-level Board of Representative meetings</li>
 </ol>"""),
-		("House Manager", "5 hours/week + 9/16 rent compensation", "hm", """<ol>
+	("House Manager", "5 hours/week + 9/16 rent compensation", "hm", """<ol>
 <li>Attend house council.</li>
 <li>Oversee the house bank account:
 <ol>
@@ -69,9 +68,9 @@ def _main(args):
 <li>Monitor consumption of food by non-members and non-boarders. The House Manager must also monitor receipts of food purchased by the Kitchen Manager from sources other than Central Kitchen.</li>
 <li>The House manager may not spend more than $20 per week without prior council approval.</li>
 </ol>"""),
-		("Finance Manager", "5 hours/week", "", """<ol>
+	("Finance Manager", "5 hours/week", "", """<ol>
 </ol>"""),
-		("Kitchen Manager", "5 hours/week + 100% rent compensation", "km", """<ol>
+	("Kitchen Manager", "5 hours/week + 100% rent compensation", "km", """<ol>
 <li>Have the final say in the selection of all cooks.</li>
 <li>Oversee all actions of the kitchen including menu planning, cooking techniques, and quality of food control</li>
 <li>Be responsible for ordering of all food, beverages, and cleaning supplies.</li>
@@ -81,9 +80,9 @@ def _main(args):
 <li>Make available to the member of the house within 48 hrs, all budget reports, inspection report, or anything else of importance concerning the kitchen.</li>
 <li>Work with the Workshift Manager with organizing and overseeing the kitchen clean-up crew, with including the dining room and dish room.</li>
 </ol>"""),
-		("IKC Manager", "5 hours/week", "", """<ol>
+	("IKC Manager", "5 hours/week", "", """<ol>
 </ol>"""),
-		("Workshift Manager", "5 hours/week + 9/16 rent compensation", "wm", """<ol>
+	("Workshift Manager", "5 hours/week + 9/16 rent compensation", "wm", """<ol>
 <li>Enforce and abide by the Workshift Policy bylaws.</li>
 <li>Assist house members as they materialize their ideas for HI (House Improvement) projects, and encourage house members to create independent HI projects, with the main objective of approval and documentation of HI hours. This meaning participating in planning, getting supplies, and recruiting other member to work, coordinating schedules, and facilitating work on the actual day of the project.</li>
 <li>Have open and ongoing communication with other managers about HI project ideas and think up and identify a variety of projects as alternatives for member who need ideas. Help facilitate their completion.</li>
@@ -117,7 +116,7 @@ def _main(args):
 <li>Create and facilitate HI Project days to give members the opportunity to complete their hours. Specifically, these days are meant to encourage the completion of large, house-wide projects. Ultimately, the bulk of the responsibility for coordinating HI projects will fall on the Maintenance and Garden Managers. Their roles main entail: planning, preparing supplies, coordinating schedules, recruiting other members to work, and facilitating the work on the day of the project.</li>
 <li>Maintenance Manager/team may not spend more than $100 per week without prior council approval.</li>
 </ol>"""),
-		("Social Manager", "5 hours/week", "sm", """<ol>
+	("Social Manager", "5 hours/week", "sm", """<ol>
 <li>Attend all house meeting or submit a written report to the House President.</li>
 <li>Attend SMUC meetings and try to utilize SMUC to the fullest extent.</li>
 <li>Provide timely notice of all house activities.</li>
@@ -137,7 +136,7 @@ def _main(args):
 <li>Write a minimum of one page single spaces summary of the defining moments that took place in the house under their tenure, both from organized and spur of the moment. The summary will be posted on the hose server, in coordination with the Network Manager, for future generations to see and inspire themselves from.</li>
 <li>With House Manager, run a Neighbor day and manage the Neighbor dossier (see House Manager duties)</li>
 </ol>"""),
-		("Network Manager", "3 hours/week", "nm", """<ol>
+	("Network Manager", "3 hours/week", "nm", """<ol>
 <li>Be responsible for maintaining all house network equipment in working order. This includes, but is not limited to, the house server, printer, and the physical networks (all hubs, lines and network jacks in the rooms and common areas.)</li>
 <li>Repair broken ethernet jacks in member rooms upon request.</li>
 <li>Oversee the proper operation of the house server, and provide appropriate special access to managers to create phone list, and other documents which will be seen but not modified by members.</li>
@@ -150,14 +149,14 @@ def _main(args):
 <li>Be voted in by the membership.</li>
 <li>Be given an office key and have access to the master key when needed.</li>
 </ol>"""),
-		("Garden Manager", "3 hours/week", "", """<ol>
+	("Garden Manager", "3 hours/week", "", """<ol>
 <li>The Garden Manager may not spend more that $50 per week without prior council approval.</li>
 <li>Assist house members as the materialize their ideas for HI projects, and encourage house members to create independent HI projects, with the main objective of approval and documentation of HI hours. This means participating in planning, getting supplies, recruiting other member to work, coordinating schedules, and facilitating work on the actual day of the project.</li>
 <li>Have open and ongoing communicating with the other managers about HI project ideas and think up and identify a variety of projects as alternatives for member who need ideas. Help facilitate their completion.</li>
 <li>Starting two weeks before cards are due, hound member incessantly to do their HI hours, leaving at least one note on potentially delinquent member's doors.</li>
 <li>Create and facilitates HI Project days to give members the opportunity to complete their hours. Specifically, these days are meant to encourage the completion of large, house-wide projects. Ultimately, the bulk of the responsibility for coordinating HI projects will fall on the Maintenance and Garden Managers. Their roles main entail: planning, preparing supplies, coordinating schedules, recruiting other members to work, and facilitating the work on the day of the project.</li>
 </ol>"""),
-		("Waste Reduction Manager", "5 hours/week", "rm", """<ol>
+	("Waste Reduction Manager", "5 hours/week", "rm", """<ol>
 <li>Bring recycling bins to the curbside on the respective pick-up dates.</li>
 <li>Provide member education on ways to reduce waste, proper disposal of materials, environmental and cost benefits of waste reduction, and other related information.</li>
 <li>Make sure the free-piles are up the city habitability standards. This taste maybe fulfilled the WRM or a delegated workshifter.</li>
@@ -168,33 +167,37 @@ def _main(args):
 <li>Research options for buying renewable energy credits.</li>
 <li>Advise the House manager on where to buy renewable energy credits and how many credits to buy to keep the house carbon neutral.</li>
 </ol>"""),
-		("Health Worker", "2 hours/week", "hw", ""),
-		]
-	for title, compensation, email, duties in managers:
+	("Health Worker", "2 hours/week", "hw", ""),
+	]
+
+REQUESTS = [
+	("Cleanliness", ["IKC Manager", "Workshift Manager"], "certificate"),
+	("Finance", ["Finance Manager"], "usd"),
+	("Food", ["Kitchen Manager"], "cutlery"),
+	("Health", ["Health Worker"], "heart"),
+	("House", ["House Manager"], "home"),
+	("Maintenance", ["Maintenance Manager"], "wrench"),
+	("Network", ["Network Manager"], "signal"),
+	("President", ["President"], "star"),
+	("Social", ["Social Manager"], "comment"),
+	]
+
+def main(args):
+	# Add Managers
+	for title, compensation, email, duties in MANAGERS:
 		m = Manager(
 			title=title,
 			url_title=convert_to_url(title),
 			compensation=compensation,
 			duties=duties,
-			email="{0}{1}@bsc.coop".format(settings.HOUSE_SHORT, email) if email else "",
+			email="{0}{1}@bsc.coop".format(settings.SHORTER_HOUSE, email) if email else "",
 			president="president" in title.lower(),
 			workshift_manager="workshift" in title.lower(),
 			)
 		m.save()
 
 	# Add Requests
-	requests = [
-		("Cleanliness", ["IKC Manager", "Workshift Manager"], "certificate"),
-		("Finance", ["Finance Manager"], "usd"),
-		("Food", ["Kitchen Manager"], "cutlery"),
-		("Health", ["Health Worker"], "heart"),
-		("House", ["House Manager"], "home"),
-		("Maintenance", ["Maintenance Manager"], "wrench"),
-		("Network", ["Network Manager"], "signal"),
-		("President", ["President"], "star"),
-		("Social", ["Social Manager"], "comment"),
-		]
-	for name, managers, glyphicon in requests:
+	for name, managers, glyphicon in REQUESTS:
 		r = RequestType(
 			name=name,
 			url_name=convert_to_url(name),
@@ -208,4 +211,4 @@ def _main(args):
 	# ...
 
 if __name__ == "__main__":
-	_main(sys.argv[1:])
+	main(sys.argv[1:])
