@@ -108,6 +108,20 @@ if 'test' in sys.argv:
 	)
 	DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
 
+########################################################################
+####	Workshift Settings
+########################################################################
+
+# Default number of hours for creating new semester instances.
+DEFAULT_HOURS = 5
+
+# Default cutoff for signing out of workshifts, in hours.
+# Users will be allowed to sign out of shifts with more time than this
+# number of hours before the workshift starts.
+DEFAULT_CUTOFF = 24
+
+########################################################################
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []

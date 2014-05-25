@@ -103,6 +103,26 @@ SUBTEXTS_404 = ("The number you have dialed has crashed into a planet.  Please m
 	"Maybe it's time to leave the science to the hundred and twenty year olds.",
 	)
 
+# Ordered integer representations of days of the week.  Used in parts of the workshift module.
+MONDAY = 0
+TUESDAY = 1
+WEDNESDAY = 2
+THURSDAY = 3
+FRIDAY = 4
+SATURDAY = 5
+SUNDAY = 6
+
+# Choices for days of the week.  Used in parts of the workshift module.
+DAYS = (
+	(MONDAY, "Monday"),
+	(TUESDAY, "Tuesday"),
+	(WEDNESDAY, "Wednesday"),
+	(THURSDAY, "Thursday"),
+	(FRIDAY, "Friday"),
+	(SATURDAY, "Saturday"),
+	(SUNDAY, "Sunday")
+	)
+
 # Standard messages sent to clients on errors.
 MESSAGES = {
 	'ADMINS_ONLY': "You do not have permission to view the page you were trying to access.",
