@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 
+import os
 import sys
 
 from django.conf import settings
 
 from utils.funcs import convert_to_url
 from managers.models import Manager, RequestType
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "farnsworth.settings")
 
 def _main(args):
 	# Add Managers
