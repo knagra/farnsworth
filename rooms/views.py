@@ -32,7 +32,7 @@ def add_room(request):
 		room.save()
 		room.residents = add_form.cleaned_data["residents"]
 		room.save()
-		return HttpResponseRedirect(reverse('room_list'))
+		return HttpResponseRedirect(reverse('list_rooms'))
 
 	return render_to_response('add_room.html', {
 		'page_name': page_name,
@@ -58,7 +58,9 @@ def view_room(request, room_title):
 def edit_room(request, room_title):
 	room = get_object_or_404(Room, title=room_title)
 	page_name = "Edit {0}".format(room_title)
-	edit_form = EditRoomForm(request.POST or None)
+	if room.unofficial_name:
+		page_name += " ({0})".format(room.unofficial_name)
+	edit_form = EditRoomForm(request.POST or None, instance=room)
 
 	if edit_form.is_valid():
 		room.unofficial_name = edit_form.cleaned_data["unofficial_name"]
