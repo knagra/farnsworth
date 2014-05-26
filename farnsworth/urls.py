@@ -21,7 +21,7 @@ urlpatterns = patterns('',
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^search/$', login_required(FacetedSearchView(form_class=FacetedSearchForm, searchqueryset=sqs)), name='haystack_search'),
 	url(r'', include('social.apps.django_app.urls', namespace='social')),
-	url(r'^rooms/', include('rooms.urls')),
+	url(r'', include('rooms.urls')),
 )
 
 urlpatterns += patterns('base.views',
