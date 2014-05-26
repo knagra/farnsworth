@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/edit_room.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="table_container" id="room_form_table">
+  <div class="header"><h3 class="table_title">{{ page_name }}</h3></div> <!-- .header -->
+  <div class="room_table main_table">
+    <form id="room_form" method="post" action="">
+      {% csrf_token %}
+      <div class="form-group">
+		{{ room_form|bootstrap }}
+		<div class="text-center">
+		  <button type="submit" class="btn btn-lg btn-success" name="update_room"><span class="glyphicon glyphicon-floppy-disk"></span> Update Room</button>
+		</div> <!-- .text-center -->
+      </div> <!-- .form-group -->
+    </form>
+  </div> <!-- .main_table -->
+</div> <!-- #room_form_table -->
+{% endblock %}

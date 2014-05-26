@@ -18,6 +18,7 @@ class TestViews(TestCase):
 	def test_list(self):
 		response = self.client.get("/rooms/")
 		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.r.title, response.content)
 
 	def test_add(self):
 		response = self.client.get("/rooms/add")
@@ -26,7 +27,51 @@ class TestViews(TestCase):
 	def test_view(self):
 		response = self.client.get("/room/{0}/".format(self.r.title))
 		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.r.title, response.content)
 
 	def test_edit(self):
 		response = self.client.get("/room/{0}/edit".format(self.r.title))
 		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.r.title, response.content)
+
+class TestAddRoom(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.client.login(username="su", password="pwd")
+
+	def test_add_room(self):
+		response = self.client.post("/rooms/add", {
+			"title":"2E",
+			"unofficial_name": "Starry Night",
+			"description": "Home to the best person on earth.",
+			"occupancy": "1",
+			"residents": self.su.pk,
+		}, follow=True)
+		self.assertRedirects(response, "/rooms/")
+		self.assertIn(response, "2e")
+
+	def test_add_room_minimal(self):
+		response = self.client.post("/rooms/add", {
+			"title":"2E",
+			"unofficial_name": "",
+			"description": "",
+			"occupancy": "",
+			"residents": self.su.pk,
+		}, follow=True)
+		self.assertRedirects(response, "/rooms/")
+		self.assertIn(response, "2E")
+
+class TestEditRoom(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.r = Room(title="2E")
+		self.r.save()
+		self.r.residents = UserProfile.objects.filter(user=self.su)
+
+		self.client.login(username="su", password="pwd")
