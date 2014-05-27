@@ -195,7 +195,7 @@ class UpdateProfileForm(forms.ModelForm):
 
 		keys = self.fields.keyOrder
 		keys.remove("email")
-		keys.insert(keys.index("email_visible") - 1, "email")
+		keys.insert(keys.index("email_visible"), "email")
 
 class LoginForm(forms.Form):
 	''' Form to login. '''
