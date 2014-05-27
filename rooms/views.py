@@ -23,8 +23,7 @@ def add_room(request):
 	add_form = AddRoomForm(request.POST or None)
 
 	if add_form.is_valid():
-		room = add_form.save()
-		room.residents = add_form.cleaned_data["residents"]
+		add_form.save()
 		return HttpResponseRedirect(reverse('list_rooms'))
 
 	return render_to_response('add_room.html', {
@@ -56,8 +55,7 @@ def edit_room(request, room_title):
 	edit_form = EditRoomForm(request.POST or None, instance=room)
 
 	if edit_form.is_valid():
-		room = edit_form.save()
-		room.residents = edit_form.cleaned_data["residents"]
+		edit_form.save()
 		return HttpResponseRedirect(reverse('view_room', kwargs={'room_title': room_title}))
 
 	return render_to_response('edit_room.html', {

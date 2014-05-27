@@ -9,12 +9,10 @@ class AddRoomForm(forms.ModelForm):
 	''' Form to create a room. '''
 	class Meta:
 		model = Room
-		fields = ("title", "unofficial_name", "description", "occupancy")
-	residents = forms.ModelMultipleChoiceField(queryset=UserProfile.objects.filter(status=UserProfile.RESIDENT), help_text="The current residents of this room.")
+		fields = "__all__"
 
 class EditRoomForm(forms.ModelForm):
 	''' Form to create a room. '''
 	class Meta:
 		model = Room
-		fields = ("unofficial_name", "description", "occupancy")
-	residents = forms.ModelMultipleChoiceField(queryset=UserProfile.objects.filter(status=UserProfile.RESIDENT), help_text="The current residents of this room.")
+		exclude = ("title",)
