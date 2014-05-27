@@ -17,14 +17,6 @@ Author: Karandeep Singh Nagra
 	width: 60%;
 }
 
-.form-group {
-	margin-left: 5px;
-	margin-right: 5px;
-	margin-bottom: 0px;
-}
-
 .form-group .btn {
 	min-width: 50%;
-	max-width: 100%;
-	margin-top: 15px;
 }
