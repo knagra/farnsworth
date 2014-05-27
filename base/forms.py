@@ -9,6 +9,7 @@ from django.contrib.auth.models import Group
 from utils.funcs import verify_username
 from utils.variables import MESSAGES
 from base.models import UserProfile
+from rooms.models import Room
 
 class ProfileRequestForm(forms.Form):
 	''' Form to create a new profile request. '''
@@ -47,8 +48,14 @@ class AddUserForm(forms.Form):
 	phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
 	phone_visible_to_others = forms.BooleanField(required=False)
 	status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-	current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+	current_room = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
+	former_rooms = forms.ModelMultipleChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
 	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
 		help_text="Other houses where this user has boarded or lived.")
 	is_active = forms.BooleanField(required=False)
@@ -102,8 +109,14 @@ class ModifyUserForm(forms.Form):
 	phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
 	phone_visible_to_others = forms.BooleanField(required=False)
 	status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-	current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+	current_room = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
+	former_rooms = forms.ModelMultipleChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
 	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
 		help_text="Other houses where this user has boarded or lived.")
 	is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
@@ -139,8 +152,14 @@ class ModifyProfileRequestForm(forms.Form):
 	phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
 	phone_visible_to_others = forms.BooleanField(required=False)
 	status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-	current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+	current_room = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
+	former_rooms = forms.ModelMultipleChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
 	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
 		help_text="Other houses where this user has boarded or lived.")
 	is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
@@ -160,20 +179,23 @@ class ModifyProfileRequestForm(forms.Form):
 			return False
 		return True
 
-class UpdateProfileForm(forms.Form):
+class UpdateProfileForm(forms.ModelForm):
 	''' Form for a user to update own profile. '''
-	current_room = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-	former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
-		help_text="Other houses where you have boarded or lived.")
-	email = forms.EmailField(max_length=255, required=False)
-	email_visible_to_others = forms.BooleanField(required=False,
-		help_text="Make your e-mail address visible to other members in member directory, your profile, and elsewhere.")
-	phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}), required=False,
-		help_text="In format #-###-###-####, for best sortability.")
-	phone_visible_to_others = forms.BooleanField(required=False,
-		help_text="Make your phone number visible to other members in member directory, your profile, and elsewhere.")
-	enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	class Meta:
+		model = UserProfile
+		fields = ("current_room", "former_rooms", "former_houses",
+				  "email_visible", "phone_number", "phone_visible")
+
+	def __init__(self, *args, **kwargs):
+		user = kwargs["instance"].user
+		super(UpdateProfileForm, self).__init__(*args, **kwargs)
+
+		self.fields['email'] = forms.EmailField(max_length=255, required=False, initial=user.email)
+		self.fields['enter_password'] = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+
+		keys = self.fields.keyOrder
+		keys.remove("email")
+		keys.insert(keys.index("email_visible"), "email")
 
 class LoginForm(forms.Form):
 	''' Form to login. '''

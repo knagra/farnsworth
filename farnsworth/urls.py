@@ -7,9 +7,11 @@ Author: Karandeep Singh Nagra
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
+
 from haystack.forms import FacetedSearchForm
 from haystack.query import SearchQuerySet
 from haystack.views import FacetedSearchView
+
 admin.autodiscover()
 
 sqs = SearchQuerySet().facet('exact_user').facet('exact_location').facet('exact_manager').facet('exact_status')
@@ -19,6 +21,7 @@ urlpatterns = patterns('',
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^search/$', login_required(FacetedSearchView(form_class=FacetedSearchForm, searchqueryset=sqs)), name='haystack_search'),
 	url(r'', include('social.apps.django_app.urls', namespace='social')),
+	url(r'', include('rooms.urls')),
 )
 
 urlpatterns += patterns('base.views',

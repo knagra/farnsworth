@@ -34,6 +34,7 @@ from managers.models import RequestType, Manager, Request, Response, Announcemen
 from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, UnpinForm
 from events.models import Event
 from events.forms import RsvpForm
+from rooms.models import Room
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -248,66 +249,44 @@ def my_profile_view(request):
 		social_auth = UserSocialAuth.objects.get(user=user)
 	except UserSocialAuth.DoesNotExist:
 		social_auth = None
-	change_password_form = ChangePasswordForm()
-	update_profile_form = UpdateProfileForm(initial={
-			'current_room': userProfile.current_room,
-			'former_rooms': userProfile.former_rooms,
-			'former_houses': userProfile.former_houses,
-			'email': user.email,
-			'email_visible_to_others': userProfile.email_visible,
-			'phone_number': userProfile.phone_number,
-			'phone_visible_to_others': userProfile.phone_visible,
-			})
-	if request.method == 'POST':
-		if 'submit_password_form' in request.POST:
-			change_password_form = ChangePasswordForm(request.POST)
-			if change_password_form.is_valid():
-				current_password = change_password_form.cleaned_data['current_password']
-				new_password = change_password_form.cleaned_data['new_password']
-				confirm_password = change_password_form.cleaned_data['confirm_password']
-				if hashers.check_password(current_password, user.password):
-					hashed_password = hashers.make_password(new_password)
-					if hashers.is_password_usable(hashed_password):
-						user.password = hashed_password
-						user.save()
-						messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
-						return HttpResponseRedirect(reverse('my_profile'))
-					else:
-						password_non_field_error = "Password didn't hash properly.  Please try again."
-						change_password_form.errors['__all__'] = change_password_form.error_class([password_non_field_error])
-						return render_to_response('my_profile.html', {
-								'page_name': page_name,
-								'update_profile_form': update_profile_form,
-								'change_password_form': change_password_form,
-								}, context_instance=RequestContext(request))
-				else:
-					change_password_form._errors['current_password'] = forms.utils.ErrorList([u"Wrong password."])
-		elif 'submit_profile_form' in request.POST:
-			update_profile_form = UpdateProfileForm(request.POST)
-			if update_profile_form.is_valid():
-				current_room = update_profile_form.cleaned_data['current_room']
-				former_rooms = update_profile_form.cleaned_data['former_rooms']
-				former_houses = update_profile_form.cleaned_data['former_houses']
-				email = update_profile_form.cleaned_data['email']
-				email_visible_to_others = update_profile_form.cleaned_data['email_visible_to_others']
-				phone_number = update_profile_form.cleaned_data['phone_number']
-				phone_visible_to_others = update_profile_form.cleaned_data['phone_visible_to_others']
-				enter_password = update_profile_form.cleaned_data['enter_password']
-				if social_auth or hashers.check_password(enter_password, user.password):
-					userProfile.current_room = current_room
-					userProfile.former_rooms = former_rooms
-					userProfile.former_houses = former_houses
-					user.email = email
-					userProfile.email_visible = email_visible_to_others
-					userProfile.phone_number = phone_number
-					userProfile.phone_visible = phone_visible_to_others
-					userProfile.save()
-					messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
-					return HttpResponseRedirect(reverse('my_profile'))
-				else:
-					update_profile_form._errors['enter_password'] = forms.utils.ErrorList([u"Wrong password"])
+	update_profile_form = UpdateProfileForm(
+		request.POST if "submit_profile_form" in request.POST else None,
+		instance=userProfile,
+		)
+	change_password_form = ChangePasswordForm(
+		request.POST if 'submit_password_form' in request.POST else None,
+		)
+	if change_password_form.is_valid():
+		current_password = change_password_form.cleaned_data['current_password']
+		new_password = change_password_form.cleaned_data['new_password']
+		confirm_password = change_password_form.cleaned_data['confirm_password']
+		if hashers.check_password(current_password, user.password):
+			hashed_password = hashers.make_password(new_password)
+			if hashers.is_password_usable(hashed_password):
+				user.password = hashed_password
+				user.save()
+				messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
+				return HttpResponseRedirect(reverse('my_profile'))
+			else:
+				password_non_field_error = "Password didn't hash properly.  Please try again."
+				change_password_form.errors['__all__'] = change_password_form.error_class([password_non_field_error])
+				return render_to_response('my_profile.html', {
+						'page_name': page_name,
+						'update_profile_form': update_profile_form,
+						'change_password_form': change_password_form,
+						}, context_instance=RequestContext(request))
 		else:
-			return red_home(request, MESSAGES['UNKNOWN_FORM'])
+			change_password_form._errors['current_password'] = forms.utils.ErrorList([u"Wrong password."])
+	elif update_profile_form.is_valid():
+		enter_password = update_profile_form.cleaned_data['enter_password']
+		if social_auth or hashers.check_password(enter_password, user.password):
+			profile = update_profile_form.save()
+			profile.user.email = update_profile_form.cleaned_data['email']
+			profile.user.save()
+			messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
+			return HttpResponseRedirect(reverse('my_profile'))
+		else:
+			update_profile_form._errors['enter_password'] = forms.utils.ErrorList([u"Wrong password"])
 	return render_to_response('my_profile.html', {
 			'page_name': page_name,
 			'update_profile_form': update_profile_form,
@@ -629,7 +608,7 @@ def custom_modify_user_view(request, targetUsername):
 			'phone_visible_to_others': targetProfile.phone_visible,
 			'status': targetProfile.status,
 			'current_room': targetProfile.current_room,
-			'former_rooms': targetProfile.former_rooms,
+			'former_rooms': targetProfile.former_rooms.all(),
 			'former_houses': targetProfile.former_houses,
 			'is_active': targetUser.is_active,
 			'is_staff': targetUser.is_staff,
