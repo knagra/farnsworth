@@ -70,6 +70,25 @@ class TestAddRoom(TestCase):
 		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
 						response.content)
 
+	def test_bad_occupancy(self):
+		response = self.client.post("/rooms/add", {
+			"title": "2E",
+			"unofficial_name": "Starry Night",
+			"description": "Home to the best person on earth.",
+			"occupancy": -1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Ensure this value is greater than or equal to 0.", response.content)
+
+		response = self.client.post("/rooms/add", {
+			"title": "2E",
+			"unofficial_name": "Starry Night",
+			"description": "Home to the best person on earth.",
+			"occupancy": "",
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("This field is required.", response.content)
+
 	def test_add_room_minimal(self):
 		response = self.client.post("/rooms/add", {
 			"title": "2E",
@@ -126,3 +145,20 @@ class TestEditRoom(TestCase):
 		self.assertNotIn("Starry Night Surprise", response.content)
 		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
 					  response.content)
+
+	def test_bad_occupancy(self):
+		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"unofficial_name": "Starry Night",
+			"description": "Home to the best person on earth.",
+			"occupancy": -1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Ensure this value is greater than or equal to 0.", response.content)
+
+		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"unofficial_name": "Starry Night",
+			"description": "Home to the best person on earth.",
+			"occupancy": "",
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("This field is required.", response.content)
