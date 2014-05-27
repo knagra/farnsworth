@@ -60,7 +60,6 @@ class TestAddRoom(TestCase):
 			"unofficial_name": "Starry Night",
 			"description": "Home to the best person on earth.",
 			"occupancy": 1,
-			"residents": self.su.pk,
 			"add_room": "",
 		}, follow=True)
 		self.assertRedirects(response, "/rooms/")
@@ -68,8 +67,8 @@ class TestAddRoom(TestCase):
 		self.assertIn("<td>1</td>", response.content)
 		self.assertIn("Starry Night", response.content)
 		self.assertNotIn("Home to the best person on earth.", response.content)
-		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
-					  response.content)
+		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
+						response.content)
 
 	def test_add_room_minimal(self):
 		response = self.client.post("/rooms/add", {
@@ -77,15 +76,14 @@ class TestAddRoom(TestCase):
 			"unofficial_name": "",
 			"description": "",
 			"occupancy": 1,
-			"residents": self.su.pk,
 		}, follow=True)
 		self.assertRedirects(response, "/rooms/")
 		self.assertIn("2E", response.content)
 		self.assertIn("<td>1</td>", response.content)
 		self.assertNotIn("Starry Night", response.content)
 		self.assertNotIn("Home to the best person on earth.", response.content)
-		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
-					  response.content)
+		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
+						response.content)
 
 class TestEditRoom(TestCase):
 	def setUp(self):

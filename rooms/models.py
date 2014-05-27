@@ -11,4 +11,4 @@ class Room(models.Model):
 	unofficial_name  = models.CharField(blank=True, null=True, max_length=100, help_text="The unofficial name of the room (i.e. 'Starry Night')")
 	description = models.TextField(blank=True, null=True, help_text="The description of this room.")
 	occupancy = models.IntegerField(default=1, help_text="The total number of people that this room should house.")
-	residents = models.ManyToManyField(UserProfile, help_text="Members who live in this room.")
+	residents = models.ManyToManyField(UserProfile, blank=True, help_text="Members who live in this room.")
