@@ -7,7 +7,7 @@ from django.template import RequestContext
 from base.decorators import profile_required, admin_required
 from base.models import UserProfile
 from rooms.models import Room
-from rooms.forms import AddRoomForm, EditRoomForm
+from rooms.forms import RoomForm, RoomForm
 
 @profile_required
 def list_rooms(request):
@@ -23,7 +23,7 @@ def list_rooms(request):
 @admin_required
 def add_room(request):
 	page_name = "Add Room"
-	add_form = AddRoomForm(request.POST or None)
+	add_form = RoomForm(request.POST or None)
 
 	if add_form.is_valid():
 		add_form.save()
@@ -55,7 +55,7 @@ def edit_room(request, room_title):
 	page_name = "Edit {0}".format(room_title)
 	if room.unofficial_name:
 		page_name += " ({0})".format(room.unofficial_name)
-	edit_form = EditRoomForm(request.POST or None, instance=room)
+	edit_form = RoomForm(request.POST or None, instance=room)
 
 	if edit_form.is_valid():
 		room = edit_form.save()

@@ -52,9 +52,6 @@ class TestAddRoom(TestCase):
 		self.su.last_name = "User"
 		self.su.save()
 
-		self.r = Room(title="1A")
-		self.r.save()
-
 		self.client.login(username="su", password="pwd")
 
 	def test_add_room(self):
@@ -74,14 +71,17 @@ class TestAddRoom(TestCase):
 						response.content)
 
 	def test_no_duplicate(self):
+		r = Room(title="1A")
+		r.save()
+
 		response = self.client.post("/rooms/add", {
-			"title": "1A",
+			"title": r.title,
 			"unofficial_name": "",
 			"description": "",
 			"occupancy": 1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("This room title is already in use.", response.content)
+		self.assertIn("Room with this Title already exists.", response.content)
 
 	def test_bad_title(self):
 		response = self.client.post("/rooms/add", {
@@ -174,6 +174,19 @@ class TestEditRoom(TestCase):
 		self.assertIn("Previous home to the best person on earth.", response.content)
 		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
 					  response.content)
+
+	def test_no_duplicate(self):
+		r = Room(title="1A")
+		r.save()
+
+		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"title": r.title,
+			"unofficial_name": "",
+			"description": "",
+			"occupancy": 1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Room with this Title already exists.", response.content)
 
 	def test_edit_room_minimal(self):
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
