@@ -22,10 +22,12 @@ class TestViews(TestCase):
 		response = self.client.get("/rooms/")
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.r.title, response.content)
+		self.assertNotIn("Login", response.content)
 
 	def test_add(self):
 		response = self.client.get("/rooms/add")
 		self.assertEqual(response.status_code, 200)
+		self.assertNotIn("Login", response.content)
 
 	def test_view(self):
 		response = self.client.get("/room/{0}/".format(self.r.title))
@@ -33,11 +35,13 @@ class TestViews(TestCase):
 		self.assertIn(self.r.title, response.content)
 		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
 					  response.content)
+		self.assertNotIn("Login", response.content)
 
 	def test_edit(self):
 		response = self.client.get("/room/{0}/edit".format(self.r.title))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.r.title, response.content)
+		self.assertNotIn("Login", response.content)
 
 class TestAddRoom(TestCase):
 	def setUp(self):

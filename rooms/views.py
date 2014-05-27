@@ -2,6 +2,7 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
 
 from base.decorators import profile_required, admin_required
 from base.models import UserProfile
@@ -17,7 +18,7 @@ def list_rooms(request):
 		'page_name': page_name,
 		'rooms': rooms,
 		'can_add': can_add,
-	})
+	}, context_instance=RequestContext(request))
 
 @admin_required
 def add_room(request):
@@ -31,7 +32,7 @@ def add_room(request):
 	return render_to_response('add_room.html', {
 		'page_name': page_name,
 		'add_form': add_form,
-	})
+	}, context_instance=RequestContext(request))
 
 @profile_required
 def view_room(request, room_title):
@@ -46,7 +47,7 @@ def view_room(request, room_title):
 		'page_name': page_name,
 		'can_edit': can_edit,
 		'room': room,
-	})
+	}, context_instance=RequestContext(request))
 
 @admin_required
 def edit_room(request, room_title):
@@ -64,4 +65,4 @@ def edit_room(request, room_title):
 		'page_name': page_name,
 		'room': room,
 		'edit_form': edit_form,
-	})
+	}, context_instance=RequestContext(request))
