@@ -12,11 +12,12 @@ from rooms.forms import RoomForm, RoomForm
 @profile_required
 def list_rooms(request):
 	rooms = Room.objects.all()
+	residents = [UserProfile.objects.filter(current_room=i) for i in rooms]
 	page_name = "Room List"
 	can_add = request.user.is_superuser
 	return render_to_response('list_rooms.html', {
 		'page_name': page_name,
-		'rooms': rooms,
+		'room_tuples': zip(rooms, residents),
 		'can_add': can_add,
 	}, context_instance=RequestContext(request))
 
@@ -41,12 +42,14 @@ def view_room(request, room_title):
 	if room.unofficial_name:
 		page_name += " ({0})".format(room.unofficial_name)
 	profile = UserProfile.objects.get(user=request.user)
-	can_edit = (profile in room.residents.all() or request.user.is_superuser)
+	can_edit = (room == profile.current_room or request.user.is_superuser)
+	residents = UserProfile.objects.filter(current_room=room)
 
 	return render_to_response('view_room.html', {
 		'page_name': page_name,
 		'can_edit': can_edit,
 		'room': room,
+		'residents': residents,
 	}, context_instance=RequestContext(request))
 
 @admin_required

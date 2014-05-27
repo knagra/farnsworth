@@ -2,8 +2,6 @@
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 
-from base.models import UserProfile
-
 alphanumeric = RegexValidator(r'^[0-9A-Z]+$', 'Only uppercase alphanumeric characters are allowed.')
 
 class Room(models.Model):
@@ -31,8 +29,6 @@ class Room(models.Model):
         validators=[MinValueValidator(0)],
         help_text="The total number of people that this room should house.",
         )
-	residents = models.ManyToManyField(
-        UserProfile,
-        blank=True,
-        help_text="Members who currently live in this room.",
-        )
+
+	def __unicode__(self):
+		return self.title

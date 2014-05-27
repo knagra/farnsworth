@@ -18,6 +18,7 @@ from base.models import UserProfile, ProfileRequest
 from threads.models import Thread, Message
 from managers.models import Manager, Announcement, RequestType, Request
 from events.models import Event
+from rooms.models import Room
 
 class TestLogin(TestCase):
 	def setUp(self):
@@ -383,7 +384,6 @@ class TestSocialRequest(TestCase):
 				"phone_number": "",
 				"status": self.pr.affiliation,
 				"current_room": "",
-				"former_rooms": "",
 				"former_houses": "",
 				"is_active": "on",
 				"add_user": "",
@@ -424,7 +424,6 @@ class TestProfileRequestAdmin(TestCase):
 				"phone_number": "",
 				"status": self.pr.affiliation,
 				"current_room": "",
-				"former_rooms": "",
 				"former_houses": "",
 				"is_active": "on",
 				"add_user": "",
@@ -447,7 +446,6 @@ class TestProfileRequestAdmin(TestCase):
 				"phone_number": "",
 				"status": self.pr.affiliation,
 				"current_room": "",
-				"former_rooms": "",
 				"former_houses": "",
 				"is_active": "on",
 				"add_user": "",
@@ -471,25 +469,32 @@ class TestProfilePages(TestCase):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
 		self.ou = User.objects.create_user(username="ou", email="ou@email.com")
 
+		self.r = Room(title="2E")
+		self.r.save()
+
+		self.fr = Room(title="1A")
+		self.fr.save()
+
 		self.profile = UserProfile.objects.get(user=self.u)
-		self.profile.current_room = "Test Current Room"
-		self.profile.former_rooms = "Test Former Room, Test Formerer Room"
+		self.profile.current_room = self.r
 		self.profile.former_houses = "Test House, Test Houser, Test Housest"
 		self.profile.phone_number = "(111) 111-1111"
 		self.profile.email_visible = False
 		self.profile.phone_visible = False
 		self.profile.status = UserProfile.RESIDENT
 		self.profile.save()
+		self.profile.former_rooms = [self.fr]
+		self.profile.save()
 
 		self.oprofile = UserProfile.objects.get(user=self.ou)
-		self.oprofile.current_room = "Other Test Current Room"
-		self.oprofile.former_rooms = "Other Test Former Room, Test Formerer Room"
+		self.oprofile.current_room = self.r
 		self.oprofile.former_houses = "Other Test House, Test Houser, Test Housest"
 		self.oprofile.phone_number = "(222) 222-2222"
 		self.oprofile.email_visible = False
 		self.oprofile.phone_visible = False
 		self.oprofile.status = UserProfile.RESIDENT
 		self.oprofile.save()
+		self.oprofile.former_rooms = [self.fr]
 
 		self.client.login(username="u", password="pwd")
 
@@ -499,8 +504,8 @@ class TestProfilePages(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Update Your Profile", response.content)
 		self.assertIn(self.u.email, response.content)
-		self.assertIn(self.profile.current_room, response.content)
-		self.assertIn(self.profile.former_rooms, response.content)
+		self.assertIn(self.profile.current_room.title, response.content)
+		self.assertIn(self.profile.former_rooms.all()[0].title, response.content)
 		self.assertIn(self.profile.former_houses, response.content)
 		self.assertIn(self.profile.phone_number, response.content)
 
@@ -516,8 +521,8 @@ class TestProfilePages(TestCase):
 		self.assertIn("{0} {1}".format(self.ou.first_name, self.ou.last_name),
 			      response.content)
 		self.assertIn(UserProfile.STATUS_CHOICES[0][1], response.content)
-		self.assertIn(self.oprofile.current_room, response.content)
-		self.assertIn(self.oprofile.former_rooms, response.content)
+		self.assertIn(self.oprofile.current_room.title, response.content)
+		self.assertIn(self.oprofile.former_rooms.all()[0].title, response.content)
 		self.assertIn(self.oprofile.former_houses, response.content)
 		self.assertNotIn(self.oprofile.phone_number, response.content)
 		self.assertIn("Threads Started", response.content)

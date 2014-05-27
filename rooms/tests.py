@@ -5,6 +5,9 @@ from rooms.models import Room
 
 class TestViews(TestCase):
 	def setUp(self):
+		self.r = Room(title="2E")
+		self.r.save()
+
 		self.su = User.objects.create_user(username="su", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True
@@ -12,9 +15,9 @@ class TestViews(TestCase):
 		self.su.last_name = "User"
 		self.su.save()
 
-		self.r = Room(title="2E")
-		self.r.save()
-		self.r.residents = UserProfile.objects.filter(user=self.su)
+		profile = UserProfile.objects.get(user=self.su)
+		profile.current_room = self.r
+		profile.save()
 
 		self.client.login(username="su", password="pwd")
 
@@ -33,6 +36,7 @@ class TestViews(TestCase):
 		response = self.client.get("/room/{0}/".format(self.r.title))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.r.title, response.content)
+		#print response.content
 		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
 					  response.content)
 		self.assertNotIn("Login", response.content)
@@ -165,15 +169,14 @@ class TestEditRoom(TestCase):
 			"unofficial_name": "Starry Night Surprise",
 			"description": "Previous home to the best person on earth.",
 			"occupancy": 5,
-			"residents": self.su.pk,
 		}, follow=True)
 		self.assertRedirects(response, "/room/{0}/".format(self.r.title))
 		self.assertIn("2E", response.content)
 		self.assertIn("Total occupancy: 5", response.content)
 		self.assertIn("Starry Night Surprise", response.content)
 		self.assertIn("Previous home to the best person on earth.", response.content)
-		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
-					  response.content)
+		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
+						response.content)
 
 	def test_no_duplicate(self):
 		r = Room(title="1A")
@@ -194,12 +197,11 @@ class TestEditRoom(TestCase):
 			"unofficial_name": "",
 			"description": "",
 			"occupancy": 5,
-			"residents": self.su.pk,
 		}, follow=True)
 		self.assertRedirects(response, "/room/{0}/".format(self.r.title))
 		self.assertIn("Total occupancy: 5", response.content)
 		self.assertNotIn("Starry Night Surprise", response.content)
-		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
+		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
 					  response.content)
 
 	def test_bad_occupancy(self):
