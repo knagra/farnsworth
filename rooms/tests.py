@@ -52,6 +52,9 @@ class TestAddRoom(TestCase):
 		self.su.last_name = "User"
 		self.su.save()
 
+		self.r = Room(title="1A")
+		self.r.save()
+
 		self.client.login(username="su", password="pwd")
 
 	def test_add_room(self):
@@ -69,6 +72,44 @@ class TestAddRoom(TestCase):
 		self.assertNotIn("Home to the best person on earth.", response.content)
 		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
 						response.content)
+
+	def test_no_duplicate(self):
+		response = self.client.post("/rooms/add", {
+			"title": "1A",
+			"unofficial_name": "",
+			"description": "",
+			"occupancy": 1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("This room title is already in use.", response.content)
+
+	def test_bad_title(self):
+		response = self.client.post("/rooms/add", {
+			"title": "",
+			"unofficial_name": "",
+			"description": "",
+			"occupancy": 1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("This field is required.", response.content)
+
+		response = self.client.post("/rooms/add", {
+			"title": "2e",
+			"unofficial_name": "",
+			"description": "",
+			"occupancy": 1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Only uppercase alphanumeric characters are allowed.", response.content)
+
+		response = self.client.post("/rooms/add", {
+			"title": "2_",
+			"unofficial_name": "",
+			"description": "",
+			"occupancy": 1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Only uppercase alphanumeric characters are allowed.", response.content)
 
 	def test_bad_occupancy(self):
 		response = self.client.post("/rooms/add", {
@@ -120,6 +161,7 @@ class TestEditRoom(TestCase):
 
 	def test_edit_room(self):
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"title": self.r.title,
 			"unofficial_name": "Starry Night Surprise",
 			"description": "Previous home to the best person on earth.",
 			"occupancy": 5,
@@ -135,6 +177,7 @@ class TestEditRoom(TestCase):
 
 	def test_edit_room_minimal(self):
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"title": self.r.title,
 			"unofficial_name": "",
 			"description": "",
 			"occupancy": 5,
@@ -148,6 +191,7 @@ class TestEditRoom(TestCase):
 
 	def test_bad_occupancy(self):
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"title": self.r.title,
 			"unofficial_name": "Starry Night",
 			"description": "Home to the best person on earth.",
 			"occupancy": -1,
@@ -156,9 +200,38 @@ class TestEditRoom(TestCase):
 		self.assertIn("Ensure this value is greater than or equal to 0.", response.content)
 
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"title": self.r.title,
 			"unofficial_name": "Starry Night",
 			"description": "Home to the best person on earth.",
 			"occupancy": "",
 		})
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("This field is required.", response.content)
+
+	def test_bad_title(self):
+		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"title": "",
+			"unofficial_name": "",
+			"description": "",
+			"occupancy": 1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("This field is required.", response.content)
+
+		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"title": "2a",
+			"unofficial_name": "",
+			"description": "",
+			"occupancy": 1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Only uppercase alphanumeric characters are allowed.", response.content)
+
+		response = self.client.post("/room/{0}/edit".format(self.r.title), {
+			"title": "3_",
+			"unofficial_name": "",
+			"description": "",
+			"occupancy": 1,
+		})
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Only uppercase alphanumeric characters are allowed.", response.content)

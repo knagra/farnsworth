@@ -58,8 +58,8 @@ def edit_room(request, room_title):
 	edit_form = EditRoomForm(request.POST or None, instance=room)
 
 	if edit_form.is_valid():
-		edit_form.save()
-		return HttpResponseRedirect(reverse('view_room', kwargs={'room_title': room_title}))
+		room = edit_form.save()
+		return HttpResponseRedirect(reverse('view_room', kwargs={'room_title': room.title}))
 
 	return render_to_response('edit_room.html', {
 		'page_name': page_name,
