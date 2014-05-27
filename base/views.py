@@ -281,7 +281,7 @@ def my_profile_view(request):
 								'change_password_form': change_password_form,
 								}, context_instance=RequestContext(request))
 				else:
-					change_password_form._errors['current_password'] = forms.util.ErrorList([u"Wrong password."])
+					change_password_form._errors['current_password'] = forms.utils.ErrorList([u"Wrong password."])
 		elif 'submit_profile_form' in request.POST:
 			update_profile_form = UpdateProfileForm(request.POST)
 			if update_profile_form.is_valid():
@@ -305,7 +305,7 @@ def my_profile_view(request):
 					messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
 					return HttpResponseRedirect(reverse('my_profile'))
 				else:
-					update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
+					update_profile_form._errors['enter_password'] = forms.utils.ErrorList([u"Wrong password"])
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	return render_to_response('my_profile.html', {
@@ -447,7 +447,7 @@ def request_profile_view(request):
 		confirm_password = form.cleaned_data['confirm_password']
 		hashed_password = hashers.make_password(password)
 		if User.objects.filter(username=username).count():
-			form._errors['first_name'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
+			form._errors['first_name'] = forms.utils.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
 		elif ProfileRequest.objects.filter(first_name=first_name, last_name=last_name).count():
 			form.errors['__all__'] = form.error_class([MESSAGES["PROFILE_TAKEN"].format(first_name=first_name, last_name=last_name)])
 		elif not hashers.is_password_usable(hashed_password):
@@ -710,7 +710,7 @@ def custom_modify_user_view(request, targetUsername):
 			username = delete_user_form.cleaned_data['username']
 			password = delete_user_form.cleaned_data['password']
 			if not hashers.check_password(password, request.user.password):
-				delete_user_form._errors['password'] = forms.util.ErrorList([u"Wrong password."])
+				delete_user_form._errors['password'] = forms.utils.ErrorList([u"Wrong password."])
 			elif username == targetUsername:
 				targetUser.delete()
 				message = MESSAGES['USER_DELETED'].format(username=username)

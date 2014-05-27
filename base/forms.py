@@ -32,8 +32,8 @@ class ProfileRequestForm(forms.Form):
 			self._errors['username'] = self.error_class([MESSAGES['INVALID_USERNAME']])
 			validity = False
 		if self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
-			self._errors['password'] = forms.util.ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['password'] = forms.utils.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.utils.ErrorList([u"Passwords don't match."])
 			validity = False
 		return validity
 
@@ -70,8 +70,8 @@ class AddUserForm(forms.Form):
 			self._errors['username'] = self.error_class([MESSAGES['INVALID_USERNAME']])
 			validity = False
 		if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
-			self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['user_password'] = forms.utils.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.utils.ErrorList([u"Passwords don't match."])
 			validity = False
 		return validity
 
@@ -124,8 +124,8 @@ class ChangeUserPasswordForm(forms.Form):
 		if not super(ChangeUserPasswordForm, self).is_valid():
 			return False
 		elif self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
-			self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['user_password'] = forms.utils.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.utils.ErrorList([u"Passwords don't match."])
 			return False
 		return True
 
