@@ -12,7 +12,11 @@
 
 {% block content %}
 <div class="table_container">
-  <div class="header">
+  <div class="header">{% if can_add %}
+	<form action="{% url 'add_room' %}" class="header_form">
+	  <button class="btn btn btn-primary"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Room</span></button>
+	</form>
+	{% endif %}
 	<h3 class="table_title small_title">{{ page_name }}</h3>
   </div> <!-- .header -->
   <div class="rooms_table main_table">

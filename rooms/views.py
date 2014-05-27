@@ -12,9 +12,11 @@ from rooms.forms import AddRoomForm, EditRoomForm
 def list_rooms(request):
 	rooms = Room.objects.all()
 	page_name = "Room List"
+	can_add = request.user.is_superuser
 	return render_to_response('list_rooms.html', {
 		'page_name': page_name,
 		'rooms': rooms,
+		'can_add': can_add,
 	})
 
 @admin_required
