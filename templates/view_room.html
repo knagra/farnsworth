@@ -18,7 +18,9 @@
     <h3 class="table_title medium_title">{{ page_name }}</h3>
   </div> <!-- .header -->
   <div class="main_body">
-	{{ room.description }}
+	<div>
+	  {{ room.description|safe }}
+	</div>
 	<p>Current residents:
 	  {% for person in room.residents.all %}
 	  {% if not forloop.first %},{% endif %}
