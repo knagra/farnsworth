@@ -140,6 +140,7 @@ def homepage_view(request, message=None):
 				relevant_request.filled = response_form.cleaned_data['mark_filled']
 				new_response.manager = True
 				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
+				relevant_request.number_of_responses += 1
 				relevant_request.save()
 				new_response.save()
 				if relevant_request.closed:
