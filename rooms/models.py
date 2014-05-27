@@ -15,7 +15,7 @@ class Room(models.Model):
         validators=[alphanumeric],
         help_text="The title of the room (i.e. '2E'). Characters A-Z, 0-9.",
         )
-	unofficial_name  = models.CharField(
+	unofficial_name = models.CharField(
         blank=True,
         null=True,
         max_length=100,
