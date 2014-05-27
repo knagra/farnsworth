@@ -26,6 +26,8 @@ class TestViews(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.r.title, response.content)
 		self.assertNotIn("Login", response.content)
+		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
+					  response.content)
 
 	def test_add(self):
 		response = self.client.get("/rooms/add")
