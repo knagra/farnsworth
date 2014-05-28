@@ -30,10 +30,10 @@ MANAGERS = ADMINS
 BASE_URL = "/" + SHORT_HOUSE_NAME.lower()
 
 # Name of the house
-house = "Kingman Hall"
+house = HOUSE_NAME
 
 # Short name of the house.  Alphabet only; otherwise, search won't work.
-short_house = "Kingman"
+short_house = SHORT_HOUSE_NAME
 
 try:
 	NETWORK_MANAGER_PASSWORD
