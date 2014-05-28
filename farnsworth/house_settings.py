@@ -1,4 +1,9 @@
 
+### Base site domain (i.e. "kingmanhall.org")
+### Required by Django when not in debug mode.
+
+SITE_DOMAIN = ""
+
 ### The full house name (i.e. "Kingman Hall")
 HOUSE_NAME = ""
 
@@ -11,7 +16,9 @@ HOUSE_ABBREV = ""
 ### Password to PostgreSQL database. If unset, a SQLite database will be used instead.
 #
 ### The username is expected to be SHORT_HOUSE_NAME.lower() + "_admin"
-### but that can be over within local_settings.py
+### The user should have all privileges over the SHORT_HOUSE.lower() database.
+###
+### Both of these defaults can be overriden within local_settings.py
 ###
 ### Django also supports other database backends, including SQLite and MySQL
 
