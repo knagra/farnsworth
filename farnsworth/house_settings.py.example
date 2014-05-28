@@ -3,15 +3,23 @@
 ###
 
 ### Make this long, unique, and don't share it with anybody.
+###
+### You can generate a random key via:
+###
+### python -c "from django.utils.crypto import get_random_string ; print get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789\!@#\$%^&*(-_=+)')"
+
 SECRET_KEY = ''
 
 ### The full house name (i.e. "Kingman Hall")
+
 HOUSE_NAME = ""
 
 ### A shorter version of the house name, for display in navbar (i.e. "Kingman")
+
 SHORT_HOUSE_NAME = ""
 
 ### Used for generating manager contacts for BSC email accounts (i.e. "kng")
+
 HOUSE_ABBREV = ""
 
 ### Base site domain (i.e. "kingmanhall.org")
