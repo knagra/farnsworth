@@ -107,8 +107,8 @@ if POSTGRES_PASSWORD:
 	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': SHORT_HOUSE.lower(),
-			'USER': SHORT_HOUSE.lower() + '_admin',
+			'NAME': SHORT_HOUSE_NAME.lower(),
+			'USER': SHORT_HOUSE_NAME.lower() + '_admin',
 			'PASSWORD': POSTGRES_PASSWORD,
 			'HOST': 'localhost',
 			'PORT': '',
