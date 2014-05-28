@@ -16,9 +16,9 @@ from datetime import datetime, timedelta
 
 from social.apps.django_app.default.models import UserSocialAuth
 
-from farnsworth.settings import house, short_house, ADMINS, max_threads, max_messages, \
-    home_max_announcements, home_max_threads, SEND_EMAILS, EMAIL_HOST_USER, \
-    EMAIL_BLACKLIST
+from farnsworth.settings import HOUSE_NAME, SHORT_HOUSE_NAME, ADMINS, \
+	 max_threads, max_messages, home_max_announcements, home_max_threads, \
+	SEND_EMAILS
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
 	APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
 	SUBMISSION_EMAIL
@@ -34,6 +34,11 @@ from managers.models import RequestType, Manager, Request, Response, Announcemen
 from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, UnpinForm
 from events.models import Event
 from events.forms import RsvpForm
+
+try:
+	from farnsworth.settings import EMAIL_HOST_USER, EMAIL_BLACKLIST
+except ImportError:
+	EMAIL_HOST_USER, EMAIL_BLACKLIST = None, None
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -55,9 +60,9 @@ def add_context(request):
 		request_types.append((request_type, Request.objects.filter(request_type=request_type, filled=False, closed=False).count()))
 	return {
 		'REQUEST_TYPES': request_types,
-		'HOUSE': house,
+		'HOUSE': HOUSE_NAME,
 		'ANONYMOUS_USERNAME':ANONYMOUS_USERNAME,
-		'SHORT_HOUSE': short_house,
+		'SHORT_HOUSE': SHORT_HOUSE_NAME,
 		'ADMIN': ADMINS[0],
 		'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
 		'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
