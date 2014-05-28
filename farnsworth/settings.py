@@ -11,9 +11,9 @@ import sys
 from django.conf import global_settings
 
 try:
-		from farnsworth.house_settings import *
+	from farnsworth.house_settings import *
 except ImportError:
-	   pass
+	pass
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
