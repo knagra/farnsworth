@@ -11,9 +11,9 @@ import sys
 from django.conf import global_settings
 
 try:
-		from farnsworth.house_settings import *
+	from farnsworth.house_settings import *
 except ImportError:
-	   pass
+	pass
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -107,8 +107,8 @@ if POSTGRES_PASSWORD:
 	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': SHORT_HOUSE.lower(),
-			'USER': SHORT_HOUSE.lower() + '_admin',
+			'NAME': SHORT_HOUSE_NAME.lower(),
+			'USER': SHORT_HOUSE_NAME.lower() + '_admin',
 			'PASSWORD': POSTGRES_PASSWORD,
 			'HOST': 'localhost',
 			'PORT': '',
@@ -261,19 +261,19 @@ except NameError:
 if ENABLE_OAUTH:
 	try:
 		if SOCIAL_AUTH_FACEBOOK_KEY and SOCIAL_AUTH_FACEBOOK_SECRET:
-			AUTHENTICATION_BACKENDS.insert(0, 'social.backends.facebook.FacebookOAuth2')
+			AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',) + AUTHENTICATION_BACKENDS
 	except NameError:
 		pass
 
 	try:
 		if SOCIAL_AUTH_GITHUB_KEY and SOCIAL_AUTH_GITHUB_SECRET:
-			AUTHENTICATION_BACKENDS.insert(0, 'social.backends.github.GithubOAuth2')
+			AUTHENTICATION_BACKENDS = ('social.backends.github.GithubOAuth2',) + AUTHENTICATION_BACKENDS
 	except NameError:
 		pass
 
 	try:
 		if SOCIAL_AUTH_GOOGLE_OAUTH2_KEY and SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET:
-			AUTHENTICATION_BACKENDS.insert(0, 'social.backends.google.GoogleOAuth2')
+			AUTHENTICATION_BACKENDS = ('social.backends.google.GoogleOAuth2',) + AUTHENTICATION_BACKENDS
 	except NameError:
 		pass
 
