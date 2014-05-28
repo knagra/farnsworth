@@ -1,11 +1,9 @@
+###
+### Rename to house_settings.py and fill in the relevant fields.
+###
 
-# Make this long, unique, and don't share it with anybody.
+### Make this long, unique, and don't share it with anybody.
 SECRET_KEY = ''
-
-### Base site domain (i.e. "kingmanhall.org")
-### Required by Django when not in debug mode.
-
-SITE_DOMAIN = ""
 
 ### The full house name (i.e. "Kingman Hall")
 HOUSE_NAME = ""
@@ -15,6 +13,11 @@ SHORT_HOUSE_NAME = ""
 
 ### Used for generating manager contacts for BSC email accounts (i.e. "kng")
 HOUSE_ABBREV = ""
+
+### Base site domain (i.e. "kingmanhall.org")
+### Required by Django when not in debug mode.
+
+# SITE_DOMAIN = ""
 
 ### Password to PostgreSQL database. If unset, a SQLite database will be used instead.
 #

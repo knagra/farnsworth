@@ -22,12 +22,12 @@ ADMINS = (
 	# This top admin is used on all pages as the support contact.
 	# The e-mail for this admin is used as the reply-to e-mail for e-mails
 	# if sending e-mails is enabled.
-	(SHORT_HOUSE + " Network Manager", HOUSE_ABBREV + "nm@bsc.coop"),
+	(SHORT_HOUSE_NAME + " Network Manager", HOUSE_ABBREV + "nm@bsc.coop"),
 )
 
 MANAGERS = ADMINS
 
-BASE_URL = "/" + SHORT_HOUSE.lower()
+BASE_URL = "/" + SHORT_HOUSE_NAME.lower()
 
 # Name of the house
 house = "Kingman Hall"
@@ -87,6 +87,11 @@ home_max_threads = 15
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("base.views.add_context",)
 
+try:
+	ENABLE_OAUTH
+except NameError:
+	ENABLE_OAUTH = None
+
 if ENABLE_OAUTH:
 	TEMPLATE_CONTEXT_PROCESSORS += (
 		'social.apps.django_app.context_processors.backends',
@@ -102,7 +107,7 @@ if POSTGRES_PASSWORD:
 	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': SHORT_HOUSE.lower()
+			'NAME': SHORT_HOUSE.lower(),
 			'USER': SHORT_HOUSE.lower() + '_admin',
 			'PASSWORD': POSTGRES_PASSWORD,
 			'HOST': 'localhost',
@@ -130,6 +135,11 @@ if 'test' in sys.argv:
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+try:
+	SITE_DOMAIN
+except NameError:
+	SITE_DOMAIN = None
+
 if SITE_DOMAIN:
 	# Matches SITE_DOMAIN and "*.SITE_DOMAIN"
 	ALLOWED_HOSTS = ["." + SITE_DOMAIN]
@@ -248,7 +258,7 @@ try:
 except NameError:
 	ENABLE_OAUTH = False
 
-if ENABLE_OAUTH
+if ENABLE_OAUTH:
 	try:
 		if SOCIAL_AUTH_FACEBOOK_KEY and SOCIAL_AUTH_FACEBOOK_SECRET:
 			AUTHENTICATION_BACKENDS.insert(0, 'social.backends.facebook.FacebookOAuth2')
