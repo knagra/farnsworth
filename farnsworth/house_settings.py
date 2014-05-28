@@ -1,4 +1,7 @@
 
+# Make this long, unique, and don't share it with anybody.
+SECRET_KEY = ''
+
 ### Base site domain (i.e. "kingmanhall.org")
 ### Required by Django when not in debug mode.
 
@@ -22,13 +25,14 @@ HOUSE_ABBREV = ""
 ###
 ### Django also supports other database backends, including SQLite and MySQL
 
-POSTGRES_PASSWORD = ""
+# POSTGRES_PASSWORD = ""
 
 ### Password to house network manager email account (i.e. "kngnm@bsc.coop")
 ###
 ### This is used to send out emails for account-related communications. If it is
 ### left unset, no emails will be sent out.
-NETWORK_MANAGER = ""
+
+# NETWORK_MANAGER_PASSWORD = ""
 
 ### Enable logins via OAuth from a few common providers (Google, Facebook, Github)
 
