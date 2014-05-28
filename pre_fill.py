@@ -190,7 +190,7 @@ def main(args):
 			url_title=convert_to_url(title),
 			compensation=compensation,
 			duties=duties,
-			email="{0}{1}@bsc.coop".format(settings.SHORTER_HOUSE, email) if email else "",
+			email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
 			president="president" in title.lower(),
 			workshift_manager="workshift" in title.lower(),
 			)
