@@ -1,0 +1,65 @@
+
+### The full house name (i.e. "Kingman Hall")
+HOUSE_NAME = ""
+
+### A shorter version of the house name, for display in navbar (i.e. "Kingman")
+SHORT_HOUSE_NAME = ""
+
+### Used for generating manager contacts for BSC email accounts (i.e. "kng")
+HOUSE_ABBREV = ""
+
+### Password to PostgreSQL database. If unset, a SQLite database will be used instead.
+#
+### The username is expected to be SHORT_HOUSE_NAME.lower() + "_admin"
+### but that can be over within local_settings.py
+###
+### Django also supports other database backends, including SQLite and MySQL
+
+POSTGRES_PASSWORD = ""
+
+### Password to house network manager email account (i.e. "kngnm@bsc.coop")
+###
+### This is used to send out emails for account-related communications. If it is
+### left unset, no emails will be sent out.
+NETWORK_MANAGER = ""
+
+### Enable logins via OAuth from a few common providers (Google, Facebook, Github)
+
+# ENABLE_OAUTH = True
+
+### OAuth provider credentials, needed to enable logins with these providers.
+
+### Facebook
+### http://developers.facebook.com/docs/authentication/
+
+# SOCIAL_AUTH_FACEBOOK_KEY = ''
+# SOCIAL_AUTH_FACEBOOK_SECRET = ''
+
+### Github
+### http://psa.matiasaguirre.net/docs/backends/github.html#github
+
+# SOCIAL_AUTH_GITHUB_KEY = ''
+# SOCIAL_AUTH_GITHUB_SECRET = ''
+
+### http://psa.matiasaguirre.net/docs/backends/google.html#google-oauth2
+### https://console.developers.google.com/project
+### => Create Project
+###
+### - Give the project a name: i.e. "<house>"
+###
+### => Project -> APIs & auth -> Credentials
+###
+### - "Create New Client ID"
+###       AUTHORIZED JAVASCRIPT ORIGINS: https://www.example.com
+###       AUTHORIZED REDIRECT URI: https://www.example.com/complete/google-oauth2/
+###
+### - Copy "Client ID" and "Client secret"
+### - Set below: SOCIAL_AUTH_GOOGLE_OAUTH2_KEY="<Client ID>"
+### - Set below: SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET="<Client ID>"
+###
+### => Project -> APIs & auth -> APIs -> Google+ API
+###
+### - Enable this API
+
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
