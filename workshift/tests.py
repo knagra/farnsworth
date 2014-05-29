@@ -111,3 +111,25 @@ class BasicTest(TestCase):
 
 			response = self.client.get(prefix + url[:-1])
 			self.assertEqual(response.status_code, 200)
+
+	def test_type(self):
+		response = self.client.get("/workshift/types/")
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.wtype.title, response.content)
+		self.assertIn(self.wtype.hours, response.content)
+		self.assertNotIn(self.wtype.quick_tips, response.content)
+		self.assertNotIn(self.wtype.description, response.content)
+
+		response = self.client.get("/workshift/type/{0}/".format(self.wtype.pk))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.wtype.title, response.content)
+		self.assertIn(self.wtype.hours, response.content)
+		self.assertIn(self.wtype.quick_tips, response.content)
+		self.assertIn(self.wtype.description, response.content)
+
+		response = self.client.get("/workshift/type/{0}/edit/".format(self.wtype.pk))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.wtype.title, response.content)
+		self.assertIn(self.wtype.hours, response.content)
+		self.assertIn(self.wtype.quick_tips, response.content)
+		self.assertIn(self.wtype.description, response.content)
