@@ -1,3 +1,7 @@
 from django.test import TestCase
 
-# Create your tests here.
+from workshift.models import *
+
+class TestModel(TestCase):
+    def test_models(self):
+        pass

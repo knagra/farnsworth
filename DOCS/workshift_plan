@@ -5,10 +5,14 @@ Preserve previous semester records.  Allow superuser to delete records.
 
 [DONE] Modify Manager model to hold summer and semester hours per week fields.  Toggle giving workshift by active status.
 
-[DONE] Semester ("Summer" | "Fall" | "Spring", Year, Workshift Managers [manytomany Manager], default required hours, workshift rate, start date, end date,
-		fine dates)
+[DONE] Semester ("Summer" | "Fall" | "Spring"), Year, start date, end date, workshift rate, preferences_open)
 	Unique together: "Fall" etc. & Year
-	e.g., "Summer, 2014, So-and-So workshift manager, 5 hours per week standard, 13.30"
+	e.g., "Summer, 2014, 13.00"
+
+WorkshiftPool: title, semester, Workshift Managers [manytomany Manager], default required hours, weekly_frequency, fine dates
+	e.g. "Weekly Hours, Workshift Manager, 5 hours, every week",
+	"HI Hours, Maintenance Manager, 4 hours, whole semester",
+	"Humor Hours, Workshift Manager, 2 hours, every six weeks"
 
 WorkshiftType (title [unique], description of duties, default hours, show_in_preferences boolean).
 	Use these for preference selection and to standardize changes to workshift descriptions.
@@ -25,17 +29,15 @@ WorkshiftProfile (user foreign key, Semester, timeblocks, workshift ratings, wee
 	e.g., "Karandeep Nagra, Summer 2014, <list of time blocks>, 5, up 5 hours, -2 hours adjusted, 'gone for a few days in the semester',
 		[(30 July 2014, +250 hours), (15 August 2014, +500 hours)])"
 
-WeeklyWorkshift (WorkshiftType foreign key, title [pre-fill], day-of-week, hours [pre-fill], active boolean [pre-fill], current_assignee (workshift profile),
+RegularWorkshift (WorkshiftType foreign key, title [pre-fill], day-of-week, hours [pre-fill], active boolean [pre-fill], current_assignee (workshift profile),
 		start_time, end_time, description addendum)
 	e.g., "Pots, Afternoon Pots, Saturday, 1 hour, active, Karandeep Nagra"
 
-WeeklyWorkShiftInstance (WeeklyWorkshift, semester, date, workshifter [workshift profile], verifier [workshift profile], completed boolean)
+WorkshiftInstance (RegularWorkshift, WorkshiftPool, date, current_workshifter [workshift profile], completed boolean)
 
-SemesterlyWorkshift (WorkshiftType [optional], description/addendum, number required per semester, title, hours, active)
+OneTimeWorkshift (WorkshiftPool, description, assignee [workshift profile], hours, datetime)
+	e.g. "Helped with dump run on 5/22"
 
-SemesteryWorkshiftInstance (SemesterlyWorkshift, semester, start_time, end_time, assignee [workshift profile])
-
-OneTimeWorkshift (description, assignee [workshift profile], hours, datetime)
-
-AssignmentEntry (WeeklyWorkShiftInstance, assignee [optional], entry_time)
-	e.g. "Karandeep Nagra signed into dishes shift for tomorrow"
+AssignmentEntry (WorkshiftInstance, person, ("sign-in"|"Sign out"|"Verify"), entry_time)
+	e.g. "Karandeep Nagra signed into dishes shift for tomorrow at 1pm"
+	"Nader Morshed signed out of co-cook shift on Friday at 12pm"
