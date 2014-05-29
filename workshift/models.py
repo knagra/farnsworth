@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from utils.variables import DayField
 from farnsworth.settings import DEFAULT_SEMESTER_HOURS, DEFAULT_CUTOFF, DEFAULT_WORKSHIFT_HOURS
 from threads.models import UserProfile
-	
+
 class Semester(models.Model):
 	'''
 	A semester instance, used to hold records, settings, and to separate workshifts into contained units.
@@ -36,10 +36,11 @@ class Semester(models.Model):
 	first_fine_date = models.DateField(null=True, blank=True, help_text="First fine date for this semester, optional.")
 	second_fine_date = models.DateField(null=True, blank=True, help_text="Second fine date for this semester, optional.")
 	third_fine_date = models.DateField(null=True, blank=True, help_text="Third fine date for this semester, optional.")
-	
+    preferences_open = models.BooleanField(default=False, help_text="Whether members can enter their workshift preferences")
+
 	class Meta:
 		unique_together = ("season", "year")
-		
+
 	def __unicode__(self):
 		return "%s %s" % (self.get_season_display, self.year)
 
@@ -53,7 +54,7 @@ class WorkshiftType(models.Model):
 	quick_tips = models.TextField(blank=True, null=True, help_text="Quick tips to the workshifter.")
 	hours = models.DecimalField(default=1, help_text="Default hours for these types of shifts, helpful for pre-filling workshifts.")
 	rateable = models.BooleanField(default=True, help_text="Whether this workshift type is shown in preferences.")
-	
+
 	def __unicode__(self):
 		return self.name
 
@@ -108,7 +109,7 @@ class WorkshiftProfile(models.Model):
 		help_text="The fines or repayment for this profile at the second fine date. Stored in a field for manual adjustment.")
 	third_date_fine = models.DecimalField(null=True, blank=True, default=0,
 		help_text="The fines or repayment for this profile at the third fine date. Stored in a field for manual adjustment.")
-	
+
 	def __unicode__(self):
 		return "%s, %s" % (self.user.get_full_name(), self.semester)
 
@@ -125,7 +126,7 @@ class WeeklyWorkshift(models.Model):
 	start_time = models.TimeField(help_text="Start time for this workshift.")
 	end_time = models.TimeField(help_text"End time for this workshift.")
 	addendum = models.TextField(help_text="Addendum to the description for this workshift.")
-	
+
 	def __unicode__(self):
 		return "%s, %s" % (self.title, self.get_day_display)
 
@@ -138,7 +139,7 @@ class WeeklyInstance(models.Model):
 		help_text="Workshifter who was signed into this shift at the time it started.")
 	verifier = models.ForeignKey(WorkshiftProfile, null=True, blank=True, related_name="verifier",
 		help_text="Workshifter who verified that this workshift was done.")
-	
+
 	def __unicode__(self):
 		return "%s, %s" % (self.weekly_workshift.title, self.date)
 
@@ -149,7 +150,7 @@ class SemesterlyWorkshift(models.Model):
 	required = models.SmallPositiveIntegerField(max_length=2, help_text="Number of these shifts required per semester.")
 	hours = models.DecimalField(default=DEFAULT_WORKSHIFT_HOURS, help_text="Hours each instance of this shift is worth.")
 	active = models.BooleanField(default=True, help_text="Whether this workshift is required currently.")
-	
+
 	def __unicode__(self);
 		return self.title
 
@@ -164,7 +165,7 @@ class SemesterlyInstance(models.Model):
 		help_text="Workshifter who was signed into this shift at the time it started.")
 	verifier = models.ForeignKey(WorkshiftProfile, null=True, blank=True, related_name="verifier",
 		help_text="Workshifter who verified that this workshift was done.")
-	
+
 	def __unicode__(self):
 		return "%s, %s" % (self.semesterly_workshift.title, self.date)
 
@@ -178,6 +179,6 @@ class OneTimeWorkshift(models.Model):
 		help_text="Workshifter who was signed into this shift at the time it started.")
 	verifier = models.ForeignKey(WorkshiftProfile, null=True, blank=True, related_name="verifier",
 		help_text="Workshifter who verified that this workshift was done.")
-	
+
 	def __unicode__(self):
 		return "%s, %s" % (self.title, self.date)
