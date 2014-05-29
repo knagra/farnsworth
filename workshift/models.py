@@ -211,16 +211,44 @@ class WorkshiftProfile(models.Model):
 		help_text="Current hours standing for this workshift profile.",
 		)
 	hour_adjustment = models.DecimalField(
+		max_digits=3,
+		decimal_places=2,
 		default=0,
 		help_text="Manual hour adjustment for this workshift profile.",
 		)
-	note = models.TextField(null=True, blank=True, help_text="Note for this profile. For communication between the workshifter and the workshift manager(s).")
-	first_date_fine = models.DecimalField(null=True, blank=True, default=0,
-		help_text="The fines or repayment for this profile at the first fine date. Stored in a field for manual adjustment.")
-	second_date_fine = models.DecimalField(null=True, blank=True, default=0,
-		help_text="The fines or repayment for this profile at the second fine date. Stored in a field for manual adjustment.")
-	third_date_fine = models.DecimalField(null=True, blank=True, default=0,
-		help_text="The fines or repayment for this profile at the third fine date. Stored in a field for manual adjustment.")
+	note = models.TextField(
+		null=True,
+		blank=True,
+		help_text="Note for this profile. For communication between the "
+		"workshifter and the workshift manager(s).",
+		)
+	first_date_fine = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		null=True,
+		blank=True,
+		default=0,
+		help_text="The fines or repayment for this profile at the first fine "
+		"date. Stored in a field for manual adjustment.",
+		)
+	second_date_fine = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		null=True,
+		blank=True,
+		default=0,
+		help_text="The fines or repayment for this profile at the second fine "
+		"date. Stored in a field for manual adjustment.",
+		)
+	third_date_fine = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		null=True,
+		blank=True,
+		default=0,
+		help_text="The fines or repayment for this profile at the third fine "
+		"date. Stored in a field for manual adjustment.",
+		)
 
 	def __unicode__(self):
 		return "%s, %s" % (self.user.get_full_name(), self.semester)
@@ -295,7 +323,7 @@ class WorkshiftInstance(models.Model):
 		WorkshiftProfile,
 		null=True,
 		blank=True,
-		related_name="workshifter",
+		related_name="instance_workshifter",
 		help_text="Workshifter who was signed into this shift at the time "
 		"it started.",
 		)
@@ -341,7 +369,7 @@ class OneTimeWorkshift(models.Model):
 		WorkshiftProfile,
 		null=True,
 		blank=True,
-		related_name="workshifter",
+		related_name="one_workshifter",
 		help_text="Workshifter who was signed into this shift at the time "
 		"it started.",
 		)
