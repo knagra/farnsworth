@@ -81,6 +81,14 @@ Author: Karandeep Singh Nagra
 	text-decoration: underline;
 }
 
+.main_link:focus {
+	outline: none;
+}
+
+.main_link:active {
+	outline: none;
+}
+
 .warning_link:hover {
 	color: #8a6d3b;
 }
@@ -127,6 +135,14 @@ Author: Karandeep Singh Nagra
 
 .btn-group .btn {
 	width: 50%;
+}
+
+.btn:focus {
+	outline: none !important;
+}
+
+.btn:active {
+	outline: none !important;
 }
 
 .vote_list {

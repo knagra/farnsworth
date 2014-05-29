@@ -16,9 +16,9 @@ from datetime import datetime, timedelta
 
 from social.apps.django_app.default.models import UserSocialAuth
 
-from farnsworth.settings import house, short_house, ADMINS, max_threads, max_messages, \
-    home_max_announcements, home_max_threads, SEND_EMAILS, EMAIL_HOST_USER, \
-    EMAIL_BLACKLIST
+from farnsworth.settings import HOUSE_NAME, SHORT_HOUSE_NAME, ADMINS, \
+	 max_threads, max_messages, home_max_announcements, home_max_threads, \
+	SEND_EMAILS
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
 	APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
 	SUBMISSION_EMAIL
@@ -34,6 +34,11 @@ from managers.models import RequestType, Manager, Request, Response, Announcemen
 from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, UnpinForm
 from events.models import Event
 from events.forms import RsvpForm
+
+try:
+	from farnsworth.settings import EMAIL_HOST_USER, EMAIL_BLACKLIST
+except ImportError:
+	EMAIL_HOST_USER, EMAIL_BLACKLIST = None, None
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -55,9 +60,9 @@ def add_context(request):
 		request_types.append((request_type, Request.objects.filter(request_type=request_type, filled=False, closed=False).count()))
 	return {
 		'REQUEST_TYPES': request_types,
-		'HOUSE': house,
+		'HOUSE': HOUSE_NAME,
 		'ANONYMOUS_USERNAME':ANONYMOUS_USERNAME,
-		'SHORT_HOUSE': short_house,
+		'SHORT_HOUSE': SHORT_HOUSE_NAME,
 		'ADMIN': ADMINS[0],
 		'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
 		'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
@@ -459,8 +464,8 @@ def request_profile_view(request):
 			profile_request.save()
 			messages.add_message(request, messages.SUCCESS, MESSAGES['PROFILE_SUBMITTED'])
 			if SEND_EMAILS and (email not in EMAIL_BLACKLIST):
-				submission_subject = SUBMISSION_SUBJECT.format(house=house)
-				submission_email = SUBMISSION_EMAIL.format(house=house, full_name=first_name + " " + last_name, admin_name=ADMINS[0][0],
+				submission_subject = SUBMISSION_SUBJECT.format(house=HOUSE_NAME)
+				submission_email = SUBMISSION_EMAIL.format(house=HOUSE_NAME, full_name=first_name + " " + last_name, admin_name=ADMINS[0][0],
 					admin_email=ADMINS[0][1])
 				try:
 					send_mail(submission_subject, submission_email, EMAIL_HOST_USER, [email], fail_silently=False)
@@ -498,8 +503,8 @@ def modify_profile_request_view(request, request_pk):
 		mod_form = ModifyProfileRequestForm(request.POST)
 		if 'delete_request' in request.POST:
 			if SEND_EMAILS and (profile_request.email not in EMAIL_BLACKLIST):
-				deletion_subject = DELETION_SUBJECT.format(house=house)
-				deletion_email = DELETION_EMAIL.format(house=house, full_name=profile_request.first_name + " " + profile_request.last_name,
+				deletion_subject = DELETION_SUBJECT.format(house=HOUSE_NAME)
+				deletion_email = DELETION_EMAIL.format(house=HOUSE_NAME, full_name=profile_request.first_name + " " + profile_request.last_name,
 					admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
 				try:
 					send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
@@ -562,7 +567,7 @@ def modify_profile_request_view(request, request_pk):
 					new_user_profile.former_houses = former_houses
 					new_user_profile.save()
 					if new_user.is_active and SEND_EMAILS and (email not in EMAIL_BLACKLIST):
-						approval_subject = APPROVAL_SUBJECT.format(house=house)
+						approval_subject = APPROVAL_SUBJECT.format(house=HOUSE_NAME)
 						if profile_request.provider:
 							username_bit = profile_request.provider.title()
 						elif new_user.username == profile_request.username:
@@ -570,7 +575,7 @@ def modify_profile_request_view(request, request_pk):
 						else:
 							username_bit = "the username %s and the password you selected" % new_user.username
 						login_url = request.build_absolute_uri(reverse('login'))
-						approval_email = APPROVAL_EMAIL.format(house=house, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
+						approval_email = APPROVAL_EMAIL.format(house=HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
 							admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
 						try:
 							send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [email], fail_silently=False)

@@ -10,40 +10,53 @@ import os.path
 import sys
 from django.conf import global_settings
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+try:
+	from farnsworth.house_settings import *
+except ImportError:
+	pass
+
+DEBUG = False
+# TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
 	# This top admin is used on all pages as the support contact.
 	# The e-mail for this admin is used as the reply-to e-mail for e-mails
 	# if sending e-mails is enabled.
-	('Karandeep Singh Nagra', 'karandeepsnagra@gmail.com'),
+	(SHORT_HOUSE_NAME + " Network Manager", HOUSE_ABBREV + "nm@bsc.coop"),
 )
 
 MANAGERS = ADMINS
 
-BASE_URL = "/farnsworth"
+BASE_URL = "/" + SHORT_HOUSE_NAME.lower()
 
 # Name of the house
-house = "African-American Theme House"
+house = HOUSE_NAME
 
 # Short name of the house.  Alphabet only; otherwise, search won't work.
-short_house = "Afro"
+short_house = SHORT_HOUSE_NAME
 
-# Whether e-mails are sent for certain events.
-# Currently, this includes approval or deletion of profile requests,
-# and profile request submission.
-# Change this setting to True and fill out the e-mail settings below
-# to send e-mails.
-SEND_EMAILS = False
+try:
+	NETWORK_MANAGER_PASSWORD
+except NameError:
+	NETWORK_MANAGER_PASSWORD = None
 
-# E-mail settings.  Enter your username and password to use Gmail.
-# You can also use a different SMTP server by changing these settings.
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'youremail@gmail.com'
-EMAIL_HOST_PASSWORD = 'yourpassword'
-EMAIL_PORT = 587
+if NETWORK_MANAGER_PASSWORD:
+	# Whether e-mails are sent for certain events.
+	# Currently, this includes approval or deletion of profile requests,
+	# and profile request submission.
+	# Change this setting to True and fill out the e-mail settings below
+	# to send e-mails.
+	SEND_EMAILS = True
+
+	# E-mail settings.  Enter your username and password to use Gmail.
+	# You can also use a different SMTP server by changing these settings.
+	EMAIL_USE_TLS = True
+	EMAIL_HOST = 'smtp.gmail.com'
+	EMAIL_HOST_USER = HOUSE_ABBREV + "nm@bsc.coop"
+	EMAIL_HOST_PASSWORD = NETWORK_MANAGER_PASSWORD
+	EMAIL_PORT = 587
+else:
+	SEND_EMAILS = False
 
 # E-mail blacklist.  E-mails will not be sent to these addresses no matter what.
 # Add e-mails here as strings separated by commas, to prevent the site from sending e-mails
@@ -74,33 +87,45 @@ home_max_threads = 15
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("base.views.add_context",)
 
-TEMPLATE_CONTEXT_PROCESSORS += (
-    'social.apps.django_app.context_processors.backends',
-)
+try:
+	ENABLE_OAUTH
+except NameError:
+	ENABLE_OAUTH = None
 
-# SQLite3 setup
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(os.path.dirname(__file__), 'farnsworth.db').replace('\\', '/'),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
-}
+if ENABLE_OAUTH:
+	TEMPLATE_CONTEXT_PROCESSORS += (
+		'social.apps.django_app.context_processors.backends',
+	)
 
-'''# PostgreSQL setup
-DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME': '<house>',
-		'USER': '<house>_admin',
-		'PASSWORD': '<password>',
-		'HOST': 'localhost',
-		'PORT': '',
+try:
+	POSTGRES_PASSWORD
+except NameError:
+	POSTGRES_PASSWORD = None
+
+if POSTGRES_PASSWORD:
+	# PostgreSQL setup
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'NAME': SHORT_HOUSE_NAME.lower(),
+			'USER': SHORT_HOUSE_NAME.lower() + '_admin',
+			'PASSWORD': POSTGRES_PASSWORD,
+			'HOST': 'localhost',
+			'PORT': '',
+        },
 	}
-}'''
+else:
+	# SQLite3 setup
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.sqlite3',
+			'NAME': os.path.join(os.path.dirname(__file__), 'farnsworth.db').replace('\\', '/'),
+			'USER': '',
+			'PASSWORD': '',
+			'HOST': '',
+			'PORT': '',
+		},
+	}
 
 if 'test' in sys.argv:
 	PASSWORD_HASHERS = (
@@ -110,7 +135,16 @@ if 'test' in sys.argv:
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+try:
+	SITE_DOMAIN
+except NameError:
+	SITE_DOMAIN = None
+
+if SITE_DOMAIN:
+	# Matches SITE_DOMAIN and "*.SITE_DOMAIN"
+	ALLOWED_HOSTS = ["." + SITE_DOMAIN]
+else:
+	ALLOWED_HOSTS = []
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -169,9 +203,6 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = ''
-
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -219,44 +250,35 @@ INSTALLED_APPS = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    'social.backends.google.GoogleOAuth2',
-    'social.backends.facebook.FacebookOAuth2',
-    'social.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
-# http://developers.facebook.com/docs/authentication/
-SOCIAL_AUTH_FACEBOOK_KEY = ''
-SOCIAL_AUTH_FACEBOOK_SECRET = ''
+try:
+	ENABLE_OAUTH
+except NameError:
+	ENABLE_OAUTH = False
+
+if ENABLE_OAUTH:
+	try:
+		if SOCIAL_AUTH_FACEBOOK_KEY and SOCIAL_AUTH_FACEBOOK_SECRET:
+			AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',) + AUTHENTICATION_BACKENDS
+	except NameError:
+		pass
+
+	try:
+		if SOCIAL_AUTH_GITHUB_KEY and SOCIAL_AUTH_GITHUB_SECRET:
+			AUTHENTICATION_BACKENDS = ('social.backends.github.GithubOAuth2',) + AUTHENTICATION_BACKENDS
+	except NameError:
+		pass
+
+	try:
+		if SOCIAL_AUTH_GOOGLE_OAUTH2_KEY and SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET:
+			AUTHENTICATION_BACKENDS = ('social.backends.google.GoogleOAuth2',) + AUTHENTICATION_BACKENDS
+	except NameError:
+		pass
+
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'public_profile']
-
-# http://psa.matiasaguirre.net/docs/backends/github.html#github
-SOCIAL_AUTH_GITHUB_KEY = ''
-SOCIAL_AUTH_GITHUB_SECRET = ''
 SOCIAL_AUTH_GITHUB_SCOPE = ['user:email']
-
-# http://psa.matiasaguirre.net/docs/backends/google.html#google-oauth2
-# https://console.developers.google.com/project
-# => Create Project
-#
-# - Give the project a name: i.e. "<house>"
-#
-# => Project -> APIs & auth -> Credentials
-#
-# - "Create New Client ID"
-#       AUTHORIZED JAVASCRIPT ORIGINS: https://www.example.com
-#       AUTHORIZED REDIRECT URI: https://www.example.com/complete/google-oauth2/
-#
-# - Copy "Client ID" and "Client secret"
-# - Set below: SOCIAL_AUTH_GOOGLE_OAUTH2_KEY="<Client ID>"
-# - Set below: SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET="<Client ID>"
-#
-# => Project -> APIs & auth -> APIs -> Google+ API
-#
-# - Enable this API
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email']
 
 LOGIN_URL = BASE_URL + "/login/"
@@ -308,10 +330,15 @@ HAYSTACK_CONNECTIONS = {
 	'default': {
 		'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
 		'URL': 'http://localhost:9200/',
-		'INDEX_NAME': short_house.lower(),
+		'INDEX_NAME': SHORT_HOUSE_NAME.lower(),
 	},
 }
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
+
+try:
+		from farnsworth.local_settings import *
+except ImportError:
+	   pass
