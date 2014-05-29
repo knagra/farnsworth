@@ -359,6 +359,6 @@ DEFAULT_CUTOFF = 1
 DEFAULT_WORKSHIFT_HOURS = 2
 
 try:
-		from farnsworth.local_settings import *
+	from farnsworth.local_settings import *
 except ImportError:
-	   pass
+	pass
