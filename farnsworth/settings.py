@@ -353,6 +353,10 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
 
+DEFAULT_SEMESTER_HOURS = 2
+DEFAULT_CUTOFF = 1
+DEFAULT_WORKSHIFT_HOURS = 2
+
 try:
 		from farnsworth.local_settings import *
 except ImportError:

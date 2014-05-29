@@ -7,10 +7,10 @@ Author: Karandeep Singh Nagra
 from django.db import models
 from django.contrib.auth.models import User
 
-from utils.variables import DayField
 from farnsworth.settings import DEFAULT_SEMESTER_HOURS, DEFAULT_CUTOFF, DEFAULT_WORKSHIFT_HOURS
 from base.models import UserProfile
 from managers.models import Manager
+from workshift.fields import DayField
 
 class Semester(models.Model):
 	'''
@@ -83,7 +83,7 @@ class Semester(models.Model):
 	def __unicode__(self):
 		return "%s %s" % (self.get_season_display, self.year)
 
-class WorkshiftPool(self):
+class WorkshiftPool(models.Model):
 	title = models.CharField(
 		max_length=100,
 		default="Regular Workshift",
@@ -176,7 +176,7 @@ class WorkshiftProfile(models.Model):
 	''' A workshift profile for a user for a given semester. '''
 	user = models.ForeignKey(User, help_text="The user for this workshift profile.")
 	semester = models.ForeignKey(Semester, help_text="The semester for this workshift profile.")
-	time_blocks = models.ManyToManyField(TimeBlocks, null=True, blank=True, help_text="The time blocks for this workshift profile.")
+	time_blocks = models.ManyToManyField(TimeBlock, null=True, blank=True, help_text="The time blocks for this workshift profile.")
 	ratings = models.ManyToManyField(WorkshiftRating, null=True, blank=True, help_text="The workshift ratings for this workshift profile.")
 	hours = models.DecimalField(max_length=2, default=DEFAULT_SEMESTER_HOURS, help_text="Number of weekly hours required for this profile.")
 	standing = models.DecimalField(default=0, help_text="Current hours standing for this workshift profile.")
@@ -209,10 +209,41 @@ class RegularWorkshift(models.Model):
 	def __unicode__(self):
 		return "%s, %s" % (self.title, self.get_day_display)
 
+class AssignmentEntry(models.Model):
+	''' Entries for sign-ins, sign-outs, and verification. '''
+	person = models.ForeignKey(
+		WorkshiftProfile,
+		help_text="Relevant person.",
+		)
+	entry_time = models.DateTimeField(
+		auto_now_add=True,
+		help_text="Time this entry was made."
+		)
+	SIGNIN = 'I'
+	SIGNOUT = 'O'
+	VERIFY = 'V'
+	ENTRY_CHOICES = (
+		(SIGNIN, 'Sign In'),
+		(SIGNOUT, 'Sign Out'),
+		(VERIFY, 'Verify'),
+	)
+	entry_type = models.CharField(
+		max_length=1,
+		choices=ENTRY_CHOICES,
+		default=VERIFY,
+		)
+
+	def __unicode__(self):
+		return "<{0}, {1}, {2}>".format(
+			self.instance,
+			self.person,
+			self.entry_type,
+			)
+
 class WorkshiftInstance(models.Model):
 	''' An instance of a weekly workshift. '''
 	weekly_workshift = models.ForeignKey(
-		WeeklyWorkshift,
+		RegularWorkshift,
 		help_text="The weekly workshift of which this is an instance.",
 		)
 	pool = models.ForeignKey(
@@ -291,30 +322,3 @@ class OneTimeWorkshift(models.Model):
 
 	def __unicode__(self):
 		return "%s, %s" % (self.title, self.date)
-
-class AssignmentEntry(models.Model):
-	''' Entries for sign-ins, sign-outs, and verification. '''
-	person = models.ForeignKey(
-		WorkshiftProfile,
-		help_text="Relevant person.",
-		)
-	entry_time = models.DateTimeField(
-		auto_now_add=True,
-		help_text="Time this entry was made."
-		)
-	SIGNIN = 'I'
-	SIGNOUT = 'O'
-	VERIFY = 'V'
-	ENTRY_CHOICES = (
-		(SIGNIN, 'Sign In'),
-		(SIGNOUT, 'Sign Out'),
-		(VERIFY, 'Verify'),
-	)
-	entry_type = models.CharField(
-		max_length=1,
-		choices=ENTRY_CHOICES,
-		default=VERIFY,
-		)
-
-	def __unicode__(self):
-		return "<{0}, {1}, {2}>".format(self.instance, self.person, self.entry_type)
