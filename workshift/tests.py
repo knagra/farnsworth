@@ -11,24 +11,23 @@ from workshift.models import Semester, WorkshiftPool, WorkshiftProfile, \
 	 WorkshiftType, RegularWorkshift, WorkshiftInstance, OneTimeWorkshift, \
 	 ShiftLogEntry
 
-class BasicTest(TestCase):
+class TestViews(TestCase):
 	"""
 	Tests a few basic things about the application: That all the pages can load
 	correctly, and that they contain the content that is expected.
 	"""
 	def setUp(self):
-		self.su = User.objects.create_user(username="su", password="pwd")
-		self.su.is_staff, self.su.is_superuser = True, True
-		self.su.first_name, self.su.last_name = "Super", "User"
-		self.su.save()
+		self.wu = User.objects.create_user(username="wu", password="pwd")
+		self.wu.first_name, self.wu.last_name = "Cooperative", "User"
+		self.wu.save()
 
-		self.m = Manager(
+		self.wm = Manager(
 			title="Workshift Manager",
-			incumbent=UserProfile.objects.get(user=self.su),
+			incumbent=UserProfile.objects.get(user=self.wu),
+			workshift_manager=True,
 			)
-		self.m.url_title = convert_to_url(self.m.title)
-		self.m.workshift_manager = True
-		self.m.save()
+		self.wm.url_title = convert_to_url(self.wm.title)
+		self.wm.save()
 
 		self.sem = Semester(year=2014, start_date=date.today(),
 							end_date=date.today() + timedelta(days=7),
@@ -40,7 +39,7 @@ class BasicTest(TestCase):
 			)
 		self.pool.save()
 
-		self.wprofile = WorkshiftProfile(user=self.su, semester=self.sem)
+		self.wprofile = WorkshiftProfile(user=self.wu, semester=self.sem)
 		self.wprofile.save()
 
 		self.wtype = WorkshiftType(title="Test Posts")
@@ -108,9 +107,9 @@ class BasicTest(TestCase):
 		self.instance.save()
 		self.once.save()
 
-		self.assertTrue(self.client.login(username="su", password="pwd"))
+		self.assertTrue(self.client.login(username="wu", password="pwd"))
 
-	def test_views(self):
+	def test_views_load(self):
 		urls = [
 			"/start/",
 			"/add_shift/",
@@ -228,3 +227,219 @@ class BasicTest(TestCase):
 		self.assertIn(self.once.description, response.content)
 		self.assertIn(self.once.hours, response.content)
 		self.assertIn(self.once.workshifter.user.get_full_name(), response.content)
+
+class TestPermissions(TestCase):
+	"""
+	Tests a few basic things about the application: That all the pages can load
+	correctly, and that they contain the content that is expected.
+	"""
+	def setUp(self):
+		self.wu = User.objects.create_user(username="wu", password="pwd")
+		self.mu = User.objects.create_user(username="mu", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.ou = User.objects.create_user(username="ou", password="pwd")
+
+		self.wm = Manager(
+			title="Workshift Manager",
+			incumbent=UserProfile.objects.get(user=self.wu),
+			workshift_manager=True,
+			)
+		self.wm.url_title = convert_to_url(self.wm.title)
+		self.wm.save()
+
+		self.mm = Manager(
+			title="Maintenance Manager",
+			incumbent=UserProfile.objects.get(user=self.mu),
+			)
+		self.mm.url_title = convert_to_url(self.mm.title)
+		self.mm.save()
+
+		self.sem = Semester(year=2014, start_date=date.today(),
+							end_date=date.today() + timedelta(days=7),
+							current=True)
+		self.sem.save()
+
+		self.pool = WorkshiftPool(
+			semester=self.sem,
+			)
+		self.pool.save()
+
+		self.hi_pool = WorkshiftPool(
+			semester=self.sem,
+			title="HI Hours",
+			hours=4,
+			weeks_per_period=0,
+			)
+		self.hi_pool.save()
+
+		self.wp = WorkshiftProfile(user=self.wu, semester=self.sem)
+		self.mp = WorkshiftProfile(user=self.mu, semester=self.sem)
+		self.up = WorkshiftProfile(user=self.u, semester=self.sem)
+		self.op = WorkshiftProfile(user=self.ou, semester=self.sem)
+
+		self.wp.save()
+		self.mp.save()
+		self.up.save()
+		self.op.save()
+
+		self.wtype = WorkshiftType(title="Test Posts")
+		self.wtype.save()
+
+		self.wshift = RegularWorkshift(
+			workshift_type=self.wtype,
+			pool=self.pool,
+			title="Clean the floors",
+			day=DAYS[0][0],
+			start_time=datetime.now(),
+			end_time=datetime.now() + timedelta(hours=2),
+			)
+		self.wshift.save()
+
+		self.mshift = RegularWorkshift(
+			workshift_type=self.wtype,
+			pool=self.hi_pool,
+			title="Paint the walls",
+			day=DAYS[0][0],
+			start_time=datetime.now(),
+			end_time=datetime.now() + timedelta(hours=2),
+			)
+		self.mshift.save()
+
+		self.winstance = WorkshiftInstance(
+			weekly_workshift=self.wshift,
+			date=date.today(),
+			workshifter=self.up,
+			)
+		self.winstance.save()
+
+		self.minstance = WorkshiftInstance(
+			weekly_workshift=self.mshift,
+			date=date.today(),
+			workshifter=self.up,
+			)
+		self.minstance.save()
+
+		self.wonce = OneTimeWorkshift(
+			title="Clean The Deck",
+			pool=self.pool,
+			description="Make sure to sing sailor tunes.",
+			date=date.today(),
+			workshifter=self.up,
+			)
+		self.wonce.save()
+
+		self.monce = OneTimeWorkshift(
+			title="Build A Deck",
+			pool=self.hi_pool,
+			description="Preferably in the shape of a pirate ship.",
+			date=date.today(),
+			workshifter=self.up,
+			)
+		self.monce.save()
+
+	def test_workshift_manager(self):
+		self.assertTrue(self.client.login(username="wu", password="pwd"))
+
+		urls = [
+			(True, "/start/"),
+			(True, "/"),
+			(True, "/profile/{0}/".format(self.up.pk)),
+			(True, "/profile/{0}/preferences/".format(self.up.pk)),
+			(True, "/manage/"),
+			(True, "/manage/assign_shifts/"),
+			(True, "/manage/add_shift/"),
+			(True, "/shift/{0}/edit/".format(self.wshift.pk)),
+			(True, "/instance/{0}/edit/".format(self.wshift.pk)),
+			(True, "/type/{0}/edit/".format(self.wshift.pk)),
+			(True, "/shift/{0}/edit/".format(self.mshift.pk)),
+			(True, "/instance/{0}/edit/".format(self.mshift.pk)),
+			(True, "/type/{0}/edit/".format(self.mshift.pk)),
+		]
+
+		for okay, url in urls:
+			response = self.client.get("/workshift" + url, follow=True)
+			if okay:
+				self.assertEqual(response.status_code, 200)
+			else:
+				self.assertRedirects(response, "/workshift/")
+				self.assertIn("permissions string...", response.content)
+
+	def test_maintenance_manager(self):
+		self.assertTrue(self.client.login(username="mu", password="pwd"))
+
+		urls = [
+			(False, "/start/"),
+			(True, "/"),
+			(True, "/profile/{0}/".format(self.up.pk)),
+			(False, "/profile/{0}/preferences/".format(self.up.pk)),
+			(True, "/manage/"),
+			(True, "/manage/assign_shifts/"),
+			(True, "/manage/add_shift/"),
+			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.wshift.pk)),
+			(False, "/type/{0}/edit/".format(self.wshift.pk)),
+			(True, "/shift/{0}/edit/".format(self.mshift.pk)),
+			(True, "/instance/{0}/edit/".format(self.mshift.pk)),
+			(True, "/type/{0}/edit/".format(self.mshift.pk)),
+		]
+		for okay, url in urls:
+			response = self.client.get("/workshift" + url, follow=True)
+			if okay:
+				self.assertEqual(response.status_code, 200)
+			else:
+				self.assertRedirects(response, "/workshift/")
+				self.assertIn("permissions string...", response.content)
+
+	def test_user(self):
+		self.assertTrue(self.client.login(username="u", password="pwd"))
+
+		urls = [
+			(False, "/start/"),
+			(True, "/"),
+			(True, "/profile/{0}/".format(self.up.pk)),
+			(True, "/profile/{0}/preferences/".format(self.up.pk)),
+			(False, "/manage/"),
+			(False, "/manage/assign_shifts/"),
+			(False, "/manage/add_shift/"),
+			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.wshift.pk)),
+			(False, "/type/{0}/edit/".format(self.wshift.pk)),
+			(False, "/shift/{0}/edit/".format(self.mshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.mshift.pk)),
+			(False, "/type/{0}/edit/".format(self.mshift.pk)),
+		]
+
+		for okay, url in urls:
+			response = self.client.get("/workshift" + url, follow=True)
+			if okay:
+				self.assertEqual(response.status_code, 200)
+			else:
+				self.assertRedirects(response, "/workshift/")
+				self.assertIn("permissions string...", response.content)
+
+	def test_other_user(self):
+		self.assertTrue(self.client.login(username="ou", password="pwd"))
+
+		urls = [
+			(False, "/start/"),
+			(True, "/"),
+			(True, "/profile/{0}/".format(self.up.pk)),
+			(False, "/profile/{0}/preferences/".format(self.up.pk)),
+			(False, "/manage/"),
+			(False, "/manage/assign_shifts/"),
+			(False, "/manage/add_shift/"),
+			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.wshift.pk)),
+			(False, "/type/{0}/edit/".format(self.wshift.pk)),
+			(False, "/shift/{0}/edit/".format(self.mshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.mshift.pk)),
+			(False, "/type/{0}/edit/".format(self.mshift.pk)),
+		]
+
+		for okay, url in urls:
+			response = self.client.get("/workshift" + url, follow=True)
+			if okay:
+				self.assertEqual(response.status_code, 200)
+			else:
+				self.assertRedirects(response, "/workshift/")
+				self.assertIn("permissions string...", response.content)
