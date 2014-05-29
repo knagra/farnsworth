@@ -102,13 +102,20 @@ class TestViews(TestCase):
 			entry_type=ShiftLogEntry.VERIFY,
 			)
 
+		self.sle4 = ShiftLogEntry(
+			person=self.wprofile,
+			note="Test Shift Log #4",
+			entry_type=ShiftLogEntry.BLOWN,
+			)
+
 		self.sle0.save()
 		self.sle1.save()
 		self.sle2.save()
 		self.sle3.save()
+		self.sle4.save()
 
-		self.instance.shift_log = [self.sle0, self.sle1, self.sle2, self.sle3]
-		self.once.shift_log = [self.sle0, self.sle1, self.sle2, self.sle3]
+		self.instance.shift_log = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
+		self.once.shift_log = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
 
 		self.instance.save()
 		self.once.save()
@@ -188,7 +195,8 @@ class TestViews(TestCase):
 		self.assertIn(self.shift.current_assignee.user.get_full_name(), response.content)
 
 	def test_instance(self):
-		response = self.client.get("/workshift/instance/{0}/".format(self.instance.pk))
+		response = self.client.get("/workshift/instance/{0}/"
+								   .format(self.instance.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.instance.weekly_workshift.title, response.content)
 		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
@@ -199,8 +207,10 @@ class TestViews(TestCase):
 		self.assertIn(self.sle1.note, response.content)
 		self.assertIn(self.sle2.note, response.content)
 		self.assertIn(self.sle3.note, response.content)
+		self.assertIn(self.sle4.note, response.content)
 
-		response = self.client.get("/workshift/instance/{0}/edit/".format(self.instance.pk))
+		response = self.client.get("/workshift/instance/{0}/edit/"
+								   .format(self.instance.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.instance.weekly_workshift.title, response.content)
 		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
@@ -216,6 +226,11 @@ class TestViews(TestCase):
 		self.assertIn(self.once.description, response.content)
 		self.assertIn(str(self.once.hours), response.content)
 		self.assertIn(self.once.workshifter.user.get_full_name(), response.content)
+		self.assertIn(self.sle0.note, response.content)
+		self.assertIn(self.sle1.note, response.content)
+		self.assertIn(self.sle2.note, response.content)
+		self.assertIn(self.sle3.note, response.content)
+		self.assertIn(self.sle4.note, response.content)
 
 		response = self.client.get("/workshift/once/{0}/edit/".format(self.once.pk))
 		self.assertEqual(response.status_code, 200)

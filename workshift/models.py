@@ -377,11 +377,13 @@ class ShiftLogEntry(models.Model):
 		"(e.g. 'Can't cook because of flu')",
 		)
 	ASSIGNED = 'A'
+	BLOWN = 'B'
 	SIGNIN = 'I'
 	SIGNOUT = 'O'
 	VERIFY = 'V'
 	ENTRY_CHOICES = (
 		(ASSIGNED, 'Assigned'),
+		(BLOWN, 'Blown'),
 		(SIGNIN, 'Sign In'),
 		(SIGNOUT, 'Sign Out'),
 		(VERIFY, 'Verify'),
