@@ -77,6 +77,18 @@ def manage_view(request, semester):
 
 @workshift_manager_required
 @semester_required
+def assign_shifts_view(request, semester):
+	"""
+	View all members' preferences. This view also includes forms to create an
+	entire semester's worth of weekly workshifts.
+	"""
+	page_name = "Assign Shifts"
+	return render_to_response("assign_shifts.html", {
+		"page_name": page_name,
+	}, context_instance=RequestContext(request))
+
+@workshift_manager_required
+@semester_required
 def add_shift_view(request):
 	"""
 	View for the workshift manager to create new types of workshifts.
