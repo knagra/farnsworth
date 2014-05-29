@@ -5,14 +5,15 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
 
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
-from base.decorators import workshift_required
 from base.models import UserProfile
-from workshift.decorators import workshift_profile_required
+from workshift.decorators import workshift_profile_required, \
+	workshift_manager_required, semester_required
 from workshift.models import Semester, WorkshiftProfile
 
 @workshift_manager_required
@@ -62,8 +63,9 @@ def preferences_view(request, semester, profile):
 		"profile": profile,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def manage_view(request, semester, profile):
+@workshift_manager_required
+@semester_required
+def manage_view(request, semester):
 	"""
 	View all members' preferences. This view also includes forms to create an
 	entire semester's worth of weekly workshifts.
@@ -71,9 +73,47 @@ def manage_view(request, semester, profile):
 	page_name = "Manage Workshift"
 	return render_to_response("manage.html", {
 		"page_name": page_name,
-		"profiles": profiles,
 	}, context_instance=RequestContext(request))
 
 @workshift_manager_required
-def add_workshift_view(request):
+@semester_required
+def add_shift_view(request):
+	"""
+	View for the workshift manager to create new types of workshifts.
+	"""
+	page_name = "Add Workshift"
+	return render_to_response("add_workshift.html", {
+		"page_name": page_name,
+	}, context_instance=RequestContext(request))
+
+@workshift_profile_required
+def shift_view(request, semester, profile):
+	pass
+
+@workshift_profile_required
+def edit_shift_view(request, semester, profile):
+	pass
+
+@workshift_profile_required
+def instance_view(request, semester, profile):
+	pass
+
+@workshift_profile_required
+def edit_instance_view(request, semester, profile):
+	pass
+
+@workshift_profile_required
+def one_off_view(request, semester, profile):
+	pass
+
+@workshift_profile_required
+def edit_one_off_view(request, semester, profile):
+	pass
+
+@workshift_profile_required
+def type_view(request, semester, profile):
+	pass
+
+@workshift_profile_required
+def edit_type_view(request, semester, profile):
 	pass
