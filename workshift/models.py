@@ -405,10 +405,6 @@ class WorkshiftInstance(models.Model):
 		RegularWorkshift,
 		help_text="The weekly workshift of which this is an instance.",
 		)
-	pool = models.ForeignKey(
-		WorkshiftPool,
-		help_text="The workshift pool for this shift.",
-		)
 	date = models.DateField(
 		help_text="Date of this workshift.",
 		)
