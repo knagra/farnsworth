@@ -51,6 +51,7 @@
 	<div class="header"><h3 class="table_title">Archives</h3></div>
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'list_all_threads' %}" >All Threads</a> - see all threads on this site.</li>
+		<li><a class="page_link" href="{% url 'all_requests' %}">All Requests</a> - see all requests.</li>
 		<li><a class="page_link" href="{% url 'all_announcements' %}" >All Announcements</a> - see all announcements.</li>
 		<li><a class="page_link" href="{% url 'events:all' %}" >All Events</a> - see all events.</li>
 	</ul>
@@ -73,4 +74,19 @@
 	</ul>
 	</div>
 {% endif %}
+<<<<<<< HEAD
+{% if user.is_superuser or PRESIDENT %}
+	<div class="list_container">
+	<div class="header"><h3 class="table_title">President</h3></div>
+	<ul class="pages_list">
+		<li><a class="page_link" href="{% url 'meta_manager' %}">Meta-Manager</a> - manage managers.</li>
+		<li><a class="page_link" href="{% url 'add_manager' %}">Add Manager</a> - add a new manager to the site.</li>
+		<li><a class="page_link" href="{% url 'manage_request_types' %}">Manage Request Types</a> - manage request types.</li>
+		<li><a class="page_link" href="{% url 'add_request_type' %}">Add Request Type</a> - add a new request type to the site.</li>
+	</ul>
+	</div>
+{% endif %}
+{% endblock %} 
+=======
 {% endblock %}
+>>>>>>> c89e8e84d65e79ec06336d3ea1ba7c5205218cca

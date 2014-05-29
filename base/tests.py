@@ -89,13 +89,6 @@ class TestLogin(TestCase):
 		response = self.client.get("/", follow=True)
 		self.assertRedirects(response, reverse('external'))
 
-    def test_site_map(self):
-        response = self.client.get("/site_map/")
-        self.assertEqual(response.status_code, 200)
-        self.client.login(username="u", password="pwd")
-        response = self.client.get("/site_map/")
-        self.assertEqual(response.status_code, 200)
-
 class TestHomepage(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
@@ -360,6 +353,27 @@ class TestRequestProfile(TestCase):
 		self.assertIn("Select a valid choice. 123 is not one of the available choices.",
 			      response.content)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
+
+class TestSiteMap(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+	def test_site_map(self):
+		response = self.client.get("/site_map/")
+		self.assertEqual(response.status_code, 200)
+
+		self.client.login(username="u", password="pwd")
+		response = self.client.get("/site_map/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		self.client.login(username="su", password="pwd")
+		response = self.client.get("/site_map/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
 
 class TestSocialRequest(TestCase):
 	def setUp(self):
