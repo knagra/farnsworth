@@ -67,13 +67,13 @@
 	        <li><a href="{% url 'member_directory' %}" ><span class="glyphicon glyphicon-book"></span> Member Directory</a></li>
 	        <li><a href="{% url 'list_managers' %}" ><span class="glyphicon glyphicon-tower"></span> Manager Directory</a></li>
 		<li><a href="{% url 'announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Manager Announcements</a></li>
-		<li><a href="{% url 'events' %}" ><span class="glyphicon glyphicon-calendar"></span> Upcoming Events</a></li>
+		<li><a href="{% url 'events:list' %}" ><span class="glyphicon glyphicon-calendar"></span> Upcoming Events</a></li>
 	        <li><a href="{% url 'external' %}"><span class="glyphicon glyphicon-plane"></span> Landing</a></li>
 		<li class="divider"></li>
 		<li class="dropdown-header">Archives</li>
 			<li><a href="{% url 'list_all_threads' %}" ><span class="glyphicon glyphicon-comment"></span> All Threads</a></li>
 			<li><a href="{% url 'all_announcements' %}"><span class="glyphicon glyphicon-bullhorn"></span> All Announcements</a></li>
-			<li><a href="{% url 'all_events' %}"><span class="glyphicon glyphicon-calendar"></span> All Events</a></li>
+			<li><a href="{% url 'events:all' %}"><span class="glyphicon glyphicon-calendar"></span> All Events</a></li>
 			<li><a href="{% url 'all_requests' %}"><span class="glyphicon glyphicon-inbox"></span> All Requests</a></li>
         <li class="divider"></li>
         <li class="dropdown-header">Utilities</li>
@@ -173,12 +173,12 @@
 		$("input[type=text]").addClass("form-control");
 		$("input[type=password]").addClass("form-control");
 		$("select").addClass("form-control");
-	
+
 	<!-- remove border from main link buttons on click -->
 		$(".main_link").click(function() {
 			$(this).css("border", "none");
 		});
-		
+
 	<!-- change display format for some things depending on window width -->
 		$(window).ready(function() {
 			var wi = $(window).width();
@@ -218,7 +218,7 @@
 				$(".small_title").css("font-size", "100%");
 				$("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
 			}
-			
+
 			$(window).resize(function() {
 				var wi = $(window).width();
 				if (wi <= 300) {
