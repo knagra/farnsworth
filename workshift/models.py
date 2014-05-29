@@ -41,6 +41,8 @@ class Semester(models.Model):
 		help_text="The users who were/are Workshift Managers for this semester.",
 		)
 	rate = models.DecimalField(
+		max_digits=4, # In case of inflation
+		decimal_places=2,
 		null=True,
 		blank=True,
 		help_text="Workshift rate for this semester.",
@@ -103,13 +105,10 @@ class WorkshiftPool(models.Model):
 		"a substitute, in hours.",
 		)
 	hours = models.DecimalField(
-		max_length=2,
+		max_digits=2,
+		decimal_places=2,
 		default=DEFAULT_SEMESTER_HOURS,
 		help_text="Default regular workshift hours required per week.",
-		)
-	hours = models.PositiveSmallIntegerField(
-		default=DEFAULT_SEMESTER_HOURS,
-		help_text="Hours required, either recurring or semesterly."
 		)
 	weeks_per_period = models.PositiveSmallIntegerField(
 		default=1,
@@ -127,12 +126,33 @@ class WorkshiftType(models.Model):
 	'''
 	A workshift type; for example, a "Pots" workshift type.
 	'''
-	title = models.CharField(blank=False, null=False, unique=True, max_length=255,
+	title = models.CharField(
+		blank=False,
+		null=False,
+		unique=True,
+		max_length=255,
 		help_text='The title of this workshift type (e.g., "Pots"), must be unique.')
-	description = models.TextField(blank=True, null=True, help_text="A description for this workshift type.")
-	quick_tips = models.TextField(blank=True, null=True, help_text="Quick tips to the workshifter.")
-	hours = models.DecimalField(default=1, help_text="Default hours for these types of shifts, helpful for pre-filling workshifts.")
-	rateable = models.BooleanField(default=True, help_text="Whether this workshift type is shown in preferences.")
+	description = models.TextField(
+		blank=True,
+		null=True,
+		help_text="A description for this workshift type.",
+		)
+	quick_tips = models.TextField(
+		blank=True,
+		null=True,
+		help_text="Quick tips to the workshifter.",
+		)
+	hours = models.DecimalField(
+		max_digits=2,
+		decimal_places=2,
+		default=1,
+		help_text="Default hours for these types of shifts, helpful for "
+		"pre-filling workshifts.",
+		)
+	rateable = models.BooleanField(
+		default=True,
+		help_text="Whether this workshift type is shown in preferences.",
+		)
 
 	def __unicode__(self):
 		return self.name
@@ -178,9 +198,22 @@ class WorkshiftProfile(models.Model):
 	semester = models.ForeignKey(Semester, help_text="The semester for this workshift profile.")
 	time_blocks = models.ManyToManyField(TimeBlock, null=True, blank=True, help_text="The time blocks for this workshift profile.")
 	ratings = models.ManyToManyField(WorkshiftRating, null=True, blank=True, help_text="The workshift ratings for this workshift profile.")
-	hours = models.DecimalField(max_length=2, default=DEFAULT_SEMESTER_HOURS, help_text="Number of weekly hours required for this profile.")
-	standing = models.DecimalField(default=0, help_text="Current hours standing for this workshift profile.")
-	hour_adjustment = models.DecimalField(default=0, help_text="Manual hour adjustment for this workshift profile.")
+	hours = models.DecimalField(
+		max_digits=2,
+		decimal_places=2,
+		default=DEFAULT_SEMESTER_HOURS,
+		help_text="Number of weekly hours required for this profile.",
+		)
+	standing = models.DecimalField(
+		max_digits=3,
+		decimal_places=2,
+		default=0,
+		help_text="Current hours standing for this workshift profile.",
+		)
+	hour_adjustment = models.DecimalField(
+		default=0,
+		help_text="Manual hour adjustment for this workshift profile.",
+		)
 	note = models.TextField(null=True, blank=True, help_text="Note for this profile. For communication between the workshifter and the workshift manager(s).")
 	first_date_fine = models.DecimalField(null=True, blank=True, default=0,
 		help_text="The fines or repayment for this profile at the first fine date. Stored in a field for manual adjustment.")
@@ -197,7 +230,12 @@ class RegularWorkshift(models.Model):
 	workshift_type = models.ForeignKey(WorkshiftType, help_text="The workshift type for this weekly workshift.")
 	title = models.CharField(max_length=255, help_text="The title for this weekly workshift.")
 	day = DayField(help_text="The day of the week when this workshift takes place.")
-	hours = models.DecimalField(max_length=2, default=DEFAULT_WORKSHIFT_HOURS, help_text="Number of hours for this shift.")
+	hours = models.DecimalField(
+		max_digits=2,
+		decimal_places=2,
+		default=DEFAULT_WORKSHIFT_HOURS,
+		help_text="Number of hours for this shift.",
+		)
 	active = models.BooleanField(default=True,
 		help_text="Whether this shift is actively being used currently (displayed in list of shifts, given hours, etc.).")
 	current_assignee = models.ForeignKey(WorkshiftProfile, null=True, blank=True,
@@ -294,6 +332,8 @@ class OneTimeWorkshift(models.Model):
 		help_text="Date of this workshift.",
 		)
 	hours = models.DecimalField(
+		max_digits=2,
+		decimal_places=2,
 		default=DEFAULT_WORKSHIFT_HOURS,
 		help_text="Hours given for this shift.",
 		)
