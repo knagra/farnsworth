@@ -173,6 +173,11 @@
 		$("input[type=text]").addClass("form-control");
 		$("input[type=password]").addClass("form-control");
 		$("select").addClass("form-control");
+	
+	<!-- remove border from main link buttons on click -->
+		$(".main_link").click(function() {
+			$(this).css("border", "none");
+		});
 		
 	<!-- change display format for some things depending on window width -->
 		$(window).ready(function() {
