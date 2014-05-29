@@ -33,9 +33,11 @@ RegularWorkshift (WorkshiftType foreign key, title [pre-fill], day-of-week, hour
 		start_time, end_time, description addendum)
 	e.g., "Pots, Afternoon Pots, Saturday, 1 hour, active, Karandeep Nagra"
 
-WorkShiftInstance (RegularWorkshift, pool, date, workshifter [workshift profile], verifier [workshift profile], completed boolean)
+WorkshiftInstance (RegularWorkshift, WorkshiftPool, date, current_workshifter [workshift profile], completed boolean)
 
 OneTimeWorkshift (WorkshiftPool, description, assignee [workshift profile], hours, datetime)
+	e.g. "Helped with dump run on 5/22"
 
-AssignmentEntry (WorkshiftInstance, assignee [optional], entry_time)
-	e.g. "Karandeep Nagra signed into dishes shift for tomorrow"
+AssignmentEntry (WorkshiftInstance, person, ("sign-in"|"Sign out"|"Verify"), entry_time)
+	e.g. "Karandeep Nagra signed into dishes shift for tomorrow at 1pm"
+	"Nader Morshed signed out of co-cook shift on Friday at 12pm"
