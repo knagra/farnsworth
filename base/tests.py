@@ -419,6 +419,18 @@ class TestSocialRequest(TestCase):
 		for lib in settings.SOCIAL_AUTH_PIPELINE:
 			module, func = lib.rsplit(".", 1)
 			self.assertNotEqual(None, __import__(module, fromlist=[func]))
+		self.assertIn("social.pipeline.social_auth.social_details",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.social_auth.social_uid",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.social_auth.auth_allowed",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.social_auth.social_user",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.user.get_username",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("base.pipeline.request_user",
+					  settings.SOCIAL_AUTH_PIPELINE)
 
 class TestProfileRequestAdmin(TestCase):
 	def setUp(self):
