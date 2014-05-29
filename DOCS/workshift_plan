@@ -36,3 +36,6 @@ SemesterlyWorkshift (WorkshiftType [optional], description/addendum, number requ
 SemesteryWorkshiftInstance (SemesterlyWorkshift, semester, start_time, end_time, assignee [workshift profile])
 
 OneTimeWorkshift (description, assignee [workshift profile], hours, datetime)
+
+AssignmentEntry (WeeklyWorkShiftInstance, assignee [optional], entry_time)
+	e.g. "Karandeep Nagra signed into dishes shift for tomorrow"
