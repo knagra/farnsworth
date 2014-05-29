@@ -5,16 +5,21 @@ from django.shortcuts import get_object_or_404
 
 from utils.variables import MESSAGES
 from base.redirects import red_home
+from base.models import UserProfile
+from managers.models import Manager
 from workshift.models import WorkshiftProfile, Semester
 
 def _extract_semester(kwargs):
 	if "sem_url" in kwargs:
 		sem_url = kwargs.pop("sem_url")
-		if len(sem_url) < 3:
-			raise Http404
-		season = sem_url[:2] if sem_url else None
-		year = sum_url[2:] if sem_url else None
-		kwargs["semester"] = get_object_or_404(Semester, season=season, year=year)
+		if sem_url is not None:
+			if len(sem_url) < 3:
+				raise Http404
+			season = sem_url[:2] if sem_url else None
+			year = sem_url[2:] if sem_url else None
+			kwargs["semester"] = get_object_or_404(Semester, season=season, year=year)
+		else:
+			kwargs["semester"] = get_object_or_404(Semester, current=True)
 	else:
 		kwargs["semester"] = get_object_or_404(Semester, current=True)
 
@@ -31,7 +36,8 @@ def workshift_profile_required(function=None, redirect_no_user='login',
 			_extract_semester(kwargs)
 
 			try:
-				profile = WorkshiftProfile.objects.get(user=request.user, semester=semester)
+				profile = WorkshiftProfile.objects.get(user=request.user,
+													   semester=kwargs["semester"])
 			except WorkshiftProfile.DoesNotExist:
 				return redirect_profile(request, MESSAGES['NO_WORKSHIFT'])
 
@@ -62,7 +68,7 @@ def workshift_manager_required(function=None, redirect_no_user='login',
 				return redirect_profile(request, MESSAGES['NO_PROFILE'])
 
 			workshift = Manager.objects.filter(incumbent=userProfile) \
-			  .filter(workshift=True).count() > 0
+			  .filter(workshift_manager=True).count() > 0
 
 			if (not request.user.is_superuser) and (not workshift):
 				return redirect_profile(request, MESSAGES['WORKSHIFTS_ONLY'])
