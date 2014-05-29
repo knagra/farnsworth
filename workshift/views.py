@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
+from utils.variables import MESSAGES
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.decorators import workshift_profile_required, \
@@ -64,7 +65,17 @@ def preferences_view(request, semester, profile, profile_pk):
 	Show the user their preferences for the given semester.
 	"""
 	wprofile = get_object_or_404(WorkshiftProfile, pk=profile_pk)
-	page_name = "{0}'s Workshift Preferences".format(wprofile.user.get_full_name())
+	user_profile = UserProfile.objects.get(user=request.user)
+	managers = Manager.objects.filter(incumbent=user_profile) \
+	  .filter(workshift_manager=True)
+
+	if wprofile.user != request.user and not managers.count():
+		messages.add_message(request, messages.ERROR,
+							 MESSAGES['ADMINS_ONLY'])
+		return HttpResponseRedirect(reverse('workshift:view_semester'))
+
+	page_name = "{0}'s Workshift Preferences".format(
+		wprofile.user.get_full_name())
 	return render_to_response("preferences.html", {
 		"page_name": page_name,
 		"profile": profile,
@@ -81,11 +92,12 @@ def manage_view(request, semester, profile):
 	user_profile = UserProfile.objects.get(user=request.user)
 	managers = Manager.objects.filter(incumbent=user_profile) \
 	  .filter(workshift_manager=True)
+
 	if request.user.is_superuser or managers.count():
 		# Display all workshift pools?
 		pass
 	else:
-		pools.filter(managers__incumbent=user_profile)
+		pools = pools.filter(managers__incumbent=user_profile)
 		if pools.count():
 			pass
 		else:
@@ -137,6 +149,15 @@ def edit_shift_view(request, semester, profile, shift_pk):
 	View for a manager to edit the details of a particular RegularWorkshift.
 	"""
 	shift = get_object_or_404(RegularWorkshift, pk=shift_pk)
+
+	user_profile = UserProfile.objects.get(user=request.user)
+	managers = shift.pool.managers.filter(incumbent=user_profile)
+
+	if not request.user.is_superuser and not managers.count():
+		messages.add_message(request, messages.ERROR,
+							 MESSAGES['ADMINS_ONLY'])
+		return HttpResponseRedirect(reverse('workshift:view_semester'))
+
 	page_name = "Edit " + shift.title
 
 	return render_to_response("edit_shift.html", {
@@ -163,6 +184,15 @@ def edit_instance_view(request, semester, profile, instance_pk):
 	View for a manager to edit the details of a particular WorkshiftInstance.
 	"""
 	shift = get_object_or_404(WorkshiftInstance, pk=instance_pk)
+
+	user_profile = UserProfile.objects.get(user=request.user)
+	managers = shift.weekly_workshift.pool.managers.filter(incumbent=user_profile)
+
+	if not request.user.is_superuser and not managers.count():
+		messages.add_message(request, messages.ERROR,
+							 MESSAGES['ADMINS_ONLY'])
+		return HttpResponseRedirect(reverse('workshift:view_semester'))
+
 	page_name = "Edit " + shift.weekly_workshift.title
 
 	return render_to_response("edit_shift.html", {
@@ -228,6 +258,15 @@ def edit_type_view(request, semester, profile, type_pk):
 	View for a manager to edit the details of a particular WorkshiftType.
 	"""
 	shift = get_object_or_404(WorkshiftType, pk=type_pk)
+	user_profile = UserProfile.objects.get(user=request.user)
+	managers = Manager.objects.filter(incumbent=user_profile) \
+	  .filter(workshift_manager=True)
+
+	if not request.user.is_superuser and not managers.count():
+		messages.add_message(request, messages.ERROR,
+							 MESSAGES['ADMINS_ONLY'])
+		return HttpResponseRedirect(reverse('workshift:view_semester'))
+
 	page_name = "Edit " + shift.title
 
 	return render_to_response("edit_type.html", {
