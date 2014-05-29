@@ -364,6 +364,12 @@ class AssignmentEntry(models.Model):
 		auto_now_add=True,
 		help_text="Time this entry was made."
 		)
+	note = models.TextField(
+		blank=True,
+		null=True,
+		help_text="Message to the workshift manager. "
+		"(e.g. 'Can't cook because of flu')",
+		)
 	SIGNIN = 'I'
 	SIGNOUT = 'O'
 	VERIFY = 'V'
