@@ -73,7 +73,7 @@ def workshift_manager_required(function=None, redirect_no_user='login',
 			  .filter(workshift_manager=True).count() > 0
 
 			if (not request.user.is_superuser) and (not workshift):
-				return redirect_profile(request, MESSAGES['WORKSHIFTS_ONLY'])
+				return redirect_profile(request, MESSAGES['ADMINS_ONLY'])
 
 			return view_func(request, *args, **kwargs)
 
