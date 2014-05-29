@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from datetime import date, timedelta, datetime
 
-from utils.variables import DAYS
+from utils.variables import DAYS, MESSAGES
 from utils.funcs import convert_to_url
 from base.models import User, UserProfile
 from managers.models import Manager
@@ -57,7 +57,6 @@ class TestViews(TestCase):
 
 		self.instance = WorkshiftInstance(
 			weekly_workshift=self.shift,
-			pool=self.pool,
 			date=date.today(),
 			workshifter=self.wprofile,
 			)
@@ -121,9 +120,6 @@ class TestViews(TestCase):
 			response = self.client.get("/workshift" + url)
 			self.assertEqual(response.status_code, 200)
 
-			response = self.client.get("/workshift" + url[:-1])
-			self.assertEqual(response.status_code, 200)
-
 		urls = [
 			"/",
 			"/profile/{0}/".format(self.wprofile.pk),
@@ -141,14 +137,8 @@ class TestViews(TestCase):
 			response = self.client.get("/workshift" + url)
 			self.assertEqual(response.status_code, 200)
 
-			response = self.client.get("/workshift" + url[:-1])
-			self.assertEqual(response.status_code, 200)
-
 			prefix = "/workshift/{0}{1}".format(self.sem.season, self.sem.year)
 			response = self.client.get(prefix + url)
-			self.assertEqual(response.status_code, 200)
-
-			response = self.client.get(prefix + url[:-1])
 			self.assertEqual(response.status_code, 200)
 
 	def test_type(self):
@@ -283,7 +273,10 @@ class TestPermissions(TestCase):
 		self.op.save()
 
 		self.wtype = WorkshiftType(title="Test Posts")
+		self.mtype = WorkshiftType(title="Maintenance Cleaning")
+
 		self.wtype.save()
+		self.mtype.save()
 
 		self.wshift = RegularWorkshift(
 			workshift_type=self.wtype,
@@ -296,7 +289,7 @@ class TestPermissions(TestCase):
 		self.wshift.save()
 
 		self.mshift = RegularWorkshift(
-			workshift_type=self.wtype,
+			workshift_type=self.mtype,
 			pool=self.hi_pool,
 			title="Paint the walls",
 			day=DAYS[0][0],
@@ -347,13 +340,13 @@ class TestPermissions(TestCase):
 			(True, "/profile/{0}/preferences/".format(self.up.pk)),
 			(True, "/manage/"),
 			(True, "/manage/assign_shifts/"),
-			(True, "/manage/add_shift/"),
+			(True, "/add_shift/"),
 			(True, "/shift/{0}/edit/".format(self.wshift.pk)),
-			(True, "/instance/{0}/edit/".format(self.wshift.pk)),
-			(True, "/type/{0}/edit/".format(self.wshift.pk)),
+			(True, "/instance/{0}/edit/".format(self.winstance.pk)),
+			(True, "/type/{0}/edit/".format(self.wtype.pk)),
 			(True, "/shift/{0}/edit/".format(self.mshift.pk)),
-			(True, "/instance/{0}/edit/".format(self.mshift.pk)),
-			(True, "/type/{0}/edit/".format(self.mshift.pk)),
+			(True, "/instance/{0}/edit/".format(self.minstance.pk)),
+			(True, "/type/{0}/edit/".format(self.mtype.pk)),
 		]
 
 		for okay, url in urls:
@@ -362,7 +355,7 @@ class TestPermissions(TestCase):
 				self.assertEqual(response.status_code, 200)
 			else:
 				self.assertRedirects(response, "/workshift/")
-				self.assertIn("permissions string...", response.content)
+				self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
 
 	def test_maintenance_manager(self):
 		self.assertTrue(self.client.login(username="mu", password="pwd"))
@@ -374,13 +367,13 @@ class TestPermissions(TestCase):
 			(False, "/profile/{0}/preferences/".format(self.up.pk)),
 			(True, "/manage/"),
 			(True, "/manage/assign_shifts/"),
-			(True, "/manage/add_shift/"),
+			(True, "/add_shift/"),
 			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
-			(False, "/instance/{0}/edit/".format(self.wshift.pk)),
-			(False, "/type/{0}/edit/".format(self.wshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.winstance.pk)),
+			(False, "/type/{0}/edit/".format(self.wtype.pk)),
 			(True, "/shift/{0}/edit/".format(self.mshift.pk)),
-			(True, "/instance/{0}/edit/".format(self.mshift.pk)),
-			(True, "/type/{0}/edit/".format(self.mshift.pk)),
+			(True, "/instance/{0}/edit/".format(self.minstance.pk)),
+			(True, "/type/{0}/edit/".format(self.mtype.pk)),
 		]
 		for okay, url in urls:
 			response = self.client.get("/workshift" + url, follow=True)
@@ -388,7 +381,7 @@ class TestPermissions(TestCase):
 				self.assertEqual(response.status_code, 200)
 			else:
 				self.assertRedirects(response, "/workshift/")
-				self.assertIn("permissions string...", response.content)
+				self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
 
 	def test_user(self):
 		self.assertTrue(self.client.login(username="u", password="pwd"))
@@ -400,13 +393,13 @@ class TestPermissions(TestCase):
 			(True, "/profile/{0}/preferences/".format(self.up.pk)),
 			(False, "/manage/"),
 			(False, "/manage/assign_shifts/"),
-			(False, "/manage/add_shift/"),
+			(False, "/add_shift/"),
 			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
-			(False, "/instance/{0}/edit/".format(self.wshift.pk)),
-			(False, "/type/{0}/edit/".format(self.wshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.winstance.pk)),
+			(False, "/type/{0}/edit/".format(self.wtype.pk)),
 			(False, "/shift/{0}/edit/".format(self.mshift.pk)),
-			(False, "/instance/{0}/edit/".format(self.mshift.pk)),
-			(False, "/type/{0}/edit/".format(self.mshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.minstance.pk)),
+			(False, "/type/{0}/edit/".format(self.mtype.pk)),
 		]
 
 		for okay, url in urls:
@@ -415,7 +408,7 @@ class TestPermissions(TestCase):
 				self.assertEqual(response.status_code, 200)
 			else:
 				self.assertRedirects(response, "/workshift/")
-				self.assertIn("permissions string...", response.content)
+				self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
 
 	def test_other_user(self):
 		self.assertTrue(self.client.login(username="ou", password="pwd"))
@@ -427,13 +420,13 @@ class TestPermissions(TestCase):
 			(False, "/profile/{0}/preferences/".format(self.up.pk)),
 			(False, "/manage/"),
 			(False, "/manage/assign_shifts/"),
-			(False, "/manage/add_shift/"),
+			(False, "/add_shift/"),
 			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
-			(False, "/instance/{0}/edit/".format(self.wshift.pk)),
-			(False, "/type/{0}/edit/".format(self.wshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.winstance.pk)),
+			(False, "/type/{0}/edit/".format(self.wtype.pk)),
 			(False, "/shift/{0}/edit/".format(self.mshift.pk)),
-			(False, "/instance/{0}/edit/".format(self.mshift.pk)),
-			(False, "/type/{0}/edit/".format(self.mshift.pk)),
+			(False, "/instance/{0}/edit/".format(self.minstance.pk)),
+			(False, "/type/{0}/edit/".format(self.mtype.pk)),
 		]
 
 		for okay, url in urls:
@@ -442,4 +435,4 @@ class TestPermissions(TestCase):
 				self.assertEqual(response.status_code, 200)
 			else:
 				self.assertRedirects(response, "/workshift/")
-				self.assertIn("permissions string...", response.content)
+				self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
