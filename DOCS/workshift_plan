@@ -9,7 +9,7 @@ Preserve previous semester records.  Allow superuser to delete records.
 	Unique together: "Fall" etc. & Year
 	e.g., "Summer, 2014, 13.00"
 
-WorkshiftPool: semester, Workshift Managers [manytomany Manager], default required hours, weekly_frequency, fine dates
+WorkshiftPool: title, semester, Workshift Managers [manytomany Manager], default required hours, weekly_frequency, fine dates
 	e.g. "Weekly Hours, Workshift Manager, 5 hours, every week",
 	"HI Hours, Maintenance Manager, 4 hours, whole semester",
 	"Humor Hours, Workshift Manager, 2 hours, every six weeks"
