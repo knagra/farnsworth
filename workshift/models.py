@@ -17,16 +17,16 @@ class Semester(models.Model):
 	A semester instance, used to hold records, settings, and to separate
 	workshifts into contained units.
 	'''
-	SPRING = 0
-	SUMMER = 1
-	FALL = 2
+	SPRING = "Sp"
+	SUMMER = "Su"
+	FALL = "Fa"
 	SEASON_CHOICES = (
 		(SPRING, 'Spring'),
 		(SUMMER, 'Summer'),
 		(FALL, 'Fall')
 		)
 	season = models.PositiveSmallIntegerField(
-		max_length=1,
+		max_length=2,
 		choices=SEASON_CHOICES,
 		default=SPRING,
 		help_text="Season of the year (spring, summer, fall) of this semester.",
@@ -77,7 +77,11 @@ class Semester(models.Model):
 		)
 	preferences_open = models.BooleanField(
 		default=False,
-		help_text="Whether members can enter their workshift preferences",
+		help_text="Whether members can enter their workshift preferences.",
+		)
+	current = models.BooleanField(
+		default=True,
+		help_text="If this semester is the current semester.",
 		)
 
 	class Meta:
@@ -354,7 +358,7 @@ class RegularWorkshift(models.Model):
 	def __unicode__(self):
 		return "%s, %s" % (self.title, self.get_day_display)
 
-class AssignmentEntry(models.Model):
+class ShiftLogEntry(models.Model):
 	''' Entries for sign-ins, sign-outs, and verification. '''
 	person = models.ForeignKey(
 		WorkshiftProfile,
@@ -420,8 +424,8 @@ class WorkshiftInstance(models.Model):
 		default=False,
 		help_text="If this shift has been blown.",
 		)
-	assignment_entries = models.ManyToManyField(
-		AssignmentEntry,
+	shift_log = models.ManyToManyField(
+		ShiftLogEntry,
 		null=True,
 		blank=True,
 		help_text="The entries for sign ins, sign outs, and verification.",
@@ -466,8 +470,8 @@ class OneTimeWorkshift(models.Model):
 		default=False,
 		help_text="If this shift has been blown.",
 		)
-	assignment_entries = models.ManyToManyField(
-		AssignmentEntry,
+	shift_log = models.ManyToManyField(
+		ShiftLogEntry,
 		null=True,
 		blank=True,
 		help_text="The entries for sign ins, sign outs, and verification.",

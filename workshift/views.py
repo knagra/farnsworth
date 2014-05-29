@@ -10,8 +10,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
-from base.decorators import profile_required, admin_required
+from base.decorators import workshift_required
 from base.models import UserProfile
+from workshift.decorators import workshift_profile_required
 from workshift.models import Semester, WorkshiftProfile
 
 @workshift_profile_required
