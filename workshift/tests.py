@@ -42,7 +42,11 @@ class TestViews(TestCase):
 		self.wprofile = WorkshiftProfile(user=self.wu, semester=self.sem)
 		self.wprofile.save()
 
-		self.wtype = WorkshiftType(title="Test Posts")
+		self.wtype = WorkshiftType(
+			title="Test Posts",
+			description="Test WorkshiftType Description",
+			quick_tips="Test Quick Tips",
+			)
 		self.wtype.save()
 
 		self.shift = RegularWorkshift(
@@ -145,21 +149,21 @@ class TestViews(TestCase):
 		response = self.client.get("/workshift/types/")
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
-		self.assertIn(self.wtype.hours, response.content)
+		self.assertIn(str(self.wtype.hours), response.content)
 		self.assertNotIn(self.wtype.quick_tips, response.content)
 		self.assertNotIn(self.wtype.description, response.content)
 
 		response = self.client.get("/workshift/type/{0}/".format(self.wtype.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
-		self.assertIn(self.wtype.hours, response.content)
+		self.assertIn(str(self.wtype.hours), response.content)
 		self.assertIn(self.wtype.quick_tips, response.content)
 		self.assertIn(self.wtype.description, response.content)
 
 		response = self.client.get("/workshift/type/{0}/edit/".format(self.wtype.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
-		self.assertIn(self.wtype.hours, response.content)
+		self.assertIn(str(self.wtype.hours), response.content)
 		self.assertIn(self.wtype.quick_tips, response.content)
 		self.assertIn(self.wtype.description, response.content)
 
@@ -167,27 +171,27 @@ class TestViews(TestCase):
 		response = self.client.get("/workshift/shift/{0}/".format(self.shift.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.shift.title, response.content)
-		self.assertIn(self.shift.hours, response.content)
-		self.assertIn(self.shift.quick_tips, response.content)
-		self.assertIn(self.shift.description, response.content)
+		self.assertIn(str(self.shift.hours), response.content)
+		self.assertIn(self.shift.workshift_type.quick_tips, response.content)
+		self.assertIn(self.shift.workshift_type.description, response.content)
 		self.assertIn(self.shift.current_assignee.user.get_full_name(), response.content)
 
 		response = self.client.get("/workshift/shift/{0}/edit/".format(self.shift.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.shift.title, response.content)
-		self.assertIn(self.shift.hours, response.content)
-		self.assertIn(self.shift.quick_tips, response.content)
-		self.assertIn(self.shift.description, response.content)
+		self.assertIn(str(self.shift.hours), response.content)
+		self.assertIn(self.shift.workshift_type.quick_tips, response.content)
+		self.assertIn(self.shift.workshift_type.description, response.content)
 		self.assertIn(self.shift.current_assignee.user.get_full_name(), response.content)
 
 	def test_instance(self):
 		response = self.client.get("/workshift/instance/{0}/".format(self.instance.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.instance.weekly_workshift.title, response.content)
-		self.assertIn(self.instance.pool.title, response.content)
+		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
 		self.assertIn(self.instance.date, response.content)
 		self.assertIn(self.instance.workshifter.user.get_full_name(), response.content)
-		self.assertIn(self.instance.hours, response.content)
+		self.assertIn(str(self.instance.hours), response.content)
 		self.assertIn(self.sle0.note, response.content)
 		self.assertIn(self.sle1.note, response.content)
 		self.assertIn(self.sle2.note, response.content)
@@ -196,10 +200,10 @@ class TestViews(TestCase):
 		response = self.client.get("/workshift/instance/{0}/edit/".format(self.instance.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.instance.weekly_workshift.title, response.content)
-		self.assertIn(self.instance.pool.title, response.content)
+		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
 		self.assertIn(self.instance.date, response.content)
 		self.assertIn(self.instance.workshifter.user.get_full_name(), response.content)
-		self.assertIn(self.instance.hours, response.content)
+		self.assertIn(str(self.instance.hours), response.content)
 
 	def test_one_time(self):
 		response = self.client.get("/workshift/once/{0}/".format(self.once.pk))
@@ -207,7 +211,7 @@ class TestViews(TestCase):
 		self.assertIn(self.once.title, response.content)
 		self.assertIn(self.once.pool.title, response.content)
 		self.assertIn(self.once.description, response.content)
-		self.assertIn(self.once.hours, response.content)
+		self.assertIn(str(self.once.hours), response.content)
 		self.assertIn(self.once.workshifter.user.get_full_name(), response.content)
 
 		response = self.client.get("/workshift/once/{0}/edit/".format(self.once.pk))
@@ -215,7 +219,7 @@ class TestViews(TestCase):
 		self.assertIn(self.once.title, response.content)
 		self.assertIn(self.once.pool.title, response.content)
 		self.assertIn(self.once.description, response.content)
-		self.assertIn(self.once.hours, response.content)
+		self.assertIn(str(self.once.hours), response.content)
 		self.assertIn(self.once.workshifter.user.get_full_name(), response.content)
 
 class TestPermissions(TestCase):
