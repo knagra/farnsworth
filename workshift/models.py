@@ -319,7 +319,7 @@ class RegularWorkshift(models.Model):
 		)
 	pool = models.ForeignKey(
 		WorkshiftPool,
-		help_text="The workshift pool for this instance.",
+		help_text="The workshift pool for this shift.",
 		)
 	title = models.CharField(
 		max_length=255,
@@ -403,7 +403,7 @@ class WorkshiftInstance(models.Model):
 		)
 	pool = models.ForeignKey(
 		WorkshiftPool,
-		help_text="The workshift pool for this instance.",
+		help_text="The workshift pool for this shift.",
 		)
 	date = models.DateField(
 		help_text="Date of this workshift.",
@@ -439,6 +439,10 @@ class OneTimeWorkshift(models.Model):
 	title = models.CharField(
 		max_length=255,
 		help_text="Title for this shift.",
+		)
+	pool = models.ForeignKey(
+		WorkshiftPool,
+		help_text="The workshift pool for this shift.",
 		)
 	description = models.TextField(
 		null=True,
