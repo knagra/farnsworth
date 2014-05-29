@@ -27,6 +27,7 @@ class TestViews(TestCase):
 			workshift_manager=True,
 			)
 		self.wm.url_title = convert_to_url(self.wm.title)
+		self.wm.workshift_manager = True
 		self.wm.save()
 
 		self.sem = Semester(year=2014, start_date=date.today(),
@@ -37,6 +38,8 @@ class TestViews(TestCase):
 		self.pool = WorkshiftPool(
 			semester=self.sem,
 			)
+		self.pool.save()
+		self.pool.managers = [self.wm]
 		self.pool.save()
 
 		self.wprofile = WorkshiftProfile(user=self.wu, semester=self.sem)
