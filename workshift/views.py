@@ -53,7 +53,7 @@ def profile_view(request, semester, profile, profile_pk):
 	"""
 	wprofile = get_object_or_404(WorkshiftProfile, pk=profile_pk)
 	page_name = "{0}'s Workshift Profile".format(wprofile.user.get_full_name())
-	return render_to_response("preferences.html", {
+	return render_to_response("profile.html", {
 		"page_name": page_name,
 		"profile": wprofile,
 	}, context_instance=RequestContext(request))
