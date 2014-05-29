@@ -354,7 +354,7 @@ class RegularWorkshift(models.Model):
 	def __unicode__(self):
 		return "%s, %s" % (self.title, self.get_day_display)
 
-class AssignmentEntry(models.Model):
+class ShiftLogEntry(models.Model):
 	''' Entries for sign-ins, sign-outs, and verification. '''
 	person = models.ForeignKey(
 		WorkshiftProfile,
@@ -420,8 +420,8 @@ class WorkshiftInstance(models.Model):
 		default=False,
 		help_text="If this shift has been blown.",
 		)
-	assignment_entries = models.ManyToManyField(
-		AssignmentEntry,
+	shift_log = models.ManyToManyField(
+		ShiftLogEntry,
 		null=True,
 		blank=True,
 		help_text="The entries for sign ins, sign outs, and verification.",
@@ -466,8 +466,8 @@ class OneTimeWorkshift(models.Model):
 		default=False,
 		help_text="If this shift has been blown.",
 		)
-	assignment_entries = models.ManyToManyField(
-		AssignmentEntry,
+	shift_log = models.ManyToManyField(
+		ShiftLogEntry,
 		null=True,
 		blank=True,
 		help_text="The entries for sign ins, sign outs, and verification.",
