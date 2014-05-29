@@ -220,8 +220,8 @@ function hide_form(form_id) {
 			<div class="main_row hover_row">
 			<div class="announcement_owner">
 				<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
-				(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">
-					{{ tuple.0.incumbent|display_user:user }}</a>), {{ tuple.0.post_date }}:
+				(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">{{ tuple.0.incumbent|display_user:user }}</a>),
+				{{ tuple.0.post_date }}:
 			</div> <!-- .announcement_owner -->
 			<div class="announcement_body">{{ tuple.0.body|safe }}
 				{% if tuple.1 %}
