@@ -17,16 +17,16 @@ class Semester(models.Model):
 	A semester instance, used to hold records, settings, and to separate
 	workshifts into contained units.
 	'''
-	SPRING = 0
-	SUMMER = 1
-	FALL = 2
+	SPRING = "Sp"
+	SUMMER = "Su"
+	FALL = "Fa"
 	SEASON_CHOICES = (
 		(SPRING, 'Spring'),
 		(SUMMER, 'Summer'),
 		(FALL, 'Fall')
 		)
 	season = models.PositiveSmallIntegerField(
-		max_length=1,
+		max_length=2,
 		choices=SEASON_CHOICES,
 		default=SPRING,
 		help_text="Season of the year (spring, summer, fall) of this semester.",
@@ -77,7 +77,11 @@ class Semester(models.Model):
 		)
 	preferences_open = models.BooleanField(
 		default=False,
-		help_text="Whether members can enter their workshift preferences",
+		help_text="Whether members can enter their workshift preferences.",
+		)
+	current = models.BooleanField(
+		default=True,
+		help_text="If this semester is the current semester.",
 		)
 
 	class Meta:
