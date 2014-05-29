@@ -256,6 +256,7 @@ INSTALLED_APPS = (
 	'threads',
 	'events',
 	'requests',
+    'managers',
     'workshift',
 	'bootstrapform',
 	'haystack',
