@@ -12,4 +12,6 @@ urlpatterns = [
 	url(r"^workshift/manage/add_shift/$", views.add_shift_view, name="add_shift"),
 	url(r"^workshift/shifts/(P<shift_title>\w+)/$", views.shift_view, name="view_shift"),
 	url(r"^workshift/shifts/(P<shift_title>\w+)/edit$", views.edit_shift_view, name="edit_shift"),
+	url(r"^workshift/instance/(P<instance_pk>\w+)/$", views.instance_view, name="view_instance"),
+	url(r"^workshift/instance/(P<instance_pk>\w+)/edit$", views.edit_instance_view, name="edit_instance"),
 ]
