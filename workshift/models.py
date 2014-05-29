@@ -42,7 +42,7 @@ class Semester(models.Model):
 		help_text="The users who were/are Workshift Managers for this semester.",
 		)
 	rate = models.DecimalField(
-		max_digits=4, # In case of inflation
+		max_digits=7, # In case of inflation
 		decimal_places=2,
 		null=True,
 		blank=True,
@@ -106,7 +106,7 @@ class WorkshiftPool(models.Model):
 		"a substitute, in hours.",
 		)
 	hours = models.DecimalField(
-		max_digits=2,
+		max_digits=5,
 		decimal_places=2,
 		default=DEFAULT_SEMESTER_HOURS,
 		help_text="Default regular workshift hours required per week.",
@@ -144,7 +144,7 @@ class WorkshiftType(models.Model):
 		help_text="Quick tips to the workshifter.",
 		)
 	hours = models.DecimalField(
-		max_digits=2,
+		max_digits=5,
 		decimal_places=2,
 		default=1,
 		help_text="Default hours for these types of shifts, helpful for "
@@ -215,6 +215,57 @@ class WorkshiftRating(models.Model):
 		help_text="The workshift type being rated.",
 		)
 
+class PoolHours(models.Model):
+	pool = models.ForeignKey(
+		WorkshiftPool,
+		help_text="The pool associated with these hours.",
+		)
+	hours = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		default=DEFAULT_SEMESTER_HOURS,
+		help_text="Periodic hour requirement.",
+		)
+	standing = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		default=0,
+		help_text="Current hours standing, below or above requirement.",
+		)
+	hour_adjustment = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		default=0,
+		help_text="Manual hour requirement adjustment.",
+		)
+	first_date_standing = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		null=True,
+		blank=True,
+		default=0,
+		help_text="The hourly fines or repayment at the first fine date. "
+		"Stored in a field for manual adjustment.",
+		)
+	second_date_standing = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		null=True,
+		blank=True,
+		default=0,
+		help_text="The hourly fines or repayment at the second fine date. "
+		"Stored in a field for manual adjustment.",
+		)
+	third_date_standing = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		null=True,
+		blank=True,
+		default=0,
+		help_text="The hourly fines or repayment at the third fine date. "
+		"Stored in a field for manual adjustment.",
+		)
+
 class WorkshiftProfile(models.Model):
 	''' A workshift profile for a user for a given semester. '''
 	user = models.ForeignKey(
@@ -224,6 +275,12 @@ class WorkshiftProfile(models.Model):
 	semester = models.ForeignKey(
 		Semester,
 		help_text="The semester for this workshift profile.",
+		)
+	note = models.TextField(
+		null=True,
+		blank=True,
+		help_text="Note for this profile. For communication between the "
+		"workshifter and the workshift manager(s).",
 		)
 	time_blocks = models.ManyToManyField(
 		TimeBlock,
@@ -237,56 +294,11 @@ class WorkshiftProfile(models.Model):
 		blank=True,
 		help_text="The workshift ratings for this workshift profile.",
 		)
-	hours = models.DecimalField(
-		max_digits=2,
-		decimal_places=2,
-		default=DEFAULT_SEMESTER_HOURS,
-		help_text="Number of weekly hours required for this profile.",
-		)
-	standing = models.DecimalField(
-		max_digits=3,
-		decimal_places=2,
-		default=0,
-		help_text="Current hours standing for this workshift profile.",
-		)
-	hour_adjustment = models.DecimalField(
-		max_digits=3,
-		decimal_places=2,
-		default=0,
-		help_text="Manual hour adjustment for this workshift profile.",
-		)
-	note = models.TextField(
+	pool_hours = models.ManyToManyField(
+		PoolHours,
 		null=True,
 		blank=True,
-		help_text="Note for this profile. For communication between the "
-		"workshifter and the workshift manager(s).",
-		)
-	first_date_fine = models.DecimalField(
-		max_digits=5,
-		decimal_places=2,
-		null=True,
-		blank=True,
-		default=0,
-		help_text="The fines or repayment for this profile at the first fine "
-		"date. Stored in a field for manual adjustment.",
-		)
-	second_date_fine = models.DecimalField(
-		max_digits=5,
-		decimal_places=2,
-		null=True,
-		blank=True,
-		default=0,
-		help_text="The fines or repayment for this profile at the second fine "
-		"date. Stored in a field for manual adjustment.",
-		)
-	third_date_fine = models.DecimalField(
-		max_digits=5,
-		decimal_places=2,
-		null=True,
-		blank=True,
-		default=0,
-		help_text="The fines or repayment for this profile at the third fine "
-		"date. Stored in a field for manual adjustment.",
+		help_text="Hours required for each workshift pool for this profile.",
 		)
 
 	def __unicode__(self):
@@ -301,6 +313,10 @@ class RegularWorkshift(models.Model):
 		WorkshiftType,
 		help_text="The workshift type for this weekly workshift.",
 		)
+	pool = models.ForeignKey(
+		WorkshiftPool,
+		help_text="The workshift pool for this instance.",
+		)
 	title = models.CharField(
 		max_length=255,
 		help_text="The title for this weekly workshift.",
@@ -309,7 +325,7 @@ class RegularWorkshift(models.Model):
 		help_text="The day of the week when this workshift takes place.",
 		)
 	hours = models.DecimalField(
-		max_digits=2,
+		max_digits=5,
 		decimal_places=2,
 		default=DEFAULT_WORKSHIFT_HOURS,
 		help_text="Number of hours for this shift.",
@@ -423,7 +439,7 @@ class OneTimeWorkshift(models.Model):
 		help_text="Date of this workshift.",
 		)
 	hours = models.DecimalField(
-		max_digits=2,
+		max_digits=5,
 		decimal_places=2,
 		default=DEFAULT_WORKSHIFT_HOURS,
 		help_text="Hours given for this shift.",
