@@ -14,7 +14,8 @@ from workshift.fields import DayField
 
 class Semester(models.Model):
 	'''
-	A semester instance, used to hold records, settings, and to separate workshifts into contained units.
+	A semester instance, used to hold records, settings, and to separate
+	workshifts into contained units.
 	'''
 	SPRING = 0
 	SUMMER = 1
@@ -161,7 +162,8 @@ class TimeBlock(models.Model):
 	'''
 	A time block to represent member availability during a particular day.
 	Used to reduce database size by creating references to existing time blocks for users.
-	These objects should never be directly created on their own.  They be created and retrieved for use.
+	These objects should never be directly created on their own.  They be
+	created and retrieved for use.
 	'''
 	BUSY = 0
 	FREE = 1
@@ -171,15 +173,29 @@ class TimeBlock(models.Model):
 		(FREE, "Free"),
 		(PREFERRED, "Preferred"),
 		)
-	preference = models.PositiveSmallIntegerField(max_length=1, choices=PREFERENCE_CHOICES, default=FREE, help_text="The user's preference for this time block.")
-	day = DayField(help_text="Day of the week for this time block.")
-	start_time = models.TimeField(help_text="Start time for this time block.")
-	end_time = models.TimeField(help_text="End time for this time block.")
+	preference = models.PositiveSmallIntegerField(
+		max_length=1,
+		choices=PREFERENCE_CHOICES,
+		default=FREE,
+		help_text="The user's preference for this time block.",
+		)
+	day = DayField(
+		help_text="Day of the week for this time block.",
+		)
+	start_time = models.TimeField(
+		help_text="Start time for this time block.",
+		)
+	end_time = models.TimeField(
+		help_text="End time for this time block.",
+		)
 
 class WorkshiftRating(models.Model):
 	'''
-	A preference for a workshift type.  Used to reduce database size by creating references to existing ratings for users.
-	These objects should never be directly created on their own.  They be created and retrieved for use.
+	A preference for a workshift type.  Used to reduce database size by creating
+	references to existing ratings for users.
+
+	These objects should never be directly created on their own.  They be
+	created and retrieved for use.
 	'''
 	DISLIKE = 0
 	INDIFFERENT = 1
@@ -189,15 +205,38 @@ class WorkshiftRating(models.Model):
 		(INDIFFERENT, "Indifferent"),
 		(LIKE, "Like")
 		)
-	rating = models.PositiveSmallIntegerField(max_length=1, choices=RATING_CHOICES, help_text="Rating for the workshift type.")
-	workshift_type = models.ForeignKey(WorkshiftType, help_text="The workshift type being rated.")
+	rating = models.PositiveSmallIntegerField(
+		max_length=1,
+		choices=RATING_CHOICES,
+		help_text="Rating for the workshift type.",
+		)
+	workshift_type = models.ForeignKey(
+		WorkshiftType,
+		help_text="The workshift type being rated.",
+		)
 
 class WorkshiftProfile(models.Model):
 	''' A workshift profile for a user for a given semester. '''
-	user = models.ForeignKey(User, help_text="The user for this workshift profile.")
-	semester = models.ForeignKey(Semester, help_text="The semester for this workshift profile.")
-	time_blocks = models.ManyToManyField(TimeBlock, null=True, blank=True, help_text="The time blocks for this workshift profile.")
-	ratings = models.ManyToManyField(WorkshiftRating, null=True, blank=True, help_text="The workshift ratings for this workshift profile.")
+	user = models.ForeignKey(
+		User,
+		help_text="The user for this workshift profile.",
+		)
+	semester = models.ForeignKey(
+		Semester,
+		help_text="The semester for this workshift profile.",
+		)
+	time_blocks = models.ManyToManyField(
+		TimeBlock,
+		null=True,
+		blank=True,
+		help_text="The time blocks for this workshift profile.",
+		)
+	ratings = models.ManyToManyField(
+		WorkshiftRating,
+		null=True,
+		blank=True,
+		help_text="The workshift ratings for this workshift profile.",
+		)
 	hours = models.DecimalField(
 		max_digits=2,
 		decimal_places=2,
@@ -254,10 +293,21 @@ class WorkshiftProfile(models.Model):
 		return "%s, %s" % (self.user.get_full_name(), self.semester)
 
 class RegularWorkshift(models.Model):
-	''' A weekly workshift for a semester.  Used to generate individual instances of workshifts. '''
-	workshift_type = models.ForeignKey(WorkshiftType, help_text="The workshift type for this weekly workshift.")
-	title = models.CharField(max_length=255, help_text="The title for this weekly workshift.")
-	day = DayField(help_text="The day of the week when this workshift takes place.")
+	'''
+	A weekly workshift for a semester.  Used to generate individual instances of
+	workshifts.
+	'''
+	workshift_type = models.ForeignKey(
+		WorkshiftType,
+		help_text="The workshift type for this weekly workshift.",
+		)
+	title = models.CharField(
+		max_length=255,
+		help_text="The title for this weekly workshift.",
+		)
+	day = DayField(
+		help_text="The day of the week when this workshift takes place.",
+		)
 	hours = models.DecimalField(
 		max_digits=2,
 		decimal_places=2,
@@ -265,12 +315,25 @@ class RegularWorkshift(models.Model):
 		help_text="Number of hours for this shift.",
 		)
 	active = models.BooleanField(default=True,
-		help_text="Whether this shift is actively being used currently (displayed in list of shifts, given hours, etc.).")
-	current_assignee = models.ForeignKey(WorkshiftProfile, null=True, blank=True,
-		help_text="The workshifter currently assigned to this weekly workshift.")
-	start_time = models.TimeField(help_text="Start time for this workshift.")
-	end_time = models.TimeField(help_text="End time for this workshift.")
-	addendum = models.TextField(help_text="Addendum to the description for this workshift.")
+		help_text="Whether this shift is actively being used currently "
+		"(displayed in list of shifts, given hours, etc.).",
+		)
+	current_assignee = models.ForeignKey(
+		WorkshiftProfile,
+		null=True,
+		blank=True,
+		help_text="The workshifter currently assigned to this weekly "
+		"workshift.",
+		)
+	start_time = models.TimeField(
+		help_text="Start time for this workshift.",
+		)
+	end_time = models.TimeField(
+		help_text="End time for this workshift.",
+		)
+	addendum = models.TextField(
+		help_text="Addendum to the description for this workshift.",
+		)
 
 	def __unicode__(self):
 		return "%s, %s" % (self.title, self.get_day_display)
