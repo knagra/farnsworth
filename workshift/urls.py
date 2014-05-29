@@ -16,7 +16,7 @@ urlpatterns = [
 	url(r"^workshift/((P<sem_url>[0-9]+)/)?instance/(P<instance_pk>\d+)/?$", views.instance_view, name="view_instance"),
 	url(r"^workshift/((P<sem_url>[0-9]+)/)?instance/(P<instance_pk>\d+)/edit/?$", views.edit_instance_view, name="edit_instance"),
 	url(r"^workshift/((P<sem_url>[0-9]+)/)?once/(P<instance_pk>\d+)/?$", views.instance_view, name="view_one_off"),
-3	url(r"^workshift/((P<sem_url>[0-9]+)/)?once/(P<instance_pk>\d+)/edit/?$", views.edit_instance_view, name="edit_one_off"),
+	url(r"^workshift/((P<sem_url>[0-9]+)/)?once/(P<instance_pk>\d+)/edit/?$", views.edit_instance_view, name="edit_one_off"),
 	url(r"^workshift/type/(P<type_pk>\d+)/?$", views.view_type, name="view_type"),
 	url(r"^workshift/type/(P<type_pk>\d+)/edit/?$", views.edit_type, name="edit_type"),
 ]

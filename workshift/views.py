@@ -9,8 +9,12 @@ from base.models import UserProfile
 from workshift.decorators import workshift_profile_required
 from workshift.models import Semester, WorkshiftProfile
 
-@profile_required
-def workshift_view(request):
+@workshift_manager_required
+def start_semester_view(request):
+	pass
+
+@workshift_profile_required
+def view_semester(request, semester, profile):
 	"""
 	Displays a table of the workshifts for the week, shift assignees,
 	accumulated statistics (Down hours), reminders for any upcoming shifts, and
@@ -18,12 +22,23 @@ def workshift_view(request):
 	"""
 	pass
 
+@workshift_profile_required
+def profile_view(request, semester, profile):
+	pass
+
+@workshift_profile_required
+def preferences_view(request, semester, profile):
+	"""
+	View for users to see and edit their workshift preferences.
+	"""
+	page_name = "Workshift Preferences"
+	pass
+
 @profile_required
 def preferences_view(request, semester):
 	"""
 
 	"""
-	page_name = "Workshift Preferences"
 	profile = get_object_or_404(WorkshiftProfile, user=request.user,
 								semester=semester)
 	return render_to_response("workshift_preferences.html", {
