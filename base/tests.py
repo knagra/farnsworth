@@ -6,6 +6,7 @@ when you run "manage.py test".
 from datetime import datetime, timedelta
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
 
@@ -413,6 +414,11 @@ class TestSocialRequest(TestCase):
 		self.assertRedirects(response, "/custom_admin/profile_requests/")
 		self.assertIn("User {0} was successfully added".format(self.pr.username),
 			      response.content)
+
+	def test_settings(self):
+		for lib in settings.SOCIAL_AUTH_PIPELINE:
+			module, func = lib.rsplit(".", 1)
+			self.assertNotEqual(None, __import__(module, fromlist=[func]))
 
 class TestProfileRequestAdmin(TestCase):
 	def setUp(self):
