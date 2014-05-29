@@ -35,7 +35,7 @@ RegularWorkshift (WorkshiftType foreign key, title [pre-fill], day-of-week, hour
 
 WorkShiftInstance (RegularWorkshift, pool, date, workshifter [workshift profile], verifier [workshift profile], completed boolean)
 
-OneTimeWorkshift (description, assignee [workshift profile], hours, datetime)
+OneTimeWorkshift (WorkshiftPool, description, assignee [workshift profile], hours, datetime)
 
 AssignmentEntry (WorkshiftInstance, assignee [optional], entry_time)
 	e.g. "Karandeep Nagra signed into dishes shift for tomorrow"
