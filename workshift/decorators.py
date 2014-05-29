@@ -8,6 +8,7 @@ from base.redirects import red_home
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import WorkshiftProfile, Semester
+from workshift.redirects import red_workshift
 
 def _extract_semester(kwargs):
 	if "sem_url" in kwargs:
@@ -24,7 +25,7 @@ def _extract_semester(kwargs):
 		kwargs["semester"] = get_object_or_404(Semester, current=True)
 
 def workshift_profile_required(function=None, redirect_no_user='login',
-                               redirect_profile=red_home):
+                               redirect_no_profile=red_home):
 	def real_decorator(view_func):
 		def wrap(request, *args, **kwargs):
 			if not request.user.is_authenticated():
@@ -39,7 +40,7 @@ def workshift_profile_required(function=None, redirect_no_user='login',
 				profile = WorkshiftProfile.objects.get(user=request.user,
 													   semester=kwargs["semester"])
 			except WorkshiftProfile.DoesNotExist:
-				return redirect_profile(request, MESSAGES['NO_WORKSHIFT'])
+				return redirect_no_profile(request, MESSAGES['NO_WORKSHIFT'])
 
 			kwargs["profile"] = profile
 
@@ -53,7 +54,8 @@ def workshift_profile_required(function=None, redirect_no_user='login',
 	return real_decorator
 
 def workshift_manager_required(function=None, redirect_no_user='login',
-							   redirect_profile=red_home):
+							   redirect_no_profile=red_home,
+							   redirect_profile=red_workshift):
 	def real_decorator(view_func):
 		def wrap(request, *args, **kwargs):
 			if not request.user.is_authenticated():
@@ -65,7 +67,7 @@ def workshift_manager_required(function=None, redirect_no_user='login',
 			try:
 				userProfile = UserProfile.objects.get(user=request.user)
 			except UserProfile.DoesNotExist:
-				return redirect_profile(request, MESSAGES['NO_PROFILE'])
+				return redirect_no_profile(request, MESSAGES['NO_WORKSHIFT'])
 
 			workshift = Manager.objects.filter(incumbent=userProfile) \
 			  .filter(workshift_manager=True).count() > 0

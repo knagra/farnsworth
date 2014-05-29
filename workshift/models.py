@@ -376,10 +376,12 @@ class ShiftLogEntry(models.Model):
 		help_text="Message to the workshift manager. "
 		"(e.g. 'Can't cook because of flu')",
 		)
+	ASSIGNED = 'A'
 	SIGNIN = 'I'
 	SIGNOUT = 'O'
 	VERIFY = 'V'
 	ENTRY_CHOICES = (
+		(ASSIGNED, 'Assigned'),
 		(SIGNIN, 'Sign In'),
 		(SIGNOUT, 'Sign Out'),
 		(VERIFY, 'Verify'),
