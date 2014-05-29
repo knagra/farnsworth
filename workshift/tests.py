@@ -12,6 +12,10 @@ from workshift.models import Semester, WorkshiftPool, WorkshiftProfile, \
 	 ShiftLogEntry
 
 class BasicTest(TestCase):
+	"""
+	Tests a few basic things about the application: That all the pages can load
+	correctly, and that they contain the content that is expected.
+	"""
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
 		self.su.is_staff, self.su.is_superuser = True, True
