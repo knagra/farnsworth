@@ -35,7 +35,7 @@ def start_semester_view(request):
 @workshift_profile_required
 def view_semester(request, semester=None, profile=None):
 	"""
-	Displays a table of the workshifts for the week, shift assignees,
+	Displays a table of the workshifts for the week, shift assignments,
 	accumulated statistics (Down hours), reminders for any upcoming shifts, and
 	links to sign off on shifts. Also links to the rest of the workshift pages.
 	"""
@@ -69,7 +69,8 @@ def preferences_view(request, semester, profile, profile_pk):
 	managers = Manager.objects.filter(incumbent=user_profile) \
 	  .filter(workshift_manager=True)
 
-	if wprofile.user != request.user and not managers.count():
+	if wprofile.user != request.user and not managers.count() and \
+	  not request.user.is_superuser:
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(reverse('workshift:view_semester'))
@@ -94,7 +95,7 @@ def manage_view(request, semester, profile):
 	  .filter(workshift_manager=True)
 	full_management = request.user.is_superuser or managers.count()
 
-	if not full_management
+	if not full_management:
 		pools = pools.filter(managers__incumbent=user_profile)
 		if not pools.count():
 			messages.add_message(request, messages.ERROR,
