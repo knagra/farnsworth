@@ -20,7 +20,7 @@
 {% block content %}
 <div class="table_container">
   <div class="header">{% if can_edit %}
-	<form action="{% url 'edit_event' event_pk=event.pk %}" class="header_form">
+	<form action="{% url 'events:edit' event_pk=event.pk %}" class="header_form">
 	  <button class="btn btn btn-primary"><span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span></button>
 	</form>
 	{% endif %}
@@ -64,7 +64,7 @@
 		{% endif %}
 	  {% endif %}
 	</form>
-	<form class="pull-right" action="{% url 'edit_event' event_pk=event.pk %}">
+	<form class="pull-right" action="{% url 'events:edit' event_pk=event.pk %}">
 		<button type="submit" class="main_link primary_link" title="Edit this event">Edit</button>
 	</form>
   </div> <!-- .event_body -->
