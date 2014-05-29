@@ -102,6 +102,8 @@ class WorkshiftPool(models.Model):
 		)
 	managers = models.ManyToManyField(
 		Manager,
+		blank=True,
+		null=True,
 		help_text="Managers who are able to control this workshift category."
 		)
 	sign_out_cutoff = models.PositiveSmallIntegerField(

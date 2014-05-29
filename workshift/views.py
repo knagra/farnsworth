@@ -14,7 +14,8 @@ from django.template import RequestContext
 from base.models import UserProfile
 from workshift.decorators import workshift_profile_required, \
 	workshift_manager_required, semester_required
-from workshift.models import Semester, WorkshiftProfile, WorkshiftType
+from workshift.models import Semester, WorkshiftProfile, WorkshiftType, \
+	 RegularWorkshift, WorkshiftInstance, OneTimeWorkshift
 
 @workshift_manager_required
 def start_semester_view(request):
@@ -42,22 +43,25 @@ def view_semester(request, semester=None, profile=None):
 	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def profile_view(request, semester, profile):
+def profile_view(request, semester, profile, profile_pk):
 	"""
 	Show the user their workshift history for the current semester as well as
 	upcoming shifts.
 	"""
+	wprofile = get_object_or_404(WorkshiftProfile, pk=profile_pk)
+	page_name = "{0}'s Workshift Profile".format(wprofile.user.get_full_name())
 	return render_to_response("preferences.html", {
 		"page_name": page_name,
-		"profile": profile,
+		"profile": wprofile,
 	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def preferences_view(request, semester, profile):
+def preferences_view(request, semester, profile, profile_pk):
 	"""
 	Show the user their preferences for the given semester.
 	"""
-	page_name = "Workshift Preferences"
+	wprofile = get_object_or_404(WorkshiftProfile, pk=profile_pk)
+	page_name = "{0}'s Workshift Preferences".format(wprofile.user.get_full_name())
 	return render_to_response("preferences.html", {
 		"page_name": page_name,
 		"profile": profile,
@@ -128,8 +132,8 @@ def instance_view(request, semester, profile, instance_pk):
 	"""
 	View the details of a particular WorkshiftInstance.
 	"""
-	shift = get_object_or_404(WorkshiftInstance, pk=shift_pk)
-	page_name = shift.title
+	shift = get_object_or_404(WorkshiftInstance, pk=instance_pk)
+	page_name = shift.weekly_workshift.title
 
 	return render_to_response("view_instance.html", {
 		"page_name": page_name,
@@ -141,8 +145,8 @@ def edit_instance_view(request, semester, profile, instance_pk):
 	"""
 	View for a manager to edit the details of a particular WorkshiftInstance.
 	"""
-	shift = get_object_or_404(WorkshiftInstance, pk=shift_pk)
-	page_name = "Edit " + shift.title
+	shift = get_object_or_404(WorkshiftInstance, pk=instance_pk)
+	page_name = "Edit " + shift.weekly_workshift.title
 
 	return render_to_response("edit_shift.html", {
 		"page_name": page_name,
@@ -154,7 +158,7 @@ def one_off_view(request, semester, profile, one_off_pk):
 	"""
 	View the details of a particular OneTimeWorkshift.
 	"""
-	shift = get_object_or_404(OneTimeWorkshift, pk=shift_pk)
+	shift = get_object_or_404(OneTimeWorkshift, pk=one_off_pk)
 	page_name = shift.title
 
 	return render_to_response("view_one_off.html", {
@@ -167,7 +171,7 @@ def edit_one_off_view(request, semester, profile, one_off_pk):
 	"""
 	View for a manager to edit the details of a particular OneTimeWorkshift.
 	"""
-	shift = get_object_or_404(OneTimeWorkshift, pk=shift_pk)
+	shift = get_object_or_404(OneTimeWorkshift, pk=one_off_pk)
 	page_name = "Edit " + shift.title
 
 	return render_to_response("edit_one_off.html", {
@@ -193,7 +197,7 @@ def type_view(request, semester, profile, type_pk):
 	"""
 	View the details of a particular WorkshiftType.
 	"""
-	shift = get_object_or_404(WorkshiftType, pk=shift_pk)
+	shift = get_object_or_404(WorkshiftType, pk=type_pk)
 	page_name = shift.title
 
 	return render_to_response("view_type.html", {
@@ -206,7 +210,7 @@ def edit_type_view(request, semester, profile, type_pk):
 	"""
 	View for a manager to edit the details of a particular WorkshiftType.
 	"""
-	shift = get_object_or_404(WorkshiftType, pk=shift_pk)
+	shift = get_object_or_404(WorkshiftType, pk=type_pk)
 	page_name = "Edit " + shift.title
 
 	return render_to_response("edit_type.html", {
