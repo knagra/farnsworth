@@ -1,3 +1,9 @@
+"""
+Project: Farnsworth
+
+Authors: Karandeep Singh Nagra and Nader Morshed
+"""
+
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -8,7 +14,20 @@ from base.decorators import profile_required, admin_required
 from base.models import UserProfile
 from workshift.models import Semester, WorkshiftProfile
 
-@profile_required
+@workshift_profile_required
+def start_semester_view(request):
+	"""
+	Start a new semester.
+	"""
+	page_name = "Start New Semester"
+	try:
+		current_semester = Semester.objects.get(current=True)
+	except:
+		current_semester = None
+
+
+
+@workshift_profile_required
 def workshift_view(request):
 	"""
 	Displays a table of the workshifts for the week, shift assignees,
@@ -17,10 +36,10 @@ def workshift_view(request):
 	"""
 	pass
 
-@profile_required
-def preferences_view(request, semester):
+@workshift_profile_required
+def preferences_view(request, sem_url=None):
 	"""
-
+	Show the user her/his preferences for the given semester.
 	"""
 	page_name = "Workshift Preferences"
 	profile = get_object_or_404(WorkshiftProfile, user=request.user,
@@ -30,7 +49,7 @@ def preferences_view(request, semester):
 		"profile": profile,
 	}, context_instance=RequestContext(request))
 
-@workshift_required
+@workshift_manager_required
 def manage_preferences_view(request, semester):
 	"""
 	View all members' preferences. This view also includes forms to create an
@@ -43,7 +62,7 @@ def manage_preferences_view(request, semester):
 		"profiles": profiles,
 	}, context_instance=RequestContext(request))
 
-@workshift_required
+@workshift_manager_required
 def start_semester_view(request):
 	"""
 	Initiates a semester's worth of workshift, with the option to copy workshift
@@ -51,6 +70,6 @@ def start_semester_view(request):
 	"""
 	pass
 
-@workshift_required
+@workshift_manager_required
 def add_workshift_view(request):
 	pass
