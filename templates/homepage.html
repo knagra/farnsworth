@@ -128,6 +128,70 @@ function hide_form(form_id) {
 
 <div class="row">
 <div class="col-md-12">
+<div class="announcements table_container">
+	<div class="header">
+		{% if announcement_form %}
+		<button class="btn btn-primary header_button" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+		{% endif %}
+		<h3 class="table_title small_title">
+			Recent Announcements
+		</h3>
+	</div>
+	<div class="main_table">
+		{% if announcement_form %}
+		<form id="new_announcement_form" class="main_form" method="post" action="">
+			{% csrf_token %}
+			<div class="form-group">
+				<label class="control-label" for="id_as_manager">As Manager</label>
+				{{ announcement_form.as_manager }}
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="id_announcement_body">Body</label>
+				<textarea id="id_announcement_body" name="body"></textarea>
+			</div>
+			<div class="text-center">
+			<div class="btn-group">
+				<button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
+				<button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_form('new_announcement_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+			</div> <!-- .btn-group -->
+			</div> <!-- .text-center -->
+		</form>
+		{% endif %}
+		{% if not announcements_dict %}
+			<div class="field_wrapper">No recent announcements.</div>
+		{% else %}
+		{% for tuple in announcements_dict %}
+			{% if forloop.counter > 1 %}
+				<hr class="main_divider" />
+			{% endif %}
+			<div class="main_row hover_row">
+			<div class="announcement_owner">
+				<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
+				(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">{{ tuple.0.incumbent|display_user:user }}</a>),
+				{{ tuple.0.post_date }}:
+			</div> <!-- .announcement_owner -->
+			<div class="announcement_body">{{ tuple.0.body|safe }}
+				{% if tuple.1 %}
+					<form class="pull-right" method="post" action="">
+						{% csrf_token %}
+						{{ tuple.1 }}
+						<button type="submit" class="main_link warning_link" name="unpin" title="Unpin this announcement">Unpin</button>
+					</form>
+					<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=tuple.0.pk %}">
+						<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
+					</form>
+				{% endif %}
+			</div>
+			</div> <!-- .announcement_row -->
+		{% endfor %}
+		{% endif %}
+	</div>
+</div> <!-- .announcements -->
+</div> <!-- .col-md-12 -->
+</div> <!-- .row -->
+
+<div class="row">
+<div class="col-lg-7" style="margin-top: 10px;">
 <div class="threads table_container">
 	<div class="header">
 		<button class="btn btn-primary header_button" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
@@ -176,70 +240,6 @@ function hide_form(form_id) {
   {% endif %}
   </div> <!-- .main_table -->
 </div>
-</div> <!-- .col-md-12 -->
-</div> <!-- .row -->
-
-<div class="row">
-<div class="col-lg-7" style="margin-top: 10px;">
-<div class="announcements table_container">
-	<div class="header">
-		{% if announcement_form %}
-		<button class="btn btn-primary header_button" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
-		{% endif %}
-		<h3 class="table_title small_title">
-			Recent Announcements
-		</h3>
-	</div>
-	<div class="main_table">
-		{% if announcement_form %}
-		<form id="new_announcement_form" class="main_form" method="post" action="">
-			{% csrf_token %}
-			<div class="form-group">
-				<label class="control-label" for="id_as_manager">As Manager</label>
-				{{ announcement_form.as_manager }}
-			</div>
-			<div class="form-group">
-				<label class="control-label" for="id_announcement_body">Body</label>
-				<textarea id="id_announcement_body" name="body"></textarea>
-			</div>
-			<div class="text-center">
-			<div class="btn-group">
-				<button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
-				<button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_form('new_announcement_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-			</div> <!-- .btn-group -->
-			</div> <!-- .text-center -->
-		</form>
-		{% endif %}
-		{% if not announcements_dict %}
-			<div class="field_wrapper">No recent announcements.</div>
-		{% else %}
-		{% for tuple in announcements_dict %}
-			{% if forloop.counter > 1 %}
-				<hr class="main_divider" />
-			{% endif %}
-			<div class="main_row hover_row">
-			<div class="announcement_owner">
-				<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
-				(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">
-					{{ tuple.0.incumbent|display_user:user }}</a>), {{ tuple.0.post_date }}:
-			</div> <!-- .announcement_owner -->
-			<div class="announcement_body">{{ tuple.0.body|safe }}
-				{% if tuple.1 %}
-					<form class="pull-right" method="post" action="">
-						{% csrf_token %}
-						{{ tuple.1 }}
-						<button type="submit" class="main_link warning_link" name="unpin" title="Unpin this announcement">Unpin</button>
-					</form>
-					<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=tuple.0.pk %}">
-						<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
-					</form>
-				{% endif %}
-			</div>
-			</div> <!-- .announcement_row -->
-		{% endfor %}
-		{% endif %}
-	</div>
-</div> <!-- .announcements -->
 </div> <!-- .col-md-7 -->
 
 <div class="col-lg-5" style="margin-top: 10px;">
@@ -267,9 +267,9 @@ function hide_form(form_id) {
 		{% if tuple.0.as_manager %}
 			<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.as_manager.url_title %}">{{ tuple.0.as_manager }}</a>
 			(<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">
-				{{ tuple.0.owner|display_user:user }}</a>), {{ tuple.0.change_date }}:
+				{{ tuple.0.owner|display_user:user }}</a>)
 		{% else %}
-			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>, {{ tuple.0.change_date }}:
+			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>:
 		{% endif %}
 		</div> <!-- .main_owner -->
 		<div class="event_body">
