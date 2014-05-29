@@ -5,6 +5,7 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -12,10 +13,12 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
 from base.models import UserProfile
+from managers.models import Manager
 from workshift.decorators import workshift_profile_required, \
 	workshift_manager_required, semester_required
 from workshift.models import Semester, WorkshiftProfile, WorkshiftType, \
-	 RegularWorkshift, WorkshiftInstance, OneTimeWorkshift
+	 RegularWorkshift, WorkshiftInstance, OneTimeWorkshift, \
+	 WorkshiftPool
 
 @workshift_manager_required
 def start_semester_view(request):
@@ -67,14 +70,28 @@ def preferences_view(request, semester, profile, profile_pk):
 		"profile": profile,
 	}, context_instance=RequestContext(request))
 
-@workshift_manager_required
-@semester_required
-def manage_view(request, semester):
+@workshift_profile_required
+def manage_view(request, semester, profile):
 	"""
 	View all members' preferences. This view also includes forms to create an
 	entire semester's worth of weekly workshifts.
 	"""
 	page_name = "Manage Workshift"
+	pools = WorkshiftPool.objects.filter(semester=semester)
+	user_profile = UserProfile.objects.get(user=request.user)
+	managers = Manager.objects.filter(incumbent=user_profile) \
+	  .filter(workshift_manager=True)
+	if request.user.is_superuser or managers.count():
+		# Display all workshift pools?
+		pass
+	else:
+		pools.filter(managers__incumbent=user_profile)
+		if pools.count():
+			pass
+		else:
+			messages.add_message(request, messages.ERROR,
+								 MESSAGES['ADMINS_ONLY'])
+			return HttpResponseRedirect(reverse('workshift:view_semester'))
 	return render_to_response("manage.html", {
 		"page_name": page_name,
 	}, context_instance=RequestContext(request))
