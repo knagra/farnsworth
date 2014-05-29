@@ -92,20 +92,19 @@ def manage_view(request, semester, profile):
 	user_profile = UserProfile.objects.get(user=request.user)
 	managers = Manager.objects.filter(incumbent=user_profile) \
 	  .filter(workshift_manager=True)
+	full_management = request.user.is_superuser or managers.count()
 
-	if request.user.is_superuser or managers.count():
-		# Display all workshift pools?
-		pass
-	else:
+	if not full_management
 		pools = pools.filter(managers__incumbent=user_profile)
-		if pools.count():
-			pass
-		else:
+		if not pools.count():
 			messages.add_message(request, messages.ERROR,
 								 MESSAGES['ADMINS_ONLY'])
 			return HttpResponseRedirect(reverse('workshift:view_semester'))
+
 	return render_to_response("manage.html", {
 		"page_name": page_name,
+		"pools": pools,
+		"full_management": full_management,
 	}, context_instance=RequestContext(request))
 
 @workshift_manager_required
