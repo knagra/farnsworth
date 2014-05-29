@@ -256,6 +256,7 @@ INSTALLED_APPS = (
 	'threads',
 	'events',
 	'requests',
+    'workshift',
 	'bootstrapform',
 	'haystack',
 	'django.contrib.admin',
