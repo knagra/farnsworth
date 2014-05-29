@@ -1,0 +1,3 @@
+{{ object.owner.user.get_full_name }}, {{ object.post_date }}:
+
+{{ object.body|safe }}
