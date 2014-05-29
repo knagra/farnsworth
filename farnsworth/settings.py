@@ -339,6 +339,6 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
 
 try:
-		from farnsworth.local_settings import *
+	from farnsworth.local_settings import *
 except ImportError:
-	   pass
+	pass
