@@ -25,7 +25,7 @@ class Semester(models.Model):
 		(SUMMER, 'Summer'),
 		(FALL, 'Fall')
 		)
-	season = models.PositiveSmallIntegerField(
+	season = models.CharField(
 		max_length=2,
 		choices=SEASON_CHOICES,
 		default=SPRING,
@@ -88,7 +88,7 @@ class Semester(models.Model):
 		unique_together = ("season", "year")
 
 	def __unicode__(self):
-		return "%s %s" % (self.get_season_display, self.year)
+		return "<{0} {1}>".format(self.season, self.year)
 
 class WorkshiftPool(models.Model):
 	title = models.CharField(
@@ -125,7 +125,7 @@ class WorkshiftPool(models.Model):
 		unique_together = ("semester", "title")
 
 	def __unicode__(self):
-		return "{0}"
+		return "<{0}, {1}>".format(self.title, self.semester)
 
 class WorkshiftType(models.Model):
 	'''
@@ -160,7 +160,7 @@ class WorkshiftType(models.Model):
 		)
 
 	def __unicode__(self):
-		return self.name
+		return "<{0}>".format(self.name)
 
 class TimeBlock(models.Model):
 	'''
@@ -306,7 +306,7 @@ class WorkshiftProfile(models.Model):
 		)
 
 	def __unicode__(self):
-		return "%s, %s" % (self.user.get_full_name(), self.semester)
+		return "<{0}, {1}>".format(self.user.get_full_name(), self.semester)
 
 class RegularWorkshift(models.Model):
 	'''
