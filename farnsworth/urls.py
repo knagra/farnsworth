@@ -19,6 +19,7 @@ urlpatterns = patterns('',
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^search/$', login_required(FacetedSearchView(form_class=FacetedSearchForm, searchqueryset=sqs)), name='haystack_search'),
 	url(r'', include('social.apps.django_app.urls', namespace='social')),
+    url(r'', include('events.urls', namespace='events')),
 )
 
 urlpatterns += patterns('base.views',
@@ -48,13 +49,6 @@ urlpatterns += patterns('threads.views',
 	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
 	url(r'^profile/(?P<targetUsername>\w+)/threads/$', 'list_user_threads_view', name="list_user_threads"),
 	url(r'^house_map/$', 'house_map_view', name='house_map'),
-)
-
-urlpatterns += patterns('events.views',
-	url(r'^events/$', 'list_events_view', name='events'),
-	url(r'^events/all/$', 'list_all_events_view', name='all_events'),
-	url(r'^events/(?P<event_pk>\d+)/$', 'event_view', name='view_event'),
-	url(r'^events/(?P<event_pk>\d+)/edit/$', 'edit_event_view', name='edit_event'),
 )
 
 urlpatterns += patterns('managers.views',

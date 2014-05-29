@@ -245,7 +245,7 @@ function hide_form(form_id) {
 <div class="col-lg-5" style="margin-top: 10px;">
 <div class="table_container events">
 	<div class="header">
-		<form action="{% url 'events' %}">
+		<form action="{% url 'events:list' %}">
 		<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-calendar"></span><span class="hidden-xs"> Events Page</span></button>
 		</form>
 		<h3 class="table_title">
@@ -299,7 +299,7 @@ function hide_form(form_id) {
 			</form>
 			{% endif %}
 			{% if tuple.0.owner.user == user or user.is_superuser %}
-				<form class="pull-right" action="{% url 'edit_event' event_pk=tuple.0.pk %}">
+				<form class="pull-right" action="{% url 'events:edit' event_pk=tuple.0.pk %}">
 					<button class="main_link primary_link" title="Edit this event">Edit</button>
 				</form>
 			{% endif %}
