@@ -87,33 +87,105 @@ def add_shift_view(request):
 	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def shift_view(request, semester, profile):
-	pass
+def shift_view(request, semester, profile, shift_pk):
+	"""
+	View the details of a particular RegularWorkshift.
+	"""
+	shift = get_object_or_404(RegularWorkshift, pk=shift_pk)
+	page_name = shift.title
+
+	return render_to_response("view_shift.html", {
+		"page_name": page_name,
+		"shift": shift,
+	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def edit_shift_view(request, semester, profile):
-	pass
+def edit_shift_view(request, semester, profile, shift_pk):
+	"""
+	View for a manager to edit the details of a particular RegularWorkshift.
+	"""
+	shift = get_object_or_404(RegularWorkshift, pk=shift_pk)
+	page_name = "Edit " + shift.title
+
+	return render_to_response("edit_shift.html", {
+		"page_name": page_name,
+		"shift": shift,
+	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def instance_view(request, semester, profile):
-	pass
+def instance_view(request, semester, profile, instance_pk):
+	"""
+	View the details of a particular WorkshiftInstance.
+	"""
+	shift = get_object_or_404(WorkshiftInstance, pk=shift_pk)
+	page_name = shift.title
+
+	return render_to_response("view_instance.html", {
+		"page_name": page_name,
+		"shift": shift,
+	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def edit_instance_view(request, semester, profile):
-	pass
+def edit_instance_view(request, semester, profile, instance_pk):
+	"""
+	View for a manager to edit the details of a particular WorkshiftInstance.
+	"""
+	shift = get_object_or_404(WorkshiftInstance, pk=shift_pk)
+	page_name = "Edit " + shift.title
+
+	return render_to_response("edit_shift.html", {
+		"page_name": page_name,
+		"shift": shift,
+	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def one_off_view(request, semester, profile):
-	pass
+def one_off_view(request, semester, profile, one_off_pk):
+	"""
+	View the details of a particular OneTimeWorkshift.
+	"""
+	shift = get_object_or_404(OneTimeWorkshift, pk=shift_pk)
+	page_name = shift.title
+
+	return render_to_response("view_one_off.html", {
+		"page_name": page_name,
+		"shift": shift,
+	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def edit_one_off_view(request, semester, profile):
-	pass
+def edit_one_off_view(request, semester, profile, one_off_pk):
+	"""
+	View for a manager to edit the details of a particular OneTimeWorkshift.
+	"""
+	shift = get_object_or_404(OneTimeWorkshift, pk=shift_pk)
+	page_name = "Edit " + shift.title
+
+	return render_to_response("edit_one_off.html", {
+		"page_name": page_name,
+		"shift": shift,
+	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def type_view(request, semester, profile):
-	pass
+def type_view(request, semester, profile, type_pk):
+	"""
+	View the details of a particular WorkshiftType.
+	"""
+	shift = get_object_or_404(WorkshiftType, pk=shift_pk)
+	page_name = shift.title
+
+	return render_to_response("view_type.html", {
+		"page_name": page_name,
+		"shift": shift,
+	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
-def edit_type_view(request, semester, profile):
-	pass
+def edit_type_view(request, semester, profile, type_pk):
+	"""
+	View for a manager to edit the details of a particular WorkshiftType.
+	"""
+	shift = get_object_or_404(WorkshiftType, pk=shift_pk)
+	page_name = "Edit " + shift.title
+
+	return render_to_response("edit_type.html", {
+		"page_name": page_name,
+		"shift": shift,
+	}, context_instance=RequestContext(request))
