@@ -55,7 +55,7 @@ def view_semester(request, semester, profile):
 	day = date.today()
 	if "day" in request.GET:
 		try:
-			day = date(request.GET["day"].split("-"))
+			day = date(*map(int, request.GET["day"].split("-")))
 		except (TypeError, ValueError):
 			pass
 
@@ -69,6 +69,7 @@ def view_semester(request, semester, profile):
 	return render_to_response("semester.html", {
 		"page_name": page_name,
 		"profile": profile,
+		"day": day.strftime("%A, %B %e, %Y"),
 		"days_shifts": days_shifts,
 		"week_shifts": week_shifts,
 	}, context_instance=RequestContext(request))

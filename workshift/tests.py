@@ -241,7 +241,16 @@ class TestViews(TestCase):
 		self.assertIn(self.once.pool.title, response.content)
 		self.assertIn(self.once.description, response.content)
 		self.assertIn(str(self.once.hours), response.content)
-		self.assertIn(self.once.workshifter.user.get_full_name(), response.content)
+		self.assertIn(self.once.workshifter.user.get_full_name(),
+					  response.content)
+
+	def test_semester_view(self):
+		response = self.client.get("/workshift/")
+		self.assertEqual(response.status_code, 200)
+
+		response = self.client.get("/workshift/?day=2014-01-01")
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Wednesday, January  1, 2014", response.content)
 
 class TestPermissions(TestCase):
 	"""
