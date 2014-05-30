@@ -51,10 +51,10 @@ def view_semester(request, semester, profile):
 	# Ideally, switching days should use AJAX to appear more seemless to users.
 
 	# Recent History
-	today = date.today()
-	todays_shifts = WorkshiftInstance.objects.filter(date=today)
+	day = request.GET.get("day", date.today())
+	days_shifts = WorkshiftInstance.objects.filter(date=day)
 
-	last_sunday = today - timedelta(days=today.weekday() + 1)
+	last_sunday = day - timedelta(days=day.weekday() + 1)
 	next_sunday = last_sunday + timedelta(weeks=1)
 	week_shifts = WorkshiftInstance.objects.filter(date__gt=last_sunday) \
 	  .filter(date__lt=next_sunday)
@@ -62,7 +62,7 @@ def view_semester(request, semester, profile):
 	return render_to_response("semester.html", {
 		"page_name": page_name,
 		"profile": profile,
-		"todays_shifts": todays_shifts,
+		"days_shifts": days_shifts,
 		"week_shifts": week_shifts,
 	}, context_instance=RequestContext(request))
 

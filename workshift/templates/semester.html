@@ -21,7 +21,7 @@
 	</th>
   </thead>
   <tbody>
-	{% for shift in todays_shifts %}
+	{% for shift in day_shifts %}
 	<tr>
 	  <td>{{ shift.title }}</td>
 	  <td>{% if shift.start_time %}{{ shift.start_time }}
