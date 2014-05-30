@@ -517,5 +517,11 @@ class WorkshiftInstance(models.Model):
 	def pool(self):
 		return self._get_info().pool
 
+	def __init__(self, *args, **kwargs):
+		super(WorkshiftInstance, self).__init__(*args, **kwargs)
+		if (self.weekly_workshift is None and self.info is None) or \
+		  (self.weekly_workshift is not None and self.info is not None):
+			raise ValueError("Exactly one of [weekly_workshift, info] must be set")
+
 	def __unicode__(self):
 		return "%s, %s" % (self.weekly_workshift.title, self.date)

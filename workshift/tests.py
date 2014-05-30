@@ -351,10 +351,15 @@ class TestPermissions(TestCase):
 			)
 		self.wonce.save()
 
-		self.monce = WorkshiftInstance(
+		info = InstanceInfo(
 			title="Build A Deck",
 			pool=self.hi_pool,
 			description="Preferably in the shape of a pirate ship.",
+			)
+		info.save()
+
+		self.monce = WorkshiftInstance(
+			info=info,
 			date=date.today(),
 			workshifter=self.up,
 			)
