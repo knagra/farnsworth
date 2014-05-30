@@ -7,7 +7,8 @@ Author: Karandeep Singh Nagra
 from django.db import models
 from django.contrib.auth.models import User
 
-from farnsworth.settings import DEFAULT_SEMESTER_HOURS, DEFAULT_CUTOFF, DEFAULT_WORKSHIFT_HOURS
+from farnsworth.settings import DEFAULT_SEMESTER_HOURS, DEFAULT_CUTOFF, \
+	DEFAULT_WORKSHIFT_HOURS
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.fields import DayField
@@ -330,11 +331,11 @@ class RegularWorkshift(models.Model):
 	day = DayField(
 		help_text="The day of the week when this workshift takes place.",
 		)
-	hours = models.DecimalField(
+	hours = models.decimalfield(
 		max_digits=5,
 		decimal_places=2,
-		default=DEFAULT_WORKSHIFT_HOURS,
-		help_text="Number of hours for this shift.",
+		default=default_workshift_hours,
+		help_text="number of hours for this shift.",
 		)
 	active = models.BooleanField(default=True,
 		help_text="Whether this shift is actively being used currently "
@@ -425,6 +426,12 @@ class WorkshiftInstance(models.Model):
 	blown = models.BooleanField(
 		default=False,
 		help_text="If this shift has been blown.",
+		)
+	hours = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		default=DEFAULT_WORKSHIFT_HOURS,
+		help_text="Number of hours actually given for this shift.",
 		)
 	shift_log = models.ManyToManyField(
 		ShiftLogEntry,
