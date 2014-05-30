@@ -13,3 +13,4 @@ do
 	git push
 done
 
+git checkout master
