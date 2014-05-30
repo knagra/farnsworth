@@ -7,7 +7,7 @@
 		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">+{{ vote_count }}</a>
 		<ul class="dropdown-menu">
 		{% for voter in vote_count_request.upvotes.all %}
-			<li class="list-group-item-success"><a title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">{{ voter|display_user:user }}</a></li>
+			<li><a title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">{{ voter|display_user:user }}</a></li>
 		{% endfor %}
 		</ul>
 	</li></ul>
