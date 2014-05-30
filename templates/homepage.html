@@ -51,11 +51,21 @@ function hide_form(form_id) {
 	<div class="request_row">
 	<div class="request_name bg-warning" title="Open">
 		<div class="request_owner">
-		  <button type="submit" class="btn btn-xs" name="upvote">
-			{% if request_tuple.3 %}<span class="glyphicon glyphicon-star"></span>
-			{% else %}<span class="glyphicon glyphicon-star-empty"></span>
+		  {% if not request_tuple.0.owner.user = user and user.username != ANONYMOUS_USERNAME %}
+		  <form method="POST" action="">
+			{% csrf_token %}
+			{{ request_tuple.4 }}
+			{% if request_tuple.3 %}
+			<button type="submit" class="btn btn-xs" name="upvote" title="Star">
+			  <span class="glyphicon glyphicon-star-emtpy"></span>
+			</button>
+			{% else %}
+			<button type="submit" class="btn btn-xs" name="upvote" title="Remove Star">
+			  <span class="glyphicon glyphicon-star"></span>
+			</button>
 			{% endif %}
-		  </button>
+		  </form>
+		  {% endif %}
 		{% with vote_count_request=request_tuple.0 %}
 		{% include "vote_list.html" %}
 		{% endwith %}
