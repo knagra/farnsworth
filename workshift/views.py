@@ -55,7 +55,7 @@ def view_semester(request, semester, profile):
 	day = date.today()
 	if "day" in request.GET:
 		try:
-			day = date(request.GET["day"].split("."))
+			day = date(request.GET["day"].split("-"))
 		except (TypeError, ValueError):
 			pass
 
