@@ -795,8 +795,8 @@ p {
 		</h1>
 		<div id="events_body" class="toggleable">
 		<hr style="width: 75%;" />
-			<p>Events can be posted from the <a href="{% url 'events' %}">upcoming events</a> page or the
-			<a href="{% url 'all_events' %}">all events</a> page.
+			<p>Events can be posted from the <a href="{% url 'events:list' %}">upcoming events</a> page or the
+			<a href="{% url 'events:all' %}">all events</a> page.
 			All fields except the RSVP and Mark Cancelled checkboxes are required in this form.
 			By default, {{ HOUSE }} will set as the location of the event and the RSVP box will be checked.
 			</p>
