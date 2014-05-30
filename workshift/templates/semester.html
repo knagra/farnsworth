@@ -10,6 +10,8 @@
 
 {% block content %}
 <h3>Workshifts for {{ day }}</h3>
+<a href="{% url 'workshift:view_semester' %}?day={{ prev_day }}">Previous Day</a>
+<a href="{% url 'workshift:view_semester' %}?day={{ next_day }}">Next Day</a>
 <table>
   <thead>
 	<th>

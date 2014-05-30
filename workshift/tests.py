@@ -251,6 +251,8 @@ class TestViews(TestCase):
 		response = self.client.get("/workshift/?day=2014-01-01")
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Wednesday, January  1, 2014", response.content)
+		self.assertIn("?day=2013-12-31", response.content)
+		self.assertIn("?day=2014-01-02", response.content)
 
 class TestPermissions(TestCase):
 	"""

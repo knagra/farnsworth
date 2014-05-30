@@ -47,9 +47,11 @@ def view_semester(request, semester, profile):
 
 	# We want a form for verification, a notification of upcoming shifts, and a
 	# chart displaying the entire house's workshift for the day as well as
-	# weekly shifts. The chart should have left and right arrows on the sides to
-	# switch the day, with a dropdown menu to select the day from a calendar.
-	# Ideally, switching days should use AJAX to appear more seemless to users.
+	# weekly shifts.
+	#
+	# The chart should have left and right arrows on the sides to switch the
+	# day, with a dropdown menu to select the day from a calendar. Ideally,
+	# switching days should use AJAX to appear more seemless to users.
 
 	# Recent History
 	day = date.today()
@@ -66,10 +68,13 @@ def view_semester(request, semester, profile):
 	week_shifts = WorkshiftInstance.objects.filter(date__gt=last_sunday) \
 	  .filter(date__lt=next_sunday)
 
+	fmt = "%A, %B %e, %Y"
 	return render_to_response("semester.html", {
 		"page_name": page_name,
 		"profile": profile,
+		"prev_day": (day - timedelta(days=1)).strftime("%Y-%m-%d"),
 		"day": day.strftime("%A, %B %e, %Y"),
+		"next_day": (day + timedelta(days=1)).strftime("%Y-%m-%d"),
 		"days_shifts": days_shifts,
 		"week_shifts": week_shifts,
 	}, context_instance=RequestContext(request))
