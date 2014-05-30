@@ -22,6 +22,7 @@ from managers.models import Manager
 from workshift.decorators import workshift_profile_required, \
 	workshift_manager_required, semester_required
 from workshift.models import *
+from workshift.forms import *
 
 @workshift_manager_required
 def start_semester_view(request):
@@ -30,8 +31,30 @@ def start_semester_view(request):
 	types from the previous semester.
 	"""
 	page_name = "Start Semester"
+	semester_form = SemesterForm(
+		request.POST or None,
+		initial={
+			year=date.today().year,
+		})
+
+	if semester_form.is_valid():
+		# Set current to false for previous semesters
+		for semester in Semester.objects.all():
+			semester.current = False
+			semester.save()
+
+		# And save this semester
+		semester = semester_form.save(commit=False)
+		semester.current = True
+		semester.preferences_open = True
+		semeseter.save()
+		semester.workshift_managers = \
+		  [i.incumbent for i in Managers.objects.filter(workshift_manager=True)]
+		semester.save()
+
 	return render_to_response("start_semester.html", {
 		"page_name": page_name,
+		"semester_form": semester_form,
 	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
