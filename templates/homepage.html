@@ -50,12 +50,12 @@ function hide_form(form_id) {
 	{% endif %}
 	<div class="request_row">
 	<div class="request_name bg-warning" title="Open">
-	  <button type="button" class="btn btn-xs">
-		{% if request_tuple.3 %}<span class="glyphicon glyphicon-star"></span>
-		{% else %}<span class="glyphicon glyphicon-star-empty"></span>
-		{% endif %}
-	  </button>
 		<div class="request_owner">
+		  <button type="button" class="btn btn-xs">
+			{% if request_tuple.3 %}<span class="glyphicon glyphicon-star"></span>
+			{% else %}<span class="glyphicon glyphicon-star-empty"></span>
+			{% endif %}
+		  </button>
 		{% with vote_count_request=request_tuple.0 %}
 		{% include "vote_list.html" %}
 		{% endwith %}
