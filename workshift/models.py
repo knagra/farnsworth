@@ -331,11 +331,11 @@ class RegularWorkshift(models.Model):
 	day = DayField(
 		help_text="The day of the week when this workshift takes place.",
 		)
-	hours = models.decimalfield(
+	hours = models.DecimalField(
 		max_digits=5,
 		decimal_places=2,
-		default=default_workshift_hours,
-		help_text="number of hours for this shift.",
+		default=DEFAULT_WORKSHIFT_HOURS,
+		help_text="Number of hours for this shift.",
 		)
 	active = models.BooleanField(default=True,
 		help_text="Whether this shift is actively being used currently "
@@ -350,9 +350,13 @@ class RegularWorkshift(models.Model):
 		)
 	start_time = models.TimeField(
 		help_text="Start time for this workshift.",
+		null=True,
+		blank=True,
 		)
 	end_time = models.TimeField(
 		help_text="End time for this workshift.",
+		null=True,
+		blank=True,
 		)
 	addendum = models.TextField(
 		help_text="Addendum to the description for this workshift.",
@@ -402,10 +406,47 @@ class ShiftLogEntry(models.Model):
 			self.entry_type,
 			)
 
+class InstanceInfo(models.Model):
+	title = models.CharField(
+		null=True,
+		blank=True,
+		max_length=255,
+		help_text="Title for this shift.",
+		)
+	description = models.TextField(
+		null=True,
+		blank=True,
+		help_text="Description of the shift.",
+		)
+	pool = models.ForeignKey(
+		WorkshiftPool,
+		null=True,
+		blank=True,
+		help_text="The workshift pool for this shift.",
+		)
+	start_time = models.TimeField(
+		help_text="Start time for this workshift.",
+		null=True,
+		blank=True,
+		)
+	end_time = models.TimeField(
+		help_text="End time for this workshift.",
+		null=True,
+		blank=True,
+		)
+
 class WorkshiftInstance(models.Model):
 	''' An instance of a weekly workshift. '''
 	weekly_workshift = models.ForeignKey(
 		RegularWorkshift,
+		null=True,
+		blank=True,
+		help_text="The weekly workshift of which this is an instance.",
+		)
+	info = models.ForeignKey(
+		InstanceInfo,
+		null=True,
+		blank=True,
 		help_text="The weekly workshift of which this is an instance.",
 		)
 	date = models.DateField(
@@ -419,6 +460,13 @@ class WorkshiftInstance(models.Model):
 		help_text="Workshifter who was signed into this shift at the time "
 		"it started.",
 		)
+	verifier = models.ForeignKey(
+		WorkshiftProfile,
+		null=True,
+		blank=True,
+		related_name="instance_verifier",
+		help_text="Workshifter who verified that this shift was completed.",
+		)
 	closed = models.BooleanField(
 		default=False,
 		help_text="If this shift has been completed.",
@@ -426,6 +474,12 @@ class WorkshiftInstance(models.Model):
 	blown = models.BooleanField(
 		default=False,
 		help_text="If this shift has been blown.",
+		)
+	intended_hours = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		default=DEFAULT_WORKSHIFT_HOURS,
+		help_text="Intended hours given for this shift.",
 		)
 	hours = models.DecimalField(
 		max_digits=5,
@@ -433,62 +487,35 @@ class WorkshiftInstance(models.Model):
 		default=DEFAULT_WORKSHIFT_HOURS,
 		help_text="Number of hours actually given for this shift.",
 		)
-	shift_log = models.ManyToManyField(
+	log = models.ManyToManyField(
 		ShiftLogEntry,
 		null=True,
 		blank=True,
 		help_text="The entries for sign ins, sign outs, and verification.",
 		)
+
+	def _get_info(self):
+		return self.weekly_workshift or self.info
+
+	@property
+	def title(self):
+		return self._get_info().title
+
+	@property
+	def description(self):
+		return self._get_info().workshift_type.description
+
+	@property
+	def start_time(self):
+		return self._get_info().start_time
+
+	@property
+	def end_time(self):
+		return self._get_info().end_time
+
+	@property
+	def pool(self):
+		return self._get_info().pool
 
 	def __unicode__(self):
 		return "%s, %s" % (self.weekly_workshift.title, self.date)
-
-class OneTimeWorkshift(models.Model):
-	''' A one-time workshift. '''
-	title = models.CharField(
-		max_length=255,
-		help_text="Title for this shift.",
-		)
-	pool = models.ForeignKey(
-		WorkshiftPool,
-		help_text="The workshift pool for this shift.",
-		)
-	description = models.TextField(
-		null=True,
-		blank=True,
-		help_text="Description of the shift.",
-		)
-	date = models.DateField(
-		help_text="Date of this workshift.",
-		)
-	hours = models.DecimalField(
-		max_digits=5,
-		decimal_places=2,
-		default=DEFAULT_WORKSHIFT_HOURS,
-		help_text="Hours given for this shift.",
-		)
-	workshifter = models.ForeignKey(
-		WorkshiftProfile,
-		null=True,
-		blank=True,
-		related_name="one_workshifter",
-		help_text="Workshifter who was signed into this shift at the time "
-		"it started.",
-		)
-	closed = models.BooleanField(
-		default=False,
-		help_text="If this shift has been completed.",
-		)
-	blown = models.BooleanField(
-		default=False,
-		help_text="If this shift has been blown.",
-		)
-	shift_log = models.ManyToManyField(
-		ShiftLogEntry,
-		null=True,
-		blank=True,
-		help_text="The entries for sign ins, sign outs, and verification.",
-		)
-
-	def __unicode__(self):
-		return "%s, %s" % (self.title, self.date)

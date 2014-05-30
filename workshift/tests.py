@@ -7,9 +7,7 @@ from utils.variables import DAYS, MESSAGES
 from utils.funcs import convert_to_url
 from base.models import User, UserProfile
 from managers.models import Manager
-from workshift.models import Semester, WorkshiftPool, WorkshiftProfile, \
-	 WorkshiftType, RegularWorkshift, WorkshiftInstance, OneTimeWorkshift, \
-	 ShiftLogEntry
+from workshift.models import *
 
 class TestViews(TestCase):
 	"""
@@ -69,10 +67,15 @@ class TestViews(TestCase):
 			)
 		self.instance.save()
 
-		self.once = OneTimeWorkshift(
+		info = InstanceInfo(
 			title="Test One Time Shift",
 			pool=self.pool,
 			description="One Time Description",
+			)
+		info.save()
+
+		self.once = WorkshiftInstance(
+			info=info,
 			date=date.today(),
 			workshifter=self.wprofile,
 			)
@@ -144,8 +147,8 @@ class TestViews(TestCase):
 			"/shift/{0}/edit/".format(self.shift.pk),
 			"/instance/{0}/".format(self.instance.pk),
 			"/instance/{0}/edit/".format(self.instance.pk),
-			"/once/{0}/".format(self.once.pk),
-			"/once/{0}/edit/".format(self.once.pk),
+			"/instance/{0}/".format(self.once.pk),
+			"/instance/{0}/edit/".format(self.once.pk),
 			]
 		for url in urls:
 			response = self.client.get("/workshift" + url)
@@ -219,7 +222,7 @@ class TestViews(TestCase):
 		self.assertIn(str(self.instance.hours), response.content)
 
 	def test_one_time(self):
-		response = self.client.get("/workshift/once/{0}/".format(self.once.pk))
+		response = self.client.get("/workshift/instance/{0}/".format(self.once.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.once.title, response.content)
 		self.assertIn(self.once.pool.title, response.content)
@@ -232,7 +235,7 @@ class TestViews(TestCase):
 		self.assertIn(self.sle3.note, response.content)
 		self.assertIn(self.sle4.note, response.content)
 
-		response = self.client.get("/workshift/once/{0}/edit/".format(self.once.pk))
+		response = self.client.get("/workshift/instance/{0}/edit/".format(self.once.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.once.title, response.content)
 		self.assertIn(self.once.pool.title, response.content)
@@ -334,16 +337,21 @@ class TestPermissions(TestCase):
 			)
 		self.minstance.save()
 
-		self.wonce = OneTimeWorkshift(
+		info = InstanceInfo(
 			title="Clean The Deck",
 			pool=self.pool,
 			description="Make sure to sing sailor tunes.",
+			)
+		info.save()
+
+		self.wonce = WorkshiftInstance(
+			info=info,
 			date=date.today(),
 			workshifter=self.up,
 			)
 		self.wonce.save()
 
-		self.monce = OneTimeWorkshift(
+		self.monce = WorkshiftInstance(
 			title="Build A Deck",
 			pool=self.hi_pool,
 			description="Preferably in the shape of a pirate ship.",
