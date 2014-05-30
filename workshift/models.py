@@ -326,7 +326,7 @@ class RegularWorkshift(models.Model):
 		)
 	title = models.CharField(
 		max_length=255,
-		help_text="The title for this weekly workshift.",
+		help_text="The title for this weekly workshift (i.e. Monday morning dishes).",
 		)
 	day = DayField(
 		help_text="The day of the week when this workshift takes place.",
@@ -337,7 +337,8 @@ class RegularWorkshift(models.Model):
 		default=DEFAULT_WORKSHIFT_HOURS,
 		help_text="Number of hours for this shift.",
 		)
-	active = models.BooleanField(default=True,
+	active = models.BooleanField(
+		default=True,
 		help_text="Whether this shift is actively being used currently "
 		"(displayed in list of shifts, given hours, etc.).",
 		)

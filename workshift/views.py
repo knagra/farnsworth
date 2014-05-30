@@ -34,7 +34,7 @@ def start_semester_view(request):
 	semester_form = SemesterForm(
 		request.POST or None,
 		initial={
-			year=date.today().year,
+			"year": date.today().year,
 		})
 
 	if semester_form.is_valid():
@@ -221,6 +221,17 @@ def edit_shift_view(request, semester, profile, pk):
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(reverse('workshift:view_semester'))
 
+	edit_form = RegularWorkshiftForm(
+		request.POST if "edit_shift" in request.POST else None,
+		instance=shift,
+		)
+
+	if "delete_shift" in request.POST:
+		shift.delete()
+		return HttpResponseRedirect(reverse('workshift:manage'))
+	elif edit_form.is_valid():
+		shift = edit_form.save()
+
 	page_name = "Edit " + shift.title
 
 	return render_to_response("edit_shift.html", {
@@ -255,6 +266,17 @@ def edit_instance_view(request, semester, profile, pk):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(reverse('workshift:view_semester'))
+
+	edit_form = WorkshiftInstanceForm(
+		request.POST if "edit_shift" in request.POST else None,
+		instance=shift,
+		)
+
+	if "delete_shift" in request.POST:
+		shift.delete()
+		HttpResponseRedirect(reverse('workshift:manage'))
+	elif edit_form.is_valid():
+		shift = edit_form.save()
 
 	page_name = "Edit " + shift.title
 
@@ -303,6 +325,18 @@ def edit_type_view(request, semester, profile, pk):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(reverse('workshift:view_semester'))
+
+	edit_form = WorkshiftTypeForm(
+		request.POST if "edit_shift" in request.POST else None,
+		instance=shift,
+		)
+
+	if "delete_shift" in request.POST:
+		# Ask for password to delete shifts?
+		shift.delete()
+		HttpResponseRedirect(reverse('workshift:list_types'))
+	elif edit_form.is_valid():
+		shift = edit_form.save()
 
 	page_name = "Edit " + shift.title
 
