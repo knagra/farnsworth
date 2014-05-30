@@ -50,6 +50,11 @@ function hide_form(form_id) {
 	{% endif %}
 	<div class="request_row">
 	<div class="request_name bg-warning" title="Open">
+	  <button type="button" class="btn btn-xs">
+		{% if request_tuple.3 %}<span class="glyphicon glyphicon-star"></span>
+		{% else %}<span class="glyphicon glyphicon-star-empty"></span>
+		{% endif %}
+	  </button>
 		<div class="request_owner">
 		{% with vote_count_request=request_tuple.0 %}
 		{% include "vote_list.html" %}
@@ -60,11 +65,6 @@ function hide_form(form_id) {
 			<form class="pull-right" method="POST" action="">
 				{% csrf_token %}
 				{{ request_tuple.4 }}
-				{% if request_tuple.3 %}
-					<button type="submit" class="main_link warning_link" title="Remove yourself from the up votes for this request" name="upvote">Cancel Up Vote</button>
-				{% else %}
-					<button type="submit" class="main_link success_link" title="Up vote this request" name="upvote">Up Vote</button>
-				{% endif %}
 			</form>
 			{% endif %}
 		</div>
