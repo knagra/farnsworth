@@ -8,6 +8,7 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -39,7 +40,7 @@ def view_semester(request, semester, profile):
 	accumulated statistics (Down hours), reminders for any upcoming shifts, and
 	links to sign off on shifts. Also links to the rest of the workshift pages.
 	"""
-	season_name = [j for i, j in Semester.SEASON_CHOICES if i == semester.season][0]
+	season_name = semester.get_season_display()
 	page_name = "Workshift for {0} {1}".format(season_name, semester.year)
 
 	# Verifier Form
@@ -51,7 +52,13 @@ def view_semester(request, semester, profile):
 	# Ideally, switching days should use AJAX to appear more seemless to users.
 
 	# Recent History
-	day = request.GET.get("day", date.today())
+	day = date.today()
+	if "day" in request.GET:
+		try:
+			day = date(request.GET["day"].split("."))
+		except (TypeError, ValueError):
+			pass
+
 	days_shifts = WorkshiftInstance.objects.filter(date=day)
 
 	last_sunday = day - timedelta(days=day.weekday() + 1)
