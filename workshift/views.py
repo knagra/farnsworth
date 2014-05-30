@@ -4,6 +4,7 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
+from __future__ import division
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -40,8 +41,17 @@ def view_semester(request, semester, profile):
 	accumulated statistics (Down hours), reminders for any upcoming shifts, and
 	links to sign off on shifts. Also links to the rest of the workshift pages.
 	"""
+	template_dict = {}
 	season_name = semester.get_season_display()
-	page_name = "Workshift for {0} {1}".format(season_name, semester.year)
+	template_dict["page_name"] = \
+	  "Workshift for {0} {1}".format(season_name, semester.year)
+
+	template_dict["semester_percentage"] = int(
+		(date.today() - semester.start_date).days /
+		(semester.end_date - semester.start_date).days * 100
+		)
+
+	template_dict["profile"] = profile
 
 	# Verifier Form
 
@@ -61,23 +71,20 @@ def view_semester(request, semester, profile):
 		except (TypeError, ValueError):
 			pass
 
-	days_shifts = WorkshiftInstance.objects.filter(date=day)
+	template_dict["day"] = day.strftime("%A, %B %e, %Y")
+	template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
+	template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
+
+	template_dict["days_shifts"] = WorkshiftInstance.objects.filter(date=day)
 
 	last_sunday = day - timedelta(days=day.weekday() + 1)
 	next_sunday = last_sunday + timedelta(weeks=1)
-	week_shifts = WorkshiftInstance.objects.filter(date__gt=last_sunday) \
+	template_dict["week_shifts"] = \
+	  WorkshiftInstance.objects.filter(date__gt=last_sunday) \
 	  .filter(date__lt=next_sunday)
 
-	fmt = "%A, %B %e, %Y"
-	return render_to_response("semester.html", {
-		"page_name": page_name,
-		"profile": profile,
-		"prev_day": (day - timedelta(days=1)).strftime("%Y-%m-%d"),
-		"day": day.strftime("%A, %B %e, %Y"),
-		"next_day": (day + timedelta(days=1)).strftime("%Y-%m-%d"),
-		"days_shifts": days_shifts,
-		"week_shifts": week_shifts,
-	}, context_instance=RequestContext(request))
+	return render_to_response("semester.html", template_dict,
+							   context_instance=RequestContext(request))
 
 @workshift_profile_required
 def profile_view(request, semester, profile, pk):
