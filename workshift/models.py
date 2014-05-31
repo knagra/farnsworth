@@ -525,26 +525,6 @@ class WorkshiftInstance(models.Model):
 	def pool(self):
 		return self.get_info().pool
 
-	def mark_blown(self, accuser, note=None):
-		'''
-		Marks this workshift instance as blown, saves the object automatically.
-		'''
-		self.blown = True
-		self.closed = True
-		self.save()
-
-		entry = ShiftLogEntry(
-			person=accuser,
-			note=note,
-			entry_type=ShiftLogEntry.BLOWN,
-			)
-		entry.save()
-
-		self.log.add(entry)
-		self.save()
-
-		# TODO: Modify workshifter's profile
-
 	def __init__(self, *args, **kwargs):
 		super(WorkshiftInstance, self).__init__(*args, **kwargs)
 		if (self.weekly_workshift is None and self.info is None) or \

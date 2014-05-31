@@ -82,6 +82,14 @@ def view_semester(request, semester, profile):
 	template_dict["profile"] = profile
 
 	# Verifier Form
+	shifts = WorkshiftInstance.objects.filter(closed=False) \
+	  .filter(blown=False) \
+	  .filter(date__lt=today + timedelta(days=3))
+	verify_form = VerifyForm(
+		request.POST if "verify_shift" in request.POST else None,
+		)
+	if verify_form.is_valid():
+		ShiftLogEntry.
 
 	# We want a form for verification, a notification of upcoming shifts, and a
 	# chart displaying the entire house's workshift for the day as well as
@@ -103,7 +111,34 @@ def view_semester(request, semester, profile):
 	template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
 	template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
 
-	template_dict["days_shifts"] = WorkshiftInstance.objects.filter(date=day)
+	day_shifts = WorkshiftInstance.objects.filter(date=day)
+	day_shift_tuples = []
+
+	for shift in day_shifts:
+		forms = []
+		if shift.workshifter and not shift.blown:
+			blown_form = BlownShiftForm(initial={
+				"pk": shift.pk,
+				})
+			forms.append(blown_form)
+		elif not shift.workshifter and not shift.closed:
+			sign_in_form = SignInForm(initial={
+				"pk": shift.pk,
+				})
+			forms.append(sign_in_form)
+		if shift.workshifter == profile and not shift.closed:
+			sign_out_form = SignOutForm(initial={
+				"pk": shift.pk,
+				})
+			forms.append(sign_out_form)
+		if shift.workshifter and not shift.closed and not shift.verifier:
+			verify_form = VerifyShiftForm(initial={
+				"pk": shift.pk,
+				})
+			forms.append(verify_form)
+		day_shift_tuples.append((shift, form,))
+
+	template_dict["day_shifts"] = day_shifts
 
 	last_sunday = day - timedelta(days=day.weekday() + 1)
 	next_sunday = last_sunday + timedelta(weeks=1)

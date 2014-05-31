@@ -19,8 +19,6 @@ class SemesterForm(forms.ModelForm):
 		semester.current = True
 		semester.preferences_open = True
 		semeseter.save(*args, **kwargs)
-		semester.workshift_managers = \
-		  [i.incumbent for i in Managers.objects.filter(workshift_manager=True)]
 
 		return semester
 
@@ -68,3 +66,66 @@ class WorkshiftTypeForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftType
 		fields = "__all__"
+
+class InteractShiftForm(forms.Form):
+	pk = forms.IntegerField(widget=forms.HiddenInput())
+
+class BlownShiftForm(InteractShiftForm):
+	def save(self, profile):
+		entry = ShiftLogEntry(
+			person=profile,
+			entry_type=ShiftLogEntry.BLOWN,
+			)
+		entry.save()
+
+		instance = WorkshiftInstance.objects.get(pk=pk)
+		instance.blown = True
+		instance.closed = True
+		instance.log.add(entry)
+		instance.save()
+
+		instance.workshifter.pool_hours -= instance.hours
+		instance.workshifter.save()
+
+class SignInForm(InteractShiftForm):
+	def save(self, profile):
+		entry = ShiftLogEntry(
+			person=profile,
+			entry_type=ShiftLogEntry.SIGNIN,
+			)
+		entry.save()
+
+		instance = WorkshiftInstance.objects.get(pk=pk)
+		instance.workshifter = profile
+		instance.log.add(entry)
+		instance.save()
+
+class SignOutForm(InteractShiftForm):
+	def save(self, profile):
+		entry = ShiftLogEntry(
+			person=profile,
+			entry_type=ShiftLogEntry.SIGNOUT,
+			)
+		entry.save()
+
+		instance = WorkshiftInstance.objects.get(pk=pk)
+		instance.workshifter = None
+		instance.log.add(entry)
+		instance.save()
+
+class VerifyShiftForm(InteractShiftForm):
+	def save(self, profile):
+		entry = ShiftLogEntry(
+			person=profile,
+			entry_type=ShiftLogEntry.VERIFY,
+			)
+		entry.save()
+
+		instance = WorkshiftInstance.objects.get(pk=pk)
+		instance.verifier = profile
+		instance.closed = True
+		instance.log.add(entry)
+		instance.save()
+
+		instance.workshifter.pool_hours += instance.hours
+		instance.workshifter.save()
