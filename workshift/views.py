@@ -31,10 +31,19 @@ def start_semester_view(request):
 	types from the previous semester.
 	"""
 	page_name = "Start Semester"
+	today = date.today()
+	if today.month > 3 and today.month <= 7:
+		season = Semester.SUMMER
+	elif today.month > 7 and today.month <= 11:
+		season = Semester.FALL
+	else:
+		season = Semester.SPRING
+
 	semester_form = SemesterForm(
 		request.POST or None,
 		initial={
-			"year": date.today().year,
+			"year": today.year,
+			"season": season,
 		})
 
 	if semester_form.is_valid():
