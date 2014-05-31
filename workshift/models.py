@@ -412,6 +412,9 @@ class ShiftLogEntry(models.Model):
 			)
 
 class InstanceInfo(models.Model):
+	"""
+	The info associated with a WorkshiftInstance for a non-recurring task.
+	"""
 	title = models.CharField(
 		null=True,
 		blank=True,
