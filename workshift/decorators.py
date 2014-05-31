@@ -20,7 +20,10 @@ def _extract_semester(kwargs):
 			year = sem_url[2:] if sem_url else None
 			kwargs["semester"] = get_object_or_404(Semester, season=season, year=year)
 		else:
-			kwargs["semester"] = get_object_or_404(Semester, current=True)
+			try:
+				kwargs["semester"] = Semester.objects.get(current=True)
+			except Semester.DoesNotExist:
+				return HttpResponseRedirect(reverse('workshift:start_semester'))
 	else:
 		kwargs["semester"] = get_object_or_404(Semester, current=True)
 

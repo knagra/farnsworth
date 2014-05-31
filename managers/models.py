@@ -45,6 +45,9 @@ class RequestType(models.Model):
 	def __unicode__(self):
 		return "%s RequestType" % self.name
 	
+	class Meta:
+		ordering = ['name']
+	
 	def is_requesttype(self):
 		return True
 
