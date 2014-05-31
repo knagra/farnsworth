@@ -186,16 +186,27 @@ class UpdateProfileForm(forms.ModelForm):
 		fields = ("current_room", "former_rooms", "former_houses",
 				  "email_visible", "phone_number", "phone_visible")
 
-	def __init__(self, *args, **kwargs):
-		user = kwargs["instance"].user
-		super(UpdateProfileForm, self).__init__(*args, **kwargs)
+	email = forms.EmailField(max_length=255, required=False)
+	enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
-		self.fields['email'] = forms.EmailField(max_length=255, required=False, initial=user.email)
-		self.fields['enter_password'] = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+	def __init__(self, *args, **kwargs):
+		if "instance" in kwargs:
+			user = kwargs["instance"].user
+			initial = kwargs.get("initial", {})
+			initial["email"] = user.email
+			kwargs["initial"] = initial
+
+		super(UpdateProfileForm, self).__init__(*args, **kwargs)
 
 		keys = self.fields.keyOrder
 		keys.remove("email")
 		keys.insert(keys.index("email_visible"), "email")
+
+	def save(self, *args, **kwargs):
+		instance = super(UpdateProfileForm, self).save(*args, **kwargs)
+		instance.user.email = self.cleaned_data["email"]
+		instance.save()
+		return instance
 
 class LoginForm(forms.Form):
 	''' Form to login. '''
