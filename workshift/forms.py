@@ -8,6 +8,22 @@ class SemesterForm(forms.ModelForm):
 		model = Semester
 		exclude = ["workshift_managers", "preferences_open", "current"]
 
+	def save(self, *args, **kwargs):
+		semester = super(SemesterForm, self).save(*args, **kwargs)
+
+		# Set current to false for previous semesters
+		for semester in Semester.objects.all():
+			semester.current = False
+			semester.save()
+
+		semester.current = True
+		semester.preferences_open = True
+		semeseter.save(*args, **kwargs)
+		semester.workshift_managers = \
+		  [i.incumbent for i in Managers.objects.filter(workshift_manager=True)]
+
+		return semester
+
 class RegularWorkshiftForm(forms.ModelForm):
 	class Meta:
 		model = RegularWorkshift

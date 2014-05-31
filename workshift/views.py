@@ -32,31 +32,27 @@ def start_semester_view(request):
 	"""
 	page_name = "Start Semester"
 	today = date.today()
+	year = today.year
+
 	if today.month > 3 and today.month <= 7:
 		season = Semester.SUMMER
-	elif today.month > 7 and today.month <= 11:
+	elif today.month > 7 and today.month <= 10:
 		season = Semester.FALL
 	else:
 		season = Semester.SPRING
+		if today.month > 10:
+			year += 1
 
 	semester_form = SemesterForm(
 		request.POST or None,
 		initial={
-			"year": today.year,
+			"year": year,
 			"season": season,
 		})
 
 	if semester_form.is_valid():
-		# Set current to false for previous semesters
-		for semester in Semester.objects.all():
-			semester.current = False
-			semester.save()
-
 		# And save this semester
-		semester = semester_form.save(commit=False)
-		semester.current = True
-		semester.preferences_open = True
-		semeseter.save()
+		semester = semester_form.save()
 		semester.workshift_managers = \
 		  [i.incumbent for i in Managers.objects.filter(workshift_manager=True)]
 		semester.save()
