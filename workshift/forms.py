@@ -18,11 +18,35 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		model = WorkshiftInstance
 		exclude = ["weekly_workshift", "info", "intended_hours", "log"]
 
-	# Include methods to modify info / weekly_workshift
+	title = forms.CharField(
+		widget=forms.Textarea(),
+		help_text="Description of the shift.",
+		)
+
+	info_fields = ["title", "description", "pool", "start_time", "end_time"]
+
+	def __init__(self, *arg, **kwargs):
+		if "instance" in kwargs:
+			instance = kwargs["instance"]
+			initial = kwargs.get("initial", {})
+
+			for field in self.info_fields:
+				initial.setdefault("title", getattr(instance.get_info(), field))
+
+			if instance.weekly_workshift:
+				for field in self.info_fields:
+					self.fields[field].widget.attrs['readonly'] = True
+
+			kwargs["initial"] = initial
+
+		super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
+
 	def save(self, *args, **kwargs):
-		shift = super(WorkshiftInstanceForm, self).save(*args, **kwargs)
-		# ...
-		return shift
+		instance = super(WorkshiftInstanceForm, self).save(*args, **kwargs)
+		if instance.info:
+			for field in self.info_fields:
+				setattr(instance.info, field, self.cleaned_data[field])
+		return instance
 
 class WorkshiftTypeForm(forms.ModelForm):
 	class Meta:

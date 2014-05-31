@@ -495,28 +495,28 @@ class WorkshiftInstance(models.Model):
 		help_text="The entries for sign ins, sign outs, and verification.",
 		)
 
-	def _get_info(self):
+	def get_info(self):
 		return self.weekly_workshift or self.info
 
 	@property
 	def title(self):
-		return self._get_info().title
+		return self.get_info().title
 
 	@property
 	def description(self):
-		return self._get_info().workshift_type.description
+		return self.get_info().workshift_type.description
 
 	@property
 	def start_time(self):
-		return self._get_info().start_time
+		return self.get_info().start_time
 
 	@property
 	def end_time(self):
-		return self._get_info().end_time
+		return self.get_info().end_time
 
 	@property
 	def pool(self):
-		return self._get_info().pool
+		return self.get_info().pool
 
 	def __init__(self, *args, **kwargs):
 		super(WorkshiftInstance, self).__init__(*args, **kwargs)
