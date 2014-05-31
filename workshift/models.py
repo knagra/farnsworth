@@ -49,6 +49,10 @@ class Semester(models.Model):
 		blank=True,
 		help_text="Workshift rate for this semester.",
 		)
+	self_sign_out = models.BooleanField(
+		default=False,
+		help_text="Whether members may sign themselves out of a workshift."
+		)
 	policy = models.URLField(
 		max_length=255,
 		null=True,
@@ -408,6 +412,9 @@ class ShiftLogEntry(models.Model):
 			)
 
 class InstanceInfo(models.Model):
+	"""
+	The info associated with a WorkshiftInstance for a non-recurring task.
+	"""
 	title = models.CharField(
 		null=True,
 		blank=True,
