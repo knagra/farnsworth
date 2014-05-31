@@ -227,6 +227,12 @@ class WorkshiftRating(models.Model):
 		)
 
 class PoolHours(models.Model):
+	"""
+	The hours that members owe for individual workshift pools. Also tracks
+	workshift fines related to that pool.
+
+	i.e. 5 hours per week to workshift, 2 hours per 6 weeks to humor shift.
+	"""
 	pool = models.ForeignKey(
 		WorkshiftPool,
 		help_text="The pool associated with these hours.",
