@@ -71,7 +71,7 @@ class InteractShiftForm(forms.Form):
 	pk = forms.IntegerField(widget=forms.HiddenInput())
 
 	def __init__(self, *args, **kwargs):
-		self.profile = kwargs["profile"].pop()
+		self.profile = kwargs.pop("profile")
 		super(InteractShiftForm, self).__init__(*args, **kwargs)
 
 	def clean_pk(self):
@@ -152,10 +152,6 @@ class SignInForm(InteractShiftForm):
 		instance.save()
 
 class SignOutForm(InteractShiftForm):
-	def __init__(self, *args, **kwargs):
-		self.profile = kwargs["profile"].pop()
-		super(SignOutForm, self).__init__(*args, **kwargs)
-
 	def clean_pk(self):
 		shift = super(SignOutForm, self).clean_pk()
 
