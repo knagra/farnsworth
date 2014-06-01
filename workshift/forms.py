@@ -44,8 +44,8 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		widget=forms.Textarea(),
 		help_text="Description of the shift.",
 		)
-	pool = forms.ChoiceField(
-		choices=WorkshiftPool.objects.filter(semester__current=True),
+	pool = forms.ModelChoiceField(
+		queryset=WorkshiftPool.objects.filter(semester__current=True),
 		help_text="The workshift pool for this shift.",
 		)
 	start_time = forms.TimeField(
@@ -108,9 +108,9 @@ class InteractShiftForm(forms.Form):
 		try:
 			shift = WorkshiftInstance.objects.get(pk=self.cleaned_data["pk"])
 		except WorkshiftInstance.DoesNotExist:
-			raise ValidationError("Workshift does not exist.")
+			raise forms.ValidationError("Workshift does not exist.")
 		if shift.closed:
-			raise ValidationError("Workshift has been closed.")
+			raise forms.ValidationError("Workshift has been closed.")
 		return shift
 
 # TODO: SellShiftForm
@@ -120,9 +120,11 @@ class VerifyShiftForm(InteractShiftForm):
 		shift = super(VerifyShiftForm, self).clean_pk()
 
 		if not shift.workshifter:
-			raise ValidationError("Workshift is not filled.")
+			raise forms.ValidationError("Workshift is not filled.")
 		if not shift.pool.self_verify and shift.workshifter == self.profile:
-			raise ValidationError("Workshifter cannot verify self")
+			raise forms.ValidationError("Workshifter cannot verify self")
+
+		return shift
 
 	def save(self):
 		entry = ShiftLogEntry(
@@ -131,26 +133,29 @@ class VerifyShiftForm(InteractShiftForm):
 			)
 		entry.save()
 
-		pk = self.cleaned_data["pk"]
-		instance = WorkshiftInstance.objects.get(pk=pk)
-		instance.verifier = profile
+		instance = self.cleaned_data["pk"]
+		instance.verifier = self.profile
 		instance.closed = True
 		instance.log.add(entry)
 		instance.save()
 
-		instance.workshifter.pool_hours += instance.hours
-		instance.workshifter.save()
+		pool_hours = instance.workshifter.pool_hours \
+		  .get(pool=instance.get_info().pool)
+		pool_hours.standing += instance.hours
+		pool_hours.save()
 
 class BlownShiftForm(InteractShiftForm):
 	def clean_pk(self):
 		shift = super(BlownShiftForm, self).clean_pk()
 
 		if not shift.workshifter:
-			raise ValidationError("Workshift is not filled.")
+			raise forms.ValidationError("Workshift is not filled.")
 		pool = shift.pool
 		if not pool.any_blown and \
-		  pool.managers.filter(incument__user=profile.user).count() > 0:
-			raise ValidationError("You are not a workshift manager.")
+		  pool.managers.filter(incumbent__user=self.profile.user).count() == 0:
+			raise forms.ValidationError("You are not a workshift manager.")
+
+		return shift
 
 	def save(self):
 		entry = ShiftLogEntry(
@@ -159,22 +164,25 @@ class BlownShiftForm(InteractShiftForm):
 			)
 		entry.save()
 
-		pk = self.cleaned_data["pk"]
-		instance = WorkshiftInstance.objects.get(pk=pk)
+		instance = self.cleaned_data["pk"]
 		instance.blown = True
 		instance.closed = True
 		instance.log.add(entry)
 		instance.save()
 
-		instance.workshifter.pool_hours -= instance.hours
-		instance.workshifter.save()
+		pool_hours = instance.workshifter.pool_hours \
+		  .get(pool=instance.get_info().pool)
+		pool_hours.standing -= instance.hours
+		pool_hours.save()
 
 class SignInForm(InteractShiftForm):
 	def clean_pk(self):
 		shift = super(SignInForm, self).clean_pk()
 
 		if shift.workshifter:
-			raise ValidationError("Workshift is currently filled.")
+			raise forms.ValidationError("Workshift is currently filled.")
+
+		return shift
 
 	def save(self):
 		entry = ShiftLogEntry(
@@ -183,9 +191,8 @@ class SignInForm(InteractShiftForm):
 			)
 		entry.save()
 
-		pk = self.cleaned_data["pk"]
-		instance = WorkshiftInstance.objects.get(pk=pk)
-		instance.workshifter = profile
+		instance = self.cleaned_data["pk"]
+		instance.workshifter = self.profile
 		instance.log.add(entry)
 		instance.save()
 
@@ -194,7 +201,9 @@ class SignOutForm(InteractShiftForm):
 		shift = super(SignOutForm, self).clean_pk()
 
 		if shift.workshifter != self.profile:
-			raise ValidationError("Cannot sign out of others' workshift.")
+			raise forms.ValidationError("Cannot sign out of others' workshift.")
+
+		return shift
 
 	def save(self):
 		entry = ShiftLogEntry(
@@ -203,8 +212,7 @@ class SignOutForm(InteractShiftForm):
 			)
 		entry.save()
 
-		pk = self.cleaned_data["pk"]
-		instance = WorkshiftInstance.objects.get(pk=pk)
+		instance = self.cleaned_data["pk"]
 		instance.workshifter = None
 		instance.log.add(entry)
 		instance.save()

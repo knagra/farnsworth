@@ -8,6 +8,7 @@ from utils.funcs import convert_to_url
 from base.models import User, UserProfile
 from managers.models import Manager
 from workshift.models import *
+from workshift.forms import *
 
 class TestViews(TestCase):
 	"""
@@ -253,6 +254,158 @@ class TestViews(TestCase):
 		self.assertIn("Wednesday, January  1, 2014", response.content)
 		self.assertIn("?day=2013-12-31", response.content)
 		self.assertIn("?day=2014-01-02", response.content)
+
+class TestInteractForms(TestCase):
+	def setUp(self):
+		self.wu = User.objects.create_user(username="wu", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.ou = User.objects.create_user(username="ou", password="pwd")
+
+		self.wm = Manager(
+			title="Workshift Manager",
+			incumbent=UserProfile.objects.get(user=self.wu),
+			workshift_manager=True,
+			)
+		self.wm.url_title = convert_to_url(self.wm.title)
+		self.wm.workshift_manager = True
+		self.wm.save()
+
+		self.sem = Semester(year=2014, start_date=date.today(),
+							end_date=date.today() + timedelta(days=7),
+							current=True)
+		self.sem.save()
+
+		self.pool = WorkshiftPool(
+			semester=self.sem,
+			any_blown=True,
+			self_verify=True,
+			)
+		self.pool.save()
+		self.pool.managers = [self.wm]
+		self.pool.save()
+
+		self.wp = WorkshiftProfile(user=self.wu, semester=self.sem)
+		self.up = WorkshiftProfile(user=self.u, semester=self.sem)
+		self.op = WorkshiftProfile(user=self.ou, semester=self.sem)
+
+		self.wp.save()
+		self.up.save()
+		self.op.save()
+
+		ph = PoolHours(pool=self.pool)
+		ph.save()
+
+		self.up.pool_hours = [ph]
+		self.up.save()
+
+		self.wtype = WorkshiftType(
+			title="Test Posts",
+			description="Test WorkshiftType Description",
+			quick_tips="Test Quick Tips",
+			)
+		self.wtype.save()
+
+		self.shift = RegularWorkshift(
+			workshift_type=self.wtype,
+			pool=self.pool,
+			title="Test Regular Shift",
+			day=DAYS[0][0],
+			start_time=datetime.now(),
+			end_time=datetime.now() + timedelta(hours=2),
+			)
+		self.shift.save()
+
+		self.instance = WorkshiftInstance(
+			weekly_workshift=self.shift,
+			date=date.today(),
+			workshifter=self.up,
+			)
+		self.instance.save()
+
+		info = InstanceInfo(
+			title="Test One Time Shift",
+			pool=self.pool,
+			)
+		info.save()
+
+		self.once = WorkshiftInstance(
+			info=info,
+			date=date.today(),
+			)
+		self.once.save()
+
+		self.sle0 = ShiftLogEntry(
+			person=self.wp,
+			entry_type=ShiftLogEntry.ASSIGNED,
+			)
+
+		self.sle0.save()
+
+		self.instance.shift_log = [self.sle0]
+		self.once.shift_log = [self.sle0]
+
+		self.instance.save()
+		self.once.save()
+
+	def test_verify(self):
+		self.assertTrue(self.client.login(username="u", password="pwd"))
+
+		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.up)
+		self.assertTrue(form.is_valid())
+		self.assertEqual(None, form.save())
+
+	def test_no_self_verify(self):
+		self.pool.self_verify = False
+		self.pool.save()
+
+		self.assertTrue(self.client.login(username="u", password="pwd"))
+
+		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.up)
+		self.assertFalse(form.is_valid())
+
+		self.assertTrue(self.client.login(username="ou", password="pwd"))
+
+		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.op)
+		self.assertTrue(form.is_valid())
+		self.assertEqual(None, form.save())
+
+	def test_blown(self):
+		self.assertTrue(self.client.login(username="ou", password="pwd"))
+
+		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.op)
+		self.assertTrue(form.is_valid())
+		self.assertEqual(None, form.save())
+
+	def test_manager_blown(self):
+		self.pool.any_blown = False
+		self.pool.save()
+
+		self.assertTrue(self.client.login(username="ou", password="pwd"))
+
+		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.op)
+		self.assertFalse(form.is_valid())
+
+		self.client.logout()
+
+		self.assertTrue(self.client.login(username="wu", password="pwd"))
+
+		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.wp)
+		self.assertTrue(form.is_valid())
+		self.assertEqual(None, form.save())
+
+	def test_sign_in(self):
+		self.assertTrue(self.client.login(username="u", password="pwd"))
+
+		form = SignInForm({"pk": self.once.pk}, profile=self.up)
+		self.assertTrue(form.is_valid())
+		self.assertEqual(None, form.save())
+
+	def test_sign_out(self):
+		self.assertTrue(self.client.login(username="u", password="pwd"))
+
+		form = SignOutForm({"pk": self.instance.pk}, profile=self.up)
+		self.assertTrue(form.is_valid())
+		self.assertEqual(None, form.save())
 
 class TestPermissions(TestCase):
 	"""

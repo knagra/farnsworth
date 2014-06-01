@@ -131,7 +131,10 @@ if 'test' in sys.argv:
 	PASSWORD_HASHERS = (
 		'django.contrib.auth.hashers.MD5PasswordHasher',
 	)
-	DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+	DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(os.path.dirname(__file__), 'farnsworth.db').replace('\\', '/'),
+        }
 
 ########################################################################
 ####	Workshift Settings
