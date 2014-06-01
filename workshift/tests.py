@@ -359,6 +359,7 @@ class TestInteractForms(TestCase):
 
 		form = VerifyShiftForm({"pk": self.once.pk}, profile=self.up)
 		self.assertFalse(form.is_valid())
+		self.assertIn("Workshift is not filled.", form.errors["pk"])
 
 	def test_no_self_verify(self):
 		self.pool.self_verify = False
@@ -368,6 +369,7 @@ class TestInteractForms(TestCase):
 
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertFalse(form.is_valid())
+		self.assertIn("Workshifter cannot verify self.", form.errors["pk"])
 
 		self.assertTrue(self.client.login(username="ou", password="pwd"))
 
@@ -390,6 +392,7 @@ class TestInteractForms(TestCase):
 
 		form = BlownShiftForm({"pk": self.once.pk}, profile=self.op)
 		self.assertFalse(form.is_valid())
+		self.assertIn("Workshift is not filled.", form.errors["pk"])
 
 	def test_manager_blown(self):
 		self.pool.any_blown = False
@@ -399,6 +402,7 @@ class TestInteractForms(TestCase):
 
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertFalse(form.is_valid())
+		self.assertIn("You are not a workshift manager.", form.errors["pk"])
 
 		self.client.logout()
 
@@ -423,6 +427,7 @@ class TestInteractForms(TestCase):
 
 		form = SignInForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertFalse(form.is_valid())
+		self.assertIn("Workshift is currently filled.", form.errors["pk"])
 
 	def test_sign_out(self):
 		self.assertTrue(self.client.login(username="u", password="pwd"))
@@ -436,6 +441,7 @@ class TestInteractForms(TestCase):
 
 		form = SignOutForm({"pk": self.once.pk}, profile=self.up)
 		self.assertFalse(form.is_valid())
+		self.assertIn("Cannot sign out of others' workshift.", form.errors["pk"])
 
 class TestPermissions(TestCase):
 	"""

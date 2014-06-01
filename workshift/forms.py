@@ -107,8 +107,9 @@ class InteractShiftForm(forms.Form):
 		super(InteractShiftForm, self).__init__(*args, **kwargs)
 
 	def clean_pk(self):
+		pk = self.cleaned_data["pk"]
 		try:
-			shift = WorkshiftInstance.objects.get(pk=self.cleaned_data["pk"])
+			shift = WorkshiftInstance.objects.get(pk=pk)
 		except WorkshiftInstance.DoesNotExist:
 			raise forms.ValidationError("Workshift does not exist.")
 		if shift.closed:
@@ -124,7 +125,7 @@ class VerifyShiftForm(InteractShiftForm):
 		if not shift.workshifter:
 			raise forms.ValidationError("Workshift is not filled.")
 		if not shift.pool.self_verify and shift.workshifter == self.profile:
-			raise forms.ValidationError("Workshifter cannot verify self")
+			raise forms.ValidationError("Workshifter cannot verify self.")
 
 		return shift
 
