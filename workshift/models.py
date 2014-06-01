@@ -129,7 +129,7 @@ class WorkshiftPool(models.Model):
 		)
 	self_verify = models.BooleanField(
 		default=False,
-		help_text"If members are able to verify themselves for workshifts.",
+		help_text="If members are able to verify themselves for workshifts.",
 		)
 	any_blown = models.BooleanField(
 		default=False,
