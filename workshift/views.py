@@ -138,7 +138,8 @@ def view_semester(request, semester, profile):
 
 	# TODO: Add "week-long" property to WorkshiftInstance?
 	week_shifts = WorkshiftInstance.objects.filter(date__gt=last_sunday) \
-	  .filter(date__lt=next_sunday)
+	  .filter(date__lt=next_sunday) \
+	  .filter(week_long=True)
 
 	day_shift_tuples, week_shift_tuples = [], []
 
@@ -176,7 +177,7 @@ def view_semester(request, semester, profile):
 						}, profile=profile)
 					forms.append(sign_in_form)
 
-		tuples.append((shift, forms,))
+			tuples.append((shift, forms,))
 
 	template_dict["day_shifts"] = day_shift_tuples
 	template_dict["week_shifts"] = week_shift_tuples

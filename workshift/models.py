@@ -377,6 +377,14 @@ class RegularWorkshift(models.Model):
 		null=True,
 		blank=True,
 		)
+	auto_verify = models.BooleanField(
+		default=False,
+		help_text="If this shift will be marked as done automatically.",
+		)
+	week_long = models.BooleanField(
+		default=False,
+		help_text="If this shift is for the entire week.",
+		)
 	addendum = models.TextField(
 		help_text="Addendum to the description for this workshift.",
 		)
@@ -517,6 +525,14 @@ class WorkshiftInstance(models.Model):
 		blank=True,
 		help_text="The entries for sign ins, sign outs, and verification.",
 		)
+	auto_verify = models.BooleanField(
+		default=False,
+		help_text="If this shift will be marked as done automatically.",
+		)
+	week_long = models.BooleanField(
+		default=False,
+		help_text="If this shift is for the entire week.",
+		)
 
 	def get_info(self):
 		return self.weekly_workshift or self.info
@@ -527,7 +543,10 @@ class WorkshiftInstance(models.Model):
 
 	@property
 	def description(self):
-		return self.get_info().workshift_type.description
+		if self.weekly_workshift:
+			return self.weekly_workshift.workshift_type.description
+		else:
+			return self.info.description
 
 	@property
 	def start_time(self):

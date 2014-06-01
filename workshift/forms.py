@@ -61,7 +61,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
 
 	info_fields = ["title", "description", "pool", "start_time", "end_time"]
 
-	def __init__(self, *arg, **kwargs):
+	def __init__(self, *args, **kwargs):
 		if "instance" in kwargs:
 			instance = kwargs["instance"]
 			initial = kwargs.get("initial", {})
@@ -69,17 +69,19 @@ class WorkshiftInstanceForm(forms.ModelForm):
 			# Django ModelForms don't play nicely with foreign fields, so we
 			# will just manually pre-fill them if an instance is available.
 			for field in self.info_fields:
-				initial.setdefault(field, getattr(instance.get_info(), field))
+				initial.setdefault(field, getattr(instance, field))
+
+			kwargs["initial"] = initial
+
+			super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
 
 			# If this is a regular workshift, disable title, description, etc
 			# from being edited
 			if instance.weekly_workshift:
 				for field in self.info_fields:
 					self.fields[field].widget.attrs['readonly'] = True
-
-			kwargs["initial"] = initial
-
-		super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
+		else:
+			super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
 
 		# Move the forms for title, description, etc to the top
 		keys = self.fields.keyOrder
