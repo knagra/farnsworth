@@ -20,6 +20,10 @@ class SemesterForm(forms.ModelForm):
 		semester.preferences_open = True
 		semeseter.save(*args, **kwargs)
 
+		# TODO Copy workshift and pools over from previous semester?
+
+		# TODO Create this semester's workshift profiles
+
 		return semester
 
 class RegularWorkshiftForm(forms.ModelForm):
@@ -109,12 +113,16 @@ class InteractShiftForm(forms.Form):
 			raise ValidationError("Workshift has been closed.")
 		return shift
 
+# TODO: SellShiftForm
+
 class VerifyShiftForm(InteractShiftForm):
 	def clean_pk(self):
 		shift = super(VerifyShiftForm, self).clean_pk()
 
 		if not shift.workshifter:
 			raise ValidationError("Workshift is not filled.")
+		if not shift.pool.self_verify and shift.workshifter == self.profile:
+			raise ValidationError("Workshifter cannot verify self")
 
 	def save(self):
 		entry = ShiftLogEntry(
@@ -139,6 +147,10 @@ class BlownShiftForm(InteractShiftForm):
 
 		if not shift.workshifter:
 			raise ValidationError("Workshift is not filled.")
+		pool = shift.pool
+		if not pool.any_blown and \
+		  pool.managers.filter(incument__user=profile.user).count() > 0:
+			raise ValidationError("You are not a workshift manager.")
 
 	def save(self):
 		entry = ShiftLogEntry(

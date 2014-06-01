@@ -127,6 +127,14 @@ class WorkshiftPool(models.Model):
 		help_text="Number of weeks for each pass of required hours. "
 		"0 makes this a semesterly requirement",
 		)
+	self_verify = models.BooleanField(
+		default=False,
+		help_text"If members are able to verify themselves for workshifts.",
+		)
+	any_blown = models.BooleanField(
+		default=False,
+		help_text="If any member is allowed to mark a shift as blown.",
+		)
 
 	class Meta:
 		unique_together = ("semester", "title")
@@ -397,12 +405,14 @@ class ShiftLogEntry(models.Model):
 	SIGNIN = 'I'
 	SIGNOUT = 'O'
 	VERIFY = 'V'
+	SELL = 'S'
 	ENTRY_CHOICES = (
 		(ASSIGNED, 'Assigned'),
 		(BLOWN, 'Blown'),
 		(SIGNIN, 'Sign In'),
 		(SIGNOUT, 'Sign Out'),
 		(VERIFY, 'Verify'),
+		(SELL, 'Sell'),
 	)
 	entry_type = models.CharField(
 		max_length=1,

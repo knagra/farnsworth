@@ -136,15 +136,20 @@ def view_semester(request, semester, profile):
 		forms = []
 		if not shift.closed:
 			if shift.workshifter:
-				verify_form = VerifyShiftForm(initial={
-					"pk": shift.pk,
-					}, profile=profile)
-				forms.append(verify_form)
+				pool = shift.pool
 
-				blown_form = BlownShiftForm(initial={
-					"pk": shift.pk,
-					}, profile=profile)
-				forms.append(blown_form)
+				if pool.self_verify or shift.workshifter != profile:
+					verify_form = VerifyShiftForm(initial={
+						"pk": shift.pk,
+						}, profile=profile)
+					forms.append(verify_form)
+
+				if pool.any_blown or \
+				  pool.managers.filter(incumbent__user=profile.user).count():
+					blown_form = BlownShiftForm(initial={
+						"pk": shift.pk,
+						}, profile=profile)
+					forms.append(blown_form)
 
 				if shift.workshifter == profile:
 					sign_out_form = SignOutForm(initial={
