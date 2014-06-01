@@ -132,47 +132,54 @@ def view_semester(request, semester, profile):
 	template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
 
 	day_shifts = WorkshiftInstance.objects.filter(date=day)
-	day_shift_tuples = []
-
-	for shift in day_shifts:
-		forms = []
-		if not shift.closed:
-			if shift.workshifter:
-				pool = shift.pool
-
-				if pool.self_verify or shift.workshifter != profile:
-					verify_form = VerifyShiftForm(initial={
-						"pk": shift.pk,
-						}, profile=profile)
-					forms.append(verify_form)
-
-				if pool.any_blown or \
-				  pool.managers.filter(incumbent__user=profile.user).count():
-					blown_form = BlownShiftForm(initial={
-						"pk": shift.pk,
-						}, profile=profile)
-					forms.append(blown_form)
-
-				if shift.workshifter == profile:
-					sign_out_form = SignOutForm(initial={
-						"pk": shift.pk,
-						}, profile=profile)
-					forms.append(sign_out_form)
-			else:
-				sign_in_form = SignInForm(initial={
-					"pk": shift.pk,
-					}, profile=profile)
-				forms.append(sign_in_form)
-
-		day_shift_tuples.append((shift, forms,))
-
-	template_dict["day_shifts"] = day_shifts
 
 	last_sunday = day - timedelta(days=day.weekday() + 1)
 	next_sunday = last_sunday + timedelta(weeks=1)
-	template_dict["week_shifts"] = \
-	  WorkshiftInstance.objects.filter(date__gt=last_sunday) \
+
+	# TODO: Add "week-long" property to WorkshiftInstance?
+	week_shifts = WorkshiftInstance.objects.filter(date__gt=last_sunday) \
 	  .filter(date__lt=next_sunday)
+
+	day_shift_tuples, week_shift_tuples = [], []
+
+	for shifts, tuples in [
+			(day_shifts, day_shift_tuples),
+			(week_shifts, week_shift_tuples),
+			]:
+		for shift in shifts:
+			forms = []
+			if not shift.closed:
+				if shift.workshifter:
+					pool = shift.pool
+
+					if pool.self_verify or shift.workshifter != profile:
+						verify_form = VerifyShiftForm(initial={
+							"pk": shift.pk,
+							}, profile=profile)
+						forms.append(verify_form)
+
+					if pool.any_blown or \
+					  pool.managers.filter(incumbent__user=profile.user).count():
+						blown_form = BlownShiftForm(initial={
+							"pk": shift.pk,
+							}, profile=profile)
+						forms.append(blown_form)
+
+					if shift.workshifter == profile:
+						sign_out_form = SignOutForm(initial={
+							"pk": shift.pk,
+							}, profile=profile)
+						forms.append(sign_out_form)
+				else:
+					sign_in_form = SignInForm(initial={
+						"pk": shift.pk,
+						}, profile=profile)
+					forms.append(sign_in_form)
+
+		tuples.append((shift, forms,))
+
+	template_dict["day_shifts"] = day_shift_tuples
+	template_dict["week_shifts"] = week_shift_tuples
 
 	return render_to_response("semester.html", template_dict,
 							   context_instance=RequestContext(request))
