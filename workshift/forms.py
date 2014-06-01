@@ -20,7 +20,7 @@ class SemesterForm(forms.ModelForm):
 
 		semester.current = True
 		semester.preferences_open = True
-		semeseter.save(*args, **kwargs)
+		semester.save(*args, **kwargs)
 
 		# TODO Copy workshift and pools over from previous semester?
 
