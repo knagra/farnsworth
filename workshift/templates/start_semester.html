@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
-{% load request_tags %}
 {% load bootstrap %}
 
 {% block headers %}
@@ -10,5 +9,11 @@
 
 {% block content %}
 <div class="table_container">
+  <form method="post" action="">
+	{% csrf_token %}
+	<div class="form-group">
+	  {{ semester_form|bootstrap }}
+	  <div class="text-center"><button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-plus"></span> Start Semester</button></div>
+  </form>
 </div> <!-- .table_container -->
 {% endblock %}
