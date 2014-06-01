@@ -106,8 +106,8 @@ def view_semester(request, semester, profile):
 		if form.is_valid():
 			form.save()
 		else:
-			# TODO: Place form errors on page somewhere?
-			pass
+			for error in form.errors.values():
+				messages.add_message(request, messages.ERROR, error)
 
 	# We want a form for verification, a notification of upcoming shifts, and a
 	# chart displaying the entire house's workshift for the day as well as
