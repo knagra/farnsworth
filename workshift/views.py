@@ -131,12 +131,12 @@ def view_semester(request, semester, profile):
 	template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
 	template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
 
+	# Grab the shifts for just today, as well as week-long shifts
 	day_shifts = WorkshiftInstance.objects.filter(date=day)
 
 	last_sunday = day - timedelta(days=day.weekday() + 1)
 	next_sunday = last_sunday + timedelta(weeks=1)
 
-	# TODO: Add "week-long" property to WorkshiftInstance?
 	week_shifts = WorkshiftInstance.objects.filter(date__gt=last_sunday) \
 	  .filter(date__lt=next_sunday) \
 	  .filter(week_long=True)
