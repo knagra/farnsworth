@@ -81,15 +81,33 @@ def view_semester(request, semester, profile):
 
 	template_dict["profile"] = profile
 
-	# Verifier Form
-	shifts = WorkshiftInstance.objects.filter(closed=False) \
-	  .filter(blown=False) \
-	  .filter(date__lt=today + timedelta(days=3))
-	verify_form = VerifyForm(
+	# Forms to interact with workshift
+	verify_form = VerifyShiftForm(
 		request.POST if "verify_shift" in request.POST else None,
+		profile=profile,
 		)
-	if verify_form.is_valid():
-		ShiftLogEntry.
+
+	blown_form = BlownShiftForm(
+		request.POST if "blown_shift" in request.POST else None,
+		profile=profile,
+		)
+
+	sign_in_form = SignInForm(
+		request.POST if "sign_in" in request.POST else None,
+		profile=profile,
+		)
+
+	sign_out_form = SignOutForm(
+		request.POST if "sign_out" in request.POST else None,
+		profile=profile,
+		)
+
+	for form in [verify_form, blown_form, sign_in_form, sign_out_form]:
+		if form.is_valid():
+			form.save()
+		else:
+			# TODO: Place form errors on page somewhere?
+			pass
 
 	# We want a form for verification, a notification of upcoming shifts, and a
 	# chart displaying the entire house's workshift for the day as well as
@@ -116,27 +134,30 @@ def view_semester(request, semester, profile):
 
 	for shift in day_shifts:
 		forms = []
-		if shift.workshifter and not shift.blown:
-			blown_form = BlownShiftForm(initial={
-				"pk": shift.pk,
-				})
-			forms.append(blown_form)
-		elif not shift.workshifter and not shift.closed:
-			sign_in_form = SignInForm(initial={
-				"pk": shift.pk,
-				})
-			forms.append(sign_in_form)
-		if shift.workshifter == profile and not shift.closed:
-			sign_out_form = SignOutForm(initial={
-				"pk": shift.pk,
-				})
-			forms.append(sign_out_form)
-		if shift.workshifter and not shift.closed and not shift.verifier:
-			verify_form = VerifyShiftForm(initial={
-				"pk": shift.pk,
-				})
-			forms.append(verify_form)
-		day_shift_tuples.append((shift, form,))
+		if not shift.closed:
+			if shift.workshifter:
+				verify_form = VerifyShiftForm(initial={
+					"pk": shift.pk,
+					}, profile=profile)
+				forms.append(verify_form)
+
+				blown_form = BlownShiftForm(initial={
+					"pk": shift.pk,
+					}, profile=profile)
+				forms.append(blown_form)
+
+				if shift.workshifter == profile:
+					sign_out_form = SignOutForm(initial={
+						"pk": shift.pk,
+						}, profile=profile)
+					forms.append(sign_out_form)
+			else:
+				sign_in_form = SignInForm(initial={
+					"pk": shift.pk,
+					}, profile=profile)
+				forms.append(sign_in_form)
+
+		day_shift_tuples.append((shift, forms,))
 
 	template_dict["day_shifts"] = day_shifts
 
