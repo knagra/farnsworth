@@ -121,6 +121,10 @@ class InteractShiftForm(forms.Form):
 # TODO: SellShiftForm
 
 class VerifyShiftForm(InteractShiftForm):
+	title_short = "V"
+	title_long = "Verify"
+	action_name = "verify_shift"
+
 	def clean_pk(self):
 		shift = super(VerifyShiftForm, self).clean_pk()
 
@@ -150,6 +154,10 @@ class VerifyShiftForm(InteractShiftForm):
 		pool_hours.save()
 
 class BlownShiftForm(InteractShiftForm):
+	title_short = "B"
+	title_long = "Blown"
+	action_name = "blown_shift"
+
 	def clean_pk(self):
 		shift = super(BlownShiftForm, self).clean_pk()
 
@@ -181,6 +189,10 @@ class BlownShiftForm(InteractShiftForm):
 		pool_hours.save()
 
 class SignInForm(InteractShiftForm):
+	title_short = "I"
+	title_long = "Sign In"
+	action_name = "sign_in"
+
 	def clean_pk(self):
 		shift = super(SignInForm, self).clean_pk()
 
@@ -202,6 +214,10 @@ class SignInForm(InteractShiftForm):
 		instance.save()
 
 class SignOutForm(InteractShiftForm):
+	title_short = "O"
+	title_long = "Sign Out"
+	action_name = "sign_out"
+
 	def clean_pk(self):
 		shift = super(SignOutForm, self).clean_pk()
 

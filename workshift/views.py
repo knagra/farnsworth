@@ -84,32 +84,14 @@ def view_semester(request, semester, profile):
 	template_dict["profile"] = profile
 
 	# Forms to interact with workshift
-	verify_form = VerifyShiftForm(
-		request.POST if "verify_shift" in request.POST else None,
-		profile=profile,
-		)
-
-	blown_form = BlownShiftForm(
-		request.POST if "blown_shift" in request.POST else None,
-		profile=profile,
-		)
-
-	sign_in_form = SignInForm(
-		request.POST if "sign_in" in request.POST else None,
-		profile=profile,
-		)
-
-	sign_out_form = SignOutForm(
-		request.POST if "sign_out" in request.POST else None,
-		profile=profile,
-		)
-
-	for form in [verify_form, blown_form, sign_in_form, sign_out_form]:
-		if form.is_valid():
-			form.save()
-		else:
-			for error in form.errors.values():
-				messages.add_message(request, messages.ERROR, error)
+	for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
+		if form.action_name in request.POST:
+			f = form(request.POST, profile=profile)
+			if f.is_valid():
+				f.save()
+			else:
+				for error in f.errors.values():
+					messages.add_message(request, messages.ERROR, error)
 
 	# We want a form for verification, a notification of upcoming shifts, and a
 	# chart displaying the entire house's workshift for the day as well as

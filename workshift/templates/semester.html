@@ -24,7 +24,7 @@
 	</th>
   </thead>
   <tbody>
-	{% for shift in day_shifts %}
+	{% for shift, forms in day_shifts %}
 	<tr>
 	  <td>{{ shift.title }}</td>
 	  <td>{% if shift.start_time %}{{ shift.start_time }}
@@ -45,7 +45,18 @@
 		<a href="{% url 'workshift:profile' pk=shift.verifier.pk %}">{{ shift.verifier.user.get_full_name }}</a>
 		{% endif %}
 	  </td>
-	  <td>{{ forms }}</td>
+	  <td>
+		{% for form in forms %}
+		<form style="display:inline" method="POST" action="{{ form.action_name }}">
+		  {{ csrf_token }}
+		  {{ form }}
+		  <button type="submit" class="btn btn-xs">
+			<span class="visible-xs">{{ form.title_short }}</span>
+			<span class="hidden-xs">{{ form.title_long }}</span>
+		  </button>
+		</form>
+		{% endfor %}
+	  </td>
 	</tr>
 	{% endfor %}
   </tbody>
