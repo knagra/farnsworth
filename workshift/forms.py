@@ -1,6 +1,7 @@
 
 from django import forms
 
+from base.models import UserProfile
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
 	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
@@ -25,6 +26,12 @@ class SemesterForm(forms.ModelForm):
 		# TODO Copy workshift and pools over from previous semester?
 
 		# TODO Create this semester's workshift profiles
+		for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
+			profile = WorkshiftProfile(
+				user=uprofile.user,
+				semester=semester,
+				)
+			profile.save()
 
 		return semester
 
