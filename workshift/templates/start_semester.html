@@ -17,3 +17,17 @@
   </form>
 </div> <!-- .table_container -->
 {% endblock %}
+
+{% block end_scripts %}
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript">
+  $(function() {
+    $('#id_start_date').datetimepicker({
+      pickTime: false
+    });
+    $('#id_end_date').datetimepicker({
+      pickTime: false
+    });
+  });
+</script>
+{% endblock %}
