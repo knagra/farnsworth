@@ -1,0 +1,14 @@
+.workshift_table {
+
+}
+
+.workshift_inner {
+	width: 70%;
+	position: relative;
+}
+
+.workshift_control {
+	width: 15%;
+	text-align: center;
+	position: absolute;
+}
