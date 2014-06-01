@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="list_container">
+<div class="list_container table_container">
 <div class="header"><h3 class="table_title">General Pages</h3></div>
 <ul class="pages_list">
 	<li><a class="page_link" href="{% url 'external' %}" >External Landing</a> - go to the external landing to this site.</li>
@@ -21,7 +21,7 @@
 </ul>
 </div>
 {% if user.is_authenticated and user.username != ANONYMOUS_USERNAME %}
-	<div class="list_container">
+	<div class="list_container table_container">
 	<div class="header"><h3 class="table_title">Profile Pages</h3></div>
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - see and update your profile or change your password.</li>
@@ -32,7 +32,7 @@
 	</div>
 {% endif %}
 {% if user.is_authenticated %}
-	<div class="list_container">
+	<div class="list_container table_container">
 	<div class="header"><h3 class="table_title">Member Pages</h3></div>
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'homepage' %}" >Home Page</a> - go to your home page.</li>
@@ -47,7 +47,7 @@
 		{% endif %}
 	</ul>
 	</div>
-	<div class="list_container">
+	<div class="list_container table_container">
 	<div class="header"><h3 class="table_title">Archives</h3></div>
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'list_all_threads' %}" >All Threads</a> - see all threads on this site.</li>
@@ -58,7 +58,7 @@
 	</div>
 {% endif %}
 {% if user.is_superuser %}
-	<div class="list_container">
+	<div class="list_container table_container">
 	<div class="header"><h3 class="table_title">Admin</h3></div>
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'custom_manage_users' %}" >Manage Users</a> - see and modify user profiles.</li>
@@ -69,7 +69,7 @@
 	</div>
 {% endif %}
 {% if user.is_superuser or PRESIDENT %}
-	<div class="list_container">
+	<div class="list_container table_container">
 	<div class="header"><h3 class="table_title">President</h3></div>
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'meta_manager' %}">Meta-Manager</a> - manage managers.</li>
