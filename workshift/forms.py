@@ -1,7 +1,9 @@
 
 from django import forms
 
-from workshift.models import *
+from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
+	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
+	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
 
 class SemesterForm(forms.ModelForm):
 	class Meta:
@@ -45,7 +47,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		help_text="Description of the shift.",
 		)
 	pool = forms.ChoiceField(
-		choices=Pool.objects.filter(semester__current=True),
+		choices=WorkshiftPool.objects.filter(semester__current=True),
 		help_text="The workshift pool for this shift.",
 		)
 	start_time = forms.TimeField(
