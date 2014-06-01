@@ -1,7 +1,9 @@
 
 from django import forms
 
-from workshift.models import *
+from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
+	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
+	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
 
 class SemesterForm(forms.ModelForm):
 	class Meta:

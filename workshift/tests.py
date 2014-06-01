@@ -353,6 +353,9 @@ class TestInteractForms(TestCase):
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
+		log = self.instance.log.filter(entry_type=ShiftLogEntry.VERIFY)
+		self.assertEqual(1, log.count())
+		self.assertEqual(log[0].person, self.up)
 
 	def test_no_self_verify(self):
 		self.pool.self_verify = False
@@ -368,6 +371,9 @@ class TestInteractForms(TestCase):
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
+		log = self.instance.log.filter(entry_type=ShiftLogEntry.VERIFY)
+		self.assertEqual(1, log.count())
+		self.assertEqual(log[0].person, self.op)
 
 	def test_blown(self):
 		self.assertTrue(self.client.login(username="ou", password="pwd"))
@@ -375,6 +381,9 @@ class TestInteractForms(TestCase):
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
+		log = self.instance.log.filter(entry_type=ShiftLogEntry.BLOWN)
+		self.assertEqual(1, log.count())
+		self.assertEqual(log[0].person, self.op)
 
 	def test_manager_blown(self):
 		self.pool.any_blown = False
@@ -392,6 +401,9 @@ class TestInteractForms(TestCase):
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.wp)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
+		log = self.instance.log.filter(entry_type=ShiftLogEntry.BLOWN)
+		self.assertEqual(1, log.count())
+		self.assertEqual(log[0].person, self.wp)
 
 	def test_sign_in(self):
 		self.assertTrue(self.client.login(username="u", password="pwd"))
@@ -399,6 +411,9 @@ class TestInteractForms(TestCase):
 		form = SignInForm({"pk": self.once.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
+		log = self.once.log.filter(entry_type=ShiftLogEntry.SIGNIN)
+		self.assertEqual(1, log.count())
+		self.assertEqual(log[0].person, self.up)
 
 	def test_sign_out(self):
 		self.assertTrue(self.client.login(username="u", password="pwd"))
@@ -406,6 +421,9 @@ class TestInteractForms(TestCase):
 		form = SignOutForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
+		log = self.instance.log.filter(entry_type=ShiftLogEntry.SIGNOUT)
+		self.assertEqual(1, log.count())
+		self.assertEqual(log[0].person, self.up)
 
 class TestPermissions(TestCase):
 	"""

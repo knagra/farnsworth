@@ -44,6 +44,8 @@ def workshift_profile_required(function=None, redirect_no_user='login',
 													   semester=kwargs["semester"])
 			except WorkshiftProfile.DoesNotExist:
 				return redirect_no_profile(request, MESSAGES['NO_WORKSHIFT'])
+			except KeyError:
+				return HttpResponseRedirect(reverse('workshift:start_semester'))
 
 			kwargs["profile"] = profile
 
