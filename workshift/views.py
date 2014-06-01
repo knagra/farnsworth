@@ -57,6 +57,8 @@ def start_semester_view(request):
 		  [i.incumbent for i in Managers.objects.filter(workshift_manager=True)]
 		semester.save()
 
+	# TODO: Adding workshift pools? Should we do a separate page for that?
+
 	return render_to_response("start_semester.html", {
 		"page_name": page_name,
 		"semester_form": semester_form,
