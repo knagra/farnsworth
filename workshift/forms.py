@@ -45,7 +45,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		help_text="Description of the shift.",
 		)
 	pool = forms.ChoiceField(
-		choices=Pool.objects.filter(semester__current=True),
+		choices=WorkshiftPool.objects.filter(semester__current=True),
 		help_text="The workshift pool for this shift.",
 		)
 	start_time = forms.TimeField(
