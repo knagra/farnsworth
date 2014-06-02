@@ -172,4 +172,5 @@ MESSAGES = {
 	'PROFILE_REQUEST_DELETION_EMAIL': ' A profile request deletion e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}">{email}</a>.', # The initial space is necessary.
 	'EMAIL_FAIL': ' Farnsworth failed at sending an e-mail to <a title="Write E-mail" href="mailto:{email}">{email}</a>.', # Initial space necessary.
 	'NO_WORKSHIFT': 'You have not been set up for workshift this semester.',
+	'MULTIPLE_CURRENT_SEMESTERS': 'Multiple current workshift semesters were detected. Farnsworth chose the semester with the latest start date as the current semester.  If you are not the workshift manager or the site admin, please inform both the site admin (<a href="mailto:{admin_email}">{admin_email}</a>) and the workshift manager(s){workshift_emails} with this information.',
 }

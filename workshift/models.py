@@ -76,6 +76,7 @@ class Semester(models.Model):
 
 	class Meta:
 		unique_together = ("season", "year")
+		ordering = ['-start_date']
 
 	def __unicode__(self):
 		return "<{0} {1}>".format(self.season, self.year)
