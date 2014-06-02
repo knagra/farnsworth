@@ -24,7 +24,7 @@ class RequestAdmin(admin.ModelAdmin):
 	list_filter = ('post_date', 'change_date', 'filled', 'owner')
 	date_hierarchy = 'post_date'
 	ordering = ('-post_date',)
-	readonly_fields = ('owner', 'post_date', 'body')
+	readonly_fields = ('post_date',)
 
 class ResponseAdmin(admin.ModelAdmin):
 	list_display = ('owner', 'post_date', 'request')
@@ -32,7 +32,7 @@ class ResponseAdmin(admin.ModelAdmin):
 	list_filter = ('post_date', 'request', 'owner')
 	date_hierarchy = 'post_date'
 	ordering = ('-post_date',)
-	readonly_fields = ('body', 'owner', 'post_date', 'request')
+	readonly_fields = ('post_date',)
 
 class ProfileRequestAdmin(admin.ModelAdmin):
 	list_display = ('username', 'last_name', 'first_name', 'email')
