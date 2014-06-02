@@ -35,8 +35,8 @@ class TestStart(TestCase):
 		self.client.logout()
 		self.assertTrue(self.client.login(username="u", password="pwd"))
 
-		response = self.client.get("/workshift/")
-		self.assertEqual(response.status_code, 404)
+		response = self.client.get("/workshift/", follow=True)
+		self.assertRedirects(response, "/")
 
 	def test_start(self):
 		response = self.client.post("/workshift/start/", {
@@ -59,11 +59,8 @@ class TestStart(TestCase):
 
 		self.assertEqual(
 			WorkshiftProfile.objects.filter(semester=semester).count(),
-			1,
+			2,
 			)
-
-		profile = WorkshiftProfile.objects.get(semester=semester)
-
 		self.assertEqual(
 			WorkshiftPool.objects.filter(semester=semester).count(),
 			1,
@@ -71,11 +68,12 @@ class TestStart(TestCase):
 
 		pool = WorkshiftPool.objects.get(semester=semester)
 
-		self.assertEqual(PoolHours.objects.filter(pool=pool).count(), 1)
+		self.assertEqual(PoolHours.objects.filter(pool=pool).count(), 2)
 
-		pool_hours = PoolHours.objects.get(pool=pool)
+		pool_hours = PoolHours.objects.filter(pool=pool)
 
-		self.assertIn(pool_hours, profile.pool_hours.all())
+		for profile in WorkshiftProfile.objects.filter(semester=semester):
+			self.assertIn(profile.pool_hours.all()[0], pool_hours)
 
 class TestViews(TestCase):
 	"""
@@ -119,6 +117,7 @@ class TestViews(TestCase):
 
 		self.shift = RegularWorkshift(
 			workshift_type=self.wtype,
+			current_assignee=self.wprofile,
 			pool=self.pool,
 			title="Test Regular Shift",
 			day=DAYS[0][0],
@@ -184,8 +183,8 @@ class TestViews(TestCase):
 		self.sle3.save()
 		self.sle4.save()
 
-		self.instance.shift_log = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
-		self.once.shift_log = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
+		self.instance.logs = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
+		self.once.logs = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
 
 		self.instance.save()
 		self.once.save()
@@ -226,7 +225,7 @@ class TestViews(TestCase):
 			response = self.client.get(prefix + url)
 			self.assertEqual(response.status_code, 200)
 
-	def test_type(self):
+	def test_type_list(self):
 		response = self.client.get("/workshift/types/")
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
@@ -234,6 +233,7 @@ class TestViews(TestCase):
 		self.assertNotIn(self.wtype.quick_tips, response.content)
 		self.assertNotIn(self.wtype.description, response.content)
 
+	def test_type(self):
 		response = self.client.get("/workshift/type/{0}/".format(self.wtype.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
@@ -241,6 +241,7 @@ class TestViews(TestCase):
 		self.assertIn(self.wtype.quick_tips, response.content)
 		self.assertIn(self.wtype.description, response.content)
 
+	def test_type_edit(self):
 		response = self.client.get("/workshift/type/{0}/edit/".format(self.wtype.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
@@ -257,12 +258,11 @@ class TestViews(TestCase):
 		self.assertIn(self.shift.workshift_type.description, response.content)
 		self.assertIn(self.shift.current_assignee.user.get_full_name(), response.content)
 
+	def test_edit_shift(self):
 		response = self.client.get("/workshift/shift/{0}/edit/".format(self.shift.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.shift.title, response.content)
 		self.assertIn(str(self.shift.hours), response.content)
-		self.assertIn(self.shift.workshift_type.quick_tips, response.content)
-		self.assertIn(self.shift.workshift_type.description, response.content)
 		self.assertIn(self.shift.current_assignee.user.get_full_name(), response.content)
 
 	def test_instance(self):
@@ -271,7 +271,7 @@ class TestViews(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.instance.weekly_workshift.title, response.content)
 		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
-		self.assertIn(self.instance.date, response.content)
+		self.assertIn(self.instance.date.strftime("%B%e, %Y"), response.content)
 		self.assertIn(self.instance.workshifter.user.get_full_name(), response.content)
 		self.assertIn(str(self.instance.hours), response.content)
 		self.assertIn(self.sle0.note, response.content)
@@ -280,12 +280,13 @@ class TestViews(TestCase):
 		self.assertIn(self.sle3.note, response.content)
 		self.assertIn(self.sle4.note, response.content)
 
+	def test_edit_instance(self):
 		response = self.client.get("/workshift/instance/{0}/edit/"
 								   .format(self.instance.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.instance.weekly_workshift.title, response.content)
 		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
-		self.assertIn(self.instance.date, response.content)
+		self.assertIn(str(self.instance.date), response.content)
 		self.assertIn(self.instance.workshifter.user.get_full_name(), response.content)
 		self.assertIn(str(self.instance.hours), response.content)
 
@@ -303,6 +304,7 @@ class TestViews(TestCase):
 		self.assertIn(self.sle3.note, response.content)
 		self.assertIn(self.sle4.note, response.content)
 
+	def test_edit_one_time(self):
 		response = self.client.get("/workshift/instance/{0}/edit/".format(self.once.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.once.title, response.content)
@@ -407,8 +409,8 @@ class TestInteractForms(TestCase):
 
 		self.sle0.save()
 
-		self.instance.shift_log = [self.sle0]
-		self.once.shift_log = [self.sle0]
+		self.instance.logs = [self.sle0]
+		self.once.logs = [self.sle0]
 
 		self.instance.save()
 		self.once.save()
@@ -419,7 +421,7 @@ class TestInteractForms(TestCase):
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.VERIFY)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
 
@@ -442,7 +444,7 @@ class TestInteractForms(TestCase):
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.VERIFY)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.op)
 
@@ -452,7 +454,7 @@ class TestInteractForms(TestCase):
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.BLOWN)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.BLOWN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.op)
 
@@ -477,7 +479,7 @@ class TestInteractForms(TestCase):
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.wp)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.BLOWN)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.BLOWN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.wp)
 
@@ -487,7 +489,7 @@ class TestInteractForms(TestCase):
 		form = SignInForm({"pk": self.once.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.once.log.filter(entry_type=ShiftLogEntry.SIGNIN)
+		log = self.once.logs.filter(entry_type=ShiftLogEntry.SIGNIN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
 
@@ -501,7 +503,7 @@ class TestInteractForms(TestCase):
 		form = SignOutForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.SIGNOUT)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.SIGNOUT)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
 

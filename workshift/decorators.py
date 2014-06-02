@@ -11,10 +11,10 @@ from workshift.models import WorkshiftProfile, Semester
 from workshift.redirects import red_workshift
 
 def _extract_semester(kwargs):
-	if "sem_url" in kwargs and kwargs["sem_url"] is not None:
-		sem_url = kwargs.pop("sem_url")
+	sem_url = kwargs.pop("sem_url", None)
+	if sem_url is not None:
 		if len(sem_url) < 3:
-           raise Http404
+			raise Http404
 		season = sem_url[:2] if sem_url else None
 		year = sem_url[2:] if sem_url else None
 		kwargs["semester"] = get_object_or_404(Semester, season=season, year=year)
@@ -34,7 +34,9 @@ def workshift_profile_required(function=None, redirect_no_user='login',
 					redirect_to += "?next=" + request.path
 				return HttpResponseRedirect(redirect_to)
 
-			_extract_semester(kwargs)
+			ret = _extract_semester(kwargs)
+			if ret is not None:
+				return ret
 			request.semester = kwargs["semester"]
 
 			try:
@@ -79,6 +81,7 @@ def workshift_manager_required(function=None, redirect_no_user='login',
 				messages = MESSAGES['ADMINS_ONLY']
 				if Semester.objects.filter(current=True).count() == 0:
 					messages = "Workshift semester has not been created yet. " + messages
+					return red_home(request, messages)
 				return redirect_profile(request, messages)
 
 			return view_func(request, *args, **kwargs)
@@ -93,7 +96,9 @@ def workshift_manager_required(function=None, redirect_no_user='login',
 def semester_required(function=None):
 	def real_decorator(view_func):
 		def wrap(request, *args, **kwargs):
-			_extract_semester(kwargs)
+			ret = _extract_semester(kwargs)
+			if ret is not None:
+				return ret
 			request.semester = kwargs["semester"]
 
 			return view_func(request, *args, **kwargs)

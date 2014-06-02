@@ -10,5 +10,12 @@
 
 {% block content %}
 <div class="table_container">
+  <p>{{ shift.pool.title }}</p>
+  <p>{{ shift.date }}</p>
+  <p>{{ shift.workshifter.user.get_full_name }}</p>
+  <p>{{ shift.hours }}</p>
+  <p>{{ shift.workshift_type.quick_tips }}</p>
+  <p>{{ shift.workshift_type.description }}</p>
+  {% if shift.current_assignee %}<p>{{ shift.current_assignee.user.get_full_name }}</p>{% endif %}
 </div> <!-- .table_container -->
 {% endblock %}

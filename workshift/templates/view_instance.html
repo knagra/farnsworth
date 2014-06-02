@@ -10,6 +10,13 @@
 
 {% block content %}
 <div class="table_container">
+  <p>{{ shift.pool.title }}</p>
+  <p>{{ shift.date }}</p>
+  <p>{{ shift.workshifter.user.get_full_name }}</p>
+  <p>{{ shift.description }}</p>
+  {% if shift.weekly_workshift %}<p>{{ shift.weekly_workshift.workshift_type.quick_tips }}</p>{% endif %}
+  <p>{{ shift.hours }}</p>
+  {% if shift.logs.all %}
   <table>
 	<thead>
 	  <tr>
@@ -19,7 +26,7 @@
 	  </tr>
 	</thead>
 	<tbody>
-	  {% for log in shift.shift_log.all %}
+	  {% for log in shift.logs.all %}
 	  <tr>
 		<td>{{ log.entry_time }}</td>
 		<td><a href="{% url 'workshift:profile' log.person.pk %}">{{ log.person.user.get_full_name }}</a>
@@ -39,5 +46,6 @@
 	  {% endfor %}
 	</tbody>
   </table>
+  {% endif %}
 </div> <!-- .table_container -->
 {% endblock %}

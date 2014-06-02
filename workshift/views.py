@@ -376,6 +376,7 @@ def edit_shift_view(request, semester, profile, pk):
 	return render_to_response("edit_shift.html", {
 		"page_name": page_name,
 		"shift": shift,
+        "edit_form": edit_form,
 	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
@@ -422,6 +423,7 @@ def edit_instance_view(request, semester, profile, pk):
 	return render_to_response("edit_shift.html", {
 		"page_name": page_name,
 		"shift": shift,
+        "edit_form": edit_form,
 	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
@@ -430,11 +432,11 @@ def list_types_view(request, semester, profile):
 	View the details of a particular WorkshiftType.
 	"""
 	page_name = "Workshift Types"
-	types = WorkshiftType.objects.all()
+	shifts = WorkshiftType.objects.all()
 
 	return render_to_response("list_types.html", {
 		"page_name": page_name,
-		"types": types,
+		"shifts": shifts,
 	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
@@ -482,4 +484,5 @@ def edit_type_view(request, semester, profile, pk):
 	return render_to_response("edit_type.html", {
 		"page_name": page_name,
 		"shift": shift,
+        "edit_form": edit_form,
 	}, context_instance=RequestContext(request))
