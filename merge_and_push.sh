@@ -5,7 +5,7 @@ git checkout master
 git pull
 git push
 
-for i in kingman afro hoyt dev
+for i in $(git branch --list | grep -v master)
 do
 	git checkout $i
 	git pull origin $i
