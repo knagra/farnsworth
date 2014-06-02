@@ -1,6 +1,8 @@
 
 from django import forms
 
+from base.models import UserProfile
+from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
 	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
@@ -23,8 +25,26 @@ class SemesterForm(forms.ModelForm):
 		semester.save(*args, **kwargs)
 
 		# TODO Copy workshift and pools over from previous semester?
+		pool = WorkshiftPool(
+			semester=semester,
+			)
+		pool.save()
+		pool.managers = Manager.objects.filter(workshift_manager=True)
+		pool.save()
 
 		# TODO Create this semester's workshift profiles
+		for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
+			profile = WorkshiftProfile(
+				user=uprofile.user,
+				semester=semester,
+				)
+			profile.save()
+
+			hours = PoolHours(pool=pool)
+			hours.save()
+
+			profile.pool_hours.add(hours)
+			profile.save()
 
 		return semester
 
@@ -237,3 +257,29 @@ class SignOutForm(InteractShiftForm):
 		instance.workshifter = None
 		instance.log.add(entry)
 		instance.save()
+
+class AddWorkshifterForm(forms.ModelForm):
+	class Meta:
+		model = WorkshiftProfile
+		exclude = ["semester", "ratings", "pool_hours", "time_blocks"]
+
+	def __init__(self, *args, **kwargs):
+		self.semester = kwargs.pop(
+			"semester",
+			Semester.objects.get(current=True),
+			)
+		return super(AddWorkshifterForm, self).__init__(*args, **kwargs)
+
+	def save(self, *args, **kwargs):
+		profile = super(AddWorkshifterForm, self).save(*args, **kwargs)
+
+		profile.semester = self.semester
+
+		for pool in WorkshiftPool.objects.filter(semester=self.semester):
+			hours = PoolHours(pool=pool)
+			hours.save()
+			profile.pool_hours.add(hours)
+
+		profile.save()
+
+		return profile

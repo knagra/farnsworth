@@ -65,21 +65,6 @@ class Semester(models.Model):
 	end_date = models.DateField(
 		help_text="End date of this semester.",
 		)
-	first_fine_date = models.DateField(
-		null=True,
-		blank=True,
-		help_text="First fine date for this semester, optional.",
-		)
-	second_fine_date = models.DateField(
-		null=True,
-		blank=True,
-		help_text="Second fine date for this semester, optional.",
-		)
-	third_fine_date = models.DateField(
-		null=True,
-		blank=True,
-		help_text="Third fine date for this semester, optional.",
-		)
 	preferences_open = models.BooleanField(
 		default=False,
 		help_text="Whether members can enter their workshift preferences.",
@@ -126,6 +111,21 @@ class WorkshiftPool(models.Model):
 		default=1,
 		help_text="Number of weeks for each pass of required hours. "
 		"0 makes this a semesterly requirement",
+		)
+	first_fine_date = models.DateField(
+		null=True,
+		blank=True,
+		help_text="First fine date for this semester, optional.",
+		)
+	second_fine_date = models.DateField(
+		null=True,
+		blank=True,
+		help_text="Second fine date for this semester, optional.",
+		)
+	third_fine_date = models.DateField(
+		null=True,
+		blank=True,
+		help_text="Third fine date for this semester, optional.",
 		)
 	self_verify = models.BooleanField(
 		default=False,
