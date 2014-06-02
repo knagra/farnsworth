@@ -35,8 +35,8 @@ class TestStart(TestCase):
 		self.client.logout()
 		self.assertTrue(self.client.login(username="u", password="pwd"))
 
-		response = self.client.get("/workshift/")
-		self.assertEqual(response.status_code, 404)
+		response = self.client.get("/workshift/", follow=True)
+		self.assertRedirects(response, "/")
 
 	def test_start(self):
 		response = self.client.post("/workshift/start/", {
@@ -59,11 +59,8 @@ class TestStart(TestCase):
 
 		self.assertEqual(
 			WorkshiftProfile.objects.filter(semester=semester).count(),
-			1,
+			2,
 			)
-
-		profile = WorkshiftProfile.objects.get(semester=semester)
-
 		self.assertEqual(
 			WorkshiftPool.objects.filter(semester=semester).count(),
 			1,
@@ -71,11 +68,12 @@ class TestStart(TestCase):
 
 		pool = WorkshiftPool.objects.get(semester=semester)
 
-		self.assertEqual(PoolHours.objects.filter(pool=pool).count(), 1)
+		self.assertEqual(PoolHours.objects.filter(pool=pool).count(), 2)
 
-		pool_hours = PoolHours.objects.get(pool=pool)
+		pool_hours = PoolHours.objects.filter(pool=pool)
 
-		self.assertIn(pool_hours, profile.pool_hours.all())
+		for profile in WorkshiftProfile.objects.filter(semester=semester):
+			self.assertIn(profile.pool_hours.all()[0], pool_hours)
 
 class TestViews(TestCase):
 	"""
