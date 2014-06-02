@@ -47,7 +47,12 @@ def add_workshift_context(request):
 	first_fine_date = SEMESTER.first_fine_date
 	second_fine_date = SEMESTER.second_fine_date
 	third_fine_date = SEMESTER.third_fine_date
-	upcoming_shifts = WorkshiftInstance.objects.filter(workshifter=workshift_profile)
+	upcoming_shifts = WorkshiftInstance.objects.filter(
+        workshifter=workshift_profile,
+        closed=False,
+        date__gte=date.today(),
+        date__lte=date.today() + timedelta(days=2),
+        )
 	return {'SEMESTER': SEMESTER,
 		'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
 		'days_passed': days_passed,
