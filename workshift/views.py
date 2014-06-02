@@ -41,14 +41,41 @@ def add_workshift_context(request):
 			if pos.workshift_manager:
 				WORKSHIFT_MANAGER = True
 				break
+	try:
+		CURRENT_SEMESTER = Semester.objects.get(current=True)
+	except Semester.DoesNotExist:
+		CURRENT_SEMESTER = None
+	except Semester.MultipleObjectsReturned:
+		CURRENT_SEMESTER = Semester.objects.all().latest(start_date)
+		workshift_emails = ""
+		x = 0 # counter for how many e-mails have been added
+		for pos in Manager.objects.filter(workshift_manager=True, active=True):
+			if pos.email:
+				if x == 0:
+					workshift_emails += '('
+				else:
+					workshift_emails += ', '
+				workshift_emails += '<a href="mailto:{email}">{email}</a>'.format(email=pos.email)
+				x += 1
+			elif pos.incumbent.email_visible and pos.incumbent.user.email:
+				if x == 0:
+					workshift_emails += '('
+				else:
+					workshift_emails += ', '
+				workshift_emails += '<a href="mailto:{email}">{email}</a>'.format(email=pos.incumbent.user.email)
+				x += 1
+		if len(workshift_emails) > 0:
+			workshift_emails += ')'
+		messages.add_message(request, messages.WARNING, MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(admin_email=ADMINS[0][1], workshift_emails=workshift_emails))
 	workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	days_passed = (date.today() - SEMESTER.start_date).days # number of days passed in this semester
 	first_fine_date = SEMESTER.first_fine_date
 	second_fine_date = SEMESTER.second_fine_date
 	third_fine_date = SEMESTER.third_fine_date
-	upcoming_shifts = WorkshiftInstance.objects.filter(workshifter=workshift_profile)
+	upcoming_shifts = WorkshiftInstance.objects.filter(workshifter=workshift_profile, semester=CURRENT_SEMESTER)
 	return {'SEMESTER': SEMESTER,
+		'CURRENT_SEMESTER': CURRENT_SEMESTER,
 		'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
 		'days_passed': days_passed,
 		'first_fine_date': first_fine_date,
