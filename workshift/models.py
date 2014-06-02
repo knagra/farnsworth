@@ -469,6 +469,10 @@ class InstanceInfo(models.Model):
 
 class WorkshiftInstance(models.Model):
 	''' An instance of a weekly workshift. '''
+	semester = models.ForeignKey(
+		Semester,
+		help_text="The semester for this workshift.",
+		)
 	weekly_workshift = models.ForeignKey(
 		RegularWorkshift,
 		null=True,
@@ -561,7 +565,14 @@ class WorkshiftInstance(models.Model):
 		return self.get_info().pool
 
 	def __init__(self, *args, **kwargs):
+		if "semester" not in kwargs:
+			if "weekly_workshift" in kwargs:
+				kwargs["semester"] = kwargs["weekly_workshift"].pool.semester
+			elif "info" in kwargs:
+				kwargs["semester"] = kwargs["info"].pool.semester
+
 		super(WorkshiftInstance, self).__init__(*args, **kwargs)
+
 		if (self.weekly_workshift is None and self.info is None) or \
 		  (self.weekly_workshift is not None and self.info is not None):
 			raise ValueError("Exactly one of [weekly_workshift, info] must be set")
