@@ -175,7 +175,7 @@ class WorkshiftType(models.Model):
 		)
 
 	def __unicode__(self):
-		return "<{0}>".format(self.name)
+		return "<{0}>".format(self.title)
 
 class TimeBlock(models.Model):
 	'''
