@@ -390,6 +390,20 @@ class TestUtilities(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.client.logout()
 
+	def test_house_map(self):
+		response = self.client.get("/house_map/")
+		self.assertEqual(response.status_code, 200)
+
+		self.client.login(username="u", password="pwd")
+		response = self.client.get("/house_map/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		self.client.login(username="su", password="pwd")
+		response = self.client.get("/house_map/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
 class TestSocialRequest(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
