@@ -6,6 +6,9 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 
 from __future__ import division
 
+from datetime import date, datetime, timedelta
+
+from django.utils.timezone import utc
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -13,8 +16,6 @@ from django.db import models
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-
-from datetime import date, datetime, timedelta
 
 from utils.variables import MESSAGES
 from base.models import UserProfile
@@ -26,6 +27,10 @@ from workshift.forms import *
 
 def add_workshift_context(request):
 	""" Add workshift variables to all dictionaries passed to templates. """
+	try:
+		SEMESTER = request.semester
+	except AttributeError:
+		return dict()
 	WORKSHIFT_MANAGER = False # whether the user has workshift manager privileges
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
@@ -36,10 +41,19 @@ def add_workshift_context(request):
 			if pos.workshift_manager:
 				WORKSHIFT_MANAGER = True
 				break
-	current_semester = Semester.objects.get(current=True)
-	days_passed = (date.today() - 
-	return {'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
+	workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
+	now = datetime.datetime.utcnow().replace(tzinfo=utc)
+	days_passed = (date.today() - SEMESTER.start_date).days # number of days passed in this semester
+	first_fine_date = SEMESTER.first_fine_date
+	second_fine_date = SEMESTER.second_fine_date
+	third_fine_date = SEMESTER.third_fine_date
+	upcoming_shifts = WorkshiftInstance.objects.filter(workshifter=workshift_profile)
+	return {'SEMESTER': SEMESTER,
+		'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
 		'days_passed': days_passed,
+		'first_fine_date': first_fine_date,
+		'second_fine_date': second_fine_date,
+		'third_fine_date': third_fine_date,
 		'upcoming_shifts': upcoming_shifts,
 		}
 
