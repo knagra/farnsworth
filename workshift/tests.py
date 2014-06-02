@@ -10,6 +10,61 @@ from managers.models import Manager
 from workshift.models import *
 from workshift.forms import *
 
+class TestStart(TestCase):
+	def setUp(self):
+		self.wu = User.objects.create_user(username="wu", password="pwd")
+		self.wu.first_name, self.wu.last_name = "Cooperative", "User"
+		self.wu.save()
+
+		self.wm = Manager(
+			title="Workshift Manager",
+			incumbent=UserProfile.objects.get(user=self.wu),
+			workshift_manager=True,
+			)
+		self.wm.url_title = convert_to_url(self.wm.title)
+		self.wm.save()
+
+		self.assertTrue(self.client.login(username="wu", password="pwd"))
+
+	def test_start(self):
+		response = self.client.post("/workshift/start/", {
+			"season": Semester.SUMMER,
+			"year": 2014,
+			"rate": 13.30,
+			"self_sign_out": "on",
+			"policy": "http://bsc.coop",
+			"start_date": "05/22/2014",
+			"end_date": "08/15/2014",
+		}, follow=True)
+		self.assertRedirects(response, "/workshift/manage/")
+
+		self.assertEqual(
+			Semester.objects.filter(year=2014).filter(season=Semester.SUMMER).count(),
+			1,
+			)
+
+		semester = Semester.objects.get(year=2014, season=Semester.SUMMER)
+
+		self.assertEqual(
+			WorkshiftProfile.objects.filter(semester=semester).count(),
+			1,
+			)
+
+		profile = WorkshiftProfile.objects.get(semester=semester)
+
+		self.assertEqual(
+			WorkshiftPool.objects.filter(semester=semester).count(),
+			1,
+			)
+
+		pool = WorkshiftPool.objects.get(semester=semester)
+
+		self.assertEqual(PoolHours.objects.filter(pool=pool).count(), 1)
+
+		pool_hours = PoolHours.objects.get(pool=pool)
+
+		self.assertIn(pool_hours, profile.pool_hours.all())
+
 class TestViews(TestCase):
 	"""
 	Tests a few basic things about the application: That all the pages can load
@@ -26,7 +81,6 @@ class TestViews(TestCase):
 			workshift_manager=True,
 			)
 		self.wm.url_title = convert_to_url(self.wm.title)
-		self.wm.workshift_manager = True
 		self.wm.save()
 
 		self.sem = Semester(year=2014, start_date=date.today(),
@@ -144,6 +198,7 @@ class TestViews(TestCase):
 			"/profile/{0}/preferences/".format(self.wprofile.pk),
 			"/manage/",
 			"/manage/assign_shifts/",
+			"/manage/add_workshifter/",
 			"/shift/{0}/".format(self.shift.pk),
 			"/shift/{0}/edit/".format(self.shift.pk),
 			"/instance/{0}/".format(self.instance.pk),
@@ -267,7 +322,6 @@ class TestInteractForms(TestCase):
 			workshift_manager=True,
 			)
 		self.wm.url_title = convert_to_url(self.wm.title)
-		self.wm.workshift_manager = True
 		self.wm.save()
 
 		self.sem = Semester(year=2014, start_date=date.today(),
@@ -575,6 +629,7 @@ class TestPermissions(TestCase):
 			(True, "/profile/{0}/preferences/".format(self.up.pk)),
 			(True, "/manage/"),
 			(True, "/manage/assign_shifts/"),
+			(True, "/manage/add_workshifter/"),
 			(True, "/add_shift/"),
 			(True, "/shift/{0}/edit/".format(self.wshift.pk)),
 			(True, "/instance/{0}/edit/".format(self.winstance.pk)),
@@ -602,6 +657,7 @@ class TestPermissions(TestCase):
 			(False, "/profile/{0}/preferences/".format(self.up.pk)),
 			(True, "/manage/"),
 			(True, "/manage/assign_shifts/"),
+			(False, "/manage/add_workshifter/"),
 			(True, "/add_shift/"),
 			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
 			(False, "/instance/{0}/edit/".format(self.winstance.pk)),
@@ -628,6 +684,7 @@ class TestPermissions(TestCase):
 			(True, "/profile/{0}/preferences/".format(self.up.pk)),
 			(False, "/manage/"),
 			(False, "/manage/assign_shifts/"),
+			(False, "/manage/add_workshifter/"),
 			(False, "/add_shift/"),
 			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
 			(False, "/instance/{0}/edit/".format(self.winstance.pk)),
@@ -655,6 +712,7 @@ class TestPermissions(TestCase):
 			(False, "/profile/{0}/preferences/".format(self.up.pk)),
 			(False, "/manage/"),
 			(False, "/manage/assign_shifts/"),
+			(False, "/manage/add_workshifter/"),
 			(False, "/add_shift/"),
 			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
 			(False, "/instance/{0}/edit/".format(self.winstance.pk)),

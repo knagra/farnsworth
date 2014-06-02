@@ -54,8 +54,9 @@ def start_semester_view(request):
 		# And save this semester
 		semester = semester_form.save()
 		semester.workshift_managers = \
-		  [i.incumbent for i in Managers.objects.filter(workshift_manager=True)]
+		  [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
 		semester.save()
+		return HttpResponseRedirect(reverse("workshift:manage"))
 
 	# TODO: Adding workshift pools? Should we do a separate page for that?
 
@@ -239,6 +240,26 @@ def assign_shifts_view(request, semester):
 	page_name = "Assign Shifts"
 	return render_to_response("assign_shifts.html", {
 		"page_name": page_name,
+	}, context_instance=RequestContext(request))
+
+@workshift_manager_required
+@semester_required
+def add_workshifter_view(request, semester):
+	"""
+	Add a new member workshift profile, for people who join mid-semester.
+	"""
+	page_name = "Add Workshifter"
+
+	add_workshifter_form = AddWorkshifterForm(request.POST or None)
+
+	if add_workshifter_form.is_valid():
+		add_workshifter_form.save()
+		messages.add_message(request, messages.INFO, "Workshifter added.")
+		return HttpResponseRedirect(reverse("workshift:manage"))
+
+	return render_to_response("add_workshifter.html", {
+		"page_name": page_name,
+		"form": add_workshifter_form,
 	}, context_instance=RequestContext(request))
 
 @workshift_manager_required
