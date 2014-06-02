@@ -53,9 +53,9 @@
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-inbox"></span> Requests <b class="caret"></b></a>
 		<ul class="dropdown-menu">
 			{% for type_tuple in REQUEST_TYPES %}
-				<li><a href="{% url 'requests' requestType=type_tuple.0.url_name %}" ><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span>
-				{{ type_tuple.0.name }}
-				<span title="{{ type_tuple.1 }} open request{{ type_tuple.1|pluralize }}" class="badge pull-right">{% if type_tuple.1 > 0 %}{{ type_tuple.1 }}{% endif %}</span></a></li>
+				<li><a href="{% url 'requests' requestType=type_tuple.0.url_name %}" ><span title="{{ type_tuple.1 }} open request{{ type_tuple.1|pluralize }}" class="badge pull-right">{% if type_tuple.1 > 0 %}{{ type_tuple.1 }}{% endif %}</span>
+				<span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span>
+				{{ type_tuple.0.name }}</a></li>
 			{% endfor %}
 		</ul>
 	      </li>
@@ -93,8 +93,8 @@
 			<li class="dropdown-header">Users</li>
 		  <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
 		  <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
-		  <li><a href="{% url 'manage_profile_requests' %}"><span class="glyphicon glyphicon-inbox"></span> Profile Requests
-				<span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}" class="badge pull-right">{% if NUM_OF_PROFILE_REQUESTS > 0 %}{{ NUM_OF_PROFILE_REQUESTS }}{% endif %}</span></a></li>
+		  <li><a href="{% url 'manage_profile_requests' %}"><span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}" class="badge pull-right">{% if NUM_OF_PROFILE_REQUESTS > 0 %}{{ NUM_OF_PROFILE_REQUESTS }}{% endif %}</span>
+			<span class="glyphicon glyphicon-inbox"></span> Profile Requests</a></li>
 		  <li class="divider"></li>
 		  <li class="dropdown-header">President Duties</li>
 		  <li><a href="{% url 'meta_manager' %}"><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
