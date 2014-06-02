@@ -124,7 +124,7 @@ p {
 	<p>For quick links, please refer to the <a href="#contents">table of contents</a>.
 	</p>
 	{% endif %}
-	<p>This website is an instance of a project called "Farnsworth," planned and executed by
+	<p>This website is an instance of a project called Farnsworth, planned and executed by
 	<a title="Opens in new tab" target="_blank" href="https://www.github.com/knagra/"><span class="glyphicon glyphicon-new-window"></span> Karandeep Singh Nagra</a>
 	and <a title="Opens in new tab" target="_blank" href="https://www.github.com/naderm"><span class="glyphicon glyphicon-new-window"></span> Nader Morshed</a>.
 	It was originally developed to encourage the use of new technologies in the <a href="http://bsc.coop">Berkeley Student Cooperative</a>
@@ -805,8 +805,8 @@ p {
 		</h1>
 		<div id="events_body" class="toggleable">
 		<hr style="width: 75%;" />
-			<p>Events can be posted from the <a href="{% url 'events' %}">upcoming events</a> page or the
-			<a href="{% url 'all_events' %}">all events</a> page.
+			<p>Events can be posted from the <a href="{% url 'events:list' %}">upcoming events</a> page or the
+			<a href="{% url 'events:all' %}">all events</a> page.
 			All fields except the RSVP and Mark Cancelled checkboxes are required in this form.
 			By default, {{ HOUSE }} will set as the location of the event and the RSVP box will be checked.
 			</p>

@@ -54,7 +54,7 @@ def list_events_view(request):
 				if as_manager:
 					new_event.as_manager = as_manager
 				new_event.save()
-				return HttpResponseRedirect(reverse('events'))
+				return HttpResponseRedirect(reverse('events:list'))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['EVENT_ERROR'])
 	elif 'rsvp' in request.POST:
@@ -73,7 +73,7 @@ def list_events_view(request):
 					message = MESSAGES['RSVP_ADD'].format(event=relevant_event.title)
 					messages.add_message(request, messages.SUCCESS, message)
 				relevant_event.save()
-			return HttpResponseRedirect(reverse('events'))
+			return HttpResponseRedirect(reverse('events:list'))
 	elif request.method == "POST":
 		return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	upcoming_events = Event.objects.filter(end_time__gte=now)
@@ -125,7 +125,7 @@ def list_all_events_view(request):
 					if as_manager:
 						new_event.as_manager = as_manager
 					new_event.save()
-					return HttpResponseRedirect(reverse('all_events'))
+					return HttpResponseRedirect(reverse('events:all'))
 			else:
 				messages.add_message(request, messages.SUCCESS, MESSAGES['EVENT_ERROR'])
 		elif 'rsvp' in request.POST:
@@ -145,7 +145,7 @@ def list_all_events_view(request):
 						message = MESSAGES['RSVP_ADD'].format(event=relevant_event.title)
 						messages.add_message(request, messages.SUCCESS, message)
 					relevant_event.save()
-				return HttpResponseRedirect(reverse('all_events'))
+				return HttpResponseRedirect(reverse('events:all'))
 		else:
 			return red_home(request, MESSAGES['UNKNOWN_FORM'])
 	all_events = Event.objects.all()
@@ -190,7 +190,7 @@ def event_view(request, event_pk):
 				messages.add_message(request, messages.SUCCESS, message)
 			event.save()
 			return HttpResponseRedirect(
-				reverse('view_event', kwargs={"event_pk": event_pk}),
+				reverse('events:view', kwargs={"event_pk": event_pk}),
 				)
 	return render_to_response('view_event.html', {
 			'page_name': page_name,
@@ -210,7 +210,7 @@ def edit_event_view(request, event_pk):
 	event = get_object_or_404(Event, pk=event_pk)
 	if not ((event.owner == profile) or (request.user.is_superuser)):
 		return HttpResponseRedirect(
-            reverse('view_event', kwargs={"event_pk": event_pk}),
+            reverse('events:view', kwargs={"event_pk": event_pk}),
             )
 	manager_positions = Manager.objects.filter(incumbent=event.owner)
 	rsvpd = (profile in event.rsvps.all())
@@ -253,7 +253,7 @@ def edit_event_view(request, event_pk):
 			message = MESSAGES['EVENT_UPDATED'].format(event=title)
 			messages.add_message(request, messages.SUCCESS, message)
 			return HttpResponseRedirect(
-				reverse('view_event', kwargs={"event_pk": event_pk}),
+				reverse('events:view', kwargs={"event_pk": event_pk}),
 				)
 	return render_to_response('edit_event.html', {
 			'page_name': page_name,

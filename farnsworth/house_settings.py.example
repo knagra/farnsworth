@@ -1,0 +1,87 @@
+###
+### Rename to house_settings.py and fill in the relevant fields.
+###
+
+### Make this long, unique, and don't share it with anybody.
+###
+### You can generate a random key via:
+###
+### python -c "from django.utils.crypto import get_random_string ; print get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789\!@#\$%^&*(-_=+)')"
+
+SECRET_KEY = ''
+
+### The full house name (i.e. "Kingman Hall")
+
+HOUSE_NAME = ""
+
+### A shorter version of the house name, for display in navbar (i.e. "Kingman")
+
+SHORT_HOUSE_NAME = ""
+
+### Used for generating manager contacts for BSC email accounts (i.e. "kng")
+
+HOUSE_ABBREV = ""
+
+### Base site domain (i.e. "kingmanhall.org")
+### Required by Django when not in debug mode.
+
+# SITE_DOMAIN = ""
+
+### Password to PostgreSQL database. If unset, a SQLite database will be used instead.
+#
+### The username is expected to be SHORT_HOUSE_NAME.lower() + "_admin"
+### The user should have all privileges over the SHORT_HOUSE.lower() database.
+###
+### Both of these defaults can be overriden within local_settings.py
+###
+### Django also supports other database backends, including SQLite and MySQL
+
+# POSTGRES_PASSWORD = ""
+
+### Password to house network manager email account (i.e. "kngnm@bsc.coop")
+###
+### This is used to send out emails for account-related communications. If it is
+### left unset, no emails will be sent out.
+
+# NETWORK_MANAGER_PASSWORD = ""
+
+### Enable logins via OAuth from a few common providers (Google, Facebook, Github)
+
+# ENABLE_OAUTH = True
+
+### OAuth provider credentials, needed to enable logins with these providers.
+
+### Facebook
+### http://developers.facebook.com/docs/authentication/
+
+# SOCIAL_AUTH_FACEBOOK_KEY = ''
+# SOCIAL_AUTH_FACEBOOK_SECRET = ''
+
+### Github
+### http://psa.matiasaguirre.net/docs/backends/github.html#github
+
+# SOCIAL_AUTH_GITHUB_KEY = ''
+# SOCIAL_AUTH_GITHUB_SECRET = ''
+
+### http://psa.matiasaguirre.net/docs/backends/google.html#google-oauth2
+### https://console.developers.google.com/project
+### => Create Project
+###
+### - Give the project a name: i.e. "<house>"
+###
+### => Project -> APIs & auth -> Credentials
+###
+### - "Create New Client ID"
+###       AUTHORIZED JAVASCRIPT ORIGINS: https://www.example.com
+###       AUTHORIZED REDIRECT URI: https://www.example.com/complete/google-oauth2/
+###
+### - Copy "Client ID" and "Client secret"
+### - Set below: SOCIAL_AUTH_GOOGLE_OAUTH2_KEY="<Client ID>"
+### - Set below: SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET="<Client ID>"
+###
+### => Project -> APIs & auth -> APIs -> Google+ API
+###
+### - Enable this API
+
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''

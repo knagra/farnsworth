@@ -6,6 +6,7 @@ when you run "manage.py test".
 from datetime import datetime, timedelta
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
 
@@ -355,6 +356,41 @@ class TestRequestProfile(TestCase):
 			      response.content)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
+class TestUtilities(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+	def test_site_map(self):
+		response = self.client.get("/site_map/")
+		self.assertEqual(response.status_code, 200)
+
+		self.client.login(username="u", password="pwd")
+		response = self.client.get("/site_map/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		self.client.login(username="su", password="pwd")
+		response = self.client.get("/site_map/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+	def test_help_page(self):
+		response = self.client.get("/help/")
+		self.assertEqual(response.status_code, 200)
+
+		self.client.login(username="u", password="pwd")
+		response = self.client.get("/help/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		self.client.login(username="su", password="pwd")
+		response = self.client.get("/help/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
 class TestSocialRequest(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
@@ -392,6 +428,23 @@ class TestSocialRequest(TestCase):
 		self.assertRedirects(response, "/custom_admin/profile_requests/")
 		self.assertIn("User {0} was successfully added".format(self.pr.username),
 			      response.content)
+
+	def test_settings(self):
+		for lib in settings.SOCIAL_AUTH_PIPELINE:
+			module, func = lib.rsplit(".", 1)
+			self.assertNotEqual(None, __import__(module, fromlist=[func]))
+		self.assertIn("social.pipeline.social_auth.social_details",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.social_auth.social_uid",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.social_auth.auth_allowed",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.social_auth.social_user",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.user.get_username",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("base.pipeline.request_user",
+					  settings.SOCIAL_AUTH_PIPELINE)
 
 class TestProfileRequestAdmin(TestCase):
 	def setUp(self):
