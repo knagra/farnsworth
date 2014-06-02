@@ -265,3 +265,7 @@ def thread_view(request, thread_pk):
 			'page_name': "View Thread", 
 			'messages_list': messages_list,
 			}, context_instance=RequestContext(request))
+
+def house_map_view(request):
+	''' Show the house map to a visitor. '''
+	return render_to_response('house_map.html', {'page_name': "House Map"}, context_instance=RequestContext(request))
