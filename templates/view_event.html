@@ -36,7 +36,7 @@
 	<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">{{ event.owner|display_user:user }}</a>, {{ event.post_date }} (updated {{ event.change_date }}):
 	{% endif %}
   </div> <!-- .event_owner -->
-  <div class="event_body">
+  <div class="event_body" style="padding-left: 5px;">
 	<div class="text-center">
 	  <h3 class="event_header">{{ event.title }} <small>{{ event.start_time }} to {{ event.end_time }}</small></h3>
 	  {% if event.owner.user == user or user.is_superuser %}
