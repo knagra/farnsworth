@@ -12,7 +12,9 @@ from workshift.forms import *
 
 class TestStart(TestCase):
 	def setUp(self):
+		self.u = User.objects.create_user(username="u", password="pwd")
 		self.wu = User.objects.create_user(username="wu", password="pwd")
+
 		self.wu.first_name, self.wu.last_name = "Cooperative", "User"
 		self.wu.save()
 
@@ -25,6 +27,16 @@ class TestStart(TestCase):
 		self.wm.save()
 
 		self.assertTrue(self.client.login(username="wu", password="pwd"))
+
+	def test_before(self):
+		response = self.client.get("/workshift/", follow=True)
+		self.assertRedirects(response, "/workshift/start/")
+
+		self.client.logout()
+		self.assertTrue(self.client.login(username="u", password="pwd"))
+
+		response = self.client.get("/workshift/")
+		self.assertEqual(response.status_code, 404)
 
 	def test_start(self):
 		response = self.client.post("/workshift/start/", {
