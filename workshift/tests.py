@@ -224,7 +224,7 @@ class TestViews(TestCase):
 			response = self.client.get(prefix + url)
 			self.assertEqual(response.status_code, 200)
 
-	def test_type(self):
+	def test_type_list(self):
 		response = self.client.get("/workshift/types/")
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
@@ -232,6 +232,7 @@ class TestViews(TestCase):
 		self.assertNotIn(self.wtype.quick_tips, response.content)
 		self.assertNotIn(self.wtype.description, response.content)
 
+	def test_type(self):
 		response = self.client.get("/workshift/type/{0}/".format(self.wtype.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
@@ -239,6 +240,7 @@ class TestViews(TestCase):
 		self.assertIn(self.wtype.quick_tips, response.content)
 		self.assertIn(self.wtype.description, response.content)
 
+	def test_type_edit(self):
 		response = self.client.get("/workshift/type/{0}/edit/".format(self.wtype.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
@@ -255,6 +257,7 @@ class TestViews(TestCase):
 		self.assertIn(self.shift.workshift_type.description, response.content)
 		self.assertIn(self.shift.current_assignee.user.get_full_name(), response.content)
 
+	def test_edit_shift(self):
 		response = self.client.get("/workshift/shift/{0}/edit/".format(self.shift.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.shift.title, response.content)
@@ -278,6 +281,7 @@ class TestViews(TestCase):
 		self.assertIn(self.sle3.note, response.content)
 		self.assertIn(self.sle4.note, response.content)
 
+	def test_edit_instance(self):
 		response = self.client.get("/workshift/instance/{0}/edit/"
 								   .format(self.instance.pk))
 		self.assertEqual(response.status_code, 200)
@@ -301,6 +305,7 @@ class TestViews(TestCase):
 		self.assertIn(self.sle3.note, response.content)
 		self.assertIn(self.sle4.note, response.content)
 
+	def test_edit_one_time(self):
 		response = self.client.get("/workshift/instance/{0}/edit/".format(self.once.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.once.title, response.content)
