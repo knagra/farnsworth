@@ -38,6 +38,7 @@ def workshift_profile_required(function=None, redirect_no_user='login',
 				return HttpResponseRedirect(redirect_to)
 
 			_extract_semester(kwargs)
+			request["semester"] = kwargs["semester"]
 
 			try:
 				profile = WorkshiftProfile.objects.get(user=request.user,

@@ -24,6 +24,25 @@ from workshift.decorators import workshift_profile_required, \
 from workshift.models import *
 from workshift.forms import *
 
+def add_workshift_context(request):
+	""" Add workshift variables to all dictionaries passed to templates. """
+	WORKSHIFT_MANAGER = False # whether the user has workshift manager privileges
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except (UserProfile.DoesNotExist, TypeError):
+		pass
+	else:
+		for pos in Manager.objects.filter(incumbent=userProfile):
+			if pos.workshift_manager:
+				WORKSHIFT_MANAGER = True
+				break
+	current_semester = Semester.objects.get(current=True)
+	days_passed = (date.today() - 
+	return {'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
+		'days_passed': days_passed,
+		'upcoming_shifts': upcoming_shifts,
+		}
+
 @workshift_manager_required
 def start_semester_view(request):
 	"""
