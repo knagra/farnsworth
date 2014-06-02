@@ -11,21 +11,18 @@ from workshift.models import WorkshiftProfile, Semester
 from workshift.redirects import red_workshift
 
 def _extract_semester(kwargs):
-	if "sem_url" in kwargs:
+	if "sem_url" in kwargs and kwargs["sem_url"] is not None:
 		sem_url = kwargs.pop("sem_url")
-		if sem_url is not None:
-			if len(sem_url) < 3:
-				raise Http404
-			season = sem_url[:2] if sem_url else None
-			year = sem_url[2:] if sem_url else None
-			kwargs["semester"] = get_object_or_404(Semester, season=season, year=year)
-		else:
-			try:
-				kwargs["semester"] = Semester.objects.get(current=True)
-			except Semester.DoesNotExist:
-				return HttpResponseRedirect(reverse('workshift:start_semester'))
+		if len(sem_url) < 3:
+           raise Http404
+		season = sem_url[:2] if sem_url else None
+		year = sem_url[2:] if sem_url else None
+		kwargs["semester"] = get_object_or_404(Semester, season=season, year=year)
 	else:
-		kwargs["semester"] = get_object_or_404(Semester, current=True)
+		try:
+			kwargs["semester"] = Semester.objects.get(current=True)
+		except Semester.DoesNotExist:
+			return HttpResponseRedirect(reverse('workshift:start_semester'))
 
 def workshift_profile_required(function=None, redirect_no_user='login',
                                redirect_no_profile=red_home):
