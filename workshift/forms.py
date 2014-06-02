@@ -165,7 +165,7 @@ class VerifyShiftForm(InteractShiftForm):
 		instance = self.cleaned_data["pk"]
 		instance.verifier = self.profile
 		instance.closed = True
-		instance.log.add(entry)
+		instance.logs.add(entry)
 		instance.save()
 
 		pool_hours = instance.workshifter.pool_hours \
@@ -200,7 +200,7 @@ class BlownShiftForm(InteractShiftForm):
 		instance = self.cleaned_data["pk"]
 		instance.blown = True
 		instance.closed = True
-		instance.log.add(entry)
+		instance.logs.add(entry)
 		instance.save()
 
 		pool_hours = instance.workshifter.pool_hours \
@@ -230,7 +230,7 @@ class SignInForm(InteractShiftForm):
 
 		instance = self.cleaned_data["pk"]
 		instance.workshifter = self.profile
-		instance.log.add(entry)
+		instance.logs.add(entry)
 		instance.save()
 
 class SignOutForm(InteractShiftForm):
@@ -255,7 +255,7 @@ class SignOutForm(InteractShiftForm):
 
 		instance = self.cleaned_data["pk"]
 		instance.workshifter = None
-		instance.log.add(entry)
+		instance.logs.add(entry)
 		instance.save()
 
 class AddWorkshifterForm(forms.ModelForm):

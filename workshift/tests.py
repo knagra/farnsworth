@@ -117,6 +117,7 @@ class TestViews(TestCase):
 
 		self.shift = RegularWorkshift(
 			workshift_type=self.wtype,
+			current_assignee=self.wprofile,
 			pool=self.pool,
 			title="Test Regular Shift",
 			day=DAYS[0][0],
@@ -182,8 +183,8 @@ class TestViews(TestCase):
 		self.sle3.save()
 		self.sle4.save()
 
-		self.instance.shift_log = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
-		self.once.shift_log = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
+		self.instance.logs = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
+		self.once.logs = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
 
 		self.instance.save()
 		self.once.save()
@@ -262,8 +263,6 @@ class TestViews(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.shift.title, response.content)
 		self.assertIn(str(self.shift.hours), response.content)
-		self.assertIn(self.shift.workshift_type.quick_tips, response.content)
-		self.assertIn(self.shift.workshift_type.description, response.content)
 		self.assertIn(self.shift.current_assignee.user.get_full_name(), response.content)
 
 	def test_instance(self):
@@ -272,7 +271,7 @@ class TestViews(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.instance.weekly_workshift.title, response.content)
 		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
-		self.assertIn(self.instance.date, response.content)
+		self.assertIn(self.instance.date.strftime("%B%e, %Y"), response.content)
 		self.assertIn(self.instance.workshifter.user.get_full_name(), response.content)
 		self.assertIn(str(self.instance.hours), response.content)
 		self.assertIn(self.sle0.note, response.content)
@@ -287,7 +286,7 @@ class TestViews(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.instance.weekly_workshift.title, response.content)
 		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
-		self.assertIn(self.instance.date, response.content)
+		self.assertIn(str(self.instance.date), response.content)
 		self.assertIn(self.instance.workshifter.user.get_full_name(), response.content)
 		self.assertIn(str(self.instance.hours), response.content)
 
@@ -410,8 +409,8 @@ class TestInteractForms(TestCase):
 
 		self.sle0.save()
 
-		self.instance.shift_log = [self.sle0]
-		self.once.shift_log = [self.sle0]
+		self.instance.logs = [self.sle0]
+		self.once.logs = [self.sle0]
 
 		self.instance.save()
 		self.once.save()
@@ -422,7 +421,7 @@ class TestInteractForms(TestCase):
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.VERIFY)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
 
@@ -445,7 +444,7 @@ class TestInteractForms(TestCase):
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.VERIFY)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.op)
 
@@ -455,7 +454,7 @@ class TestInteractForms(TestCase):
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.BLOWN)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.BLOWN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.op)
 
@@ -480,7 +479,7 @@ class TestInteractForms(TestCase):
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.wp)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.BLOWN)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.BLOWN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.wp)
 
@@ -490,7 +489,7 @@ class TestInteractForms(TestCase):
 		form = SignInForm({"pk": self.once.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.once.log.filter(entry_type=ShiftLogEntry.SIGNIN)
+		log = self.once.logs.filter(entry_type=ShiftLogEntry.SIGNIN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
 
@@ -504,7 +503,7 @@ class TestInteractForms(TestCase):
 		form = SignOutForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
 		self.assertEqual(None, form.save())
-		log = self.instance.log.filter(entry_type=ShiftLogEntry.SIGNOUT)
+		log = self.instance.logs.filter(entry_type=ShiftLogEntry.SIGNOUT)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
 

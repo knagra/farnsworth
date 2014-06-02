@@ -10,5 +10,9 @@
 
 {% block content %}
 <div class="table_container">
+  <form method="post" action="edit_shift">
+	{{ csrf_token }}
+	{{ edit_form|bootstrap }}
+  </form>
 </div> <!-- .table_container -->
 {% endblock %}

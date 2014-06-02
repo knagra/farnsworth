@@ -429,8 +429,7 @@ class ShiftLogEntry(models.Model):
 		)
 
 	def __unicode__(self):
-		return "<{0}, {1}, {2}>".format(
-			self.instance,
+		return "<{0}, {1}>".format(
 			self.person,
 			self.entry_type,
 			)
@@ -523,7 +522,7 @@ class WorkshiftInstance(models.Model):
 		default=DEFAULT_WORKSHIFT_HOURS,
 		help_text="Number of hours actually given for this shift.",
 		)
-	log = models.ManyToManyField(
+	logs = models.ManyToManyField(
 		ShiftLogEntry,
 		null=True,
 		blank=True,
