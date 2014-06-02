@@ -35,7 +35,7 @@ def workshift_profile_required(function=None, redirect_no_user='login',
 				return HttpResponseRedirect(redirect_to)
 
 			_extract_semester(kwargs)
-			request["semester"] = kwargs["semester"]
+			request.semester = kwargs["semester"]
 
 			try:
 				profile = WorkshiftProfile.objects.get(user=request.user,
@@ -76,7 +76,10 @@ def workshift_manager_required(function=None, redirect_no_user='login',
 			  .filter(workshift_manager=True).count() > 0
 
 			if (not request.user.is_superuser) and (not workshift):
-				return redirect_profile(request, MESSAGES['ADMINS_ONLY'])
+				messages = MESSAGES['ADMINS_ONLY']
+				if Semester.objects.filter(current=True).count() == 0:
+					messages = "Workshift semester has not been created yet. " + messages
+				return redirect_profile(request, messages)
 
 			return view_func(request, *args, **kwargs)
 
@@ -91,6 +94,8 @@ def semester_required(function=None):
 	def real_decorator(view_func):
 		def wrap(request, *args, **kwargs):
 			_extract_semester(kwargs)
+			request.semester = kwargs["semester"]
+
 			return view_func(request, *args, **kwargs)
 
 		return wrap
