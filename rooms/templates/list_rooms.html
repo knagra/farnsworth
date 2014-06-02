@@ -13,7 +13,7 @@
 {% block content %}
 <div class="table_container">
   <div class="header">{% if can_add %}
-	<form action="{% url 'add_room' %}" class="header_form">
+	<form action="{% url 'rooms:add' %}" class="header_form">
 	  <button class="btn btn btn-primary"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Room</span></button>
 	</form>
 	{% endif %}
@@ -35,7 +35,7 @@
       <tbody>
 		{% for room in room_tuples %}
 		<tr>
-		  <td><a title="View Room" href="{% url 'view_room' room_title=room.0.title %}">{{ room.0.title }}</a></td>
+		  <td><a title="View Room" href="{% url 'rooms:view' room_title=room.0.title %}">{{ room.0.title }}</a></td>
 		  <td>{{ room.0.unofficial_name }}</td>
 		  <td>{{ room.0.occupancy }}</td>
 		  <td>
