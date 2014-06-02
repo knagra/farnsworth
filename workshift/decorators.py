@@ -81,7 +81,7 @@ def workshift_manager_required(function=None, redirect_no_user='login',
 				messages = MESSAGES['ADMINS_ONLY']
 				if Semester.objects.filter(current=True).count() == 0:
 					messages = "Workshift semester has not been created yet. " + messages
-					redirect_profile = red_home
+					return red_home(request, messages)
 				return redirect_profile(request, messages)
 
 			return view_func(request, *args, **kwargs)
