@@ -61,10 +61,8 @@
 			{{ event_tuple.0.description|safe }}
 			<hr style="width: 75%;" />
 			{% if event_tuple.0.rsvps.all %}
-				RSVPs: {% for member in event_tuple.0.rsvps.all %}
-					{% if forloop.counter > 1 %}, {% endif %}
-					<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>
-					{% endfor %}
+				RSVPs: {% for member in event_tuple.0.rsvps.all %}{% if forloop.counter > 1 %},
+					{% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
 			{% else %}
 				No RSVPs.
 			{% endif %}
