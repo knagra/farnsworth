@@ -19,12 +19,6 @@ label {
 	border-bottom: 1px solid #eee;
 }
 
-.add_request {
-    float: right;
-    margin-top: 3px;
-    margin-right: 3px;
-}
-
 .new_response_form {
     display: none;
 }

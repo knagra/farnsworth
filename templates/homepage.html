@@ -290,10 +290,8 @@ function hide_form(form_id) {
 			{{ tuple.0.description|safe }}
 			<hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;" />
 			{% if tuple.0.rsvps.all %}
-				RSVPs: {% for member in tuple.0.rsvps.all %}
-					{% if forloop.counter > 1 %}, {% endif %}
-					<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>
-					{% endfor %}
+				RSVPs: {% for member in tuple.0.rsvps.all %}{% if forloop.counter > 1 %},
+				{% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
 			{% else %}
 				No RSVPs.
 			{% endif %}

@@ -36,7 +36,7 @@
   {% with request_form_id="request_form_"|add:x %}
   <div class="header">
 	{% if type_tuple.0.enabled %}
-    <button class="btn btn-primary add_request" onclick="show_new_request_form('{{ request_form_id }}')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
+    <button class="btn btn-primary header_button" onclick="show_new_request_form('{{ request_form_id }}')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
     {% endif %}
     <h3 class="table_title {% if type_tuple.0.name|longer_than:'123456789012' %}large{% elif type_tuple.0.name|longer_than:'123456' %}medium{% else %}small{% endif %}_title">My {{ type_tuple.0.name }} Requests</h3>
   </div> <!-- header -->
