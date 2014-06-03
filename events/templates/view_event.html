@@ -38,7 +38,9 @@
   </div> <!-- .event_owner -->
   <div class="event_body" style="padding-left: 5px;">
 	<div class="text-center">
-	  <h3 class="event_header">{{ event.title }} <small>{{ event.start_time }} to {{ event.end_time }}</small></h3>
+	  <h3 class="event_header">{{ event.title }}
+	  <br />
+	  <small>{{ event.start_time }} to {{ event.end_time }}</small></h3>
 	  {% if event.owner.user == user or user.is_superuser %}
 	  {% endif %}
 	  <hr style="width: 75%;">
