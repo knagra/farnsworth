@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="col-sm-8{% if not oauth_providers %} col-sm-offset-2 {% endif %}">
+    {% if ANONYMOUS_SESSION %}
+    <div class="alert alert-info">Don't have an account?  <a href="{% url 'request_profile' %}">Click to request an account</a>.</div>
+    {% endif %}
+    <div id="login_form" class="table_container">
+      <div class="header"><h3 class="table_title">Login</h3></div>
+      <div class="main_table">
+	<form method="post" action="">
+	  {% csrf_token %}
+	  <div class="form-group">
+	    {{ form|bootstrap }}
+	    <div class="text-center">
+	      <button type="submit" class="btn btn-lg btn-success" style="min-width: 50%;"><span class="glyphicon glyphicon-lock"></span>Enter</button>
+	    </div> <!-- .text-center -->
+	  </div> <!-- .form-group -->
+	</form>
+      </div> <!-- .main_table -->
+    </div> <!-- #login_form -->
+  </div> <!-- .col-sm-8 -->
+  {% if oauth_providers %}
+  <br class="visible-xs" />
+  <div class="col-sm-4">
+    <div class="table_container">
+      <div class="header"><h3 class="table_title">OAuth Login</h3></div>
+      {% for provider in oauth_providers %}
+      <a class="list-group-item" {% if forloop.first or forloop.last %}style="border-radius: 0;" {% endif %}title="{{ provider.1 }}" href="{% url 'social:begin' provider.0 %}?next={{ redirect_to }}"><img height="30" width="30" src="{% static 'ui/images/oauth/' %}{{ provider.2 }}"> {{ provider.1 }}</a>
+      {% endfor %}
+    </div> <!-- .table_container -->
+  </div> <!-- .col-sm-4 -->
+  {% endif %}
+</div> <!-- .container -->
+{% endblock %}

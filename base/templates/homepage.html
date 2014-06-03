@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+{% load thread_tags %}
+{% load request_tags %}
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/homepage.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+<script>
+function show_new_response_form(response_form_id, button_id) {
+	document.getElementById(response_form_id).style.display="inline";
+	document.getElementById(button_id).style.display="none";
+}
+function hide_new_response_form(response_form_id, button_id) {
+	document.getElementById(response_form_id).style.display="none";
+	document.getElementById(button_id).style.display="inline";
+}
+function show_form(form_id) {
+	document.getElementById(form_id).style.display="inline";
+}
+function hide_form(form_id) {
+	document.getElementById(form_id).style.display="none";
+}
+</script>
+{% endblock %}
+{% block content %}
+{% if requests_dict %}
+{% for type_tuple in requests_dict %}
+{% if type_tuple.1 %}
+<div class="row" style="margin-bottom: 10px;">
+<div class="col-lg-12">
+<div class="requests table_container">
+	<div class="header">
+		<form style="display: inline-block; position: relative; top: -3px; float: right; margin-right: 3px;" action="{% url 'requests' requestType=type_tuple.0.url_name %}">
+			<button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> Requests Page</span></button>
+		</form>
+		<h3 class="table_title{% if type_tuple.0.name|longer_than:'1234567890123456789012' %} large_title{% elif type_tuple.0.name|longer_than:'123456789012345' %} medium_title{% elif type_tuple.0.name|longer_than:'1234567' %} small_title{% endif %}">
+			{{ type_tuple.0.name }} Requests
+		</h3>
+	</div>
+	<div class="main_table">
+    <div class="field_wrapper text-info">You hold a manager position responsible for addressing these requests.</div>
+	{% for request_tuple in type_tuple.1 %}
+	{% if forloop.counter > 1 %}
+	<hr style="margin-top: 3px; margin-bottom: 3px;"/>
+	{% endif %}
+	<div class="request_row">
+	<div class="request_name bg-warning" title="Open">
+		<div class="request_owner">
+		  {% if not request_tuple.0.owner.user = user and user.username != ANONYMOUS_USERNAME %}
+		  <form style="display:inline" method="POST" action="">
+			{% csrf_token %}
+			{{ request_tuple.4 }}
+			{% if request_tuple.3 %}
+			<button type="submit" class="btn btn-xs" name="upvote" title="Remove Star">
+			  <span class="glyphicon glyphicon-star"></span>
+			</button>
+			{% else %}
+			<button type="submit" class="btn btn-xs" name="upvote" title="Star">
+			  <span class="glyphicon glyphicon-star-empty"></span>
+			</button>
+			{% endif %}
+		  </form>
+		  {% endif %}
+		{% with vote_count_request=request_tuple.0 %}
+		{% include "vote_list.html" %}
+		{% endwith %}
+		</div> <!-- .request_owner -->
+		<div class="request_body">{{ request_tuple.0.body|safe }}
+			{% if not request_tuple.0.owner.user = user %}
+			<form class="pull-right" method="POST" action="">
+				{% csrf_token %}
+				{{ request_tuple.4 }}
+			</form>
+			{% endif %}
+		</div>
+	</div> <!-- .request_name -->
+	<div class="request_responses">
+		<div class="response_table">
+			{% for response in request_tuple.1 %}
+			{% if forloop.counter > 1 %}
+			<hr class="main_divider" />
+			{% endif %}
+			<div class="response_row hover_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
+				<div class="response_owner">
+					<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=response.owner.user.username %}">{{ response.owner|display_user:user }}</a> ({{ response.post_date }}):
+				</div> <!-- .response_owner -->
+				<div class="response_body">
+					{{ response.body|safe }}
+				</div> <!-- response_body -->
+			</div> <!-- .response_row -->
+			{% endfor %}
+			{% with y=forloop.counter|stringformat:"s" %}
+			{% with response_form_id="response_form_"|add:y %}
+			{% with button_id="button_"|add:y %}
+			<div class="text-center">
+			<button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
+			</div> <!-- .text-center -->
+			<form class="new_response_form" id="{{ response_form_id }}" method="post" action="">
+				{% csrf_token %}
+				{{ request_tuple.2.request_pk }}
+				<div class="form-group">
+					<label for="id_response_body">Add Response</label>
+					<textarea class="response" name="body"></textarea>
+				</div> <!-- .form-group -->
+				<hr class="main_divider" style="width: 75%;" />
+				<div class="col-sm-6">
+					<div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
+				</div>
+				<div class="col-sm-6">
+					<div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
+				</div>
+				<div class="text-center">
+				<div class="btn-group">
+					<button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-send"></span> Add Response</button>
+					<button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+				</div> <!-- .btn-group -->
+				</div> <!-- .text-center -->
+			</form>
+			{% endwith %}
+			{% endwith %}
+			{% endwith %}
+		</div> <!-- .response_table -->
+	</div> <!-- .request_responses -->
+	</div> <!-- .requests_row -->
+	{% endfor %}
+	</div> <!-- .requests_table -->
+</div> <!-- .requests -->
+</div> <!-- .col-md-12 -->
+</div> <!-- .row -->
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<div class="row">
+<div class="col-md-12">
+<div class="announcements table_container">
+	<div class="header">
+		{% if announcement_form %}
+		<button class="btn btn-primary header_button" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+		{% endif %}
+		<h3 class="table_title small_title">
+			Recent Announcements
+		</h3>
+	</div>
+	<div class="main_table">
+		{% if announcement_form %}
+		<form id="new_announcement_form" class="main_form" method="post" action="">
+			{% csrf_token %}
+			<div class="form-group">
+				<label class="control-label" for="id_as_manager">As Manager</label>
+				{{ announcement_form.as_manager }}
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="id_announcement_body">Body</label>
+				<textarea id="id_announcement_body" name="body"></textarea>
+			</div>
+			<div class="text-center">
+			<div class="btn-group">
+				<button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
+				<button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_form('new_announcement_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+			</div> <!-- .btn-group -->
+			</div> <!-- .text-center -->
+		</form>
+		{% endif %}
+		{% if not announcements_dict %}
+			<div class="field_wrapper">No recent announcements.</div>
+		{% else %}
+		{% for tuple in announcements_dict %}
+			{% if forloop.counter > 1 %}
+				<hr class="main_divider" />
+			{% endif %}
+			<div class="main_row hover_row">
+			<div class="announcement_owner">
+				<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
+				(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">{{ tuple.0.incumbent|display_user:user }}</a>),
+				{{ tuple.0.post_date }}:
+			</div> <!-- .announcement_owner -->
+			<div class="announcement_body">{{ tuple.0.body|safe }}
+				{% if tuple.1 %}
+					<form class="pull-right" method="post" action="">
+						{% csrf_token %}
+						{{ tuple.1 }}
+						<button type="submit" class="main_link warning_link" name="unpin" title="Unpin this announcement">Unpin</button>
+					</form>
+					<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=tuple.0.pk %}">
+						<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
+					</form>
+				{% endif %}
+			</div>
+			</div> <!-- .announcement_row -->
+		{% endfor %}
+		{% endif %}
+	</div>
+</div> <!-- .announcements -->
+</div> <!-- .col-md-12 -->
+</div> <!-- .row -->
+
+<div class="row">
+<div class="col-lg-7" style="margin-top: 10px;">
+<div class="threads table_container">
+	<div class="header">
+		<button class="btn btn-primary header_button" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
+		<h3 class="table_title">
+			Recent Threads
+		</h3>
+	</div> <!-- .header -->
+	<div class="main_table">
+	<form id="new_thread_form" method="post" action="">
+		{% csrf_token %}
+		<div class="form-group">
+			{{ thread_form|bootstrap }}
+			<div class="text-center">
+			<div class="btn-group">
+				<button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Start Thread</button>
+				<button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_form('new_thread_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+			</div> <!-- .btn-group -->
+			</div> <!-- .text-center -->
+		</div>
+	</form>
+  {% if not threads %}
+  <div class="field_wrapper">No threads found in database.</div>
+  {% else %}
+  <table class="table table-striped table-bordered table-condensed table-hover" id="threads_table">
+    <thead>
+      <tr>
+	<th>Subject</th>
+	<th>Thread Owner</th>
+	<th>Replies</th>
+	<th>Posted</th>
+	<th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for thread in threads %}
+      <tr>
+	<td><a title="View Thread" class="page_link" href="{% url 'view_thread' thread_pk=thread.pk %}">{{ thread.subject|truncatechars:60 }}</a></td>
+	<td><a class="page_link" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">{{ thread.owner.user.get_full_name }}</a></td>
+	<td>{{ thread.number_of_messages|add:"-1" }}</td>
+	<td>{{ thread.start_date|date:"m/d/Y, h:i A" }}</td>
+	<td>{{ thread.change_date|date:"m/d/Y, h:i A" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  </div> <!-- .main_table -->
+</div> <!-- .threads -->
+</div> <!-- .col-lg-7 -->
+
+<div class="col-lg-5" style="margin-top: 10px;">
+<div class="table_container events">
+	<div class="header">
+		<form action="{% url 'events:list' %}">
+		<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-calendar"></span><span class="hidden-xs"> Events Page</span></button>
+		</form>
+		<h3 class="table_title">
+			Today's Events
+		</h3>
+	</div> <!-- .header -->
+	<div class="main_table">
+	{% if not events_dict %}
+	<div class="field_wrapper">
+		No events in next 24 hours.
+	</div>
+	{% else %}
+	{% for tuple in events_dict %}
+	{% if forloop.counter > 1 %}
+	<hr class="main_divider">
+	{% endif %}
+	<div class="main_row hover_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Hapenning Now{% endif %}">
+		<div class="main_owner">
+		{% if tuple.0.as_manager %}
+			<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.as_manager.url_title %}">{{ tuple.0.as_manager }}</a>
+			(<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">
+				{{ tuple.0.owner|display_user:user }}</a>)
+		{% else %}
+			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>:
+		{% endif %}
+		</div> <!-- .main_owner -->
+		<div class="event_body">
+			<div class="text-center">
+				<h4 class="event_header">{{ tuple.0.title }}
+				<br />
+				<small>{{ tuple.0.start_time }} to {{ tuple.0.end_time }}</small></h4>
+				<hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;">
+			</div> <!-- .text-center -->
+			{{ tuple.0.description|safe }}
+			<hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;" />
+			{% if tuple.0.rsvps.all %}
+				RSVPs: {% for member in tuple.0.rsvps.all %}{% if forloop.counter > 1 %},
+				{% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
+			{% else %}
+				No RSVPs.
+			{% endif %}
+			{% if user.username != ANONYMOUS_USERNAME %}
+			<form class="pull-right" method="post" action="">
+				{% csrf_token %}
+					{{ tuple.3 }}
+					{% if tuple.2 %}
+						<button type="submit" class="main_link warning_link" name="rsvp" title="Un-RSVP to this event">Un-RSVP</button>
+					{% else %}
+						<button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
+					{% endif %}
+			</form>
+			{% endif %}
+			{% if tuple.0.owner.user == user or user.is_superuser %}
+				<form class="pull-right" action="{% url 'events:edit' event_pk=tuple.0.pk %}">
+					<button class="main_link primary_link" title="Edit this event">Edit</button>
+				</form>
+			{% endif %}
+		</div> <!-- .event_body -->
+	</div> <!-- .main_row -->
+	{% endfor %}
+	{% endif %}
+	</div> <!-- .main_table -->
+</div> <!-- .events -->
+</div> <!-- .col-lg-5 -->
+</div> <!-- .row -->
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$.tablesorter.addParser({
+	id: 'farnsworth_datetime',
+	is: function(s) {
+		return /d{1,2}\/d{1,2}\/d{1,4} d{1,2}:d{1,2} s(AM|PM)/.test(s);
+	},
+	format: function(s) {
+		return Date.parse(s);
+	},
+	type: 'numeric'
+});
+
+$(document).ready(function() {
+	$('table').tablesorter({
+		headers: {
+			3: {
+				sorter: 'farnsworth_datetime'
+			},
+			4: {
+				sorter: 'farnsworth_datetime'
+			}
+		},
+		sortList: [[4,1], [3,1]]
+	});
+});
+</script>
+{% endblock %}
