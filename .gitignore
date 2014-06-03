@@ -5,6 +5,7 @@
 .#*
 migrations/
 static/admin/
+static/ui/css/
 *.swp
 *.tmp
 .svn/
