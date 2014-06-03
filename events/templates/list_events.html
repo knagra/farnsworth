@@ -55,16 +55,16 @@
 		</div> <!-- .event_owner -->
 		<div class="event_body">
 			<div class="text-center">
-				<h3 class="event_header">{{ event_tuple.0.title }} <small>{{ event_tuple.0.start_time }} to {{ event_tuple.0.end_time }}</small></h3>
+				<h3 class="event_header">{{ event_tuple.0.title }}
+				<br />
+				<small>{{ event_tuple.0.start_time }} to {{ event_tuple.0.end_time }}</small></h3>
 				<hr style="width: 75%;">
 			</div>
 			{{ event_tuple.0.description|safe }}
 			<hr style="width: 75%;" />
 			{% if event_tuple.0.rsvps.all %}
-				RSVPs: {% for member in event_tuple.0.rsvps.all %}
-					{% if forloop.counter > 1 %}, {% endif %}
-					<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>
-					{% endfor %}
+				RSVPs: {% for member in event_tuple.0.rsvps.all %}{% if forloop.counter > 1 %},
+					{% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
 			{% else %}
 				No RSVPs.
 			{% endif %}
