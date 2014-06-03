@@ -38,7 +38,9 @@
   </div> <!-- .event_owner -->
   <div class="event_body" style="padding-left: 5px;">
 	<div class="text-center">
-	  <h3 class="event_header">{{ event.title }} <small>{{ event.start_time }} to {{ event.end_time }}</small></h3>
+	  <h3 class="event_header">{{ event.title }}
+	  <br />
+	  <small>{{ event.start_time }} to {{ event.end_time }}</small></h3>
 	  {% if event.owner.user == user or user.is_superuser %}
 	  {% endif %}
 	  <hr style="width: 75%;">
@@ -46,10 +48,8 @@
 	{{ event.description|safe }}
 	  <hr style="width: 75%;" />
 	  {% if event.rsvps.all %}
-	  RSVPs: {% for member in event.rsvps.all %}
-	  {% if forloop.counter > 1 %}, {% endif %}
-	  <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>
-	  {% endfor %}
+	  RSVPs: {% for member in event.rsvps.all %}{% if forloop.counter > 1 %},
+	  {% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
 	  {% else %}
 	  No RSVPs.
 	  {% endif %}

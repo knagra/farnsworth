@@ -25,29 +25,32 @@
 			</h3>
 		</div> <!-- .header -->
 		<div class="main_table">
-		{% if message %}
-			<div class="field_wrapper text-warning">{{ message }}</div>
-		{% else %}
-			<table id="profile_table">
-			<tbody>
-				<tr><th>Name:</th><td class="field">{{ targetUser.first_name }} {{ targetUser.last_name }}</td></tr>
-				<tr><th>Status:</th><td class="field">{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ targetProfile.get_status_display }}{% endif %}</td></tr>
+			<dl id="profile_table" class="dl-horizontal">
+				<dt>Name</dt>
+					<dd>{{ targetUser.get_full_name }}</dd>
+				<dt>Status</dt>
+					<dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ targetProfile.get_status_display }}{% endif %}</dd>
 				{% if not targetUser.username == ANONYMOUS_USERNAME %}
-				<tr><th>Current Room:</th><td class="field">{{ targetProfile.current_room }}</td></tr>
-				<tr><th>Former Rooms:</th><td class="field">{{ targetProfile.former_rooms }}</td></tr>
-				<tr><th>Other Houses:</th><td class="field">{{ targetProfile.former_houses }}</td></tr>
+				<dt>Current Room</dt>
+					<dd>{% if targetProfile.current_room %}{{ targetProfile.current_room }}{% else %}&nbsp;{% endif %}</dd>
+				<dt>Former Rooms</dt>
+					<dd>{% if targetProfile.former_rooms %}{{ targetProfile.former_rooms }}{% else %}&nbsp;{% endif %}</dd>
+				<dt>Other Houses</dt>
+					<dd>{% if targetProfile.former_houses %}{{ targetProfile.former_houses }}{% else %}&nbsp;{% endif %}</dd>
 				{% if targetProfile.email_visible %}
-					<tr><th>E-mail:</th><td class="field"><a class="page_link" title="Write E-mail" href="mailto:{{ targetUser.email }}">{{ targetUser.email }}</a></td></tr>
+					<dt>E-mail</dt>
+						<dd><a class="page_link" title="Write E-mail" href="mailto:{{ targetUser.email }}">{{ targetUser.email }}</a></dd>
 				{% endif %}
 				{% if targetProfile.phone_visible %}
-					<tr><th>Phone:</th><td class="field">{{ targetProfile.phone_number }}</td></tr>
+					<dt>Phone</dt>
+						<dd>{{ targetProfile.phone_number }}</dd>
 				{% endif %}
-				<tr><th>Threads Started:</th><td class="field">{% if number_of_threads > 0 %}<a class="page_link" title="See Threads" href="{% url 'list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a>{% else %}{{ number_of_threads }}{% endif %}</td></tr>
-				<tr><th>Requests Posted:</th><td class="field">{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}</a></td></tr>
+				<dt>Threads Started</dt>
+					<dd>{% if number_of_threads > 0 %}<a class="page_link" title="See Threads" href="{% url 'list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a>{% else %}{{ number_of_threads }}{% endif %}</dd>
+				<dt>Requests Posted</dt>
+					<dd>{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}</a></dd>
 				{% endif %}
-			</tbody>
-			</table>
-		{% endif %}
+			</dl>
 		<hr>
 		<div class="text-center">
 			<form action="{% url 'member_directory' %}">
