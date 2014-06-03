@@ -4,6 +4,7 @@
 *~
 .#*
 migrations/
+static/admin/
 *.swp
 *.tmp
 .svn/
