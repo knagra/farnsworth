@@ -300,13 +300,8 @@ function hide_form(form_id) {
 				No RSVPs.
 			{% endif %}
 			<div class="pull-right">
-			{% if tuple.0.owner.user == user or user.is_superuser %}
-				<form action="{% url 'events:edit' event_pk=tuple.0.pk %}">
-					<button class="main_link primary_link" title="Edit this event">Edit</button>
-				</form>
-			{% endif %}
 			{% if user.username != ANONYMOUS_USERNAME %}
-			<form method="post" action="">
+			<form class="pull-right" method="post" action="">
 				{% csrf_token %}
 					{{ tuple.3 }}
 					{% if tuple.2 %}
@@ -315,6 +310,11 @@ function hide_form(form_id) {
 						<button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
 					{% endif %}
 			</form>
+			{% endif %}
+			{% if tuple.0.owner.user == user or user.is_superuser %}
+				<form class="pull-right" action="{% url 'events:edit' event_pk=tuple.0.pk %}">
+					<button class="main_link primary_link" title="Edit this event">Edit</button>
+				</form>
 			{% endif %}
 			</div> <!-- .pull-right -->
 		</div> <!-- .event_body -->
