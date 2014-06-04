@@ -40,6 +40,8 @@
 	<div class="text-center">
 	  <h3 class="event_header">{{ event.title }}
 	  <br />
+	  <small>{{ event.location }}</small>
+	  <br />
 	  <small>{{ event.start_time }} to {{ event.end_time }}</small></h3>
 	  {% if event.owner.user == user or user.is_superuser %}
 	  {% endif %}
