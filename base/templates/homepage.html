@@ -276,8 +276,7 @@ function hide_form(form_id) {
 		<div class="main_owner">
 		{% if tuple.0.as_manager %}
 			<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.as_manager.url_title %}">{{ tuple.0.as_manager }}</a>
-			(<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">
-				{{ tuple.0.owner|display_user:user }}</a>)
+			(<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>):
 		{% else %}
 			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>:
 		{% endif %}
