@@ -56,13 +56,8 @@
 	  No RSVPs.
 	  {% endif %}
 	<div class="pull-right">
-	{% if event.owner.user == user or user.is_superuser %}
-	<form action="{% url 'events:edit' event_pk=event.pk %}">
-		<button type="submit" class="main_link primary_link" title="Edit this event">Edit</button>
-	</form>
-	{% endif %}
 	{% if user.username != ANONYMOUS_USERNAME %}
-	<form method="post" action="">
+	<form class="pull-right" method="post" action="">
 	  {% csrf_token %}
 	  {{ rsvp_form }}
 	  {% if not already_passed %}
@@ -72,6 +67,11 @@
 			<button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
 		{% endif %}
 	  {% endif %}
+	</form>
+	{% endif %}
+	{% if event.owner.user == user or user.is_superuser %}
+	<form class="pull-right" action="{% url 'events:edit' event_pk=event.pk %}">
+		<button type="submit" class="main_link primary_link" title="Edit this event">Edit</button>
 	</form>
 	{% endif %}
 	</div> <!-- .pull-right -->
