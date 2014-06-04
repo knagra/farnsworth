@@ -39,6 +39,7 @@ urlpatterns += patterns('base.views',
 	url(r'^custom_admin/modify_user/(?P<targetUsername>\w+)/$', 'custom_modify_user_view', name='custom_modify_user'),
 	url(r'^custom_admin/add_user/$', 'custom_add_user_view', name='custom_add_user'),
 	url(r'^custom_admin/utilities/$', 'utilities_view', name='utilities'),
+	url(r'^bylaws/$', 'bylaws_view', name='bylaws'),
 )
 
 urlpatterns += patterns('threads.views',
