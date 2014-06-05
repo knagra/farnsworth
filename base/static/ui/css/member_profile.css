@@ -18,31 +18,11 @@ Author: Karandeep Singh Nagra
 }
 
 #profile_table {
+	font-size: 15px;
 	position: relative;
-	padding-left: 10px;
 	padding-top: 10px;
-	padding-bottom: 20px;
-}
-
-#profile_table tr th {
-	padding-right: 15px;
-	padding-left: 10px;
-	vertical-align: middle;
-	position: relative;
-	padding-top: 5px;
-	font-size: 15pt;
-	font-weight: 300;
-}
-
-#profile_table tr td {
-	padding-top: 5px;
-	font-size: 13pt;
-}
-
-.field_wrapper {
-	padding-top: 10px;
-	padding-bottom: 10px;
-	text-align: center;
+	padding-right: 5px;
+	padding-left: 5px;
 }
 
 #member_directory {
