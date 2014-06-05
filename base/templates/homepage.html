@@ -272,12 +272,11 @@ function hide_form(form_id) {
 	{% if forloop.counter > 1 %}
 	<hr class="main_divider">
 	{% endif %}
-	<div class="main_row hover_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Hapenning Now{% endif %}">
+	<div class="main_row hover_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Happening Now{% elif tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
 		<div class="main_owner">
 		{% if tuple.0.as_manager %}
 			<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.as_manager.url_title %}">{{ tuple.0.as_manager }}</a>
-			(<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">
-				{{ tuple.0.owner|display_user:user }}</a>)
+			(<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>):
 		{% else %}
 			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>:
 		{% endif %}
@@ -299,6 +298,7 @@ function hide_form(form_id) {
 			{% else %}
 				No RSVPs.
 			{% endif %}
+			<div class="pull-right">
 			{% if user.username != ANONYMOUS_USERNAME %}
 			<form class="pull-right" method="post" action="">
 				{% csrf_token %}
@@ -315,6 +315,7 @@ function hide_form(form_id) {
 					<button class="main_link primary_link" title="Edit this event">Edit</button>
 				</form>
 			{% endif %}
+			</div> <!-- .pull-right -->
 		</div> <!-- .event_body -->
 	</div> <!-- .main_row -->
 	{% endfor %}

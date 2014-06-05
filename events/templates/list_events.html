@@ -44,7 +44,7 @@
 		{% if forloop.counter > 1 %}
 		<hr class="main_divider"/>
 		{% endif %}
-		<div class="event_row hover_row{% if event_tuple.0.cancelled %} bg-danger" title="Cancelled{% elif event_tuple.1 %} bg-success" title="Happening Now{% endif %}">
+		<div class="event_row hover_row{% if event_tuple.0.cancelled %} bg-danger" title="Cancelled{% elif event_tuple.1 %} bg-success" title="Happening Now{% elif event_tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
 		<div class="event_owner">
 		{% if event_tuple.0.as_manager %}
 			<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=event_tuple.0.as_manager.url_title %}">{{ event_tuple.0.as_manager }}</a>
@@ -70,6 +70,7 @@
 			{% else %}
 				No RSVPs.
 			{% endif %}
+			<div class="pull-right">
 			{% if user.username != ANONYMOUS_USERNAME %}
 			<form class="pull-right" method="post" action="">
 				{% csrf_token %}
@@ -88,6 +89,7 @@
 					<button class="main_link primary_link" title="Edit this event">Edit</button>
 				</form>
 			{% endif %}
+			</div> <!-- .pull-right -->
 		</div> <!-- .event_body -->
 		</div> <!-- .event_row -->
 	{% endfor %}
