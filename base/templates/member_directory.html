@@ -103,6 +103,7 @@
 <div class="text-center" style="margin-top: 10px;">
 	{{ residents.count }} resident{{ residents|pluralize }}, {{ boarders.count }} boarder{{ boarders|pluralize }},
 	and {{ alumni.count }} alumn{{ alumni|pluralize:"a/alumnus,i" }} in database.
+	{{ residents.count + boarders.count + alumni.count }} total.
 </div>
 {% endblock %}
 
