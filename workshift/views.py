@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -262,6 +263,25 @@ def preferences_view(request, semester, profile, pk):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(reverse('workshift:view_semester'))
+
+	type_forms = []
+	for wtype in WorkshiftType.objects.filter(rateable=True):
+		type_forms.append(
+			WorkshiftRatingForm(
+				request.POST or None,
+				workshift_type=wtype,
+			))
+
+	TimeBlockFormSet = modelformset_factory(TimeBlock)
+	formset = TimeBlockFormSet(
+		request.POST or None,
+		queryset=profile.time_blocks.all(),
+		)
+
+	if all(form.is_valid() for form in type_forms) and formset.is_valid():
+		for form in type_forms:
+			form.save()
+		formset.save()
 
 	page_name = "{0}'s Workshift Preferences".format(
 		wprofile.user.get_full_name())
