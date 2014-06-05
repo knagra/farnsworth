@@ -56,6 +56,9 @@
   {% endif %}
   </div> <!-- .main_table -->
 </div>
+<div class="text-center text-info" style="margin-top: 10px;">
+	Showing {{ threads.count }} thread{{ threads|pluralize }}.
+</div>
 {% endblock %}
 
 {% block endscripts %}
