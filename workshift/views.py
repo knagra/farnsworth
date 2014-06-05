@@ -273,21 +273,23 @@ def preferences_view(request, semester, profile, pk):
 			))
 
 	TimeBlockFormSet = modelformset_factory(TimeBlock)
-	formset = TimeBlockFormSet(
+	time_formset = TimeBlockFormSet(
 		request.POST or None,
-		queryset=profile.time_blocks.all(),
+		queryset=wprofile.time_blocks.all(),
 		)
 
-	if all(form.is_valid() for form in type_forms) and formset.is_valid():
+	if all(form.is_valid() for form in type_forms) and time_formset.is_valid():
 		for form in type_forms:
 			form.save()
-		formset.save()
+		time_formset.save()
 
 	page_name = "{0}'s Workshift Preferences".format(
 		wprofile.user.get_full_name())
 	return render_to_response("preferences.html", {
 		"page_name": page_name,
 		"profile": profile,
+		"type_forms": type_forms,
+		"time_formset": time_formset,
 	}, context_instance=RequestContext(request))
 
 @workshift_profile_required
