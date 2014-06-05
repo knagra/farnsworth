@@ -101,8 +101,8 @@
 </div> <!-- .table_container -->
 {% endif %}
 <div class="text-center" style="margin-top: 10px;">
-	{{ residents.count }} resident{{ residents.pluralize }}, {{ boarders.count }} boarder{{ boarders.count }},
-	and {{ alumni.count }} alumn{{ alumni.pluralize|"a,i" }} in database.
+	{{ residents.count }} resident{{ residents|pluralize }}, {{ boarders.count }} boarder{{ boarders|pluralize }},
+	and {{ alumni.count }} alumn{{ alumni|pluralize:"a/alumnus,i" }} in database.
 </div>
 {% endblock %}
 
