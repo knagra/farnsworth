@@ -6,6 +6,13 @@
 
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<script src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+  $(function() {
+  $(".inline.{{ time_formset.prefix }}").formset({
+  prefix: "{{ time_formset.prefix }}",
+  })})
+</script>
 {% endblock %}
 
 {% block content %}
