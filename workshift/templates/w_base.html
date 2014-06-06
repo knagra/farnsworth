@@ -23,6 +23,10 @@
 {% endblock %}
 
 {% block endscripts %}
-
+<script>
+	$(document).ready(function() {
+		$('<hr />').insertAfter('.w_title');
+	});
+</script>
 {% block w_endscripts %}{% endblock %}
 {% endblock %}
