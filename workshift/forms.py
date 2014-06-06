@@ -283,3 +283,18 @@ class AddWorkshifterForm(forms.ModelForm):
 		profile.save()
 
 		return profile
+
+class WorkshiftRatingForm(forms.ModelForm):
+	class Meta:
+		model = WorkshiftRating
+		exclude = ["workshift_type"]
+
+	def __init__(self, *args, **kwargs):
+		self.wtype = kwargs.pop("workshift_type")
+		super(WorkshiftRatingForm, self).__init__(*args, **kwargs)
+
+	def save(self, *args, **kwargs):
+		instance = super(WorkshiftRatingForm, self).save(*args, **kwargs)
+		instance.workshift_type = self.wtype
+		instance.save(*args, **kwargs)
+		return instance

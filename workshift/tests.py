@@ -191,6 +191,13 @@ class TestViews(TestCase):
 
 		self.assertTrue(self.client.login(username="wu", password="pwd"))
 
+	def test_preferences(self):
+		response = self.client.get("/workshift/profile/{0}/preferences/"
+								   .format(self.wprofile.pk))
+		self.assertEqual(response.status_code, 200)
+		print response.content
+		self.assertIn(self.wtype.title, response.content)
+
 	def test_views_load(self):
 		urls = [
 			"/start/",
