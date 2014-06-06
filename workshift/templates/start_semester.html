@@ -1,24 +1,25 @@
-{% extends "base.html" %}
+{% extends "w_base.html" %}
 
 {% load static from staticfiles %}
 {% load bootstrap %}
 
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+{% block w_headers %}
 {% endblock %}
 
-{% block content %}
-<div class="table_container">
+{% block w_content %}
+<div class="w_container">
+  <h1 class="w_title">Start New Semester</h1>
   <form method="post" action="">
 	{% csrf_token %}
 	<div class="form-group">
 	  {{ semester_form|bootstrap }}
 	  <div class="text-center"><button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-plus"></span> Start Semester</button></div>
+	</div> <!-- .form-group -->
   </form>
-</div> <!-- .table_container -->
+</div> <!-- .w_container -->
 {% endblock %}
 
-{% block endscripts %}
+{% block w_endscripts %}
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript">

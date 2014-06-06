@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/workshift.css' %}" />
+{% block w_headers %}{% endblock %}
+{% endblock %}
+
+{% block jumbotron %}{% block w_jumbotron %}{% endblock %}{%endblock %}
+
+{% block content %}
+{% if CURRENT_SEMESTER %}
+<h5 class="text-center" id="current_semester">Current Semester - {{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}</h5>
+<div class="progress">
+  <div title="Progress in current semester: {{ days_passed }} of " class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+    <span class="">{{ </span>
+  </div>
+</div>
+{% endif %}
+{% block w_content %}{% endblock %}
+{% endblock %}
+
+{% block endscripts %}
+
+{% block w_endscripts %}{% endblock %}
+{% endblock %}

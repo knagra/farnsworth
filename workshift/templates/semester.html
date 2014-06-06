@@ -1,14 +1,14 @@
-{% extends "base.html" %}
+{% extends "w_base.html" %}
 
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
 
-{% block headers %}
+{% block w_headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 {% endblock %}
 
-{% block content %}
+{% block w_content %}
 <h3>Workshifts for {{ day }}</h3>
 <div class="workshift_table">
   <a class="workshift_control" href="{% url 'workshift:view_semester' %}?day={{ prev_day }}">
@@ -50,7 +50,7 @@
 		<td>
 		  {% for form in forms %}
 		  <form style="display:inline" method="POST" action="{{ form.action_name }}">
-			{{ csrf_token }}
+			{% csrf_token %}
 			{{ form }}
 			<button type="submit" class="btn btn-xs">
 			  <span class="visible-xs">{{ form.title_short }}</span>

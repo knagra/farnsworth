@@ -70,6 +70,7 @@ def add_workshift_context(request):
 	workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	days_passed = (date.today() - SEMESTER.start_date).days # number of days passed in this semester
+	total_days = (SEMESTER.end_date - SEMESTER.start_date).days # total number of days in this semester
 	first_fine_date = SEMESTER.first_fine_date
 	second_fine_date = SEMESTER.second_fine_date
 	third_fine_date = SEMESTER.third_fine_date
@@ -84,6 +85,7 @@ def add_workshift_context(request):
 		'CURRENT_SEMESTER': CURRENT_SEMESTER,
 		'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
 		'days_passed': days_passed,
+		'total_days': total_days,
 		'first_fine_date': first_fine_date,
 		'second_fine_date': second_fine_date,
 		'third_fine_date': third_fine_date,
