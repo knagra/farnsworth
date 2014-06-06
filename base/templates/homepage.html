@@ -56,11 +56,11 @@ function hide_form(form_id) {
 			{% csrf_token %}
 			{{ request_tuple.4 }}
 			{% if request_tuple.3 %}
-			<button type="submit" class="btn btn-xs" name="upvote" title="Remove Star">
+			<button type="submit" class="btn btn-xs" name="upvote" title="Remove upvote">
 			  <span class="glyphicon glyphicon-star"></span>
 			</button>
 			{% else %}
-			<button type="submit" class="btn btn-xs" name="upvote" title="Star">
+			<button type="submit" class="btn btn-xs" name="upvote" title="Upvote to express approval">
 			  <span class="glyphicon glyphicon-star-empty"></span>
 			</button>
 			{% endif %}
