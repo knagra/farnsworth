@@ -89,6 +89,9 @@
 	</div>
   </div> <!-- thread_table -->
 </div>
+<div class="text-center text-info" style="margin-top: 10px;">
+	Showing {{ request_responses.count }} response{{ request_responses.count|pluralize }}.
+</div>
 {% endblock %}
 
 {% block endscripts %}

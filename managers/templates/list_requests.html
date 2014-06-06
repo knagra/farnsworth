@@ -64,6 +64,9 @@
   {% endif %}
   </div> <!-- .main_table -->
 </div>
+<div class="text-center text-info" style="margin-top: 10px">
+	Showing {{ requests.count }} request{{ requests.count|pluralize }}.
+</div>
 {% endblock %}
 
 {% block endscripts %}
