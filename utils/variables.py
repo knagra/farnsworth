@@ -104,6 +104,7 @@ SUBTEXTS_404 = ("The number you have dialed has crashed into a planet.  Please m
 	"Let's face it, comedy is a dead artform.  Now, tragedy...that's funny.",
 	"The web page that browses back.",
 	"One word: Thundercougarfalconbird.",
+	"Nothing makes you feel more like a man than a Thundercougarfalconbird.",
 	)
 
 # Standard messages sent to clients on errors.
