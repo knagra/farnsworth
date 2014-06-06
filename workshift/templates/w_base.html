@@ -8,24 +8,50 @@
 {% block w_headers %}{% endblock %}
 {% endblock %}
 
-{% block jumbotron %}{% block w_jumbotron %}{% endblock %}{%endblock %}
-
-{% block content %}
+{% block jumbotron %}
+<div class="container">
 {% if CURRENT_SEMESTER %}
-<h5 class="text-center" id="current_semester">Current Semester - {{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}</h5>
-<div class="progress">
-  <div title="Progress in current semester: {{ days_passed }} of " class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-    <span class="">{{ </span>
-  </div>
+<div class="row">
+<div class="col-xs-12">
+	<h5 class="text-center" id="current_semester"><span class="hidden-xs">Current Semester
+	- </span>{{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}</h5>
+	<div title="{{ days_passed }} day{{ days_passed|pluralize }} of {{ total_days }} in semester passed ({{ semester_percent}}%)" class="progress">
+	<div class="progress-bar" role="progressbar" aria-valuenow="{{ days_passed }}" aria-valuemin="0" aria-valuemax="{{ total_days }}" style="width: {{ semester_percent }}%;">
+		<span class="sr-only">{{ semester_percent }}%</span>
+	</div> <!-- .progress-bar -->
+	</div> <!-- .progress -->
+</div> <!-- .col-xs-12 -->
+</div> <!-- .row -->
+{% else %}
+<br />
+{% endif %}
+<div class="row" style="margin-top: 5px;">
+<div id="side_bar" class="col-md-3">
+{% block sidebartop %}{% endblock %}
+{% if upcoming_shifts %}
+<h5 id="shifts_title">Upcoming Shifts</h5>
+<div id="upcoming_shifts" class="list-group">
+{% for shift, happening in upcoming_shifts %}
+	<a title="See shift info" href="{% url 'view_instance' pk=shift.pk %}" class="list-group-item"><span class="badge">{{ shift.hours }}</span>{{ shift.title }},
+	{{ shift.date }}{% if shift.start_time %}{{ shift.start_time }}{% if shift.end_time %}
+	- {{ shift.end_time }} {% endif %}{% endif %}</a>
+{% endfor %}
 </div>
 {% endif %}
+{% block sidebarbottom %}{% endblock %}
+</div> <!-- .col-md-3 -->
+<div class="col-md-9 col-sm-12 col-xs-12">
 {% block w_content %}{% endblock %}
+</div> <!-- .col-lg-8 -->
+</div> <!-- .row -->
+</div> <!-- .container -->
 {% endblock %}
 
 {% block endscripts %}
 <script>
 	$(document).ready(function() {
 		$('<hr />').insertAfter('.w_title');
+		$('.navbar').css('margin-bottom', '0');
 	});
 </script>
 {% block w_endscripts %}{% endblock %}

@@ -1,14 +1,17 @@
+/* Project: Farnsworth
+ * 
+ * Authors: Karandeep Singh Nagra and Nader Morshed
+ */
+
 .workshift_table {
-
+	margin-top: 5px;
 }
 
-.workshift_inner {
-	width: 70%;
-	position: relative;
+#day_title {
+	padding-left: 0px;
+	padding-right: 0px;
 }
 
-.workshift_control {
-	width: 15%;
-	text-align: center;
-	position: absolute;
+.day_control {
+	font-size: 140%;
 }
