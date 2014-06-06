@@ -3,7 +3,7 @@
 {% with vote_count=vote_count_request|count_votes %}
 <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=vote_count_request.owner.user.username %}">{{ vote_count_request.owner|display_user:user }}</a>
 {% if vote_count > 0 %}
-	<ul class="vote_list"><li class="dropdown">
+	<ul class="vote_list"><li class="dropdown hover_dropdown">
 		<a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">+{{ vote_count }}</a>
 		<ul class="dropdown-menu">
 		{% for voter in vote_count_request.upvotes.all %}
@@ -16,3 +16,14 @@
 {% endif %}
 {% endwith %}
 ({{ vote_count_request.post_date }}):
+<style>
+	.hover_dropdown:hover .dropdown-menu {
+		display: block;
+	}
+	.hover_dropdown .dropdown-menu {
+		top: -1px;
+	}
+	.hover_dropdown .dropdown-menu:hover {
+		display: block;
+	}
+</style>
