@@ -57,6 +57,9 @@
     {% endif %}
   </div> <!-- thread_table -->
 </div>
+<div class="text-center text-info" style="margin-top: 10px;">
+	Showing {{ messages_list|length }} message{{ messages_list|length|pluralize }}.
+</div>
 {% endblock %}
 
 {% block endscripts %}
