@@ -1,10 +1,10 @@
-{% extends "base.html" %}
+{% extends "w_base.html" %}
 
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
 
-{% block headers %}
+{% block w_headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
@@ -15,7 +15,7 @@
 </script>
 {% endblock %}
 
-{% block content %}
+{% block w_content %}
 <div class="table_container">
   <form method="post" action="" name="update_profile">
 	{% csrf_token %}

@@ -1,70 +1,86 @@
-{% extends "base.html" %}
+{% extends "w_base.html" %}
 
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
 
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+{% block w_headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/semester.css' %}" />
 {% endblock %}
 
-{% block content %}
-<h3>Workshifts for {{ day }}</h3>
+{% block w_content %}
+<div class="row">
+<div class="col-sm-1 col-xs-2 text-left">
+<a title="Previous day" class="day_control" href="{% url 'workshift:view_semester' %}?day={{ prev_day }}">
+<span class="glyphicon glyphicon-chevron-left"></span>
+</a>
+</div> <!-- .col-xs-1 -->
+<h3 id="day_title" class="col-sm-10 col-xs-8 text-center w_subtitle"><span class="hidden-xs w_subtitle">Workshifts for </span>{{ day }}</h3>
+<div class="col-sm-1 col-xs-2 text-right">
+<a title="Next day" class="day_control" href="{% url 'workshift:view_semester' %}?day={{ next_day }}">
+<span class="glyphicon glyphicon-chevron-right"></span>
+</a>
+</div> <!-- .col-sm-1 -->
+</div> <!-- .row -->
 <div class="workshift_table">
-  <a class="workshift_control" href="{% url 'workshift:view_semester' %}?day={{ prev_day }}">
-	<span class="glyphicon glyphicon-chevron-left"></span>
-  </a>
-  <table class="workshift_inner">
+  <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
 	<thead>
-	  <th>
-		<td>Shift Title</td>
-		<td>Time</td>
-		<td>Hours</td>
-		<td>Workshifter</td>
-		<td>Verifier</td>
-		<td>Mark</td>
-	  </th>
+		<tr>
+			<th>Shift Title</th>
+			<th>Time</th>
+			<th>Hours</th>
+			<th>Workshifter</th>
+			<th>Verifier</th>
+			<th>Mark</th>
+		</tr>
 	</thead>
 	<tbody>
 	  {% for shift, forms in day_shifts %}
 	  <tr>
-		<td>{{ shift.title }}</td>
-		<td>{% if shift.start_time %}{{ shift.start_time }}
-		  {% if shift.end_time %}- {{ shift.end_time }}{% endif %}{% endif %}
-		</td>
-		<td>{% if shift.intended_hours == shift.hours %}{{ shift.hours }}
-		  {% else %}<del>{{ shift.intended_hours}}</del> {{ shift.hours }}{% endif %}
-		</td>
-		<td>
-		  {% if shift.workshifter %}
-		  <a href="{% url 'workshift:profile' pk=shift.workshifter.pk %}">{{ shift.workshifter.user.get_full_name }}</a>
-		  {% endif %}
-		</td>
-		<td>
-		  {% if shift.blown %}
-		  BLOWN
-		  {% elif shift.verifier %}
-		  <a href="{% url 'workshift:profile' pk=shift.verifier.pk %}">{{ shift.verifier.user.get_full_name }}</a>
-		  {% endif %}
-		</td>
-		<td>
-		  {% for form in forms %}
-		  <form style="display:inline" method="POST" action="{{ form.action_name }}">
-			{{ csrf_token }}
-			{{ form }}
-			<button type="submit" class="btn btn-xs">
-			  <span class="visible-xs">{{ form.title_short }}</span>
-			  <span class="hidden-xs">{{ form.title_long }}</span>
-			</button>
-		  </form>
-		  {% endfor %}
-		</td>
+			<td>{{ shift.title }}</td>
+			<td>{% if shift.start_time %}{{ shift.start_time }}
+				{% if shift.end_time %}- {{ shift.end_time }}{% endif %}{% endif %}
+			</td>
+			<td>{% if shift.intended_hours == shift.hours %}{{ shift.hours }}
+				{% else %}<del>{{ shift.intended_hours}}</del> {{ shift.hours }}{% endif %}
+			</td>
+			<td>
+				{% if shift.workshifter %}
+				<a href="{% url 'workshift:profile' pk=shift.workshifter.pk %}">{{ shift.workshifter.user.get_full_name }}</a>
+				{% endif %}
+			</td>
+			<td>
+				{% if shift.blown %}
+				BLOWN
+				{% elif shift.verifier %}
+				<a href="{% url 'workshift:profile' pk=shift.verifier.pk %}">{{ shift.verifier.user.get_full_name }}</a>
+				{% endif %}
+			</td>
+			<td>
+				{% for form in forms %}
+				<form style="display:inline" method="POST" action="{{ form.action_name }}">
+				{% csrf_token %}
+				{{ form }}
+				<button type="submit" class="btn btn-xs">
+					<span class="visible-xs">{{ form.title_short }}</span>
+					<span class="hidden-xs">{{ form.title_long }}</span>
+				</button>
+				</form>
+				{% endfor %}
+			</td>
 	  </tr>
 	  {% endfor %}
 	</tbody>
   </table>
-  <a class="workshift_control" href="{% url 'workshift:view_semester' %}?day={{ next_day }}">
-	<span class="glyphicon glyphicon-chevron-right"></span>
-  </a>
 </div> <!-- .workshift_table -->
+{% endblock %}
+
+{% block w_endscripts %}
+<script>
+$(document).ready(function() {
+	$('table').tablesorter({
+		sortList: [[1, 0], [0,0]]
+		});
+	});
+</script>
 {% endblock %}

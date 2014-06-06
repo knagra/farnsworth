@@ -137,16 +137,19 @@
 	  </div>
     </div> <!-- .container -->
     </div> <!-- .navbar -->
+    <div class="container">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    {{ message|safe }}
+    </div> <!-- .alert -->
+    {% endfor %}
+    {% endif %}
+    </div> <!-- .container -->
+    
 		{% block jumbotron %}{% endblock %}
     <div class="container">
-		{% if messages %}
-		{% for message in messages %}
-			<div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}">
-			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-			{{ message|safe }}
-			</div>
-		{% endfor %}
-		{% endif %}
 		{% block title %}{% endblock %}
     <div id="body">
 	<div id="content">

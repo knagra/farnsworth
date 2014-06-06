@@ -85,7 +85,10 @@ home_max_announcements = 5
 home_max_threads = 15
 
 # Add the context that populates a few variables used on every page in the site.
-TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("base.views.add_context",)
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+	"base.views.add_context",
+	"workshift.views.add_workshift_context",
+	)
 
 try:
 	ENABLE_OAUTH
@@ -259,8 +262,8 @@ INSTALLED_APPS = (
 	'threads',
 	'events',
 	'requests',
-    'managers',
-    'workshift',
+  'managers',
+  'workshift',
 	'bootstrapform',
 	'haystack',
 	'django.contrib.admin',

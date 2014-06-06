@@ -31,7 +31,11 @@ def add_workshift_context(request):
 	try:
 		SEMESTER = request.semester
 	except AttributeError:
-		return dict()
+		#return dict()
+		return {'days_passed': 47,
+			'total_days': 123,
+			'semester_percent': round((47 / 123) * 100, 2),
+			}
 	WORKSHIFT_MANAGER = False # whether the user has workshift manager privileges
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
@@ -69,11 +73,12 @@ def add_workshift_context(request):
 			workshift_emails += ')'
 		messages.add_message(request, messages.WARNING, MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(admin_email=ADMINS[0][1], workshift_emails=workshift_emails))
 	workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
-	now = datetime.datetime.utcnow().replace(tzinfo=utc)
+	now = datetime.utcnow().replace(tzinfo=utc)
 	days_passed = (date.today() - SEMESTER.start_date).days # number of days passed in this semester
-	first_fine_date = SEMESTER.first_fine_date
-	second_fine_date = SEMESTER.second_fine_date
-	third_fine_date = SEMESTER.third_fine_date
+	total_days = (SEMESTER.end_date - SEMESTER.start_date).days # total number of days in this semester
+	semester_percent = round((days_passed / total_days) * 100, 2)
+	pool_standings = list() # with items of form (workshift_pool, standing_in_pool)
+	#TODO figure out how to get pool standing out to the template
 	upcoming_shifts = WorkshiftInstance.objects.filter(
         workshifter=workshift_profile,
         closed=False,
@@ -85,9 +90,8 @@ def add_workshift_context(request):
 		'CURRENT_SEMESTER': CURRENT_SEMESTER,
 		'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
 		'days_passed': days_passed,
-		'first_fine_date': first_fine_date,
-		'second_fine_date': second_fine_date,
-		'third_fine_date': third_fine_date,
+		'total_days': total_days,
+		'semester_percent': semester_percent,
 		'upcoming_shifts': upcoming_shifts,
 		}
 

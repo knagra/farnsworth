@@ -1,17 +1,17 @@
-{% extends "base.html" %}
+{% extends "w_base.html" %}
 
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
 
-{% block headers %}
+{% block w_headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 {% endblock %}
 
-{% block content %}
+{% block w_content %}
 <div class="table_container">
   <form method="post" action="edit_shift">
-	{{ csrf_token }}
+	{% csrf_token %}
 	{{ edit_form|bootstrap }}
   </form>
 </div> <!-- .table_container -->
