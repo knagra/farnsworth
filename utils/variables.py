@@ -102,6 +102,7 @@ SUBTEXTS_404 = ("The number you have dialed has crashed into a planet.  Please m
 	"It worked for me.  I used to be a little blonde girl named Virginia.",
 	"Maybe it's time to leave the science to the hundred and twenty year olds.",
 	"Let's face it, comedy is a dead artform.  Now, tragedy...that's funny.",
+	"The web page that browses back.",
 	)
 
 # Ordered integer representations of days of the week.  Used in parts of the workshift module.
