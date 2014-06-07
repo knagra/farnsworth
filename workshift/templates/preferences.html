@@ -28,11 +28,27 @@
 	{% endfor %}
 	<table >
 	  <tbody>
-		{{ time_formset.as_table }}
+		{% for form in time_formset.forms %}
+		<tr>
+		  <td>{{ form.preference}}</td>
+		  <td>{{ form.day }}</td>
+		  <td>{{ form.start_time }}</td>
+		  <td>{{ form.end_time }}</td>
+		</tr>
+		{% endfor %}
 	  </tbody>
 	</table>
 	{{ time_formset.management_form }}
 	<button type="submit" class="btn btn-success">Update preferences</button>
   </form>
 </div> <!-- .table_container -->
+{% endblock %}
+
+{% block endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript">
+  $(function(){$("[id$=start_time]").datetimepicker();});
+  $(function(){$("[id$=end_time]").datetimepicker();});
+</script>
 {% endblock %}
