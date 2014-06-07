@@ -193,8 +193,10 @@ def view_semester(request, semester, profile=None):
 			pass
 
 	template_dict["day"] = day.strftime("%A, %B %e, %Y")
-	template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
-	template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
+	if day > semester.start_date:
+		template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
+	if day < semester.end_date:
+		template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
 
 	# Grab the shifts for just today, as well as week-long shifts
 	last_sunday = day - timedelta(days=day.weekday() + 1)
