@@ -21,7 +21,7 @@ class Thread(models.Model):
 	active = models.BooleanField(default=True, help_text="Whether this thread is still active.")
 	
 	def __unicode__(self):
-		return "%s by %s, started %s" % (self.subject, self.owner, self.start_date)
+		return self.subject
 	
 	class Meta:
 		ordering = ['-change_date']
