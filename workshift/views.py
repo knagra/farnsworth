@@ -174,6 +174,8 @@ def view_semester(request, semester, profile=None):
 				f = form(request.POST, profile=profile)
 				if f.is_valid():
 					f.save()
+					return HttpResponseRedirect(wurl("workshift:view_semester",
+													 sem_url=semester.sem_url))
 				else:
 					for error in f.errors.values():
 						messages.add_message(request, messages.ERROR, error)
