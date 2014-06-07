@@ -48,7 +48,7 @@
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript">
-  $(function(){$("[id$=start_time]").timepicker();});
-  $(function(){$("[id$=end_time]").timepicker();});
+  $(function(){$("[id$=start_time]").datetimepicker(pickDate: false);});
+  $(function(){$("[id$=end_time]").datetimepicker(pickDate: false);});
 </script>
 {% endblock %}
