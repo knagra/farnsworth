@@ -11,7 +11,7 @@ o{% extends "w_base.html" %}
 {% block w_content %}
 <form method="post" action="" >
   {% csrf_token %}
-  {{ add_shift_form|bootstrap}}
+  {{ form|bootstrap}}
   <button type="submit" class="btn btn-success">Create Workshift</button>
 </form>
 {% endblock %}
