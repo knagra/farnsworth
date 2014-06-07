@@ -74,6 +74,12 @@ class Semester(models.Model):
 		help_text="If this semester is the current semester.",
 		)
 
+    @property
+    def sem_url(self):
+        if self.current:
+            return ""
+        return self.season + str(self.year)
+
 	class Meta:
 		unique_together = ("season", "year")
 		ordering = ['-start_date']
