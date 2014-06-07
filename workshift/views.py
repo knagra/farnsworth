@@ -137,7 +137,9 @@ def start_semester_view(request):
 		semester.workshift_managers = \
 		  [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
 		semester.save()
-		return HttpResponseRedirect(reverse("workshift:manage"))
+		return HttpResponseRedirect(reverse("workshift:manage", {
+			"sem_url": semester.sem_url,
+			}))
 
 	# TODO: Adding workshift pools? Should we do a separate page for that?
 
@@ -217,7 +219,8 @@ def view_semester(request, semester, profile=None):
 
 def _get_forms(profile, shift):
 	"""
-	Gets the forms for profile interacting with a shift.
+	Gets the forms for profile interacting with a shift. This includes verify
+	shift, mark shift as blown, sign in, and sign out.
 	"""
 	forms = []
 	if not shift.closed and profile:
@@ -272,7 +275,9 @@ def preferences_view(request, semester, pk, profile=None):
 	if wprofile.user != request.user and not can_manager(request, semester):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
-		return HttpResponseRedirect(reverse('workshift:view_semester'))
+		return HttpResponseRedirect(reverse('workshift:view_semester', {
+			"sem_url": semester.sem_url,
+			}))
 
 	type_forms = []
 	for wtype in WorkshiftType.objects.filter(rateable=True):
@@ -317,7 +322,9 @@ def manage_view(request, semester, profile=None):
 		if not pools.count():
 			messages.add_message(request, messages.ERROR,
 								 MESSAGES['ADMINS_ONLY'])
-			return HttpResponseRedirect(reverse('workshift:view_semester'))
+			return HttpResponseRedirect(reverse('workshift:view_semester', {
+				"sem_url": semester.sem_url
+				}))
 
 	return render_to_response("manage.html", {
 		"page_name": page_name,
@@ -350,7 +357,9 @@ def add_workshifter_view(request, semester):
 	if add_workshifter_form.is_valid():
 		add_workshifter_form.save()
 		messages.add_message(request, messages.INFO, "Workshifter added.")
-		return HttpResponseRedirect(reverse("workshift:manage"))
+		return HttpResponseRedirect(reverse("workshift:manage", {
+			"sem_url": semester.sem_url,
+			}))
 
 	return render_to_response("add_workshifter.html", {
 		"page_name": page_name,
@@ -393,7 +402,9 @@ def edit_shift_view(request, semester, pk, profile=None):
 	if not request.user.is_superuser and not managers.count():
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
-		return HttpResponseRedirect(reverse('workshift:view_semester'))
+		return HttpResponseRedirect(reverse('workshift:view_semester', {
+			"sem_url": semester.sem_url,
+			}))
 
 	edit_form = RegularWorkshiftForm(
 		request.POST if "edit_shift" in request.POST else None,
@@ -402,7 +413,9 @@ def edit_shift_view(request, semester, pk, profile=None):
 
 	if "delete_shift" in request.POST:
 		shift.delete()
-		return HttpResponseRedirect(reverse('workshift:manage'))
+		return HttpResponseRedirect(reverse('workshift:manage', {
+			"sem_url": semester.sem_url,
+			}))
 	elif edit_form.is_valid():
 		shift = edit_form.save()
 
@@ -440,7 +453,9 @@ def edit_instance_view(request, semester, pk, profile=None):
 	if not request.user.is_superuser and not managers.count():
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
-		return HttpResponseRedirect(reverse('workshift:view_semester'))
+		return HttpResponseRedirect(reverse('workshift:view_semester', {
+			"sem_url": semester.sem_url,
+			}))
 
 	edit_form = WorkshiftInstanceForm(
 		request.POST if "edit_shift" in request.POST else None,
@@ -449,7 +464,9 @@ def edit_instance_view(request, semester, pk, profile=None):
 
 	if "delete_shift" in request.POST:
 		shift.delete()
-		HttpResponseRedirect(reverse('workshift:manage'))
+		HttpResponseRedirect(reverse('workshift:manage', {
+			"sem_url": semester.sem_url,
+			}))
 	elif edit_form.is_valid():
 		shift = edit_form.save()
 
