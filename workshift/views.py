@@ -205,10 +205,10 @@ def view_semester(request, semester, profile=None):
 	  .filter(date__lt=next_sunday) \
 	  .filter(week_long=True)
 
-	template["day_shifts"] = [(shift, _get_forms(profile, shift))
-							  for shift in day_shifts]
-	template["week_shifts"] = [(shift, _get_forms(profile, shift))
-							   for shift in week_shifts]
+	template_dict["day_shifts"] = [(shift, _get_forms(profile, shift))
+								   for shift in day_shifts]
+	template_dict["week_shifts"] = [(shift, _get_forms(profile, shift))
+									for shift in week_shifts]
 
 	return render_to_response("semester.html", template_dict,
 							   context_instance=RequestContext(request))
