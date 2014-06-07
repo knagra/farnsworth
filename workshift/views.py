@@ -272,7 +272,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	"""
 	wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
 
-	if wprofile.user != request.user and not can_manager(request, semester):
+	if wprofile.user != request.user and not can_manage(request, semester):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(wurl('workshift:view_semester',
