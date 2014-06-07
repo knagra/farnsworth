@@ -4,7 +4,7 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
-from __future__ import division
+from __future__ import division, absolute_import
 
 from datetime import date, datetime, timedelta
 
@@ -21,10 +21,11 @@ from django.template import RequestContext
 from utils.variables import MESSAGES
 from base.models import UserProfile
 from managers.models import Manager
-from workshift.decorators import workshift_profile_required, \
-	workshift_manager_required, semester_required
+from workshift.decorators import get_workshift_profile, \
+workshift_manager_required, semester_required
 from workshift.models import *
 from workshift.forms import *
+from workshift.utils import can_manage
 
 def add_workshift_context(request):
 	""" Add workshift variables to all dictionaries passed to templates. """
@@ -136,8 +137,8 @@ def start_semester_view(request):
 		"semester_form": semester_form,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def view_semester(request, semester, profile):
+@get_workshift_profile
+def view_semester(request, semester, profile=None):
 	"""
 	Displays a table of the workshifts for the week, shift assignments,
 	accumulated statistics (Down hours), reminders for any upcoming shifts, and
@@ -156,14 +157,15 @@ def view_semester(request, semester, profile):
 	template_dict["profile"] = profile
 
 	# Forms to interact with workshift
-	for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
-		if form.action_name in request.POST:
-			f = form(request.POST, profile=profile)
-			if f.is_valid():
-				f.save()
-			else:
-				for error in f.errors.values():
-					messages.add_message(request, messages.ERROR, error)
+	if profile:
+		for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
+			if form.action_name in request.POST:
+				f = form(request.POST, profile=profile)
+				if f.is_valid():
+					f.save()
+				else:
+					for error in f.errors.values():
+						messages.add_message(request, messages.ERROR, error)
 
 	# We want a form for verification, a notification of upcoming shifts, and a
 	# chart displaying the entire house's workshift for the day as well as
@@ -186,61 +188,58 @@ def view_semester(request, semester, profile):
 	template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
 
 	# Grab the shifts for just today, as well as week-long shifts
-	day_shifts = WorkshiftInstance.objects.filter(date=day)
-
 	last_sunday = day - timedelta(days=day.weekday() + 1)
 	next_sunday = last_sunday + timedelta(weeks=1)
 
+	day_shifts = WorkshiftInstance.objects.filter(date=day)
 	week_shifts = WorkshiftInstance.objects.filter(date__gt=last_sunday) \
 	  .filter(date__lt=next_sunday) \
 	  .filter(week_long=True)
 
-	day_shift_tuples, week_shift_tuples = [], []
-
-	for shifts, tuples in [
-			(day_shifts, day_shift_tuples),
-			(week_shifts, week_shift_tuples),
-			]:
-		for shift in shifts:
-			forms = []
-			if not shift.closed:
-				if shift.workshifter:
-					pool = shift.pool
-
-					if pool.self_verify or shift.workshifter != profile:
-						verify_form = VerifyShiftForm(initial={
-							"pk": shift.pk,
-							}, profile=profile)
-						forms.append(verify_form)
-
-					if pool.any_blown or \
-					  pool.managers.filter(incumbent__user=profile.user).count():
-						blown_form = BlownShiftForm(initial={
-							"pk": shift.pk,
-							}, profile=profile)
-						forms.append(blown_form)
-
-					if shift.workshifter == profile:
-						sign_out_form = SignOutForm(initial={
-							"pk": shift.pk,
-							}, profile=profile)
-						forms.append(sign_out_form)
-				else:
-					sign_in_form = SignInForm(initial={
-						"pk": shift.pk,
-						}, profile=profile)
-					forms.append(sign_in_form)
-
-			tuples.append((shift, forms,))
-
-	template_dict["day_shifts"] = day_shift_tuples
-	template_dict["week_shifts"] = week_shift_tuples
+	template["day_shifts"] = [(shift, _get_forms(profile, shift))
+							  for shift in day_shifts]
+	template["week_shifts"] = [(shift, _get_forms(profile, shift))
+							   for shift in week_shifts]
 
 	return render_to_response("semester.html", template_dict,
 							   context_instance=RequestContext(request))
 
-@workshift_profile_required
-def profile_view(request, semester, profile, pk):
+def _get_forms(profile, shift):
+	"""
+	Gets the forms for profile interacting with a shift.
+	"""
+	forms = []
+	if not shift.closed and profile:
+		if shift.workshifter:
+			pool = shift.pool
+
+			if pool.self_verify or shift.workshifter != profile:
+				verify_form = VerifyShiftForm(initial={
+					"pk": shift.pk,
+					}, profile=profile)
+				forms.append(verify_form)
+
+			if pool.any_blown or \
+			  pool.managers.filter(incumbent__user=profile.user).count():
+				blown_form = BlownShiftForm(initial={
+					"pk": shift.pk,
+					}, profile=profile)
+				forms.append(blown_form)
+
+			if shift.workshifter == profile:
+				sign_out_form = SignOutForm(initial={
+					"pk": shift.pk,
+					}, profile=profile)
+				forms.append(sign_out_form)
+		else:
+			sign_in_form = SignInForm(initial={
+				"pk": shift.pk,
+				}, profile=profile)
+			forms.append(sign_in_form)
+	return forms
+
+@get_workshift_profile
+def profile_view(request, semester, pk, profile=None):
 	"""
 	Show the user their workshift history for the current semester as well as
 	upcoming shifts.
@@ -252,18 +251,14 @@ def profile_view(request, semester, profile, pk):
 		"profile": wprofile,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def preferences_view(request, semester, profile, pk):
+@get_workshift_profile
+def preferences_view(request, semester, pk, profile=None):
 	"""
 	Show the user their preferences for the given semester.
 	"""
 	wprofile = get_object_or_404(WorkshiftProfile, pk=pk)
-	user_profile = UserProfile.objects.get(user=request.user)
-	managers = Manager.objects.filter(incumbent=user_profile) \
-	  .filter(workshift_manager=True)
 
-	if wprofile.user != request.user and not managers.count() and \
-	  not request.user.is_superuser:
+	if wprofile.user != request.user and not _can_manager(request, semester):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(reverse('workshift:view_semester'))
@@ -291,26 +286,22 @@ def preferences_view(request, semester, profile, pk):
 		wprofile.user.get_full_name())
 	return render_to_response("preferences.html", {
 		"page_name": page_name,
-		"profile": profile,
+		"profile": wprofile,
 		"type_forms": type_forms,
 		"time_formset": time_formset,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def manage_view(request, semester, profile):
+@get_workshift_profile
+def manage_view(request, semester, profile=None):
 	"""
 	View all members' preferences. This view also includes forms to create an
 	entire semester's worth of weekly workshifts.
 	"""
 	page_name = "Manage Workshift"
 	pools = WorkshiftPool.objects.filter(semester=semester)
-	user_profile = UserProfile.objects.get(user=request.user)
-	managers = Manager.objects.filter(incumbent=user_profile) \
-	  .filter(workshift_manager=True)
-	full_management = request.user.is_superuser or managers.count()
 
-	if not full_management:
-		pools = pools.filter(managers__incumbent=user_profile)
+	if not _can_manage(request, semester):
+		pools = pools.filter(managers__incumbent__user=request.user)
 		if not pools.count():
 			messages.add_message(request, messages.ERROR,
 								 MESSAGES['ADMINS_ONLY'])
@@ -322,8 +313,8 @@ def manage_view(request, semester, profile):
 		"full_management": full_management,
 	}, context_instance=RequestContext(request))
 
-@workshift_manager_required
 @semester_required
+@workshift_manager_required
 def assign_shifts_view(request, semester):
 	"""
 	View all members' preferences. This view also includes forms to create an
@@ -334,8 +325,8 @@ def assign_shifts_view(request, semester):
 		"page_name": page_name,
 	}, context_instance=RequestContext(request))
 
-@workshift_manager_required
 @semester_required
+@workshift_manager_required
 def add_workshifter_view(request, semester):
 	"""
 	Add a new member workshift profile, for people who join mid-semester.
@@ -372,8 +363,8 @@ def add_shift_view(request):
 		"form": form,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def shift_view(request, semester, profile, pk):
+@get_workshift_profile
+def shift_view(request, semester, pk, profile=None):
 	"""
 	View the details of a particular RegularWorkshift.
 	"""
@@ -388,8 +379,8 @@ def shift_view(request, semester, profile, pk):
 		"can_edit": can_edit,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def edit_shift_view(request, semester, profile, pk):
+@get_workshift_profile
+def edit_shift_view(request, semester, pk, profile=None):
 	"""
 	View for a manager to edit the details of a particular RegularWorkshift.
 	"""
@@ -421,8 +412,8 @@ def edit_shift_view(request, semester, profile, pk):
         "edit_form": edit_form,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def instance_view(request, semester, profile, pk):
+@get_workshift_profile
+def instance_view(request, semester, pk, profile=None):
 	"""
 	View the details of a particular WorkshiftInstance.
 	"""
@@ -437,8 +428,8 @@ def instance_view(request, semester, profile, pk):
 		"can_edit": can_edit,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def edit_instance_view(request, semester, profile, pk):
+@get_workshift_profile
+def edit_instance_view(request, semester, pk, profile=None):
 	"""
 	View for a manager to edit the details of a particular WorkshiftInstance.
 	"""
@@ -469,8 +460,8 @@ def edit_instance_view(request, semester, profile, pk):
         "edit_form": edit_form,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def list_types_view(request, semester, profile):
+@get_workshift_profile
+def list_types_view(request, semester, profile=None):
 	"""
 	View the details of a particular WorkshiftType.
 	"""
@@ -485,8 +476,8 @@ def list_types_view(request, semester, profile):
 		"can_edit": can_edit,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def type_view(request, semester, profile, pk):
+@get_workshift_profile
+def type_view(request, semester, pk, profile=None):
 	"""
 	View the details of a particular WorkshiftType.
 	"""
@@ -501,17 +492,14 @@ def type_view(request, semester, profile, pk):
 		"can_edit": can_edit,
 	}, context_instance=RequestContext(request))
 
-@workshift_profile_required
-def edit_type_view(request, semester, profile, pk):
+@get_workshift_profile
+def edit_type_view(request, semester, pk, profile=None):
 	"""
 	View for a manager to edit the details of a particular WorkshiftType.
 	"""
 	shift = get_object_or_404(WorkshiftType, pk=pk)
-	user_profile = UserProfile.objects.get(user=request.user)
-	managers = Manager.objects.filter(incumbent=user_profile) \
-	  .filter(workshift_manager=True)
 
-	if not request.user.is_superuser and not managers.count():
+	if not _can_manage(request, semester):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(reverse('workshift:view_semester'))
