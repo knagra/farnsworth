@@ -376,8 +376,13 @@ def add_shift_view(request):
 	View for the workshift manager to create new types of workshifts.
 	"""
 	page_name = "Add Workshift"
+	add_shift_form = AddWorkshiftTypeForm(request.POST or None)
+	if add_shift_form.is_valid():
+		add_shift_form.save()
+		return HttpResponseRedirect(wurl("workshift:list_types"))
 	return render_to_response("add_shift.html", {
 		"page_name": page_name,
+		"form": add_shift_form,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile

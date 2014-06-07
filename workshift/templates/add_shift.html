@@ -1,4 +1,4 @@
-{% extends "w_base.html" %}
+o{% extends "w_base.html" %}
 
 {% load static from staticfiles %}
 {% load request_tags %}
@@ -9,6 +9,9 @@
 {% endblock %}
 
 {% block w_content %}
-<div class="table_container">
-</div> <!-- .table_container -->
+<form method="post" action="" >
+  {% csrf_token %}
+  {{ add_shift_form|bootstrap}}
+  <button type="submit" class="btn btn-success">Create Workshift</button>
+</form>
 {% endblock %}

@@ -308,3 +308,8 @@ class ProfileNoteForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftProfile
 		fields = ["note"]
+
+class AddWorkshiftTypeForm(forms.ModelForm):
+	class Meta:
+		model = WorkshiftType
+		fields = "__all__"
