@@ -15,3 +15,13 @@
 .day_control {
 	font-size: 140%;
 }
+
+#day_title .visible-xs {
+	display: inline-block !important;
+}
+
+@media (min-width: 767px) {
+	#day_title .visible-xs {
+		display: none !important;
+	}
+}

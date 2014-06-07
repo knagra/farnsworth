@@ -47,11 +47,12 @@
 	    	<li class="divider"></li>
 	    	{% if WORKSHIFT_ENABLED %}
 	    	<li class="dropdown-header">Workshift</li>
-	    	<li><a href="{% url 'workshift:view_semester' %}"><span class="glyphicon glyphicon-time"></span> Today's Shift's</a></li>
+	    	<li><a href="{% url 'workshift:view_semester' %}"><span class="glyphicon glyphicon-list-alt"></span> Today's Shifts</a></li>
 	    	{% if CURRENT_SEMESTER %}
-	    	<li><a href="{% url 'workshift:profile' targetUsername=user.username %}"><span class="glyphicon glyphicon-briefcase"></span> My Profile</a></li>
-				{% elif SEMESTER %}
-				<li><a href="{% url 'workshift:profile' targetUsername=user.username %}"><span class="glyphicon glyphicon-briefcase"></span> My SEMESTER Profile</a></li>
+	    	<li><a href="{% url 'workshift:profile' targetUsername=user.username %}"><span class="glyphicon glyphicon-tasks"></span> My Profile</a></li>
+	    	{% endif %}
+				{% if SEMESTER != CURRENT_SEMESTER %}
+				<li><a href="{% url 'workshift:profile' targetUsername=user.username %}"><span class="glyphicon glyphicon-briefcase"></span> {{ SEMESTER.get_season_display }} {{ SEMESTER.year }} Profile</a></li>
 				{% endif %}
 	    	<li class="divider"></li>
 	    	{% endif %}
