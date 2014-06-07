@@ -308,8 +308,9 @@ def manage_view(request, semester, profile=None):
 	"""
 	page_name = "Manage Workshift"
 	pools = WorkshiftPool.objects.filter(semester=semester)
+	full_management = can_manage(request, semester)
 
-	if not can_manage(request, semester):
+	if not full_management:
 		pools = pools.filter(managers__incumbent__user=request.user)
 		if not pools.count():
 			messages.add_message(request, messages.ERROR,
