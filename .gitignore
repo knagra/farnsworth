@@ -2,6 +2,7 @@
 *.db
 *.py~
 *~
+*.kate-swp
 .#*
 migrations/
 static/admin/

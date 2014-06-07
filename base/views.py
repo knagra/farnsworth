@@ -126,10 +126,14 @@ def homepage_view(request, message=None):
 		rsvpd = (userProfile in event.rsvps.all())
 		events_dict.append((event, ongoing, rsvpd, form))
 	thread_form = ThreadForm()
-	threads = list() # List of recent threads
+	thread_set = list() # List of with items of form (thread, most_recent_message_in_thread)
 	x = 0
 	for thread in Thread.objects.all():
-		threads.append(thread)
+		try:
+			latest_message = Message.objects.filter(thread=thread).latest('post_date')
+		except Message.DoesNotExist:
+			latest_message = None
+		thread_set.append((thread, latest_message))
 		x += 1
 		if x >= home_max_threads:
 			break
@@ -225,7 +229,7 @@ def homepage_view(request, message=None):
 			'announcements_dict': announcements_dict,
 			'announcement_form': announcement_form,
 			'events_dict': events_dict,
-			'threads': threads,
+			'thread_set': thread_set,
 			'thread_form': thread_form,
 			}, context_instance=RequestContext(request))
 
