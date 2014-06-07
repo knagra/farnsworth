@@ -194,7 +194,7 @@ class TestViews(TestCase):
 
 	def test_preferences(self):
 		response = self.client.get("/workshift/profile/{0}/preferences/"
-								   .format(self.wprofile.pk))
+								   .format(self.wprofile.user.username))
 		self.assertEqual(response.status_code, 200)
 		print response.content
 		self.assertIn(self.wtype.title, response.content)
@@ -213,8 +213,8 @@ class TestViews(TestCase):
 
 		urls = [
 			"/",
-			"/profile/{0}/".format(self.wprofile.pk),
-			"/profile/{0}/preferences/".format(self.wprofile.pk),
+			"/profile/{0}/".format(self.wprofile.user.username),
+			"/profile/{0}/preferences/".format(self.wprofile.user.username),
 			"/manage/",
 			"/manage/assign_shifts/",
 			"/manage/add_workshifter/",
@@ -647,8 +647,8 @@ class TestPermissions(TestCase):
 		urls = [
 			(True, "/start/"),
 			(True, "/"),
-			(True, "/profile/{0}/".format(self.up.pk)),
-			(True, "/profile/{0}/preferences/".format(self.up.pk)),
+			(True, "/profile/{0}/".format(self.up.user.username)),
+			(True, "/profile/{0}/preferences/".format(self.up.user.username)),
 			(True, "/manage/"),
 			(True, "/manage/assign_shifts/"),
 			(True, "/manage/add_workshifter/"),
@@ -675,8 +675,8 @@ class TestPermissions(TestCase):
 		urls = [
 			(False, "/start/"),
 			(True, "/"),
-			(True, "/profile/{0}/".format(self.up.pk)),
-			(False, "/profile/{0}/preferences/".format(self.up.pk)),
+			(True, "/profile/{0}/".format(self.up.user.username)),
+			(False, "/profile/{0}/preferences/".format(self.up.user.username)),
 			(True, "/manage/"),
 			(True, "/manage/assign_shifts/"),
 			(False, "/manage/add_workshifter/"),
@@ -702,8 +702,8 @@ class TestPermissions(TestCase):
 		urls = [
 			(False, "/start/"),
 			(True, "/"),
-			(True, "/profile/{0}/".format(self.up.pk)),
-			(True, "/profile/{0}/preferences/".format(self.up.pk)),
+			(True, "/profile/{0}/".format(self.up.user.username)),
+			(True, "/profile/{0}/preferences/".format(self.up.user.username)),
 			(False, "/manage/"),
 			(False, "/manage/assign_shifts/"),
 			(False, "/manage/add_workshifter/"),
@@ -730,8 +730,8 @@ class TestPermissions(TestCase):
 		urls = [
 			(False, "/start/"),
 			(True, "/"),
-			(True, "/profile/{0}/".format(self.up.pk)),
-			(False, "/profile/{0}/preferences/".format(self.up.pk)),
+			(True, "/profile/{0}/".format(self.up.user.username)),
+			(False, "/profile/{0}/preferences/".format(self.up.user.username)),
 			(False, "/manage/"),
 			(False, "/manage/assign_shifts/"),
 			(False, "/manage/add_workshifter/"),
