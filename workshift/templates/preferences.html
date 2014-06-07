@@ -17,31 +17,29 @@
 {% endblock %}
 
 {% block w_content %}
-<div class="table_container">
-  <form id="preferences_form" method="post" action="" name="update_profile">
-	{% csrf_token %}
-	{% for form in type_forms %}
-	<div>
-	  <h4>{{ form.wtype.title }}:</h4>
-	  {{ form|bootstrap }}
-	</div>
-	{% endfor %}
-	<table >
-	  <tbody>
-		{% for form in time_formset.forms %}
-		<tr id="timeformset_row">
-		  <td>{{ form.preference}}</td>
-		  <td>{{ form.day }}</td>
-		  <td>{{ form.start_time }}</td>
-		  <td>{{ form.end_time }}</td>
-		</tr>
-		{% endfor %}
-	  </tbody>
-	</table>
-	{{ time_formset.management_form }}
-	<button type="submit" class="btn btn-success">Update preferences</button>
-  </form>
-</div> <!-- .table_container -->
+<form id="preferences_form" method="post" action="" name="update_profile">
+  {% csrf_token %}
+  {% for form in type_forms %}
+  <div>
+	<h4>{{ form.wtype.title }}:</h4>
+	{{ form|bootstrap }}
+  </div>
+  {% endfor %}
+  <table >
+	<tbody>
+	  {% for form in time_formset.forms %}
+	  <tr id="timeformset_row">
+		<td>{{ form.preference}}</td>
+		<td>{{ form.day }}</td>
+		<td>{{ form.start_time }}</td>
+		<td>{{ form.end_time }}</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {{ time_formset.management_form }}
+  <button type="submit" class="btn btn-success">Update preferences</button>
+</form>
 {% endblock %}
 
 {% block endscripts %}
