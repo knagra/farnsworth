@@ -44,6 +44,17 @@
 	    	<li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
 	    	<li><a href="{% url 'list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
 	    	<li><a href="{% url 'list_user_requests' targetUsername=user.username %}" ><span class="glyphicon glyphicon-inbox"></span> My Requests</a></li>
+	    	<li class="divider"></li>
+	    	{% if WORKSHIFT_ENABLED %}
+	    	<li class="dropdown-header">Workshift</li>
+	    	<li><a href="{% url 'workshift:view_semester' %}"><span class="glyphicon glyphicon-time"></span> Today's Shift's</a></li>
+	    	{% if CURRENT_SEMESTER %}
+	    	<li><a href="{% url 'workshift:profile' %}"><span class="glyphicon glyphicon-briefcase"></span> My Profile</a></li>
+				{% elif SEMESTER %}
+				<li><a href="{% url 'workshift:profile' %}"><span class="glyphicon glyphicon-briefcase"></span> My SEMESTER Profile</a></li>
+				{% endif %}
+	    	<li class="divider"></li>
+	    	{% endif %}
 			<li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 		</ul>
 	      </li>
