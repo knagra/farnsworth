@@ -20,11 +20,15 @@
   <form method="post" action="" name="update_profile">
 	{% csrf_token %}
 	{% for form in type_forms %}
-	{{ form.wtype.title }}:
-	{{ form|bootstrap }}
+	<div>
+	  <h4>{{ form.wtype.title }}:</h4>
+	  {{ form|bootstrap }}
+	</div>
 	{% endfor %}
 	<table>
-	  {{ time_formset.as_table }}
+	  <tbody>
+		{{ time_formset.as_table }}
+	  </tbody>
 	</table>
 	<button type="submit" class="btn btn-success">Update preferences</button>
   </form>
