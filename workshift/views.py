@@ -490,12 +490,6 @@ def edit_type_view(request, pk):
 	View for a manager to edit the details of a particular WorkshiftType.
 	"""
 	shift = get_object_or_404(WorkshiftType, pk=pk)
-
-	if not can_manage(request, semester):
-		messages.add_message(request, messages.ERROR,
-							 MESSAGES['ADMINS_ONLY'])
-		return HttpResponseRedirect(reverse('workshift:view_semester'))
-
 	edit_form = WorkshiftTypeForm(
 		request.POST if "edit_shift" in request.POST else None,
 		instance=shift,
