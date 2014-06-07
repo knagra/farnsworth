@@ -296,6 +296,9 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		for form in type_forms:
 			form.save()
 		time_formset.save()
+        return HttpResponseRedirect(wurl('workshift:view_preferences',
+                                         sem_url=semester.sem_url,
+                                         targetUsername=request.user.username)
 
 	page_name = "{0}'s Workshift Preferences".format(
 		wprofile.user.get_full_name())
