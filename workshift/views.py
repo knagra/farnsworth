@@ -253,12 +253,12 @@ def _get_forms(profile, shift):
 	return forms
 
 @get_workshift_profile
-def profile_view(request, semester, pk, profile=None):
+def profile_view(request, semester, targetUsername, profile=None):
 	"""
 	Show the user their workshift history for the current semester as well as
 	upcoming shifts.
 	"""
-	wprofile = get_object_or_404(WorkshiftProfile, pk=pk)
+	wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
 	page_name = "{0}'s Workshift Profile".format(wprofile.user.get_full_name())
 	return render_to_response("profile.html", {
 		"page_name": page_name,
