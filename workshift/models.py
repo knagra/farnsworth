@@ -49,10 +49,6 @@ class Semester(models.Model):
 		blank=True,
 		help_text="Workshift rate for this semester.",
 		)
-	self_sign_off = models.BooleanField(
-		default=False,
-		help_text="Whether members may sign themselves off for a workshift."
-		)
 	policy = models.URLField(
 		max_length=255,
 		null=True,
