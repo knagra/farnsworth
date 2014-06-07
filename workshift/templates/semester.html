@@ -3,6 +3,7 @@
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
+{% load workshift_tags %}
 
 {% block w_headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/semester.css' %}" />
@@ -12,7 +13,7 @@
 <div class="row">
 {% if prev_day %}
 <div class="col-sm-1 col-xs-2 text-left">
-<a title="Previous day" class="day_control" href="{% url 'workshift:view_semester' sem_url=semester.sem_url %}?day={{ prev_day }}">
+<a title="Previous day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=semester.sem_url %}?day={{ prev_day }}">
 <span class="glyphicon glyphicon-chevron-left"></span>
 </a>
 </div> <!-- .col-xs-1 -->
@@ -20,7 +21,7 @@
 <h3 id="day_title" class="col-sm-10 col-xs-8 text-center w_subtitle"><span class="hidden-xs w_subtitle">Workshifts for </span>{{ day }}</h3>
 {% if next_day %}
 <div class="col-sm-1 col-xs-2 text-right">
-<a title="Next day" class="day_control" href="{% url 'workshift:view_semester' sem_url=semester.sem_url %}?day={{ next_day }}">
+<a title="Next day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=semester.sem_url %}?day={{ next_day }}">
 <span class="glyphicon glyphicon-chevron-right"></span>
 </a>
 </div> <!-- .col-sm-1 -->
@@ -50,14 +51,14 @@
 			</td>
 			<td>
 				{% if shift.workshifter %}
-				<a href="{% url 'workshift:profile' pk=shift.workshifter.pk %}">{{ shift.workshifter.user.get_full_name }}</a>
+				<a href="{% wurl 'workshift:profile' sem_url=semester.sem_url pk=shift.workshifter.pk %}">{{ shift.workshifter.user.get_full_name }}</a>
 				{% endif %}
 			</td>
 			<td>
 				{% if shift.blown %}
 				BLOWN
 				{% elif shift.verifier %}
-				<a href="{% url 'workshift:profile' pk=shift.verifier.pk %}">{{ shift.verifier.user.get_full_name }}</a>
+				<a href="{% wurl 'workshift:profile' sem_url=semester.sem_url pk=shift.verifier.pk %}">{{ shift.verifier.user.get_full_name }}</a>
 				{% endif %}
 			</td>
 			<td>
