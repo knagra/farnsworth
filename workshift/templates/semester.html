@@ -51,14 +51,14 @@
 			</td>
 			<td>
 				{% if shift.workshifter %}
-				<a href="{% wurl 'workshift:profile' sem_url=semester.sem_url pk=shift.workshifter.pk %}">{{ shift.workshifter.user.get_full_name }}</a>
+				<a href="{% wurl 'workshift:profile' sem_url=semester.sem_url targetUsername=shift.workshifter.user.username %}">{{ shift.workshifter.user.get_full_name }}</a>
 				{% endif %}
 			</td>
 			<td>
 				{% if shift.blown %}
 				BLOWN
 				{% elif shift.verifier %}
-				<a href="{% wurl 'workshift:profile' sem_url=semester.sem_url pk=shift.verifier.pk %}">{{ shift.verifier.user.get_full_name }}</a>
+				<a href="{% wurl 'workshift:profile' sem_url=semester.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
 				{% endif %}
 			</td>
 			<td>
