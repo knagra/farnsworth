@@ -10,10 +10,10 @@
 
 {% block w_content %}
 <div class="table_container">
-{% for shift in shifts %}
-<p>{{ shift.title }}</p>
-<p>{{ shift.pool.title }}</p>
-<p>{{ shift.hours }}</p>
-{% endfor %}
+  {% for shift, can_edit in shift_tuples %}
+  <p>{{ shift.title }}</p>
+  <p>{{ shift.pool.title }}</p>
+  <p>{{ shift.hours }}</p>
+  {% endfor %}
 </div> <!-- .table_container -->
 {% endblock %}

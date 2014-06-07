@@ -32,7 +32,7 @@
 <h5 id="shifts_title">Upcoming Shifts</h5>
 <div id="upcoming_shifts" class="list-group">
 {% for shift, happening in upcoming_shifts %}
-	<a title="See shift info" href="{% url 'view_instance' pk=shift.pk %}" class="list-group-item"><span class="badge">{{ shift.hours }}</span>{{ shift.title }},
+	<a title="See shift info" href="{% url 'workshift:view_instance' pk=shift.pk %}" class="list-group-item"><span class="badge">{{ shift.hours }}</span>{{ shift.title }},
 	{{ shift.date }}{% if shift.start_time %}{{ shift.start_time }}{% if shift.end_time %}
 	- {{ shift.end_time }} {% endif %}{% endif %}</a>
 {% endfor %}
