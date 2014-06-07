@@ -10,7 +10,7 @@
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
   $(function() {
-  $("#preferences_form tbody tr").formset({
+  $("#timeformset_row").formset({
   prefix: "{{ time_formset.prefix }}",
   })})
 </script>
@@ -29,7 +29,7 @@
 	<table >
 	  <tbody>
 		{% for form in time_formset.forms %}
-		<tr>
+		<tr id="timeformset_row">
 		  <td>{{ form.preference}}</td>
 		  <td>{{ form.day }}</td>
 		  <td>{{ form.start_time }}</td>
