@@ -9,7 +9,7 @@ from __future__ import division, absolute_import
 from datetime import date, datetime, timedelta
 
 from django.utils.timezone import utc
-from django.conf.settings import ADMINS
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import models
@@ -58,7 +58,8 @@ def add_workshift_context(request):
 		messages.add_message(
 			request, messages.WARNING,
 			MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(
-				admin_email=ADMINS[0][1], workshift_emails=workshift_email_str,
+				admin_email=settings.ADMINS[0][1],
+				workshift_emails=workshift_email_str,
 				))
 	workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
 	now = datetime.utcnow().replace(tzinfo=utc)
