@@ -12,13 +12,18 @@
 {% block w_content %}
 <form id="preferences_form" method="post" action="" name="update_profile">
   {% csrf_token %}
+  {% if type_forms %}
+  <h2>Workshift Preferences</h2>
   {% for form in type_forms %}
   <div>
 	<h4>{{ form.wtype.title }}:</h4>
 	{{ form|bootstrap }}
   </div>
   {% endfor %}
-  <table >
+  {% endif %}
+  {% if time_formset %}
+  <h2>Your Schedule</h2>
+  <table>
 	<tbody>
 	  {% for form in time_formset.forms %}
 	  <tr id="timeformset_row">
@@ -31,6 +36,9 @@
 	</tbody>
   </table>
   {{ time_formset.management_form }}
+  {% endif %}
+  <h2>Notes</h2>
+  {{ note_form|bootstrap }}
   <button type="submit" class="btn btn-success">Update preferences</button>
 </form>
 {% endblock %}

@@ -303,3 +303,8 @@ class WorkshiftRatingForm(forms.ModelForm):
 		instance.workshift_type = self.wtype
 		instance.save(*args, **kwargs)
 		return instance
+
+class ProfileNoteForm(forms.ModelFrom):
+	class Meta:
+		model = WorkshiftProfile
+		fields = ["note"]

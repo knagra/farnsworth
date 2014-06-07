@@ -291,14 +291,17 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		request.POST or None,
 		queryset=wprofile.time_blocks.all(),
 		)
+	note_form = ProfileNoteForm(request.POST or None, instance=wprofile)
 
-	if all(form.is_valid() for form in type_forms) and time_formset.is_valid():
+	if all(form.is_valid() for form in type_forms) and time_formset.is_valid() and \
+	  note_form.is_valid():
 		for form in type_forms:
 			form.save()
 		time_formset.save()
-        return HttpResponseRedirect(wurl('workshift:view_preferences',
-                                         sem_url=semester.sem_url,
-                                         targetUsername=request.user.username)
+		note_form.save()
+		return HttpResponseRedirect(wurl('workshift:view_preferences',
+										 sem_url=semester.sem_url,
+										 targetUsername=request.user.username))
 
 	page_name = "{0}'s Workshift Preferences".format(
 		wprofile.user.get_full_name())
@@ -307,6 +310,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		"profile": wprofile,
 		"type_forms": type_forms,
 		"time_formset": time_formset,
+		"note_form": note_form,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
