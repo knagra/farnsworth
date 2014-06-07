@@ -9,6 +9,9 @@
 {% endblock %}
 
 {% block w_content %}
-<div class="table_container">
-</div> <!-- .table_container -->
+<form method="post" action="" >
+  {% csrf_token %}
+  {{ form|bootstrap}}
+  <button type="submit" class="btn btn-success">Create Workshift</button>
+</form>
 {% endblock %}

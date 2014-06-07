@@ -174,6 +174,8 @@ def view_semester(request, semester, profile=None):
 				f = form(request.POST, profile=profile)
 				if f.is_valid():
 					f.save()
+					return HttpResponseRedirect(wurl("workshift:view_semester",
+													 sem_url=semester.sem_url))
 				else:
 					for error in f.errors.values():
 						messages.add_message(request, messages.ERROR, error)
@@ -376,8 +378,13 @@ def add_shift_view(request):
 	View for the workshift manager to create new types of workshifts.
 	"""
 	page_name = "Add Workshift"
+	add_shift_form = AddWorkshiftTypeForm(request.POST or None)
+	if add_shift_form.is_valid():
+		add_shift_form.save()
+		return HttpResponseRedirect(wurl("workshift:list_types"))
 	return render_to_response("add_shift.html", {
 		"page_name": page_name,
+		"form": add_shift_form,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
