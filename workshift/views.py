@@ -261,11 +261,11 @@ def profile_view(request, semester, pk, profile=None):
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
-def preferences_view(request, semester, pk, profile=None):
+def preferences_view(request, semester, targetUsername, profile=None):
 	"""
 	Show the user their preferences for the given semester.
 	"""
-	wprofile = get_object_or_404(WorkshiftProfile, pk=pk)
+	wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
 
 	if wprofile.user != request.user and not can_manager(request, semester):
 		messages.add_message(request, messages.ERROR,
