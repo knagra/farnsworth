@@ -86,6 +86,14 @@ def add_workshift_context(request):
         date__gte=date.today(),
         date__lte=date.today() + timedelta(days=2),
         )
+	# TODO: Add a fudge factor of an hour to this?
+	happening_now = [
+		shift.week_long or
+		not shift.start_time or
+		not shift.end_time or
+		(now > shift.start_time and now < shift.end_time)
+		for shift in upcoming_shifts
+		]
 	return {
 		'SEMESTER': SEMESTER,
 		'CURRENT_SEMESTER': CURRENT_SEMESTER,
@@ -93,7 +101,7 @@ def add_workshift_context(request):
 		'days_passed': days_passed,
 		'total_days': total_days,
 		'semester_percent': semester_percent,
-		'upcoming_shifts': upcoming_shifts,
+		'upcoming_shifts': zip(upcoming_shifts, happening_now),
 		}
 
 @workshift_manager_required
