@@ -268,7 +268,7 @@ def preferences_view(request, semester, pk, profile=None):
 	"""
 	wprofile = get_object_or_404(WorkshiftProfile, pk=pk)
 
-	if wprofile.user != request.user and not _can_manager(request, semester):
+	if wprofile.user != request.user and not can_manager(request, semester):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(reverse('workshift:view_semester'))
@@ -310,7 +310,7 @@ def manage_view(request, semester, profile=None):
 	page_name = "Manage Workshift"
 	pools = WorkshiftPool.objects.filter(semester=semester)
 
-	if not _can_manage(request, semester):
+	if not can_manage(request, semester):
 		pools = pools.filter(managers__incumbent__user=request.user)
 		if not pools.count():
 			messages.add_message(request, messages.ERROR,
@@ -470,49 +470,40 @@ def edit_instance_view(request, semester, pk, profile=None):
         "edit_form": edit_form,
 	}, context_instance=RequestContext(request))
 
-@get_workshift_profile
-def list_types_view(request, semester, profile=None):
+@login_required
+def list_types_view(request):
 	"""
 	View the details of a particular WorkshiftType.
 	"""
 	page_name = "Workshift Types"
 	shifts = WorkshiftType.objects.all()
-	manager = can_manage(request, semester)
-	shifts_manage = [
-		can_manage or shift.pool.managers.filter(incumbent__user=request.user)
-		for shift in shifts
-		]
-
 	return render_to_response("list_types.html", {
 		"page_name": page_name,
-		"shift_tuples": zip(shifts, shifts_manage),
-		"can_add": manager,
+		"shifts": shifts,
+		"can_edit": can_manage(request),
 	}, context_instance=RequestContext(request))
 
-@get_workshift_profile
-def type_view(request, semester, pk, profile=None):
+@login_required
+def type_view(request, pk):
 	"""
 	View the details of a particular WorkshiftType.
 	"""
 	shift = get_object_or_404(WorkshiftType, pk=pk)
 	page_name = shift.title
-	managers = shift.pool.managers.filter(incumbent__user=request.user)
-	can_edit = managers.count() > 0 or request.user.is_superuser
-
 	return render_to_response("view_type.html", {
 		"page_name": page_name,
 		"shift": shift,
-		"can_edit": can_edit,
+		"can_edit": can_manage(request),
 	}, context_instance=RequestContext(request))
 
-@get_workshift_profile
-def edit_type_view(request, semester, pk, profile=None):
+@workshift_manager_required
+def edit_type_view(request, pk):
 	"""
 	View for a manager to edit the details of a particular WorkshiftType.
 	"""
 	shift = get_object_or_404(WorkshiftType, pk=pk)
 
-	if not _can_manage(request, semester):
+	if not can_manage(request, semester):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(reverse('workshift:view_semester'))
