@@ -467,13 +467,16 @@ def list_types_view(request, semester, profile=None):
 	"""
 	page_name = "Workshift Types"
 	shifts = WorkshiftType.objects.all()
-	managers = shift.pool.managers.filter(incumbent__user=request.user)
-	can_edit = managers.count() > 0 or request.user.is_superuser
+	manager = can_manage(request, semester)
+	shifts_manage = [
+		can_manage or shift.pool.managers.filter(incumbent__user=request.user)
+		for shift in shifts
+		]
 
 	return render_to_response("list_types.html", {
 		"page_name": page_name,
-		"shifts": shifts,
-		"can_edit": can_edit,
+		"shift_tuples": zip(shifts, shifts_manage),
+		"can_add": manager,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
