@@ -33,9 +33,7 @@ def add_workshift_context(request):
 		SEMESTER = request.semester
 	except AttributeError:
 		#return dict()
-		return {'days_passed': 47,
-			'total_days': 123,
-			'semester_percent': round((47 / 123) * 100, 2),
+		return {'WORKSHIFT_ENABLED': False,
 			}
 	WORKSHIFT_MANAGER = False # whether the user has workshift manager privileges
 	try:
@@ -97,6 +95,7 @@ def add_workshift_context(request):
 		for shift in upcoming_shifts
 		]
 	return {
+		'WORKSHIFT_ENABLED': True,
 		'SEMESTER': SEMESTER,
 		'CURRENT_SEMESTER': CURRENT_SEMESTER,
 		'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
@@ -361,16 +360,8 @@ def add_shift_view(request):
 	View for the workshift manager to create new types of workshifts.
 	"""
 	page_name = "Add Workshift"
-	form = AddWorkshiftTypeForm(request.POST or None)
-
-	if form.is_valid():
-		form.save()
-		messages.add_message(request, messages.INFO, "Workshift successfully added.")
-		return HttpResponseRedirect(reverse('workshift:manage'))
-
 	return render_to_response("add_shift.html", {
 		"page_name": page_name,
-		"form": form,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -380,13 +371,10 @@ def shift_view(request, semester, pk, profile=None):
 	"""
 	shift = get_object_or_404(RegularWorkshift, pk=pk)
 	page_name = shift.title
-	managers = shift.pool.managers.filter(incumbent__user=request.user)
-	can_edit = managers.count() > 0 or request.user.is_superuser
 
 	return render_to_response("view_shift.html", {
 		"page_name": page_name,
 		"shift": shift,
-		"can_edit": can_edit,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -395,7 +383,9 @@ def edit_shift_view(request, semester, pk, profile=None):
 	View for a manager to edit the details of a particular RegularWorkshift.
 	"""
 	shift = get_object_or_404(RegularWorkshift, pk=pk)
-	managers = shift.pool.managers.filter(incumbent__user=request.user)
+
+	user_profile = UserProfile.objects.get(user=request.user)
+	managers = shift.pool.managers.filter(incumbent=user_profile)
 
 	if not request.user.is_superuser and not managers.count():
 		messages.add_message(request, messages.ERROR,
@@ -408,7 +398,6 @@ def edit_shift_view(request, semester, pk, profile=None):
 		)
 
 	if "delete_shift" in request.POST:
-		# TODO: Check something else? Require a password?
 		shift.delete()
 		return HttpResponseRedirect(reverse('workshift:manage'))
 	elif edit_form.is_valid():
@@ -429,13 +418,10 @@ def instance_view(request, semester, pk, profile=None):
 	"""
 	shift = get_object_or_404(WorkshiftInstance, pk=pk)
 	page_name = shift.title
-	managers = shift.pool.managers.filter(incumbent__user=request.user)
-	can_edit = managers.count() > 0 or request.user.is_superuser
 
 	return render_to_response("view_instance.html", {
 		"page_name": page_name,
 		"shift": shift,
-		"can_edit": can_edit,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -444,7 +430,9 @@ def edit_instance_view(request, semester, pk, profile=None):
 	View for a manager to edit the details of a particular WorkshiftInstance.
 	"""
 	shift = get_object_or_404(WorkshiftInstance, pk=pk)
-	managers = shift.pool.managers.filter(incumbent__user=request.user)
+
+	user_profile = UserProfile.objects.get(user=request.user)
+	managers = shift.pool.managers.filter(incumbent=user_profile)
 
 	if not request.user.is_superuser and not managers.count():
 		messages.add_message(request, messages.ERROR,
