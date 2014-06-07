@@ -87,11 +87,13 @@ def add_workshift_context(request):
         date__lte=date.today() + timedelta(days=2),
         )
 	# TODO: Add a fudge factor of an hour to this?
+	# TODO: Do we want now.time() or now.timetz()
 	happening_now = [
 		shift.week_long or
-		not shift.start_time or
-		not shift.end_time or
-		(now > shift.start_time and now < shift.end_time)
+		(shift.date == date.today() and
+		 not shift.start_time or
+		 not shift.end_time or
+		 (now.time() > shift.start_time and now.time() < shift.end_time))
 		for shift in upcoming_shifts
 		]
 	return {
