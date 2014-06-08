@@ -41,12 +41,11 @@
 	      <li class="dropdown">
 			<a href="#" class="dropdown-toggle" data-toggle="dropdown"{% if ANONYMOUS_SESSION %} style="color: #ff0000;" title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}><span class="glyphicon glyphicon-user"></span> {{ user.first_name }} <b class="caret"></b></a>
 			<ul class="dropdown-menu">
-				<li><a href="{% url 'workshift:profile' targetUsername=user.username %}" >{% if STANDING %}<span title="{% if STANDING > 0 or STANDING == 0 %}Up{% else %}Down{% endif %} {{ STANDING }} hours" class="badge {% if STANDING > 0 or STANDING == 0 %}alert-success{% else %}alert-danger{% endif %} pull-right">{% if STANDING > 0 or STANDING = 0 %}+{% endif %}{{ STANDING }}</span>
-					{% endif %}<span class="glyphicon glyphicon-user"></span> My Profile</a></li>
 				<li><a href="{% url 'list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
 				<li><a href="{% url 'list_user_requests' targetUsername=user.username %}" ><span class="glyphicon glyphicon-inbox"></span> My Requests</a></li>
 				<li class="divider"></li>
-				<li><a href="#" ><span class="glyphicon glyphicon-dashboard"></span> Workshift Dashboard</a></li>
+				<li><a href="{% url 'workshift:profile' targetUsername=user.username %}" >{% if STANDING %}<span title="{% if STANDING > 0 or STANDING == 0 %}Up{% else %}Down{% endif %} {{ STANDING }} hours" class="badge {% if STANDING > 0 or STANDING == 0 %}alert-success{% else %}alert-danger{% endif %} pull-right">{% if STANDING > 0 or STANDING = 0 %}+{% endif %}{{ STANDING }}</span>
+					{% endif %}<span class="glyphicon glyphicon-dashboard"></span> Workshift Dashboard</a></li>
 				<li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
 				<li class="divider"></li>
 				<li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
@@ -75,15 +74,15 @@
 			<li><a href="{% url 'events:list' %}" ><span class="glyphicon glyphicon-calendar"></span> Upcoming Events</a></li>
 			<li class="divider"></li>
 			<li class="dropdown-header">Workshift</li>
-			<li><a href="{% url 'workshift:view_semester' %}" ><span class="glyphicon glyphicon-briefcase"></span> Workshift Board</a></li>
+			<li><a href="{% url 'workshift:view_semester' %}" ><span class="glyphicon glyphicon-list-alt"></span> Workshift Board</a></li>
 			<li><a href="#" ><span class="glyphicon glyphicon-tasks"></span> Standings</a></li>
-			<li><a href="#" ><span class="glyphicon glyphicon-list-alt"></span> All Shifts</a></li>
+			<li><a href="#" ><span class="glyphicon glyphicon-align-justify"></span> All Shifts</a></li>
 			<li class="divider"></li>
 			<li class="dropdown-header">Utilities</li>
 			<li><a class="menu_link" href="{% url 'helppage' %}"><span class="glyphicon glyphicon-question-sign"></span> How To</a></li>
 			<li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a></li>
 			<li><a href="{% url 'external' %}"><span class="glyphicon glyphicon-plane"></span> Landing</a></li>
-			<li><a href="#" ><span class="glyphicon glyphicon-folder-close"></span> Archives</a></li>
+			<li><a href="#" ><span class="glyphicon glyphicon-hdd"></span> Archives</a></li>
 			<li class="divider"></li>
 	        <li><a href="https://github.com/knagra/farnsworth" target="_blank" ><span class="glyphicon glyphicon-info-sign"></span> Source</a></li>
 	      </ul> <!-- .dropdown-menu -->
@@ -98,9 +97,13 @@
 			<li><a href="{% url 'manage_profile_requests' %}"><span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}" class="badge pull-right">{% if NUM_OF_PROFILE_REQUESTS > 0 %}{{ NUM_OF_PROFILE_REQUESTS }}{% endif %}</span>
 				<span class="glyphicon glyphicon-inbox"></span> Profile Requests</a></li>
 			<li class="divider"></li>
-			<li class="dropdown-header">President Duties</li>
+			<li class="dropdown-header">President</li>
 			<li><a href="{% url 'meta_manager' %}"><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
 			<li><a href="{% url 'manage_request_types' %}"><span class="glyphicon glyphicon-inbox"></span> Manage Request Types</a></li>
+			<li class="divider"></li>
+			<li class="dropdown-header">Workshift Manager</li>
+			<li><a href="{% url 'workshift:manage' %}"><span class="glyphicon glyphicon-adjust"></span> Manage</a></li>
+			<li><a href="#"><span class="glyphicon glyphicon-list"></span> Manage Profiles</a></li>
 			<li class="divider"></li>
 			<li class="dropdown-header">Miscellaneous</li>
 			<li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Site Utilities</a></li>
