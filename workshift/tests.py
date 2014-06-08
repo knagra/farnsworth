@@ -198,6 +198,33 @@ class TestViews(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.wtype.title, response.content)
 
+	def test_preferences_full(self):
+		url = "/workshift/profile/{0}/preferences/" \
+			.format(self.wprofile.user.username)
+
+		response = self.client.post(url, {
+				"pk": self.wtype.pk,
+				"rating": WorkshiftRating.LIKE,
+				"form-0-preference": TimeBlock.BUSY,
+				"form-0-day": DAYS[0][0], # Monday
+				"form-0-start_time": "8:00 AM",
+				"form-0-end_time": "5:00 PM",
+				"form-1-preference": TimeBlock.FREE,
+				"form-1-day": DAYS[-1][0], # Sunday
+				"form-1-start_time": "4:00 PM",
+				"form-1-end_time": "9:00 PM",
+				"form-1-preference": TimeBlock.PREFERRED,
+				"form-1-day": DAYS[1][0], # Tuesday
+				"form-1-start_time": "6:00 PM",
+				"form-1-end_time": "10:00 PM",
+				"form-TOTAL_FORMS": 2,
+				"form-INITIAL_FORMS": 0,
+				"form-MAX_NUM_FORMS": 1000,
+				"note": "Dishes are fun, pots are cathartic.",
+				}, follow=True)
+		self.assertRedirects(response, url)
+		self.assertIn("Preferences saved.", response.content)
+
 	def test_views_load(self):
 		urls = [
 			"/start/",
