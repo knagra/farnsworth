@@ -7,13 +7,14 @@
 {% block w_headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
 {% endblock %}
 
 {% block w_content %}
 <form id="preferences_form" method="post" action="" name="update_profile">
   {% csrf_token %}
   {% if type_forms %}
-  <h2>Workshift Preferences</h2>
+  <h2 class="w_title">Workshift Preferences</h2>
   {% for form in type_forms %}
   <div>
 	<h4>{{ form.wtype.title }}:</h4>

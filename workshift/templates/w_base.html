@@ -37,6 +37,11 @@
 </div> <!-- .col-lg-8 -->
 <div id="side_bar" class="col-md-3">
 {% block sidebartop %}{% endblock %}
+{% if WORKSHIFT_PROFILE %}
+
+{% else %}
+
+{% endif %}
 {% if upcoming_shifts %}
 <h5 id="shifts_title">Upcoming Shifts</h5>
 <div id="upcoming_shifts" class="list-group">

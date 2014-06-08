@@ -33,9 +33,16 @@ def add_workshift_context(request):
 	try:
 		SEMESTER = request.semester
 	except AttributeError:
-		#return dict()
-		return {'WORKSHIFT_ENABLED': False,
+		try:
+			SEMESTER = WorkshiftProfile.objects.filter(user=request.user).latest('semester__start_date').semester
+		except WorkshiftProfile.DoesNotExist:
+			return {'WORKSHIFT_ENABLED': False,
 			}
+	try:
+		workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
+	except WorkshiftProfile.DoesNotExist:
+		return {'WORKSHIFT_ENABLED': False,
+		}
 	WORKSHIFT_MANAGER = False # whether the user has workshift manager privileges
 	try:
 		userProfile = UserProfile.objects.get(user=request.user)
@@ -72,7 +79,6 @@ def add_workshift_context(request):
 		if len(workshift_emails) > 0:
 			workshift_emails += ')'
 		messages.add_message(request, messages.WARNING, MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(admin_email=ADMINS[0][1], workshift_emails=workshift_emails))
-	workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
 	now = datetime.utcnow().replace(tzinfo=utc)
 	days_passed = (date.today() - SEMESTER.start_date).days # number of days passed in this semester
 	total_days = (SEMESTER.end_date - SEMESTER.start_date).days # total number of days in this semester
@@ -100,6 +106,7 @@ def add_workshift_context(request):
 		'SEMESTER': SEMESTER,
 		'CURRENT_SEMESTER': CURRENT_SEMESTER,
 		'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
+		'WORKSHIFT_PROFILE': workshift_profile,
 		'days_passed': days_passed,
 		'total_days': total_days,
 		'semester_percent': semester_percent,
@@ -196,7 +203,7 @@ def view_semester(request, semester, profile=None):
 		except (TypeError, ValueError):
 			pass
 
-	template_dict["day"] = day.strftime("%A, %B %e, %Y")
+	template_dict["day"] = day
 	if day > semester.start_date:
 		template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
 	if day < semester.end_date:

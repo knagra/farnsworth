@@ -150,16 +150,16 @@
 	  </div>
     </div> <!-- .container -->
     </div> <!-- .navbar -->
-    <div class="container">
     {% if messages %}
     {% for message in messages %}
-    <div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}">
+    <div class="container">
+    <div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}" style="margin-top: 10px;">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
     {{ message|safe }}
     </div> <!-- .alert -->
+    </div> <!-- .container -->
     {% endfor %}
     {% endif %}
-    </div> <!-- .container -->
 
 		{% block jumbotron %}{% endblock %}
     <div class="container">
