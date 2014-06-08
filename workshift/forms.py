@@ -7,6 +7,11 @@ from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
 	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
 
+class FullSemesterForm(forms.ModelForm):
+	class Meta:
+		model = Semester
+		fields = "__all__"
+
 class SemesterForm(forms.ModelForm):
 	class Meta:
 		model = Semester

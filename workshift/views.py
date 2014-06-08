@@ -9,6 +9,7 @@ from __future__ import division, absolute_import
 from datetime import date, datetime, timedelta
 
 from django.utils.timezone import utc
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import models
@@ -23,7 +24,7 @@ from utils.variables import MESSAGES
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.decorators import get_workshift_profile, \
-workshift_manager_required, semester_required
+	workshift_manager_required, semester_required
 from workshift.models import *
 from workshift.forms import *
 from workshift.utils import can_manage
@@ -43,48 +44,39 @@ def add_workshift_context(request):
 	except WorkshiftProfile.DoesNotExist:
 		return {'WORKSHIFT_ENABLED': False,
 		}
-	WORKSHIFT_MANAGER = False # whether the user has workshift manager privileges
-	try:
-		userProfile = UserProfile.objects.get(user=request.user)
-	except (UserProfile.DoesNotExist, TypeError):
-		pass
-	else:
-		for pos in Manager.objects.filter(incumbent=userProfile):
-			if pos.workshift_manager:
-				WORKSHIFT_MANAGER = True
-				break
+	WORKSHIFT_MANAGER = can_manage(request, SEMESTER)
 	try:
 		CURRENT_SEMESTER = Semester.objects.get(current=True)
 	except Semester.DoesNotExist:
 		CURRENT_SEMESTER = None
 	except Semester.MultipleObjectsReturned:
 		CURRENT_SEMESTER = Semester.objects.all().latest(start_date)
-		workshift_emails = ""
-		x = 0 # counter for how many e-mails have been added
+		workshift_emails = []
 		for pos in Manager.objects.filter(workshift_manager=True, active=True):
 			if pos.email:
-				if x == 0:
-					workshift_emails += '('
-				else:
-					workshift_emails += ', '
-				workshift_emails += '<a href="mailto:{email}">{email}</a>'.format(email=pos.email)
-				x += 1
+				workshift_emails.append(pos.email)
 			elif pos.incumbent.email_visible and pos.incumbent.user.email:
-				if x == 0:
-					workshift_emails += '('
-				else:
-					workshift_emails += ', '
-				workshift_emails += '<a href="mailto:{email}">{email}</a>'.format(email=pos.incumbent.user.email)
-				x += 1
-		if len(workshift_emails) > 0:
-			workshift_emails += ')'
-		messages.add_message(request, messages.WARNING, MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(admin_email=ADMINS[0][1], workshift_emails=workshift_emails))
+				workshift_emails.append(pos.incumbent.user.email)
+		if workshift_emails:
+			workshift_email_str = " ({0})".format(
+				", ".join([i.format('<a href="mailto:{0}">{0}</a>')
+						   for i in workshift_emails])
+				)
+		else:
+			workshift_email_str = ""
+		messages.add_message(
+			request, messages.WARNING,
+			MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(
+				admin_email=settings.ADMINS[0][1],
+				workshift_emails=workshift_email_str,
+				))
+	workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
 	now = datetime.utcnow().replace(tzinfo=utc)
 	days_passed = (date.today() - SEMESTER.start_date).days # number of days passed in this semester
 	total_days = (SEMESTER.end_date - SEMESTER.start_date).days # total number of days in this semester
 	semester_percent = round((days_passed / total_days) * 100, 2)
 	pool_standings = list() # with items of form (workshift_pool, standing_in_pool)
-	#TODO figure out how to get pool standing out to the template
+	# TODO figure out how to get pool standing out to the template
 	upcoming_shifts = WorkshiftInstance.objects.filter(
         workshifter=workshift_profile,
         closed=False,
@@ -331,6 +323,7 @@ def manage_view(request, semester, profile=None):
 	page_name = "Manage Workshift"
 	pools = WorkshiftPool.objects.filter(semester=semester)
 	full_management = can_manage(request, semester)
+	semester_form = None
 
 	if not full_management:
 		pools = pools.filter(managers__incumbent__user=request.user)
@@ -339,11 +332,15 @@ def manage_view(request, semester, profile=None):
 								 MESSAGES['ADMINS_ONLY'])
 			return HttpResponseRedirect(wurl('workshift:view_semester',
 											 sem_url=semester.sem_url))
+	else:
+		semester_form = FullSemesterForm(request.POST or None,
+										 instance=semester)
 
 	return render_to_response("manage.html", {
 		"page_name": page_name,
 		"pools": pools,
 		"full_management": full_management,
+		"semester_form": semester_form,
 	}, context_instance=RequestContext(request))
 
 @semester_required
