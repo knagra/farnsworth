@@ -22,99 +22,89 @@
 <body id="html_body">
 	<div class="navbar navbar-default navbar-static-top" role="navigation">
 	<div class="container">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" title="Home" href="{% url 'homepage' %}"><span class="glyphicon glyphicon-home"></span> {{ SHORT_HOUSE }}</a>
-          </div> <!-- .navbar-header -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" title="Home" href="{% url 'homepage' %}"><span class="glyphicon glyphicon-home"></span> {{ SHORT_HOUSE }}</a>
+		</div> <!-- .navbar-header -->
 	  <div class="collapse navbar-collapse">
-	    <!-- class="active" ??? -->
+	  <!-- class="active" ??? -->
+	  {% if user.is_authenticated %}
 	    <ul class="nav navbar-nav">
-	      {% if user.is_authenticated %}
 	      {% if user.username == ANONYMOUS_USERNAME %}
 			<li><a title="Logged in as anonymous user {{ user.first_name }} {{ user.last_name }}. Click to temporarily login as yourself or request an account." style="color: #ff0000;" href="{% url 'login' %}"><span class="glyphicon glyphicon-exclamation-sign"></span> Login</a></li>
 	      {% else %}
 	      <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown"{% if ANONYMOUS_SESSION %} style="color: #ff0000;" title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}><span class="glyphicon glyphicon-user"></span> {{ user.first_name }} <b class="caret"></b></a>
-		<ul class="dropdown-menu">
-	    	<li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
-	    	<li><a href="{% url 'list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
-	    	<li><a href="{% url 'list_user_requests' targetUsername=user.username %}" ><span class="glyphicon glyphicon-inbox"></span> My Requests</a></li>
-	    	<li class="divider"></li>
-	    	{% if WORKSHIFT_ENABLED %}
-	    	<li class="dropdown-header">Workshift</li>
-	    	<li><a href="{% url 'workshift:view_semester' %}"><span class="glyphicon glyphicon-list-alt"></span> Today's Shifts</a></li>
-	    	{% if CURRENT_SEMESTER %}
-	    	<li><a href="{% url 'workshift:profile' targetUsername=user.username %}"><span class="glyphicon glyphicon-tasks"></span> My Profile</a></li>
-	    	{% endif %}
-				{% if SEMESTER != CURRENT_SEMESTER %}
-				<li><a href="{% url 'workshift:profile' targetUsername=user.username %}"><span class="glyphicon glyphicon-briefcase"></span> {{ SEMESTER.get_season_display }} {{ SEMESTER.year }} Profile</a></li>
-				{% endif %}
-	    	<li class="divider"></li>
-	    	{% endif %}
-			<li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-		</ul>
-	      </li>
-	      {% endif %}
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown"{% if ANONYMOUS_SESSION %} style="color: #ff0000;" title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}><span class="glyphicon glyphicon-user"></span> {{ user.first_name }} <b class="caret"></b></a>
+			<ul class="dropdown-menu">
+				<li><a href="{% url 'workshift:profile' targetUsername=user.username %}" >{% if STANDING %}<span title="{% if STANDING > 0 or STANDING == 0 %}Up{% else %}Down{% endif %} {{ STANDING }} hours" class="badge {% if STANDING > 0 or STANDING == 0 %}alert-success{% else %}alert-danger{% endif %} pull-right">{% if STANDING > 0 or STANDING = 0 %}+{% endif %}{{ STANDING }}</span>
+					{% endif %}<span class="glyphicon glyphicon-user"></span> My Profile</a></li>
+				<li><a href="{% url 'list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
+				<li><a href="{% url 'list_user_requests' targetUsername=user.username %}" ><span class="glyphicon glyphicon-inbox"></span> My Requests</a></li>
+				<li class="divider"></li>
+				<li><a href="#" ><span class="glyphicon glyphicon-dashboard"></span> Workshift Dashboard</a></li>
+				<li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
+				<li class="divider"></li>
+				<li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+			</ul> <!-- .dropdown-menu -->
+		  </li> <!-- .dropdown -->
+		  {% endif %} {% comment %} End if user.username == ANONYMOUS_USERNAME, else {% endcomment %}
 	      {% if REQUEST_TYPES %}
 	      <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-inbox"></span> Requests <b class="caret"></b></a>
-		<ul class="dropdown-menu">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-inbox"></span> Requests <b class="caret"></b></a>
+			<ul class="dropdown-menu">
 			{% for type_tuple in REQUEST_TYPES %}
 				<li><a href="{% url 'requests' requestType=type_tuple.0.url_name %}" ><span title="{{ type_tuple.1 }} open request{{ type_tuple.1|pluralize }}" class="badge pull-right">{% if type_tuple.1 > 0 %}{{ type_tuple.1 }}{% endif %}</span>
 				<span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span>
 				{{ type_tuple.0.name }}</a></li>
 			{% endfor %}
-		</ul>
+			</ul> <!-- .dropdown-menu -->
 	      </li>
-	      {% endif %}
+	      {% endif %} {% comment %} End if REQUEST_TYPES {% endcomment %}
 	     <li class="dropdown">
 	      <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-arrow-right"></span> Go<b class="caret"></b></a>
 	      <ul class="dropdown-menu">
-	        <li><a href="{% url 'workshift:view_semester' %}" ><span class="glyphicon glyphicon-briefcase"></span> Workshift</a></li>
 	        <li><a href="{% url 'member_forums' %}" ><span class="glyphicon glyphicon-comment"></span> Forums</a></li>
 	        <li><a href="{% url 'member_directory' %}" ><span class="glyphicon glyphicon-book"></span> Member Directory</a></li>
 	        <li><a href="{% url 'list_managers' %}" ><span class="glyphicon glyphicon-tower"></span> Manager Directory</a></li>
-		<li><a href="{% url 'announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Manager Announcements</a></li>
-		<li><a href="{% url 'events:list' %}" ><span class="glyphicon glyphicon-calendar"></span> Upcoming Events</a></li>
-	        <li><a href="{% url 'external' %}"><span class="glyphicon glyphicon-plane"></span> Landing</a></li>
-		<li class="divider"></li>
-		<li class="dropdown-header">Archives</li>
-			<li><a href="{% url 'list_all_threads' %}" ><span class="glyphicon glyphicon-comment"></span> All Threads</a></li>
-			<li><a href="{% url 'all_requests' %}"><span class="glyphicon glyphicon-inbox"></span> All Requests</a></li>
-			<li><a href="{% url 'all_announcements' %}"><span class="glyphicon glyphicon-bullhorn"></span> All Announcements</a></li>
-			<li><a href="{% url 'events:all' %}"><span class="glyphicon glyphicon-calendar"></span> All Events</a></li>
-        <li class="divider"></li>
-        <li class="dropdown-header">Utilities</li>
-	      <li><a class="menu_link" href="{% url 'helppage' %}"><span class="glyphicon glyphicon-question-sign"></span> How To</a></li>
-	      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a></li>
-		<li class="divider"></li>
-		<li class="dropdown-header">External</li>
-	        <li><a href="http://workshift.bsc.coop/kng/" target="_blank" ><span class="glyphicon glyphicon-briefcase"></span> Workshift</a></li>
+			<li><a href="{% url 'announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Manager Announcements</a></li>
+			<li><a href="{% url 'events:list' %}" ><span class="glyphicon glyphicon-calendar"></span> Upcoming Events</a></li>
+			<li class="divider"></li>
+			<li class="dropdown-header">Workshift</li>
+			<li><a href="{% url 'workshift:view_semester' %}" ><span class="glyphicon glyphicon-briefcase"></span> Workshift Board</a></li>
+			<li><a href="#" ><span class="glyphicon glyphicon-tasks"></span> Standings</a></li>
+			<li><a href="#" ><span class="glyphicon glyphicon-list-alt"></span> All Shifts</a></li>
+			<li class="divider"></li>
+			<li class="dropdown-header">Utilities</li>
+			<li><a class="menu_link" href="{% url 'helppage' %}"><span class="glyphicon glyphicon-question-sign"></span> How To</a></li>
+			<li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a></li>
+			<li><a href="{% url 'external' %}"><span class="glyphicon glyphicon-plane"></span> Landing</a></li>
+			<li><a href="#" ><span class="glyphicon glyphicon-folder-close"></span> Archives</a></li>
+			<li class="divider"></li>
 	        <li><a href="https://github.com/knagra/farnsworth" target="_blank" ><span class="glyphicon glyphicon-info-sign"></span> Source</a></li>
-	      </ul>
-             </li>
+	      </ul> <!-- .dropdown-menu -->
+         </li> <!-- .dropdown -->
 	      {% if user.is_superuser %}
 	      <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> Admin <b class="caret"></b></a>
-		<ul class="dropdown-menu">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> Admin <b class="caret"></b></a>
+			<ul class="dropdown-menu">
 			<li class="dropdown-header">Users</li>
-		  <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
-		  <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
-		  <li><a href="{% url 'manage_profile_requests' %}"><span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}" class="badge pull-right">{% if NUM_OF_PROFILE_REQUESTS > 0 %}{{ NUM_OF_PROFILE_REQUESTS }}{% endif %}</span>
-			<span class="glyphicon glyphicon-inbox"></span> Profile Requests</a></li>
-		  <li class="divider"></li>
-		  <li class="dropdown-header">President Duties</li>
-		  <li><a href="{% url 'meta_manager' %}"><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
-		  <li><a href="{% url 'manage_request_types' %}"><span class="glyphicon glyphicon-inbox"></span> Manage Request Types</a></li>
-		  <li class="divider"></li>
-		  <li class="dropdown-header">Miscellaneous</li>
-		  <li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Site Utilities</a></li>
-		</ul>
+			<li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
+			<li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
+			<li><a href="{% url 'manage_profile_requests' %}"><span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}" class="badge pull-right">{% if NUM_OF_PROFILE_REQUESTS > 0 %}{{ NUM_OF_PROFILE_REQUESTS }}{% endif %}</span>
+				<span class="glyphicon glyphicon-inbox"></span> Profile Requests</a></li>
+			<li class="divider"></li>
+			<li class="dropdown-header">President Duties</li>
+			<li><a href="{% url 'meta_manager' %}"><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
+			<li><a href="{% url 'manage_request_types' %}"><span class="glyphicon glyphicon-inbox"></span> Manage Request Types</a></li>
+			<li class="divider"></li>
+			<li class="dropdown-header">Miscellaneous</li>
+			<li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Site Utilities</a></li>
+			</ul> <!-- .dropdown-menu -->
 	      </li>
 	      {% elif PRESIDENT %}
 	      <li class="dropdown">
@@ -122,32 +112,30 @@
 	      <ul class="dropdown-menu">
 			  <li><a href="{% url 'meta_manager' %}" ><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
 			  <li><a href="{% url 'manage_request_types' %}"><span class="glyphicon glyphicon-inbox"></span> Manage Request Types</a></li>
-	      </ul>
+	      </ul> <!-- .dropdown-menu -->
 	      </li>
-	      {% endif %}
-		{% endif %}
-	    </ul>
-	    {% if not user.is_authenticated %}
-	      <ul class="nav navbar-nav navbar-right">
+	      {% endif %} {% comment %} end if user.is_superuser, elif PRESIDENT {% endcomment %}
+	      </ul> <!-- .navbar-nav -->
+			<div style="padding: 0px;" class="col-sm-3 col-md-4 pull-right">
+				<form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=">
+				<div class="input-group">
+					<input type="search" class="form-control search-query" name="q" placeholder="Search">
+					<span class="input-group-btn">
+						<button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span></button>
+					</span>
+				</div> <!-- .input-group -->
+				</form>
+			</div> <!-- .col-sm-3 -->
+	  {% else %}
+		<ul class="nav navbar-nav navbar-right">
 	      <li><a class="menu_link" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 	      <li><a class="menu_link" href="{% url 'request_profile' %}"><span class="glyphicon glyphicon-leaf"></span> Request Account</a></li>
 	      <li><a class="menu_link" href="https://github.com/knagra/farnsworth" target="_blank" ><span class="glyphicon glyphicon-info-sign"></span> Source</a></li>
 	      <li><a class="menu_link" href="{% url 'helppage' %}"><span class="glyphicon glyphicon-question-sign"></span> Help</a></li>
 	      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a></li>
-	      </ul>
-	    {% else %}
-		<div style="padding: 0px;" class="col-sm-3 col-md-4 pull-right">
-	      <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=">
-			<div class="input-group">
-				<input type="search" class="form-control search-query" name="q" placeholder="Search">
-				<span class="input-group-btn">
-					<button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span></button>
-				</span>
-			</div> <!-- .input-group -->
-	      </form>
-	      </div> <!-- .col-sm-3 -->
-	    {% endif %}
-	  </div>
+		</ul> <!-- .navbar-right -->
+	  {% endif %} {% comment %} End if user.is_authenticated, else {% endcomment %}
+	  </div> <!-- .navbar-collapse -->
     </div> <!-- .container -->
     </div> <!-- .navbar -->
     {% if messages %}
@@ -173,7 +161,7 @@
     </div> <!-- .container -->
 	<div id="bottom" class="container text-center">
       Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.
-    </div>
+    </div> <!-- #bottom -->
     <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>

@@ -31,14 +31,17 @@ from workshift.utils import can_manage
 
 def add_workshift_context(request):
 	""" Add workshift variables to all dictionaries passed to templates. """
+	if request.user.is_authenticated():
+		pass
+	else:
+		return dict()
 	try:
 		SEMESTER = request.semester
 	except AttributeError:
 		try:
-			SEMESTER = WorkshiftProfile.objects.filter(user=request.user).latest('semester__start_date').semester
+			SEMESTER = Semester.objects.get(current=True)
 		except WorkshiftProfile.DoesNotExist:
-			return {'WORKSHIFT_ENABLED': False,
-			}
+			return dict()
 	try:
 		workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
 	except WorkshiftProfile.DoesNotExist:
@@ -85,6 +88,7 @@ def add_workshift_context(request):
         )
 	# TODO: Add a fudge factor of an hour to this?
 	# TODO: Do we want now.time() or now.timetz()
+	# TODO: Pass a STANDING variable that contains regular workshift up/down hours
 	happening_now = [
 		shift.week_long or
 		(shift.date == date.today() and
