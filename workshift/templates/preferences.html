@@ -50,10 +50,10 @@
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
   function renewDatePickers() {
-    $("[id$=start_time]").datetimepicker('destroy');});
-    $("[id$=end_time]").datetimepicker('destroy');});
-    $("[id$=start_time]").datetimepicker({pickDate: false});});
-    $("[id$=end_time]").datetimepicker({pickDate: false});});
+    $("[id$=start_time]").datetimepicker('destroy');
+    $("[id$=end_time]").datetimepicker('destroy');
+    $("[id$=start_time]").datetimepicker({pickDate: false});
+    $("[id$=end_time]").datetimepicker({pickDate: false});
   }
   $(renewDatePickers);
   $(function() {
