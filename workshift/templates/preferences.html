@@ -47,15 +47,20 @@
 {% block endscripts %}
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
-<script type="text/javascript">
-  $(function(){$("[id$=start_time]").datetimepicker({pickDate: false});});
-  $(function(){$("[id$=end_time]").datetimepicker({pickDate: false});});
-</script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
+  function renewDatePickers() {
+    $("[id$=start_time]").datetimepicker('destroy');});
+    $("[id$=end_time]").datetimepicker('destroy');});
+    $("[id$=start_time]").datetimepicker({pickDate: false});});
+    $("[id$=end_time]").datetimepicker({pickDate: false});});
+  }
+  $(renewDatePickers);
   $(function() {
-  $("#timeformset_row").formset({
-  prefix: "{{ time_formset.prefix }}",
-  })})
+    $("#timeformset_row").formset({
+      prefix: "{{ time_formset.prefix }}",
+      added: renewDatePickers,
+    });
+  })
 </script>
 {% endblock %}
