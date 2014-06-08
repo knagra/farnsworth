@@ -54,13 +54,16 @@
     $("[id$=end_time]").datetimepicker('destroy');
     $("[id$=start_time]").datetimepicker({pickDate: false});
     $("[id$=end_time]").datetimepicker({pickDate: false});
-  }
-  $(renewDatePickers);
-  $(function() {
-    $("#timeformset_row").formset({
-      prefix: "{{ time_formset.prefix }}",
-      added: renewDatePickers,
+  };
+  $(document).ready(function() {
+    $(renewDatePickers);
+    $(function() {
+      $("#timeformset_row").formset({
+        prefix: "{{ time_formset.prefix }}",
+        added: renewDatePickers,
+        removed: renewDatePickers,
+      });
     });
-  })
+  });
 </script>
 {% endblock %}
