@@ -31,23 +31,22 @@ from workshift.utils import can_manage
 
 def add_workshift_context(request):
 	""" Add workshift variables to all dictionaries passed to templates. """
-	if request.user.is_authenticated():
-		pass
-	else:
+	if not request.user.is_authenticated():
 		return dict()
+    # Semester is for populating the current page
 	try:
 		SEMESTER = request.semester
 	except AttributeError:
 		try:
 			SEMESTER = Semester.objects.get(current=True)
-		except WorkshiftProfile.DoesNotExist:
+		except Semester.DoesNotExist:
 			return dict()
 	try:
 		workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
 	except WorkshiftProfile.DoesNotExist:
-		return {'WORKSHIFT_ENABLED': False,
-		}
+		return {'WORKSHIFT_ENABLED': False}
 	WORKSHIFT_MANAGER = can_manage(request, SEMESTER)
+    # Current semester is for navbar notifications
 	try:
 		CURRENT_SEMESTER = Semester.objects.get(current=True)
 	except Semester.DoesNotExist:
