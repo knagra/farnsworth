@@ -30,12 +30,12 @@ Author: Karandeep Singh Nagra
 	color: #ffffff !important;
 }
 
-.navbar-right > li > a {
+.navbar_custom .navbar-right > li > a {
 	color: #dddddd !important;
 }
 
-.navbar-right > li > a:hover {
-	color: #dddddd !important;
+.navbar_custom .navbar-right > li > a:hover {
+	color: #ffffff !important;
 }
 
 #page_title {
