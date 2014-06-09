@@ -10,8 +10,8 @@ Author: Karandeep Singh Nagra
 }
 
 .navbar_custom {
-	background-color: #5e5e5e;
-	border-bottom-color: #e7e7e7 !important;
+	background-color: #5e5e5e !important;
+	border-color: #e7e7e7 !important;
 }
 
 .navbar_custom .navbar-brand {
