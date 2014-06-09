@@ -9,6 +9,27 @@ Author: Karandeep Singh Nagra
     font-weight: 400;
 }
 
+.navbar_custom {
+	background-color: #5e5e5e;
+	border-bottom-color: #e7e7e7 !important;
+}
+
+.navbar_custom .navbar-brand {
+	color: #dddddd !important;
+}
+
+.navbar_custom .navbar-brand:hover {
+	color: #ffffff !important;
+}
+
+.navbar_custom .dropdown-toggle {
+	color: #dddddd !important;
+}
+
+.navbar_custom .dropdown-toggle:hover {
+	color: #ffffff !important;
+}
+
 #page_title {
     color: black;
     font-size: 400%;
