@@ -472,7 +472,7 @@ def request_profile_view(request):
 		hashed_password = hashers.make_password(password)
 		if User.objects.filter(username=username).count():
 			reset_url = request.build_absolute_uri(reverse('reset_pw'))
-			form._errors['first_name'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
+			form._errors['username'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
 			messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
 		elif User.objects.filter(email=email).count():
 			reset_url = request.build_absolute_uri(reverse('reset_pw'))
