@@ -43,7 +43,7 @@ class UserProfile(models.Model):
 	STATUS_CHOICES = (
 		(RESIDENT, 'Current Resident'),
 		(BOARDER, 'Current Boarder'),
-		(ALUMNUS, 'Alumnus'),
+		(ALUMNUS, 'Alumna/Alumnus'),
 	)
 	status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=RESIDENT, help_text="Member status (resident, boarder, alumnus)")
 

@@ -41,11 +41,11 @@
 		  {% csrf_token %}
 		  {{ vote_form }}
 		  {% if upvote %}
-		  <button type="submit" class="btn btn-xs" name="upvote" title="Remove Star">
+		  <button type="submit" class="btn btn-xs" name="upvote" title="Remove upvote">
 			<span class="glyphicon glyphicon-star"></span>
 		  </button>
 		  {% else %}
-		  <button type="submit" class="btn btn-xs" name="upvote" title="Star">
+		  <button type="submit" class="btn btn-xs" name="upvote" title="Upvote to express approval">
 			<span class="glyphicon glyphicon-star-empty"></span>
 		  </button>
 		  {% endif %}
@@ -88,6 +88,9 @@
 	</div>
 	</div>
   </div> <!-- thread_table -->
+</div>
+<div class="text-center text-info" style="margin-top: 10px;">
+	Showing {{ request_responses.count }} response{{ request_responses.count|pluralize }}.
 </div>
 {% endblock %}
 

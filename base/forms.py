@@ -210,7 +210,7 @@ class UpdateProfileForm(forms.ModelForm):
 
 class LoginForm(forms.Form):
 	''' Form to login. '''
-	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
+	username_or_email = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
 class ChangePasswordForm(forms.Form):
