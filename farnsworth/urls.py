@@ -4,12 +4,14 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from haystack.forms import FacetedSearchForm
 from haystack.query import SearchQuerySet
 from haystack.views import FacetedSearchView
+
 admin.autodiscover()
 
 sqs = SearchQuerySet().facet('exact_user').facet('exact_location').facet('exact_manager').facet('exact_status')
@@ -40,6 +42,9 @@ urlpatterns += patterns('base.views',
 	url(r'^custom_admin/modify_user/(?P<targetUsername>\w+)/$', 'custom_modify_user_view', name='custom_modify_user'),
 	url(r'^custom_admin/add_user/$', 'custom_add_user_view', name='custom_add_user'),
 	url(r'^custom_admin/utilities/$', 'utilities_view', name='utilities'),
+	url(r'^reset/$', 'reset_pw_view', name='reset_pw'),
+	url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+		'reset_pw_confirm_view', name='reset_pw_confirm'),
 )
 
 urlpatterns += patterns('threads.views',
