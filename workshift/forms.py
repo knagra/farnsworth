@@ -295,17 +295,27 @@ class AddWorkshiftTypeForm(forms.ModelForm):
         fields = "__all__"
 
 class WorkshiftRatingForm(forms.ModelForm):
+	pk = forms.IntegerField(widget=forms.HiddenInput())
+
 	class Meta:
 		model = WorkshiftRating
 		exclude = ["workshift_type"]
 
 	def __init__(self, *args, **kwargs):
-		self.wtype = kwargs.pop("workshift_type")
+		self.pk = kwargs.pop("workshift_type").pk
 		super(WorkshiftRatingForm, self).__init__(*args, **kwargs)
+
+	def clean_pk(self):
+		pk = self.cleaned_data["pk"]
+		try:
+			shift = WorkshiftType.objects.get(pk=pk)
+		except WorkshiftType.DoesNotExist:
+			raise forms.ValidationError("Workshift does not exist.")
+		return shift
 
 	def save(self, *args, **kwargs):
 		instance = super(WorkshiftRatingForm, self).save(*args, **kwargs)
-		instance.workshift_type = self.wtype
+		instance.workshift_type = self.cleaned_data["pk"]
 		instance.save(*args, **kwargs)
 		return instance
 

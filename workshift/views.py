@@ -282,25 +282,36 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		return HttpResponseRedirect(wurl('workshift:view_semester',
 										 sem_url=semester.sem_url))
 
-	type_forms = []
-	for wtype in WorkshiftType.objects.filter(rateable=True):
-		type_forms.append(
-			WorkshiftRatingForm(
-				request.POST or None,
-				workshift_type=wtype,
-			))
+	types = WorkshiftType.objects.filter(enabled=True)
 
+	# TODO: Is there a way to create the ratings on first submit, rather than
+	# first view?
+	if types.count() > 0 and wprofile.ratings.count() == 0:
+		for wtype in types:
+			rating = WorkshiftRating(workshift_type=wtype)
+			rating.save()
+			wprofile.ratings.add(rating)
+		wprofile.save()
+
+	WorkshiftRatingFormSet = modelformset_factory(
+		WorkshiftRating, queryset=wprofile.ratings,
+		)
 	TimeBlockFormSet = modelformset_factory(TimeBlock)
+	rating_formset = WorkshiftRatingFormSet(
+		request.POST or None,
+		queryset=wprofile.ratings,
+		prefix="rating",
+		)
 	time_formset = TimeBlockFormSet(
 		request.POST or None,
 		queryset=wprofile.time_blocks.all(),
+		prefix="time",
 		)
 	note_form = ProfileNoteForm(request.POST or None, instance=wprofile)
 
-	if all(form.is_valid() for form in type_forms) and time_formset.is_valid() and \
+	if rating_formset.is_valid() and time_formset.is_valid() and \
 	  note_form.is_valid():
-		for form in type_forms:
-			form.save()
+		rating_formset.save()
 		time_formset.save()
 		note_form.save()
 		return HttpResponseRedirect(wurl('workshift:view_preferences',
@@ -312,7 +323,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	return render_to_response("preferences.html", {
 		"page_name": page_name,
 		"profile": wprofile,
-		"type_forms": type_forms,
+		"rating_formset": rating_formset,
 		"time_formset": time_formset,
 		"note_form": note_form,
 	}, context_instance=RequestContext(request))
