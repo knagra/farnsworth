@@ -295,11 +295,10 @@ class AddWorkshiftTypeForm(forms.ModelForm):
         fields = "__all__"
 
 class WorkshiftRatingForm(forms.ModelForm):
-	pk = forms.IntegerField(widget=forms.HiddenInput())
-
 	class Meta:
 		model = WorkshiftRating
-		exclude = ["workshift_type"]
+		fields = "__all__"
+		widgets = {"workshift_type": forms.HiddenInput()}
 
 	def __init__(self, *args, **kwargs):
 		self.pk = kwargs.pop("workshift_type").pk

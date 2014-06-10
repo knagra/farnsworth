@@ -286,14 +286,17 @@ def preferences_view(request, semester, targetUsername, profile=None):
 
 	# TODO: Is there a way to create the ratings on first submit, rather than
 	# first view?
-	if types.count() > 0 and wprofile.ratings.count() == 0:
+	if types.count() > 0:
 		for wtype in types:
-			rating = WorkshiftRating(workshift_type=wtype)
-			rating.save()
-			wprofile.ratings.add(rating)
+			if wprofile.ratings.filter(workshift_type=wtype).count() == 0:
+				rating = WorkshiftRating(workshift_type=wtype)
+				rating.save()
+				wprofile.ratings.add(rating)
 		wprofile.save()
 
-	WorkshiftRatingFormSet = modelformset_factory(WorkshiftRating)
+	WorkshiftRatingFormSet = modelformset_factory(
+		WorkshiftRating, form=WorkshiftRatingForm,
+		)
 	TimeBlockFormSet = modelformset_factory(TimeBlock)
 	rating_formset = WorkshiftRatingFormSet(
 		request.POST or None,

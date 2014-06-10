@@ -20,6 +20,7 @@
 	  {% for form in rating_formset.forms %}
 	  <tr id="rating_formset_row">
 		{{ form.pk }}
+		{{ form.workshift_type }}
 		<td>{{ form.workshift_type.title }}</td>
 		<td>{{ form.rating }}</td>
 	  </tr>
