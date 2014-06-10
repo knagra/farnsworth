@@ -17,7 +17,7 @@
   <h2 class="w_title">Workshift Preferences</h2>
   <table>
 	<tbody>
-	  {% for form in rating_formset %}
+	  {% for form in rating_formset.forms %}
 	  <tr id="rating_formset_row">
 		{{ form.pk }}
 		<td>{{ form.workshift_type.title }}</td>
@@ -31,7 +31,7 @@
   <h2>Your Schedule</h2>
   <table>
 	<tbody>
-	  {% for form in time_formset %}
+	  {% for form in time_formset.forms %}
 	  <tr id="time_formset_row">
 		<td>{{ form.preference }}</td>
 		<td>{{ form.day }}</td>
