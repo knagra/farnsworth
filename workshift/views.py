@@ -282,7 +282,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		return HttpResponseRedirect(wurl('workshift:view_semester',
 										 sem_url=semester.sem_url))
 
-	types = WorkshiftType.objects.filter(enabled=True)
+	types = WorkshiftType.objects.filter(rateable=True)
 
 	# TODO: Is there a way to create the ratings on first submit, rather than
 	# first view?
