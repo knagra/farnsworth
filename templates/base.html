@@ -20,7 +20,7 @@
     {% block headers %} {% endblock %}
 </head>
 <body id="html_body">
-	<div class="navbar navbar-default navbar-static-top" role="navigation">
+	<div class="navbar navbar-inverse navbar_custom navbar-static-top" role="navigation">
 	<div class="container">
           <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -36,10 +36,10 @@
 	    <ul class="nav navbar-nav">
 	      {% if user.is_authenticated %}
 	      {% if user.username == ANONYMOUS_USERNAME %}
-			<li><a title="Logged in as anonymous user {{ user.first_name }} {{ user.last_name }}. Click to temporarily login as yourself or request an account." style="color: #ff0000;" href="{% url 'login' %}"><span class="glyphicon glyphicon-exclamation-sign"></span> Login</a></li>
+			<li><a title="Logged in as anonymous user {{ user.first_name }} {{ user.last_name }}. Click to temporarily login as yourself or request an account." style="color: #ff0000 !important;" href="{% url 'login' %}"><span class="glyphicon glyphicon-exclamation-sign"></span> Login</a></li>
 	      {% else %}
 	      <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown"{% if ANONYMOUS_SESSION %} style="color: #ff0000;" title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}><span class="glyphicon glyphicon-user"></span> {{ user.first_name }} <b class="caret"></b></a>
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown"{% if ANONYMOUS_SESSION %} style="color: #ff0000 !important;" title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}><span class="glyphicon glyphicon-user"></span> {{ user.first_name }} <b class="caret"></b></a>
 		<ul class="dropdown-menu">
 	    	<li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
 	    	<li><a href="{% url 'list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
