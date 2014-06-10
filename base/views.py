@@ -361,8 +361,9 @@ def login_view(request):
 						request.session['ANONYMOUS_SESSION'] = True
 					return HttpResponseRedirect(redirect_to)
 				else:
-					reset_url = request.build_absoltue_uri(reverse('reset_pw'))
-					form.errors['__all__'] = form.error_class([MESSAGES['INVALID_LOGIN'].format(reset_url=reset_url)])
+					reset_url = request.build_absolute_uri(reverse('reset_pw'))
+					messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
+					form.errors['__all__'] = form.error_class([MESSAGES['INVALID_LOGIN']])
 					time.sleep(1) # Invalid login - delay 1 second as rudimentary security against brute force attacks
 			else:
 				form.errors['__all__'] = form.error_class(["Your account is not active. Please contact the site administrator to activate your account."])
@@ -470,12 +471,18 @@ def request_profile_view(request):
 		confirm_password = form.cleaned_data['confirm_password']
 		hashed_password = hashers.make_password(password)
 		if User.objects.filter(username=username).count():
+			reset_url = request.build_absolute_uri(reverse('reset_pw'))
 			form._errors['first_name'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
+			messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
 		elif User.objects.filter(email=email).count():
-			reset_url = request.build_absolute_url(reverse('reset_pw'))
-			form._errors['email'] = forms.util.ErrorList([MESSAGES["EMAIL_TAKEN_RESET"].format(reset_url=reset_url)])
+			reset_url = request.build_absolute_uri(reverse('reset_pw'))
+			messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
+			form._errors['email'] = forms.util.ErrorList([MESSAGES["EMAIL_TAKEN"]])
 		elif ProfileRequest.objects.filter(first_name=first_name, last_name=last_name).count():
 			form.errors['__all__'] = form.error_class([MESSAGES["PROFILE_TAKEN"].format(first_name=first_name, last_name=last_name)])
+		elif User.objects.filter(first_name=first_name, last_name=last_name).count():
+			reset_url = request.build_absolute_uri(reverse('reset_pw'))
+			messages.add_message(request, messages.INFO, MESSAGES['PROFILE_REQUEST_RESET'].format(reset_url=reset_url))
 		elif not hashers.is_password_usable(hashed_password):
 			form.errors['__all__'] = form.error_class([MESSAGES['PASSWORD_UNHASHABLE']])
 		else:

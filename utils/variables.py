@@ -125,9 +125,10 @@ MESSAGES = {
 	'PROFILE_SUBMITTED': "Your request has been submitted.  An admin will contact you soon.",
 	'PROFILE_TAKEN': "An account request for {first_name} {last_name} has already been made.",
 	'USERNAME_TAKEN': "This username is taken.  Try one of {username}_1 through {username}_10.",
-	'INVALID_LOGIN': 'Invalid username/password combination. Forgot your username/password? You can reset your password at <a href="{reset_url}">{reset_url}</a>.',
+	'RESET_MESSAGE': 'Forgot your password? You can reset it at <a href="{reset_url}" class="alert-link">{reset_url}</a>.',
+	'PROFILE_REQUEST_RESET': 'You already have an account on this site. Forgot your password? You can reset it at <a href="{reset_url}" class="alert-link">{reset_url}</a>.',
+	'INVALID_LOGIN': 'Invalid username/password combination.',
 	'EMAIL_TAKEN': "This e-mail address is already taken.",
-	'EMAIL_TAKEN_RESET': 'This e-mail address is already taken.  Forgot your password?  You can reset it here: <a href="{reset_url}">{reset_url}</a>.',
 	'INVALID_USERNAME': 'Invalid username. Must be characters A-Z, a-z, 0-9, or _.',
 	'EVENT_ERROR': "Your event post was not successful.  Please check for errors and try again.",
 	'RSVP_ADD': "You've been successfully added to the list of RSVPs for {event}.",
@@ -153,7 +154,7 @@ MESSAGES = {
 	'INACTIVE_MANAGER': "{managerTitle} is currently deactivated.",
 	'REQUEST_TYPE_ADDED': "Request type {typeName} has been successfully added.",
 	'REQUEST_TYPE_SAVED': "Request type {typeName} has been successfully saved.",
-	'PROFILE_REQUEST_APPROVAL_EMAIL': ' A profile request approval e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}">{email}</a>.', # The initial space is necessary.
-	'PROFILE_REQUEST_DELETION_EMAIL': ' A profile request deletion e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}">{email}</a>.', # The initial space is necessary.
-	'EMAIL_FAIL': ' Farnsworth failed at sending an e-mail to <a title="Write E-mail" href="mailto:{email}">{email}</a>.', # Initial space necessary.
+	'PROFILE_REQUEST_APPROVAL_EMAIL': ' A profile request approval e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # The initial space is necessary.
+	'PROFILE_REQUEST_DELETION_EMAIL': ' A profile request deletion e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # The initial space is necessary.
+	'EMAIL_FAIL': ' Farnsworth failed at sending an e-mail to <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # Initial space necessary.
 }
