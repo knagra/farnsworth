@@ -1,3 +1,4 @@
+import time
 from smtplib import SMTPException
 from django import forms
 from django.conf import settings
@@ -5,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
@@ -303,7 +305,9 @@ def my_profile_view(request):
 				phone_number = update_profile_form.cleaned_data['phone_number']
 				phone_visible_to_others = update_profile_form.cleaned_data['phone_visible_to_others']
 				enter_password = update_profile_form.cleaned_data['enter_password']
-				if social_auth or hashers.check_password(enter_password, user.password):
+				if User.objects.filter(email=email).count() and User.objects.get(email=email) != user:
+					update_profile_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
+				elif social_auth or hashers.check_password(enter_password, user.password):
 					userProfile.current_room = current_room
 					userProfile.former_rooms = former_rooms
 					userProfile.former_houses = former_houses
@@ -333,26 +337,35 @@ def login_view(request):
 		return HttpResponseRedirect(redirect_to)
 	form = LoginForm(request.POST or None)
 	if request.method == 'POST' and form.is_valid():
-		username = form.cleaned_data['username']
+		username_or_email = form.cleaned_data['username_or_email']
 		password = form.cleaned_data['password']
+		username = None
 		if username == ANONYMOUS_USERNAME:
 			return red_ext(request, MESSAGES['ANONYMOUS_DENIED'])
+		temp_user = None
 		try:
-			temp_user = User.objects.get(username=username)
-			if temp_user is not None:
-				if temp_user.is_active:
-					user = authenticate(username=username, password=password)
-					if user is not None:
-						login(request, user)
-						if ANONYMOUS_SESSION:
-							request.session['ANONYMOUS_SESSION'] = True
-						return HttpResponseRedirect(redirect_to)
-					else:
-						form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
-				else:
-					form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
+			temp_user = User.objects.get(username=username_or_email)
+			username = username_or_email
 		except User.DoesNotExist:
-			form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
+			try:
+				temp_user = User.objects.get(email=username_or_email)
+				username = User.objects.get(email=username_or_email).username
+			except User.DoesNotExist:
+				form.errors['__all__'] = form.error_class(["Invalid username/password combination. Please try again."])
+		if temp_user is not None:
+			if temp_user.is_active:
+				user = authenticate(username=username, password=password)
+				if user is not None:
+					login(request, user)
+					if ANONYMOUS_SESSION:
+						request.session['ANONYMOUS_SESSION'] = True
+					return HttpResponseRedirect(redirect_to)
+				else:
+					reset_url = request.build_absoltue_uri(reverse('reset_pw'))
+					form.errors['__all__'] = form.error_class([MESSAGES['INVALID_LOGIN'].format(reset_url=reset_url)])
+					time.sleep(1) # Invalid login - delay 1 second as rudimentary security against brute force attacks
+			else:
+				form.errors['__all__'] = form.error_class(["Your account is not active. Please contact the site administrator to activate your account."])
 
 	return render_to_response('login.html', {
 			'page_name': page_name,
@@ -458,6 +471,9 @@ def request_profile_view(request):
 		hashed_password = hashers.make_password(password)
 		if User.objects.filter(username=username).count():
 			form._errors['first_name'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
+		elif User.objects.filter(email=email).count():
+			reset_url = request.build_absolute_url(reverse('reset_pw'))
+			form._errors['email'] = forms.util.ErrorList([MESSAGES["EMAIL_TAKEN_RESET"].format(reset_url=reset_url)])
 		elif ProfileRequest.objects.filter(first_name=first_name, last_name=last_name).count():
 			form.errors['__all__'] = form.error_class([MESSAGES["PROFILE_TAKEN"].format(first_name=first_name, last_name=last_name)])
 		elif not hashers.is_password_usable(hashed_password):
@@ -544,6 +560,8 @@ def modify_profile_request_view(request, request_pk):
 				elif User.objects.filter(first_name=first_name, last_name=last_name):
 					non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
 					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
+				elif User.objects.filter(email=email):
+					mod_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
 				else:
 					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
 					new_user.password = profile_request.password
@@ -671,30 +689,33 @@ def custom_modify_user_view(request, targetUsername):
 			is_staff = modify_user_form.cleaned_data['is_staff']
 			is_superuser = modify_user_form.cleaned_data['is_superuser']
 			groups = modify_user_form.cleaned_data['groups']
-			targetUser.first_name = first_name
-			targetUser.last_name = last_name
-			targetUser.is_active = is_active
-			targetUser.is_staff = is_staff
-			targetUser.email = email
-			if (targetUser == request.user and
-			    User.objects.filter(is_superuser=True).count() <= 1 and
-			    not is_superuser):
-				messages.add_message(request, messages.ERROR, MESSAGES['LAST_SUPERADMIN'])
+			if User.objects.filter(email=email).count() and User.objects.get(email=email) != targetUser:
+				modify_user_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
 			else:
-				targetUser.is_superuser = is_superuser
-			targetUser.groups = groups
-			targetUser.save()
-			targetProfile.email_visible = email_visible_to_others
-			targetProfile.phone_number = phone_number
-			targetProfile.phone_visible = phone_visible_to_others
-			targetProfile.status = status
-			targetProfile.current_room = current_room
-			targetProfile.former_rooms = former_rooms
-			targetProfile.former_houses = former_houses
-			targetProfile.save()
-			message = MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username)
-			messages.add_message(request, messages.SUCCESS, message)
-			return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
+				targetUser.first_name = first_name
+				targetUser.last_name = last_name
+				targetUser.is_active = is_active
+				targetUser.is_staff = is_staff
+				targetUser.email = email
+				if (targetUser == request.user and
+					User.objects.filter(is_superuser=True).count() <= 1 and
+					not is_superuser):
+					messages.add_message(request, messages.ERROR, MESSAGES['LAST_SUPERADMIN'])
+				else:
+					targetUser.is_superuser = is_superuser
+				targetUser.groups = groups
+				targetUser.save()
+				targetProfile.email_visible = email_visible_to_others
+				targetProfile.phone_number = phone_number
+				targetProfile.phone_visible = phone_visible_to_others
+				targetProfile.status = status
+				targetProfile.current_room = current_room
+				targetProfile.former_rooms = former_rooms
+				targetProfile.former_houses = former_houses
+				targetProfile.save()
+				message = MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username)
+				messages.add_message(request, messages.SUCCESS, message)
+				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 	elif 'change_user_password' in request.POST:
 		change_user_password_form = ChangeUserPasswordForm(request.POST)
 		if targetUser == request.user:
@@ -776,6 +797,8 @@ def custom_add_user_view(request):
 		elif User.objects.filter(first_name=first_name, last_name=last_name).count():
 			non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
 			add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
+		elif User.objects.filter(email=email).count():
+			add_user_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
 		else:
 			new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
 			new_user.is_active = is_active
@@ -806,3 +829,17 @@ def utilities_view(request):
 	return render_to_response('utilities.html', {
 			'page_name': "Admin - Site Utilities",
 			}, context_instance=RequestContext(request))
+
+def reset_pw_view(request):
+	""" View to send an e-mail to reset password. """
+	return password_reset(request,
+		template_name="reset.html",
+		email_template_name="reset_email.html",
+		subject_template_name="reset_subject.txt",
+		post_reset_redirect=reverse('login'))
+
+def reset_pw_confirm_view(request, uidb64=None, token=None):
+	""" View to confirm resetting password. """
+	return password_reset_confirm(request,
+		template_name="reset_confirmation.html",
+		uidb64=uidb64, token=token, post_reset_redirect=reverse('login'))
