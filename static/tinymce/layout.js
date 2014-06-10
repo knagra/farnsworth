@@ -1,5 +1,7 @@
 tinyMCE.init({
 	selector: "textarea",
+	theme: "modern",
+	skin: 'light',
 	height: 300,
 	width: "100%",
 	toolbar_items_size: 'small',
@@ -14,6 +16,8 @@ tinyMCE.init({
 
 tinyMCE.init({
 	selector: ".editable",
+	theme: "modern",
+	skin: 'light',
 	inline: true,
 	height: 300,
 	width: "100%",
