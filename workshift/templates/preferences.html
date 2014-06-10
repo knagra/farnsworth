@@ -13,22 +13,28 @@
 {% block w_content %}
 <form id="preferences_form" method="post" action="" name="update_profile">
   {% csrf_token %}
-  {% if type_forms %}
+  {% if rating_formset %}
   <h2 class="w_title">Workshift Preferences</h2>
-  {% for form in type_forms %}
-  <div>
-	<h4>{{ form.wtype.title }}:</h4>
-	{{ form|bootstrap }}
-  </div>
-  {% endfor %}
+  <table>
+	<tbody>
+	  {% for form in rating_formset.forms %}
+	  <tr id="rating_formset_row">
+		{{ form.pk }}
+		{{ form.workshift_type }}
+		<td>{{ form.rating }}</td>
+		<td>{{ form.title }}:</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
   {% endif %}
   {% if time_formset %}
   <h2>Your Schedule</h2>
   <table>
 	<tbody>
 	  {% for form in time_formset.forms %}
-	  <tr id="timeformset_row">
-		<td>{{ form.preference}}</td>
+	  <tr id="time_formset_row">
+		<td>{{ form.preference }}</td>
 		<td>{{ form.day }}</td>
 		<td>{{ form.start_time }}</td>
 		<td>{{ form.end_time }}</td>
@@ -58,7 +64,7 @@
   $(document).ready(function() {
     $(renewDatePickers);
     $(function() {
-      $("#timeformset_row").formset({
+      $("#time_formset_row").formset({
         prefix: "{{ time_formset.prefix }}",
         added: renewDatePickers,
         removed: renewDatePickers,

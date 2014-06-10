@@ -230,6 +230,7 @@ class WorkshiftRating(models.Model):
 	rating = models.PositiveSmallIntegerField(
 		max_length=1,
 		choices=RATING_CHOICES,
+		default=INDIFFERENT,
 		help_text="Rating for the workshift type.",
 		)
 	workshift_type = models.ForeignKey(
