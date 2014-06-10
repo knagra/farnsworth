@@ -300,6 +300,10 @@ class WorkshiftRatingForm(forms.ModelForm):
 		fields = "__all__"
 		widgets = {"workshift_type": forms.HiddenInput()}
 
+	def __init__(self, *args, **kwargs):
+		super(WorkshiftRatingForm, self).__init__(*args, **kwargs)
+		self.title = self.workshift_type.title
+
 class ProfileNoteForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftProfile
