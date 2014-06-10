@@ -37,6 +37,19 @@ Author: Karandeep Singh Nagra
 .navbar_custom .navbar-right > li > a:hover {
 	color: #ffffff !important;
 }
+@media only screen and (max-width: 766px) {
+	.navbar_custom .navbar-nav .open .dropdown-menu > li > a {
+		color: #dddddd !important;
+	}
+
+	.navbar_custom .navbar-nav .open .dropdown-menu > li > a:hover {
+		color: #ffffff !important;
+	}
+
+	.navbar_custom .navbar-nav .open .dropdown-menu > .dropdown-header {
+		color: #bbbbbb !important;
+	}
+}
 
 #page_title {
     color: black;
