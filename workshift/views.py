@@ -297,7 +297,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	TimeBlockFormSet = modelformset_factory(TimeBlock)
 	rating_formset = WorkshiftRatingFormSet(
 		request.POST or None,
-		queryset=wprofile.ratings,
+		queryset=wprofile.ratings.all(),
 		prefix="rating",
 		)
 	time_formset = TimeBlockFormSet(
