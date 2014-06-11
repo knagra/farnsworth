@@ -681,50 +681,11 @@ def custom_add_user_view(request):
 		'status': UserProfile.RESIDENT,
 		})
 	if add_user_form.is_valid():
-		username = add_user_form.cleaned_data['username']
-		first_name = add_user_form.cleaned_data['first_name']
-		last_name = add_user_form.cleaned_data['last_name']
-		email = add_user_form.cleaned_data['email']
-		email_visible_to_others = add_user_form.cleaned_data['email_visible_to_others']
-		phone_number = add_user_form.cleaned_data['phone_number']
-		phone_visible_to_others = add_user_form.cleaned_data['phone_visible_to_others']
-		status = add_user_form.cleaned_data['status']
-		current_room = add_user_form.cleaned_data['current_room']
-		former_rooms = add_user_form.cleaned_data['former_rooms']
-		former_houses = add_user_form.cleaned_data['former_houses']
-		is_active = add_user_form.cleaned_data['is_active']
-		is_staff = add_user_form.cleaned_data['is_staff']
-		is_superuser = add_user_form.cleaned_data['is_superuser']
-		groups = add_user_form.cleaned_data['groups']
-		user_password = add_user_form.cleaned_data['user_password']
-		confirm_password = add_user_form.cleaned_data['confirm_password']
-		if User.objects.filter(username=username).count():
-			error = MESSAGES["USERNAME_TAKEN"].format(username=username)
-			add_user_form.errors['__all__'] = add_user_form.error_class([error])
-		elif User.objects.filter(first_name=first_name, last_name=last_name).count():
-			non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
-			add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-		elif User.objects.filter(email=email).count():
-			add_user_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
-		else:
-			new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
-			new_user.is_active = is_active
-			new_user.is_staff = is_staff
-			new_user.is_superuser = is_superuser
-			new_user.groups = groups
-			new_user.save()
-			new_user_profile = UserProfile.objects.get(user=new_user)
-			new_user_profile.email_visible = email_visible_to_others
-			new_user_profile.phone_number = phone_number
-			new_user_profile.phone_visible = phone_visible_to_others
-			new_user_profile.status = status
-			new_user_profile.current_room = current_room
-			new_user_profile.former_rooms = former_rooms
-			new_user_profile.former_houses = former_houses
-			new_user_profile.save()
-			message = MESSAGES['USER_ADDED'].format(username=username)
-			messages.add_message(request, messages.SUCCESS, message)
-			return HttpResponseRedirect(reverse('custom_add_user'))
+		add_user_form.save()
+		message = MESSAGES['USER_ADDED'].format(
+			username=add_user_form.cleaned_data["username"])
+		messages.add_message(request, messages.SUCCESS, message)
+		return HttpResponseRedirect(reverse('custom_add_user'))
 	return render_to_response('custom_add_user.html', {
 			'page_name': page_name,
 			'add_user_form': add_user_form,

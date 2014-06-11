@@ -59,6 +59,20 @@ class AddUserForm(forms.Form):
 	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
+	def clean_username(self):
+		username = self.cleaned_data['username']
+		if not verify_username(self.cleaned_data['username']):
+			raise ValidationError(MESSAGES['INVALID_USERNAME'])
+		if User.objects.filter(username=username).count():
+			raise ValidationError(MESSAGES["USERNAME_TAKEN"].format(username=username))
+		return username
+
+	def clean_email(self):
+		email = self.cleaned_data['email']
+		if User.objects.filter(email=email).count():
+			raise ValidationError(MESSAGES["EMAIL_TAKEN"])
+		return email
+
 	def is_valid(self):
 		''' Validate form.
 		Return True if Django validates the form, the username obeys the parameters, and passwords match.
@@ -66,15 +80,42 @@ class AddUserForm(forms.Form):
 		'''
 		if not super(AddUserForm, self).is_valid():
 			return False
-		validity = True
-		if not verify_username(self.cleaned_data['username']):
-			self._errors['username'] = self.error_class([MESSAGES['INVALID_USERNAME']])
-			validity = False
+		first_name = self.cleaned_data['first_name']
+		last_name = self.cleaned_data['last_name']
+		if User.objects.filter(first_name=first_name, last_name=last_name).count():
+			non_field_error = "A profile for {0} {1} already exists with username {2}." \
+			  .format(first_name, last_name,
+					  User.objects.get(first_name=first_name, last_name=last_name).username)
+			self._errors['__all__'] = forms.util.ErrorList([non_field_error])
 		if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
 			self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
 			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
-			validity = False
-		return validity
+			return False
+		return True
+
+	def save(self):
+		new_user = User.objects.create_user(
+			username=self.cleaned_data['username'],
+			email=self.cleaned_data['email'],
+			first_name=self.cleaned_data['first_name'],
+			last_name=self.cleaned_data['last_name'],
+			password=self.cleaned_data['user_password'],
+			)
+		new_user.is_active = self.cleaned_data['is_active']
+		new_user.is_staff = self.cleaned_data['is_staff']
+		new_user.is_superuser = self.cleaned_data['is_superuser']
+		new_user.groups = self.cleaned_data['groups']
+		new_user.save()
+		new_user_profile = UserProfile.objects.get(user=new_user)
+		new_user_profile.email_visible = self.cleaned_data['email_visible_to_others']
+		new_user_profile.phone_number = self.cleaned_data['phone_number']
+		new_user_profile.phone_visible = self.cleaned_data['phone_visible_to_others']
+		new_user_profile.status = self.cleaned_data['status']
+		new_user_profile.save()
+		new_user_profile.current_room = self.cleaned_data['current_room']
+		new_user_profile.former_rooms = self.cleaned_data['former_rooms']
+		new_user_profile.former_houses = self.cleaned_data['former_houses']
+		new_user_profile.save()
 
 class DeleteUserForm(forms.Form):
 	''' Form to add a new user and associated profile. '''
