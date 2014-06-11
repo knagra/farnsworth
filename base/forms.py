@@ -4,7 +4,7 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 from django import forms
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.contrib.auth import hashers
 
 from utils.funcs import verify_username
@@ -165,7 +165,7 @@ class ModifyUserForm(forms.Form):
 	def clean_email(self):
 		email = self.cleaned_data["email"]
 		if User.objects.filter(email=email).count() > 0 and \
-		  User.objects.get(email=email) != targetUser:
+		  User.objects.get(email=email) != self.user:
 			raise ValidationError(MESSAGES['EMAIL_TAKEN'])
 		return email
 

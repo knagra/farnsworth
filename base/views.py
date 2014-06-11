@@ -631,6 +631,8 @@ def custom_modify_user_view(request, targetUsername):
 		)
 	delete_user_form = DeleteUserForm(
 		request.POST if 'delete_user' in request.POST else None,
+		user=targetUser,
+		request=request,
 		)
 	if modify_user_form.is_valid():
 		modify_user_form.save()
@@ -652,7 +654,7 @@ def custom_modify_user_view(request, targetUsername):
 		delete_user_form.save()
 		messages.add_message(
 			request, messages.SUCCESS,
-			MESSAGES['USER_DELETED'].format(username=username),
+			MESSAGES['USER_DELETED'].format(username=targetUser.username),
 			)
 		return HttpResponseRedirect(reverse("custom_manage_users"))
 
