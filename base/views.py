@@ -525,107 +525,106 @@ def modify_profile_request_view(request, request_pk):
 	''' The page to modify a user's profile request. request_pk is the pk of the profile request. '''
 	page_name = "Admin - Profile Request"
 	profile_request = get_object_or_404(ProfileRequest, pk=request_pk)
-	if request.method == 'POST':
-		addendum = ""
-		mod_form = ModifyProfileRequestForm(request.POST)
-		if 'delete_request' in request.POST:
-			if SEND_EMAILS and (profile_request.email not in EMAIL_BLACKLIST):
-				deletion_subject = DELETION_SUBJECT.format(house=HOUSE_NAME)
-				deletion_email = DELETION_EMAIL.format(house=HOUSE_NAME, full_name=profile_request.first_name + " " + profile_request.last_name,
-					admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
-				try:
-					send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
-					addendum = MESSAGES['PROFILE_REQUEST_DELETION_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
-						email=profile_request.email)
-				except SMTPException:
-					message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
-					messages.add_message(request, messages.ERROR, message)
-			profile_request.delete()
-			message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
-			messages.add_message(request, messages.SUCCESS, message + addendum)
-			return HttpResponseRedirect(reverse('manage_profile_requests'))
-		elif 'add_user' in request.POST:
-			if mod_form.is_valid():
-				username = mod_form.cleaned_data['username']
-				first_name = mod_form.cleaned_data['first_name']
-				last_name = mod_form.cleaned_data['last_name']
-				email = mod_form.cleaned_data['email']
-				email_visible_to_others = mod_form.cleaned_data['email_visible_to_others']
-				phone_number = mod_form.cleaned_data['phone_number']
-				phone_visible_to_others = mod_form.cleaned_data['phone_visible_to_others']
-				status = mod_form.cleaned_data['status']
-				current_room = mod_form.cleaned_data['current_room']
-				former_rooms = mod_form.cleaned_data['former_rooms']
-				former_houses = mod_form.cleaned_data['former_houses']
-				is_active = mod_form.cleaned_data['is_active']
-				is_staff = mod_form.cleaned_data['is_staff']
-				is_superuser = mod_form.cleaned_data['is_superuser']
-				groups = mod_form.cleaned_data['groups']
-				if User.objects.filter(username=username).count():
-					non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
-					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
-				elif User.objects.filter(first_name=first_name, last_name=last_name):
-					non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
-					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
-				elif User.objects.filter(email=email):
-					mod_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
-				else:
-					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
-					new_user.password = profile_request.password
-					new_user.is_active = is_active
-					new_user.is_staff = is_staff
-					new_user.is_superuser = is_superuser
-					new_user.groups = groups
-					new_user.save()
+	mod_form = ModifyProfileRequestForm(
+		request.POST if 'add_user' in request.POST else None,
+		initial={
+			'status': profile_request.affiliation,
+			'username': profile_request.username,
+			'first_name': profile_request.first_name,
+			'last_name': profile_request.last_name,
+			'email': profile_request.email,
+			'is_active': True,
+			})
+	addendum = ""
+	if 'delete_request' in request.POST:
+		if SEND_EMAILS and (profile_request.email not in EMAIL_BLACKLIST):
+			deletion_subject = DELETION_SUBJECT.format(house=HOUSE_NAME)
+			deletion_email = DELETION_EMAIL.format(house=HOUSE_NAME, full_name=profile_request.first_name + " " + profile_request.last_name,
+				admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
+			try:
+				send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
+				addendum = MESSAGES['PROFILE_REQUEST_DELETION_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
+					email=profile_request.email)
+			except SMTPException:
+				message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
+				messages.add_message(request, messages.ERROR, message)
+		profile_request.delete()
+		message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
+		messages.add_message(request, messages.SUCCESS, message + addendum)
+		return HttpResponseRedirect(reverse('manage_profile_requests'))
+	elif 'add_user' in request.POST:
+		if mod_form.is_valid():
+			username = mod_form.cleaned_data['username']
+			first_name = mod_form.cleaned_data['first_name']
+			last_name = mod_form.cleaned_data['last_name']
+			email = mod_form.cleaned_data['email']
+			email_visible_to_others = mod_form.cleaned_data['email_visible_to_others']
+			phone_number = mod_form.cleaned_data['phone_number']
+			phone_visible_to_others = mod_form.cleaned_data['phone_visible_to_others']
+			status = mod_form.cleaned_data['status']
+			current_room = mod_form.cleaned_data['current_room']
+			former_rooms = mod_form.cleaned_data['former_rooms']
+			former_houses = mod_form.cleaned_data['former_houses']
+			is_active = mod_form.cleaned_data['is_active']
+			is_staff = mod_form.cleaned_data['is_staff']
+			is_superuser = mod_form.cleaned_data['is_superuser']
+			groups = mod_form.cleaned_data['groups']
+			if User.objects.filter(username=username).count():
+				non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
+				mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
+			elif User.objects.filter(first_name=first_name, last_name=last_name):
+				non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
+				mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
+			elif User.objects.filter(email=email):
+				mod_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
+			else:
+				new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
+				new_user.password = profile_request.password
+				new_user.is_active = is_active
+				new_user.is_staff = is_staff
+				new_user.is_superuser = is_superuser
+				new_user.groups = groups
+				new_user.save()
 
-					if profile_request.provider and profile_request.uid:
-						social = UserSocialAuth(
-							user=new_user,
-							provider = profile_request.provider,
-							uid = profile_request.uid,
-							)
-						social.save()
+				if profile_request.provider and profile_request.uid:
+					social = UserSocialAuth(
+						user=new_user,
+						provider = profile_request.provider,
+						uid = profile_request.uid,
+						)
+					social.save()
 
-					new_user_profile = UserProfile.objects.get(user=new_user)
-					new_user_profile.email_visible = email_visible_to_others
-					new_user_profile.phone_number = phone_number
-					new_user_profile.phone_visible = phone_visible_to_others
-					new_user_profile.status = status
-					new_user_profile.current_room = current_room
-					new_user_profile.former_rooms = former_rooms
-					new_user_profile.former_houses = former_houses
-					new_user_profile.save()
-					if new_user.is_active and SEND_EMAILS and (email not in EMAIL_BLACKLIST):
-						approval_subject = APPROVAL_SUBJECT.format(house=HOUSE_NAME)
-						if profile_request.provider:
-							username_bit = profile_request.provider.title()
-						elif new_user.username == profile_request.username:
-							username_bit = "the username and password you selected"
-						else:
-							username_bit = "the username %s and the password you selected" % new_user.username
-						login_url = request.build_absolute_uri(reverse('login'))
-						approval_email = APPROVAL_EMAIL.format(house=HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
-							admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
-						try:
-							send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [email], fail_silently=False)
-							addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name="{0} {1}".format(first_name, last_name),
-								email=profile_request.email)
-						except SMTPException as e:
-							message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
-							messages.add_message(request, messages.ERROR, message)
-					profile_request.delete()
-					message = MESSAGES['USER_ADDED'].format(username=username)
-					messages.add_message(request, messages.SUCCESS, message + addendum)
-					return HttpResponseRedirect(reverse('manage_profile_requests'))
-	else:
-		mod_form = ModifyProfileRequestForm(initial={
-				'status': profile_request.affiliation,
-				'username': profile_request.username,
-				'first_name': profile_request.first_name,
-				'last_name': profile_request.last_name,
-				'email': profile_request.email,
-				'is_active': True,
-				})
+				new_user_profile = UserProfile.objects.get(user=new_user)
+				new_user_profile.email_visible = email_visible_to_others
+				new_user_profile.phone_number = phone_number
+				new_user_profile.phone_visible = phone_visible_to_others
+				new_user_profile.status = status
+				new_user_profile.current_room = current_room
+				new_user_profile.former_rooms = former_rooms
+				new_user_profile.former_houses = former_houses
+				new_user_profile.save()
+				if new_user.is_active and SEND_EMAILS and (email not in EMAIL_BLACKLIST):
+					approval_subject = APPROVAL_SUBJECT.format(house=HOUSE_NAME)
+					if profile_request.provider:
+						username_bit = profile_request.provider.title()
+					elif new_user.username == profile_request.username:
+						username_bit = "the username and password you selected"
+					else:
+						username_bit = "the username %s and the password you selected" % new_user.username
+					login_url = request.build_absolute_uri(reverse('login'))
+					approval_email = APPROVAL_EMAIL.format(house=HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
+						admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
+					try:
+						send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [email], fail_silently=False)
+						addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name="{0} {1}".format(first_name, last_name),
+							email=profile_request.email)
+					except SMTPException as e:
+						message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
+						messages.add_message(request, messages.ERROR, message)
+				profile_request.delete()
+				message = MESSAGES['USER_ADDED'].format(username=username)
+				messages.add_message(request, messages.SUCCESS, message + addendum)
+				return HttpResponseRedirect(reverse('manage_profile_requests'))
 	return render_to_response('modify_profile_request.html', {
 			'page_name': page_name,
 			'add_user_form': mod_form,
