@@ -215,7 +215,7 @@ class ChangePasswordForm(forms.Form):
 		current_password = self.cleaned_data['current_password']
 		if not hashers.check_password(current_password, self.user.password):
 			raise forms.ValidationError("Wrong password.")
-		return current_password
+		return None
 
 	def clean_new_password(self):
 		hashed_password = hashers.make_password(self.cleaned_data['new_password'])
