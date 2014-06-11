@@ -4,6 +4,7 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
@@ -12,6 +13,7 @@ from haystack.query import SearchQuerySet
 from haystack.views import FacetedSearchView
 from wiki.urls import get_pattern as get_wiki_pattern
 from django_notify.urls import get_pattern as get_notify_pattern
+
 admin.autodiscover()
 
 sqs = SearchQuerySet().facet('exact_user').facet('exact_location').facet('exact_manager').facet('exact_status')
@@ -23,6 +25,7 @@ urlpatterns = patterns('',
 	url(r'^notify/', get_notify_pattern()),
 	url(r'^wiki/', get_wiki_pattern()),
 	url(r'', include('social.apps.django_app.urls', namespace='social')),
+	url(r'', include('events.urls', namespace='events')),
 )
 
 urlpatterns += patterns('base.views',
@@ -37,26 +40,23 @@ urlpatterns += patterns('base.views',
 	url(r'^profile/(?P<targetUsername>\w+)/$', 'member_profile_view', name='member_profile'),
 	url(r'^request_profile/$', 'request_profile_view', name='request_profile'),
 	url(r'^custom_admin/profile_requests/$', 'manage_profile_requests_view', name='manage_profile_requests'),
-	url(r'^custom_admin/profile_requests/(?P<request_pk>\w+)/$', 'modify_profile_request_view', name='modify_profile_request'),
+	url(r'^custom_admin/profile_requests/(?P<request_pk>\d+)/$', 'modify_profile_request_view', name='modify_profile_request'),
 	url(r'^custom_admin/manage_users/$', 'custom_manage_users_view', name='custom_manage_users'),
 	url(r'^custom_admin/modify_user/(?P<targetUsername>\w+)/$', 'custom_modify_user_view', name='custom_modify_user'),
 	url(r'^custom_admin/add_user/$', 'custom_add_user_view', name='custom_add_user'),
 	url(r'^custom_admin/utilities/$', 'utilities_view', name='utilities'),
+	url(r'^reset/$', 'reset_pw_view', name='reset_pw'),
+	url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+		'reset_pw_confirm_view', name='reset_pw_confirm'),
 )
 
 urlpatterns += patterns('threads.views',
-	url(r'^member_forums/$', 'member_forums_view', name='member_forums'),
-	url(r'^archives/all_threads/$', 'all_threads_view', name='all_threads'),
-	url(r'^archives/list_all_threads/$', 'list_all_threads_view', name="list_all_threads"),
+	url(r'^threads/$', 'member_forums_view', name='member_forums'),
+	url(r'^threads/(?P<thread_pk>\d+)/$', 'thread_view', name='view_thread'),
+	url(r'^threads/all/$', 'all_threads_view', name='all_threads'),
+	url(r'^threads/list/$', 'list_all_threads_view', name="list_all_threads"),
 	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
-	url(r'^thread/(?P<thread_pk>\w+)/$', 'thread_view', name='view_thread'),
 	url(r'^profile/(?P<targetUsername>\w+)/threads/$', 'list_user_threads_view', name="list_user_threads"),
-)
-
-urlpatterns += patterns('events.views',
-	url(r'^events/$', 'list_events_view', name='events'),
-	url(r'^archives/all_events/$', 'list_all_events_view', name='all_events'),
-	url(r'^edit_event/(?P<event_pk>\w+)/$', 'edit_event_view', name='edit_event'),
 )
 
 urlpatterns += patterns('managers.views',
@@ -75,13 +75,10 @@ urlpatterns += patterns('managers.views',
 	url(r'^archives/all_requests/$', 'all_requests_view', name='all_requests'),
 	url(r'^requests/(?P<requestType>\w+)/all/$', 'list_all_requests_view', name='list_all_requests'),
 	url(r'^my_requests/$', 'my_requests_view', name='my_requests'),
-	url(r'^request/(?P<request_pk>\w+)/$', 'request_view', name='view_request'),
+	url(r'^request/(?P<request_pk>\d+)/$', 'request_view', name='view_request'),
 	url(r'^announcements/$', 'announcements_view', name='announcements'),
-	url(r'^archives/all_announcements/$', 'all_announcements_view', name='all_announcements'),
+	url(r'^announcements/(?P<announcement_pk>\d+)/$', 'announcement_view', name='view_announcement'),
+	url(r'^announcements/(?P<announcement_pk>\d+)/edit/$', 'edit_announcement_view', name='edit_announcement'),
+	url(r'^announcements/all/$', 'all_announcements_view', name='all_announcements'),
 	url(r'^custom_admin/recount/$', 'recount_view', name='recount'),
-)
-
-# Catch any other urls here
-urlpatterns += patterns('base.views',
-	url(r'', 'homepage_view', name='homepage'),
 )

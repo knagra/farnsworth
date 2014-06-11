@@ -1,27 +1,35 @@
-
-from django.shortcuts import render_to_response, render, get_object_or_404
-from django.http import HttpResponseRedirect
+import time
+from smtplib import SMTPException
 from django import forms
-from django.core.urlresolvers import reverse
-from django.template import RequestContext
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from datetime import datetime, timedelta
+from django.contrib.auth.views import password_reset, password_reset_confirm
+from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response, render, get_object_or_404
+from django.template import RequestContext
 from django.utils.timezone import utc
-from django.contrib import messages
+
+from datetime import datetime, timedelta
 
 from social.apps.django_app.default.models import UserSocialAuth
 
-from farnsworth.settings import house, ADMINS, max_threads, max_messages, \
-    home_max_announcements, home_max_threads
-from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+from farnsworth.settings import HOUSE_NAME, SHORT_HOUSE_NAME, ADMINS, \
+	 max_threads, max_messages, home_max_announcements, home_max_threads, \
+	SEND_EMAILS
+from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
+	APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
+	SUBMISSION_EMAIL
 from base.models import UserProfile, ProfileRequest
 from base.redirects import red_ext, red_home
 from base.decorators import profile_required, admin_required
 from base.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, \
     ModifyProfileRequestForm, ChangeUserPasswordForm, LoginForm, ChangePasswordForm, \
-    UpdateProfileForm
+    UpdateProfileForm, DeleteUserForm
 from threads.models import Thread, Message
 from threads.forms import ThreadForm, MessageForm
 from managers.models import RequestType, Manager, Request, Response, Announcement
@@ -29,20 +37,54 @@ from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, Unpi
 from events.models import Event
 from events.forms import RsvpForm
 
+try:
+	from farnsworth.settings import EMAIL_HOST_USER, EMAIL_BLACKLIST
+except ImportError:
+	EMAIL_HOST_USER, EMAIL_BLACKLIST = None, None
+
+def add_context(request):
+	''' Add variables to all dictionaries passed to templates. '''
+	PRESIDENT = False # whether the user has president privileges
+	try:
+		userProfile = UserProfile.objects.get(user=request.user)
+	except (UserProfile.DoesNotExist, TypeError):
+		pass
+	else:
+		for pos in Manager.objects.filter(incumbent=userProfile):
+			if pos.president:
+				PRESIDENT = True
+				break
+	if request.user.username == ANONYMOUS_USERNAME:
+		request.session['ANONYMOUS_SESSION'] = True
+	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
+	request_types = list() # A list with items of form (RequestType, number_of_open_requests)
+	for request_type in RequestType.objects.filter(enabled=True):
+		request_types.append((request_type, Request.objects.filter(request_type=request_type, filled=False, closed=False).count()))
+	return {
+		'REQUEST_TYPES': request_types,
+		'HOUSE': HOUSE_NAME,
+		'ANONYMOUS_USERNAME':ANONYMOUS_USERNAME,
+		'SHORT_HOUSE': SHORT_HOUSE_NAME,
+		'ADMIN': ADMINS[0],
+		'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
+		'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
+		'PRESIDENT': PRESIDENT,
+		}
+
 def landing_view(request):
 	''' The external landing.'''
 	return render_to_response('external.html', {
 			'page_name': "Landing",
 			}, context_instance=RequestContext(request))
 
-@profile_required(redirect_user='external', redirect_profile=red_ext)
+@profile_required(redirect_no_user='external', redirect_profile=red_ext)
 def homepage_view(request, message=None):
 	''' The view of the homepage. '''
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_types = RequestType.objects.filter(enabled=True)
 	manager_request_types = list() # List of request types for which the user is a relevant manager
 	for request_type in request_types:
-		for position in request_type.managers.all():
+		for position in request_type.managers.filter(active=True):
 			if userProfile == position.incumbent:
 				manager_request_types.append(request_type)
 				break
@@ -50,16 +92,15 @@ def homepage_view(request, message=None):
 	# Generate a dict of unfilled, unclosed requests for each request_type for which the user is a relevant manager:
 	if manager_request_types:
 		for request_type in manager_request_types:
-			requests_list = list() # Items of form (request, [list_of_request_responses], response_form, upvote, downvote, vote_form)
+			requests_list = list() # Items of form (request, [list_of_request_responses], response_form, upvote, vote_form)
 			# Select only unclosed, unfilled requests of type request_type:
 			type_requests = Request.objects.filter(request_type=request_type, filled=False, closed=False)
 			for req in type_requests:
 				response_list = Response.objects.filter(request=req)
 				form = ManagerResponseForm(initial={'request_pk': req.pk})
 				upvote = userProfile in req.upvotes.all()
-				downvote = userProfile in req.downvotes.all()
 				vote_form = VoteForm(initial={'request_pk': req.pk})
-				requests_list.append((req, response_list, form, upvote, downvote, vote_form))
+				requests_list.append((req, response_list, form, upvote, vote_form))
 			requests_dict.append((request_type, requests_list))
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
@@ -87,10 +128,14 @@ def homepage_view(request, message=None):
 		rsvpd = (userProfile in event.rsvps.all())
 		events_dict.append((event, ongoing, rsvpd, form))
 	thread_form = ThreadForm()
-	threads = list() # List of recent threads
+	thread_set = list() # List of with items of form (thread, most_recent_message_in_thread)
 	x = 0
 	for thread in Thread.objects.all():
-		threads.append(thread)
+		try:
+			latest_message = Message.objects.filter(thread=thread).latest('post_date')
+		except Message.DoesNotExist:
+			latest_message = None
+		thread_set.append((thread, latest_message))
 		x += 1
 		if x >= home_max_threads:
 			break
@@ -106,6 +151,7 @@ def homepage_view(request, message=None):
 				relevant_request.filled = response_form.cleaned_data['mark_filled']
 				new_response.manager = True
 				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
+				relevant_request.number_of_responses += 1
 				relevant_request.save()
 				new_response.save()
 				if relevant_request.closed:
@@ -173,21 +219,6 @@ def homepage_view(request, message=None):
 					relevant_request.upvotes.remove(userProfile)
 				else:
 					relevant_request.upvotes.add(userProfile)
-					relevant_request.downvotes.remove(userProfile)
-				relevant_request.save()
-				return HttpResponseRedirect(reverse('homepage'))
-			else:
-				messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
-		elif 'downvote' in request.POST:
-			vote_form = VoteForm(request.POST)
-			if vote_form.is_valid():
-				request_pk = vote_form.cleaned_data['request_pk']
-				relevant_request = Request.objects.get(pk=request_pk)
-				if userProfile in relevant_request.downvotes.all():
-					relevant_request.downvotes.remove(userProfile)
-				else:
-					relevant_request.downvotes.add(userProfile)
-					relevant_request.upvotes.remove(userProfile)
 				relevant_request.save()
 				return HttpResponseRedirect(reverse('homepage'))
 			else:
@@ -199,11 +230,11 @@ def homepage_view(request, message=None):
 			'requests_dict': requests_dict,
 			'announcements_dict': announcements_dict,
 			'announcement_form': announcement_form,
-			'events_dict': events_dict, 
-			'threads': threads,
+			'events_dict': events_dict,
+			'thread_set': thread_set,
 			'thread_form': thread_form,
 			}, context_instance=RequestContext(request))
-	
+
 def help_view(request):
 	''' The view of the helppage. '''
 	return render_to_response('helppage.html', {
@@ -225,6 +256,10 @@ def my_profile_view(request):
 		return red_home(request, MESSAGES['SPINELESS'])
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
+	try:
+		social_auth = UserSocialAuth.objects.get(user=user)
+	except UserSocialAuth.DoesNotExist:
+		social_auth = None
 	change_password_form = ChangePasswordForm()
 	update_profile_form = UpdateProfileForm(initial={
 			'current_room': userProfile.current_room,
@@ -270,7 +305,9 @@ def my_profile_view(request):
 				phone_number = update_profile_form.cleaned_data['phone_number']
 				phone_visible_to_others = update_profile_form.cleaned_data['phone_visible_to_others']
 				enter_password = update_profile_form.cleaned_data['enter_password']
-				if hashers.check_password(enter_password, user.password):
+				if User.objects.filter(email=email).count() and User.objects.get(email=email) != user:
+					update_profile_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
+				elif social_auth or hashers.check_password(enter_password, user.password):
 					userProfile.current_room = current_room
 					userProfile.former_rooms = former_rooms
 					userProfile.former_houses = former_houses
@@ -300,30 +337,63 @@ def login_view(request):
 		return HttpResponseRedirect(redirect_to)
 	form = LoginForm(request.POST or None)
 	if request.method == 'POST' and form.is_valid():
-		username = form.cleaned_data['username']
+		username_or_email = form.cleaned_data['username_or_email']
 		password = form.cleaned_data['password']
+		username = None
 		if username == ANONYMOUS_USERNAME:
 			return red_ext(request, MESSAGES['ANONYMOUS_DENIED'])
+		temp_user = None
 		try:
-			temp_user = User.objects.get(username=username)
-			if temp_user is not None:
-				if temp_user.is_active:
-					user = authenticate(username=username, password=password)
-					if user is not None:
-						login(request, user)
-						if ANONYMOUS_SESSION:
-							request.session['ANONYMOUS_SESSION'] = True
-						return HttpResponseRedirect(redirect_to)
-					else:
-						form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
-				else:
-					form.errors['__all__'] = form.error_class(["Your account is not active.  Please contact the site administrator to activate your account."])
+			temp_user = User.objects.get(username=username_or_email)
+			username = username_or_email
 		except User.DoesNotExist:
-			form.errors['__all__'] = form.error_class(["Invalid username/password combination.  Please try again."])
+			try:
+				temp_user = User.objects.get(email=username_or_email)
+				username = User.objects.get(email=username_or_email).username
+			except User.DoesNotExist:
+				form.errors['__all__'] = form.error_class(["Invalid username/password combination. Please try again."])
+		if temp_user is not None:
+			if temp_user.is_active:
+				user = authenticate(username=username, password=password)
+				if user is not None:
+					login(request, user)
+					if ANONYMOUS_SESSION:
+						request.session['ANONYMOUS_SESSION'] = True
+					return HttpResponseRedirect(redirect_to)
+				else:
+					reset_url = request.build_absolute_uri(reverse('reset_pw'))
+					messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
+					form.errors['__all__'] = form.error_class([MESSAGES['INVALID_LOGIN']])
+					time.sleep(1) # Invalid login - delay 1 second as rudimentary security against brute force attacks
+			else:
+				form.errors['__all__'] = form.error_class(["Your account is not active. Please contact the site administrator to activate your account."])
+
 	return render_to_response('login.html', {
 			'page_name': page_name,
 			'form': form,
+			'oauth_providers': _get_oauth_providers(),
+			'redirect_to': redirect_to,
 			}, context_instance=RequestContext(request))
+
+def _get_oauth_providers():
+	matches = {
+		"facebook": ("Facebook", "fb.png"),
+		"google-oauth": ("Google", "google.png"),
+		"google-oauth2": ("Google", "google.png"),
+		"github": ("Github", "github.ico"),
+		}
+
+	providers = []
+	for provider in settings.AUTHENTICATION_BACKENDS:
+		if provider.startswith("social"):
+			module_name, backend = provider.rsplit(".", 1)
+			module = __import__(module_name, fromlist=[''])
+			if module and getattr(module, backend, ""):
+				backend_name = getattr(module, backend).name
+				full_name, icon = matches.get(backend_name,
+							      ("Unknown", "unknown.png"))
+				providers.append((backend_name, full_name, icon))
+	return providers
 
 def logout_view(request):
 	''' Log the user out. '''
@@ -360,7 +430,7 @@ def member_directory_view(request):
 	    .exclude(user__username=ANONYMOUS_USERNAME)
 	return render_to_response('member_directory.html', {
 			'page_name': page_name,
-			'residents': residents, 
+			'residents': residents,
 			'boarders': boarders,
 			'alumni': alumni,
 			}, context_instance=RequestContext(request))
@@ -378,8 +448,8 @@ def member_profile_view(request, targetUsername):
 	number_of_requests = Request.objects.filter(owner=targetProfile).count()
 	return render_to_response('member_profile.html', {
 			'page_name': page_name,
-			'targetUser': targetUser, 
-			'targetProfile': targetProfile, 
+			'targetUser': targetUser,
+			'targetProfile': targetProfile,
 			'number_of_threads': number_of_threads,
 			'number_of_requests': number_of_requests,
 			}, context_instance=RequestContext(request))
@@ -387,35 +457,55 @@ def member_profile_view(request, targetUsername):
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
 	page_name = "Profile Request Page"
-	if request.user.is_authenticated():
-		return HttpResponseRedirect(reverse('homepage'))
-	if request.method == 'POST':
-		form = ProfileRequestForm(request.POST)
-		if form.is_valid():
-			username = form.cleaned_data['username']
-			first_name = form.cleaned_data['first_name']
-			last_name = form.cleaned_data['last_name']
-			email = form.cleaned_data['email']
-			affiliation = form.cleaned_data['affiliation_with_the_house']
-			password = form.cleaned_data['password']
-			confirm_password = form.cleaned_data['confirm_password']
-			hashed_password = hashers.make_password(password)
-			if User.objects.filter(username=username).count():
-				non_field_error = "This usename is taken.  Try one of %s_1 through %s_10." % (username, username)
-				form._errors['username'] = forms.util.ErrorList([non_field_error])
-			elif not hashers.is_password_usable(hashed_password):
-				error = "Could not hash password.  Please try again."
-				form.errors['__all__'] = form.error_class([error])
-			else:
-				profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email, affiliation=affiliation, password=hashed_password)
-				profile_request.save()
-				messages.add_message(request, messages.SUCCESS, "Your request has been submitted.  An admin will contact you soon.")
-				return HttpResponseRedirect(reverse('external'))
+	redirect_to = request.REQUEST.get('next', reverse('homepage'))
+	if request.user.is_authenticated() and request.user.username != ANONYMOUS_USERNAME:
+		return HttpResponseRedirect(redirect_to)
+	form = ProfileRequestForm(request.POST or None)
+	if form.is_valid():
+		username = form.cleaned_data['username']
+		first_name = form.cleaned_data['first_name']
+		last_name = form.cleaned_data['last_name']
+		email = form.cleaned_data['email']
+		affiliation = form.cleaned_data['affiliation_with_the_house']
+		password = form.cleaned_data['password']
+		confirm_password = form.cleaned_data['confirm_password']
+		hashed_password = hashers.make_password(password)
+		if User.objects.filter(username=username).count():
+			reset_url = request.build_absolute_uri(reverse('reset_pw'))
+			form._errors['username'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
+			messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
+		elif User.objects.filter(email=email).count():
+			reset_url = request.build_absolute_uri(reverse('reset_pw'))
+			messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
+			form._errors['email'] = forms.util.ErrorList([MESSAGES["EMAIL_TAKEN"]])
+		elif ProfileRequest.objects.filter(first_name=first_name, last_name=last_name).count():
+			form.errors['__all__'] = form.error_class([MESSAGES["PROFILE_TAKEN"].format(first_name=first_name, last_name=last_name)])
+		elif User.objects.filter(first_name=first_name, last_name=last_name).count():
+			reset_url = request.build_absolute_uri(reverse('reset_pw'))
+			messages.add_message(request, messages.INFO, MESSAGES['PROFILE_REQUEST_RESET'].format(reset_url=reset_url))
+		elif not hashers.is_password_usable(hashed_password):
+			form.errors['__all__'] = form.error_class([MESSAGES['PASSWORD_UNHASHABLE']])
 		else:
-			return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
-	else:
-		form = ProfileRequestForm()
-	return render(request, 'request_profile.html', {'form': form, 'page_name': page_name})
+			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email,
+				affiliation=affiliation, password=hashed_password)
+			profile_request.save()
+			messages.add_message(request, messages.SUCCESS, MESSAGES['PROFILE_SUBMITTED'])
+			if SEND_EMAILS and (email not in EMAIL_BLACKLIST):
+				submission_subject = SUBMISSION_SUBJECT.format(house=HOUSE_NAME)
+				submission_email = SUBMISSION_EMAIL.format(house=HOUSE_NAME, full_name=first_name + " " + last_name, admin_name=ADMINS[0][0],
+					admin_email=ADMINS[0][1])
+				try:
+					send_mail(submission_subject, submission_email, EMAIL_HOST_USER, [email], fail_silently=False)
+					# Add logging here
+				except SMTPException:
+					pass # Add logging here
+			return HttpResponseRedirect(redirect_to)
+	return render(request, 'request_profile.html', {
+			'form': form,
+			'page_name': page_name,
+			'oauth_providers': _get_oauth_providers(),
+			'redirect_to': redirect_to,
+			})
 
 @admin_required
 def manage_profile_requests_view(request):
@@ -436,11 +526,23 @@ def modify_profile_request_view(request, request_pk):
 	page_name = "Admin - Profile Request"
 	profile_request = get_object_or_404(ProfileRequest, pk=request_pk)
 	if request.method == 'POST':
+		addendum = ""
 		mod_form = ModifyProfileRequestForm(request.POST)
 		if 'delete_request' in request.POST:
-			message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
-			messages.add_message(request, messages.WARNING, message)
+			if SEND_EMAILS and (profile_request.email not in EMAIL_BLACKLIST):
+				deletion_subject = DELETION_SUBJECT.format(house=HOUSE_NAME)
+				deletion_email = DELETION_EMAIL.format(house=HOUSE_NAME, full_name=profile_request.first_name + " " + profile_request.last_name,
+					admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
+				try:
+					send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
+					addendum = MESSAGES['PROFILE_REQUEST_DELETION_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
+						email=profile_request.email)
+				except SMTPException:
+					message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
+					messages.add_message(request, messages.ERROR, message)
 			profile_request.delete()
+			message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
+			messages.add_message(request, messages.SUCCESS, message + addendum)
 			return HttpResponseRedirect(reverse('manage_profile_requests'))
 		elif 'add_user' in request.POST:
 			if mod_form.is_valid():
@@ -465,6 +567,8 @@ def modify_profile_request_view(request, request_pk):
 				elif User.objects.filter(first_name=first_name, last_name=last_name):
 					non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
 					mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
+				elif User.objects.filter(email=email):
+					mod_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
 				else:
 					new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
 					new_user.password = profile_request.password
@@ -491,9 +595,27 @@ def modify_profile_request_view(request, request_pk):
 					new_user_profile.former_rooms = former_rooms
 					new_user_profile.former_houses = former_houses
 					new_user_profile.save()
+					if new_user.is_active and SEND_EMAILS and (email not in EMAIL_BLACKLIST):
+						approval_subject = APPROVAL_SUBJECT.format(house=HOUSE_NAME)
+						if profile_request.provider:
+							username_bit = profile_request.provider.title()
+						elif new_user.username == profile_request.username:
+							username_bit = "the username and password you selected"
+						else:
+							username_bit = "the username %s and the password you selected" % new_user.username
+						login_url = request.build_absolute_uri(reverse('login'))
+						approval_email = APPROVAL_EMAIL.format(house=HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
+							admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
+						try:
+							send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [email], fail_silently=False)
+							addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
+								email=profile_request.email)
+						except SMTPException as e:
+							message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
+							messages.add_message(request, messages.ERROR, message)
 					profile_request.delete()
 					message = MESSAGES['USER_ADDED'].format(username=username)
-					messages.add_message(request, messages.SUCCESS, message)
+					messages.add_message(request, messages.SUCCESS, message + addendum)
 					return HttpResponseRedirect(reverse('manage_profile_requests'))
 	else:
 		mod_form = ModifyProfileRequestForm(initial={
@@ -502,10 +624,13 @@ def modify_profile_request_view(request, request_pk):
 				'first_name': profile_request.first_name,
 				'last_name': profile_request.last_name,
 				'email': profile_request.email,
+				'is_active': True,
 				})
 	return render_to_response('modify_profile_request.html', {
 			'page_name': page_name,
 			'add_user_form': mod_form,
+			'provider': profile_request.provider,
+			'uid': profile_request.uid,
 			}, context_instance=RequestContext(request))
 
 @admin_required
@@ -513,7 +638,7 @@ def custom_manage_users_view(request):
 	page_name = "Admin - Manage Users"
 	residents = UserProfile.objects.filter(status=UserProfile.RESIDENT)
 	boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
-	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS)
+	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS).exclude(user__username=ANONYMOUS_USERNAME)
 	return render_to_response('custom_manage_users.html', {
 			'page_name': page_name,
 			'residents': residents,
@@ -547,32 +672,41 @@ def custom_modify_user_view(request, targetUsername):
 			'groups': targetUser.groups.all(),
 			})
 	change_user_password_form = ChangeUserPasswordForm()
-	if request.method == 'POST':
-		if 'update_user_profile' in request.POST:
-			modify_user_form = ModifyUserForm(request.POST)
-			if modify_user_form.is_valid():
-				first_name = modify_user_form.cleaned_data['first_name']
-				last_name = modify_user_form.cleaned_data['last_name']
-				email = modify_user_form.cleaned_data['email']
-				email_visible_to_others = modify_user_form.cleaned_data['email_visible_to_others']
-				phone_number = modify_user_form.cleaned_data['phone_number']
-				phone_visible_to_others = modify_user_form.cleaned_data['phone_visible_to_others']
-				status = modify_user_form.cleaned_data['status']
-				current_room = modify_user_form.cleaned_data['current_room']
-				former_rooms = modify_user_form.cleaned_data['former_rooms']
-				former_houses = modify_user_form.cleaned_data['former_houses']
-				is_active = modify_user_form.cleaned_data['is_active']
-				is_staff = modify_user_form.cleaned_data['is_staff']
-				is_superuser = modify_user_form.cleaned_data['is_superuser']
-				groups = modify_user_form.cleaned_data['groups']
+	delete_user_form = DeleteUserForm()
+	thread_count = Thread.objects.filter(owner=targetProfile).count(),
+	message_count = Message.objects.filter(owner=targetProfile).count(),
+	request_count = Request.objects.filter(owner=targetProfile).count(),
+	response_count = Response.objects.filter(owner=targetProfile).count(),
+	announcement_count = Announcement.objects.filter(incumbent=targetProfile).count(),
+	event_count = Event.objects.filter(owner=targetProfile).count(),
+	if 'update_user_profile' in request.POST:
+		modify_user_form = ModifyUserForm(request.POST)
+		if modify_user_form.is_valid():
+			first_name = modify_user_form.cleaned_data['first_name']
+			last_name = modify_user_form.cleaned_data['last_name']
+			email = modify_user_form.cleaned_data['email']
+			email_visible_to_others = modify_user_form.cleaned_data['email_visible_to_others']
+			phone_number = modify_user_form.cleaned_data['phone_number']
+			phone_visible_to_others = modify_user_form.cleaned_data['phone_visible_to_others']
+			status = modify_user_form.cleaned_data['status']
+			current_room = modify_user_form.cleaned_data['current_room']
+			former_rooms = modify_user_form.cleaned_data['former_rooms']
+			former_houses = modify_user_form.cleaned_data['former_houses']
+			is_active = modify_user_form.cleaned_data['is_active']
+			is_staff = modify_user_form.cleaned_data['is_staff']
+			is_superuser = modify_user_form.cleaned_data['is_superuser']
+			groups = modify_user_form.cleaned_data['groups']
+			if User.objects.filter(email=email).count() and User.objects.get(email=email) != targetUser:
+				modify_user_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
+			else:
 				targetUser.first_name = first_name
 				targetUser.last_name = last_name
 				targetUser.is_active = is_active
 				targetUser.is_staff = is_staff
 				targetUser.email = email
 				if (targetUser == request.user and
-				    User.objects.filter(is_superuser=True).count() <= 1 and
-				    not is_superuser):
+					User.objects.filter(is_superuser=True).count() <= 1 and
+					not is_superuser):
 					messages.add_message(request, messages.ERROR, MESSAGES['LAST_SUPERADMIN'])
 				else:
 					targetUser.is_superuser = is_superuser
@@ -589,80 +723,108 @@ def custom_modify_user_view(request, targetUsername):
 				message = MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username)
 				messages.add_message(request, messages.SUCCESS, message)
 				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
-		elif 'change_user_password' in request.POST:
-			change_user_password_form = ChangeUserPasswordForm(request.POST)
-			if change_user_password_form.is_valid():
-				user_password = change_user_password_form.cleaned_data['user_password']
-				confirm_password = change_user_password_form.cleaned_data['confirm_password']
-				hashed_password = hashers.make_password(user_password)
-				if hashers.is_password_usable(hashed_password):
-					targetUser.password = hashed_password
-					targetUser.save()
-					message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
-					messages.add_message(request, messages.SUCCESS, message)
-					return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
-				else:
-					error = "Could not hash password.  Please try again."
-					change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
+	elif 'change_user_password' in request.POST:
+		change_user_password_form = ChangeUserPasswordForm(request.POST)
+		if targetUser == request.user:
+			messages.add_message(request, messages.ERROR, MESSAGES['ADMIN_PASSWORD'])
+		elif change_user_password_form.is_valid():
+			user_password = change_user_password_form.cleaned_data['user_password']
+			confirm_password = change_user_password_form.cleaned_data['confirm_password']
+			hashed_password = hashers.make_password(user_password)
+			if hashers.is_password_usable(hashed_password):
+				targetUser.password = hashed_password
+				targetUser.save()
+				message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
+				messages.add_message(request, messages.SUCCESS, message)
+				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
+			else:
+				error = "Could not hash password.  Please try again."
+				change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
+	elif 'delete_user' in request.POST:
+		delete_user_form = DeleteUserForm(request.POST)
+		if targetUser == request.user:
+			messages.add_message(request, messages.ERROR, MESSAGES['SELF_DELETE'])
+		elif delete_user_form.is_valid():
+			username = delete_user_form.cleaned_data['username']
+			password = delete_user_form.cleaned_data['password']
+			if not hashers.check_password(password, request.user.password):
+				delete_user_form._errors['password'] = forms.util.ErrorList([u"Wrong password."])
+			elif username == targetUsername:
+				targetUser.delete()
+				message = MESSAGES['USER_DELETED'].format(username=username)
+				messages.add_message(request, messages.SUCCESS, message)
+				return HttpResponseRedirect(reverse("custom_manage_users"))
+			else:
+				error = "Username incorrect."
+				delete_user_form.errors['username'] = delete_user_form.error_class([error])
+
 	return render_to_response('custom_modify_user.html', {
 			'targetUser': targetUser,
 			'targetProfile': targetProfile,
 			'page_name': page_name,
 			'modify_user_form': modify_user_form,
 			'change_user_password_form': change_user_password_form,
+			'delete_user_form': delete_user_form,
+			'thread_count': Thread.objects.filter(owner=targetProfile).count(),
+			'message_count': Message.objects.filter(owner=targetProfile).count(),
+			'request_count': Request.objects.filter(owner=targetProfile).count(),
+			'response_count': Response.objects.filter(owner=targetProfile).count(),
+			'announcement_count': Announcement.objects.filter(incumbent=targetProfile).count(),
+			'event_count': Event.objects.filter(owner=targetProfile).count(),
 			}, context_instance=RequestContext(request))
 
 @admin_required
 def custom_add_user_view(request):
 	''' The page to add a new user. '''
 	page_name = "Admin - Add User"
-	if request.method == 'POST':
-		add_user_form = AddUserForm(request.POST)
-		if add_user_form.is_valid():
-			username = add_user_form.cleaned_data['username']
-			first_name = add_user_form.cleaned_data['first_name']
-			last_name = add_user_form.cleaned_data['last_name']
-			email = add_user_form.cleaned_data['email']
-			email_visible_to_others = add_user_form.cleaned_data['email_visible_to_others']
-			phone_number = add_user_form.cleaned_data['phone_number']
-			phone_visible_to_others = add_user_form.cleaned_data['phone_visible_to_others']
-			status = add_user_form.cleaned_data['status']
-			current_room = add_user_form.cleaned_data['current_room']
-			former_rooms = add_user_form.cleaned_data['former_rooms']
-			former_houses = add_user_form.cleaned_data['former_houses']
-			is_active = add_user_form.cleaned_data['is_active']
-			is_staff = add_user_form.cleaned_data['is_staff']
-			is_superuser = add_user_form.cleaned_data['is_superuser']
-			groups = add_user_form.cleaned_data['groups']
-			user_password = add_user_form.cleaned_data['user_password']
-			confirm_password = add_user_form.cleaned_data['confirm_password']
-			if User.objects.filter(username=username).count():
-				non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
-				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-			elif User.objects.filter(first_name=first_name, last_name=last_name).count():
-				non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
-				add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
-			else:
-				new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
-				new_user.is_active = is_active
-				new_user.is_staff = is_staff
-				new_user.is_superuser = is_superuser
-				new_user.groups = groups
-				new_user.save()
-				new_user_profile = UserProfile.objects.get(user=new_user)
-				new_user_profile.email_visible = email_visible_to_others
-				new_user_profile.phone_number = phone_number
-				new_user_profile.phone_visible = phone_visible_to_others
-				new_user_profile.status = status
-				new_user_profile.current_room = current_room
-				new_user_profile.former_rooms = former_rooms
-				new_user_profile.former_houses = former_houses
-				new_user_profile.save()
-				message = MESSAGES['USER_ADDED'].format(username=username)
-				messages.add_message(request, messages.SUCCESS, message)
-				return HttpResponseRedirect(reverse('custom_add_user'))
-	else:
-		add_user_form = AddUserForm(initial={'status': UserProfile.RESIDENT})
+	add_user_form = AddUserForm(request.POST or None, initial={
+		'status': UserProfile.RESIDENT,
+		})
+	if add_user_form.is_valid():
+		username = add_user_form.cleaned_data['username']
+		first_name = add_user_form.cleaned_data['first_name']
+		last_name = add_user_form.cleaned_data['last_name']
+		email = add_user_form.cleaned_data['email']
+		email_visible_to_others = add_user_form.cleaned_data['email_visible_to_others']
+		phone_number = add_user_form.cleaned_data['phone_number']
+		phone_visible_to_others = add_user_form.cleaned_data['phone_visible_to_others']
+		status = add_user_form.cleaned_data['status']
+		current_room = add_user_form.cleaned_data['current_room']
+		former_rooms = add_user_form.cleaned_data['former_rooms']
+		former_houses = add_user_form.cleaned_data['former_houses']
+		is_active = add_user_form.cleaned_data['is_active']
+		is_staff = add_user_form.cleaned_data['is_staff']
+		is_superuser = add_user_form.cleaned_data['is_superuser']
+		groups = add_user_form.cleaned_data['groups']
+		user_password = add_user_form.cleaned_data['user_password']
+		confirm_password = add_user_form.cleaned_data['confirm_password']
+		if User.objects.filter(username=username).count():
+			error = MESSAGES["USERNAME_TAKEN"].format(username=username)
+			add_user_form.errors['__all__'] = add_user_form.error_class([error])
+		elif User.objects.filter(first_name=first_name, last_name=last_name).count():
+			non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
+			add_user_form.errors['__all__'] = add_user_form.error_class([non_field_error])
+		elif User.objects.filter(email=email).count():
+			add_user_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
+		else:
+			new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name, password=user_password)
+			new_user.is_active = is_active
+			new_user.is_staff = is_staff
+			new_user.is_superuser = is_superuser
+			new_user.groups = groups
+			new_user.save()
+			new_user_profile = UserProfile.objects.get(user=new_user)
+			new_user_profile.email_visible = email_visible_to_others
+			new_user_profile.phone_number = phone_number
+			new_user_profile.phone_visible = phone_visible_to_others
+			new_user_profile.status = status
+			new_user_profile.current_room = current_room
+			new_user_profile.former_rooms = former_rooms
+			new_user_profile.former_houses = former_houses
+			new_user_profile.save()
+			message = MESSAGES['USER_ADDED'].format(username=username)
+			messages.add_message(request, messages.SUCCESS, message)
+			return HttpResponseRedirect(reverse('custom_add_user'))
 	return render_to_response('custom_add_user.html', {
 			'page_name': page_name,
 			'add_user_form': add_user_form,
@@ -674,3 +836,17 @@ def utilities_view(request):
 	return render_to_response('utilities.html', {
 			'page_name': "Admin - Site Utilities",
 			}, context_instance=RequestContext(request))
+
+def reset_pw_view(request):
+	""" View to send an e-mail to reset password. """
+	return password_reset(request,
+		template_name="reset.html",
+		email_template_name="reset_email.html",
+		subject_template_name="reset_subject.txt",
+		post_reset_redirect=reverse('login'))
+
+def reset_pw_confirm_view(request, uidb64=None, token=None):
+	""" View to confirm resetting password. """
+	return password_reset_confirm(request,
+		template_name="reset_confirmation.html",
+		uidb64=uidb64, token=token, post_reset_redirect=reverse('login'))

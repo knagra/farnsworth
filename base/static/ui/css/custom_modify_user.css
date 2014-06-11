@@ -1,0 +1,29 @@
+/*
+Project: Farnsworth
+
+Author: Karandeep Singh Nagra
+*/
+
+#update_profile {
+	position: relative;
+	margin: 0px auto;
+	width: 85%;
+}
+
+#change_password {
+	position: relative;
+	margin: 0px auto;
+	margin-top: 20px;
+	width: 60%;
+}
+
+#delete_user {
+	position: relative;
+	margin: 0px auto;
+	margin-top: 20px;
+	width: 60%;
+}
+
+.form-group .btn {
+	min-width: 50%;
+}

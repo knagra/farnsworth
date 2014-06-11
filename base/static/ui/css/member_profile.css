@@ -1,0 +1,30 @@
+/*
+Project: Farnsworth
+
+Author: Karandeep Singh Nagra
+*/
+
+#user_profile {
+	position: relative;
+	margin: 0px auto;
+	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+	overflow: hidden;
+	width: 85%;
+}
+
+.main_table .btn {
+	min-width: 50%;
+	max-width: 100%;
+}
+
+#profile_table {
+	font-size: 15px;
+	position: relative;
+	padding-top: 10px;
+	padding-right: 5px;
+	padding-left: 5px;
+}
+
+#member_directory {
+	margin-bottom: 15px;
+}

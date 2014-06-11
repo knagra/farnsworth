@@ -6,8 +6,13 @@ when you run "manage.py test".
 from datetime import datetime, timedelta
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
+
+from django.core.management import call_command
+import haystack
+from haystack.query import SearchQuerySet
 
 from utils.variables import MESSAGES
 from base.models import UserProfile, ProfileRequest
@@ -29,11 +34,11 @@ class TestLogin(TestCase):
 		self.assertEqual(self.u, UserProfile.objects.get(user=self.u).user)
 
 	def test_login(self):
-		self.assertEqual(True, self.client.login(username="u", password="pwd"))
+		self.assertTrue(self.client.login(username="u", password="pwd"))
 		self.assertEqual(None, self.client.logout())
 
 		response = self.client.post("/login/", {
-				"username": self.u.username,
+				"username_or_email": self.u.username,
 				"password": "pwd",
 				}, follow=True)
 		self.assertRedirects(response, "/")
@@ -42,34 +47,32 @@ class TestLogin(TestCase):
 		self.assertRedirects(response, reverse('external'))
 
 	def test_bad_login(self):
-		self.assertEqual(False, self.client.login(username=self.iu.username, password="bad pwd"))
-		self.assertEqual(False, self.client.login(username="baduser", password="pwd"))
+		self.assertFalse(self.client.login(username=self.iu.username, password="bad pwd"))
+		self.assertFalse(self.client.login(username="baduser", password="pwd"))
 
 		response = self.client.post("/login/", {
-				"username": self.u.username,
+				"username_or_email": self.u.username,
 				"password": "bad pwd",
 				})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Invalid username/password combination.  Please try again.",
-			      response.content)
+		self.assertIn(MESSAGES["INVALID_LOGIN"], response.content)
 
 		response = self.client.post("/login/", {
-				"username": "baduser",
+				"username_or_email": "baduser",
 				"password": "pwd",
 				})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Invalid username/password combination.  Please try again.",
-			      response.content)
+		self.assertIn(MESSAGES["INVALID_LOGIN"], response.content)
 
 	def test_inactive_login(self):
-		self.assertEqual(False, self.client.login(username=self.iu.username, password="pwd"))
+		self.assertFalse(self.client.login(username=self.iu.username, password="pwd"))
 
 		response = self.client.post("/login/", {
-				"username": self.iu.username,
+				"username_or_email": self.iu.username,
 				"password": "pwd",
 				})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Your account is not active.  Please contact the site administrator to activate your account.",
+		self.assertIn("Your account is not active. Please contact the site administrator to activate your account.",
 			      response.content)
 
 		response = self.client.get("/", follow=True)
@@ -166,14 +169,25 @@ class TestHomepage(TestCase):
 				"event_pk": "{0}".format(self.ev.pk),
 				}, follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn('title="Un-RSVP"', response.content)
+		self.assertIn('Un-RSVP', response.content)
 
 		response = self.client.post("/", {
 				"rsvp": "",
 				"event_pk": "{0}".format(self.ev.pk),
 				}, follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn('title="RSVP"', response.content)
+		self.assertIn('RSVP', response.content)
+
+	def test_bad_page(self):
+		response = self.client.get("/bad_page/")
+		self.assertEqual(response.status_code, 404)
+		self.assertIn("Page Not Found", response.content)
+
+		self.client.logout()
+
+		response = self.client.get("/bad_page/")
+		self.assertEqual(response.status_code, 404)
+		self.assertIn("Page Not Found", response.content)
 
 class TestRequestProfile(TestCase):
 	def test_request_profile(self):
@@ -217,8 +231,7 @@ class TestRequestProfile(TestCase):
 					"confirm_password": "pwd",
 					})
 			self.assertEqual(response.status_code, 200)
-			self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or _",
-				      response.content)
+			self.assertIn(MESSAGES["INVALID_USERNAME"], response.content)
 			self.assertEqual(0, ProfileRequest.objects.filter(username=username).count())
 
 	def test_good_username(self):
@@ -245,12 +258,13 @@ class TestRequestProfile(TestCase):
 					}, follow=True)
 			self.assertRedirects(response, reverse("external"))
 			self.assertEqual(1, ProfileRequest.objects.filter(username=username).count())
+			ProfileRequest.objects.get(username=username).delete()
 
-	def test_duplicate_request(self):
+	def test_duplicate_user(self):
 		u = User.objects.create_user(username="request")
 
 		response = self.client.post("/request_profile/", {
-				"username": "request",
+				"username": u.username,
 				"first_name": "first",
 				"last_name": "last",
 				"email": "request@email.com",
@@ -258,11 +272,33 @@ class TestRequestProfile(TestCase):
 				"password": "pwd",
 				"confirm_password": "pwd",
 				}, follow=True)
-		self.assertIn("This usename is taken.  Try one of {0}_1 through {0}_10."
-			      .format("request"),
+		self.assertIn(MESSAGES["USERNAME_TAKEN"].format(username=u.username),
 			      response.content)
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
+
+	def test_duplicate_request(self):
+		pr = ProfileRequest(
+			username="request",
+			first_name="Tester",
+			last_name="Tested",
+			)
+		pr.save()
+
+		response = self.client.post("/request_profile/", {
+				"username": "request2",
+				"first_name": pr.first_name,
+				"last_name": pr.last_name,
+				"email": "request2@email.com",
+				"affiliation_with_the_house": UserProfile.RESIDENT,
+				"password": "pwd",
+				"confirm_password": "pwd",
+				}, follow=True)
+		self.assertIn(MESSAGES["PROFILE_TAKEN"].format(
+				first_name=pr.first_name, last_name=pr.last_name),
+			      response.content)
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(0, ProfileRequest.objects.filter(username="request2").count())
 
 	def test_bad_profile_requests(self):
 		response = self.client.post("/request_profile/", {
@@ -300,8 +336,7 @@ class TestRequestProfile(TestCase):
 				"confirm_password": "pwd2",
 				}, follow=True)
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Invalid username. Must be characters A-Z, a-z, 0-9, or _",
-			      response.content)
+		self.assertIn(MESSAGES["INVALID_USERNAME"], response.content)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
 		response = self.client.post("/request_profile/", {
@@ -317,6 +352,41 @@ class TestRequestProfile(TestCase):
 		self.assertIn("Select a valid choice. 123 is not one of the available choices.",
 			      response.content)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
+
+class TestUtilities(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+	def test_site_map(self):
+		response = self.client.get("/site_map/")
+		self.assertEqual(response.status_code, 200)
+
+		self.client.login(username="u", password="pwd")
+		response = self.client.get("/site_map/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		self.client.login(username="su", password="pwd")
+		response = self.client.get("/site_map/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+	def test_help_page(self):
+		response = self.client.get("/help/")
+		self.assertEqual(response.status_code, 200)
+
+		self.client.login(username="u", password="pwd")
+		response = self.client.get("/help/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
+
+		self.client.login(username="su", password="pwd")
+		response = self.client.get("/help/")
+		self.assertEqual(response.status_code, 200)
+		self.client.logout()
 
 class TestSocialRequest(TestCase):
 	def setUp(self):
@@ -356,6 +426,23 @@ class TestSocialRequest(TestCase):
 		self.assertRedirects(response, "/custom_admin/profile_requests/")
 		self.assertIn("User {0} was successfully added".format(self.pr.username),
 			      response.content)
+
+	def test_settings(self):
+		for lib in settings.SOCIAL_AUTH_PIPELINE:
+			module, func = lib.rsplit(".", 1)
+			self.assertNotEqual(None, __import__(module, fromlist=[func]))
+		self.assertIn("social.pipeline.social_auth.social_details",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.social_auth.social_uid",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.social_auth.auth_allowed",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.social_auth.social_user",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("social.pipeline.user.get_username",
+					  settings.SOCIAL_AUTH_PIPELINE)
+		self.assertIn("base.pipeline.request_user",
+					  settings.SOCIAL_AUTH_PIPELINE)
 
 class TestProfileRequestAdmin(TestCase):
 	def setUp(self):
@@ -428,7 +515,7 @@ class TestProfileRequestAdmin(TestCase):
 							  last_name=self.pr.last_name,
 							  username=self.pr.username),
 			      response.content)
-		
+
 
 class TestProfilePages(TestCase):
 	def setUp(self):
@@ -541,8 +628,7 @@ class TestModifyUser(TestCase):
 				"update_user_profile": "",
 				}, follow=True)
 		self.assertRedirects(response, url)
-		self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username)
-			      .replace("'", "&#39;"),
+		self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
 			      response.content)
 
 		self.client.logout()
@@ -575,8 +661,7 @@ class TestModifyUser(TestCase):
 					"update_user_profile": "",
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username)
-				      .replace("'", "&#39;"),
+			self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
 				      response.content)
 
 			self.client.logout()
@@ -592,6 +677,7 @@ class TestModifyUser(TestCase):
 class TestAdminFunctions(TestCase):
 	def setUp(self):
 		self.su = User.objects.create_user(username="su", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
 
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
@@ -623,13 +709,13 @@ class TestAdminFunctions(TestCase):
 
 		self.client.logout()
 
-		self.assertEqual(False, self.client.login(username="nu", password="pwd"))
-		self.assertEqual(True, self.client.login(username="nu", password="newpwd"))
+		self.assertFalse(self.client.login(username="nu", password="pwd"))
+		self.assertTrue(self.client.login(username="nu", password="newpwd"))
 		response = self.client.get("/")
 		self.assertEqual(response.status_code, 200)
 
 		User.objects.get(username="nu").delete()
-		self.assertEqual(False, self.client.login(username="nu", password="newpwd"))
+		self.assertFalse(self.client.login(username="nu", password="newpwd"))
 
 	def test_add_visible(self):
 		response = self.client.post("/custom_admin/add_user/", {
@@ -685,8 +771,55 @@ class TestAdminFunctions(TestCase):
 			User.objects.get(username="nu").delete()
 
 	def test_delete_user(self):
-		# No function in /custom_admin/ to delete users yet
-		pass
+		response = self.client.post("/custom_admin/modify_user/{0}/".format(self.u.username), {
+				"username": self.u.username,
+				"password": "pwd",
+				"delete_user": "",
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/manage_users/")
+		self.assertIn(MESSAGES['USER_DELETED'].format(username="u"),
+			      response.content)
+		self.assertEqual(0, User.objects.filter(username="u").count())
+
+		response = self.client.get("/profile/{0}/".format("u"))
+		self.assertEqual(response.status_code, 404)
+
+		self.client.logout()
+
+		self.assertFalse(self.client.login(username="u", password="pwd"))
+
+	def test_deleted_content(self):
+		profile = UserProfile.objects.get(user=self.u)
+
+		self.client.logout()
+		self.assertTrue(self.client.login(username="u", password="pwd"))
+
+		response = self.client.post("/threads/", {
+				"submit_thread_form": "",
+				"subject": "Test Subject",
+				"body": "Test Body",
+				}, follow=True)
+		self.assertRedirects(response, "/threads/")
+
+		self.assertEqual(1, Thread.objects.filter(owner=profile).count())
+		self.assertEqual(1, Message.objects.filter(owner=profile).count())
+
+		self.client.logout()
+		self.assertTrue(self.client.login(username="su", password="pwd"))
+
+		response = self.client.post("/custom_admin/modify_user/{0}/"
+									.format(self.u.username), {
+				"username": self.u.username,
+				"password": "pwd",
+				"delete_user": "",
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/manage_users/")
+		self.assertIn(MESSAGES['USER_DELETED'].format(username="u"),
+					  response.content)
+		self.assertEqual(0, User.objects.filter(username="u").count())
+
+		self.assertEqual(0, Thread.objects.filter(owner=profile).count())
+		self.assertEqual(0, Message.objects.filter(owner=profile).count())
 
 class TestMemberDirectory(TestCase):
 	def setUp(self):
@@ -737,3 +870,58 @@ class TestMemberDirectory(TestCase):
 		self.assertIn("Alumni", response.content)
 
 		self.assertNotIn("pwd", response.content)
+
+class TestSearch(TestCase):
+	def setUp(self):
+		for key, opts in haystack.connections.connections_info.items():
+			haystack.connections.reload(key)
+			call_command('clear_index', interactive=False, verbosity=0)
+
+		self.u = User.objects.create_user(username="u", password="pwd")
+
+		self.u.first_name = "FirstName"
+		self.u.last_name = "LastName"
+		self.u.save()
+
+		self.profile = UserProfile.objects.get(user=self.u)
+		self.profile.phone_number = "(111) 111-1111"
+		self.profile.save()
+
+		self.sqs = SearchQuerySet()
+
+		self.client.login(username="u", password="pwd")
+
+	def test_search_view(self):
+		response = self.client.get("/search/")
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("Search", response.content)
+
+	def test_model_backend(self):
+		self.assertEqual(UserProfile.objects.count(),
+				 self.sqs.models(UserProfile).count())
+		self.assertEqual(self.profile,
+				 self.sqs.facet(self.u.first_name)[0].object)
+		self.assertEqual(self.profile,
+				 self.sqs.facet(self.u.last_name)[0].object)
+		self.assertEqual(self.profile,
+				 self.sqs.facet(self.profile.phone_number)[0].object)
+
+	def test_search_results(self):
+		response = self.client.get("/search/?q={0}".format(self.u.first_name))
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn("No results found.", response.content)
+		self.assertIn(self.u.first_name, response.content)
+		self.assertIn(self.u.last_name, response.content)
+
+		response = self.client.get("/search/?q={0}".format(self.u.last_name))
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn("No results found.", response.content)
+		self.assertIn(self.u.first_name, response.content)
+		self.assertIn(self.u.last_name, response.content)
+
+		# Searching by phone number not enabled
+		number = self.profile.phone_number.replace(" ", "+") \
+		    .replace("(", "%28").replace(")", "%29")
+		response = self.client.get("/search/?q={0}".format(number))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("No results found.", response.content)

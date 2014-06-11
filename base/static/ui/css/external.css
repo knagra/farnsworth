@@ -1,0 +1,34 @@
+/*
+Project: Farnsworth
+
+Author: Karandeep Singh Nagra
+*/
+
+p {
+	padding-top: 10px;
+	clear: left;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.slider-wrapper {
+	width: 100%;
+	padding-top: 10px;
+}
+
+#google_map_large {
+	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+#google_map_small {
+	max-width: 400px;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	margin-top: 10px;
+}

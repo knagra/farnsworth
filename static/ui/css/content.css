@@ -54,6 +54,13 @@ Author: Karandeep Singh Nagra
 	overflow: hidden;
 }
 
+.float_form {
+	float: right;
+	position: relative;
+	top: -6px;
+	padding-right: 1px;
+}
+
 .main_table {
 	width: 100%;
 	overflow-x: auto;
@@ -61,6 +68,45 @@ Author: Karandeep Singh Nagra
 
 .main_form {
 	display: none;
+}
+
+.main_link {
+	color: #a9a9a9;
+	border: none;
+	background: none;
+	font-size: 14px;
+}
+
+.main_link:hover {
+	text-decoration: underline;
+}
+
+.main_link:focus {
+	outline: none;
+}
+
+.main_link:active {
+	outline: none;
+}
+
+.warning_link:hover {
+	color: #8a6d3b;
+}
+
+.success_link:hover {
+	color: #3c763d;
+}
+
+.info_link:hover {
+	color: #31708f;
+}
+
+.danger_link:hover {
+	color: #a94442;
+}
+
+.primary_link:hover {
+	color: #428bca;
 }
 
 .header_button {
@@ -91,9 +137,18 @@ Author: Karandeep Singh Nagra
 	width: 50%;
 }
 
+.btn:focus {
+	outline: none !important;
+}
+
+.btn:active {
+	outline: none !important;
+}
+
 .vote_list {
 	 padding: 0px;
 	 margin: 0px;
 	 list-style: none;
 	 display: inline-block;
 }
+

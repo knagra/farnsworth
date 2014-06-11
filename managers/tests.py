@@ -9,10 +9,12 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
+from datetime import datetime
+
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from utils.funcs import convert_to_url
 from base.models import UserProfile, ProfileRequest
-from managers.models import Manager, RequestType, Request, Response
+from managers.models import Manager, RequestType, Request, Response, Announcement
 
 class TestPermissions(TestCase):
 	def setUp(self):
@@ -31,18 +33,26 @@ class TestPermissions(TestCase):
 		self.su.save()
 		self.np.save()
 
-		president = Manager(title="House President", url_title="president",
+		self.m = Manager(title="House President", url_title="president",
 				    president=True)
-		president.incumbent = UserProfile.objects.get(user=self.pu)
-		president.save()
+		self.m.incumbent = UserProfile.objects.get(user=self.pu)
+		self.m.save()
 
-		food = RequestType(name="Food", url_name="food", enabled=True)
-		food.save()
-		food.managers = [president]
-		food.save()
+		self.rt = RequestType(name="Food", url_name="food", enabled=True)
+		self.rt.save()
+		self.rt.managers = [self.m]
+		self.rt.save()
+
+		self.a = Announcement(
+			manager=self.m,
+			incumbent=self.m.incumbent,
+			body="Test Announcement Body",
+			post_date=datetime.now(),
+			)
+		self.a.save()
 
 		self.request = Request(owner=UserProfile.objects.get(user=self.u),
-				       body="request body", request_type=food)
+				       body="request body", request_type=self.rt)
 		self.request.save()
 
 		UserProfile.objects.get(user=self.np).delete()
@@ -52,7 +62,7 @@ class TestPermissions(TestCase):
 
 	def _admin_required(self, url, success_target=None):
 		response = self.client.get(url)
-		self.assertRedirects(response, "/login/")
+		self.assertRedirects(response, "/login/?next=" + url)
 
 		self.client.login(username="np", password="pwd")
 		response = self.client.get(url, follow=True)
@@ -82,7 +92,7 @@ class TestPermissions(TestCase):
 
 	def _president_admin_required(self, url, success_target=None):
 		response = self.client.get(url)
-		self.assertRedirects(response, "/login/")
+		self.assertRedirects(response, "/login/?next=" + url)
 
 		self.client.login(username="np", password="pwd")
 		response = self.client.get(url, follow=True)
@@ -120,7 +130,7 @@ class TestPermissions(TestCase):
 
 	def _profile_required(self, url, success_target=None):
 		response = self.client.get(url)
-		self.assertRedirects(response, "/login/")
+		self.assertRedirects(response, "/login/?next=" + url)
 
 		self.client.login(username="np", password="pwd")
 		response = self.client.get(url, follow=True)
@@ -176,7 +186,7 @@ class TestPermissions(TestCase):
 			"managers/president",
 			"add_manager",
 			"request_types",
-			"request_types/food",
+			"request_types/{0}".format(self.rt.url_name),
 			"add_request_type",
 			]
 		for page in pages:
@@ -187,12 +197,15 @@ class TestPermissions(TestCase):
 			"manager_directory",
 			"manager_directory/president",
 			"profile/{0}/requests".format(self.u.username),
-			"requests/food",
+			"requests/{0}".format(self.rt.url_name),
 			"archives/all_requests",
-			"requests/food/all",
+			"requests/{0}/all".format(self.rt.url_name),
 			"my_requests",
 			"request/{0}".format(self.request.pk),
-			"archives/all_announcements",
+			"announcements",
+			"announcements/{0}".format(self.a.pk),
+			"announcements/{0}/edit".format(self.a.pk),
+			"announcements/all",
 			]
 		for page in pages:
 			self._profile_required("/" + page + "/")
@@ -274,7 +287,7 @@ class TestAnonymousUser(TestCase):
 		# Need to be careful here, client.login and client.logout clear the
 		# session cookies, causing this test to break
 		response = self.client.post("/login/", {
-				"username": "u",
+				"username_or_email": "u",
 				"password": "pwd",
 				}, follow=True)
 
@@ -298,18 +311,18 @@ class TestRequestPages(TestCase):
 		self.u.save()
 		self.pu.save()
 
-		president = Manager(title="House President", url_title="president",
+		self.m = Manager(title="House President", url_title="president",
 				    president=True)
-		president.incumbent = UserProfile.objects.get(user=self.pu)
-		president.save()
+		self.m.incumbent = UserProfile.objects.get(user=self.pu)
+		self.m.save()
 
-		self.food = RequestType(name="Food", url_name="food", enabled=True)
-		self.food.save()
-		self.food.managers = [president]
-		self.food.save()
+		self.rt = RequestType(name="Food", url_name="food", enabled=True)
+		self.rt.save()
+		self.rt.managers = [self.m]
+		self.rt.save()
 
 		self.request = Request(owner=UserProfile.objects.get(user=self.u),
-				       body="Request Body", request_type=self.food)
+				       body="Request Body", request_type=self.rt)
 		self.request.save()
 
 		self.response = Response(owner=UserProfile.objects.get(user=self.pu),
@@ -320,7 +333,7 @@ class TestRequestPages(TestCase):
 	def test_request_form(self):
 		urls = [
 			"/request/{0}/".format(self.request.pk),
-			"/requests/{0}/".format(self.food.url_name),
+			"/requests/{0}/".format(self.rt.url_name),
 			]
 
 		self.client.login(username="u", password="pwd")
@@ -398,3 +411,101 @@ class TestManager(TestCase):
 			      response.content)
 		self.assertEqual(1, Manager.objects.filter(title=new_title).count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url(new_title)).count())
+
+class TestAnnouncements(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.ou = User.objects.create_user(username="ou", password="pwd")
+		self.su = User.objects.create_user(username="su", password="pwd")
+
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.m = Manager(
+			title="setUp Manager",
+			incumbent=UserProfile.objects.get(user=self.u),
+			)
+		self.m.url_title = convert_to_url(self.m.title)
+		self.m.save()
+
+		self.a = Announcement(
+			manager=self.m,
+			incumbent=self.m.incumbent,
+			body="Test Announcement Body",
+			post_date=datetime.now(),
+			)
+		self.a.save()
+
+		self.client.login(username="u", password="pwd")
+
+	def test_announcements(self):
+		response = self.client.get("/announcements/")
+
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.a.body, response.content)
+
+	def test_individual(self):
+		response = self.client.get("/announcements/{0}/".format(self.a.pk))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.a.body, response.content)
+
+	def test_edit_announcement(self):
+		url = "/announcements/{0}/edit/".format(self.a.pk)
+
+		response = self.client.get(url)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(self.a.body, response.content)
+
+		new_body = "New Test Announcement Body"
+		response = self.client.post("/announcements/{0}/edit/".format(self.a.pk), {
+				"body": new_body,
+				"as_manager": self.a.manager.pk,
+				}, follow=True)
+
+		self.assertRedirects(response, "/announcements/{0}/".format(self.a.pk))
+		self.assertIn(new_body, response.content)
+
+		self.assertEqual(new_body, Announcement.objects.get(pk=self.a.pk).body)
+
+	def test_unpin(self):
+		response = self.client.post("/announcements/", {
+				"announcement_pk": self.a.pk,
+				"unpin": "",
+				}, follow=True)
+		self.assertRedirects(response, "/announcements/")
+		self.assertNotIn(self.a.body, response.content)
+
+	def test_no_edit(self):
+		self.client.logout()
+		self.client.login(username="ou", password="pwd")
+
+		response = self.client.get("/announcements/{0}/edit/".format(self.a.pk))
+		self.assertRedirects(response, "/announcements/{0}/".format(self.a.pk))
+
+		self.client.logout()
+		self.client.login(username="su", password="pwd")
+
+		response = self.client.get("/announcements/{0}/edit/".format(self.a.pk))
+		self.assertEqual(response.status_code, 200)
+
+	def test_unpin_individual(self):
+		url = "/announcements/{0}/".format(self.a.pk)
+		response = self.client.post(url, {
+				"unpin": "",
+				}, follow=True)
+		self.assertRedirects(response, url)
+		self.assertIn(self.a.body, response.content)
+
+		response = self.client.get("/announcements/")
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn(self.a.body, response.content)
+
+class TestPreFill(TestCase):
+	def test_pre_fill(self):
+		from pre_fill import main, REQUESTS, MANAGERS
+		main([])
+		for title in [i[0] for i in MANAGERS]:
+			self.assertEqual(1, Manager.objects.filter(title=title).count())
+		for name in [i[0] for i in REQUESTS]:
+			self.assertEqual(1, RequestType.objects.filter(name=name).count())

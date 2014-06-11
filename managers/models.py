@@ -41,6 +41,9 @@ class RequestType(models.Model):
 	def __unicode__(self):
 		return "%s RequestType" % self.name
 	
+	class Meta:
+		ordering = ['name']
+	
 	def is_requesttype(self):
 		return True
 
@@ -58,7 +61,6 @@ class Request(models.Model):
 	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
 	number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
 	upvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Up votes for this request.", related_name="up_votes")
-	downvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Down votes for this request.", related_name="down_votes")
 	
 	def __unicode__(self):
 		return "%s request by %s on %s" % (self.request_type.name, self.owner, self.post_date)
@@ -96,7 +98,7 @@ class Announcement(models.Model):
 	incumbent = models.ForeignKey(UserProfile, blank=False, null=False, help_text="The incumbent who made this announcement.")
 	body = models.TextField(blank=False, null=False, help_text="The body of the announcement.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this announcement was posted.")
-	pinned = models.BooleanField(default=False, help_text="Whether this announcment should be pinned permanently.")
+	pinned = models.BooleanField(default=True, help_text="Whether this announcment should be pinned permanently.")
 	change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
 	
 	def __unicode__(self):
