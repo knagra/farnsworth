@@ -247,6 +247,7 @@ def my_profile_view(request):
 		social_auth = None
 	change_password_form = ChangePasswordForm(
 		request.POST if 'submit_password_form' in request.POST else None,
+		user=user,
 		)
 	update_profile_form = UpdateProfileForm(
 		request.POST if 'submit_profile_form' in request.POST else None,
@@ -260,26 +261,9 @@ def my_profile_view(request):
 			'phone_visible_to_others': userProfile.phone_visible,
 			})
 	if change_password_form.is_valid():
-		current_password = change_password_form.cleaned_data['current_password']
-		new_password = change_password_form.cleaned_data['new_password']
-		confirm_password = change_password_form.cleaned_data['confirm_password']
-		if hashers.check_password(current_password, user.password):
-			hashed_password = hashers.make_password(new_password)
-			if hashers.is_password_usable(hashed_password):
-				user.password = hashed_password
-				user.save()
-				messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
-				return HttpResponseRedirect(reverse('my_profile'))
-			else:
-				password_non_field_error = "Password didn't hash properly.  Please try again."
-				change_password_form.errors['__all__'] = change_password_form.error_class([password_non_field_error])
-				return render_to_response('my_profile.html', {
-						'page_name': page_name,
-						'update_profile_form': update_profile_form,
-						'change_password_form': change_password_form,
-						}, context_instance=RequestContext(request))
-		else:
-			change_password_form._errors['current_password'] = forms.util.ErrorList([u"Wrong password."])
+		change_password_form.save()
+		messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
+		return HttpResponseRedirect(reverse('my_profile'))
 	elif update_profile_form.is_valid():
 		current_room = update_profile_form.cleaned_data['current_room']
 		former_rooms = update_profile_form.cleaned_data['former_rooms']
@@ -654,6 +638,7 @@ def custom_modify_user_view(request, targetUsername):
 			'groups': targetUser.groups.all(),
 			})
 	change_user_password_form = ChangeUserPasswordForm(
+		user=targetUser,
 		request.POST if 'change_user_password' in request.POST else None,
 		)
 	delete_user_form = DeleteUserForm(
@@ -711,18 +696,13 @@ def custom_modify_user_view(request, targetUsername):
 		if targetUser == request.user:
 			messages.add_message(request, messages.ERROR, MESSAGES['ADMIN_PASSWORD'])
 		else:
-			user_password = change_user_password_form.cleaned_data['user_password']
-			confirm_password = change_user_password_form.cleaned_data['confirm_password']
-			hashed_password = hashers.make_password(user_password)
-			if hashers.is_password_usable(hashed_password):
-				targetUser.password = hashed_password
-				targetUser.save()
-				message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
-				messages.add_message(request, messages.SUCCESS, message)
-				return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
-			else:
-				error = "Could not hash password.  Please try again."
-				change_user_password_form.errors['__all__'] = change_user_password_form.error_class([error])
+			change_user_password_form.save()
+			hashed_password = change_user_password_form.cleaned_data['user_password']
+			targetUser.password = hashed_password
+			targetUser.save()
+			message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
+			messages.add_message(request, messages.SUCCESS, message)
+			return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
 	elif delete_user_form.is_valid():
 		if targetUser == request.user:
 			messages.add_message(request, messages.ERROR, MESSAGES['SELF_DELETE'])

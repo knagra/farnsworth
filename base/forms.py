@@ -5,6 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 from django import forms
 from django.contrib.auth.models import Group
+from django.contrib.auth import hashers
 
 from utils.funcs import verify_username
 from utils.variables import MESSAGES
@@ -116,6 +117,22 @@ class ChangeUserPasswordForm(forms.Form):
 	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
+	def __init__(self, user, *args, **kwargs):
+		self.user = user
+		super(ChangeUserPasswordForm, self).__init__(*args, **kwargs)
+
+	def clean_user_password(self):
+		hashed_password = hashers.make_password(self.cleaned_data['user_password'])
+		if not hashers.is_password_usable(hashed_password):
+			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
+		return hashed_password
+
+	def clean_confirm_password(self):
+		hashed_password = hashers.make_password(self.cleaned_data['confirm_password'])
+		if not hashers.is_password_usable(hashed_password):
+			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
+		return hashed_password
+
 	def is_valid(self):
 		''' Validate form.
 		Return True if Django validates form and the passwords match.
@@ -128,6 +145,10 @@ class ChangeUserPasswordForm(forms.Form):
 			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 			return False
 		return True
+
+	def save(self):
+		self.user.password = self.cleaned_data['user_password']
+		self.user.save()
 
 class ModifyProfileRequestForm(forms.Form):
 	''' Form to modify a profile request. '''
@@ -186,12 +207,37 @@ class ChangePasswordForm(forms.Form):
 	new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
+	def __init__(self, user, *args, **kwargs):
+		self.user = user
+		super(ChangePasswordForm, self).__init__(*args, **kwargs)
+
+	def clean_current_password(self):
+		current_password = self.cleaned_data['current_password']
+		if not hashers.check_password(current_password, self.user.password):
+			raise forms.ValidationError("Wrong password.")
+		return current_password
+
+	def clean_new_password(self):
+		hashed_password = hashers.make_password(self.cleaned_data['new_password'])
+		if not hashers.is_password_usable(hashed_password):
+			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
+		return hashed_password
+
+	def clean_confirm_password(self):
+		hashed_password = hashers.make_password(self.cleaned_data['confirm_password'])
+		if not hashers.is_password_usable(hashed_password):
+			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
+		return hashed_password
+
 	def is_valid(self):
 		if not super(ChangePasswordForm, self).is_valid():
 			return False
-		new_password = self.cleaned_data['new_password']
-		confirm_password = self.cleaned_data['confirm_password']
-		if new_password != confirm_password:
-			self.errors['__all__'] = self.error_class([u"Passwords don't match."])
+		elif self.cleaned_data['new_password'] != self.cleaned_data['confirm_password']:
+			self._errors['new_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 			return False
 		return True
+
+	def save(self):
+		self.user.password = self.cleaned_data['new_password']
+		self.user.save()
