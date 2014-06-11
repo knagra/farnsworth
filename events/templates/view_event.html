@@ -26,7 +26,7 @@
 	{% endif %}
     <h3 class="table_title medium_title">{{ page_name }}</h3>
   </div> <!-- .header -->
-  <div class="main_body hover_row{% if event.cancelled %} bg-danger" title="Cancelled"{% elif ongoing %} bg-success" title="Happening Now"{% else %}"{% endif %}>
+  <div class="main_body hover_row{% if event.cancelled %} bg-danger" title="Cancelled{% elif ongoing %} bg-success" title="Happening Now{% elif event.as_manager %} bg-info" title="Official House Event{% endif %}">
   <div class="event_owner" style="padding-left: 5px;">
 	{% if event.as_manager %}
 	<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=event.as_manager.url_title %}">{{ event.as_manager }}</a>
@@ -39,6 +39,8 @@
   <div class="event_body" style="padding-left: 5px;">
 	<div class="text-center">
 	  <h3 class="event_header">{{ event.title }}
+	  <br />
+	  <small>{{ event.location }}</small>
 	  <br />
 	  <small>{{ event.start_time }} to {{ event.end_time }}</small></h3>
 	  {% if event.owner.user == user or user.is_superuser %}
@@ -53,6 +55,8 @@
 	  {% else %}
 	  No RSVPs.
 	  {% endif %}
+	<div class="pull-right">
+	{% if user.username != ANONYMOUS_USERNAME %}
 	<form class="pull-right" method="post" action="">
 	  {% csrf_token %}
 	  {{ rsvp_form }}
@@ -64,9 +68,13 @@
 		{% endif %}
 	  {% endif %}
 	</form>
+	{% endif %}
+	{% if event.owner.user == user or user.is_superuser %}
 	<form class="pull-right" action="{% url 'events:edit' event_pk=event.pk %}">
 		<button type="submit" class="main_link primary_link" title="Edit this event">Edit</button>
 	</form>
+	{% endif %}
+	</div> <!-- .pull-right -->
   </div> <!-- .event_body -->
   </div> <!-- .main_body -->
 </div> <!-- .table_container -->
