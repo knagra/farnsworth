@@ -287,7 +287,7 @@ class TestAnonymousUser(TestCase):
 		# Need to be careful here, client.login and client.logout clear the
 		# session cookies, causing this test to break
 		response = self.client.post("/login/", {
-				"username": "u",
+				"username_or_email": "u",
 				"password": "pwd",
 				}, follow=True)
 
