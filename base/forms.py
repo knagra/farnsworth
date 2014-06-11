@@ -117,8 +117,8 @@ class ChangeUserPasswordForm(forms.Form):
 	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
-	def __init__(self, user, *args, **kwargs):
-		self.user = user
+	def __init__(self, *args, **kwargs):
+		self.user = kwargs.pop('user')
 		super(ChangeUserPasswordForm, self).__init__(*args, **kwargs)
 
 	def clean_user_password(self):
@@ -207,8 +207,8 @@ class ChangePasswordForm(forms.Form):
 	new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
-	def __init__(self, user, *args, **kwargs):
-		self.user = user
+	def __init__(self, *args, **kwargs):
+		self.user = kwargs.pop('user')
 		super(ChangePasswordForm, self).__init__(*args, **kwargs)
 
 	def clean_current_password(self):

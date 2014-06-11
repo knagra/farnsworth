@@ -638,8 +638,8 @@ def custom_modify_user_view(request, targetUsername):
 			'groups': targetUser.groups.all(),
 			})
 	change_user_password_form = ChangeUserPasswordForm(
-		user=targetUser,
 		request.POST if 'change_user_password' in request.POST else None,
+		user=targetUser,
 		)
 	delete_user_form = DeleteUserForm(
 		request.POST if 'delete_user' in request.POST else None,
