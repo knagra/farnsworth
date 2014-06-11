@@ -621,104 +621,40 @@ def custom_modify_user_view(request, targetUsername):
 
 	modify_user_form = ModifyUserForm(
 		request.POST if "update_user_profile" in request.POST else None,
-		initial={
-			'first_name': targetUser.first_name,
-			'last_name': targetUser.last_name,
-			'email': targetUser.email,
-			'email_visible_to_others': targetProfile.email_visible,
-			'phone_number': targetProfile.phone_number,
-			'phone_visible_to_others': targetProfile.phone_visible,
-			'status': targetProfile.status,
-			'current_room': targetProfile.current_room,
-			'former_rooms': targetProfile.former_rooms,
-			'former_houses': targetProfile.former_houses,
-			'is_active': targetUser.is_active,
-			'is_staff': targetUser.is_staff,
-			'is_superuser': targetUser.is_superuser,
-			'groups': targetUser.groups.all(),
-			})
+		user=targetUser,
+		request=request,
+		)
 	change_user_password_form = ChangeUserPasswordForm(
 		request.POST if 'change_user_password' in request.POST else None,
 		user=targetUser,
+		request=request,
 		)
 	delete_user_form = DeleteUserForm(
 		request.POST if 'delete_user' in request.POST else None,
 		)
-	thread_count = Thread.objects.filter(owner=targetProfile).count(),
-	message_count = Message.objects.filter(owner=targetProfile).count(),
-	request_count = Request.objects.filter(owner=targetProfile).count(),
-	response_count = Response.objects.filter(owner=targetProfile).count(),
-	announcement_count = Announcement.objects.filter(incumbent=targetProfile).count(),
-	event_count = Event.objects.filter(owner=targetProfile).count(),
 	if modify_user_form.is_valid():
-		first_name = modify_user_form.cleaned_data['first_name']
-		last_name = modify_user_form.cleaned_data['last_name']
-		email = modify_user_form.cleaned_data['email']
-		email_visible_to_others = modify_user_form.cleaned_data['email_visible_to_others']
-		phone_number = modify_user_form.cleaned_data['phone_number']
-		phone_visible_to_others = modify_user_form.cleaned_data['phone_visible_to_others']
-		status = modify_user_form.cleaned_data['status']
-		current_room = modify_user_form.cleaned_data['current_room']
-		former_rooms = modify_user_form.cleaned_data['former_rooms']
-		former_houses = modify_user_form.cleaned_data['former_houses']
-		is_active = modify_user_form.cleaned_data['is_active']
-		is_staff = modify_user_form.cleaned_data['is_staff']
-		is_superuser = modify_user_form.cleaned_data['is_superuser']
-		groups = modify_user_form.cleaned_data['groups']
-		if User.objects.filter(email=email).count() and User.objects.get(email=email) != targetUser:
-			modify_user_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
-		else:
-			targetUser.first_name = first_name
-			targetUser.last_name = last_name
-			targetUser.is_active = is_active
-			targetUser.is_staff = is_staff
-			targetUser.email = email
-			if (targetUser == request.user and
-				User.objects.filter(is_superuser=True).count() <= 1 and
-				not is_superuser):
-				messages.add_message(request, messages.ERROR, MESSAGES['LAST_SUPERADMIN'])
-			else:
-				targetUser.is_superuser = is_superuser
-			targetUser.groups = groups
-			targetUser.save()
-			targetProfile.email_visible = email_visible_to_others
-			targetProfile.phone_number = phone_number
-			targetProfile.phone_visible = phone_visible_to_others
-			targetProfile.status = status
-			targetProfile.current_room = current_room
-			targetProfile.former_rooms = former_rooms
-			targetProfile.former_houses = former_houses
-			targetProfile.save()
-			message = MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username)
-			messages.add_message(request, messages.SUCCESS, message)
-			return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
+		modify_user_form.save()
+		messages.add_message(
+			request, messages.SUCCESS,
+			MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username),
+			)
+		return HttpResponseRedirect(reverse('custom_modify_user',
+											kwargs={'targetUsername': targetUsername}))
 	elif change_user_password_form.is_valid():
-		if targetUser == request.user:
-			messages.add_message(request, messages.ERROR, MESSAGES['ADMIN_PASSWORD'])
-		else:
-			change_user_password_form.save()
-			hashed_password = change_user_password_form.cleaned_data['user_password']
-			targetUser.password = hashed_password
-			targetUser.save()
-			message = MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username)
-			messages.add_message(request, messages.SUCCESS, message)
-			return HttpResponseRedirect(reverse('custom_modify_user', kwargs={'targetUsername': targetUsername}))
+		change_user_password_form.save()
+		messages.add_message(
+			request, messages.SUCCESS,
+			MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username),
+			)
+		return HttpResponseRedirect(reverse('custom_modify_user',
+											kwargs={'targetUsername': targetUsername}))
 	elif delete_user_form.is_valid():
-		if targetUser == request.user:
-			messages.add_message(request, messages.ERROR, MESSAGES['SELF_DELETE'])
-		else:
-			username = delete_user_form.cleaned_data['username']
-			password = delete_user_form.cleaned_data['password']
-			if not hashers.check_password(password, request.user.password):
-				delete_user_form._errors['password'] = forms.util.ErrorList([u"Wrong password."])
-			elif username == targetUsername:
-				targetUser.delete()
-				message = MESSAGES['USER_DELETED'].format(username=username)
-				messages.add_message(request, messages.SUCCESS, message)
-				return HttpResponseRedirect(reverse("custom_manage_users"))
-			else:
-				error = "Username incorrect."
-				delete_user_form.errors['username'] = delete_user_form.error_class([error])
+		delete_user_form.save()
+		messages.add_message(
+			request, messages.SUCCESS,
+			MESSAGES['USER_DELETED'].format(username=username),
+			)
+		return HttpResponseRedirect(reverse("custom_manage_users"))
 
 	return render_to_response('custom_modify_user.html', {
 			'targetUser': targetUser,

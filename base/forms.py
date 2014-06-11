@@ -81,6 +81,23 @@ class DeleteUserForm(forms.Form):
 	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text="Enter member's username to confirm deletion.")
 	password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}), label="Your password")
 
+	def __init__(self, *args, **kwargs):
+		self.user = kwargs.pop('user')
+		self.request = kwargs.pop('request')
+		super(DeleteUserForm, self).__init__(*args, **kwargs)
+
+	def clean_password(self):
+		password = self.cleaned_data['password']
+		if not hashers.check_password(password, self.request.user.password):
+			raise ValidationError("Wrong password.")
+		return None
+
+	def clean_username(self):
+		username = self.cleaned_data['username']
+		if username != self.user.username:
+			raise ValidationError("Username incorrect.")
+		return None
+
 	def is_valid(self):
 		''' Validate form.
 		Return True if Django validates the form, the username obeys the parameters, and passwords match.
@@ -88,11 +105,13 @@ class DeleteUserForm(forms.Form):
 		'''
 		if not super(DeleteUserForm, self).is_valid():
 			return False
-		validity = True
-		if not verify_username(self.cleaned_data['username']):
-			self._errors['username'] = self.error_class([MESSAGES['INVALID_USERNAME']])
-			validity = False
-		return validity
+		if self.user == self.request.user:
+			self._errors["__all__"] = self.error_class([MESSAGES['SELF_DELETE']])
+			return False
+		return True
+
+	def save(self):
+		self.user.delete()
 
 class ModifyUserForm(forms.Form):
 	''' Form to modify an existing user and profile. '''
@@ -112,6 +131,62 @@ class ModifyUserForm(forms.Form):
 	is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
 	groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
 
+	def __init__(self, *args, **kwargs):
+		self.user = kwargs.pop('user')
+		self.profile = UserProfile.objects.get(user=self.user)
+		self.request = kwargs.pop('request')
+		if 'initial' not in kwargs:
+			kwargs['initial'] = {
+				'first_name': self.user.first_name,
+				'last_name': self.user.last_name,
+				'email': self.user.email,
+				'email_visible_to_others': self.profile.email_visible,
+				'phone_number': self.profile.phone_number,
+				'phone_visible_to_others': self.profile.phone_visible,
+				'status': self.profile.status,
+				'current_room': self.profile.current_room,
+				'former_rooms': self.profile.former_rooms,
+				'former_houses': self.profile.former_houses,
+				'is_active': self.user.is_active,
+				'is_staff': self.user.is_staff,
+				'is_superself.user': self.user.is_superuser,
+				'groups': self.user.groups.all(),
+				}
+		super(ModifyUserForm, self).__init__(*args, **kwargs)
+
+	def clean_is_superuser(self):
+		is_superuser = self.cleaned_data["is_superuser"]
+		if self.user == self.request.user and \
+		  User.objects.filter(is_superuser=True).count() <= 1 and \
+		  not is_superuser:
+			raise ValidationError(MESSAGES['LAST_SUPERADMIN'])
+		return is_superuser
+
+	def clean_email(self):
+		email = self.cleaned_data["email"]
+		if User.objects.filter(email=email).count() > 0 and \
+		  User.objects.get(email=email) != targetUser:
+			raise ValidationError(MESSAGES['EMAIL_TAKEN'])
+		return email
+
+	def save(self):
+ 		self.user.first_name = self.cleaned_data['first_name']
+		self.user.last_name = self.cleaned_data['last_name']
+		self.user.is_active = self.cleaned_data['is_active']
+		self.user.is_staff = self.cleaned_data['is_staff']
+		self.user.is_superuser = self.cleaned_data['is_superuser']
+		self.user.email = self.cleaned_data['email']
+		self.user.groups = self.cleaned_data['groups']
+		self.user.save()
+		self.profile.email_visible = self.cleaned_data['email_visible_to_others']
+		self.profile.phone_number = self.cleaned_data['phone_number']
+		self.profile.phone_visible = self.cleaned_data['phone_visible_to_others']
+		self.profile.status = self.cleaned_data['status']
+		self.profile.current_room = self.cleaned_data['current_room']
+		self.profile.former_rooms = self.cleaned_data['former_rooms']
+		self.profile.former_houses = self.cleaned_data['former_houses']
+		self.profile.save()
+
 class ChangeUserPasswordForm(forms.Form):
 	''' Form for an admin to change a user's password. '''
 	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
@@ -119,6 +194,7 @@ class ChangeUserPasswordForm(forms.Form):
 
 	def __init__(self, *args, **kwargs):
 		self.user = kwargs.pop('user')
+		self.request = kwargs.pop('request')
 		super(ChangeUserPasswordForm, self).__init__(*args, **kwargs)
 
 	def clean_user_password(self):
@@ -140,7 +216,10 @@ class ChangeUserPasswordForm(forms.Form):
 		'''
 		if not super(ChangeUserPasswordForm, self).is_valid():
 			return False
-		elif self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
+		if self.user == self.request.user:
+			self._errors["__all__"] = MESSAGES['ADMIN_PASSWORD']
+			return False
+		if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
 			self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
 			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
 			return False
