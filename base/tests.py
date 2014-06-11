@@ -39,7 +39,7 @@ class TestLogin(TestCase):
 		self.assertEqual(None, self.client.logout())
 
 		response = self.client.post("/login/", {
-				"username": self.u.username,
+				"username_or_email": self.u.username,
 				"password": "pwd",
 				}, follow=True)
 		self.assertRedirects(response, "/")
@@ -52,30 +52,28 @@ class TestLogin(TestCase):
 		self.assertFalse(self.client.login(username="baduser", password="pwd"))
 
 		response = self.client.post("/login/", {
-				"username": self.u.username,
+				"username_or_email": self.u.username,
 				"password": "bad pwd",
 				})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Invalid username/password combination.  Please try again.",
-			      response.content)
+		self.assertIn(MESSAGES["INVALID_LOGIN"], response.content)
 
 		response = self.client.post("/login/", {
-				"username": "baduser",
+				"username_or_email": "baduser",
 				"password": "pwd",
 				})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Invalid username/password combination.  Please try again.",
-			      response.content)
+		self.assertIn(MESSAGES["INVALID_LOGIN"], response.content)
 
 	def test_inactive_login(self):
 		self.assertFalse(self.client.login(username=self.iu.username, password="pwd"))
 
 		response = self.client.post("/login/", {
-				"username": self.iu.username,
+				"username_or_email": self.iu.username,
 				"password": "pwd",
 				})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Your account is not active.  Please contact the site administrator to activate your account.",
+		self.assertIn("Your account is not active. Please contact the site administrator to activate your account.",
 			      response.content)
 
 		response = self.client.get("/", follow=True)
