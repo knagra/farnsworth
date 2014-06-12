@@ -140,6 +140,7 @@ def homepage_view(request, message=None):
 		)
 	thread_form = ThreadForm(
 		request.POST if 'submit_thread_form' in request.POST else None,
+		profile=userProfile,
 		)
 	vote_form = VoteForm(
 		request.POST if 'upvote' in request.POST else None,
@@ -192,12 +193,7 @@ def homepage_view(request, message=None):
 		relevant_event.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	elif thread_form.is_valid():
-		subject = thread_form.cleaned_data['subject']
-		body = thread_form.cleaned_data['body']
-		thread = Thread(owner=userProfile, subject=subject, number_of_messages=1, active=True)
-		thread.save()
-		message = Message(body=body, owner=userProfile, thread=thread)
-		message.save()
+		thread_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	elif vote_form.is_valid():
 		vote_form.save()
