@@ -45,16 +45,14 @@ class ManagerForm(forms.ModelForm):
 
 class RequestTypeForm(forms.ModelForm):
 	''' Form to add or modify a request type. '''
-	# name = forms.CharField(max_length=255,
-	# 	help_text="Unique name identifying this request type. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,. Capitalize first letter of each word.")
-	# relevant_managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.all(),
-	# 	help_text="Managers responsible for addressing this type of request; list excludes inactive managers.", required=False)
-	# enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
-	# glyphicon = forms.CharField(max_length=100, required=False,
-	# 	help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.')
 	class Meta:
 		model = RequestType
 		exclude = ("url_name",)
+		help_texts = {
+			'name': "Unique name identifying this request type. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,. Capitalize first letter of each word.",
+			"enabled": "Whether users can post new requests of this type.",
+			"glyphicon": 'Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.',
+			}
 
 	def clean_name(self):
 		name = self.cleaned_data['name']
