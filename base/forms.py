@@ -7,10 +7,12 @@ from django import forms
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import hashers
 
+from social.apps.django_app.default.models import UserSocialAuth
+
 from utils.funcs import verify_username
 from utils.variables import MESSAGES
-from base.models import UserProfile
 from rooms.models import Room
+from base.models import UserProfile
 
 class ProfileRequestForm(forms.Form):
 	''' Form to create a new profile request. '''
@@ -22,6 +24,26 @@ class ProfileRequestForm(forms.Form):
 	password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
+	def clean_username(self):
+		username = self.cleaned_data["username"]
+		if not verify_username(username):
+			raise forms.ValidationError(MESSAGES['INVALID_USERNAME'])
+		return username
+
+	def clean_password(self):
+		password = self.cleaned_data["password"]
+		hashed_password = hashers.make_password(password)
+		if not hashers.is_password_usable(hashed_password):
+			raise forms.ValidationError(MESSAGES["PASSWORD_UNHASHABLE"])
+		return password
+
+	def clean_confirm_password(self):
+		password = self.cleaned_data["confirm_password"]
+		hashed_password = hashers.make_password(password)
+		if not hashers.is_password_usable(hashed_password):
+			raise forms.ValidationError(MESSAGES["PASSWORD_UNHASHABLE"])
+		return password
+
 	def is_valid(self):
 		''' Validate form.
 		Return True if Django validates the form, the username obeys the parameters, and passwords match.
@@ -30,14 +52,24 @@ class ProfileRequestForm(forms.Form):
 		if not super(ProfileRequestForm, self).is_valid():
 			return False
 		validity = True
-		if not verify_username(self.cleaned_data['username']):
-			self._errors['username'] = self.error_class([MESSAGES['INVALID_USERNAME']])
-			validity = False
 		if self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
 			self._errors['password'] = forms.utils.ErrorList([u"Passwords don't match."])
 			self._errors['confirm_password'] = forms.utils.ErrorList([u"Passwords don't match."])
 			validity = False
 		return validity
+
+	def save(self):
+		hashed_password = hashers.make_password(self.cleaned_data['password'])
+		profile_request = ProfileRequest(
+			username=self.cleaned_data['username'],
+			first_name=self.cleaned_data['first_name'],
+			last_name=self.cleaned_data['last_name'],
+			email=self.cleaned_data['email'],
+			affiliation=self.cleaned_data['affiliation_with_the_house'],
+			password=hashed_password,
+			)
+		profile_request.save()
+		return profile_request
 
 class AddUserForm(forms.Form):
 	''' Form to add a new user and associated profile. '''
@@ -69,15 +101,15 @@ class AddUserForm(forms.Form):
 	def clean_username(self):
 		username = self.cleaned_data['username']
 		if not verify_username(self.cleaned_data['username']):
-			raise ValidationError(MESSAGES['INVALID_USERNAME'])
+			raise forms.ValidationError(MESSAGES['INVALID_USERNAME'])
 		if User.objects.filter(username=username).count():
-			raise ValidationError(MESSAGES["USERNAME_TAKEN"].format(username=username))
+			raise forms.ValidationError(MESSAGES["USERNAME_TAKEN"].format(username=username))
 		return username
 
 	def clean_email(self):
 		email = self.cleaned_data['email']
 		if User.objects.filter(email=email).count():
-			raise ValidationError(MESSAGES["EMAIL_TAKEN"])
+			raise forms.ValidationError(MESSAGES["EMAIL_TAKEN"])
 		return email
 
 	def is_valid(self):
@@ -137,13 +169,13 @@ class DeleteUserForm(forms.Form):
 	def clean_password(self):
 		password = self.cleaned_data['password']
 		if not hashers.check_password(password, self.request.user.password):
-			raise ValidationError("Wrong password.")
+			raise forms.ValidationError("Wrong password.")
 		return None
 
 	def clean_username(self):
 		username = self.cleaned_data['username']
 		if username != self.user.username:
-			raise ValidationError("Username incorrect.")
+			raise forms.ValidationError("Username incorrect.")
 		return None
 
 	def is_valid(self):
@@ -213,14 +245,14 @@ class ModifyUserForm(forms.Form):
 		if self.user == self.request.user and \
 		  User.objects.filter(is_superuser=True).count() <= 1 and \
 		  not is_superuser:
-			raise ValidationError(MESSAGES['LAST_SUPERADMIN'])
+			raise forms.ValidationError(MESSAGES['LAST_SUPERADMIN'])
 		return is_superuser
 
 	def clean_email(self):
 		email = self.cleaned_data["email"]
 		if User.objects.filter(email=email).count() > 0 and \
 		  User.objects.get(email=email) != self.user:
-			raise ValidationError(MESSAGES['EMAIL_TAKEN'])
+			raise forms.ValidationError(MESSAGES['EMAIL_TAKEN'])
 		return email
 
 	def save(self):
@@ -315,12 +347,72 @@ class ModifyProfileRequestForm(forms.Form):
 		'''
 		if not super(ModifyProfileRequestForm, self).is_valid():
 			return False
-		elif not verify_username(self.cleaned_data['username']):
-			self._errors['username'] = self.error_class([MESSAGES['INVALID_USERNAME']])
-			return False
+		first_name = self.cleaned_data["first_name"]
+		last_name = self.cleaned_data["last_name"]
+		if User.objects.filter(first_name=first_name, last_name=last_name).count():
+			non_field_error = "A profile for {0} {1} already exists with username {2}." \
+			  .format(first_name, last_name,
+					  User.objects.get(first_name=first_name,
+									   last_name=last_name).username)
+			self._errors['__all__'] = forms.util.ErrorList([non_field_error])
 		return True
 
+<<<<<<< HEAD
 class UpdateProfileForm(forms.ModelForm):
+=======
+	def clean_username(self):
+		username = self.cleaned_data["username"]
+		if not verify_username(username):
+			raise forms.ValidationError(MESSAGES['INVALID_USERNAME'])
+		if User.objects.filter(username=username).count():
+			raise forms.ValidationError(
+				"This username is taken.  Try one of {0}_1 through {0}_10."
+				.format(username))
+		return username
+
+	def clean_email(self):
+		email = self.cleaned_data["email"]
+		if User.objects.filter(email=email).count():
+			raise forms.ValidationError(MESSAGES["EMAIL_TAKEN"])
+		return email
+
+	def save(self, profile_request):
+		user = User.objects.create_user(
+			username=self.cleaned_data['username'],
+			email=self.cleaned_data['email'],
+			first_name=self.cleaned_data['first_name'],
+			last_name=self.cleaned_data['last_name'],
+			)
+		user.password = profile_request.password
+		user.is_active = self.cleaned_data['is_active']
+		user.is_staff = self.cleaned_data['is_staff']
+		user.is_superuser = self.cleaned_data['is_superuser']
+		user.groups = self.cleaned_data['groups']
+		user.save()
+
+		if profile_request.provider and profile_request.uid:
+			social = UserSocialAuth(
+				user=user,
+				provider = profile_request.provider,
+				uid = profile_request.uid,
+				)
+			social.save()
+
+		user_profile = UserProfile.objects.get(user=user)
+		user_profile.email_visible = self.cleaned_data['email_visible_to_others']
+		user_profile.phone_number = self.cleaned_data['phone_number']
+		user_profile.phone_visible = self.cleaned_data['phone_visible_to_others']
+		user_profile.status = self.cleaned_data['status']
+		user_profile.save()
+		user_profile.current_room = self.cleaned_data['current_room']
+		user_profile.former_rooms = self.cleaned_data['former_rooms']
+		user_profile.former_houses = self.cleaned_data['former_houses']
+		user_profile.save()
+
+		return user
+
+class UpdateProfileForm(forms.Form):
+>>>>>>> master
 	''' Form for a user to update own profile. '''
 	class Meta:
 		model = UserProfile
@@ -331,6 +423,7 @@ class UpdateProfileForm(forms.ModelForm):
 	enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
 	def __init__(self, *args, **kwargs):
+<<<<<<< HEAD
 		if "instance" in kwargs:
 			user = kwargs["instance"].user
 			initial = kwargs.get("initial", {})
@@ -348,6 +441,39 @@ class UpdateProfileForm(forms.ModelForm):
 		instance.user.email = self.cleaned_data["email"]
 		instance.save()
 		return instance
+=======
+		self.user = kwargs.pop("user")
+		super(UpdateProfileForm, self).__init__(*args, **kwargs)
+
+	def clean_enter_password(self):
+		try:
+			social_auth = UserSocialAuth.objects.get(user=user)
+		except UserSocialAuth.DoesNotExist:
+			social_auth = None
+		password = self.cleaned_data["enter_password"]
+		if not social_auth and not hashers.check_password(password, self.user.password):
+			raise forms.ValidationError("Wrong password.")
+		return None
+
+	def clean_email(self):
+		email = self.cleaned_data["email"]
+		if User.objects.filter(email=email).count() > 0 and \
+		  User.objects.get(email=email) != self.user:
+			raise forms.ValidationError(MESSAGES['EMAIL_TAKEN'])
+		return email
+
+	def save(self):
+		profile = UserProfile.objects.get(user=self.user)
+		profile.current_room = self.cleaned_data["current_room"]
+		profile.former_rooms = self.cleaned_data["former_rooms"]
+		profile.former_houses = self.cleaned_data["former_houses"]
+		profile.email_visible = self.cleaned_data["email_visible_to_others"]
+		profile.phone_number = self.cleaned_data["phone_number"]
+		profile.phone_visible = self.cleaned_data["phone_visible_to_others"]
+		profile.save()
+		self.user.email = self.cleaned_data["email"]
+		self.user.save()
+>>>>>>> master
 
 class LoginForm(forms.Form):
 	''' Form to login. '''

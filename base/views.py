@@ -15,8 +15,6 @@ from django.utils.timezone import utc
 
 from datetime import datetime, timedelta
 
-from social.apps.django_app.default.models import UserSocialAuth
-
 from farnsworth.settings import HOUSE_NAME, SHORT_HOUSE_NAME, ADMINS, \
 	 home_max_announcements, home_max_threads, SEND_EMAILS
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
@@ -96,15 +94,18 @@ def homepage_view(request, message=None):
 			type_requests = Request.objects.filter(request_type=request_type, filled=False, closed=False)
 			for req in type_requests:
 				response_list = Response.objects.filter(request=req)
-				form = ManagerResponseForm(initial={'request_pk': req.pk})
+				form = ManagerResponseForm(
+					initial={'request_pk': req.pk},
+					profile=userProfile,
+					)
 				upvote = userProfile in req.upvotes.all()
-				vote_form = VoteForm(initial={'request_pk': req.pk})
+				vote_form = VoteForm(
+					initial={'request_pk': req.pk},
+					profile=userProfile,
+					)
 				requests_list.append((req, response_list, form, upvote, vote_form))
 			requests_dict.append((request_type, requests_list))
 	announcement_form = None
-	manager_positions = Manager.objects.filter(incumbent=userProfile)
-	if manager_positions:
-		announcement_form = AnnouncementForm(manager_positions)
 	announcements_dict = list() # Pseudo-dictionary, list with items of form (announcement, announcement_unpin_form)
 	announcements = Announcement.objects.filter(pinned=True)
 	x = 0 # Number of announcements loaded
@@ -128,10 +129,11 @@ def homepage_view(request, message=None):
 		events_dict.append((event, ongoing, rsvpd, form))
 	response_form = ManagerResponseForm(
 		request.POST if 'add_response' in request.POST else None,
+		profile=userProfile,
 		)
 	announcement_form = AnnouncementForm(
-		manager_positions,
-		post=request.POST if 'post_announcement' in request.POST else None,
+		request.POST if 'post_announcement' in request.POST else None,
+		profile=userProfile,
 		)
 	unpin_form = UnpinForm(
 		request.POST if 'unpin' in request.POST else None,
@@ -141,9 +143,11 @@ def homepage_view(request, message=None):
 		)
 	thread_form = ThreadForm(
 		request.POST if 'submit_thread_form' in request.POST else None,
+		profile=userProfile,
 		)
 	vote_form = VoteForm(
 		request.POST if 'upvote' in request.POST else None,
+		profile=userProfile,
 		)
 	thread_set = [] # List of with items of form (thread, most_recent_message_in_thread)
 	for thread in Thread.objects.all()[:home_max_threads]:
@@ -153,35 +157,22 @@ def homepage_view(request, message=None):
 			latest_message = None
 		thread_set.append((thread, latest_message))
 	if response_form.is_valid():
-		request_pk = response_form.cleaned_data['request_pk']
-		body = response_form.cleaned_data['body']
-		relevant_request = Request.objects.get(pk=request_pk)
-		new_response = Response(owner=userProfile, body=body, request=relevant_request)
-		relevant_request.closed = response_form.cleaned_data['mark_closed']
-		relevant_request.filled = response_form.cleaned_data['mark_filled']
-		new_response.manager = True
-		relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-		relevant_request.number_of_responses += 1
-		relevant_request.save()
-		new_response.save()
+		response_form.save()
 		if relevant_request.closed:
 			messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_CLOSED'])
 		if relevant_request.filled:
 			messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_FILLED'])
 		return HttpResponseRedirect(reverse('homepage'))
-	elif announcement_form.is_valid():
-		body = announcement_form.cleaned_data['body']
-		manager = announcement_form.cleaned_data['as_manager']
-		new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
-		new_announcement.save()
+	if announcement_form.is_valid():
+		announcement_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
-	elif unpin_form.is_valid():
+	if unpin_form.is_valid():
 		announcement_pk = unpin_form.cleaned_data['announcement_pk']
 		relevant_announcement = Announcement.objects.get(pk=announcement_pk)
 		relevant_announcement.pinned = False
 		relevant_announcement.save()
 		return HttpResponseRedirect(reverse('homepage'))
-	elif rsvp_form.is_valid():
+	if rsvp_form.is_valid():
 		event_pk = rsvp_form.cleaned_data['event_pk']
 		relevant_event = Event.objects.get(pk=event_pk)
 		if userProfile in relevant_event.rsvps.all():
@@ -194,22 +185,11 @@ def homepage_view(request, message=None):
 			messages.add_message(request, messages.SUCCESS, message)
 		relevant_event.save()
 		return HttpResponseRedirect(reverse('homepage'))
-	elif thread_form.is_valid():
-		subject = thread_form.cleaned_data['subject']
-		body = thread_form.cleaned_data['body']
-		thread = Thread(owner=userProfile, subject=subject, number_of_messages=1, active=True)
-		thread.save()
-		message = Message(body=body, owner=userProfile, thread=thread)
-		message.save()
+	if thread_form.is_valid():
+		thread_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
-	elif vote_form.is_valid():
-		request_pk = vote_form.cleaned_data['request_pk']
-		relevant_request = Request.objects.get(pk=request_pk)
-		if userProfile in relevant_request.upvotes.all():
-			relevant_request.upvotes.remove(userProfile)
-		else:
-			relevant_request.upvotes.add(userProfile)
-		relevant_request.save()
+	if vote_form.is_valid():
+		vote_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	return render_to_response('homepage.html', {
 			'page_name': "Home",
@@ -242,16 +222,13 @@ def my_profile_view(request):
 		return red_home(request, MESSAGES['SPINELESS'])
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
-	try:
-		social_auth = UserSocialAuth.objects.get(user=user)
-	except UserSocialAuth.DoesNotExist:
-		social_auth = None
 	change_password_form = ChangePasswordForm(
 		request.POST if 'submit_password_form' in request.POST else None,
 		user=user,
 		)
 	update_profile_form = UpdateProfileForm(
 		request.POST if 'submit_profile_form' in request.POST else None,
+		user=request.user,
 		initial={
 			'current_room': userProfile.current_room,
 			'former_rooms': userProfile.former_rooms,
@@ -265,30 +242,10 @@ def my_profile_view(request):
 		change_password_form.save()
 		messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
 		return HttpResponseRedirect(reverse('my_profile'))
-	elif update_profile_form.is_valid():
-		current_room = update_profile_form.cleaned_data['current_room']
-		former_rooms = update_profile_form.cleaned_data['former_rooms']
-		former_houses = update_profile_form.cleaned_data['former_houses']
-		email = update_profile_form.cleaned_data['email']
-		email_visible_to_others = update_profile_form.cleaned_data['email_visible_to_others']
-		phone_number = update_profile_form.cleaned_data['phone_number']
-		phone_visible_to_others = update_profile_form.cleaned_data['phone_visible_to_others']
-		enter_password = update_profile_form.cleaned_data['enter_password']
-		if User.objects.filter(email=email).count() and User.objects.get(email=email) != user:
-			update_profile_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
-		elif social_auth or hashers.check_password(enter_password, user.password):
-			userProfile.current_room = current_room
-			userProfile.former_rooms = former_rooms
-			userProfile.former_houses = former_houses
-			user.email = email
-			userProfile.email_visible = email_visible_to_others
-			userProfile.phone_number = phone_number
-			userProfile.phone_visible = phone_visible_to_others
-			userProfile.save()
-			messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
-			return HttpResponseRedirect(reverse('my_profile'))
-		else:
-			update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
+	if update_profile_form.is_valid():
+		update_profile_form.save()
+		messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
+		return HttpResponseRedirect(reverse('my_profile'))
 	return render_to_response('my_profile.html', {
 			'page_name': page_name,
 			'update_profile_form': update_profile_form,
@@ -433,10 +390,6 @@ def request_profile_view(request):
 		first_name = form.cleaned_data['first_name']
 		last_name = form.cleaned_data['last_name']
 		email = form.cleaned_data['email']
-		affiliation = form.cleaned_data['affiliation_with_the_house']
-		password = form.cleaned_data['password']
-		confirm_password = form.cleaned_data['confirm_password']
-		hashed_password = hashers.make_password(password)
 		if User.objects.filter(username=username).count():
 			reset_url = request.build_absolute_uri(reverse('reset_pw'))
 			form._errors['username'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
@@ -450,12 +403,8 @@ def request_profile_view(request):
 		elif User.objects.filter(first_name=first_name, last_name=last_name).count():
 			reset_url = request.build_absolute_uri(reverse('reset_pw'))
 			messages.add_message(request, messages.INFO, MESSAGES['PROFILE_REQUEST_RESET'].format(reset_url=reset_url))
-		elif not hashers.is_password_usable(hashed_password):
-			form.errors['__all__'] = form.error_class([MESSAGES['PASSWORD_UNHASHABLE']])
 		else:
-			profile_request = ProfileRequest(username=username, first_name=first_name, last_name=last_name, email=email,
-				affiliation=affiliation, password=hashed_password)
-			profile_request.save()
+			form.save()
 			messages.add_message(request, messages.SUCCESS, MESSAGES['PROFILE_SUBMITTED'])
 			if SEND_EMAILS and (email not in EMAIL_BLACKLIST):
 				submission_subject = SUBMISSION_SUBJECT.format(house=HOUSE_NAME)
@@ -519,78 +468,30 @@ def modify_profile_request_view(request, request_pk):
 		message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
 		messages.add_message(request, messages.SUCCESS, message + addendum)
 		return HttpResponseRedirect(reverse('manage_profile_requests'))
-	elif mod_form.is_valid():
-		username = mod_form.cleaned_data['username']
-		first_name = mod_form.cleaned_data['first_name']
-		last_name = mod_form.cleaned_data['last_name']
-		email = mod_form.cleaned_data['email']
-		email_visible_to_others = mod_form.cleaned_data['email_visible_to_others']
-		phone_number = mod_form.cleaned_data['phone_number']
-		phone_visible_to_others = mod_form.cleaned_data['phone_visible_to_others']
-		status = mod_form.cleaned_data['status']
-		current_room = mod_form.cleaned_data['current_room']
-		former_rooms = mod_form.cleaned_data['former_rooms']
-		former_houses = mod_form.cleaned_data['former_houses']
-		is_active = mod_form.cleaned_data['is_active']
-		is_staff = mod_form.cleaned_data['is_staff']
-		is_superuser = mod_form.cleaned_data['is_superuser']
-		groups = mod_form.cleaned_data['groups']
-		if User.objects.filter(username=username).count():
-			non_field_error = "This username is taken.  Try one of %s_1 through %s_10." % (username, username)
-			mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
-		elif User.objects.filter(first_name=first_name, last_name=last_name):
-			non_field_error = "A profile for %s %s already exists with username %s." % (first_name, last_name, User.objects.get(first_name=first_name, last_name=last_name).username)
-			mod_form.errors['__all__'] = mod_form.error_class([non_field_error])
-		elif User.objects.filter(email=email):
-			mod_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
-		else:
-			new_user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
-			new_user.password = profile_request.password
-			new_user.is_active = is_active
-			new_user.is_staff = is_staff
-			new_user.is_superuser = is_superuser
-			new_user.groups = groups
-			new_user.save()
-
-			if profile_request.provider and profile_request.uid:
-				social = UserSocialAuth(
-					user=new_user,
-					provider = profile_request.provider,
-					uid = profile_request.uid,
-					)
-				social.save()
-
-			new_user_profile = UserProfile.objects.get(user=new_user)
-			new_user_profile.email_visible = email_visible_to_others
-			new_user_profile.phone_number = phone_number
-			new_user_profile.phone_visible = phone_visible_to_others
-			new_user_profile.status = status
-			new_user_profile.current_room = current_room
-			new_user_profile.former_rooms = former_rooms
-			new_user_profile.former_houses = former_houses
-			new_user_profile.save()
-			if new_user.is_active and SEND_EMAILS and (email not in EMAIL_BLACKLIST):
-				approval_subject = APPROVAL_SUBJECT.format(house=HOUSE_NAME)
-				if profile_request.provider:
-					username_bit = profile_request.provider.title()
-				elif new_user.username == profile_request.username:
-					username_bit = "the username and password you selected"
-				else:
-					username_bit = "the username %s and the password you selected" % new_user.username
-				login_url = request.build_absolute_uri(reverse('login'))
-				approval_email = APPROVAL_EMAIL.format(house=HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
-					admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
-				try:
-					send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [email], fail_silently=False)
-					addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name="{0} {1}".format(first_name, last_name),
-						email=profile_request.email)
-				except SMTPException as e:
-					message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
-					messages.add_message(request, messages.ERROR, message)
-			profile_request.delete()
-			message = MESSAGES['USER_ADDED'].format(username=username)
-			messages.add_message(request, messages.SUCCESS, message + addendum)
-			return HttpResponseRedirect(reverse('manage_profile_requests'))
+	if mod_form.is_valid():
+		new_user = mod_form.save(profile_request)
+		if new_user.is_active and SEND_EMAILS and (email not in EMAIL_BLACKLIST):
+			approval_subject = APPROVAL_SUBJECT.format(house=HOUSE_NAME)
+			if profile_request.provider:
+				username_bit = profile_request.provider.title()
+			elif new_user.username == profile_request.username:
+				username_bit = "the username and password you selected"
+			else:
+				username_bit = "the username %s and the password you selected" % new_user.username
+			login_url = request.build_absolute_uri(reverse('login'))
+			approval_email = APPROVAL_EMAIL.format(house=HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
+				admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
+			try:
+				send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [email], fail_silently=False)
+				addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name="{0} {1}".format(first_name, last_name),
+					email=profile_request.email)
+			except SMTPException as e:
+				message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
+				messages.add_message(request, messages.ERROR, message)
+		profile_request.delete()
+		message = MESSAGES['USER_ADDED'].format(username=new_user.username)
+		messages.add_message(request, messages.SUCCESS, message + addendum)
+		return HttpResponseRedirect(reverse('manage_profile_requests'))
 	return render_to_response('modify_profile_request.html', {
 			'page_name': page_name,
 			'add_user_form': mod_form,
@@ -643,7 +544,7 @@ def custom_modify_user_view(request, targetUsername):
 			)
 		return HttpResponseRedirect(reverse('custom_modify_user',
 											kwargs={'targetUsername': targetUsername}))
-	elif change_user_password_form.is_valid():
+	if change_user_password_form.is_valid():
 		change_user_password_form.save()
 		messages.add_message(
 			request, messages.SUCCESS,
@@ -651,7 +552,7 @@ def custom_modify_user_view(request, targetUsername):
 			)
 		return HttpResponseRedirect(reverse('custom_modify_user',
 											kwargs={'targetUsername': targetUsername}))
-	elif delete_user_form.is_valid():
+	if delete_user_form.is_valid():
 		delete_user_form.save()
 		messages.add_message(
 			request, messages.SUCCESS,

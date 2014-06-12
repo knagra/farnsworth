@@ -153,7 +153,7 @@ class TestHomepage(TestCase):
 	def test_announcment_post(self):
 		response = self.client.post("/", {
 				"post_announcement": "",
-				"as_manager": "1",
+				"manager": "1",
 				"body": "Announcement Body Text Test",
 				}, follow=True)
 		self.assertRedirects(response, "/")
