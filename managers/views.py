@@ -98,40 +98,12 @@ def meta_manager_view(request):
 def add_manager_view(request):
 	''' View to add a new manager position. Restricted to superadmins and presidents. '''
 	userProfile = UserProfile.objects.get(user=request.user)
-	if request.method == 'POST':
-		form = ManagerForm(request.POST)
-		if form.is_valid():
-			title = form.cleaned_data['title']
-			incumbent = form.cleaned_data['incumbent']
-			compensation = form.cleaned_data['compensation']
-			duties = form.cleaned_data['duties']
-			email = form.cleaned_data['email']
-			president = form.cleaned_data['president']
-			workshift_manager = form.cleaned_data['workshift_manager']
-			active = form.cleaned_data['active']
-			url_title = convert_to_url(title)
-			if Manager.objects.filter(title=title).count():
-				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
-			elif Manager.objects.filter(url_title=url_title).count():
-				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
-			else:
-				new_manager = Manager(
-					title=title,
-					url_title=url_title,
-					compensation=compensation,
-					duties=duties, email=email,
-					president=president,
-					workshift_manager=workshift_manager,
-					active=active,
-					)
-				if incumbent:
-					new_manager.incumbent = incumbent
-				new_manager.save()
-				messages.add_message(request, messages.SUCCESS,
-						     MESSAGES['MANAGER_ADDED'].format(managerTitle=title))
-				return HttpResponseRedirect(reverse('add_manager'))
-	else:
-		form = ManagerForm()
+	form = ManagerForm(request.POST or None)
+	if form.is_valid():
+		manager = form.save()
+		messages.add_message(request, messages.SUCCESS,
+					 MESSAGES['MANAGER_ADDED'].format(managerTitle=manager.title))
+		return HttpResponseRedirect(reverse('add_manager'))
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Add Manager",
 			'form': form,
@@ -146,49 +118,15 @@ def edit_manager_view(request, managerTitle):
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
 	targetManager = get_object_or_404(Manager, url_title=managerTitle)
-
-	if request.method == 'POST':
-		form = ManagerForm(request.POST)
-		if form.is_valid():
-			title = form.cleaned_data['title']
-			incumbent = form.cleaned_data['incumbent']
-			compensation = form.cleaned_data['compensation']
-			duties = form.cleaned_data['duties']
-			email = form.cleaned_data['email']
-			president = form.cleaned_data['president']
-			workshift_manager = form.cleaned_data['workshift_manager']
-			active = form.cleaned_data['active']
-			url_title = convert_to_url(title)
-			if Manager.objects.filter(title=title).count() and Manager.objects.get(title=title) != targetManager:
-				form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
-			elif Manager.objects.filter(url_title=url_title).count() and Manager.objects.get(url_title=url_title) != targetManager:
-				form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
-			else:
-				targetManager.title = title
-				targetManager.url_title = url_title
-				targetManager.incumbent = incumbent
-				targetManager.compensation = compensation
-				targetManager.duties = duties
-				targetManager.email = email
-				targetManager.president = president
-				targetManager.workshift_manager = workshift_manager
-				targetManager.active = active
-				targetManager.save()
-				messages.add_message(request, messages.SUCCESS, MESSAGES['MANAGER_SAVED'].format(managerTitle=title))
-				return HttpResponseRedirect(reverse('meta_manager'))
-		else:
-			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
-	else:
-		form = ManagerForm(initial={
-				'title': targetManager.title,
-				'incumbent': targetManager.incumbent,
-				'compensation': targetManager.compensation,
-				'duties': targetManager.duties,
-				'email': targetManager.email,
-				'president': targetManager.president,
-				'workshift_manager': targetManager.workshift_manager,
-				'active': targetManager.active,
-				})
+	form = ManagerForm(
+		request.POST or None,
+		instance=targetManager,
+		)
+	if form.is_valid():
+		manager = form.save()
+		messages.add_message(request, messages.SUCCESS,
+							 MESSAGES['MANAGER_SAVED'].format(managerTitle=manager.title))
+		return HttpResponseRedirect(reverse('meta_manager'))
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Edit Manager",
 			'form': form,
@@ -211,30 +149,12 @@ def manage_request_types_view(request):
 def add_request_type_view(request):
 	''' View to add a new request type.  Restricted to presidents and superadmins. '''
 	userProfile = UserProfile.objects.get(user=request.user)
-	if request.method == 'POST':
-		form = RequestTypeForm(request.POST)
-		if form.is_valid():
-			name = form.cleaned_data['name']
-			relevant_managers = form.cleaned_data['relevant_managers']
-			enabled = form.cleaned_data['enabled']
-			glyphicon = form.cleaned_data['glyphicon']
-			url_name = convert_to_url(name)
-			if RequestType.objects.filter(name=name).count():
-				form._errors['name'] = forms.util.ErrorList([u"A request type with this name already exists."])
-			elif RequestType.objects.filter(url_name=url_name).count():
-				form._errors['name'] = forms.util.ErrorList([u'This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.'])
-			else:
-				new_request_type = RequestType(name=name, url_name=url_name, enabled=enabled, glyphicon=glyphicon)
-				new_request_type.save()
-				for pos in relevant_managers:
-					new_request_type.managers.add(pos)
-				new_request_type.save()
-				messages.add_message(request, messages.SUCCESS, MESSAGES['REQUEST_TYPE_ADDED'].format(typeName=name))
-				return HttpResponseRedirect(reverse('manage_request_types'))
-		else:
-			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
-	else:
-		form = RequestTypeForm()
+	form = RequestTypeForm(request.POST or None)
+	if form.is_valid():
+		rtype = form.save()
+		messages.add_message(request, messages.SUCCESS,
+							 MESSAGES['REQUEST_TYPE_ADDED'].format(typeName=rtype.name))
+		return HttpResponseRedirect(reverse('manage_request_types'))
 	return render_to_response('edit_request_type.html', {
 			'page_name': "Admin - Add Request Type",
 			'form': form,
@@ -249,37 +169,15 @@ def edit_request_type_view(request, typeName):
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
 	requestType = get_object_or_404(RequestType, url_name=typeName)
-
-	if request.method == 'POST':
-		form = RequestTypeForm(request.POST)
-		if form.is_valid():
-			name = form.cleaned_data['name']
-			relevant_managers = form.cleaned_data['relevant_managers']
-			enabled = form.cleaned_data['enabled']
-			glyphicon = form.cleaned_data['glyphicon']
-			url_name = convert_to_url(name)
-			if RequestType.objects.filter(name=name).count() and RequestType.objects.get(name=name) != requestType:
-				form._errors['name'] = forms.util.ErrorList([u"A request type with this name already exists."])
-			elif RequestType.objects.filter(url_name=url_name).count() and RequestType.objects.get(url_name=url_name) != requestType:
-				form._errors['name'] = forms.util.ErrorList([u'This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.'])
-			else:
-				requestType.name = name
-				requestType.url_name = url_name
-				requestType.managers = relevant_managers
-				requestType.enabled = enabled
-				requestType.glyphicon = glyphicon
-				requestType.save()
-				messages.add_message(request, messages.SUCCESS, MESSAGES['REQUEST_TYPE_SAVED'].format(typeName=name))
-				return HttpResponseRedirect(reverse('manage_request_types'))
-		else:
-			messages.add_message(request, messages.ERROR, MESSAGES['INVALID_FORM'])
-	else:
-		form = RequestTypeForm(initial={
-				'name': requestType.name,
-				'relevant_managers': requestType.managers.all(),
-				'enabled': requestType.enabled,
-				'glyphicon': requestType.glyphicon,
-				})
+	form = RequestTypeForm(
+		request.POST or None,
+		instance=requestType,
+		)
+	if form.is_valid():
+		rtype = form.save()
+		messages.add_message(request, messages.SUCCESS,
+							 MESSAGES['REQUEST_TYPE_SAVED'].format(typeName=rtype.name))
+		return HttpResponseRedirect(reverse('manage_request_types'))
 	return render_to_response('edit_request_type.html', {
 			'page_name': "Admin - Edit Request Type",
 			'form': form,
@@ -302,64 +200,55 @@ def requests_view(request, requestType):
 		return red_home(request, message)
 	relevant_managers = request_type.managers.filter(active=True)
 	manager = any(i.incumbent == userProfile for i in relevant_managers)
-	if request.method == 'POST':
-		if 'submit_request' in request.POST:
-			request_form = RequestForm(request.POST)
-			if request_form.is_valid():
-				body = request_form.cleaned_data['body']
-				new_request = Request(owner=userProfile, body=body, request_type=request_type)
-				new_request.save()
-				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
-		elif 'add_response' in request.POST:
-			if manager:
-				form = ManagerResponseForm
-			else:
-				form = ResponseForm
-			response_form = form(request.POST)
-			if response_form.is_valid():
-				request_pk = response_form.cleaned_data['request_pk']
-				body = response_form.cleaned_data['body']
-				relevant_request = Request.objects.get(pk=request_pk)
-				new_response = Response(owner=userProfile, body=body, request=relevant_request)
-				if manager:
-					mark_filled = response_form.cleaned_data['mark_filled']
-					mark_closed = response_form.cleaned_data['mark_closed']
-					relevant_request.closed = mark_closed
-					relevant_request.filled = mark_filled
-					new_response.manager = True
-				relevant_request.number_of_responses += 1
-				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-				relevant_request.save()
-				new_response.save()
-				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
-		elif 'upvote' in request.POST:
-			vote_form = VoteForm(request.POST)
-			if vote_form.is_valid():
-				request_pk = vote_form.cleaned_data['request_pk']
-				relevant_request = Request.objects.get(pk=request_pk)
-				if userProfile in relevant_request.upvotes.all():
-					relevant_request.upvotes.remove(userProfile)
-				else:
-					relevant_request.upvotes.add(userProfile)
-				relevant_request.save()
-				return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
-		else:
-			return red_home(request, MESSAGES['UNKNOWN_FORM'])
-	request_form = RequestForm()
+	request_form = RequestForm(
+		request.POST if 'submit_request' in request.POST else None,
+		profile=userProfile,
+		request_type=request_type,
+		)
+	if manager:
+		form_class = ManagerResponseForm
+	else:
+		form_class = ResponseForm
+	response_form = form_class(
+		request.POST if 'add_response' in request.POST else None,
+		profile=userProfile,
+		)
+	vote_form = VoteForm(
+		request.POST if 'upvote' in request.POST else None,
+		profile=userProfile,
+		)
+	if request_form.is_valid():
+		request_form.save()
+		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
+	if response_form.is_valid():
+		response_form.save()
+		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
+	if vote_form.is_valid():
+		vote_form.save()
+		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 	x = 0 # number of requests loaded
 	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, vote_form)
 	for req in Request.objects.filter(request_type=request_type):
 		request_responses = Response.objects.filter(request=req)
 		if manager:
-			resp_form = ManagerResponseForm(initial={
+			resp_form = ManagerResponseForm(
+				initial={
 					'request_pk': req.pk,
 					'mark_filled': req.filled,
 					'mark_closed': req.closed,
-					})
+					},
+				profile=userProfile,
+				)
 		else:
-			resp_form = ResponseForm(initial={'request_pk': req.pk})
+			resp_form = ResponseForm(
+				initial={'request_pk': req.pk},
+				profile=userProfile,
+				)
 		upvote = userProfile in req.upvotes.all()
-		vote_form = VoteForm(initial={'request_pk': req.pk})
+		vote_form = VoteForm(
+			initial={'request_pk': req.pk},
+			profile=userProfile,
+			)
 		requests_dict.append((req, request_responses, resp_form, upvote, vote_form))
 		x += 1
 		if x >= max_requests:
@@ -380,42 +269,21 @@ def my_requests_view(request):
 	'''
 	page_name = "My Requests"
 	userProfile = UserProfile.objects.get(user=request.user)
-	if request.method == 'POST':
-		if 'submit_request' in request.POST:
-			request_form = RequestForm(request.POST)
-			if request_form.is_valid():
-				type_pk = request_form.cleaned_data['type_pk']
-				body = request_form.cleaned_data['body']
-				try:
-					request_type = RequestType.objects.get(pk=type_pk)
-				except RequestType.DoesNotExist:
-					message = "The request type was not recognized.  Please contact an admin for support."
-					return red_home(request, message)
-				new_request = Request(owner=userProfile, body=body, request_type=request_type)
-				new_request.save()
-				return HttpResponseRedirect(reverse('my_requests'))
-		elif 'add_response' in request.POST:
-			response_form = ManagerResponseForm(request.POST)
-			if response_form.is_valid():
-				request_pk = response_form.cleaned_data['request_pk']
-				body = response_form.cleaned_data['body']
-				relevant_request = Request.objects.get(pk=request_pk)
-				new_response = Response(owner=userProfile, body=body, request=relevant_request)
-				for manager_position in relevant_request.request_type.managers.all():
-					if manager_position.incumbent == userProfile:
-						mark_filled = response_form.cleaned_data['mark_filled']
-						mark_closed = response_form.cleaned_data['mark_closed']
-						relevant_request.filled = mark_filled
-						relevant_request.closed = mark_closed
-						new_response.manager = True
-						break
-				relevant_request.number_of_responses += 1
-				relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-				relevant_request.save()
-				new_response.save()
-				return HttpResponseRedirect(reverse('my_requests'))
-		else:
-			return red_home(request, MESSAGES['UNKNOWN_FORM'])
+	request_form = RequestForm(
+		request.POST if 'submit_request' in request.POST else None,
+		profile=userProfile,
+		)
+	response_form = ManagerResponseForm(
+		request.POST if 'add_response' in request.POST else None,
+		profile=userProfile,
+		)
+	if request_form.is_valid():
+		request_form.save()
+		type_pk = request_form.cleaned_data['type_pk']
+		return HttpResponseRedirect(reverse('my_requests'))
+	if response_form.is_valid():
+		response_form.save()
+		return HttpResponseRedirect(reverse('my_requests'))
 	my_requests = Request.objects.filter(owner=userProfile)
 	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...], relevant_managers)
 	for request_type in RequestType.objects.all():
@@ -430,14 +298,24 @@ def my_requests_view(request):
 						'request_pk': req.pk,
 						'mark_filled': req.filled,
 						'mark_closed': req.closed,
-						})
+						},
+						profile=userProfile,
+						)
 			else:
-				form = ResponseForm(initial={'request_pk': req.pk})
+				form = ResponseForm(
+					initial={'request_pk': req.pk},
+					profile=userProfile,
+					)
 			upvote = userProfile in req.upvotes.all()
-			vote_form = VoteForm(initial={'request_pk': req.pk})
+			vote_form = VoteForm(
+				initial={'request_pk': req.pk},
+				profile=userProfile,
+				)
 			requests_list.append((req, responses_list, form, upvote, vote_form))
-		request_form = RequestForm(initial={'type_pk': request_type.pk})
-		request_form.fields['type_pk'].widget = forms.HiddenInput()
+		request_form = RequestForm(
+			initial={'type_pk': request_type.pk},
+			profile=userProfile,
+			)
 		request_dict.append((request_type, request_form, type_manager, requests_list, relevant_managers))
 	return render_to_response('my_requests.html', {
 			'page_name': page_name,
@@ -513,63 +391,42 @@ def request_view(request, request_pk):
 	relevant_managers = relevant_request.request_type.managers.filter(active=True)
 	manager = any(i.incumbent == userProfile for i in relevant_managers)
 	if manager:
-		response_form = ManagerResponseForm(initial={
+		response_form = ManagerResponseForm(
+			request.POST if 'add_response' in request.POST else None,
+			initial={
 				'request_pk': relevant_request.pk,
 				'mark_filled': relevant_request.filled,
 				'mark_closed': relevant_request.closed,
-				})
+				},
+			profile=userProfile,
+			)
 	else:
-		response_form = ResponseForm(initial={
+		response_form = ResponseForm(
+			request.POST if 'add_response' in request.POST else None,
+			initial={
 				'request_pk': relevant_request.pk,
-				})
+				},
+			profile=userProfile,
+			)
 	upvote = userProfile in relevant_request.upvotes.all()
-	vote_form = VoteForm()
-	if request.method == 'POST':
-		if 'add_response' in request.POST:
-			if manager:
-				response_form = ManagerResponseForm(request.POST)
-			else:
-				response_form = ResponseForm(request.POST)
-			if response_form.is_valid():
-				request_pk = response_form.cleaned_data['request_pk']
-				body = response_form.cleaned_data['body']
-				new_response = Response(owner=userProfile, body=body, request=relevant_request)
-				if manager:
-					relevant_request.filled = response_form.cleaned_data['mark_filled']
-					relevant_request.closed = response_form.cleaned_data['mark_closed']
-					relevant_request.number_of_responses += 1
-					relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-					relevant_request.save()
-					new_response.manager = True
-				new_response.save()
-				return HttpResponseRedirect(reverse('view_request', kwargs={'request_pk': relevant_request.pk}))
-		elif 'upvote' in request.POST:
-			if userProfile in relevant_request.upvotes.all():
-				relevant_request.upvotes.remove(userProfile)
-			else:
-				relevant_request.upvotes.add(userProfile)
-			relevant_request.save()
-			return HttpResponseRedirect(reverse('view_request', kwargs={'request_pk': relevant_request.pk}))
-		else:
-			return red_home(request, MESSAGES['UNKNOWN_FORM'])
-	if manager:
-		response_form = ManagerResponseForm(initial={
-				'request_pk': relevant_request.pk,
-				'mark_filled': relevant_request.filled,
-				'mark_closed': relevant_request.closed,
-				})
-	else:
-		response_form = ResponseForm(initial={
-				'request_pk': relevant_request.pk,
-				})
+	vote_form = VoteForm(
+		request.POST if 'upvote' in request.POST else None,
+		profile=UserProfile,
+		)
+	if response_form.is_valid():
+		respones_form.save()
+		return HttpResponseRedirect(reverse('view_request',
+											kwargs={'request_pk': relevant_request.pk}))
+	if vote_form.is_valid():
+		vote_form.save(pk=request_pk)
+		return HttpResponseRedirect(reverse('view_request',
+											kwargs={'request_pk': relevant_request.pk}))
 	upvote = userProfile in relevant_request.upvotes.all()
-	vote_form = VoteForm()
 	return render_to_response('view_request.html', {
 			'page_name': "View Request",
 			'relevant_request': relevant_request,
 			'request_responses': request_responses,
 			'upvote': upvote,
-			'response_form': response_form,
 			'vote_form': vote_form,
 			'response_form': response_form,
 			'relevant_managers': relevant_managers,
@@ -583,16 +440,15 @@ def announcement_view(request, announcement_pk):
 	profile = UserProfile.objects.get(user=request.user)
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=profile)
-	unpin_form = UnpinForm(request.POST or None, initial={
+	unpin_form = UnpinForm(
+		request.POST if 'unpin' in request.POST else None,
+		announce=announce,
+		initial={
 			'announcement_pk': announcement_pk,
 			})
 	can_edit = announce.incumbent == profile or request.user.is_superuser
-	if 'unpin' in request.POST and unpin_form.is_valid():
-		if announce.pinned:
-			announce.pinned = False
-		else:
-			announce.pinned = True
-		announce.save()
+	if unpin_form.is_valid():
+		unpin_form.save()
 		return HttpResponseRedirect(
 			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
@@ -613,20 +469,14 @@ def edit_announcement_view(request, announcement_pk):
 			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
 	page_name = "Edit Announcement"
-	manager_positions = Manager.objects.filter(incumbent=profile)
 
-	initial = {"body": announce.body}
-	if announce.manager in manager_positions:
-		initial["as_manager"] = announce.manager.pk
-	elif manager_positions:
-		initial["as_manager"] = manager_positions[0].pk
-
-	announcement_form = AnnouncementForm(manager_positions, initial=initial,
-					     post=request.POST or None)
+	announcement_form = AnnouncementForm(
+		request.POST or None,
+		instance=announce,
+		profile=profile,
+		)
 	if announcement_form.is_valid():
-		announce.body = announcement_form.cleaned_data['body']
-		announce.manager = announcement_form.cleaned_data['as_manager']
-		announce.save()
+		announcement_form.save()
 		return HttpResponseRedirect(
 			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
@@ -643,29 +493,20 @@ def announcements_view(request):
 	userProfile = UserProfile.objects.get(user=request.user)
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
-	unpin_form = UnpinForm(request.POST or None)
+	unpin_form = UnpinForm(
+		request.POST if 'unpin' in request.POST else None,
+		)
 	if manager_positions:
-		announcement_form = AnnouncementForm(manager_positions,
-						     post=request.POST or None)
-	if 'unpin' in request.POST:
-		if unpin_form.is_valid():
-			announcement_pk = unpin_form.cleaned_data['announcement_pk']
-			relevant_announcement = Announcement.objects.get(pk=announcement_pk)
-			relevant_announcement.pinned = False
-			relevant_announcement.save()
-			return HttpResponseRedirect(reverse('announcements'))
-	elif 'post_announcement' in request.POST:
-		if announcement_form.is_valid():
-			body = announcement_form.cleaned_data['body']
-			manager = announcement_form.cleaned_data['as_manager']
-			new_announcement = Announcement(
-				manager=manager,
-				body=body,
-				incumbent=userProfile,
-				pinned=True,
-				)
-			new_announcement.save()
-			return HttpResponseRedirect(reverse('announcements'))
+		announcement_form = AnnouncementForm(
+			request.POST if 'post_announcement' in request.POST else None,
+			profile=userProfile,
+			)
+	if unpin_form.is_valid():
+		unpin_form.save()
+		return HttpResponseRedirect(reverse('announcements'))
+	if announcement_form and announcement_form.is_valid():
+		announcement_form.save()
+		return HttpResponseRedirect(reverse('announcements'))
 	announcements = Announcement.objects.filter(pinned=True)
 	# A pseudo-dictionary, actually a list with items of form:
 	# (announcement, announcement_unpin_form)
@@ -692,26 +533,19 @@ def all_announcements_view(request):
 	announcement_form = None
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
-		announcement_form = AnnouncementForm(manager_positions,
-						     post=request.POST or None)
-	unpin_form = UnpinForm(request.POST or None)
-	if 'unpin' in request.POST:
-		if unpin_form.is_valid():
-			announcement_pk = unpin_form.cleaned_data['announcement_pk']
-			relevant_announcement = Announcement.objects.get(pk=announcement_pk)
-			if relevant_announcement.pinned:
-				relevant_announcement.pinned = False
-			else:
-				relevant_announcement.pinned = True
-			relevant_announcement.save()
-			return HttpResponseRedirect(reverse('all_announcements'))
-	elif ('post_announcement' in request.POST) and manager_positions:
-		if announcement_form.is_valid():
-			body = announcement_form.cleaned_data['body']
-			manager = announcement_form.cleaned_data['as_manager']
-			new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
-			new_announcement.save()
-			return HttpResponseRedirect(reverse('all_announcements'))
+		announcement_form = AnnouncementForm(
+			request.POST if 'post_announcement' in request.POST else None,
+			profile=userProfile,
+			)
+	unpin_form = UnpinForm(
+		request.POST if 'unpin' in request.POST else None,
+		)
+	if unpin_form.is_valid():
+		unpin_form.save()
+		return HttpResponseRedirect(reverse('all_announcements'))
+	if announcement_form and announcement_form.is_valid():
+		announcement_form.save()
+		return HttpResponseRedirect(reverse('all_announcements'))
 
 	announcements = Announcement.objects.all()
 	announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_pin_form)
