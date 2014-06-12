@@ -105,6 +105,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
 	u"The web page that browses back.",
 	u"One word: Thundercougarfalconbird.",
 	u"Nothing makes you feel more like a man than a Thundercougarfalconbird.",
+	u"You've come to the Wong Place.",
 	)
 
 # Standard messages sent to clients on errors.
