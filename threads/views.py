@@ -4,25 +4,43 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from django.shortcuts import render_to_response, render, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect
-from django import forms
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from django.contrib.auth import logout, login, authenticate, hashers
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from datetime import datetime
-from django.utils.timezone import utc
 from django.contrib import messages
 
-from farnsworth.settings import max_threads, max_messages, \
-    home_max_threads
+from farnsworth.settings import max_threads, max_messages
 from utils.variables import MESSAGES
 from base.models import UserProfile
 from base.decorators import profile_required
 from threads.models import Thread, Message
 from threads.forms import *
+
+def _threads_dict(threads):
+	# A pseudo-dictionary, actually a list with items of form
+	# (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
+	threads_dict = list()
+	x = 0
+	for thread in threads:
+		y = 0 # number of messages loaded
+		thread_messages = list()
+		for message in Message.objects.filter(thread=thread).reverse():
+			thread_messages.append(message)
+			y += 1
+			if y >= max_messages:
+				break
+		more_messages = thread.number_of_messages - max_messages
+		if more_messages < 0:
+			more_messages = 0
+		thread_messages.reverse()
+		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
+		x += 1
+		if x >= max_threads:
+			break
+	return threads_dict
 
 @profile_required
 def member_forums_view(request):
@@ -48,26 +66,7 @@ def member_forums_view(request):
 		return HttpResponseRedirect(reverse('member_forums'))
 	elif 'submit_message_form' in request.POST:
 		messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
-	x = 0 # number of threads loaded
-	threads_dict = list()
-	# A pseudo-dictionary, actually a list with items of form:
-	# (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
-	for thread in Thread.objects.all():
-		y = 0 # number of messages loaded
-		thread_messages = list()
-		for message in Message.objects.filter(thread=thread).reverse():
-			thread_messages.append(message)
-			y += 1
-			if y >= max_messages:
-				break
-		more_messages = thread.number_of_messages - max_messages
-		if more_messages < 0:
-			more_messages = 0
-		thread_messages.reverse()
-		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
-		x += 1
-		if x >= max_threads:
-			break
+	threads_dict = _threads_dict(Thread.objects.all())
 	return render_to_response('threads.html', {
 			'page_name': page_name,
 			'thread_title': 'Active Threads',
@@ -100,22 +99,7 @@ def all_threads_view(request):
 	elif 'submit_message_form' in request.POST:
 		messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 
-	# A pseudo-dictionary, actually a list with items of form
-	# (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
-	threads_dict = list()
-	for thread in Thread.objects.all():
-		y = 0 # number of messages loaded
-		thread_messages = list()
-		for message in Message.objects.filter(thread=thread).reverse():
-			thread_messages.append(message)
-			y += 1
-			if y >= max_messages:
-				break
-		more_messages = thread.number_of_messages - max_messages
-		if more_messages < 0:
-			more_messages = 0
-		thread_messages.reverse()
-		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
+	threads_dict = _threads_dict(Thread.objects.all())
 	return render_to_response('threads.html', {
 			'page_name': page_name,
 			'thread_title': 'Archives - All Threads',
@@ -148,26 +132,7 @@ def my_threads_view(request):
 	elif 'submit_message_form' in request.POST:
 		messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 
-	x = 0 # number of threads loaded
-	# A pseudo-dictionary, actually a list with items of form:
-	# (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
-	threads_dict = list()
-	for thread in Thread.objects.filter(owner=userProfile):
-		y = 0 # number of messages loaded
-		thread_messages = list()
-		for message in Message.objects.filter(thread=thread).reverse():
-			thread_messages.append(message)
-			y += 1
-			if y >= max_messages:
-				break
-		more_messages = thread.number_of_messages - max_messages
-		if more_messages < 0:
-			more_messages = 0
-		thread_messages.reverse()
-		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
-		x += 1
-		if x >= max_threads:
-			break
+	threads_dict = _threads_dict(Thread.objects.filter(owner=userProfile))
 	return render_to_response('threads.html', {
 			'page_name': page_name,
 			'thread_title': 'My Threads',
