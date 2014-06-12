@@ -93,7 +93,10 @@ def homepage_view(request, message=None):
 			type_requests = Request.objects.filter(request_type=request_type, filled=False, closed=False)
 			for req in type_requests:
 				response_list = Response.objects.filter(request=req)
-				form = ManagerResponseForm(initial={'request_pk': req.pk})
+				form = ManagerResponseForm(
+					initial={'request_pk': req.pk},
+					profile=userProfile,
+					)
 				upvote = userProfile in req.upvotes.all()
 				vote_form = VoteForm(
 					initial={'request_pk': req.pk},
@@ -125,6 +128,7 @@ def homepage_view(request, message=None):
 		events_dict.append((event, ongoing, rsvpd, form))
 	response_form = ManagerResponseForm(
 		request.POST if 'add_response' in request.POST else None,
+		profile=userProfile,
 		)
 	announcement_form = AnnouncementForm(
 		request.POST if 'post_announcement' in request.POST else None,
@@ -152,17 +156,7 @@ def homepage_view(request, message=None):
 			latest_message = None
 		thread_set.append((thread, latest_message))
 	if response_form.is_valid():
-		request_pk = response_form.cleaned_data['request_pk']
-		body = response_form.cleaned_data['body']
-		relevant_request = Request.objects.get(pk=request_pk)
-		new_response = Response(owner=userProfile, body=body, request=relevant_request)
-		relevant_request.closed = response_form.cleaned_data['mark_closed']
-		relevant_request.filled = response_form.cleaned_data['mark_filled']
-		new_response.manager = True
-		relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-		relevant_request.number_of_responses += 1
-		relevant_request.save()
-		new_response.save()
+		response_form.save()
 		if relevant_request.closed:
 			messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_CLOSED'])
 		if relevant_request.filled:

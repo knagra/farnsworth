@@ -297,6 +297,7 @@ def requests_view(request, requestType):
 		form_class = ResponseForm
 	response_form = form_class(
 		request.POST if 'add_response' in request.POST else None,
+		profile=userProfile,
 		)
 	vote_form = VoteForm(
 		request.POST if 'upvote' in request.POST else None,
@@ -308,20 +309,7 @@ def requests_view(request, requestType):
 		new_request.save()
 		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 	if response_form.is_valid():
-		request_pk = response_form.cleaned_data['request_pk']
-		body = response_form.cleaned_data['body']
-		relevant_request = Request.objects.get(pk=request_pk)
-		new_response = Response(owner=userProfile, body=body, request=relevant_request)
-		if manager:
-			mark_filled = response_form.cleaned_data['mark_filled']
-			mark_closed = response_form.cleaned_data['mark_closed']
-			relevant_request.closed = mark_closed
-			relevant_request.filled = mark_filled
-			new_response.manager = True
-		relevant_request.number_of_responses += 1
-		relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-		relevant_request.save()
-		new_response.save()
+		response_form.save()
 		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 	if vote_form.is_valid():
 		vote_form.save()
@@ -331,13 +319,19 @@ def requests_view(request, requestType):
 	for req in Request.objects.filter(request_type=request_type):
 		request_responses = Response.objects.filter(request=req)
 		if manager:
-			resp_form = ManagerResponseForm(initial={
+			resp_form = ManagerResponseForm(
+				initial={
 					'request_pk': req.pk,
 					'mark_filled': req.filled,
 					'mark_closed': req.closed,
-					})
+					},
+				profile=userProfile,
+				)
 		else:
-			resp_form = ResponseForm(initial={'request_pk': req.pk})
+			resp_form = ResponseForm(
+				initial={'request_pk': req.pk},
+				profile=userProfile,
+				)
 		upvote = userProfile in req.upvotes.all()
 		vote_form = VoteForm(
 			initial={'request_pk': req.pk},
@@ -368,6 +362,7 @@ def my_requests_view(request):
 		)
 	response_form = ManagerResponseForm(
 		request.POST if 'add_response' in request.POST else None,
+		profile=userProfile,
 		)
 	if request_form.is_valid():
 		type_pk = request_form.cleaned_data['type_pk']
@@ -381,22 +376,7 @@ def my_requests_view(request):
 		new_request.save()
 		return HttpResponseRedirect(reverse('my_requests'))
 	if response_form.is_valid():
-		request_pk = response_form.cleaned_data['request_pk']
-		body = response_form.cleaned_data['body']
-		relevant_request = Request.objects.get(pk=request_pk)
-		new_response = Response(owner=userProfile, body=body, request=relevant_request)
-		for manager_position in relevant_request.request_type.managers.all():
-			if manager_position.incumbent == userProfile:
-				mark_filled = response_form.cleaned_data['mark_filled']
-				mark_closed = response_form.cleaned_data['mark_closed']
-				relevant_request.filled = mark_filled
-				relevant_request.closed = mark_closed
-				new_response.manager = True
-				break
-		relevant_request.number_of_responses += 1
-		relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-		relevant_request.save()
-		new_response.save()
+		response_form.save()
 		return HttpResponseRedirect(reverse('my_requests'))
 	my_requests = Request.objects.filter(owner=userProfile)
 	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...], relevant_managers)
@@ -412,9 +392,14 @@ def my_requests_view(request):
 						'request_pk': req.pk,
 						'mark_filled': req.filled,
 						'mark_closed': req.closed,
-						})
+						},
+						profile=userProfile,
+						)
 			else:
-				form = ResponseForm(initial={'request_pk': req.pk})
+				form = ResponseForm(
+					initial={'request_pk': req.pk},
+					profile=userProfile,
+					)
 			upvote = userProfile in req.upvotes.all()
 			vote_form = VoteForm(
 				initial={'request_pk': req.pk},
@@ -504,30 +489,24 @@ def request_view(request, request_pk):
 				'request_pk': relevant_request.pk,
 				'mark_filled': relevant_request.filled,
 				'mark_closed': relevant_request.closed,
-				})
+				},
+			profile=userProfile,
+			)
 	else:
 		response_form = ResponseForm(
 			request.POST if 'add_response' in request.POST else None,
 			initial={
 				'request_pk': relevant_request.pk,
-				})
+				},
+			profile=userProfile,
+			)
 	upvote = userProfile in relevant_request.upvotes.all()
 	vote_form = VoteForm(
 		request.POST if 'upvote' in request.POST else None,
 		profile=UserProfile,
 		)
 	if response_form.is_valid():
-		request_pk = response_form.cleaned_data['request_pk']
-		body = response_form.cleaned_data['body']
-		new_response = Response(owner=userProfile, body=body, request=relevant_request)
-		if manager:
-			relevant_request.filled = response_form.cleaned_data['mark_filled']
-			relevant_request.closed = response_form.cleaned_data['mark_closed']
-			relevant_request.number_of_responses += 1
-			relevant_request.change_date = datetime.utcnow().replace(tzinfo=utc)
-			relevant_request.save()
-			new_response.manager = True
-		new_response.save()
+		respones_form.save()
 		return HttpResponseRedirect(reverse('view_request',
 											kwargs={'request_pk': relevant_request.pk}))
 	if vote_form.is_valid():
@@ -540,7 +519,6 @@ def request_view(request, request_pk):
 			'relevant_request': relevant_request,
 			'request_responses': request_responses,
 			'upvote': upvote,
-			'response_form': response_form,
 			'vote_form': vote_form,
 			'response_form': response_form,
 			'relevant_managers': relevant_managers,

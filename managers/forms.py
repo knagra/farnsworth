@@ -77,12 +77,44 @@ class ResponseForm(forms.Form):
 	request_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 	body = forms.CharField(widget=forms.Textarea())
 
-class ManagerResponseForm(forms.Form):
+	def __init__(self, *args, **kwargs):
+		self.profile = kwargs.pop('profile')
+		super(ResponseForm, self).__init__(*args, **kwargs)
+
+	def clean_request_pk(self):
+		request_pk = self.cleaned_data['request_pk']
+		try:
+			request = Request.objects.get(pk=request_pk)
+		except Request.DoesNotExist:
+			raise ValidationError("Request does not exist.")
+		return request
+
+	def save(self):
+		request = self.cleaned_data['request']
+		response = Response(
+			owner=self.profile,
+			body=self.cleaned_data['body'],
+			request=request,
+			)
+		request.change_date = datetime.utcnow().replace(tzinfo=utc)
+		request.number_of_responses += 1
+		response.save()
+		return response
+
+class ManagerResponseForm(ResponseForm):
 	''' Form for a manager to create a new Response. '''
-	request_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-	body = forms.CharField(widget=forms.Textarea())
 	mark_filled = forms.BooleanField(required=False)
 	mark_closed = forms.BooleanField(required=False)
+
+	def save(self):
+		response = super(ManagerResponseForm, self).save()
+		response.manager = True
+		response.save()
+		request = self.cleaned_data['request']
+		request.closed = self.cleaned_data['mark_closed']
+		request.filled = self.cleaned_data['mark_filled']
+		request.save()
+		return response
 
 class VoteForm(forms.Form):
 	''' Form to cast an up or down vote for a request. '''
