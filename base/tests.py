@@ -930,3 +930,5 @@ class TestSearch(TestCase):
 		response = self.client.get("/search/?q={0}".format(number))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("No results found.", response.content)
+
+# TODO: Test ChangePassword + ChangeUserPassword
