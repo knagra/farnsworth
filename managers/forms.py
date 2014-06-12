@@ -22,7 +22,7 @@ class ManagerForm(forms.Form):
 	president = forms.BooleanField(help_text="Whether this manager has president privileges (edit and add managers, etc.)", required=False)
 	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
 	active = forms.BooleanField(help_text="Whether this is an active manager positions (visible in directory, etc.)", required=False)
-	
+
 	def is_valid(self):
 		''' Validate form.
 		Return True if the form is valid by Django's requirements and the title obeys the parameters.
@@ -34,7 +34,7 @@ class ManagerForm(forms.Form):
 			self._errors['title'] = self.error_class([u"Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,"])
 			return False
 		return True
-	
+
 	def clean(self):
 		''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
 		cleaned_data = super(ManagerForm, self).clean()
@@ -55,7 +55,7 @@ class RequestTypeForm(forms.Form):
 	enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
 	glyphicon = forms.CharField(max_length=100, required=False,
 		help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.')
-	
+
 	def is_valid(self):
 		''' Validate form.
 		Return True if the form is valid by Django's requirements and the name obeys the parameters.
@@ -98,7 +98,7 @@ def AnnouncementForm(manager_positions, initial=None, post=None):
 	class InnerAnnouncementForm(forms.Form):
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, empty_label=None)
 		body = forms.CharField(widget=forms.Textarea())
-	if initial is None:
+	if initial is None and manager_positions:
 		initial={'as_manager': manager_positions[0].pk}
 	if post is None:
 		return InnerAnnouncementForm(initial=initial)
