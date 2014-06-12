@@ -170,10 +170,7 @@ def homepage_view(request, message=None):
 			messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_FILLED'])
 		return HttpResponseRedirect(reverse('homepage'))
 	elif announcement_form.is_valid():
-		body = announcement_form.cleaned_data['body']
-		manager = announcement_form.cleaned_data['as_manager']
-		new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
-		new_announcement.save()
+		announcement_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	elif unpin_form.is_valid():
 		announcement_pk = unpin_form.cleaned_data['announcement_pk']

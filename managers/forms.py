@@ -4,10 +4,9 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 from django import forms
-from django.contrib.auth.models import Group
 
 from base.models import UserProfile
-from managers.models import Manager
+from managers.models import Manager, Announcement
 
 from utils.funcs import verify_url
 
@@ -103,20 +102,23 @@ class VoteForm(forms.Form):
 			relevant_request.upvotes.add(self.profile)
 		relevant_request.save()
 
-class AnnouncementForm(forms.Form):
-	as_manager = forms.ModelChoiceField(queryset=Manager.objects.none())
-	body = forms.CharField(widget=forms.Textarea())
+class AnnouncementForm(forms.ModelForm):
+	class Meta:
+		model = Announcement
+		fields = ("manager", "body")
 
 	def __init__(self, *args, **kwargs):
+		self.new = "instance" not in kwargs
 		self.profile = kwargs.pop("profile")
 		self.manager_positions = Manager.objects.filter(incumbent=self.profile)
 		super(AnnouncementForm, self).__init__(*args, **kwargs)
 		if self.manager_positions:
-			self.fields["as_manager"].queryset = self.manager_positions
-			self.fields["as_manager"].empty_label = None
-			self.fields["as_manager"].initial = self.manager_positions[0].pk
+			self.fields["manager"].queryset = self.manager_positions
+			self.fields["manager"].empty_label = None
+			self.fields["manager"].initial = self.manager_positions[0].pk
 		else:
-			self.fields["as_manager"].widget = forms.HiddenInput()
+			self.fields["manager"].widget = forms.HiddenInput()
+			self.fields["manager"].queryset = Manager.objects.none()
 
 	def is_valid(self):
 		if not super(AnnouncementForm, self).is_valid():
@@ -125,14 +127,12 @@ class AnnouncementForm(forms.Form):
 			raise ValidationError("You do not have permission to post an announcement.")
 		return True
 
-	def save(self):
-		new_announcement = Announcement(
-			manager=self.cleaned_data['as_manager'],
-			body=self.cleaned_data['body'],
-			incumbent=self.profile,
-			pinned=True,
-			)
-		new_announcement.save()
+	def save(self, *args, **kwargs):
+		announcement = super(AnnouncementForm, self).save(commit=False)
+		if self.new:
+			announcement.pinned = True
+			announcement.incumbent = self.profile
+		announcement.save()
 
 class UnpinForm(forms.Form):
 	''' Form to repin or unpin an announcement. '''

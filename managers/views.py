@@ -586,23 +586,14 @@ def edit_announcement_view(request, announcement_pk):
 			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
 	page_name = "Edit Announcement"
-	manager_positions = Manager.objects.filter(incumbent=profile)
-
-	initial = {"body": announce.body}
-	if announce.manager in manager_positions:
-		initial["as_manager"] = announce.manager.pk
-	elif manager_positions:
-		initial["as_manager"] = manager_positions[0].pk
 
 	announcement_form = AnnouncementForm(
 		request.POST or None,
-		initial=initial,
+		instance=announce,
 		profile=profile,
 		)
 	if announcement_form.is_valid():
-		announce.body = announcement_form.cleaned_data['body']
-		announce.manager = announcement_form.cleaned_data['as_manager']
-		announce.save()
+		announcement_form.save()
 		return HttpResponseRedirect(
 			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
