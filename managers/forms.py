@@ -89,6 +89,20 @@ class VoteForm(forms.Form):
 	''' Form to cast an up or down vote for a request. '''
 	request_pk = forms.IntegerField(widget=forms.HiddenInput())
 
+	def __init__(self, *args, **kwargs):
+		self.profile = kwargs.pop("profile")
+		super(VoteForm, self).__init__(*args, **kwargs)
+
+	def save(self, pk=None):
+		if pk is None:
+			pk = vote_form.cleaned_data['request_pk']
+		relevant_request = Request.objects.get(pk=pk)
+		if self.profile in relevant_request.upvotes.all():
+			relevant_request.upvotes.remove(self.profile)
+		else:
+			relevant_request.upvotes.add(self.profile)
+		relevant_request.save()
+
 def AnnouncementForm(manager_positions, initial=None, post=None):
 	''' Return a form to post an announcement, has an as_manager field if the user is a manager.
 	Parameters:

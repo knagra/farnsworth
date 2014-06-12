@@ -97,7 +97,10 @@ def homepage_view(request, message=None):
 				response_list = Response.objects.filter(request=req)
 				form = ManagerResponseForm(initial={'request_pk': req.pk})
 				upvote = userProfile in req.upvotes.all()
-				vote_form = VoteForm(initial={'request_pk': req.pk})
+				vote_form = VoteForm(
+					initial={'request_pk': req.pk},
+					profile=userProfile,
+					)
 				requests_list.append((req, response_list, form, upvote, vote_form))
 			requests_dict.append((request_type, requests_list))
 	announcement_form = None
@@ -143,6 +146,7 @@ def homepage_view(request, message=None):
 		)
 	vote_form = VoteForm(
 		request.POST if 'upvote' in request.POST else None,
+		profile=userProfile,
 		)
 	thread_set = [] # List of with items of form (thread, most_recent_message_in_thread)
 	for thread in Thread.objects.all()[:home_max_threads]:
@@ -202,13 +206,7 @@ def homepage_view(request, message=None):
 		message.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	elif vote_form.is_valid():
-		request_pk = vote_form.cleaned_data['request_pk']
-		relevant_request = Request.objects.get(pk=request_pk)
-		if userProfile in relevant_request.upvotes.all():
-			relevant_request.upvotes.remove(userProfile)
-		else:
-			relevant_request.upvotes.add(userProfile)
-		relevant_request.save()
+		vote_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	return render_to_response('homepage.html', {
 			'page_name': "Home",
