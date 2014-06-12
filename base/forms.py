@@ -94,15 +94,15 @@ class AddUserForm(forms.Form):
 	def clean_username(self):
 		username = self.cleaned_data['username']
 		if not verify_username(self.cleaned_data['username']):
-			raise ValidationError(MESSAGES['INVALID_USERNAME'])
+			raise forms.ValidationError(MESSAGES['INVALID_USERNAME'])
 		if User.objects.filter(username=username).count():
-			raise ValidationError(MESSAGES["USERNAME_TAKEN"].format(username=username))
+			raise forms.ValidationError(MESSAGES["USERNAME_TAKEN"].format(username=username))
 		return username
 
 	def clean_email(self):
 		email = self.cleaned_data['email']
 		if User.objects.filter(email=email).count():
-			raise ValidationError(MESSAGES["EMAIL_TAKEN"])
+			raise forms.ValidationError(MESSAGES["EMAIL_TAKEN"])
 		return email
 
 	def is_valid(self):
@@ -162,13 +162,13 @@ class DeleteUserForm(forms.Form):
 	def clean_password(self):
 		password = self.cleaned_data['password']
 		if not hashers.check_password(password, self.request.user.password):
-			raise ValidationError("Wrong password.")
+			raise forms.ValidationError("Wrong password.")
 		return None
 
 	def clean_username(self):
 		username = self.cleaned_data['username']
 		if username != self.user.username:
-			raise ValidationError("Username incorrect.")
+			raise forms.ValidationError("Username incorrect.")
 		return None
 
 	def is_valid(self):
@@ -232,14 +232,14 @@ class ModifyUserForm(forms.Form):
 		if self.user == self.request.user and \
 		  User.objects.filter(is_superuser=True).count() <= 1 and \
 		  not is_superuser:
-			raise ValidationError(MESSAGES['LAST_SUPERADMIN'])
+			raise forms.ValidationError(MESSAGES['LAST_SUPERADMIN'])
 		return is_superuser
 
 	def clean_email(self):
 		email = self.cleaned_data["email"]
 		if User.objects.filter(email=email).count() > 0 and \
 		  User.objects.get(email=email) != self.user:
-			raise ValidationError(MESSAGES['EMAIL_TAKEN'])
+			raise forms.ValidationError(MESSAGES['EMAIL_TAKEN'])
 		return email
 
 	def save(self):
@@ -341,9 +341,9 @@ class ModifyProfileRequestForm(forms.Form):
 	def clean_username(self):
 		username = self.cleaned_data["username"]
 		if not verify_username(username):
-			raise ValidationError(MESSAGES['INVALID_USERNAME'])
+			raise forms.ValidationError(MESSAGES['INVALID_USERNAME'])
 		if User.objects.filter(username=username).count():
-			raise ValidationError(
+			raise forms.ValidationError(
 				"This username is taken.  Try one of {0}_1 through {0}_10."
 				.format(username))
 		return username
@@ -351,7 +351,7 @@ class ModifyProfileRequestForm(forms.Form):
 	def clean_email(self):
 		email = self.cleaned_data["email"]
 		if User.objects.filter(email=email).count():
-			raise ValidationError(MESSAGES["EMAIL_TAKEN"])
+			raise forms.ValidationError(MESSAGES["EMAIL_TAKEN"])
 		return email
 
 	def save(self, profile_request):
@@ -415,14 +415,14 @@ class UpdateProfileForm(forms.Form):
 			social_auth = None
 		password = self.cleaned_data["enter_password"]
 		if not social_auth and not hashers.check_password(password, self.user.password):
-			raise ValidationError("Wrong password.")
+			raise forms.ValidationError("Wrong password.")
 		return None
 
 	def clean_email(self):
 		email = self.cleaned_data["email"]
 		if User.objects.filter(email=email).count() > 0 and \
 		  User.objects.get(email=email) != self.user:
-			raise ValidationError(MESSAGES['EMAIL_TAKEN'])
+			raise forms.ValidationError(MESSAGES['EMAIL_TAKEN'])
 		return email
 
 	def save(self):

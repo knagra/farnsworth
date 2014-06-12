@@ -8,30 +8,24 @@ from django import forms
 from base.models import UserProfile
 from managers.models import Manager, Announcement
 
-from utils.funcs import verify_url
+from utils.funcs import convert_to_url, verify_url
 
-class ManagerForm(forms.Form):
+class ManagerForm(forms.ModelForm):
 	''' Form to create or modify a manager position. '''
-	title = forms.CharField(max_length=255, help_text="A unique title for this manager position. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
-	incumbent = forms.ModelChoiceField(queryset=UserProfile.objects.all().exclude(status=UserProfile.ALUMNUS),
-		help_text="Current incumbent for this manager position.  List excludes alumni.", required=False)
-	compensation = forms.CharField(widget=forms.Textarea(), required=False)
-	duties = forms.CharField(widget=forms.Textarea(), required=False)
-	email = forms.EmailField(max_length=255, required=False, help_text="Manager e-mail (optional)")
-	president = forms.BooleanField(help_text="Whether this manager has president privileges (edit and add managers, etc.)", required=False)
-	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
-	active = forms.BooleanField(help_text="Whether this is an active manager positions (visible in directory, etc.)", required=False)
+	class Meta:
+		model = Manager
+		exclude = ("url_title",)
 
 	def clean_title(self):
 		title = self.cleaned_data['title']
 		if Manager.objects.filter(title=title).count():
-			raise ValidationError("A manager with this title already exists.")
+			raise forms.ValidationError("A manager with this title already exists.")
 		if not verify_url(title):
-			raise ValidationError("Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
+			raise forms.ValidationError("Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
 		url_title = convert_to_url(title)
 		if Manager.objects.filter(url_title=url_title).count():
-			raise ValidationError('This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.')
-		return title, url_title
+			raise forms.ValidationError('This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.')
+		return title
 
 	def clean(self):
 		''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
@@ -45,20 +39,8 @@ class ManagerForm(forms.Form):
 		return cleaned_data
 
 	def save(self):
-		title, url_title = self.cleaned_data['title']
-		incumbent = self.cleaned_data['incumbent']
-		manager = Manager(
-			title=title,
-			url_title=url_title,
-			compensation=self.cleaned_data['compensation'],
-			duties=self.cleaned_data['duties'],
-			email=self.cleaned_data['email'],
-			president=self.cleaned_data['president'],
-			workshift_manager=self.cleaned_data['workshift_manager'],
-			active=self.cleaned_data['active'],
-			)
-		if incumbent:
-			manager.incumbent = incumbent
+		manager = super(ManagerForm, self).save(commit=False)
+		manager.url_title = convert_to_url(self.cleaned_data['title'])
 		manager.save()
 		return manager
 
@@ -101,7 +83,7 @@ class RequestForm(forms.Form):
 		try:
 			request_type = RequestType.objects.get(pk=type_pk)
 		except RequestType.DoesNotExist:
-			raise ValidationError("The request type was not recognized.  Please contact an admin for support.")
+			raise forms.ValidationError("The request type was not recognized.  Please contact an admin for support.")
 		return request_type
 
 	def save(self):
@@ -127,7 +109,7 @@ class ResponseForm(forms.Form):
 		try:
 			request = Request.objects.get(pk=request_pk)
 		except Request.DoesNotExist:
-			raise ValidationError("Request does not exist.")
+			raise forms.ValidationError("Request does not exist.")
 		return request
 
 	def save(self):
@@ -197,7 +179,7 @@ class AnnouncementForm(forms.ModelForm):
 		if not super(AnnouncementForm, self).is_valid():
 			return False
 		if not self.manager_positions and not self.profile.user.is_superuser:
-			raise ValidationError("You do not have permission to post an announcement.")
+			raise forms.ValidationError("You do not have permission to post an announcement.")
 		return True
 
 	def save(self, *args, **kwargs):
@@ -211,12 +193,18 @@ class UnpinForm(forms.Form):
 	''' Form to repin or unpin an announcement. '''
 	announcement_pk = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
+	def __init__(self, *args, **kwargs):
+		self.announce = kwargs.pop('announce', None)
+		super(UnpinForm, self).__init__(*args, **kwargs)
+
 	def clean_announcement_pk(self):
+		if self.announce:
+			return self.announce
 		announcement_pk = self.cleaned_data['announcement_pk']
 		try:
-			announce = Announcment.objects.get(pk=announcement_pk)
+			announce = Announcement.objects.get(pk=announcement_pk)
 		except Announcement.DoesNotExist:
-			raise ValidationError("Announcement does not exist.")
+			raise forms.ValidationError("Announcement does not exist.")
 		return announce
 
 	def save(self):

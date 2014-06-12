@@ -100,17 +100,9 @@ def add_manager_view(request):
 	userProfile = UserProfile.objects.get(user=request.user)
 	form = ManagerForm(request.POST or None)
 	if form.is_valid():
-		title = self.cleaned_data['title']
-		incumbent = self.cleaned_data['incumbent']
-		compensation = self.cleaned_data['compensation']
-		duties = self.cleaned_data['duties']
-		email = self.cleaned_data['email']
-		president = self.cleaned_data['president']
-		workshift_manager = self.cleaned_data['workshift_manager']
-		active = self.cleaned_data['active']
-		form.save()
+		manager = form.save()
 		messages.add_message(request, messages.SUCCESS,
-					 MESSAGES['MANAGER_ADDED'].format(managerTitle=title))
+					 MESSAGES['MANAGER_ADDED'].format(managerTitle=manager.title))
 		return HttpResponseRedirect(reverse('add_manager'))
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Add Manager",
@@ -128,16 +120,7 @@ def edit_manager_view(request, managerTitle):
 	targetManager = get_object_or_404(Manager, url_title=managerTitle)
 	form = ManagerForm(
 		request.POST or None,
-		initial={
-			'title': targetManager.title,
-			'incumbent': targetManager.incumbent,
-			'compensation': targetManager.compensation,
-			'duties': targetManager.duties,
-			'email': targetManager.email,
-			'president': targetManager.president,
-			'workshift_manager': targetManager.workshift_manager,
-			'active': targetManager.active,
-			},
+		instance=targetManager,
 		)
 	if form.is_valid():
 		title = form.cleaned_data['title']
@@ -513,6 +496,7 @@ def announcement_view(request, announcement_pk):
 	manager_positions = Manager.objects.filter(incumbent=profile)
 	unpin_form = UnpinForm(
 		request.POST if 'unpin' in request.POST else None,
+		announce=announce,
 		initial={
 			'announcement_pk': announcement_pk,
 			})
