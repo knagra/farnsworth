@@ -241,16 +241,13 @@ def my_profile_view(request):
 		return red_home(request, MESSAGES['SPINELESS'])
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
-	try:
-		social_auth = UserSocialAuth.objects.get(user=user)
-	except UserSocialAuth.DoesNotExist:
-		social_auth = None
 	change_password_form = ChangePasswordForm(
 		request.POST if 'submit_password_form' in request.POST else None,
 		user=user,
 		)
 	update_profile_form = UpdateProfileForm(
 		request.POST if 'submit_profile_form' in request.POST else None,
+		user=request.user,
 		initial={
 			'current_room': userProfile.current_room,
 			'former_rooms': userProfile.former_rooms,
@@ -265,29 +262,9 @@ def my_profile_view(request):
 		messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
 		return HttpResponseRedirect(reverse('my_profile'))
 	elif update_profile_form.is_valid():
-		current_room = update_profile_form.cleaned_data['current_room']
-		former_rooms = update_profile_form.cleaned_data['former_rooms']
-		former_houses = update_profile_form.cleaned_data['former_houses']
-		email = update_profile_form.cleaned_data['email']
-		email_visible_to_others = update_profile_form.cleaned_data['email_visible_to_others']
-		phone_number = update_profile_form.cleaned_data['phone_number']
-		phone_visible_to_others = update_profile_form.cleaned_data['phone_visible_to_others']
-		enter_password = update_profile_form.cleaned_data['enter_password']
-		if User.objects.filter(email=email).count() and User.objects.get(email=email) != user:
-			update_profile_form._errors['email'] = forms.util.ErrorList([MESSAGES['EMAIL_TAKEN']])
-		elif social_auth or hashers.check_password(enter_password, user.password):
-			userProfile.current_room = current_room
-			userProfile.former_rooms = former_rooms
-			userProfile.former_houses = former_houses
-			user.email = email
-			userProfile.email_visible = email_visible_to_others
-			userProfile.phone_number = phone_number
-			userProfile.phone_visible = phone_visible_to_others
-			userProfile.save()
-			messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
-			return HttpResponseRedirect(reverse('my_profile'))
-		else:
-			update_profile_form._errors['enter_password'] = forms.util.ErrorList([u"Wrong password"])
+		update_profile_form.save()
+		messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
+		return HttpResponseRedirect(reverse('my_profile'))
 	return render_to_response('my_profile.html', {
 			'page_name': page_name,
 			'update_profile_form': update_profile_form,

@@ -316,6 +316,39 @@ class UpdateProfileForm(forms.Form):
 		help_text="Make your phone number visible to other members in member directory, your profile, and elsewhere.")
 	enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
+	def __init__(self, *args, **kwargs):
+		self.user = kwargs.pop("user")
+		super(UpdateProfileForm, self).__init__(*args, **kwargs)
+
+	def clean_enter_password(self):
+		try:
+			social_auth = UserSocialAuth.objects.get(user=user)
+		except UserSocialAuth.DoesNotExist:
+			social_auth = None
+		password = self.cleaned_data["enter_password"]
+		if not social_auth and not hashers.check_password(password, self.user.password):
+			raise ValidationError("Wrong password.")
+		return None
+
+	def clean_email(self):
+		email = self.cleaned_data["email"]
+		if User.objects.filter(email=email).count() > 0 and \
+		  User.objects.get(email=email) != self.user:
+			raise ValidationError(MESSAGES['EMAIL_TAKEN'])
+		return email
+
+	def save(self):
+		profile = UserProfile.objects.get(user=self.user)
+		profile.current_room = self.cleaned_data["current_room"]
+		profile.former_rooms = self.cleaned_data["former_rooms"]
+		profile.former_houses = self.cleaned_data["former_houses"]
+		profile.email_visible = self.cleaned_data["email_visible_to_others"]
+		profile.phone_number = self.cleaned_data["phone_number"]
+		profile.phone_visible = self.cleaned_data["phone_visible_to_others"]
+		profile.save()
+		self.user.email = self.cleaned_data["email"]
+		self.user.save()
+
 class LoginForm(forms.Form):
 	''' Form to login. '''
 	username_or_email = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
