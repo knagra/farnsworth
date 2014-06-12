@@ -535,11 +535,7 @@ def announcement_view(request, announcement_pk):
 			})
 	can_edit = announce.incumbent == profile or request.user.is_superuser
 	if unpin_form.is_valid():
-		if announce.pinned:
-			announce.pinned = False
-		else:
-			announce.pinned = True
-		announce.save()
+		unpin_form.save()
 		return HttpResponseRedirect(
 			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
@@ -593,10 +589,7 @@ def announcements_view(request):
 			profile=userProfile,
 			)
 	if unpin_form.is_valid():
-		announcement_pk = unpin_form.cleaned_data['announcement_pk']
-		relevant_announcement = Announcement.objects.get(pk=announcement_pk)
-		relevant_announcement.pinned = False
-		relevant_announcement.save()
+		unpin_form.save()
 		return HttpResponseRedirect(reverse('announcements'))
 	if announcement_form and announcement_form.is_valid():
 		announcement_form.save()
@@ -635,13 +628,7 @@ def all_announcements_view(request):
 		request.POST if 'unpin' in request.POST else None,
 		)
 	if unpin_form.is_valid():
-		announcement_pk = unpin_form.cleaned_data['announcement_pk']
-		relevant_announcement = Announcement.objects.get(pk=announcement_pk)
-		if relevant_announcement.pinned:
-			relevant_announcement.pinned = False
-		else:
-			relevant_announcement.pinned = True
-		relevant_announcement.save()
+		unpin_form.save()
 		return HttpResponseRedirect(reverse('all_announcements'))
 	if announcement_form and announcement_form.is_valid():
 		announcement_form.save()

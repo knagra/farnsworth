@@ -193,3 +193,16 @@ class AnnouncementForm(forms.ModelForm):
 class UnpinForm(forms.Form):
 	''' Form to repin or unpin an announcement. '''
 	announcement_pk = forms.IntegerField(required=False, widget=forms.HiddenInput())
+
+	def clean_announcement_pk(self):
+		announcement_pk = self.cleaned_data['announcement_pk']
+		try:
+			announce = Announcment.objects.get(pk=announcement_pk)
+		except Announcement.DoesNotExist:
+			raise ValidationError("Announcement does not exist.")
+		return announce
+
+	def save(self):
+		announce = self.cleaned_data['announcement_pk']
+		announce.pinned = not announce.pinned
+		announce.save()
