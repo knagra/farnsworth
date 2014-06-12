@@ -359,21 +359,15 @@ def my_requests_view(request):
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_form = RequestForm(
 		request.POST if 'submit_request' in request.POST else None,
+		profile=userProfile,
 		)
 	response_form = ManagerResponseForm(
 		request.POST if 'add_response' in request.POST else None,
 		profile=userProfile,
 		)
 	if request_form.is_valid():
+		request_form.save()
 		type_pk = request_form.cleaned_data['type_pk']
-		body = request_form.cleaned_data['body']
-		try:
-			request_type = RequestType.objects.get(pk=type_pk)
-		except RequestType.DoesNotExist:
-			message = "The request type was not recognized.  Please contact an admin for support."
-			return red_home(request, message)
-		new_request = Request(owner=userProfile, body=body, request_type=request_type)
-		new_request.save()
 		return HttpResponseRedirect(reverse('my_requests'))
 	if response_form.is_valid():
 		response_form.save()
@@ -406,8 +400,10 @@ def my_requests_view(request):
 				profile=userProfile,
 				)
 			requests_list.append((req, responses_list, form, upvote, vote_form))
-		request_form = RequestForm(initial={'type_pk': request_type.pk})
-		request_form.fields['type_pk'].widget = forms.HiddenInput()
+		request_form = RequestForm(
+			initial={'type_pk': request_type.pk},
+			profile=userProfile,
+			)
 		request_dict.append((request_type, request_form, type_manager, requests_list, relevant_managers))
 	return render_to_response('my_requests.html', {
 			'page_name': page_name,

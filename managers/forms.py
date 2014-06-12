@@ -74,14 +74,24 @@ class RequestForm(forms.Form):
 
 	def __init__(self, *args, **kwargs):
 		self.profile = kwargs.pop('profile')
-		self.request_type = kwargs.pop('request_type')
+		self.request_type = kwargs.pop('request_type', None)
 		super(RequestForm, self).__init__(*args, **kwargs)
+
+	def clean_type_pk(self):
+		if self.request_Type:
+			return self.request_type
+		type_pk = self.cleaned_data['type_pk']
+		try:
+			request_type = RequestType.objects.get(pk=type_pk)
+		except RequestType.DoesNotExist:
+			raise ValidationError("The request type was not recognized.  Please contact an admin for support.")
+		return request_type
 
 	def save(self):
 		request = Request(
 			owner=self.profile,
-			body=request_form.cleaned_data['body'],
-			request_type=self.request_type,
+			body=self.cleaned_data['body'],
+			request_type=self.cleaned_data['request_type'],
 			)
 		request.save()
 		return request
