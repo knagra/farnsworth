@@ -83,7 +83,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
 	u"Aaahhh..to be young again...and also a 404 page.",
 	u"You take one nap in a ditch in the park, and people start declaring you this and that!",
 	u"Oh my, yes.",
-	u"Better yet, I'll build a page to replace it for you.  Some kind of gamma powered mechanical monster, with freeway on-ramps for arms and a heart as black as coal...",
+	u"Better yet, I'll build a page to replace it for you.  Some kind of gamma-powered mechanical monster, with freeway on-ramps for arms and a heart as black as coal...",
 	u"We tore the universe a new space-hole, all right.  And now it's clenching shut.",
 	u"You still have your old pal Zoidberg.  YOU ALL HAVE ZOIDBERG!!!",
 	u"Woob woob woob woob woob!",
