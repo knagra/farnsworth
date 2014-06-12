@@ -72,6 +72,20 @@ class RequestForm(forms.Form):
 	type_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 	body = forms.CharField(widget=forms.Textarea())
 
+	def __init__(self, *args, **kwargs):
+		self.profile = kwargs.pop('profile')
+		self.request_type = kwargs.pop('request_type')
+		super(RequestForm, self).__init__(*args, **kwargs)
+
+	def save(self):
+		request = Request(
+			owner=self.profile,
+			body=request_form.cleaned_data['body'],
+			request_type=self.request_type,
+			)
+		request.save()
+		return request
+
 class ResponseForm(forms.Form):
 	'''' Form for a regular user to create a new Response. '''
 	request_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)

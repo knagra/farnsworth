@@ -290,6 +290,8 @@ def requests_view(request, requestType):
 	manager = any(i.incumbent == userProfile for i in relevant_managers)
 	request_form = RequestForm(
 		request.POST if 'submit_request' in request.POST else None,
+		profile=userProfile,
+		request_type=request_type,
 		)
 	if manager:
 		form_class = ManagerResponseForm
@@ -304,9 +306,7 @@ def requests_view(request, requestType):
 		profile=userProfile,
 		)
 	if request_form.is_valid():
-		body = request_form.cleaned_data['body']
-		new_request = Request(owner=userProfile, body=body, request_type=request_type)
-		new_request.save()
+		request_form.save()
 		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 	if response_form.is_valid():
 		response_form.save()
