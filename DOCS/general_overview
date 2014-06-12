@@ -42,7 +42,7 @@ On CentOS:
 
 On Debian:
 
-    $ sudo apt-get install postgres python python-devel virtualenv gcc libapache2-mod-wsgi
+    $ sudo apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3
 
 See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html on installing elasticsearch on either distribution.
 
