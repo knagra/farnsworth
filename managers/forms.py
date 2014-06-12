@@ -169,7 +169,6 @@ class AnnouncementForm(forms.ModelForm):
 		fields = ("manager", "body")
 
 	def __init__(self, *args, **kwargs):
-		self.new = "instance" not in kwargs
 		self.profile = kwargs.pop("profile")
 		self.manager_positions = Manager.objects.filter(incumbent=self.profile)
 		super(AnnouncementForm, self).__init__(*args, **kwargs)
@@ -190,7 +189,7 @@ class AnnouncementForm(forms.ModelForm):
 
 	def save(self, *args, **kwargs):
 		announcement = super(AnnouncementForm, self).save(commit=False)
-		if self.new:
+		if announcement.pk is None:
 			announcement.pinned = True
 			announcement.incumbent = self.profile
 		announcement.save()
