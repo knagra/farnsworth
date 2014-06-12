@@ -5,8 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 from django import forms
 
-from base.models import UserProfile
-from managers.models import Manager, Announcement
+from managers.models import Manager, Announcement, RequestType
 
 from utils.funcs import convert_to_url, verify_url
 
@@ -44,27 +43,36 @@ class ManagerForm(forms.ModelForm):
 		manager.save()
 		return manager
 
-class RequestTypeForm(forms.Form):
+class RequestTypeForm(forms.ModelForm):
 	''' Form to add or modify a request type. '''
-	name = forms.CharField(max_length=255,
-		help_text="Unique name identifying this request type. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,. Capitalize first letter of each word.")
-	relevant_managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.all(),
-		help_text="Managers responsible for addressing this type of request; list excludes inactive managers.", required=False)
-	enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
-	glyphicon = forms.CharField(max_length=100, required=False,
-		help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.')
+	# name = forms.CharField(max_length=255,
+	# 	help_text="Unique name identifying this request type. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,. Capitalize first letter of each word.")
+	# relevant_managers = forms.ModelMultipleChoiceField(queryset=Manager.objects.all(),
+	# 	help_text="Managers responsible for addressing this type of request; list excludes inactive managers.", required=False)
+	# enabled = forms.BooleanField(required=False, help_text="Whether users can post new requests of this type.")
+	# glyphicon = forms.CharField(max_length=100, required=False,
+	# 	help_text='Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.')
+	class Meta:
+		model = RequestType
+		exclude = ("url_name",)
 
-	def is_valid(self):
-		''' Validate form.
-		Return True if the form is valid by Django's requirements and the name obeys the parameters.
-		Return False otherwise.
-		'''
-		if not super(RequestTypeForm, self).is_valid():
-			return False
-		elif not verify_url(self.cleaned_data['name']):
-			self._errors['name'] = self.error_class([u"Invalid name. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,"])
-			return False
-		return True
+	def clean_name(self):
+		name = self.cleaned_data['name']
+		if not verify_url(name):
+			raise forms.ValidationError("Invalid name. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
+		if RequestType.objects.filter(name=name).count() and \
+		  RequestType.objects.get(name=name) != self.instance:
+			raise forms.ValdiationError("A request type with this name already exists.")
+		if RequestType.objects.filter(url_name=url_name).count() and \
+		  RequestType.objects.get(url_name=url_name) != self.instance:
+			raise forms.ValidationError('This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.')
+		return name
+
+	def save(self):
+		rtype = super(RequestTypeForm, self).save(commit=False)
+		rtype.url_name = convert_to_url(self.cleaned_data['name'])
+		rtype.save()
+		return rtype
 
 class RequestForm(forms.Form):
 	''' Form to create a new Request. '''

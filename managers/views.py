@@ -123,32 +123,10 @@ def edit_manager_view(request, managerTitle):
 		instance=targetManager,
 		)
 	if form.is_valid():
-		title = form.cleaned_data['title']
-		incumbent = form.cleaned_data['incumbent']
-		compensation = form.cleaned_data['compensation']
-		duties = form.cleaned_data['duties']
-		email = form.cleaned_data['email']
-		president = form.cleaned_data['president']
-		workshift_manager = form.cleaned_data['workshift_manager']
-		active = form.cleaned_data['active']
-		url_title = convert_to_url(title)
-		if Manager.objects.filter(title=title).count() and Manager.objects.get(title=title) != targetManager:
-			form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
-		elif Manager.objects.filter(url_title=url_title).count() and Manager.objects.get(url_title=url_title) != targetManager:
-			form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
-		else:
-			targetManager.title = title
-			targetManager.url_title = url_title
-			targetManager.incumbent = incumbent
-			targetManager.compensation = compensation
-			targetManager.duties = duties
-			targetManager.email = email
-			targetManager.president = president
-			targetManager.workshift_manager = workshift_manager
-			targetManager.active = active
-			targetManager.save()
-			messages.add_message(request, messages.SUCCESS, MESSAGES['MANAGER_SAVED'].format(managerTitle=title))
-			return HttpResponseRedirect(reverse('meta_manager'))
+		manager = form.save()
+		messages.add_message(request, messages.SUCCESS,
+							 MESSAGES['MANAGER_SAVED'].format(managerTitle=manager.title))
+		return HttpResponseRedirect(reverse('meta_manager'))
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Edit Manager",
 			'form': form,
@@ -173,23 +151,10 @@ def add_request_type_view(request):
 	userProfile = UserProfile.objects.get(user=request.user)
 	form = RequestTypeForm(request.POST or None)
 	if form.is_valid():
-		name = form.cleaned_data['name']
-		relevant_managers = form.cleaned_data['relevant_managers']
-		enabled = form.cleaned_data['enabled']
-		glyphicon = form.cleaned_data['glyphicon']
-		url_name = convert_to_url(name)
-		if RequestType.objects.filter(name=name).count():
-			form._errors['name'] = forms.util.ErrorList([u"A request type with this name already exists."])
-		elif RequestType.objects.filter(url_name=url_name).count():
-			form._errors['name'] = forms.util.ErrorList([u'This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.'])
-		else:
-			new_request_type = RequestType(name=name, url_name=url_name, enabled=enabled, glyphicon=glyphicon)
-			new_request_type.save()
-			for pos in relevant_managers:
-				new_request_type.managers.add(pos)
-			new_request_type.save()
-			messages.add_message(request, messages.SUCCESS, MESSAGES['REQUEST_TYPE_ADDED'].format(typeName=name))
-			return HttpResponseRedirect(reverse('manage_request_types'))
+		rtype = form.save()
+		messages.add_message(request, messages.SUCCESS,
+							 MESSAGES['REQUEST_TYPE_ADDED'].format(typeName=rtype.name))
+		return HttpResponseRedirect(reverse('manage_request_types'))
 	return render_to_response('edit_request_type.html', {
 			'page_name': "Admin - Add Request Type",
 			'form': form,
@@ -206,32 +171,13 @@ def edit_request_type_view(request, typeName):
 	requestType = get_object_or_404(RequestType, url_name=typeName)
 	form = RequestTypeForm(
 		request.POST or None,
-		initial={
-			'name': requestType.name,
-			'relevant_managers': requestType.managers.all(),
-			'enabled': requestType.enabled,
-			'glyphicon': requestType.glyphicon,
-			},
+		instance=requestType,
 		)
 	if form.is_valid():
-		name = form.cleaned_data['name']
-		relevant_managers = form.cleaned_data['relevant_managers']
-		enabled = form.cleaned_data['enabled']
-		glyphicon = form.cleaned_data['glyphicon']
-		url_name = convert_to_url(name)
-		if RequestType.objects.filter(name=name).count() and RequestType.objects.get(name=name) != requestType:
-			form._errors['name'] = forms.util.ErrorList([u"A request type with this name already exists."])
-		elif RequestType.objects.filter(url_name=url_name).count() and RequestType.objects.get(url_name=url_name) != requestType:
-			form._errors['name'] = forms.util.ErrorList([u'This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.'])
-		else:
-			requestType.name = name
-			requestType.url_name = url_name
-			requestType.managers = relevant_managers
-			requestType.enabled = enabled
-			requestType.glyphicon = glyphicon
-			requestType.save()
-			messages.add_message(request, messages.SUCCESS, MESSAGES['REQUEST_TYPE_SAVED'].format(typeName=name))
-			return HttpResponseRedirect(reverse('manage_request_types'))
+		rtype = form.save()
+		messages.add_message(request, messages.SUCCESS,
+							 MESSAGES['REQUEST_TYPE_SAVED'].format(typeName=rtype.name))
+		return HttpResponseRedirect(reverse('manage_request_types'))
 	return render_to_response('edit_request_type.html', {
 			'page_name': "Admin - Edit Request Type",
 			'form': form,
