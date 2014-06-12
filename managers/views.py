@@ -100,35 +100,18 @@ def add_manager_view(request):
 	userProfile = UserProfile.objects.get(user=request.user)
 	form = ManagerForm(request.POST or None)
 	if form.is_valid():
-		title = form.cleaned_data['title']
-		incumbent = form.cleaned_data['incumbent']
-		compensation = form.cleaned_data['compensation']
-		duties = form.cleaned_data['duties']
-		email = form.cleaned_data['email']
-		president = form.cleaned_data['president']
-		workshift_manager = form.cleaned_data['workshift_manager']
-		active = form.cleaned_data['active']
-		url_title = convert_to_url(title)
-		if Manager.objects.filter(title=title).count():
-			form._errors['title'] = forms.util.ErrorList([u"A manager with this title already exists."])
-		elif Manager.objects.filter(url_title=url_title).count():
-			form._errors['title'] = forms.util.ErrorList([u'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'])
-		else:
-			new_manager = Manager(
-				title=title,
-				url_title=url_title,
-				compensation=compensation,
-				duties=duties, email=email,
-				president=president,
-				workshift_manager=workshift_manager,
-				active=active,
-				)
-			if incumbent:
-				new_manager.incumbent = incumbent
-			new_manager.save()
-			messages.add_message(request, messages.SUCCESS,
-						 MESSAGES['MANAGER_ADDED'].format(managerTitle=title))
-			return HttpResponseRedirect(reverse('add_manager'))
+		title = self.cleaned_data['title']
+		incumbent = self.cleaned_data['incumbent']
+		compensation = self.cleaned_data['compensation']
+		duties = self.cleaned_data['duties']
+		email = self.cleaned_data['email']
+		president = self.cleaned_data['president']
+		workshift_manager = self.cleaned_data['workshift_manager']
+		active = self.cleaned_data['active']
+		form.save()
+		messages.add_message(request, messages.SUCCESS,
+					 MESSAGES['MANAGER_ADDED'].format(managerTitle=title))
+		return HttpResponseRedirect(reverse('add_manager'))
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Add Manager",
 			'form': form,

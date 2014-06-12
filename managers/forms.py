@@ -22,17 +22,16 @@ class ManagerForm(forms.Form):
 	workshift_manager = forms.BooleanField(help_text="Whether this is a workshift manager position", required=False)
 	active = forms.BooleanField(help_text="Whether this is an active manager positions (visible in directory, etc.)", required=False)
 
-	def is_valid(self):
-		''' Validate form.
-		Return True if the form is valid by Django's requirements and the title obeys the parameters.
-		Return False otherwise.
-		'''
-		if not super(ManagerForm, self).is_valid():
-			return False
-		elif not verify_url(self.cleaned_data['title']):
-			self._errors['title'] = self.error_class([u"Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,"])
-			return False
-		return True
+	def clean_title(self):
+		title = self.cleaned_data['title']
+		if Manager.objects.filter(title=title).count():
+			raise ValidationError("A manager with this title already exists.")
+		if not verify_url(title):
+			raise ValidationError("Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
+		url_title = convert_to_url(title)
+		if Manager.objects.filter(url_title=url_title).count():
+			raise ValidationError('This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.')
+		return title, url_title
 
 	def clean(self):
 		''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
@@ -44,6 +43,24 @@ class ManagerForm(forms.Form):
 		if duties == '<br data-mce-bogus="1">':
 			cleaned_data["duties"] = ""
 		return cleaned_data
+
+	def save(self):
+		title, url_title = self.cleaned_data['title']
+		incumbent = self.cleaned_data['incumbent']
+		manager = Manager(
+			title=title,
+			url_title=url_title,
+			compensation=self.cleaned_data['compensation'],
+			duties=self.cleaned_data['duties'],
+			email=self.cleaned_data['email'],
+			president=self.cleaned_data['president'],
+			workshift_manager=self.cleaned_data['workshift_manager'],
+			active=self.cleaned_data['active'],
+			)
+		if incumbent:
+			manager.incumbent = incumbent
+		manager.save()
+		return manager
 
 class RequestTypeForm(forms.Form):
 	''' Form to add or modify a request type. '''
