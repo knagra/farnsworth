@@ -608,7 +608,7 @@ def modify_profile_request_view(request, request_pk):
 							admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
 						try:
 							send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [email], fail_silently=False)
-							addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
+							addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name="{0} {1}".format(first_name, last_name),
 								email=profile_request.email)
 						except SMTPException as e:
 							message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
