@@ -157,5 +157,5 @@ MESSAGES = {
 	'REQUEST_TYPE_SAVED': u"Request type {typeName} has been successfully saved.",
 	'PROFILE_REQUEST_APPROVAL_EMAIL': u' A profile request approval e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # The initial space is necessary.
 	'PROFILE_REQUEST_DELETION_EMAIL': u' A profile request deletion e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # The initial space is necessary.
-	'EMAIL_FAIL': u' Farnsworth failed at sending an e-mail to <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # Initial space necessary.
+	'EMAIL_FAIL': u'Farnsworth failed at sending an e-mail to <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.',
 }
