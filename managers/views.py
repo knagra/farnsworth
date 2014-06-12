@@ -307,7 +307,7 @@ def requests_view(request, requestType):
 		new_request = Request(owner=userProfile, body=body, request_type=request_type)
 		new_request.save()
 		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
-	elif response_form.is_valid():
+	if response_form.is_valid():
 		request_pk = response_form.cleaned_data['request_pk']
 		body = response_form.cleaned_data['body']
 		relevant_request = Request.objects.get(pk=request_pk)
@@ -323,7 +323,7 @@ def requests_view(request, requestType):
 		relevant_request.save()
 		new_response.save()
 		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
-	elif vote_form.is_valid():
+	if vote_form.is_valid():
 		vote_form.save()
 		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
 	x = 0 # number of requests loaded
@@ -380,7 +380,7 @@ def my_requests_view(request):
 		new_request = Request(owner=userProfile, body=body, request_type=request_type)
 		new_request.save()
 		return HttpResponseRedirect(reverse('my_requests'))
-	elif response_form.is_valid():
+	if response_form.is_valid():
 		request_pk = response_form.cleaned_data['request_pk']
 		body = response_form.cleaned_data['body']
 		relevant_request = Request.objects.get(pk=request_pk)
@@ -530,7 +530,7 @@ def request_view(request, request_pk):
 		new_response.save()
 		return HttpResponseRedirect(reverse('view_request',
 											kwargs={'request_pk': relevant_request.pk}))
-	elif vote_form.is_valid():
+	if vote_form.is_valid():
 		vote_form.save(pk=request_pk)
 		return HttpResponseRedirect(reverse('view_request',
 											kwargs={'request_pk': relevant_request.pk}))
@@ -624,7 +624,7 @@ def announcements_view(request):
 		relevant_announcement.pinned = False
 		relevant_announcement.save()
 		return HttpResponseRedirect(reverse('announcements'))
-	elif announcement_form and announcement_form.is_valid():
+	if announcement_form and announcement_form.is_valid():
 		announcement_form.save()
 		return HttpResponseRedirect(reverse('announcements'))
 	announcements = Announcement.objects.filter(pinned=True)
@@ -669,7 +669,7 @@ def all_announcements_view(request):
 			relevant_announcement.pinned = True
 		relevant_announcement.save()
 		return HttpResponseRedirect(reverse('all_announcements'))
-	elif announcement_form and announcement_form.is_valid():
+	if announcement_form and announcement_form.is_valid():
 		announcement_form.save()
 		return HttpResponseRedirect(reverse('all_announcements'))
 
