@@ -460,7 +460,7 @@ class TestAnnouncements(TestCase):
 		new_body = "New Test Announcement Body"
 		response = self.client.post("/announcements/{0}/edit/".format(self.a.pk), {
 				"body": new_body,
-				"as_manager": self.a.manager.pk,
+				"manager": self.a.manager.pk,
 				}, follow=True)
 
 		self.assertRedirects(response, "/announcements/{0}/".format(self.a.pk))
