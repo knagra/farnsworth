@@ -594,8 +594,11 @@ def edit_announcement_view(request, announcement_pk):
 	elif manager_positions:
 		initial["as_manager"] = manager_positions[0].pk
 
-	announcement_form = AnnouncementForm(manager_positions, initial=initial,
-					     post=request.POST or None)
+	announcement_form = AnnouncementForm(
+		request.POST or None,
+		initial=initial,
+		profile=profile,
+		)
 	if announcement_form.is_valid():
 		announce.body = announcement_form.cleaned_data['body']
 		announce.manager = announcement_form.cleaned_data['as_manager']
@@ -621,8 +624,8 @@ def announcements_view(request):
 		)
 	if manager_positions:
 		announcement_form = AnnouncementForm(
-			manager_positions,
-			post=request.POST if 'post_announcement' in request.POST else None,
+			request.POST if 'post_announcement' in request.POST else None,
+			profile=userProfile,
 			)
 	if unpin_form.is_valid():
 		announcement_pk = unpin_form.cleaned_data['announcement_pk']
@@ -631,15 +634,7 @@ def announcements_view(request):
 		relevant_announcement.save()
 		return HttpResponseRedirect(reverse('announcements'))
 	elif announcement_form and announcement_form.is_valid():
-		body = announcement_form.cleaned_data['body']
-		manager = announcement_form.cleaned_data['as_manager']
-		new_announcement = Announcement(
-			manager=manager,
-			body=body,
-			incumbent=userProfile,
-			pinned=True,
-			)
-		new_announcement.save()
+		announcement_form.save()
 		return HttpResponseRedirect(reverse('announcements'))
 	announcements = Announcement.objects.filter(pinned=True)
 	# A pseudo-dictionary, actually a list with items of form:
@@ -668,8 +663,8 @@ def all_announcements_view(request):
 	manager_positions = Manager.objects.filter(incumbent=userProfile)
 	if manager_positions:
 		announcement_form = AnnouncementForm(
-			manager_positions,
-			post=request.POST if 'post_announcement' in request.POST else None,
+			request.POST if 'post_announcement' in request.POST else None,
+			profile=userProfile,
 			)
 	unpin_form = UnpinForm(
 		request.POST if 'unpin' in request.POST else None,
@@ -684,10 +679,7 @@ def all_announcements_view(request):
 		relevant_announcement.save()
 		return HttpResponseRedirect(reverse('all_announcements'))
 	elif announcement_form and announcement_form.is_valid():
-		body = announcement_form.cleaned_data['body']
-		manager = announcement_form.cleaned_data['as_manager']
-		new_announcement = Announcement(manager=manager, body=body, incumbent=userProfile, pinned=True)
-		new_announcement.save()
+		announcement_form.save()
 		return HttpResponseRedirect(reverse('all_announcements'))
 
 	announcements = Announcement.objects.all()

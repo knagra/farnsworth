@@ -103,21 +103,36 @@ class VoteForm(forms.Form):
 			relevant_request.upvotes.add(self.profile)
 		relevant_request.save()
 
-def AnnouncementForm(manager_positions, initial=None, post=None):
-	''' Return a form to post an announcement, has an as_manager field if the user is a manager.
-	Parameters:
-		manager_positions should be a choice set containing manager positions the user making the request currently holds.
-		post should be a request.POST
-	'''
-	class InnerAnnouncementForm(forms.Form):
-		as_manager = forms.ModelChoiceField(queryset=manager_positions, empty_label=None)
-		body = forms.CharField(widget=forms.Textarea())
-	if initial is None and manager_positions:
-		initial={'as_manager': manager_positions[0].pk}
-	if post is None:
-		return InnerAnnouncementForm(initial=initial)
-	else:
-		return InnerAnnouncementForm(post)
+class AnnouncementForm(forms.Form):
+	as_manager = forms.ModelChoiceField(queryset=Manager.objects.none())
+	body = forms.CharField(widget=forms.Textarea())
+
+	def __init__(self, *args, **kwargs):
+		self.profile = kwargs.pop("profile")
+		self.manager_positions = Manager.objects.filter(incumbent=self.profile)
+		super(AnnouncementForm, self).__init__(*args, **kwargs)
+		if self.manager_positions:
+			self.fields["as_manager"].queryset = self.manager_positions
+			self.fields["as_manager"].empty_label = None
+			self.fields["as_manager"].initial = self.manager_positions[0].pk
+		else:
+			self.fields["as_manager"].widget = forms.HiddenInput()
+
+	def is_valid(self):
+		if not super(AnnouncementForm, self).is_valid():
+			return False
+		if not self.manager_positions and not self.profile.user.is_superuser:
+			raise ValidationError("You do not have permission to post an announcement.")
+		return True
+
+	def save(self):
+		new_announcement = Announcement(
+			manager=self.cleaned_data['as_manager'],
+			body=self.cleaned_data['body'],
+			incumbent=self.profile,
+			pinned=True,
+			)
+		new_announcement.save()
 
 class UnpinForm(forms.Form):
 	''' Form to repin or unpin an announcement. '''

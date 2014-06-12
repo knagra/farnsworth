@@ -104,9 +104,6 @@ def homepage_view(request, message=None):
 				requests_list.append((req, response_list, form, upvote, vote_form))
 			requests_dict.append((request_type, requests_list))
 	announcement_form = None
-	manager_positions = Manager.objects.filter(incumbent=userProfile)
-	if manager_positions:
-		announcement_form = AnnouncementForm(manager_positions)
 	announcements_dict = list() # Pseudo-dictionary, list with items of form (announcement, announcement_unpin_form)
 	announcements = Announcement.objects.filter(pinned=True)
 	x = 0 # Number of announcements loaded
@@ -132,8 +129,8 @@ def homepage_view(request, message=None):
 		request.POST if 'add_response' in request.POST else None,
 		)
 	announcement_form = AnnouncementForm(
-		manager_positions,
-		post=request.POST if 'post_announcement' in request.POST else None,
+		request.POST if 'post_announcement' in request.POST else None,
+		profile=userProfile,
 		)
 	unpin_form = UnpinForm(
 		request.POST if 'unpin' in request.POST else None,
