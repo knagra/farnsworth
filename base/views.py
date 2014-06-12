@@ -170,16 +170,16 @@ def homepage_view(request, message=None):
 		if relevant_request.filled:
 			messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_FILLED'])
 		return HttpResponseRedirect(reverse('homepage'))
-	elif announcement_form.is_valid():
+	if announcement_form.is_valid():
 		announcement_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
-	elif unpin_form.is_valid():
+	if unpin_form.is_valid():
 		announcement_pk = unpin_form.cleaned_data['announcement_pk']
 		relevant_announcement = Announcement.objects.get(pk=announcement_pk)
 		relevant_announcement.pinned = False
 		relevant_announcement.save()
 		return HttpResponseRedirect(reverse('homepage'))
-	elif rsvp_form.is_valid():
+	if rsvp_form.is_valid():
 		event_pk = rsvp_form.cleaned_data['event_pk']
 		relevant_event = Event.objects.get(pk=event_pk)
 		if userProfile in relevant_event.rsvps.all():
@@ -192,10 +192,10 @@ def homepage_view(request, message=None):
 			messages.add_message(request, messages.SUCCESS, message)
 		relevant_event.save()
 		return HttpResponseRedirect(reverse('homepage'))
-	elif thread_form.is_valid():
+	if thread_form.is_valid():
 		thread_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
-	elif vote_form.is_valid():
+	if vote_form.is_valid():
 		vote_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	return render_to_response('homepage.html', {
@@ -249,7 +249,7 @@ def my_profile_view(request):
 		change_password_form.save()
 		messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
 		return HttpResponseRedirect(reverse('my_profile'))
-	elif update_profile_form.is_valid():
+	if update_profile_form.is_valid():
 		update_profile_form.save()
 		messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
 		return HttpResponseRedirect(reverse('my_profile'))
@@ -483,7 +483,7 @@ def modify_profile_request_view(request, request_pk):
 		message = MESSAGES['PREQ_DEL'].format(first_name=profile_request.first_name, last_name=profile_request.last_name, username=profile_request.username)
 		messages.add_message(request, messages.SUCCESS, message + addendum)
 		return HttpResponseRedirect(reverse('manage_profile_requests'))
-	elif mod_form.is_valid():
+	if mod_form.is_valid():
 		username = mod_form.cleaned_data['username']
 		first_name = mod_form.cleaned_data['first_name']
 		last_name = mod_form.cleaned_data['last_name']
@@ -607,7 +607,7 @@ def custom_modify_user_view(request, targetUsername):
 			)
 		return HttpResponseRedirect(reverse('custom_modify_user',
 											kwargs={'targetUsername': targetUsername}))
-	elif change_user_password_form.is_valid():
+	if change_user_password_form.is_valid():
 		change_user_password_form.save()
 		messages.add_message(
 			request, messages.SUCCESS,
@@ -615,7 +615,7 @@ def custom_modify_user_view(request, targetUsername):
 			)
 		return HttpResponseRedirect(reverse('custom_modify_user',
 											kwargs={'targetUsername': targetUsername}))
-	elif delete_user_form.is_valid():
+	if delete_user_form.is_valid():
 		delete_user_form.save()
 		messages.add_message(
 			request, messages.SUCCESS,
