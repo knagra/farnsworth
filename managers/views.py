@@ -414,13 +414,13 @@ def request_view(request, request_pk):
 		profile=UserProfile,
 		)
 	if response_form.is_valid():
-		respones_form.save()
+		response_form.save()
 		return HttpResponseRedirect(reverse('view_request',
-											kwargs={'request_pk': relevant_request.pk}))
+						kwargs={'request_pk': relevant_request.pk}))
 	if vote_form.is_valid():
 		vote_form.save(pk=request_pk)
 		return HttpResponseRedirect(reverse('view_request',
-											kwargs={'request_pk': relevant_request.pk}))
+						kwargs={'request_pk': relevant_request.pk}))
 	upvote = userProfile in relevant_request.upvotes.all()
 	return render_to_response('view_request.html', {
 			'page_name': "View Request",
