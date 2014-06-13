@@ -34,7 +34,7 @@ class TestPermissions(TestCase):
 		self.np.save()
 
 		self.m = Manager(title="House President", url_title="president",
-				    president=True)
+						 president=True)
 		self.m.incumbent = UserProfile.objects.get(user=self.pu)
 		self.m.save()
 
@@ -52,7 +52,7 @@ class TestPermissions(TestCase):
 		self.a.save()
 
 		self.request = Request(owner=UserProfile.objects.get(user=self.u),
-				       body="request body", request_type=self.rt)
+							   body="request body", request_type=self.rt)
 		self.request.save()
 
 		UserProfile.objects.get(user=self.np).delete()
@@ -67,19 +67,19 @@ class TestPermissions(TestCase):
 		self.client.login(username="np", password="pwd")
 		response = self.client.get(url, follow=True)
 		self.assertRedirects(response, "/landing/")
-		self.assertIn(MESSAGES["NO_PROFILE"], response.content)
+		self.assertContains(response, MESSAGES["NO_PROFILE"])
 		self.client.logout()
 
 		self.client.login(username="u", password="pwd")
 		response = self.client.get(url, follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
+		self.assertContains(response, MESSAGES["ADMINS_ONLY"])
 		self.client.logout()
 
 		self.client.login(username="st", password="pwd")
 		response = self.client.get(url, follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
+		self.assertContains(response, MESSAGES["ADMINS_ONLY"])
 		self.client.logout()
 
 		self.client.login(username="su", password="pwd")
@@ -97,19 +97,19 @@ class TestPermissions(TestCase):
 		self.client.login(username="np", password="pwd")
 		response = self.client.get(url, follow=True)
 		self.assertRedirects(response, "/landing/")
-		self.assertIn(MESSAGES["NO_PROFILE"], response.content)
+		self.assertContains(response, MESSAGES["NO_PROFILE"])
 		self.client.logout()
 
 		self.client.login(username="u", password="pwd")
 		response = self.client.get(url, follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn(MESSAGES["PRESIDENTS_ONLY"], response.content)
+		self.assertContains(response, MESSAGES["PRESIDENTS_ONLY"])
 		self.client.logout()
 
 		self.client.login(username="st", password="pwd")
 		response = self.client.get(url, follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn(MESSAGES["PRESIDENTS_ONLY"], response.content)
+		self.assertContains(response, MESSAGES["PRESIDENTS_ONLY"])
 		self.client.logout()
 
 		self.client.login(username="su", password="pwd")
@@ -135,7 +135,7 @@ class TestPermissions(TestCase):
 		self.client.login(username="np", password="pwd")
 		response = self.client.get(url, follow=True)
 		self.assertRedirects(response, "/landing/")
-		self.assertIn(MESSAGES["NO_PROFILE"], response.content)
+		self.assertContains(response, MESSAGES["NO_PROFILE"])
 		self.client.logout()
 
 		self.client.login(username="u", password="pwd")
@@ -174,11 +174,11 @@ class TestPermissions(TestCase):
 		for page in pages:
 			self._admin_required("/custom_admin/" + page + "/")
 		self._admin_required("/custom_admin/recount/",
-				     success_target="/custom_admin/utilities/")
+							 success_target="/custom_admin/utilities/")
 		self._admin_required("/custom_admin/anonymous_login/",
-				     success_target="/")
+							 success_target="/")
 		self._admin_required("/custom_admin/end_anonymous_session/",
-				     success_target="/custom_admin/utilities/")
+							 success_target="/custom_admin/utilities/")
 
 	def test_president_admin_required(self):
 		pages = [
@@ -222,13 +222,17 @@ class TestAnonymousUser(TestCase):
 
 	def test_anonymous_start(self):
 		response = self.client.get("/")
-		self.assertNotIn("Logged in as anonymous user Anonymous Coward",
-				 response.content)
+		self.assertNotContains(
+			response,
+			"Logged in as anonymous user Anonymous Coward",
+			)
 
 		response = self.client.get("/custom_admin/anonymous_login/", follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn("Logged in as anonymous user Anonymous Coward",
-			      response.content)
+		self.assertContains(
+			response,
+			"Logged in as anonymous user Anonymous Coward",
+			)
 
 	def test_anonymous_end(self):
 		self.client.get("/custom_admin/anonymous_login/")
@@ -237,9 +241,11 @@ class TestAnonymousUser(TestCase):
 		response = self.client.get("/custom_admin/end_anonymous_session/",
 					   follow=True)
 		self.assertRedirects(response, "/custom_admin/utilities/")
-		self.assertIn(MESSAGES["ANONYMOUS_SESSION_ENDED"], response.content)
-		self.assertNotIn("Logged in as anonymous user Anonymous Coward",
-				 response.content)
+		self.assertContains(response, MESSAGES["ANONYMOUS_SESSION_ENDED"])
+		self.assertNotContains(
+			response,
+			"Logged in as anonymous user Anonymous Coward",
+			)
 
 	def test_anonymous_profile(self):
 		# Failing before anonymous user is first logged in
@@ -250,11 +256,11 @@ class TestAnonymousUser(TestCase):
 
 		response = self.client.get("/profile/{0}/".format(ANONYMOUS_USERNAME))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Anonymous Coward", response.content)
+		self.assertContains(response, "Anonymous Coward")
 
 		response = self.client.get("/profile/", follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn(MESSAGES['SPINELESS'], response.content)
+		self.assertContains(response, MESSAGES['SPINELESS'])
 
 	def test_anonymous_edit_profile(self):
 		# Failing before anonymous user is first logged in
@@ -270,16 +276,16 @@ class TestAnonymousUser(TestCase):
 		response = self.client.get("/custom_admin/modify_user/{0}/"
 					   .format(ANONYMOUS_USERNAME))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Anonymous", response.content)
-		self.assertIn("Coward", response.content)
-		self.assertIn(MESSAGES['ANONYMOUS_EDIT'], response.content)
+		self.assertContains(response, "Anonymous")
+		self.assertContains(response, "Coward")
+		self.assertContains(response, MESSAGES['ANONYMOUS_EDIT'])
 
 	def test_anonymous_logout(self):
 		self.client.get("/custom_admin/anonymous_login/")
 
 		response = self.client.get("/logout/", follow=True)
 		self.assertRedirects(response, "/")
-		self.assertIn(MESSAGES['ANONYMOUS_DENIED'], response.content)
+		self.assertContains(response, MESSAGES['ANONYMOUS_DENIED'])
 
 	def test_anonymous_user_login_logout(self):
 		self.client.get("/custom_admin/anonymous_login/")
@@ -292,16 +298,20 @@ class TestAnonymousUser(TestCase):
 				}, follow=True)
 
 		self.assertRedirects(response, "/")
-		self.assertNotIn("Logged in as anonymous user Anonymous Coward",
-				 response.content)
+		self.assertNotContains(
+			response,
+			"Logged in as anonymous user Anonymous Coward",
+			)
 
 		response = self.client.get("/logout/", follow=True)
 		self.assertRedirects(response, "/")
 
 		response = self.client.get("/")
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Logged in as anonymous user Anonymous Coward",
-			      response.content)
+		self.assertContains(
+			response,
+			"Logged in as anonymous user Anonymous Coward",
+			)
 
 class TestRequestPages(TestCase):
 	def setUp(self):
@@ -312,7 +322,7 @@ class TestRequestPages(TestCase):
 		self.pu.save()
 
 		self.m = Manager(title="House President", url_title="president",
-				    president=True)
+						 president=True)
 		self.m.incumbent = UserProfile.objects.get(user=self.pu)
 		self.m.save()
 
@@ -322,7 +332,7 @@ class TestRequestPages(TestCase):
 		self.rt.save()
 
 		self.request = Request(owner=UserProfile.objects.get(user=self.u),
-				       body="Request Body", request_type=self.rt)
+							   body="Request Body", request_type=self.rt)
 		self.request.save()
 
 		self.response = Response(owner=UserProfile.objects.get(user=self.pu),
@@ -339,22 +349,22 @@ class TestRequestPages(TestCase):
 		self.client.login(username="u", password="pwd")
 		for url in urls + ["/my_requests/"]:
 			response = self.client.get(url)
-			self.assertIn("Request Body", response.content)
-			self.assertIn("Response Body", response.content)
-			self.assertNotIn("mark_filled", response.content)
+			self.assertContains(response, "Request Body")
+			self.assertContains(response, "Response Body")
+			self.assertNotContains(response, "mark_filled")
 		self.client.logout()
 
 		self.client.login(username="pu", password="pwd")
 		for url in urls:
 			response = self.client.get(url)
-			self.assertIn("Request Body", response.content)
-			self.assertIn("Response Body", response.content)
-			self.assertIn("mark_filled", response.content)
+			self.assertContains(response, "Request Body")
+			self.assertContains(response, "Response Body")
+			self.assertContains(response, "mark_filled")
 
 		response = self.client.get("/my_requests/")
-		self.assertNotIn("Request Body", response.content)
-		self.assertNotIn("Response Body", response.content)
-		self.assertNotIn("mark_filled", response.content)
+		self.assertNotContains(response, "Request Body")
+		self.assertNotContains(response, "Response Body")
+		self.assertNotContains(response, "mark_filled")
 
 class TestManager(TestCase):
 	def setUp(self):
@@ -384,8 +394,10 @@ class TestManager(TestCase):
 				"update_manager": "",
 				}, follow=True)
 		self.assertRedirects(response, "/custom_admin/add_manager/")
-		self.assertIn(MESSAGES['MANAGER_ADDED'].format(managerTitle="Test Manager"),
-			      response.content)
+		self.assertContains(
+			response,
+			MESSAGES['MANAGER_ADDED'].format(managerTitle="Test Manager"),
+			)
 		self.assertEqual(1, Manager.objects.filter(title="Test Manager").count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url("Test Manager")).count())
 
@@ -395,7 +407,7 @@ class TestManager(TestCase):
 	def test_edit_manager(self):
 		new_title = "New setUp Manager"
 		response = self.client.post("/custom_admin/managers/{0}/"
-					    .format(self.m.url_title), {
+									.format(self.m.url_title), {
 				"title": new_title,
 				"incumbent": "1",
 				"compensation": "Test % Compensation",
@@ -407,8 +419,10 @@ class TestManager(TestCase):
 				"update_manager": "",
 				}, follow=True)
 		self.assertRedirects(response, "/custom_admin/managers/")
-		self.assertIn(MESSAGES['MANAGER_SAVED'].format(managerTitle=new_title),
-			      response.content)
+		self.assertContains(
+			response,
+			MESSAGES['MANAGER_SAVED'].format(managerTitle=new_title),
+			)
 		self.assertEqual(1, Manager.objects.filter(title=new_title).count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url(new_title)).count())
 
@@ -442,20 +456,20 @@ class TestAnnouncements(TestCase):
 		response = self.client.get("/announcements/")
 
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.a.body, response.content)
+		self.assertContains(response, self.a.body)
 
 	def test_individual(self):
 		response = self.client.get("/announcements/{0}/".format(self.a.pk))
 
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.a.body, response.content)
+		self.assertContains(response, self.a.body)
 
 	def test_edit_announcement(self):
 		url = "/announcements/{0}/edit/".format(self.a.pk)
 
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.a.body, response.content)
+		self.assertContains(response, self.a.body)
 
 		new_body = "New Test Announcement Body"
 		response = self.client.post("/announcements/{0}/edit/".format(self.a.pk), {
@@ -464,7 +478,7 @@ class TestAnnouncements(TestCase):
 				}, follow=True)
 
 		self.assertRedirects(response, "/announcements/{0}/".format(self.a.pk))
-		self.assertIn(new_body, response.content)
+		self.assertContains(response, new_body)
 
 		self.assertEqual(new_body, Announcement.objects.get(pk=self.a.pk).body)
 
@@ -474,7 +488,7 @@ class TestAnnouncements(TestCase):
 				"unpin": "",
 				}, follow=True)
 		self.assertRedirects(response, "/announcements/")
-		self.assertNotIn(self.a.body, response.content)
+		self.assertNotContains(response, self.a.body)
 
 	def test_no_edit(self):
 		self.client.logout()
@@ -495,11 +509,11 @@ class TestAnnouncements(TestCase):
 				"unpin": "",
 				}, follow=True)
 		self.assertRedirects(response, url)
-		self.assertIn(self.a.body, response.content)
+		self.assertContains(response, self.a.body)
 
 		response = self.client.get("/announcements/")
 		self.assertEqual(response.status_code, 200)
-		self.assertNotIn(self.a.body, response.content)
+		self.assertNotContains(response, self.a.body)
 
 class TestPreFill(TestCase):
 	def test_pre_fill(self):

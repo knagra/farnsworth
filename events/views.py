@@ -210,8 +210,8 @@ def edit_event_view(request, event_pk):
 	event = get_object_or_404(Event, pk=event_pk)
 	if not ((event.owner == profile) or (request.user.is_superuser)):
 		return HttpResponseRedirect(
-            reverse('events:view', kwargs={"event_pk": event_pk}),
-            )
+			reverse('events:view', kwargs={"event_pk": event_pk}),
+			)
 	manager_positions = Manager.objects.filter(incumbent=event.owner)
 	rsvpd = (profile in event.rsvps.all())
 	event_form = EventForm(manager_positions, initial={
