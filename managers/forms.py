@@ -100,7 +100,7 @@ class RequestForm(forms.Form):
 		request = Request(
 			owner=self.profile,
 			body=self.cleaned_data['body'],
-			request_type=self.cleaned_data['request_type'],
+			request_type=self.cleaned_data['type_pk'],
 			)
 		request.save()
 		return request
@@ -143,7 +143,7 @@ class ManagerResponseForm(ResponseForm):
 		response = super(ManagerResponseForm, self).save()
 		response.manager = True
 		response.save()
-		request = self.cleaned_data['request']
+		request = self.cleaned_data['request_pk']
 		request.closed = self.cleaned_data['mark_closed']
 		request.filled = self.cleaned_data['mark_filled']
 		request.save()
