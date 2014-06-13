@@ -119,7 +119,6 @@ class ResponseForm(forms.Form):
 		return request
 
 	def save(self):
-		request = Request.objects.get(pk=self.cleaned_data['request_pk'])
 		response = Response(
 			owner=self.profile,
 			body=self.cleaned_data['body'],
