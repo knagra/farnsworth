@@ -24,8 +24,8 @@ from base.models import UserProfile, ProfileRequest
 from base.redirects import red_ext, red_home
 from base.decorators import profile_required, admin_required
 from base.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, \
-    ModifyProfileRequestForm, ChangeUserPasswordForm, LoginForm, ChangePasswordForm, \
-    UpdateProfileForm, DeleteUserForm
+	 ModifyProfileRequestForm, ChangeUserPasswordForm, LoginForm, ChangePasswordForm, \
+	 UpdateProfileForm, DeleteUserForm
 from threads.models import Thread, Message
 from threads.forms import ThreadForm
 from managers.models import RequestType, Manager, Request, Response, Announcement
@@ -315,7 +315,7 @@ def _get_oauth_providers():
 			if module and getattr(module, backend, ""):
 				backend_name = getattr(module, backend).name
 				full_name, icon = matches.get(backend_name,
-							      ("Unknown", "unknown.png"))
+											  ("Unknown", "unknown.png"))
 				providers.append((backend_name, full_name, icon))
 	return providers
 
@@ -351,7 +351,7 @@ def member_directory_view(request):
 	residents = UserProfile.objects.filter(status=UserProfile.RESIDENT)
 	boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
 	alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS) \
-	    .exclude(user__username=ANONYMOUS_USERNAME)
+	  .exclude(user__username=ANONYMOUS_USERNAME)
 	return render_to_response('member_directory.html', {
 			'page_name': page_name,
 			'residents': residents,
