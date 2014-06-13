@@ -7,6 +7,7 @@ Author: Karandeep Singh Nagra
 from datetime import datetime
 
 from django import forms
+from django.utils.timezone import utc
 
 from utils.funcs import convert_to_url, verify_url
 from managers.models import Manager, Announcement, RequestType, Request, Response
