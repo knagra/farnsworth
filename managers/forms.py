@@ -5,7 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 from django import forms
 
-from managers.models import Manager, Announcement, RequestType
+from managers.models import Manager, Announcement, RequestType, Request, Response
 
 from utils.funcs import convert_to_url, verify_url
 
