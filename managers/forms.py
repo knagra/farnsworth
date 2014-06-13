@@ -100,7 +100,7 @@ class RequestForm(forms.Form):
 		request = Request(
 			owner=self.profile,
 			body=self.cleaned_data['body'],
-			request_type=self.cleaned_data['request_type'],
+			request_type=self.cleaned_data['type_pk'],
 			)
 		request.save()
 		return request
