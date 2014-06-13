@@ -128,8 +128,9 @@ class ResponseForm(forms.Form):
 			body=self.cleaned_data['body'],
 			request=self.cleaned_data['request_pk'],
 			)
-		request.change_date = datetime.utcnow().replace(tzinfo=utc)
-		request.number_of_responses += 1
+		response.request.change_date = datetime.utcnow().replace(tzinfo=utc)
+		response.request.number_of_responses += 1
+		response.request.save()
 		response.save()
 		return response
 
