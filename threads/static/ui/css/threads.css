@@ -46,6 +46,7 @@ label {
     background: #e9e9e9;
     border: 1px solid #888;
     overflow-x: auto;
+    font-weight: 300;
 }
 
 .thread_messages {
