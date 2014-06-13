@@ -83,7 +83,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
 	u"Aaahhh..to be young again...and also a 404 page.",
 	u"You take one nap in a ditch in the park, and people start declaring you this and that!",
 	u"Oh my, yes.",
-	u"Better yet, I'll build a page to replace it for you.  Some kind of gamma powered mechanical monster, with freeway on-ramps for arms and a heart as black as coal...",
+	u"Better yet, I'll build a page to replace it for you.  Some kind of gamma-powered mechanical monster, with freeway on-ramps for arms and a heart as black as coal...",
 	u"We tore the universe a new space-hole, all right.  And now it's clenching shut.",
 	u"You still have your old pal Zoidberg.  YOU ALL HAVE ZOIDBERG!!!",
 	u"Woob woob woob woob woob!",
@@ -105,6 +105,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
 	u"The web page that browses back.",
 	u"One word: Thundercougarfalconbird.",
 	u"Nothing makes you feel more like a man than a Thundercougarfalconbird.",
+	u"You've come to the Wong Place.",
 	)
 
 # Ordered integer representations of days of the week.  Used in parts of the workshift module.
@@ -177,7 +178,7 @@ MESSAGES = {
 	'REQUEST_TYPE_SAVED': u"Request type {typeName} has been successfully saved.",
 	'PROFILE_REQUEST_APPROVAL_EMAIL': u' A profile request approval e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # The initial space is necessary.
 	'PROFILE_REQUEST_DELETION_EMAIL': u' A profile request deletion e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # The initial space is necessary.
-	'EMAIL_FAIL': u' Farnsworth failed at sending an e-mail to <a title="Write E-mail" href="mailto:{email}">{email}</a>.', # Initial space necessary.
+	'EMAIL_FAIL': u'Farnsworth failed at sending an e-mail to <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.',
 	'NO_WORKSHIFT': u'You have not been set up for workshift this semester.',
 	'MULTIPLE_CURRENT_SEMESTERS': u'Multiple current workshift semesters were detected. Farnsworth chose the semester with the latest start date as the current semester.  If you are not the workshift manager or the site admin, please inform both the site admin (<a href="mailto:{admin_email}">{admin_email}</a>) and the workshift manager(s){workshift_emails} with this information.',
 }
