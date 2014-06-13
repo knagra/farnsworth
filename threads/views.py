@@ -17,7 +17,7 @@ from utils.variables import MESSAGES
 from base.models import UserProfile
 from base.decorators import profile_required
 from threads.models import Thread, Message
-from threads.forms import *
+from threads.forms import ThreadForm, MessageForm
 
 def _threads_dict(threads):
 	# A pseudo-dictionary, actually a list with items of form
