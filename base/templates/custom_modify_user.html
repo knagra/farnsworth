@@ -45,12 +45,18 @@ For your own security, you are only able to change your password from the <a hre
       This user owns the following items, all of which will be deleted:
     </div>
     <ul class="text-danger" style="list-style: none">
-		<li>{{ thread_count }} thread{{ thread_count|pluralize }}</li>
-		<li>{{ message_count }} message{{ message_count|pluralize }}</li>
-		<li>{{ request_count }} request{{ request_count|pluralize }}</li>
-		<li>{{ response_count }} response{{ response_count|pluralize }}</li>
-		<li>{{ announcement_count }} announcement{{ thread_count|pluralize }}</li>
-		<li>{{ event_count }} event{{ event_count|pluralize }}</li>
+		<li{% if thread_count > 0 %} class="danger_li"{% endif %}>{{ thread_count }}
+			thread{{ thread_count|pluralize }}</li>
+		<li{% if message_count > 0 %} class="danger_li"{% endif %}>{{ message_count }}
+			message{{ message_count|pluralize }}</li>
+		<li{% if request_count > 0 %} class="danger_li"{% endif %}>{{ request_count }}
+			request{{ request_count|pluralize }}</li>
+		<li{% if response_count > 0 %} class="danger_li"{% endif %}>{{ response_count }}
+			response{{ response_count|pluralize }}</li>
+		<li{% if announcement_count > 0 %} class="danger_li"{% endif %}>{{ announcement_count }}
+			announcement{{ thread_count|pluralize }}</li>
+		<li{% if event_count > 0 %} class="danger_li"{% endif %}>{{ event_count }}
+			event{{ event_count|pluralize }}</li>
     </ul>
     {% if message_count > thread_count %}
     <div class="text-danger" style="margin: 10px 10px;">
