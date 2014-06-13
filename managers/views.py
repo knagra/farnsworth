@@ -12,7 +12,6 @@ from django.contrib.auth import hashers, logout, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from django.utils.timezone import utc
 from django.contrib import messages
 
 from farnsworth.settings import house, max_requests, max_responses
