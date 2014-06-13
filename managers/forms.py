@@ -143,7 +143,7 @@ class ManagerResponseForm(ResponseForm):
 		response = super(ManagerResponseForm, self).save()
 		response.manager = True
 		response.save()
-		request = self.cleaned_data['request']
+		request = self.cleaned_data['request_pk']
 		request.closed = self.cleaned_data['mark_closed']
 		request.filled = self.cleaned_data['mark_filled']
 		request.save()
