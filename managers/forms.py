@@ -87,7 +87,7 @@ class RequestForm(forms.Form):
 		super(RequestForm, self).__init__(*args, **kwargs)
 
 	def clean_type_pk(self):
-		if self.request_Type:
+		if self.request_type:
 			return self.request_type
 		type_pk = self.cleaned_data['type_pk']
 		try:
