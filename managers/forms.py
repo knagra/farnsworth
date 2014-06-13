@@ -3,11 +3,15 @@ Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 '''
-from django import forms
 
-from managers.models import Manager, Announcement, RequestType
+from datetime import datetime
+
+from django import forms
+from django.utils.timezone import utc
 
 from utils.funcs import convert_to_url, verify_url
+from managers.models import Manager, Announcement, RequestType, Request, Response
+
 
 class ManagerForm(forms.ModelForm):
 	''' Form to create or modify a manager position. '''
@@ -83,7 +87,7 @@ class RequestForm(forms.Form):
 		super(RequestForm, self).__init__(*args, **kwargs)
 
 	def clean_type_pk(self):
-		if self.request_Type:
+		if self.request_type:
 			return self.request_type
 		type_pk = self.cleaned_data['type_pk']
 		try:
@@ -119,14 +123,14 @@ class ResponseForm(forms.Form):
 		return request
 
 	def save(self):
-		request = self.cleaned_data['request']
 		response = Response(
 			owner=self.profile,
 			body=self.cleaned_data['body'],
-			request=request,
+			request=self.cleaned_data['request_pk'],
 			)
-		request.change_date = datetime.utcnow().replace(tzinfo=utc)
-		request.number_of_responses += 1
+		response.request.change_date = datetime.utcnow().replace(tzinfo=utc)
+		response.request.number_of_responses += 1
+		response.request.save()
 		response.save()
 		return response
 

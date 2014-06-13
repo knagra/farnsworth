@@ -27,3 +27,8 @@ Author: Karandeep Singh Nagra
 .form-group .btn {
 	min-width: 50%;
 }
+
+.danger_li {
+	font-weight: bold;
+	font-size: 15px;
+}

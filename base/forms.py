@@ -12,7 +12,9 @@ from social.apps.django_app.default.models import UserSocialAuth
 from utils.funcs import verify_username
 from utils.variables import MESSAGES
 from rooms.models import Room
-from base.models import UserProfile
+from base.models import UserProfile, ProfileRequest
+from threads.models import Thread, Message
+from managers.models import Request, Response
 
 class ProfileRequestForm(forms.Form):
 	''' Form to create a new profile request. '''
@@ -192,6 +194,17 @@ class DeleteUserForm(forms.Form):
 
 	def save(self):
 		self.user.delete()
+		for req in Request.objects.all():
+			recount = Response.objects.filter(request=req).count()
+			if req.number_of_responses != recount:
+				req.number_of_responses = recount
+				req.save()
+		for thread in Thread.objects.all():
+			recount = Message.objects.filter(thread=thread).count()
+			if thread.number_of_messages != recount:
+				thread.number_of_messages = recount
+				thread.save()
+
 
 class ModifyUserForm(forms.Form):
 	''' Form to modify an existing user and profile. '''
