@@ -49,8 +49,8 @@ class VerifyThread(TestCase):
 		for url in urls:
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 200)
-			self.assertIn(self.thread.subject, response.content)
-			self.assertNotIn(MESSAGES['MESSAGE_ERROR'], response.content)
+			self.assertContains(response, self.thread.subject)
+			self.assertNotContains(response, MESSAGES['MESSAGE_ERROR'])
 
 	def test_create_thread(self):
 		urls = [
@@ -67,8 +67,8 @@ class VerifyThread(TestCase):
 					"body": body,
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn(subject, response.content)
-			self.assertIn(body, response.content)
+			self.assertContains(response, subject)
+			self.assertContains(response, body)
 
 			thread = Thread.objects.get(subject=subject)
 
@@ -92,7 +92,7 @@ class VerifyThread(TestCase):
 					"subject": subject,
 					})
 			self.assertEqual(response.status_code, 200)
-			self.assertIn(MESSAGES['THREAD_ERROR'], response.content)
+			self.assertContains(response, MESSAGES['THREAD_ERROR'])
 			self.assertEqual(Thread.objects.filter().count(), 1)
 
 			try:
@@ -117,7 +117,7 @@ class VerifyThread(TestCase):
 					"body": body,
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn(body, response.content)
+			self.assertContains(response, body)
 
 			thread = Thread.objects.get(pk=self.thread.pk)
 
@@ -145,7 +145,7 @@ class VerifyThread(TestCase):
 					"body": body,
 					})
 			self.assertEqual(response.status_code, 200)
-			self.assertIn(MESSAGES['MESSAGE_ERROR'], response.content)
+			self.assertContains(response, MESSAGES['MESSAGE_ERROR'])
 
 			thread = Thread.objects.get(pk=self.thread.pk)
 
