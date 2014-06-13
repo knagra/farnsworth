@@ -4,7 +4,6 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from datetime import datetime
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django import forms
@@ -13,7 +12,6 @@ from django.contrib.auth import hashers, logout, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from django.utils.timezone import utc
 from django.contrib import messages
 
 from farnsworth.settings import house, max_requests, max_responses
@@ -414,13 +412,13 @@ def request_view(request, request_pk):
 		profile=UserProfile,
 		)
 	if response_form.is_valid():
-		respones_form.save()
+		response_form.save()
 		return HttpResponseRedirect(reverse('view_request',
-											kwargs={'request_pk': relevant_request.pk}))
+						kwargs={'request_pk': relevant_request.pk}))
 	if vote_form.is_valid():
 		vote_form.save(pk=request_pk)
 		return HttpResponseRedirect(reverse('view_request',
-											kwargs={'request_pk': relevant_request.pk}))
+						kwargs={'request_pk': relevant_request.pk}))
 	upvote = userProfile in relevant_request.upvotes.all()
 	return render_to_response('view_request.html', {
 			'page_name': "View Request",
