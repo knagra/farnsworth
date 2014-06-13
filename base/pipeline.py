@@ -40,7 +40,7 @@ def request_user(strategy, details, user=None, request=None, is_new=False, uid=N
 
 		if ProfileRequest.objects.filter(username=username).count() > 0:
 			messages.add_message(request, messages.WARNING,
-					     "Profile request already submitted")
+								 "Profile request already submitted")
 			return redirect(reverse('request_profile'))
 
 		first, last = _get_first_last(details)
@@ -56,5 +56,5 @@ def request_user(strategy, details, user=None, request=None, is_new=False, uid=N
 		pr.save()
 
 		messages.add_message(request, messages.SUCCESS,
-				     "Your account request has been submitted.")
+					"Your account request has been submitted.")
 		return redirect(reverse('request_profile'))
