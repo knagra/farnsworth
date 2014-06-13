@@ -47,8 +47,8 @@ class TestEvent(TestCase):
 		for url in urls:
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 200)
-			self.assertIn(self.ev.title, response.content)
-			self.assertIn(self.ev.description, response.content)
+			self.assertContains(response, self.ev.title)
+			self.assertContains(response, self.ev.description)
 
 	def test_rsvp(self):
 		urls = [
@@ -62,9 +62,9 @@ class TestEvent(TestCase):
 					"event_pk": "{0}".format(self.ev.pk),
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn('Un-RSVP', response.content)
-			self.assertIn(MESSAGES['RSVP_ADD'].format(event=self.ev.title),
-						  response.content)
+			self.assertContains(response, 'Un-RSVP')
+			self.assertContains(response,
+								MESSAGES['RSVP_ADD'].format(event=self.ev.title))
 
 			self.assertEqual(1, self.ev.rsvps.count())
 			self.assertEqual(self.profile, self.ev.rsvps.all()[0])
@@ -74,9 +74,9 @@ class TestEvent(TestCase):
 					"event_pk": "{0}".format(self.ev.pk),
 					}, follow=True)
 			self.assertRedirects(response, url)
-			self.assertIn('RSVP', response.content)
-			self.assertIn(MESSAGES['RSVP_REMOVE'].format(event=self.ev.title),
-						  response.content)
+			self.assertContains(response, 'RSVP')
+			self.assertContains(response,
+								MESSAGES['RSVP_REMOVE'].format(event=self.ev.title))
 
 			self.assertEqual(0, self.ev.rsvps.count())
 
@@ -89,7 +89,7 @@ class TestEvent(TestCase):
 				"end_time": self.ev.end_time.strftime(time_formats[0]),
 				"as_manager": "",
 				}, follow=True)
-		self.assertIn("New Title Test", response.content)
+		self.assertContains(response, "New Title Test")
 		self.assertRedirects(response, "/events/{0}/".format(self.ev.pk))
 
 	def test_no_edit(self):

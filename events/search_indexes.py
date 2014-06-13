@@ -8,7 +8,7 @@ Search indexes for the requests app.
 
 from datetime import datetime
 from haystack import indexes
-from models import Event
+from events.models import Event
 
 class EventIndex(indexes.SearchIndex, indexes.Indexable):
 	''' Index for Events. '''
@@ -23,9 +23,9 @@ class EventIndex(indexes.SearchIndex, indexes.Indexable):
 	end_time = indexes.DateTimeField(model_attr='end_time')
 	as_manager = indexes.EdgeNgramField(model_attr='as_manager', null=True)
 	exact_manager = indexes.CharField(model_attr='as_manager', null=True, faceted=True)
-	
+
 	def get_model(self):
 		return Event
-	
+
 	def index_queryset(self, using=None):
 		return self.get_model().objects.all()
