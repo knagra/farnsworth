@@ -34,7 +34,7 @@ class TestPermissions(TestCase):
 		self.np.save()
 
 		self.m = Manager(title="House President", url_title="president",
-				    president=True)
+						 president=True)
 		self.m.incumbent = UserProfile.objects.get(user=self.pu)
 		self.m.save()
 
@@ -52,7 +52,7 @@ class TestPermissions(TestCase):
 		self.a.save()
 
 		self.request = Request(owner=UserProfile.objects.get(user=self.u),
-				       body="request body", request_type=self.rt)
+							   body="request body", request_type=self.rt)
 		self.request.save()
 
 		UserProfile.objects.get(user=self.np).delete()
@@ -174,11 +174,11 @@ class TestPermissions(TestCase):
 		for page in pages:
 			self._admin_required("/custom_admin/" + page + "/")
 		self._admin_required("/custom_admin/recount/",
-				     success_target="/custom_admin/utilities/")
+							 success_target="/custom_admin/utilities/")
 		self._admin_required("/custom_admin/anonymous_login/",
-				     success_target="/")
+							 success_target="/")
 		self._admin_required("/custom_admin/end_anonymous_session/",
-				     success_target="/custom_admin/utilities/")
+							 success_target="/custom_admin/utilities/")
 
 	def test_president_admin_required(self):
 		pages = [
@@ -228,7 +228,7 @@ class TestAnonymousUser(TestCase):
 		response = self.client.get("/custom_admin/anonymous_login/", follow=True)
 		self.assertRedirects(response, "/")
 		self.assertIn("Logged in as anonymous user Anonymous Coward",
-			      response.content)
+					  response.content)
 
 	def test_anonymous_end(self):
 		self.client.get("/custom_admin/anonymous_login/")
@@ -293,7 +293,7 @@ class TestAnonymousUser(TestCase):
 
 		self.assertRedirects(response, "/")
 		self.assertNotIn("Logged in as anonymous user Anonymous Coward",
-				 response.content)
+						 response.content)
 
 		response = self.client.get("/logout/", follow=True)
 		self.assertRedirects(response, "/")
@@ -301,7 +301,7 @@ class TestAnonymousUser(TestCase):
 		response = self.client.get("/")
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Logged in as anonymous user Anonymous Coward",
-			      response.content)
+					  response.content)
 
 class TestRequestPages(TestCase):
 	def setUp(self):
@@ -312,7 +312,7 @@ class TestRequestPages(TestCase):
 		self.pu.save()
 
 		self.m = Manager(title="House President", url_title="president",
-				    president=True)
+						 president=True)
 		self.m.incumbent = UserProfile.objects.get(user=self.pu)
 		self.m.save()
 
@@ -322,7 +322,7 @@ class TestRequestPages(TestCase):
 		self.rt.save()
 
 		self.request = Request(owner=UserProfile.objects.get(user=self.u),
-				       body="Request Body", request_type=self.rt)
+							   body="Request Body", request_type=self.rt)
 		self.request.save()
 
 		self.response = Response(owner=UserProfile.objects.get(user=self.pu),
@@ -385,7 +385,7 @@ class TestManager(TestCase):
 				}, follow=True)
 		self.assertRedirects(response, "/custom_admin/add_manager/")
 		self.assertIn(MESSAGES['MANAGER_ADDED'].format(managerTitle="Test Manager"),
-			      response.content)
+					  response.content)
 		self.assertEqual(1, Manager.objects.filter(title="Test Manager").count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url("Test Manager")).count())
 
@@ -395,7 +395,7 @@ class TestManager(TestCase):
 	def test_edit_manager(self):
 		new_title = "New setUp Manager"
 		response = self.client.post("/custom_admin/managers/{0}/"
-					    .format(self.m.url_title), {
+									.format(self.m.url_title), {
 				"title": new_title,
 				"incumbent": "1",
 				"compensation": "Test % Compensation",
@@ -408,7 +408,7 @@ class TestManager(TestCase):
 				}, follow=True)
 		self.assertRedirects(response, "/custom_admin/managers/")
 		self.assertIn(MESSAGES['MANAGER_SAVED'].format(managerTitle=new_title),
-			      response.content)
+					  response.content)
 		self.assertEqual(1, Manager.objects.filter(title=new_title).count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url(new_title)).count())
 

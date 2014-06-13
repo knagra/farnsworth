@@ -23,7 +23,7 @@ from base.redirects import red_ext, red_home
 from threads.models import Thread, Message
 from managers.models import Manager, RequestType, Request, Response, Announcement
 from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseForm, \
-    ManagerResponseForm, VoteForm, AnnouncementForm, UnpinForm
+	 ManagerResponseForm, VoteForm, AnnouncementForm, UnpinForm
 
 @admin_required
 def anonymous_login_view(request):
@@ -583,5 +583,5 @@ def recount_view(request):
 			request_count=Request.objects.all().count(),
 			threads_changed=threads_changed,
 			thread_count=Thread.objects.all().count()),
-			     )
+			)
 	return HttpResponseRedirect(reverse('utilities'))

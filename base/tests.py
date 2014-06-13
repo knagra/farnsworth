@@ -73,7 +73,7 @@ class TestLogin(TestCase):
 				})
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Your account is not active. Please contact the site administrator to activate your account.",
-			      response.content)
+					  response.content)
 
 		response = self.client.get("/", follow=True)
 		self.assertRedirects(response, reverse('external'))
@@ -273,7 +273,7 @@ class TestRequestProfile(TestCase):
 				"confirm_password": "pwd",
 				}, follow=True)
 		self.assertIn(MESSAGES["USERNAME_TAKEN"].format(username=u.username),
-			      response.content)
+					  response.content)
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
@@ -296,7 +296,7 @@ class TestRequestProfile(TestCase):
 				}, follow=True)
 		self.assertIn(MESSAGES["PROFILE_TAKEN"].format(
 				first_name=pr.first_name, last_name=pr.last_name),
-			      response.content)
+				response.content)
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request2").count())
 
@@ -350,7 +350,7 @@ class TestRequestProfile(TestCase):
 				}, follow=True)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("Select a valid choice. 123 is not one of the available choices.",
-			      response.content)
+					  response.content)
 		self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
 class TestUtilities(TestCase):
@@ -409,7 +409,7 @@ class TestSocialRequest(TestCase):
 
 	def test_approve_profile_request(self):
 		response = self.client.post("/custom_admin/profile_requests/{0}/"
-					    .format(self.pr.pk), {
+									.format(self.pr.pk), {
 				"username": self.pr.username,
 				"first_name": "first",
 				"last_name": "last",
@@ -425,7 +425,7 @@ class TestSocialRequest(TestCase):
 
 		self.assertRedirects(response, "/custom_admin/profile_requests/")
 		self.assertIn("User {0} was successfully added".format(self.pr.username),
-			      response.content)
+					  response.content)
 
 	def test_settings(self):
 		for lib in settings.SOCIAL_AUTH_PIPELINE:
@@ -467,7 +467,7 @@ class TestProfileRequestAdmin(TestCase):
 
 	def test_approve(self):
 		response = self.client.post("/custom_admin/profile_requests/{0}/"
-					    .format(self.pr.pk), {
+									.format(self.pr.pk), {
 				"username": self.pr.username,
 				"first_name": self.pr.first_name,
 				"last_name": self.pr.last_name,
@@ -483,14 +483,14 @@ class TestProfileRequestAdmin(TestCase):
 
 		self.assertRedirects(response, "/custom_admin/profile_requests/")
 		self.assertIn("User {0} was successfully added".format(self.pr.username),
-			      response.content)
+					  response.content)
 
 		u = User.objects.get(username=self.pr.username)
 		self.assertEqual(u.email, self.pr.email)
 
 	def test_missing(self):
 		response = self.client.post("/custom_admin/profile_requests/{0}/"
-					    .format(self.pr.pk + 1), {
+									.format(self.pr.pk + 1), {
 				"username": self.pr.username,
 				"first_name": self.pr.first_name,
 				"last_name": self.pr.last_name,
@@ -507,14 +507,14 @@ class TestProfileRequestAdmin(TestCase):
 
 	def test_delete(self):
 		response = self.client.post("/custom_admin/profile_requests/{0}/"
-					    .format(self.pr.pk), {
+									.format(self.pr.pk), {
 				"delete_request": "",
 				}, follow=True)
 		self.assertRedirects(response, reverse('manage_profile_requests'))
 		self.assertIn(MESSAGES['PREQ_DEL'].format(first_name=self.pr.first_name,
 							  last_name=self.pr.last_name,
 							  username=self.pr.username),
-			      response.content)
+					  response.content)
 
 
 class TestProfilePages(TestCase):
@@ -565,7 +565,7 @@ class TestProfilePages(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertNotIn(self.ou.email, response.content)
 		self.assertIn("{0} {1}".format(self.ou.first_name, self.ou.last_name),
-			      response.content)
+					  response.content)
 		self.assertIn(UserProfile.STATUS_CHOICES[0][1], response.content)
 		self.assertIn(self.oprofile.current_room, response.content)
 		self.assertIn(self.oprofile.former_rooms, response.content)
@@ -629,7 +629,7 @@ class TestModifyUser(TestCase):
 				}, follow=True)
 		self.assertRedirects(response, url)
 		self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
-			      response.content)
+					  response.content)
 
 		self.client.logout()
 
@@ -662,7 +662,7 @@ class TestModifyUser(TestCase):
 					}, follow=True)
 			self.assertRedirects(response, url)
 			self.assertIn(MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
-				      response.content)
+						  response.content)
 
 			self.client.logout()
 
@@ -698,7 +698,7 @@ class TestAdminFunctions(TestCase):
 				 }, follow=True)
 		self.assertRedirects(response, "/custom_admin/add_user/")
 		self.assertIn(MESSAGES['USER_ADDED'].format(username="nu"),
-			      response.content)
+					  response.content)
 		self.assertEqual(1, User.objects.filter(username="nu").count())
 
 		response = self.client.get("/profile/{0}/".format("nu"))
@@ -733,7 +733,7 @@ class TestAdminFunctions(TestCase):
 				 }, follow=True)
 		self.assertRedirects(response, "/custom_admin/add_user/")
 		self.assertIn(MESSAGES['USER_ADDED'].format(username="nu"),
-			      response.content)
+					  response.content)
 		self.assertEqual(1, User.objects.filter(username="nu").count())
 
 		response = self.client.get("/profile/{0}/".format("nu"))
@@ -762,7 +762,7 @@ class TestAdminFunctions(TestCase):
 					}, follow=True)
 			self.assertRedirects(response, url)
 			self.assertIn(MESSAGES['USER_ADDED'].format(username="nu"),
-				      response.content)
+						  response.content)
 
 			response = self.client.get("/profile/{0}/".format("nu"))
 			self.assertEqual(response.status_code, 200)
@@ -778,7 +778,7 @@ class TestAdminFunctions(TestCase):
 				 }, follow=True)
 		self.assertRedirects(response, "/custom_admin/manage_users/")
 		self.assertIn(MESSAGES['USER_DELETED'].format(username="u"),
-			      response.content)
+					  response.content)
 		self.assertEqual(0, User.objects.filter(username="u").count())
 
 		response = self.client.get("/profile/{0}/".format("u"))
@@ -921,7 +921,7 @@ class TestSearch(TestCase):
 
 		# Searching by phone number not enabled
 		number = self.profile.phone_number.replace(" ", "+") \
-		    .replace("(", "%28").replace(")", "%29")
+		  .replace("(", "%28").replace(")", "%29")
 		response = self.client.get("/search/?q={0}".format(number))
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("No results found.", response.content)

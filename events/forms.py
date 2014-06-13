@@ -24,9 +24,9 @@ def EventForm(manager_positions, initial=None, post=None):
 		start_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]),
 						 input_formats=time_formats)
 		end_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]),
-					       input_formats=time_formats)
+									   input_formats=time_formats)
 		as_manager = forms.ModelChoiceField(queryset=manager_positions, required=False,
-						    label="As manager (if manager event)")
+											label="As manager (if manager event)")
 		cancelled = forms.BooleanField(required=False, label="Mark Cancelled")
 
 		def is_valid(self):
