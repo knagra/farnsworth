@@ -256,7 +256,7 @@ class ModifyUserForm(forms.Form):
 		return email
 
 	def save(self):
- 		self.user.first_name = self.cleaned_data['first_name']
+		self.user.first_name = self.cleaned_data['first_name']
 		self.user.last_name = self.cleaned_data['last_name']
 		self.user.is_active = self.cleaned_data['is_active']
 		self.user.is_staff = self.cleaned_data['is_staff']
