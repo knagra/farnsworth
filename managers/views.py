@@ -4,7 +4,6 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from datetime import datetime
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django import forms
