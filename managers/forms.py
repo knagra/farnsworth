@@ -123,7 +123,7 @@ class ResponseForm(forms.Form):
 		response = Response(
 			owner=self.profile,
 			body=self.cleaned_data['body'],
-			request=request,
+			request=self.cleaned_data['request_pk'],
 			)
 		request.change_date = datetime.utcnow().replace(tzinfo=utc)
 		request.number_of_responses += 1
