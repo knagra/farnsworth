@@ -13,7 +13,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import models
-from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -282,31 +281,15 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		return HttpResponseRedirect(wurl('workshift:view_semester',
 										 sem_url=semester.sem_url))
 
-	types = WorkshiftType.objects.filter(rateable=True)
-
-	# TODO: Is there a way to create the ratings on first submit, rather than
-	# first view?
-	if types.count() > 0:
-		for wtype in types:
-			if wprofile.ratings.filter(workshift_type=wtype).count() == 0:
-				rating = WorkshiftRating(workshift_type=wtype)
-				rating.save()
-				wprofile.ratings.add(rating)
-		wprofile.save()
-
-	WorkshiftRatingFormSet = modelformset_factory(
-		WorkshiftRating, form=WorkshiftRatingForm,
-		)
-	TimeBlockFormSet = modelformset_factory(TimeBlock)
 	rating_formset = WorkshiftRatingFormSet(
 		request.POST or None,
-		queryset=wprofile.ratings.all(),
 		prefix="rating",
+        profile=wprofile,
 		)
 	time_formset = TimeBlockFormSet(
 		request.POST or None,
-		queryset=wprofile.time_blocks.all(),
 		prefix="time",
+        profile=wprofile,
 		)
 	note_form = ProfileNoteForm(request.POST or None, instance=wprofile)
 
@@ -314,8 +297,9 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	  note_form.is_valid():
 		rating_formset.save()
 		time_formset.save()
-		note_form.save()
-		return HttpResponseRedirect(wurl('workshift:view_preferences',
+		instance = note_form.save()
+		messages.add_message(request, messages.INFO, "Preferences saved.")
+		return HttpResponseRedirect(wurl('workshift:preferences',
 										 sem_url=semester.sem_url,
 										 targetUsername=request.user.username))
 

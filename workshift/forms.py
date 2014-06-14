@@ -1,5 +1,7 @@
 
 from django import forms
+from django.forms.models import BaseModelFormSet, modelformset_factory, \
+	 BaseInlineFormSet, inlineformset_factory
 
 from base.models import UserProfile
 from managers.models import Manager
@@ -17,8 +19,8 @@ class SemesterForm(forms.ModelForm):
 		model = Semester
 		exclude = ["workshift_managers", "preferences_open", "current"]
 
-	def save(self, *args, **kwargs):
-		semester = super(SemesterForm, self).save(*args, **kwargs)
+	def save(self):
+		semester = super(SemesterForm, self).save()
 
 		# Set current to false for previous semesters
 		for semester in Semester.objects.all():
@@ -27,7 +29,7 @@ class SemesterForm(forms.ModelForm):
 
 		semester.current = True
 		semester.preferences_open = True
-		semester.save(*args, **kwargs)
+		semester.save()
 
 		# TODO Copy workshift and pools over from previous semester?
 		pool = WorkshiftPool(
@@ -114,11 +116,13 @@ class WorkshiftInstanceForm(forms.ModelForm):
 			keys.remove(field)
 			keys.insert(0, field)
 
-	def save(self, *args, **kwargs):
-		instance = super(WorkshiftInstanceForm, self).save(*args, **kwargs)
+	def save(self, commit=True):
+		instance = super(WorkshiftInstanceForm, self).save(commit=commit)
 		if instance.info:
 			for field in self.info_fields:
 				setattr(instance.info, field, self.cleaned_data[field])
+			if commit:
+				self.info.save()
 		return instance
 
 class WorkshiftTypeForm(forms.ModelForm):
@@ -297,13 +301,72 @@ class AddWorkshiftTypeForm(forms.ModelForm):
 class WorkshiftRatingForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftRating
-		fields = "__all__"
-		widgets = {"workshift_type": forms.HiddenInput()}
+		fields = ["rating"]
 
 	def __init__(self, *args, **kwargs):
-		ret = super(WorkshiftRatingForm, self).__init__(*args, **kwargs)
-		self.title = self.workshift_type.title
-		return ret
+		super(WorkshiftRatingForm, self).__init__(*args, **kwargs)
+		try:
+			self.title = self.instance.workshift_type.title
+		except WorkshiftType.DoesNotExist:
+			self.title = ""
+
+class BaseWorkshiftRatingFormSet(BaseModelFormSet):
+	def __init__(self, *args, **kwargs):
+		self.profile = kwargs.pop('profile')
+		super(BaseWorkshiftRatingFormSet, self).__init__(*args, **kwargs)
+		self.wtypes = WorkshiftType.objects.filter(rateable=True)
+		self._refill_ratings()
+		self.queryset = self.profile.ratings.all()
+		self.max_num = self.queryset.count()
+
+	def _refill_ratings(self):
+		if self.wtypes.count() != self.profile.ratings.count():
+			for wtype in self.wtypes:
+				if not self.profile.ratings.filter(workshift_type=wtype):
+					rating = WorkshiftRating(workshift_type=wtype)
+					rating.save()
+					self.profile.ratings.add(rating)
+
+	def save(self, commit=True):
+		ratings = super(BaseWorkshiftRatingFormSet, self).save(commit=commit)
+		self.profile.ratings = ratings
+		self._refill_ratings()
+		if commit:
+			self.profile.save()
+		return ratings
+
+WorkshiftRatingFormSet = modelformset_factory(
+	WorkshiftRating, form=WorkshiftRatingForm,
+	formset=BaseWorkshiftRatingFormSet,
+	widgets={"workshift_type": forms.HiddenInput()},
+	can_delete=False, extra=0,
+	)
+
+valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
+
+class TimeBlockForm(forms.ModelForm):
+	start_time = forms.TimeField(input_formats=valid_time_formats)
+	end_time = forms.TimeField(input_formats=valid_time_formats)
+	class Meta:
+		model = TimeBlock
+		fields = "__all__"
+
+class BaseTimeBlockFormSet(BaseModelFormSet):
+	def __init__(self, *args, **kwargs):
+		self.profile = kwargs.pop('profile')
+		super(BaseTimeBlockFormSet, self).__init__(*args, **kwargs)
+		self.queryset = self.profile.time_blocks.all()
+
+	def save(self, commit=True):
+		blocks = super(BaseTimeBlockFormSet, self).save(commit=commit)
+		self.profile.time_blocks = blocks
+		if commit:
+			self.profile.save()
+		return blocks
+
+TimeBlockFormSet = modelformset_factory(
+	TimeBlock, form=TimeBlockForm, formset=BaseTimeBlockFormSet,
+	can_delete=True, extra=1, max_num=50)
 
 class ProfileNoteForm(forms.ModelForm):
 	class Meta:

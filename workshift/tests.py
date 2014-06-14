@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 from django.test import TestCase
 
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta, datetime, time
 
 from utils.variables import DAYS, MESSAGES
 from utils.funcs import convert_to_url
@@ -143,7 +143,7 @@ class TestViews(TestCase):
 
 		self.once = WorkshiftInstance(
 			info=info,
-			date=date.today(),
+			date=date(2014, 1, 1),
 			workshifter=self.wprofile,
 			)
 		self.once.save()
@@ -192,39 +192,6 @@ class TestViews(TestCase):
 
 		self.assertTrue(self.client.login(username="wu", password="pwd"))
 
-	def test_preferences(self):
-		response = self.client.get("/workshift/profile/{0}/preferences/"
-								   .format(self.wprofile.user.username))
-		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.wtype.title, response.content)
-
-	def test_preferences_full(self):
-		url = "/workshift/profile/{0}/preferences/" \
-			.format(self.wprofile.user.username)
-
-		response = self.client.post(url, {
-				"pk": self.wtype.pk,
-				"rating": WorkshiftRating.LIKE,
-				"form-0-preference": TimeBlock.BUSY,
-				"form-0-day": DAYS[0][0], # Monday
-				"form-0-start_time": "8:00 AM",
-				"form-0-end_time": "5:00 PM",
-				"form-1-preference": TimeBlock.FREE,
-				"form-1-day": DAYS[-1][0], # Sunday
-				"form-1-start_time": "4:00 PM",
-				"form-1-end_time": "9:00 PM",
-				"form-1-preference": TimeBlock.PREFERRED,
-				"form-1-day": DAYS[1][0], # Tuesday
-				"form-1-start_time": "6:00 PM",
-				"form-1-end_time": "10:00 PM",
-				"form-TOTAL_FORMS": 2,
-				"form-INITIAL_FORMS": 0,
-				"form-MAX_NUM_FORMS": 1000,
-				"note": "Dishes are fun, pots are cathartic.",
-				}, follow=True)
-		self.assertRedirects(response, url)
-		self.assertIn("Preferences saved.", response.content)
-
 	def test_views_load(self):
 		urls = [
 			"/start/",
@@ -262,91 +229,92 @@ class TestViews(TestCase):
 	def test_type_list(self):
 		response = self.client.get("/workshift/types/")
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.wtype.title, response.content)
-		self.assertIn(str(self.wtype.hours), response.content)
-		self.assertNotIn(self.wtype.quick_tips, response.content)
-		self.assertNotIn(self.wtype.description, response.content)
+		self.assertContains(response, self.wtype.title)
+		self.assertContains(response, str(self.wtype.hours))
+		self.assertNotContains(response, self.wtype.quick_tips)
+		self.assertNotContains(response, self.wtype.description)
 
 	def test_type(self):
 		response = self.client.get("/workshift/type/{0}/".format(self.wtype.pk))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.wtype.title, response.content)
-		self.assertIn(str(self.wtype.hours), response.content)
-		self.assertIn(self.wtype.quick_tips, response.content)
-		self.assertIn(self.wtype.description, response.content)
+		self.assertContains(response, self.wtype.title)
+		self.assertContains(response, str(self.wtype.hours))
+		self.assertContains(response, self.wtype.quick_tips)
+		self.assertContains(response, self.wtype.description)
 
 	def test_type_edit(self):
 		response = self.client.get("/workshift/type/{0}/edit/".format(self.wtype.pk))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.wtype.title, response.content)
-		self.assertIn(str(self.wtype.hours), response.content)
-		self.assertIn(self.wtype.quick_tips, response.content)
-		self.assertIn(self.wtype.description, response.content)
+		self.assertContains(response, self.wtype.title)
+		self.assertContains(response, str(self.wtype.hours))
+		self.assertContains(response, self.wtype.quick_tips)
+		self.assertContains(response, self.wtype.description)
 
 	def test_shift(self):
 		response = self.client.get("/workshift/shift/{0}/".format(self.shift.pk))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.shift.title, response.content)
-		self.assertIn(str(self.shift.hours), response.content)
-		self.assertIn(self.shift.workshift_type.quick_tips, response.content)
-		self.assertIn(self.shift.workshift_type.description, response.content)
-		self.assertIn(self.shift.current_assignee.user.get_full_name(), response.content)
+		self.assertContains(response, self.shift.title)
+		self.assertContains(response, str(self.shift.hours))
+		self.assertContains(response, self.shift.workshift_type.quick_tips)
+		self.assertContains(response, self.shift.workshift_type.description)
+		self.assertContains(response, self.shift.current_assignee.user.get_full_name())
 
 	def test_edit_shift(self):
 		response = self.client.get("/workshift/shift/{0}/edit/".format(self.shift.pk))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.shift.title, response.content)
-		self.assertIn(str(self.shift.hours), response.content)
-		self.assertIn(self.shift.current_assignee.user.get_full_name(), response.content)
+		self.assertContains(response, self.shift.title)
+		self.assertContains(response, str(self.shift.hours))
+		self.assertContains(response, self.shift.current_assignee.user.get_full_name())
 
 	def test_instance(self):
 		response = self.client.get("/workshift/instance/{0}/"
 								   .format(self.instance.pk))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.instance.weekly_workshift.title, response.content)
-		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
-		self.assertIn(self.instance.date.strftime("%B%e, %Y"), response.content)
-		self.assertIn(self.instance.workshifter.user.get_full_name(), response.content)
-		self.assertIn(str(self.instance.hours), response.content)
-		self.assertIn(self.sle0.note, response.content)
-		self.assertIn(self.sle1.note, response.content)
-		self.assertIn(self.sle2.note, response.content)
-		self.assertIn(self.sle3.note, response.content)
-		self.assertIn(self.sle4.note, response.content)
+		self.assertContains(response, self.instance.weekly_workshift.title)
+		self.assertContains(response, self.instance.weekly_workshift.pool.title)
+		self.assertContains(response, self.instance.workshifter.user.get_full_name())
+		self.assertContains(response, str(self.instance.hours))
+		self.assertContains(response, self.sle0.note)
+		self.assertContains(response, self.sle1.note)
+		self.assertContains(response, self.sle2.note)
+		self.assertContains(response, self.sle3.note)
+		self.assertContains(response, self.sle4.note)
 
 	def test_edit_instance(self):
 		response = self.client.get("/workshift/instance/{0}/edit/"
 								   .format(self.instance.pk))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.instance.weekly_workshift.title, response.content)
-		self.assertIn(self.instance.weekly_workshift.pool.title, response.content)
-		self.assertIn(str(self.instance.date), response.content)
-		self.assertIn(self.instance.workshifter.user.get_full_name(), response.content)
-		self.assertIn(str(self.instance.hours), response.content)
+		self.assertContains(response, self.instance.weekly_workshift.title)
+		self.assertContains(response, self.instance.weekly_workshift.pool.title)
+		self.assertContains(response, str(self.instance.date))
+		self.assertContains(response, self.instance.workshifter.user.get_full_name())
+		self.assertContains(response, str(self.instance.hours))
 
 	def test_one_time(self):
 		response = self.client.get("/workshift/instance/{0}/".format(self.once.pk))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.once.title, response.content)
-		self.assertIn(self.once.pool.title, response.content)
-		self.assertIn(self.once.description, response.content)
-		self.assertIn(str(self.once.hours), response.content)
-		self.assertIn(self.once.workshifter.user.get_full_name(), response.content)
-		self.assertIn(self.sle0.note, response.content)
-		self.assertIn(self.sle1.note, response.content)
-		self.assertIn(self.sle2.note, response.content)
-		self.assertIn(self.sle3.note, response.content)
-		self.assertIn(self.sle4.note, response.content)
+		self.assertContains(response, self.once.title)
+		self.assertContains(response, self.once.pool.title)
+		self.assertContains(response, self.once.description)
+		self.assertContains(response, str(self.once.hours))
+		self.assertContains(response, self.once.workshifter.user.get_full_name())
+		self.assertContains(response, self.sle0.note)
+		self.assertContains(response, self.sle1.note)
+		self.assertContains(response, self.sle2.note)
+		self.assertContains(response, self.sle3.note)
+		self.assertContains(response, self.sle4.note)
 
 	def test_edit_one_time(self):
 		response = self.client.get("/workshift/instance/{0}/edit/".format(self.once.pk))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.once.title, response.content)
-		self.assertIn(self.once.pool.title, response.content)
-		self.assertIn(self.once.description, response.content)
-		self.assertIn(str(self.once.hours), response.content)
-		self.assertIn(self.once.workshifter.user.get_full_name(),
-					  response.content)
+		self.assertContains(response, self.once.title)
+		self.assertContains(response, self.once.pool.title)
+		self.assertContains(response, self.once.description)
+		self.assertContains(response, str(self.once.hours))
+		self.assertContains(
+			response,
+			self.once.workshifter.user.get_full_name(),
+			)
 
 	def test_semester_view(self):
 		response = self.client.get("/workshift/")
@@ -354,9 +322,270 @@ class TestViews(TestCase):
 
 		response = self.client.get("/workshift/?day=2014-01-01")
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Wednesday, January  1, 2014", response.content)
-		self.assertNotIn("?day=2013-12-31", response.content)
-		self.assertIn("?day=2014-01-02", response.content)
+		self.assertContains(response, "Wednesday, January")
+		self.assertContains(response, "01, 2014")
+		self.assertNotContains(response, "?day=2013-12-31")
+		self.assertContains(response, "?day=2014-01-02")
+
+class TestPreferences(TestCase):
+	def setUp(self):
+		self.wu = User.objects.create_user(username="wu", password="pwd")
+		self.wu.first_name, self.wu.last_name = "Cooperative", "User"
+		self.wu.save()
+
+		self.wm = Manager(
+			title="Workshift Manager",
+			incumbent=UserProfile.objects.get(user=self.wu),
+			workshift_manager=True,
+			)
+		self.wm.url_title = convert_to_url(self.wm.title)
+		self.wm.save()
+
+		self.sem = Semester(year=2014, start_date=date.today(),
+							end_date=date.today() + timedelta(days=7),
+							current=True)
+		self.sem.save()
+
+		self.pool = WorkshiftPool(
+			semester=self.sem,
+			)
+		self.pool.save()
+		self.pool.managers = [self.wm]
+		self.pool.save()
+
+		self.wprofile = WorkshiftProfile(user=self.wu, semester=self.sem)
+		self.wprofile.save()
+
+		self.w1 = WorkshiftType(
+			title="Clean Pots",
+			description="Clean and sanitize all cooking materials in the dish room",
+			quick_tips="Use 6 tablets of quartz!",
+			)
+		self.w1.save()
+
+		self.w2 = WorkshiftType(
+			title="Clean Dishes",
+			description="Clean and santize all eating materials in the dish room",
+			quick_tips="Make sure there is liquid for the sanitizer!",
+			)
+		self.w2.save()
+
+		self.w3 = WorkshiftType(
+			title="Trash",
+			description="Take out the trash, everyone has to do this one.",
+			rateable=False,
+			)
+		self.w3.save()
+
+		self.assertTrue(self.client.login(username="wu", password="pwd"))
+		self.url = "/workshift/profile/{0}/preferences/" \
+		  .format(self.wprofile.user.username)
+
+
+	def test_preferences_get(self):
+		response = self.client.get("/workshift/profile/{0}/preferences/"
+								   .format(self.wprofile.user.username))
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, self.w1.title)
+		self.assertContains(response, self.w2.title)
+		self.assertNotContains(response, self.w1.description)
+		self.assertNotContains(response, self.w2.description)
+		self.assertContains(
+			response,
+			'name="rating-TOTAL_FORMS" type="hidden" value="2"',
+			)
+		self.assertContains(
+			response,
+			'name="rating-INITIAL_FORMS" type="hidden" value="2"',
+			)
+		self.assertContains(
+			response,
+			'name="rating-MAX_NUM_FORMS" type="hidden" value="2"',
+			)
+		self.assertContains(
+			response,
+			'name="time-TOTAL_FORMS" type="hidden" value="1"',
+			)
+		self.assertContains(
+			response,
+			'name="time-INITIAL_FORMS" type="hidden" value="0"',
+			)
+		self.assertContains(
+			response,
+			'name="time-MAX_NUM_FORMS" type="hidden" value="50"',
+			)
+		# self.assertEqual(self.wprofile.ratings.count(), 0)
+
+	def test_preferences_post(self):
+		response = self.client.post(self.url, {
+            "rating-0-id": 1,
+            "rating-0-rating": WorkshiftRating.LIKE,
+            "rating-1-id": 2,
+            "rating-1-rating": WorkshiftRating.DISLIKE,
+            "rating-TOTAL_FORMS": 2,
+            "rating-INITIAL_FORMS": 2,
+            "rating-MAX_NUM_FORMS": 2,
+            "time-0-preference": TimeBlock.BUSY,
+            "time-0-day": DAYS[0][0], # Monday
+            "time-0-start_time": "8:00 AM",
+            "time-0-end_time": "5:00 PM",
+            "time-1-preference": TimeBlock.FREE,
+            "time-1-day": DAYS[-1][0], # Sunday
+            "time-1-start_time": "4:00 PM",
+            "time-1-end_time": "9:00 PM",
+            "time-2-preference": TimeBlock.PREFERRED,
+            "time-2-day": DAYS[1][0], # Tuesday
+            "time-2-start_time": "6:00 PM",
+            "time-2-end_time": "10:00 PM",
+            "time-TOTAL_FORMS": 3,
+            "time-INITIAL_FORMS": 0,
+            "time-MAX_NUM_FORMS": 50,
+            "note": "Dishes are fun, pots are cathartic.",
+            }, follow=True)
+
+		self.assertRedirects(response, self.url)
+		self.assertContains(response, "Preferences saved.")
+
+		self.assertEqual(self.wprofile.ratings.count(), 2)
+		for rating, wtype, liked in zip(
+				self.wprofile.ratings.all(),
+				[self.w1, self.w2],
+				[WorkshiftRating.LIKE, WorkshiftRating.DISLIKE],
+				):
+			self.assertEqual(rating.workshift_type, wtype)
+			self.assertEqual(rating.rating, liked)
+
+		self.assertEqual(self.wprofile.time_blocks.count(), 3)
+		for block, preference, day, start, end, in zip(
+				self.wprofile.time_blocks.all(),
+				[TimeBlock.BUSY, TimeBlock.FREE, TimeBlock.PREFERRED],
+				[DAYS[0][0], DAYS[-1][0], DAYS[1][0]],
+				[time(8, 0, 0), time(16, 0, 0), time(18, 0, 0)],
+				[time(17, 0, 0), time(21, 0, 0), time(22, 0, 0)],
+				):
+			self.assertEqual(block.preference, preference)
+			self.assertEqual(block.day, day)
+			self.assertEqual(block.start_time, start)
+			self.assertEqual(block.end_time, end)
+
+		self.assertEqual(WorkshiftProfile.objects.get(user=self.wu).note,
+						 "Dishes are fun, pots are cathartic.")
+
+	def test_no_note(self):
+		response = self.client.post(self.url, {
+            "rating-0-id": 1,
+            "rating-0-rating": WorkshiftRating.LIKE,
+            "rating-1-id": 2,
+            "rating-1-rating": WorkshiftRating.DISLIKE,
+            "rating-TOTAL_FORMS": 2,
+            "rating-INITIAL_FORMS": 2,
+            "rating-MAX_NUM_FORMS": 2,
+            "time-TOTAL_FORMS": 0,
+            "time-INITIAL_FORMS": 0,
+            "time-MAX_NUM_FORMS": 50,
+            }, follow=True)
+
+		self.assertRedirects(response, self.url)
+		self.assertContains(response, "Preferences saved.")
+
+	def test_preferences_after_add(self):
+		self.test_no_note()
+		self.assertEqual(self.wprofile.ratings.count(), 2)
+
+		w4 = WorkshiftType(
+			title="Added late",
+			description="Workshift added after preferences entered",
+			)
+		w4.save()
+
+		response = self.client.get(self.url)
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, w4.title)
+
+		response = self.client.post(self.url, {
+            "rating-0-id": 1,
+            "rating-0-rating": WorkshiftRating.LIKE,
+            "rating-1-id": 2,
+            "rating-1-rating": WorkshiftRating.DISLIKE,
+            "rating-2-id": 3,
+            "rating-2-rating": WorkshiftRating.LIKE,
+            "rating-TOTAL_FORMS": 3,
+            "rating-INITIAL_FORMS": 3,
+            "rating-MAX_NUM_FORMS": 3,
+            "time-TOTAL_FORMS": 0,
+            "time-INITIAL_FORMS": 0,
+            "time-MAX_NUM_FORMS": 50,
+			}, follow=True)
+
+		self.assertRedirects(response, self.url)
+		self.assertContains(response, "Preferences saved.")
+
+		self.assertEqual(self.wprofile.ratings.count(), 3)
+		rating = self.wprofile.ratings.get(workshift_type=w4)
+		self.assertEqual(rating.rating, WorkshiftRating.LIKE)
+
+	def test_delete_rating(self):
+		"""
+		Ensure that users cannot delete their rating preferences.
+		"""
+		self.client.post(self.url, {
+            "rating-0-id": 1,
+            "rating-0-rating": WorkshiftRating.LIKE,
+            "rating-TOTAL_FORMS": 1,
+            "rating-INITIAL_FORMS": 2,
+            "rating-MAX_NUM_FORMS": 2,
+            "time-TOTAL_FORMS": 0,
+            "time-INITIAL_FORMS": 0,
+            "time-MAX_NUM_FORMS": 50,
+            })
+
+		self.assertEqual(self.wprofile.ratings.count(), 2)
+
+	def test_add_rating(self):
+		"""
+		Ensure that users cannot add extra rating preferences.
+		"""
+		response = self.client.post(self.url, {
+            "rating-0-id": 1,
+            "rating-0-rating": WorkshiftRating.LIKE,
+            "rating-1-id": 2,
+            "rating-1-rating": WorkshiftRating.LIKE,
+            "rating-2-id": 3 + 1,
+            "rating-2-rating": WorkshiftRating.LIKE,
+            "rating-TOTAL_FORMS": 3,
+            "rating-INITIAL_FORMS": 2,
+            "rating-MAX_NUM_FORMS": 3,
+            "time-TOTAL_FORMS": 0,
+            "time-INITIAL_FORMS": 0,
+            "time-MAX_NUM_FORMS": 50,
+            })
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(self.wprofile.ratings.count(), 2)
+
+	def test_unrateable(self):
+		"""
+		Ensure that users cannot rate unrateable shifts.
+		"""
+		response = self.client.post(self.url, {
+            "rating-0-id": 1,
+            "rating-0-rating": WorkshiftRating.LIKE,
+            "rating-1-id": 3,
+            "rating-1-rating": WorkshiftRating.LIKE,
+            "rating-TOTAL_FORMS": 2,
+            "rating-INITIAL_FORMS": 2,
+            "rating-MAX_NUM_FORMS": 2,
+            "time-TOTAL_FORMS": 0,
+            "time-INITIAL_FORMS": 0,
+            "time-MAX_NUM_FORMS": 50,
+            })
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(
+			response,
+			"That choice is not one of the available choices.",
+			)
+		self.assertEqual(self.wprofile.ratings.count(), 2)
 
 class TestInteractForms(TestCase):
 	def setUp(self):
@@ -693,7 +922,7 @@ class TestPermissions(TestCase):
 				self.assertEqual(response.status_code, 200)
 			else:
 				self.assertRedirects(response, "/workshift/")
-				self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
+				self.assertContains(response, MESSAGES["ADMINS_ONLY"])
 
 	def test_maintenance_manager(self):
 		self.assertTrue(self.client.login(username="mu", password="pwd"))
@@ -720,7 +949,7 @@ class TestPermissions(TestCase):
 				self.assertEqual(response.status_code, 200)
 			else:
 				self.assertRedirects(response, "/workshift/")
-				self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
+				self.assertContains(response, MESSAGES["ADMINS_ONLY"])
 
 	def test_user(self):
 		self.assertTrue(self.client.login(username="u", password="pwd"))
@@ -748,7 +977,7 @@ class TestPermissions(TestCase):
 				self.assertEqual(response.status_code, 200)
 			else:
 				self.assertRedirects(response, "/workshift/")
-				self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
+				self.assertContains(response, MESSAGES["ADMINS_ONLY"])
 
 	def test_other_user(self):
 		self.assertTrue(self.client.login(username="ou", password="pwd"))
@@ -776,4 +1005,4 @@ class TestPermissions(TestCase):
 				self.assertEqual(response.status_code, 200)
 			else:
 				self.assertRedirects(response, "/workshift/")
-				self.assertIn(MESSAGES["ADMINS_ONLY"], response.content)
+				self.assertContains(response, MESSAGES["ADMINS_ONLY"])
