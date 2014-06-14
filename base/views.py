@@ -157,7 +157,7 @@ def homepage_view(request, message=None):
 			latest_message = None
 		thread_set.append((thread, latest_message))
 	if response_form.is_valid():
-		response_form.save()
+		relevant_request = response_form.save()
 		if relevant_request.closed:
 			messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_CLOSED'])
 		if relevant_request.filled:
