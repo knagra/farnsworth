@@ -599,6 +599,40 @@ class TestProfilePages(TestCase):
 		self.assertContains(response, "Threads Started")
 		self.assertContains(response, "Requests Posted")
 
+	def test_change_password(self):
+		url = "/profile/"
+		response = self.client.post(url, {
+			"submit_password_form": "",
+			"current_password": "pwd",
+			"new_password": "Jenkins",
+			"confirm_password": "Jenkins",
+			}, follow=True)
+
+		self.assertRedirects(response, url)
+		self.assertContains(response, "Your password was successfully changed.")
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="pwd"))
+		self.assertEqual(True, self.client.login(username="u", password="Jenkins"))
+
+	def test_confirm_password(self):
+		url = "/profile/"
+		response = self.client.post(url, {
+			"submit_password_form": "",
+			"current_password": "pwd",
+			"new_password": "Jenkins",
+			"confirm_password": "Jeknins",
+			})
+
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(
+			response, MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
+		self.assertContains(
+			response, "Passwords don't match.".replace("'", "&#39;")
+			)
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="Jenkins"))
+		self.assertEqual(True, self.client.login(username="u", password="pwd"))
+
 	def test_visible(self):
 		self.oprofile.email_visible = True
 		self.oprofile.phone_visible = True
@@ -702,6 +736,43 @@ class TestModifyUser(TestCase):
 			self.assertContains(response, title)
 
 			self.client.logout()
+
+	def test_change_user_password(self):
+		self.client.login(username="su", password="pwd")
+
+		url = "/custom_admin/modify_user/{0}/".format(self.u.username)
+		response = self.client.post(url, {
+			"change_user_password": "",
+			"user_password": "Leeroy",
+			"confirm_password": "Leeroy",
+			}, follow=True)
+
+		self.assertRedirects(response, url)
+		self.assertContains(response,
+							MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="pwd"))
+		self.assertEqual(True, self.client.login(username="u", password="Leeroy"))
+
+	def test_confirm_user_password(self):
+		self.client.login(username="su", password="pwd")
+
+		url = "/custom_admin/modify_user/{0}/".format(self.u.username)
+		response = self.client.post(url, {
+			"change_user_password": "",
+			"user_password": "Leeroy",
+			"confirm_password": "Lereoy",
+			})
+
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(
+			response, MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
+		self.assertContains(
+			response, "Passwords don't match.".replace("'", "&#39;")
+			)
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="Leeroy"))
+		self.assertEqual(True, self.client.login(username="u", password="pwd"))
 
 class TestAdminFunctions(TestCase):
 	def setUp(self):
@@ -965,5 +1036,3 @@ class TestSearch(TestCase):
 		response = self.client.get("/search/?q={0}".format(number))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, "No results found.")
-
-# TODO: Test ChangePassword + ChangeUserPassword
