@@ -423,7 +423,7 @@ class UpdateProfileForm(forms.Form):
 
 	def clean_enter_password(self):
 		try:
-			social_auth = UserSocialAuth.objects.get(user=user)
+			social_auth = UserSocialAuth.objects.get(user=self.user)
 		except UserSocialAuth.DoesNotExist:
 			social_auth = None
 		password = self.cleaned_data["enter_password"]
