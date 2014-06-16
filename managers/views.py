@@ -277,7 +277,6 @@ def my_requests_view(request):
 		)
 	if request_form.is_valid():
 		request_form.save()
-		type_pk = request_form.cleaned_data['type_pk']
 		return HttpResponseRedirect(reverse('my_requests'))
 	if response_form.is_valid():
 		response_form.save()
