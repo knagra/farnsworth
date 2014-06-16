@@ -443,7 +443,7 @@ class TestManager(TestCase):
 		response = self.client.post("/custom_admin/managers/{0}/"
 									.format(self.m1.url_title), {
 				"title": new_title,
-				"incumbent": "1",
+				"incumbent": self.m1.incumbent.pk,
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
@@ -464,7 +464,7 @@ class TestManager(TestCase):
 		response = self.client.post("/custom_admin/managers/{0}/"
 									.format(self.m1.url_title), {
 				"title": self.m2.title,
-				"incumbent": "1",
+				"incumbent": self.m2.incumbent.pk,
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
@@ -480,7 +480,7 @@ class TestManager(TestCase):
 		response = self.client.post("/custom_admin/managers/{0}/"
 									.format(self.m1.url_title), {
 				"title": self.m2.url_title.upper(),
-				"incumbent": "1",
+				"incumbent": self.m2.incumbent.pk,
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
@@ -491,6 +491,18 @@ class TestManager(TestCase):
 				}, follow=True)
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, 'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'.replace('"', "&quot;"))
+
+	def test_add_request(self):
+		name = "Cleanliness"
+		response = self.client.post("/custom_admin/add_request_type/", {
+			"name": name,
+			"managers": [self.m1.pk, self.m2.pk],
+			}, follow=True)
+		self.assertRedirects(response, "/custom_admin/request_types/")
+		self.assertContains(response,
+							MESSAGES['REQUEST_TYPE_ADDED'].format(typeName=name))
+		self.assertIn(self.m1, RequestType.objects.get(name=name).managers.all())
+		self.assertIn(self.m2, RequestType.objects.get(name=name).managers.all())
 
 class TestAnnouncements(TestCase):
 	def setUp(self):

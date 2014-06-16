@@ -65,13 +65,14 @@ class RequestTypeForm(forms.ModelForm):
 		if RequestType.objects.filter(name=name).count() and \
 		  RequestType.objects.get(name=name) != self.instance:
 			raise forms.ValdiationError("A request type with this name already exists.")
+		url_name = convert_to_url(name)
 		if RequestType.objects.filter(url_name=url_name).count() and \
 		  RequestType.objects.get(url_name=url_name) != self.instance:
 			raise forms.ValidationError('This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.')
 		return name
 
 	def save(self):
-		rtype = super(RequestTypeForm, self).save(commit=False)
+		rtype = super(RequestTypeForm, self).save()
 		rtype.url_name = convert_to_url(self.cleaned_data['name'])
 		rtype.save()
 		return rtype
