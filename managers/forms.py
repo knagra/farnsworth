@@ -159,7 +159,7 @@ class VoteForm(forms.Form):
 
 	def save(self, pk=None):
 		if pk is None:
-			pk = vote_form.cleaned_data['request_pk']
+			pk = self.cleaned_data['request_pk']
 		relevant_request = Request.objects.get(pk=pk)
 		if self.profile in relevant_request.upvotes.all():
 			relevant_request.upvotes.remove(self.profile)
