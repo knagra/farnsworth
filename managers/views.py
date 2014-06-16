@@ -6,20 +6,17 @@ Author: Karandeep Singh Nagra
 
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
-from django import forms
 from django.core.urlresolvers import reverse
-from django.contrib.auth import hashers, logout, login
-from django.contrib.auth.models import User, Group
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout, login
+from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.contrib import messages
 
-from farnsworth.settings import house, max_requests, max_responses
+from farnsworth.settings import max_requests
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
-from utils.funcs import convert_to_url
 from base.decorators import admin_required, profile_required, president_admin_required
-from base.models import UserProfile, ProfileRequest
-from base.redirects import red_ext, red_home
+from base.models import UserProfile
+from base.redirects import red_home
 from threads.models import Thread, Message
 from managers.models import Manager, RequestType, Request, Response, Announcement
 from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseForm, \
@@ -85,17 +82,15 @@ def meta_manager_view(request):
 	A manager of managers.  Display a list of current managers, with links to modify them.
 	Also display a link to add a new manager.  Restricted to presidents and superadmins.
 	'''
-	userProfile = UserProfile.objects.get(user=request.user)
-	managerset = Manager.objects.all()
+	managers = Manager.objects.all()
 	return render_to_response('meta_manager.html', {
 			'page_name': "Admin - Meta-Manager",
-			'managerset': managerset,
+			'managerset': managers,
 			}, context_instance=RequestContext(request))
 
 @president_admin_required
 def add_manager_view(request):
 	''' View to add a new manager position. Restricted to superadmins and presidents. '''
-	userProfile = UserProfile.objects.get(user=request.user)
 	form = ManagerForm(request.POST or None)
 	if form.is_valid():
 		manager = form.save()
@@ -114,7 +109,6 @@ def edit_manager_view(request, managerTitle):
 		request is an HTTP request
 		managerTitle is URL title of the manager.
 	'''
-	userProfile = UserProfile.objects.get(user=request.user)
 	targetManager = get_object_or_404(Manager, url_title=managerTitle)
 	form = ManagerForm(
 		request.POST or None,
@@ -136,7 +130,6 @@ def manage_request_types_view(request):
 	''' Manage requests.  Display a list of request types with links to edit them.
 	Also display a link to add a new request type.  Restricted to presidents and superadmins.
 	'''
-	userProfile = UserProfile.objects.get(user=request.user)
 	request_types = RequestType.objects.all()
 	return render_to_response('manage_request_types.html', {
 			'page_name': "Admin - Manage Request Types",
@@ -165,7 +158,6 @@ def edit_request_type_view(request, typeName):
 		request is an HTTP request
 		typeName is the request type's URL name.
 	'''
-	userProfile = UserProfile.objects.get(user=request.user)
 	requestType = get_object_or_404(RequestType, url_name=typeName)
 	form = RequestTypeForm(
 		request.POST or None,
@@ -277,7 +269,6 @@ def my_requests_view(request):
 		)
 	if request_form.is_valid():
 		request_form.save()
-		type_pk = request_form.cleaned_data['type_pk']
 		return HttpResponseRedirect(reverse('my_requests'))
 	if response_form.is_valid():
 		response_form.save()
@@ -436,8 +427,6 @@ def announcement_view(request, announcement_pk):
 	announce = get_object_or_404(Announcement, pk=announcement_pk)
 	page_name = "View Announcement"
 	profile = UserProfile.objects.get(user=request.user)
-	announcement_form = None
-	manager_positions = Manager.objects.filter(incumbent=profile)
 	unpin_form = UnpinForm(
 		request.POST if 'unpin' in request.POST else None,
 		announce=announce,
