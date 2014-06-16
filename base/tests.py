@@ -113,6 +113,13 @@ class TestHomepage(TestCase):
 				start_time=now, end_time=now + one_day)
 		self.ev.save()
 
+		self.announce = Announcement(
+			manager=self.manager,
+			incumbent=self.profile,
+			body="Test Announcement Body",
+			)
+		self.announce.save()
+
 		self.client.login(username="u", password="pwd")
 
 	def test_homepage_view(self):
@@ -213,6 +220,15 @@ class TestHomepage(TestCase):
 		self.assertNotContains(response, "You betcha")
 		self.assertNotContains(response, MESSAGES['REQ_CLOSED'])
 		self.assertContains(response, MESSAGES['REQ_FILLED'])
+
+	def test_unpin(self):
+		response = self.client.post("/", {
+			"unpin": "",
+			"announcement_pk": self.announce.pk,
+			}, follow=True)
+		self.assertRedirects(response, "/")
+		self.assertEqual(Announcement.objects.get(pk=self.announce.pk).pinned,
+						 False)
 
 	def test_upvote(self):
 		# Upvote
