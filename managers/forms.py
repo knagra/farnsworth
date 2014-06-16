@@ -64,7 +64,7 @@ class RequestTypeForm(forms.ModelForm):
 			raise forms.ValidationError("Invalid name. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
 		if RequestType.objects.filter(name=name).count() and \
 		  RequestType.objects.get(name=name) != self.instance:
-			raise forms.ValdiationError("A request type with this name already exists.")
+			raise forms.ValidationError("A request type with this name already exists.")
 		url_name = convert_to_url(name)
 		if RequestType.objects.filter(url_name=url_name).count() and \
 		  RequestType.objects.get(url_name=url_name) != self.instance:
