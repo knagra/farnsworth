@@ -372,12 +372,19 @@ class TestManager(TestCase):
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
 
-		self.m = Manager(
+		self.m1 = Manager(
 			title="setUp Manager",
 			incumbent=UserProfile.objects.get(user=self.su),
 			)
-		self.m.url_title = convert_to_url(self.m.title)
-		self.m.save()
+		self.m1.url_title = convert_to_url(self.m1.title)
+		self.m1.save()
+
+		self.m2 = Manager(
+			title="Testing Manager",
+			incumbent=UserProfile.objects.get(user=self.su),
+			)
+		self.m2.url_title = convert_to_url(self.m2.title)
+		self.m2.save()
 
 		self.client.login(username="su", password="pwd")
 
@@ -401,13 +408,40 @@ class TestManager(TestCase):
 		self.assertEqual(1, Manager.objects.filter(title="Test Manager").count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url("Test Manager")).count())
 
-	def test_duplicate_manager(self):
-		pass
+	def test_duplicate_title(self):
+		response = self.client.post("/custom_admin/add_manager/", {
+				"title": self.m1.title,
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				})
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "A manager with this title already exists.")
+
+	def test_duplicate_url_title(self):
+		response = self.client.post("/custom_admin/add_manager/", {
+				"title": "SETUP MANAGER",
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				})
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'.replace('"', "&quot;"))
 
 	def test_edit_manager(self):
 		new_title = "New setUp Manager"
 		response = self.client.post("/custom_admin/managers/{0}/"
-									.format(self.m.url_title), {
+									.format(self.m1.url_title), {
 				"title": new_title,
 				"incumbent": "1",
 				"compensation": "Test % Compensation",
