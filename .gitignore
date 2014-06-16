@@ -19,4 +19,4 @@ include/
 lib/
 lib64
 src/
-
+.coverage
