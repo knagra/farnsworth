@@ -460,6 +460,38 @@ class TestManager(TestCase):
 		self.assertEqual(1, Manager.objects.filter(title=new_title).count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url(new_title)).count())
 
+	def test_edit_title(self):
+		response = self.client.post("/custom_admin/managers/{0}/"
+									.format(self.m1.url_title), {
+				"title": self.m2.title,
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				}, follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "A manager with this title already exists.")
+
+	def test_edit_url_title(self):
+		response = self.client.post("/custom_admin/managers/{0}/"
+									.format(self.m1.url_title), {
+				"title": self.m2.url_title.upper(),
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				}, follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'.replace('"', "&quot;"))
+
 class TestAnnouncements(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
