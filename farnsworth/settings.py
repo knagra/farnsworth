@@ -127,12 +127,6 @@ else:
 		},
 	}
 
-if 'test' in sys.argv:
-	PASSWORD_HASHERS = (
-		'django.contrib.auth.hashers.MD5PasswordHasher',
-	)
-	DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
-
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 try:
@@ -340,8 +334,14 @@ HAYSTACK_CONNECTIONS = {
 }
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
+
+if 'test' in sys.argv:
+	PASSWORD_HASHERS = (
+		'django.contrib.auth.hashers.MD5PasswordHasher',
+	)
+	DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+	HAYSTACK_CONNECTIONS['default']['INDEX_NAME'] = SHORT_HOUSE_NAME.lower() + "_test"
 
 try:
 	from farnsworth.local_settings import *
