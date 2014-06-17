@@ -168,6 +168,7 @@
 		$(document).ready(function(){
 			hljs.configure({useBR: true});
 			$('pre').each(function(i, e) {hljs.highlightBlock(e)});
+			$('pre').addClass('linenums');
 		});
     	<!-- prevent multiple form submissions by disabling submit button on all forms after post -->
 		$("form").submit(function() {
