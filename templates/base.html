@@ -17,6 +17,7 @@
 	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
 	<link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
 	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
+	<link type="text/css" rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/default.min.css" />
     {% block headers %} {% endblock %}
 </head>
 <body id="html_body">
@@ -161,8 +162,14 @@
     <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>
 	<script>
-    <!-- prevent multiple form submissions by disabling submit button on all forms after post -->
+	<!-- Add highlight.js to pre blocks -->
+		$(document).ready(function(){
+			hljs.configure({useBR: true});
+			$('pre').each(function(i, e) {hljs.highlightBlock(e)});
+		});
+    	<!-- prevent multiple form submissions by disabling submit button on all forms after post -->
 		$("form").submit(function() {
 			$(this).submit(function() {
 				return false;
