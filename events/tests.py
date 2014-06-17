@@ -5,14 +5,13 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
-from datetime import datetime, timedelta
+from datetime import date, time, datetime, timedelta
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
 
 from utils.variables import time_formats, MESSAGES
 from base.models import UserProfile
-from threads.models import Thread, Message
 from events.models import Event
 
 class TestEvent(TestCase):
@@ -25,12 +24,13 @@ class TestEvent(TestCase):
 		self.su.save()
 
 		self.profile = UserProfile.objects.get(user=self.u)
-		now = datetime.utcnow().replace(tzinfo=utc)
+		now = datetime.combine(date.today(), time(12, 0)).replace(tzinfo=utc)
 		one_day = timedelta(days=1)
 
 		self.ev = Event(
 			owner=self.profile,
 			title="Event Title Test",
+			location="Development Land",
 			description="Event Description Test",
 			start_time=now, end_time=now + one_day,
 			)
@@ -85,12 +85,81 @@ class TestEvent(TestCase):
 				"title": "New Title Test",
 				"description": self.ev.description,
 				"location": self.ev.location,
-				"start_time": self.ev.start_time.strftime(time_formats[0]),
+				"start_time": (self.ev.start_time).strftime(time_formats[0]),
 				"end_time": self.ev.end_time.strftime(time_formats[0]),
 				"as_manager": "",
+                "cancelled": "on",
 				}, follow=True)
 		self.assertContains(response, "New Title Test")
 		self.assertRedirects(response, "/events/{0}/".format(self.ev.pk))
+		event = Event.objects.get(pk=self.ev.pk)
+		self.assertEqual(event.title, "New Title Test")
+		self.assertEqual(event.description, self.ev.description)
+		self.assertEqual(event.location, self.ev.location)
+		self.assertEqual(event.start_time, self.ev.start_time)
+		self.assertEqual(event.end_time, self.ev.end_time)
+		self.assertEqual(event.cancelled, True)
+
+	def test_add_event(self):
+		urls = [
+			"/events/",
+			"/events/all/",
+			]
+		for url in urls:
+			response = self.client.post(url, {
+				"post_event": "",
+				"title": "New Event Title",
+				"description": "New Description",
+				"location": "New Location Hall",
+				"start_time": self.ev.start_time.strftime(time_formats[0]),
+				"end_time": self.ev.end_time.strftime(time_formats[0]),
+				"as_manager": [],
+				}, follow=True)
+			self.assertRedirects(response, url)
+			event = Event.objects.get(pk=self.ev.pk + 1)
+			self.assertEqual(event.title, "New Event Title")
+			self.assertEqual(event.description, "New Description")
+			self.assertEqual(event.location, "New Location Hall")
+			self.assertEqual(event.start_time, self.ev.start_time)
+			self.assertEqual(event.end_time, self.ev.end_time)
+
+	def test_bad_time(self):
+		urls = [
+			"/events/",
+			"/events/all/",
+			]
+		for url in urls:
+			response = self.client.post(url, {
+				"post_event": "",
+				"title": "New Event Title",
+				"description": "New Description",
+				"location": "New Location Hall",
+				"start_time": self.ev.start_time.strftime(time_formats[0]),
+				"end_time": (self.ev.start_time - timedelta(minutes=1)).strftime(time_formats[0]),
+				"as_manager": [],
+				})
+			self.assertEqual(response.status_code, 200)
+			self.assertContains(response,
+								"Start time is later than end time. Unless this event involves time travel, please change the start or end time.")
+			self.assertContains(response, MESSAGES['EVENT_ERROR'])
+			self.assertEqual(Event.objects.count(), 1)
+
+	def test_rsvp_already_past(self):
+		urls = [
+			"/events/",
+			"/events/all/",
+			"/events/{0}/".format(self.ev.pk),
+			]
+		self.ev.end_time = (datetime.now() - timedelta(days=1)).replace(tzinfo=utc)
+		self.ev.save()
+		for url in urls:
+			response = self.client.post(url, {
+				"rsvp": "",
+				"event_pk": self.ev.pk,
+				}, follow=True)
+			self.assertRedirects(response, url)
+			self.assertContains(response, MESSAGES['ALREADY_PAST'])
+			self.assertEqual(self.ev.rsvps.count(), 0)
 
 	def test_no_edit(self):
 		self.client.logout()

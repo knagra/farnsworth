@@ -386,8 +386,8 @@ class ModifyProfileRequestForm(forms.Form):
 		if profile_request.provider and profile_request.uid:
 			social = UserSocialAuth(
 				user=user,
-				provider = profile_request.provider,
-				uid = profile_request.uid,
+				provider=profile_request.provider,
+				uid=profile_request.uid,
 				)
 			social.save()
 

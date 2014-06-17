@@ -362,7 +362,6 @@ def member_profile_view(request, targetUsername):
 	if targetUsername == request.user.username and targetUsername != ANONYMOUS_USERNAME:
 		return HttpResponseRedirect(reverse('my_profile'))
 	page_name = "%s's Profile" % targetUsername
-	userProfile = UserProfile.objects.get(user=request.user)
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	number_of_threads = Thread.objects.filter(owner=targetProfile).count()
@@ -458,7 +457,7 @@ def modify_profile_request_view(request, request_pk):
 				send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
 				addendum = MESSAGES['PROFILE_REQUEST_DELETION_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
 					email=profile_request.email)
-			except SMTPException:
+			except SMTPException as e:
 				message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
 				messages.add_message(request, messages.ERROR, message)
 		profile_request.delete()
