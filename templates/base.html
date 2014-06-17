@@ -167,9 +167,9 @@
 	<script>
 	<!-- Add highlight.js to pre blocks -->
 		$(document).ready(function(){
+			$('pre').addClass('linenums');
 			hljs.configure({useBR: true});
 			$('pre').each(function(i, e) {hljs.highlightBlock(e)});
-			$('pre').addClass('linenums');
 		});
     	<!-- prevent multiple form submissions by disabling submit button on all forms after post -->
 		$("form").submit(function() {
