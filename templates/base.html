@@ -18,7 +18,7 @@
 	<link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
 	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
 	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:300,400,700" />
-	<!-- <link type="text/css" rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/dark.min.css" /> -->
+	<link type="text/css" rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/dark.min.css" />
     {% block headers %} {% endblock %}
 </head>
 <body id="html_body">
@@ -163,14 +163,12 @@
     <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-    <!--<script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>-->
-    <script src="//google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=sons-of-obsidian"></script>
+    <script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>
 	<script>
 	<!-- Add highlight.js to pre blocks -->
 		$(document).ready(function(){
-			$('pre').addClass('prettyprint');
-			//hljs.configure({useBR: true});
-			//$('pre').each(function(i, e) {hljs.highlightBlock(e)});
+			hljs.configure({useBR: true});
+			$('pre').each(function(i, e) {hljs.highlightBlock(e)});
 		});
     	<!-- prevent multiple form submissions by disabling submit button on all forms after post -->
 		$("form").submit(function() {
