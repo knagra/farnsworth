@@ -3,11 +3,12 @@ Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 '''
+from datetime import datetime
 
 from django import forms
 from django.utils.timezone import utc
 from farnsworth.settings import house
-from utils.variables import time_formats, ANONYMOUS_USERNAME
+from utils.variables import time_formats, ANONYMOUS_USERNAME, MESSAGES
 from managers.models import Manager
 from events.models import Event
 
@@ -103,3 +104,25 @@ class EventForm(forms.Form):
 class RsvpForm(forms.Form):
 	''' Form to RSVP or un-RSVP from an event. '''
 	event_pk = forms.IntegerField(widget=forms.HiddenInput())
+
+	def __init__(self, *args, **kwargs):
+		self.instance = kwargs.pop('instance', None)
+		super(RsvpForm, self).__init__(*args, **kwargs)
+		if self.instance:
+			self.fields.pop('event_pk')
+
+	def clean_event_pk(self):
+		event_pk = self.cleaned_data['event_pk']
+		try:
+			event = Event.objects.get(pk=event_pk)
+		except Event.DoesNotExist:
+			raise forms.ValidationError("Event does not exist.")
+		return event
+
+	def clean(self):
+		event = self.instance or self.cleaned_data.get('event_pk', None)
+		if event:
+			now = datetime.utcnow().replace(tzinfo=utc)
+			if event.end_time <= now:
+				raise forms.ValidationError(MESSAGES['ALREADY_PAST'])
+		return self.cleaned_data
