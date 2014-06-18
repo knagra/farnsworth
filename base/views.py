@@ -170,8 +170,7 @@ def homepage_view(request, message=None):
 		unpin_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	if rsvp_form.is_valid():
-		event_pk = rsvp_form.cleaned_data['event_pk']
-		relevant_event = Event.objects.get(pk=event_pk)
+		relevant_event = rsvp_form.cleaned_data['event_pk']
 		if userProfile in relevant_event.rsvps.all():
 			relevant_event.rsvps.remove(userProfile)
 			message = MESSAGES['RSVP_REMOVE'].format(event=relevant_event.title)
