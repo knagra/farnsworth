@@ -125,8 +125,8 @@
 	      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a></li>
 	      </ul>
 	    {% else %}
-		<div style="padding: 0px;" class="col-sm-3 col-md-4 pull-right">
-	      <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=">
+		<div style="padding: 0px;" class="col-sm-3 col-md-4 col-xs-12 pull-right">
+	      <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=" style="padding-left: 5px; padding-right: 5px;">
 			<div class="input-group">
 				<input type="search" class="form-control search-query" name="q" placeholder="Search">
 				<span class="input-group-btn">
