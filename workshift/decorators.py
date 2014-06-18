@@ -23,6 +23,8 @@ def _extract_semester(kwargs):
 			kwargs["semester"] = Semester.objects.get(current=True)
 		except Semester.DoesNotExist:
 			return HttpResponseRedirect(reverse('workshift:start_semester'))
+		except Semester.MultipleObjectsReturned:
+			kwargs["semester"] = Semester.objects.filter(current=True).latest('start_date')
 
 def get_workshift_profile(function=None, redirect_no_user='login',
 						  redirect_no_profile=red_home):
