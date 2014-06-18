@@ -12,9 +12,9 @@ def verify_username(username):
 	''' Verify a potential username.
 	Parameters:
 		username is the potential username
-	Returns True if username contains only characters a through z, A through Z, 0 through 9, or the underscore character; returns false otherwise.
+	Returns True if username contains only characters a through z, A through Z, 0 through 9, the underscore or hyphen character; returns false otherwise.
 	'''
-	return not bool(re.compile(r'[^a-zA-Z0-9_]').search(username))
+	return not bool(re.compile(r'[^a-zA-Z0-9_\-]').search(username))
 
 def verify_name(name):
 	''' Verify a potential first or last name.
