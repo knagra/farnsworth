@@ -17,7 +17,7 @@ def verify_username(username):
 	return not bool(re.compile(r'[^a-zA-Z0-9_\-]').search(username))
 
 def verify_name(name):
-	''' Verify a potential first or last name.
+	''' Verify a potential first or last name.  Currently not used as it is Anglo-centric.
 	Parameters:
 		name is the potential first or last name
 	Returns True if name doesn't contain ", <, >, &, ; returns false otherwise.
@@ -30,7 +30,7 @@ def verify_url(potential_url):
 		potential_url is a potential name, title, etc. to be used in a URL.
 	Returns True if potential_url only contains characters a through z, A through Z, 0 through 9, space, or selected other characters.
 	'''
-	return not bool(re.compile(r"[^a-zA-Z0-9 _&'?$^%@!#*()=+;:|/.,]").search(potential_url))
+	return not bool(re.compile(r"[^a-zA-Z0-9 _&'?$^%@!#*()=+;:|/.,\-]").search(potential_url))
 
 def convert_to_url(actual):
 	''' Convert a string into a URL-usable word.
