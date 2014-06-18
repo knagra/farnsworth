@@ -118,9 +118,9 @@ def homepage_view(request, message=None):
 		if x >= home_max_announcements:
 			break
 	now = datetime.utcnow().replace(tzinfo=utc)
-	tomorrow = now + timedelta(hours=24)
+	week_from_now = now + timedelta(days=7)
 	# Get only next 24 hours of events:
-	events_list = Event.objects.all().exclude(start_time__gte=tomorrow).exclude(end_time__lte=now)
+	events_list = Event.objects.all().exclude(start_time__gte=week_from_now).exclude(end_time__lte=now)
 	events_dict = list() # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
 	for event in events_list:
 		form = RsvpForm(initial={'event_pk': event.pk})
