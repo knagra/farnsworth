@@ -17,6 +17,8 @@
 	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
 	<link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
 	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
+	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:300,400,700" />
+	<link type="text/css" rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/dark.min.css" />
     {% block headers %} {% endblock %}
 </head>
 <body id="html_body">
@@ -123,8 +125,8 @@
 	      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a></li>
 	      </ul>
 	    {% else %}
-		<div style="padding: 0px;" class="col-sm-3 col-md-4 pull-right">
-	      <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=">
+		<div style="padding: 0px;" class="col-sm-3 col-md-4 col-xs-12 pull-right">
+	      <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=" style="padding-left: 5px; padding-right: 5px;">
 			<div class="input-group">
 				<input type="search" class="form-control search-query" name="q" placeholder="Search">
 				<span class="input-group-btn">
@@ -141,7 +143,7 @@
     <div class="container">
 		{% if messages %}
 		{% for message in messages %}
-			<div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}">
+			<div style="margin-bottom: 10px;" class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}">
 			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 			{{ message|safe }}
 			</div>
@@ -161,8 +163,14 @@
     <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>
 	<script>
-    <!-- prevent multiple form submissions by disabling submit button on all forms after post -->
+	<!-- Add highlight.js to pre blocks -->
+		$(document).ready(function(){
+			hljs.configure({useBR: true});
+			$('pre').each(function(i, e) {hljs.highlightBlock(e)});
+		});
+    	<!-- prevent multiple form submissions by disabling submit button on all forms after post -->
 		$("form").submit(function() {
 			$(this).submit(function() {
 				return false;
