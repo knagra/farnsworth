@@ -55,7 +55,8 @@
 		</div> <!-- .event_owner -->
 		<div class="event_body">
 			<div class="text-center">
-				<h3 class="event_header">{{ event_tuple.0.title }}
+				<h3 class="event_header">{{ event_tuple.0.title }}{% if event_tuple.0.cancelled %}
+					<small class="text-danger">CANCELLED</small>{% endif %}
 				<br />
 				<small>{{ event_tuple.0.location }}</small>
 				<br />

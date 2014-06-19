@@ -11,7 +11,7 @@
 
   <div class="col-sm-8{% if not oauth_providers %} col-sm-offset-2 {% endif %}">
     {% if ANONYMOUS_SESSION %}
-    <div class="alert alert-info">Don't have an account?  <a href="{% url 'request_profile' %}">Click to request an account</a>.</div>
+    <div class="alert alert-info">Don't have an account?  <a class="alert-link" href="{% url 'request_profile' %}">Click to request an account</a>.</div>
     {% endif %}
     <div id="login_form" class="table_container">
       <div class="header"><h3 class="table_title">Login</h3></div>
