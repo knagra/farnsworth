@@ -156,3 +156,10 @@ form > .form-group {
 	 display: inline-block;
 }
 
+pre {
+	font-family: "Source Code Pro", "Courier New", monospace;
+}
+
+code {
+	font-family: "Source Code Pro", "Courier New", monospace;
+}

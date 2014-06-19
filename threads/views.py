@@ -19,7 +19,7 @@ from base.decorators import profile_required
 from threads.models import Thread, Message
 from threads.forms import ThreadForm, MessageForm
 
-def _threads_dict(threads):
+def _threads_dict(threads, limited=False):
 	# A pseudo-dictionary, actually a list with items of form
 	# (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
 	threads_dict = list()
@@ -38,7 +38,7 @@ def _threads_dict(threads):
 		thread_messages.reverse()
 		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
 		x += 1
-		if x >= max_threads:
+		if x >= max_threads and limited:
 			break
 	return threads_dict
 
@@ -66,7 +66,7 @@ def member_forums_view(request):
 		return HttpResponseRedirect(reverse('member_forums'))
 	elif 'submit_message_form' in request.POST:
 		messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
-	threads_dict = _threads_dict(Thread.objects.all())
+	threads_dict = _threads_dict(Thread.objects.all(), limited=True)
 	return render_to_response('threads.html', {
 			'page_name': page_name,
 			'thread_title': 'Active Threads',
