@@ -118,9 +118,9 @@ def homepage_view(request, message=None):
 		if x >= home_max_announcements:
 			break
 	now = datetime.utcnow().replace(tzinfo=utc)
-	tomorrow = now + timedelta(hours=24)
+	week_from_now = now + timedelta(days=7)
 	# Get only next 24 hours of events:
-	events_list = Event.objects.all().exclude(start_time__gte=tomorrow).exclude(end_time__lte=now)
+	events_list = Event.objects.all().exclude(start_time__gte=week_from_now).exclude(end_time__lte=now)
 	events_dict = list() # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
 	for event in events_list:
 		form = RsvpForm(initial={'event_pk': event.pk})
@@ -170,8 +170,7 @@ def homepage_view(request, message=None):
 		unpin_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	if rsvp_form.is_valid():
-		event_pk = rsvp_form.cleaned_data['event_pk']
-		relevant_event = Event.objects.get(pk=event_pk)
+		relevant_event = rsvp_form.cleaned_data['event_pk']
 		if userProfile in relevant_event.rsvps.all():
 			relevant_event.rsvps.remove(userProfile)
 			message = MESSAGES['RSVP_REMOVE'].format(event=relevant_event.title)
@@ -362,7 +361,6 @@ def member_profile_view(request, targetUsername):
 	if targetUsername == request.user.username and targetUsername != ANONYMOUS_USERNAME:
 		return HttpResponseRedirect(reverse('my_profile'))
 	page_name = "%s's Profile" % targetUsername
-	userProfile = UserProfile.objects.get(user=request.user)
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	number_of_threads = Thread.objects.filter(owner=targetProfile).count()
@@ -458,7 +456,7 @@ def modify_profile_request_view(request, request_pk):
 				send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
 				addendum = MESSAGES['PROFILE_REQUEST_DELETION_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
 					email=profile_request.email)
-			except SMTPException:
+			except SMTPException as e:
 				message = MESSAGES['EMAIL_FAIL'].format(email=profile_request.email, error=e)
 				messages.add_message(request, messages.ERROR, message)
 		profile_request.delete()
