@@ -21,12 +21,12 @@ class ManagerForm(forms.ModelForm):
 
 	def clean_title(self):
 		title = self.cleaned_data['title']
-		if Manager.objects.filter(title=title).count():
+		if Manager.objects.filter(title=title).count() and Manager.objects.get(title=title) != self.instance:
 			raise forms.ValidationError("A manager with this title already exists.")
 		if not verify_url(title):
 			raise forms.ValidationError("Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
 		url_title = convert_to_url(title)
-		if Manager.objects.filter(url_title=url_title).count():
+		if Manager.objects.filter(url_title=url_title).count() and Manager.objects.get(url_title=url_title) != self.instance:
 			raise forms.ValidationError('This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.')
 		return title
 
@@ -64,14 +64,15 @@ class RequestTypeForm(forms.ModelForm):
 			raise forms.ValidationError("Invalid name. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
 		if RequestType.objects.filter(name=name).count() and \
 		  RequestType.objects.get(name=name) != self.instance:
-			raise forms.ValdiationError("A request type with this name already exists.")
+			raise forms.ValidationError("A request type with this name already exists.")
+		url_name = convert_to_url(name)
 		if RequestType.objects.filter(url_name=url_name).count() and \
 		  RequestType.objects.get(url_name=url_name) != self.instance:
 			raise forms.ValidationError('This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.')
 		return name
 
 	def save(self):
-		rtype = super(RequestTypeForm, self).save(commit=False)
+		rtype = super(RequestTypeForm, self).save()
 		rtype.url_name = convert_to_url(self.cleaned_data['name'])
 		rtype.save()
 		return rtype
@@ -159,7 +160,7 @@ class VoteForm(forms.Form):
 
 	def save(self, pk=None):
 		if pk is None:
-			pk = vote_form.cleaned_data['request_pk']
+			pk = self.cleaned_data['request_pk']
 		relevant_request = Request.objects.get(pk=pk)
 		if self.profile in relevant_request.upvotes.all():
 			relevant_request.upvotes.remove(self.profile)

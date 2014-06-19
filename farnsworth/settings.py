@@ -130,15 +130,6 @@ else:
 		},
 	}
 
-if 'test' in sys.argv:
-	PASSWORD_HASHERS = (
-		'django.contrib.auth.hashers.MD5PasswordHasher',
-	)
-	DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(os.path.dirname(__file__), 'farnsworth.db').replace('\\', '/'),
-        }
-
 ########################################################################
 ####	Workshift Settings
 ########################################################################
@@ -362,13 +353,22 @@ HAYSTACK_CONNECTIONS = {
 }
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
 
 DEFAULT_SEMESTER_HOURS = 2
 DEFAULT_CUTOFF = 1
 DEFAULT_WORKSHIFT_HOURS = 2
 APPEND_SLASH = True
+
+if 'test' in sys.argv:
+	PASSWORD_HASHERS = (
+		'django.contrib.auth.hashers.MD5PasswordHasher',
+	)
+	DATABASES['default'] = {
+		'ENGINE': 'django.db.backends.sqlite3',
+		'NAME': os.path.join(os.path.dirname(__file__), 'farnsworth.db').replace('\\', '/'),
+		}
+	HAYSTACK_CONNECTIONS['default']['INDEX_NAME'] = SHORT_HOUSE_NAME.lower() + "_test"
 
 try:
 	from farnsworth.local_settings import *

@@ -93,10 +93,10 @@ class TestHomepage(TestCase):
 	def setUp(self):
 		self.u = User.objects.create_user(username="u", password="pwd")
 
-		profile = UserProfile.objects.get(user=self.u)
+		self.profile = UserProfile.objects.get(user=self.u)
 
 		self.manager = Manager(title="Super Manager", url_title="super")
-		self.manager.incumbent = profile
+		self.manager.incumbent = self.profile
 		self.manager.save()
 
 		self.rt = RequestType(name="Super", url_name="super", enabled=True)
@@ -104,14 +104,21 @@ class TestHomepage(TestCase):
 		self.rt.managers = [self.manager]
 		self.rt.save()
 
-		self.req = Request(owner=profile, request_type=self.rt)
+		self.req = Request(owner=self.profile, request_type=self.rt)
 		self.req.save()
 
 		now = datetime.utcnow().replace(tzinfo=utc)
 		one_day = timedelta(days=1)
-		self.ev = Event(owner=profile, title="Event Title Test",
+		self.ev = Event(owner=self.profile, title="Event Title Test",
 				start_time=now, end_time=now + one_day)
 		self.ev.save()
+
+		self.announce = Announcement(
+			manager=self.manager,
+			incumbent=self.profile,
+			body="Test Announcement Body",
+			)
+		self.announce.save()
 
 		self.client.login(username="u", password="pwd")
 
@@ -146,9 +153,7 @@ class TestHomepage(TestCase):
 		self.assertContains(response, "Thread Subject Test")
 
 		thread = Thread.objects.get(subject="Thread Subject Test")
-		profile = UserProfile.objects.get(user=self.u)
-		self.assertEqual(thread.owner, profile)
-		thread.delete()
+		self.assertEqual(thread.owner, self.profile)
 
 	def test_announcment_post(self):
 		response = self.client.post("/", {
@@ -160,9 +165,7 @@ class TestHomepage(TestCase):
 		self.assertContains(response, "Announcement Body Text Test")
 
 		announcement = Announcement.objects.get(body="Announcement Body Text Test")
-		profile = UserProfile.objects.get(user=self.u)
-		self.assertEqual(announcement.incumbent, profile)
-		announcement.delete()
+		self.assertEqual(announcement.incumbent, self.profile)
 
 	def test_rsvp_post(self):
 		response = self.client.post("/", {
@@ -178,6 +181,73 @@ class TestHomepage(TestCase):
 				}, follow=True)
 		self.assertRedirects(response, "/")
 		self.assertContains(response, 'RSVP')
+
+	def test_response(self):
+		response = self.client.post("/", {
+			"add_response": "",
+			"request_pk": self.req.pk,
+			"body": "You betcha",
+			}, follow=True)
+		self.assertRedirects(response, "/")
+		self.assertContains(response, "You betcha")
+		self.assertNotContains(response, MESSAGES['REQ_CLOSED'])
+		self.assertNotContains(response, MESSAGES['REQ_FILLED'])
+
+	def test_response_closed(self):
+		response = self.client.post("/", {
+			"add_response": "",
+			"request_pk": self.req.pk,
+			"body": "You betcha",
+			"mark_closed": "on",
+			}, follow=True)
+		self.assertRedirects(response, "/")
+		# We shouldn't see the request body on the homepage any more when it is
+		# filled
+		self.assertNotContains(response, "You betcha")
+		self.assertContains(response, MESSAGES['REQ_CLOSED'])
+		self.assertNotContains(response, MESSAGES['REQ_FILLED'])
+
+	def test_response_filled(self):
+		response = self.client.post("/", {
+			"add_response": "",
+			"request_pk": self.req.pk,
+			"body": "You betcha",
+			"mark_filled": "on",
+			}, follow=True)
+		self.assertRedirects(response, "/")
+		# We shouldn't see the request body on the homepage any more when it is
+		# filled
+		self.assertNotContains(response, "You betcha")
+		self.assertNotContains(response, MESSAGES['REQ_CLOSED'])
+		self.assertContains(response, MESSAGES['REQ_FILLED'])
+
+	def test_unpin(self):
+		response = self.client.post("/", {
+			"unpin": "",
+			"announcement_pk": self.announce.pk,
+			}, follow=True)
+		self.assertRedirects(response, "/")
+		self.assertEqual(Announcement.objects.get(pk=self.announce.pk).pinned,
+						 False)
+
+	def test_upvote(self):
+		# Upvote
+		response = self.client.post("/", {
+			"upvote": "",
+			"request_pk": self.req.pk,
+			}, follow=True)
+		self.assertRedirects(response, "/")
+		self.assertIn(self.profile,
+					  Request.objects.get(pk=self.req.pk).upvotes.all())
+
+		# Remove upvote
+		response = self.client.post("/", {
+			"upvote": "",
+			"request_pk": self.req.pk,
+			}, follow=True)
+		self.assertRedirects(response, "/")
+		self.assertNotIn(self.profile,
+						 Request.objects.get(pk=self.req.pk).upvotes.all())
 
 	def test_bad_page(self):
 		response = self.client.get("/bad_page/")
@@ -586,6 +656,40 @@ class TestProfilePages(TestCase):
 		self.assertContains(response, "Threads Started")
 		self.assertContains(response, "Requests Posted")
 
+	def test_change_password(self):
+		url = "/profile/"
+		response = self.client.post(url, {
+			"submit_password_form": "",
+			"current_password": "pwd",
+			"new_password": "Jenkins",
+			"confirm_password": "Jenkins",
+			}, follow=True)
+
+		self.assertRedirects(response, url)
+		self.assertContains(response, "Your password was successfully changed.")
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="pwd"))
+		self.assertEqual(True, self.client.login(username="u", password="Jenkins"))
+
+	def test_confirm_password(self):
+		url = "/profile/"
+		response = self.client.post(url, {
+			"submit_password_form": "",
+			"current_password": "pwd",
+			"new_password": "Jenkins",
+			"confirm_password": "Jeknins",
+			})
+
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(
+			response, MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
+		self.assertContains(
+			response, "Passwords don't match.".replace("'", "&#39;")
+			)
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="Jenkins"))
+		self.assertEqual(True, self.client.login(username="u", password="pwd"))
+
 	def test_visible(self):
 		self.oprofile.email_visible = True
 		self.oprofile.phone_visible = True
@@ -689,6 +793,43 @@ class TestModifyUser(TestCase):
 			self.assertContains(response, title)
 
 			self.client.logout()
+
+	def test_change_user_password(self):
+		self.client.login(username="su", password="pwd")
+
+		url = "/custom_admin/modify_user/{0}/".format(self.u.username)
+		response = self.client.post(url, {
+			"change_user_password": "",
+			"user_password": "Leeroy",
+			"confirm_password": "Leeroy",
+			}, follow=True)
+
+		self.assertRedirects(response, url)
+		self.assertContains(response,
+							MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="pwd"))
+		self.assertEqual(True, self.client.login(username="u", password="Leeroy"))
+
+	def test_confirm_user_password(self):
+		self.client.login(username="su", password="pwd")
+
+		url = "/custom_admin/modify_user/{0}/".format(self.u.username)
+		response = self.client.post(url, {
+			"change_user_password": "",
+			"user_password": "Leeroy",
+			"confirm_password": "Lereoy",
+			})
+
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(
+			response, MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
+		self.assertContains(
+			response, "Passwords don't match.".replace("'", "&#39;")
+			)
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="Leeroy"))
+		self.assertEqual(True, self.client.login(username="u", password="pwd"))
 
 class TestAdminFunctions(TestCase):
 	def setUp(self):
@@ -952,5 +1093,3 @@ class TestSearch(TestCase):
 		response = self.client.get("/search/?q={0}".format(number))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, "No results found.")
-
-# TODO: Test ChangePassword + ChangeUserPassword

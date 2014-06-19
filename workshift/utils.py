@@ -1,8 +1,5 @@
 
-try:
-	from managers.models import Manager
-except ImportError:
-	Manager = None
+from managers.models import Manager
 
 def can_manage(request, semester=None):
 	"""

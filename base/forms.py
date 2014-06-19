@@ -284,16 +284,18 @@ class ChangeUserPasswordForm(forms.Form):
 		super(ChangeUserPasswordForm, self).__init__(*args, **kwargs)
 
 	def clean_user_password(self):
-		hashed_password = hashers.make_password(self.cleaned_data['user_password'])
+		password = self.cleaned_data['user_password']
+		hashed_password = hashers.make_password(password)
 		if not hashers.is_password_usable(hashed_password):
 			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
-		return hashed_password
+		return password
 
 	def clean_confirm_password(self):
-		hashed_password = hashers.make_password(self.cleaned_data['confirm_password'])
+		password = self.cleaned_data['confirm_password']
+		hashed_password = hashers.make_password(password)
 		if not hashers.is_password_usable(hashed_password):
 			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
-		return hashed_password
+		return password
 
 	def is_valid(self):
 		''' Validate form.
@@ -312,7 +314,7 @@ class ChangeUserPasswordForm(forms.Form):
 		return True
 
 	def save(self):
-		self.user.password = self.cleaned_data['user_password']
+		self.user.password = hashers.make_password(self.cleaned_data['user_password'])
 		self.user.save()
 
 class ModifyProfileRequestForm(forms.Form):
@@ -423,7 +425,7 @@ class UpdateProfileForm(forms.Form):
 
 	def clean_enter_password(self):
 		try:
-			social_auth = UserSocialAuth.objects.get(user=user)
+			social_auth = UserSocialAuth.objects.get(user=self.user)
 		except UserSocialAuth.DoesNotExist:
 			social_auth = None
 		password = self.cleaned_data["enter_password"]
@@ -472,16 +474,18 @@ class ChangePasswordForm(forms.Form):
 		return None
 
 	def clean_new_password(self):
-		hashed_password = hashers.make_password(self.cleaned_data['new_password'])
+		password = self.cleaned_data['new_password']
+		hashed_password = hashers.make_password(password)
 		if not hashers.is_password_usable(hashed_password):
 			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
-		return hashed_password
+		return password
 
 	def clean_confirm_password(self):
-		hashed_password = hashers.make_password(self.cleaned_data['confirm_password'])
+		password = self.cleaned_data['confirm_password']
+		hashed_password = hashers.make_password(password)
 		if not hashers.is_password_usable(hashed_password):
 			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
-		return hashed_password
+		return password
 
 	def is_valid(self):
 		if not super(ChangePasswordForm, self).is_valid():
@@ -493,5 +497,5 @@ class ChangePasswordForm(forms.Form):
 		return True
 
 	def save(self):
-		self.user.password = self.cleaned_data['new_password']
+		self.user.password = hashers.make_password(self.cleaned_data['new_password'])
 		self.user.save()

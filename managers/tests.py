@@ -372,12 +372,19 @@ class TestManager(TestCase):
 		self.su.is_staff, self.su.is_superuser = True, True
 		self.su.save()
 
-		self.m = Manager(
+		self.m1 = Manager(
 			title="setUp Manager",
 			incumbent=UserProfile.objects.get(user=self.su),
 			)
-		self.m.url_title = convert_to_url(self.m.title)
-		self.m.save()
+		self.m1.url_title = convert_to_url(self.m1.title)
+		self.m1.save()
+
+		self.m2 = Manager(
+			title="Testing Manager",
+			incumbent=UserProfile.objects.get(user=self.su),
+			)
+		self.m2.url_title = convert_to_url(self.m2.title)
+		self.m2.save()
 
 		self.client.login(username="su", password="pwd")
 
@@ -401,15 +408,42 @@ class TestManager(TestCase):
 		self.assertEqual(1, Manager.objects.filter(title="Test Manager").count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url("Test Manager")).count())
 
-	def test_duplicate_manager(self):
-		pass
+	def test_duplicate_title(self):
+		response = self.client.post("/custom_admin/add_manager/", {
+				"title": self.m1.title,
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				})
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "A manager with this title already exists.")
+
+	def test_duplicate_url_title(self):
+		response = self.client.post("/custom_admin/add_manager/", {
+				"title": "SETUP MANAGER",
+				"incumbent": "1",
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				})
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'.replace('"', "&quot;"))
 
 	def test_edit_manager(self):
 		new_title = "New setUp Manager"
 		response = self.client.post("/custom_admin/managers/{0}/"
-									.format(self.m.url_title), {
+									.format(self.m1.url_title), {
 				"title": new_title,
-				"incumbent": "1",
+				"incumbent": self.m1.incumbent.pk,
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
@@ -425,6 +459,139 @@ class TestManager(TestCase):
 			)
 		self.assertEqual(1, Manager.objects.filter(title=new_title).count())
 		self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url(new_title)).count())
+
+	def test_edit_title(self):
+		response = self.client.post("/custom_admin/managers/{0}/"
+									.format(self.m1.url_title), {
+				"title": self.m2.title,
+				"incumbent": self.m2.incumbent.pk,
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				}, follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "A manager with this title already exists.")
+
+	def test_edit_url_title(self):
+		response = self.client.post("/custom_admin/managers/{0}/"
+									.format(self.m1.url_title), {
+				"title": self.m2.url_title.upper(),
+				"incumbent": self.m2.incumbent.pk,
+				"compensation": "Test % Compensation",
+				"duties": "Testing Add Managers Page",
+				"email": "tester@email.com",
+				"president": "off",
+				"workshift_manager": "off",
+				"active": "on",
+				"update_manager": "",
+				}, follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.'.replace('"', "&quot;"))
+
+class TestRequestTypes(TestCase):
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
+
+		self.m1 = Manager(
+			title="setUp Manager",
+			incumbent=UserProfile.objects.get(user=self.su),
+			)
+		self.m1.url_title = convert_to_url(self.m1.title)
+		self.m1.save()
+
+		self.m2 = Manager(
+			title="Testing Manager",
+			incumbent=UserProfile.objects.get(user=self.su),
+			)
+		self.m2.url_title = convert_to_url(self.m2.title)
+		self.m2.save()
+
+		self.rt = RequestType(
+			name="Super", url_name="super",
+			)
+		self.rt.save()
+		self.rt.managers = [self.m1, self.m2]
+		self.rt.save()
+
+		self.rt2 = RequestType(
+			name="Duper", url_name="duper",
+			)
+		self.rt2.save()
+
+		self.client.login(username="su", password="pwd")
+
+	def test_manage_view(self):
+		response = self.client.get("/custom_admin/request_types/")
+		self.assertContains(response, self.rt.name)
+		self.assertContains(response, self.rt.url_name)
+		self.assertContains(response, self.m1.title)
+		self.assertContains(response, self.m1.url_title)
+		self.assertContains(response, self.m2.title)
+		self.assertContains(response, self.m2.url_title)
+
+	def test_add_request(self):
+		name = "Cleanliness"
+		response = self.client.post("/custom_admin/add_request_type/", {
+			"name": name,
+			"managers": [self.m1.pk, self.m2.pk],
+			}, follow=True)
+		self.assertRedirects(response, "/custom_admin/request_types/")
+		self.assertContains(response,
+							MESSAGES['REQUEST_TYPE_ADDED'].format(typeName=name))
+		rt = RequestType.objects.get(name=name)
+		self.assertIn(self.m1, rt.managers.all())
+		self.assertIn(self.m2, rt.managers.all())
+
+	def test_edit_request(self):
+		response = self.client.post(
+			"/custom_admin/request_types/{0}/".format(self.rt.url_name), {
+				"name": "New Name",
+				"managers": [self.m2.pk],
+				"enabled": False,
+				})
+		self.assertRedirects(response, "/custom_admin/request_types/")
+		rt = RequestType.objects.get(pk=self.rt.pk)
+		self.assertNotIn(self.m1, rt.managers.all())
+		self.assertIn(self.m2, rt.managers.all())
+		self.assertEqual(rt.enabled, False)
+		self.assertEqual(rt.name, "New Name")
+		self.assertEqual(rt.url_name, "new_name")
+
+	def test_add_duplicate_name(self):
+		response = self.client.post("/custom_admin/add_request_type/", {
+			"name": self.rt.name,
+			})
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "A request type with this name already exists.")
+
+	def test_edit_duplicate_name(self):
+		response = self.client.post(
+			"/custom_admin/request_types/{0}/".format(self.rt2.url_name), {
+			"name": self.rt.name,
+			})
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "A request type with this name already exists.")
+
+	def test_add_duplicate_url_name(self):
+		response = self.client.post("/custom_admin/add_request_type/", {
+			"name": self.rt.name.upper(),
+			})
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.'.replace('"', "&quot;"))
+
+	def test_edit_duplicate_url_name(self):
+		response = self.client.post(
+			"/custom_admin/request_types/{0}/".format(self.rt2.url_name), {
+			"name": self.rt.name.upper(),
+			})
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.'.replace('"', "&quot;"))
 
 class TestAnnouncements(TestCase):
 	def setUp(self):

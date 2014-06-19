@@ -1,9 +1,10 @@
 import time
 from smtplib import SMTPException
+
 from django import forms
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import logout, login, authenticate, hashers
+from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.urlresolvers import reverse
@@ -156,20 +157,17 @@ def homepage_view(request, message=None):
 			latest_message = None
 		thread_set.append((thread, latest_message))
 	if response_form.is_valid():
-		relevant_request = response_form.save()
-		if relevant_request.closed:
+		response = response_form.save()
+		if response.request.closed:
 			messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_CLOSED'])
-		if relevant_request.filled:
+		if response.request.filled:
 			messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_FILLED'])
 		return HttpResponseRedirect(reverse('homepage'))
 	if announcement_form.is_valid():
 		announcement_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	if unpin_form.is_valid():
-		announcement_pk = unpin_form.cleaned_data['announcement_pk']
-		relevant_announcement = Announcement.objects.get(pk=announcement_pk)
-		relevant_announcement.pinned = False
-		relevant_announcement.save()
+		unpin_form.save()
 		return HttpResponseRedirect(reverse('homepage'))
 	if rsvp_form.is_valid():
 		event_pk = rsvp_form.cleaned_data['event_pk']
