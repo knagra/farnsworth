@@ -9,6 +9,8 @@ from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
 	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
 
+valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
+
 class FullSemesterForm(forms.ModelForm):
 	class Meta:
 		model = Semester
@@ -124,11 +126,6 @@ class WorkshiftInstanceForm(forms.ModelForm):
 			if commit:
 				self.info.save()
 		return instance
-
-class WorkshiftTypeForm(forms.ModelForm):
-	class Meta:
-		model = WorkshiftType
-		fields = "__all__"
 
 class InteractShiftForm(forms.Form):
 	pk = forms.IntegerField(widget=forms.HiddenInput())
@@ -293,7 +290,32 @@ class AddWorkshifterForm(forms.ModelForm):
 
 		return profile
 
-class AddWorkshiftTypeForm(forms.ModelForm):
+class WorkshiftInstanceForm(forms.ModelForm):
+	class Meta:
+		model = WorkshiftInstance
+		fields = "__all__"
+
+	def __init__(self, *args, **kwargs):
+		self.pools = kwargs.pop('pools', None)
+		super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
+		if self.pools:
+			# self.fields['pools'].queryset = self.pools
+			pass
+
+class RegularWorkshiftForm(forms.ModelForm):
+	start_time = forms.TimeField(input_formats=valid_time_formats)
+	end_time = forms.TimeField(input_formats=valid_time_formats)
+	class Meta:
+		model = RegularWorkshift
+		fields = "__all__"
+
+	def __init__(self, *args, **kwargs):
+		self.pools = kwargs.pop('pools', None)
+		super(RegularWorkshiftForm, self).__init__(*args, **kwargs)
+		if self.pools:
+			self.fields['pool'].queryset = self.pools
+
+class WorkshiftTypeForm(forms.ModelForm):
     class Meta:
         model = WorkshiftType
         fields = "__all__"
@@ -342,8 +364,6 @@ WorkshiftRatingFormSet = modelformset_factory(
 	can_delete=False, extra=0,
 	)
 
-valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
-
 class TimeBlockForm(forms.ModelForm):
 	start_time = forms.TimeField(input_formats=valid_time_formats)
 	end_time = forms.TimeField(input_formats=valid_time_formats)
@@ -372,8 +392,3 @@ class ProfileNoteForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftProfile
 		fields = ["note"]
-
-class AddWorkshiftTypeForm(forms.ModelForm):
-	class Meta:
-		model = WorkshiftType
-		fields = "__all__"

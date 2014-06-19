@@ -58,7 +58,7 @@ def add_workshift_context(request):
 				workshift_emails.append(pos.incumbent.user.email)
 		if workshift_emails:
 			workshift_email_str = " ({0})".format(
-				", ".join([i.format('<a href="mailto:{0}">{0}</a>')
+				", ".join(['<a href="mailto:{0}">{0}</a>'.format(i)
 						   for i in workshift_emails])
 				)
 		else:
@@ -374,19 +374,57 @@ def add_workshifter_view(request, semester):
 		"form": add_workshifter_form,
 	}, context_instance=RequestContext(request))
 
+@semester_required
 @workshift_manager_required
-def add_shift_view(request):
+def add_shift_view(request, semester):
 	"""
 	View for the workshift manager to create new types of workshifts.
 	"""
 	page_name = "Add Workshift"
-	add_shift_form = AddWorkshiftTypeForm(request.POST or None)
-	if add_shift_form.is_valid():
+	pools = WorkshiftPool.objects.filter(semester=semester)
+	full_management = can_manage(request, semester)
+	if not full_management:
+		pools = pools.filter(managers__incumbent__user=request.user)
+		if not pools.count():
+			messages.add_message(request, messages.ERROR,
+								 MESSAGES['ADMINS_ONLY'])
+			return HttpResponseRedirect(wurl('workshift:view_semester',
+											 sem_url=semester.sem_url))
+
+	if full_management:
+		add_type_form = WorkshiftTypeForm(
+			request.POST if "add_type" in request.POST else None,
+			)
+	else:
+		add_type_form = None
+
+	# add_instance_form = WorkshiftInstanceForm(
+	# 	request.POST if "add_instance" in request.POST else None,
+	# 	pools=pools,
+	# 	)
+	add_instance_form = None
+	add_shift_form = RegularWorkshiftForm(
+		request.POST if "add_shift" in request.POST else None,
+		pools=pools,
+		)
+
+	if add_type_form and add_type_form.is_valid():
+		add_type_form.save()
+		return HttpResponseRedirect(wurl("workshift:manage",
+										 sem_url=semester.sem_url))
+	elif add_instance_form and add_instance_form.is_valid():
+		add_instance_form.save()
+		return HttpResponseRedirect(wurl("workshift:manage",
+										 sem_url=semester.sem_url))
+	elif add_shift_form.is_valid():
 		add_shift_form.save()
-		return HttpResponseRedirect(wurl("workshift:manage"))
+		return HttpResponseRedirect(wurl("workshift:manage",
+										 sem_url=semester.sem_url))
 	return render_to_response("add_shift.html", {
 		"page_name": page_name,
-		"form": add_shift_form,
+		"add_type_form": add_type_form,
+		"add_instance_form": add_instance_form,
+		"add_shift_form": add_shift_form,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -423,6 +461,20 @@ def edit_shift_view(request, semester, pk, profile=None):
 		)
 
 	if "delete" in request.POST:
+		instances = WorkshiftInstance.objects.filter(weekly_workshift=shift)
+		info = InstanceInfo(
+			title=shift.title,
+			description=shift.workshift_type.description,
+			pool=shift.pool,
+			start_time=shift.start_time,
+			end_time=shift.end_time,
+			)
+		info.save()
+		for instance in instances:
+			instance.weekly_workshift = None
+			instance.info = info
+			instance.closed = True
+			instance.save()
 		shift.delete()
 		return HttpResponseRedirect(wurl('workshift:manage',
 										 sem_url=semester.sem_url))
@@ -468,12 +520,15 @@ def edit_instance_view(request, semester, pk, profile=None):
 		return HttpResponseRedirect(wurl('workshift:view_semester',
 										 sem_url=semester.sem_url))
 
+	page_name = "Edit " + shift.title
+
 	edit_form = WorkshiftInstanceForm(
 		request.POST if "edit" in request.POST else None,
 		instance=shift,
 		)
 
 	if "delete" in request.POST:
+		shift.delete()
 		return HttpResponseRedirect(wurl('workshift:manage',
 										 sem_url=semester.sem_url))
 	elif edit_form.is_valid():
@@ -481,8 +536,6 @@ def edit_instance_view(request, semester, pk, profile=None):
 		return HttpResponseRedirect(wurl('workshift:view_instance',
 										 sem_url=semester.sem_url,
 										 pk=pk))
-
-	page_name = "Edit " + shift.title
 
 	return render_to_response("edit_instance.html", {
 		"page_name": page_name,
@@ -523,15 +576,11 @@ def edit_type_view(request, pk):
 	"""
 	shift = get_object_or_404(WorkshiftType, pk=pk)
 	edit_form = WorkshiftTypeForm(
-		request.POST if "edit" in request.POST else None,
+		request.POST or None,
 		instance=shift,
 		)
 
-	if "delete" in request.POST:
-		# Ask for password to delete shifts?
-		shift.delete()
-		return HttpResponseRedirect(wurl('workshift:manage'))
-	elif edit_form.is_valid():
+	if edit_form.is_valid():
 		shift = edit_form.save()
 		return HttpResponseRedirect(wurl('workshift:view_type', pk=pk))
 

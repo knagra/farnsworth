@@ -229,7 +229,6 @@ class TestViews(TestCase):
 	def test_views_load(self):
 		urls = [
 			"/start/",
-			"/add_shift/",
 			"/types/",
 			"/type/{0}/".format(self.wtype.pk),
 			"/type/{0}/edit/".format(self.wtype.pk),
@@ -244,6 +243,7 @@ class TestViews(TestCase):
 			"/profile/{0}/preferences/".format(self.wprofile.user.username),
 			"/manage/",
 			"/manage/assign_shifts/",
+			"/manage/add_shift/",
 			"/manage/add_workshifter/",
 			"/shift/{0}/".format(self.shift.pk),
 			"/shift/{0}/edit/".format(self.shift.pk),
@@ -344,7 +344,7 @@ class TestViews(TestCase):
 		self.assertContains(response, self.once.title)
 		self.assertContains(response, self.once.pool.title)
 		self.assertContains(response, self.once.description)
-		self.assertContains(response, str(self.once.hours))
+		self.assertContains(response, self.once.hours)
 		self.assertContains(
 			response,
 			self.once.workshifter.user.get_full_name(),
@@ -965,7 +965,7 @@ class TestPermissions(TestCase):
 			"/manage/",
 			"/manage/assign_shifts/",
 			"/manage/add_workshifter/",
-			"/add_shift/",
+			"/manage/add_shift/",
 			"/shift/{0}/edit/".format(self.wshift.pk),
 			"/instance/{0}/edit/".format(self.winstance.pk),
 			"/type/{0}/edit/".format(self.wtype.pk),
@@ -989,7 +989,7 @@ class TestPermissions(TestCase):
 			(True, "/manage/"),
 			(True, "/manage/assign_shifts/"),
 			(False, "/manage/add_workshifter/"),
-			(True, "/add_shift/"),
+			(True, "/manage/add_shift/"),
 			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
 			(False, "/instance/{0}/edit/".format(self.winstance.pk)),
 			(False, "/type/{0}/edit/".format(self.wtype.pk)),
@@ -1016,7 +1016,7 @@ class TestPermissions(TestCase):
 			(False, "/manage/"),
 			(False, "/manage/assign_shifts/"),
 			(False, "/manage/add_workshifter/"),
-			(False, "/add_shift/"),
+			(False, "/manage/add_shift/"),
 			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
 			(False, "/instance/{0}/edit/".format(self.winstance.pk)),
 			(False, "/type/{0}/edit/".format(self.wtype.pk)),
@@ -1044,7 +1044,7 @@ class TestPermissions(TestCase):
 			(False, "/manage/"),
 			(False, "/manage/assign_shifts/"),
 			(False, "/manage/add_workshifter/"),
-			(False, "/add_shift/"),
+			(False, "/manage/add_shift/"),
 			(False, "/shift/{0}/edit/".format(self.wshift.pk)),
 			(False, "/instance/{0}/edit/".format(self.winstance.pk)),
 			(False, "/type/{0}/edit/".format(self.wtype.pk)),
@@ -1074,6 +1074,7 @@ class TestWorkshifters(TestCase):
 class TestWorkshifts(TestCase):
 	def setUp(self):
 		self.wu = User.objects.create_user(username="wu", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
 
 		self.wm = Manager(
 			title="Workshift Manager",
@@ -1098,16 +1099,20 @@ class TestWorkshifts(TestCase):
 		self.wp = WorkshiftProfile(user=self.wu, semester=self.sem)
 		self.wp.save()
 
+		self.up = WorkshiftProfile(user=self.u, semester=self.sem)
+		self.up.save()
+
 		self.type = WorkshiftType(title="Test Posts")
 		self.type.save()
 
+		now = datetime.now()
 		self.shift = RegularWorkshift(
 			workshift_type=self.type,
 			pool=self.pool,
 			title="Clean the floors",
 			day=DAYS[0][0],
-			start_time=datetime.now(),
-			end_time=datetime.now() + timedelta(hours=2),
+			start_time=now.time(),
+			end_time=(now + timedelta(hours=2)).time(),
 			)
 		self.shift.save()
 
@@ -1135,9 +1140,9 @@ class TestWorkshifts(TestCase):
 		self.client.login(username="wu", password="pwd")
 
 	def test_add_instance(self):
-		url = "/workshift/add_shift/"
+		url = "/workshift/manage/add_shift/"
 		response = self.client.post(url, {
-			"instance": "",
+			"add_instance": "",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
 
@@ -1145,8 +1150,55 @@ class TestWorkshifts(TestCase):
 		url = "/workshift/instance/{0}/edit/".format(self.instance.pk)
 		response = self.client.post(url, {
 			"edit": "",
+			"workshifter": self.up.pk,
+			"date": date.today(),
+			"closed": False,
+			"blown": False,
+			"intended_hours": 10,
+			"auto_verify": True,
+			"week_long": True,
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/instance/{0}/".format(self.instance.pk))
+		instance = WorkshiftInstance.objects.get(pk=self.instance.pk)
+		self.assertEqual(instance.weekly_workshift, self.shift)
+		self.assertEqual(instance.workshifter, self.up)
+		self.assertEqual(instance.date, date.today())
+		self.assertEqual(instance.closed, False)
+		self.assertEqual(instance.blown, False)
+		self.assertEqual(instance.intended_hours, 10)
+		self.assertEqual(instance.auto_verify, True)
+		self.assertEqual(instance.week_long, True)
+
+	def test_edit_instance_full(self):
+		url = "/workshift/instance/{0}/edit/".format(self.instance.pk)
+		response = self.client.post(url, {
+			"edit": "",
+			"title": "New Instance Title",
+			"description": "I once was from a long line of workshifts",
+			"start_time": "02:00 PM",
+			"end_time": "04:00 PM",
+			"workshifter": self.up.pk,
+			"date": date.today(),
+			"closed": False,
+			"blown": False,
+			"intended_hours": 10,
+			"auto_verify": True,
+			"week_long": True,
+			}, follow=True)
+		self.assertRedirects(response, "/workshift/instance/{0}/".format(self.instance.pk))
+		instance = WorkshiftInstance.objects.get(pk=self.instance.pk)
+		self.assertEqual(instance.weekly_workshift, None)
+		self.assertEqual(instance.title, "New Instance Title")
+		self.assertEqual(instance.description, "I once was from a long line of workshifts")
+		self.assertEqual(instance.start_time, time(14, 0, 0))
+		self.assertEqual(instance.end_time, time(16, 0, 0))
+		self.assertEqual(instance.workshifter, self.up)
+		self.assertEqual(instance.date, date.today())
+		self.assertEqual(instance.closed, False)
+		self.assertEqual(instance.blown, False)
+		self.assertEqual(instance.intended_hours, 10)
+		self.assertEqual(instance.auto_verify, True)
+		self.assertEqual(instance.week_long, True)
 
 	def test_delete_instance(self):
 		url = "/workshift/instance/{0}/edit/".format(self.instance.pk)
@@ -1154,11 +1206,19 @@ class TestWorkshifts(TestCase):
 			"delete": "",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
+		self.assertEqual(WorkshiftType.objects.filter(pk=self.type.pk).count(),
+						 1)
+		self.assertEqual(RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
+						 1)
+		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
+						 0)
+		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
+						 1)
 
 	def test_add_once(self):
-		url = "/workshift/add_shift/"
+		url = "/workshift/manage/add_shift/"
 		response = self.client.post(url, {
-			"instance": "",
+			"add_instance": "",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
 
@@ -1166,6 +1226,13 @@ class TestWorkshifts(TestCase):
 		url = "/workshift/instance/{0}/edit/".format(self.once.pk)
 		response = self.client.post(url, {
 			"edit": "",
+			"workshifter": self.up.pk,
+			"date": date.today(),
+			"closed": False,
+			"blown": False,
+			"intended_hours": 10,
+			"auto_verify": True,
+			"week_long": True,
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/instance/{0}/".format(self.once.pk))
 
@@ -1175,11 +1242,19 @@ class TestWorkshifts(TestCase):
 			"delete": "",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
+		self.assertEqual(WorkshiftType.objects.filter(pk=self.type.pk).count(),
+						 1)
+		self.assertEqual(RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
+						 1)
+		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
+						 1)
+		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
+						 0)
 
 	def test_add_shift(self):
-		url = "/workshift/add_shift/"
+		url = "/workshift/manage/add_shift/"
 		response = self.client.post(url, {
-			"shift": "",
+			"add_shift": "",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
 
@@ -1187,8 +1262,32 @@ class TestWorkshifts(TestCase):
 		url = "/workshift/shift/{0}/edit/".format(self.shift.pk)
 		response = self.client.post(url, {
 			"edit": "",
+			"workshift_type": self.type.pk,
+			"pool": self.pool.pk,
+			"title": "Edited Title",
+			"day": 1,
+			"hours": 42,
+			"active": False,
+			"current_assignee": self.up.pk,
+			"start_time": "04:00 PM",
+			"end_time": "06:00 PM",
+			"auto_verify": True,
+			"week_long": True,
+			"addendum": "Edited addendum",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/shift/{0}/".format(self.shift.pk))
+		shift = RegularWorkshift.objects.get(pk=self.shift.pk)
+		self.assertEqual(shift.workshift_type, self.type)
+		self.assertEqual(shift.pool, self.pool)
+		self.assertEqual(shift.title, "Edited Title")
+		self.assertEqual(shift.hours, 42)
+		self.assertEqual(shift.active, False)
+		self.assertEqual(shift.current_assignee, self.up)
+		self.assertEqual(shift.start_time, time(16, 0, 0))
+		self.assertEqual(shift.end_time, time(18, 0, 0))
+		self.assertEqual(shift.auto_verify, True)
+		self.assertEqual(shift.week_long, True)
+		self.assertEqual(shift.addendum, "Edited addendum")
 
 	def test_delete_shift(self):
 		url = "/workshift/shift/{0}/edit/".format(self.shift.pk)
@@ -1196,35 +1295,66 @@ class TestWorkshifts(TestCase):
 			"delete": "",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
+		self.assertEqual(WorkshiftType.objects.filter(pk=self.type.pk).count(),
+						 1)
+		self.assertEqual(RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
+						 0)
+		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
+						 1)
+		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
+						 1)
+		instance = WorkshiftInstance.objects.get(pk=self.instance.pk)
+		self.assertEqual(instance.closed, True)
+		self.assertEqual(instance.weekly_workshift, None)
+		self.assertEqual(instance.title, self.shift.title)
+		self.assertEqual(instance.description, self.type.description)
+		self.assertEqual(instance.pool, self.shift.pool)
+		self.assertEqual(instance.start_time, self.shift.start_time)
+		self.assertEqual(instance.end_time, self.shift.end_time)
 
 	def test_add_type(self):
-		url = "/workshift/add_shift/"
+		url = "/workshift/manage/add_shift/"
 		response = self.client.post(url, {
-			"type": "",
+			"add_type": "",
+			"title": "Added Title",
+			"description": "Added Description",
+			"quick_tips": "Added Quick Tips",
+			"hours": 42,
+			"rateable": True,
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
+		shift_type = WorkshiftType.objects.get(title="Added Title")
+		self.assertEqual(shift_type.title, "Added Title")
+		self.assertEqual(shift_type.description, "Added Description")
+		self.assertEqual(shift_type.quick_tips, "Added Quick Tips")
+		self.assertEqual(shift_type.hours, 42)
+		self.assertEqual(shift_type.rateable, True)
 
 	def test_edit_type(self):
 		url = "/workshift/type/{0}/edit/".format(self.type.pk)
 		response = self.client.post(url, {
-			"edit": "",
+			"title": "Edited Title",
+			"description": "Edited Description",
+			"quick_tips": "Edited Quick Tips",
+			"hours": 42,
+			"rateable": False,
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/type/{0}/".format(self.type.pk))
-
-	def test_delete_type(self):
-		url = "/workshift/type/{0}/edit/".format(self.type.pk)
-		response = self.client.post(url, {
-			"delete": "",
-			}, follow=True)
-		self.assertRedirects(response, "/workshift/manage/")
+		shift_type = WorkshiftType.objects.get(pk=self.type.pk)
+		self.assertEqual(shift_type.title, "Edited Title")
+		self.assertEqual(shift_type.description, "Edited Description")
+		self.assertEqual(shift_type.quick_tips, "Edited Quick Tips")
+		self.assertEqual(shift_type.hours, 42)
+		self.assertEqual(shift_type.rateable, False)
 
 class TestSemester(TestCase):
 	def setUp(self):
 		self.wu = User.objects.create_user(username="wu", password="pwd")
+		self.wp = UserProfile.objects.get(user=self.wu)
 
 		self.wm = Manager(
 			title="Workshift Manager",
-			incumbent=UserProfile.objects.get(user=self.wu),
+			incumbent=self.wp,
 			workshift_manager=True,
 			)
 		self.wm.url_title = convert_to_url(self.wm.title)
@@ -1256,10 +1386,46 @@ class TestSemester(TestCase):
 		self.s2.current = True
 		self.s2.save()
 
+		workshift_emails_str = ""
+
 		response = self.client.get("/workshift/")
 		self.assertContains(
 			response,
 			MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(
 				admin_email=settings.ADMINS[0][1],
-				workshift_emails="",
+				workshift_emails=workshift_emails_str,
+				))
+
+	def test_multiple_current_workshift_email(self):
+		self.s2.current = True
+		self.s2.save()
+		self.wm.email = "devwm@bsc.coop"
+		self.wm.save()
+
+		workshift_emails_str = ' (<a href="mailto:{0}">{0}</a>)'.format(self.wm.email)
+
+		response = self.client.get("/workshift/")
+		self.assertContains(
+			response,
+			MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(
+				admin_email=settings.ADMINS[0][1],
+				workshift_emails=workshift_emails_str,
+				))
+
+	def test_multiple_current_user_email(self):
+		self.s2.current = True
+		self.s2.save()
+		self.wu.email = "personal@bsc.coop"
+		self.wp.email_visible = True
+		self.wu.save()
+		self.wp.save()
+
+		workshift_emails_str = ' (<a href="mailto:{0}">{0}</a>)'.format(self.wu.email)
+
+		response = self.client.get("/workshift/")
+		self.assertContains(
+			response,
+			MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(
+				admin_email=settings.ADMINS[0][1],
+				workshift_emails=workshift_emails_str,
 				))

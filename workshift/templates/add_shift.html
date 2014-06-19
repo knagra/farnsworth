@@ -9,9 +9,25 @@
 {% endblock %}
 
 {% block w_content %}
-<form method="post" action="" >
+{% if add_instance_form %}
+<form method="post" action="" name="add_instance">
   {% csrf_token %}
-  {{ form|bootstrap}}
-  <button type="submit" class="btn btn-success">Create Workshift</button>
+  {{ add_instance_form|bootstrap }}
+  <button type="submit" class="btn btn-success">Create Single Workshift</button>
 </form>
+{% endif %}
+{% if add_shift_form %}
+<form method="post" action="" name="add_shift">
+  {% csrf_token %}
+  {{ add_shift_form|bootstrap }}
+  <button type="submit" class="btn btn-success">Create Regular Workshift</button>
+</form>
+{% endif %}
+{% if add_type_form %}
+<form method="post" action="" name="add_type">
+  {% csrf_token %}
+  {{ add_type_form|bootstrap }}
+  <button type="submit" class="btn btn-success">Create Workshift Type</button>
+</form>
+{% endif %}
 {% endblock %}
