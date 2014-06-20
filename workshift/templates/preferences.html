@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block w_content %}
-<form id="preferences_form" method="post" action="" name="update_preferences">
+<form id="preferences_form" method="post" action="">
   {% csrf_token %}
   {% if rating_formset %}
   <h2 class="w_title">Workshift Preferences</h2>
@@ -51,7 +51,7 @@
   {% endif %}
   <h2>Notes</h2>
   {{ note_form|bootstrap }}
-  <button type="submit" class="btn btn-success">Update preferences</button>
+  <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>
 </form>
 {% endblock %}
 

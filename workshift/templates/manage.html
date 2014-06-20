@@ -20,10 +20,10 @@
   {% if not forloop.first %}
   <br/>
   {% endif %}
-  <form method="post" action="" name="edit_pool">
+  <form method="post" action="">
 	{% csrf_token %}
 	{{ pool_form|bootstrap }}
-	<button type="submit" class="btn btn-success">Edit Workshift Pool</button>
+	<button type="submit" class="btn btn-success" name="edit_pool">Edit Workshift Pool</button>
   </form>
   {% endfor %}
 
