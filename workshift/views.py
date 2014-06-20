@@ -354,6 +354,7 @@ def manage_view(request, semester, profile=None):
 	# 	request.POST if "add_instance" in request.POST else None,
 	# 	pools=pool,
 	# 	)
+	add_instance_form = None
 
 	return render_to_response("manage.html", {
 		"page_name": page_name,
