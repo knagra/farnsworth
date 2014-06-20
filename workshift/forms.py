@@ -57,6 +57,17 @@ class SemesterForm(forms.ModelForm):
 
 		return semester
 
+class PoolForm(forms.ModelForm):
+	class Meta:
+		model = WorkshiftPool
+		exclude = ("semester",)
+
+	def __init__(self, *args, **kwargs):
+		self.full_management = kwargs.pop('full_management', False)
+		super(PoolForm, self).__init__(*args, **kwargs)
+		if not self.full_management:
+			self.fields['managers'].widget.attrs['readonly'] = True
+
 class RegularWorkshiftForm(forms.ModelForm):
 	class Meta:
 		model = RegularWorkshift

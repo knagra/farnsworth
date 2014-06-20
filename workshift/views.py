@@ -331,14 +331,38 @@ def manage_view(request, semester, profile=None):
 			return HttpResponseRedirect(wurl('workshift:view_semester',
 											 sem_url=semester.sem_url))
 	else:
-		semester_form = FullSemesterForm(request.POST or None,
-										 instance=semester)
+		semester_form = FullSemesterForm(
+			request.POST if "edit_semester" in request.POST else None,
+			instance=semester,
+			)
+
+	pool_forms = []
+	for pool in pools:
+		form = PoolForm(
+			request.POST if "edit_pool" in request.POST else None,
+			prefix=pool.pk,
+			instance=pool,
+			)
+		if form.is_valid():
+			form.save()
+			return HttpResponseRedirect(wurl('workshift:manage',
+											 ssem_url=semester.sem_url))
+		pool_forms.append(form)
+
+	workshifters = WorkshiftProfile.objects.filter(semester=semester)
+	# add_instance_form = WorkshiftInstanceForm(
+	# 	request.POST if "add_instance" in request.POST else None,
+	# 	pools=pool,
+	# 	)
 
 	return render_to_response("manage.html", {
 		"page_name": page_name,
 		"pools": pools,
 		"full_management": full_management,
 		"semester_form": semester_form,
+		"pool_forms": pool_forms,
+		"workshifters": workshifters,
+		"add_instance_form": add_instance_form,
 	}, context_instance=RequestContext(request))
 
 @semester_required
