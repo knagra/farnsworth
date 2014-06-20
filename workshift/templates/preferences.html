@@ -56,7 +56,7 @@
   function renewDatePickers() {
     $("[id$=start_time]").datetimepicker('destroy');
     $("[id$=end_time]").datetimepicker('destroy');
-    $("[id$=start_time]").datetimepicker({pickDate: false});
+    $("[id$=start_time]").each(function (i) {$(this).datepicker({pickDate: false})});
     $("[id$=end_time]").datetimepicker({pickDate: false});
   };
   $(document).ready(function() {
