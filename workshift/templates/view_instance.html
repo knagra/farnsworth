@@ -5,11 +5,10 @@
 {% load bootstrap %}
 
 {% block w_headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 {% endblock %}
 
 {% block w_content %}
-<div class="table_container">
+<div class="instance_container">
   <p>{{ shift.pool.title }}</p>
   <p>{{ shift.date }}</p>
   <p>{{ shift.workshifter.user.get_full_name }}</p>
@@ -47,5 +46,5 @@
 	</tbody>
   </table>
   {% endif %}
-</div> <!-- .table_container -->
+</div> <!-- .instance_container -->
 {% endblock %}

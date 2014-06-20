@@ -6,12 +6,11 @@
 {% load workshift_tags %}
 
 {% block w_headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 {% endblock %}
 
 {% block w_content %}
 <h3>{{ page_name }}</h3>
-<div class="table_container">
+<div class="instance_container">
   <a href="{% wurl 'workshift:preferences' targetUsername=profile.user.username sem_url=SEMESTER.sem_url %}">Edit your preferences</a>
 
   {% if past_shifts %}
@@ -41,5 +40,5 @@
   {% if profile.note %}
   <p>Profile notes: {{ profile.note }}</p>
   {% endif %}
-</div> <!-- .table_container -->
+</div> <!-- .instance_container -->
 {% endblock %}

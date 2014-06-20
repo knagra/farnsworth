@@ -6,11 +6,10 @@
 {% load workshift_tags %}
 
 {% block w_headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 {% endblock %}
 
 {% block w_content %}
-<div class="table_container">
+<div id="manage_container">
 
   <div>
 	<h4>Links</h4>
@@ -66,7 +65,7 @@
 	</tbody>
   </table>
   {% endif %}
-</div> <!-- .table_container -->
+</div> <!-- #manage_container -->
 {% endblock %}
 
 {% block endscripts %}

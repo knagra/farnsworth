@@ -5,14 +5,13 @@
 {% load bootstrap %}
 
 {% block w_headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 {% endblock %}
 
 {% block w_content %}
-<div class="table_container">
+<div class="instance_container">
   <form method="post" action="edit_shift">
 	{% csrf_token %}
 	{{ edit_form|bootstrap }}
   </form>
-</div> <!-- .table_container -->
+</div> <!-- .instance_container -->
 {% endblock %}

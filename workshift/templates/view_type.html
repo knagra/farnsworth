@@ -5,14 +5,13 @@
 {% load bootstrap %}
 
 {% block w_headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 {% endblock %}
 
 {% block w_content %}
-<div class="table_container">
+<div class="instance_container">
 <p>{{ shift.title }}</p>
 <p>{{ shift.hours }}</p>
 <p>{{ shift.quick_tips }}</p>
 <p>{{ shift.description }}</p>
-</div> <!-- .table_container -->
+</div> <!-- .instance_container -->
 {% endblock %}
