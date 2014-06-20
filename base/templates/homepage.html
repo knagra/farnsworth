@@ -259,13 +259,13 @@ function hide_form(form_id) {
 		<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-calendar"></span><span class="hidden-xs"> Events Page</span></button>
 		</form>
 		<h3 class="table_title">
-			Today's Events
+			Week's Events
 		</h3>
 	</div> <!-- .header -->
 	<div class="main_table">
 	{% if not events_dict %}
 	<div class="field_wrapper">
-		No events in next 24 hours.
+		No events in next 7 days.
 	</div>
 	{% else %}
 	{% for tuple in events_dict %}
@@ -283,7 +283,8 @@ function hide_form(form_id) {
 		</div> <!-- .main_owner -->
 		<div class="event_body">
 			<div class="text-center">
-				<h4 class="event_header">{{ tuple.0.title }}
+				<h4 class="event_header">{{ tuple.0.title }}{% if tuple.0.cancelled %}
+					<small class="text-danger">CANCELLED</small>{% endif %}
 				<br />
 				<small>{{ tuple.0.location }}</small>
 				<br />

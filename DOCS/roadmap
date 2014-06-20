@@ -1,8 +1,8 @@
 Farnsworth Roadmap
 ==================
 
-Now until 17 May 2014 (possibly earlier) - User and site admin documentation work.  Create a list of future features and some hints on how to implement them.
-
-17 May 2014 (possibly earlier) - Alpha Release (Version 0.9.0), no new features until release 1.1.  Switch to PostgreSQL for deployment database.  Looking for bugs now.
-
-20 May 2014 - Initial Release (Version 1.0.0).
+Workshift
+Elections and petitions
+Custom pages (wiki-esque), internal and public
+Public events
+Common BSC profiles and organization-wide forums for members, alumni, and developers.

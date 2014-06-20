@@ -18,7 +18,7 @@ from managers.models import Request, Response
 
 class ProfileRequestForm(forms.Form):
 	''' Form to create a new profile request. '''
-	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or _.')
+	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, -, or _.')
 	first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	email = forms.EmailField(max_length=100)
@@ -75,7 +75,7 @@ class ProfileRequestForm(forms.Form):
 
 class AddUserForm(forms.Form):
 	''' Form to add a new user and associated profile. '''
-	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or _.')
+	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, -, or _.')
 	first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	email = forms.EmailField(max_length=100, required=False)
@@ -332,7 +332,7 @@ class ChangeUserPasswordForm(forms.Form):
 
 class ModifyProfileRequestForm(forms.Form):
 	''' Form to modify a profile request. '''
-	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, or _.')
+	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, -, or _.')
 	first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	email = forms.EmailField(max_length=100, required=False)
@@ -408,8 +408,8 @@ class UpdateProfileForm(forms.ModelForm):
 		if profile_request.provider and profile_request.uid:
 			social = UserSocialAuth(
 				user=user,
-				provider = profile_request.provider,
-				uid = profile_request.uid,
+				provider=profile_request.provider,
+				uid=profile_request.uid,
 				)
 			social.save()
 
