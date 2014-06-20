@@ -13,11 +13,9 @@ from django.template import RequestContext
 from django import forms
 from django.core.urlresolvers import reverse
 
-from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+from utils.variables import MESSAGES
 from base.decorators import profile_required
 from base.models import UserProfile
-from base.redirects import red_home, red_ext
-from managers.models import Manager
 from events.models import Event
 from events.forms import EventForm, RsvpForm
 
@@ -26,61 +24,40 @@ def list_events_view(request):
 	''' A list view of upcoming events. '''
 	page_name = "Upcoming Events"
 	profile = UserProfile.objects.get(user=request.user)
-	manager_positions = Manager.objects.filter(incumbent=profile)
-	event_form = EventForm(manager_positions, post=request.POST or None)
-	rsvp_form = RsvpForm(request.POST or None)
-	if not manager_positions:
-		event_form.fields['as_manager'].widget = forms.HiddenInput()
-	if request.user.username == ANONYMOUS_USERNAME:
-		event_form.fields['rsvp'].widget = forms.HiddenInput()
+	event_form = EventForm(
+		request.POST if 'post_event' in request.POST else None,
+		profile=profile,
+		)
+	rsvp_form = RsvpForm(
+		request.POST if 'rsvp' in request.POST else None,
+		)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	if 'post_event' in request.POST:
 		if event_form.is_valid():
-			title = event_form.cleaned_data['title']
-			description = event_form.cleaned_data['description']
-			location = event_form.cleaned_data['location']
-			rsvp = event_form.cleaned_data['rsvp']
-			start_time = event_form.cleaned_data['start_time']
-			end_time = event_form.cleaned_data['end_time']
-			as_manager = event_form.cleaned_data['as_manager']
-			if start_time > end_time:
-				messages.add_message(request, messages.ERROR, "Something went wrong.  Please try again.")
-				event_form.errors['__all__'] = event_form.error_class(["Start time is later than end time.  Unless this event involves time travel, please change the start or end time."])
-			else:
-				new_event = Event(owner=profile, title=title, description=description, location=location, start_time=start_time, end_time=end_time)
-				new_event.save()
-				if rsvp and request.user.username != ANONYMOUS_USERNAME:
-					new_event.rsvps.add(profile)
-				if as_manager:
-					new_event.as_manager = as_manager
-				new_event.save()
-				return HttpResponseRedirect(reverse('events:list'))
+			event_form.save()
+			return HttpResponseRedirect(reverse('events:list'))
 		else:
 			messages.add_message(request, messages.ERROR, MESSAGES['EVENT_ERROR'])
 	elif 'rsvp' in request.POST:
 		if rsvp_form.is_valid():
-			event_pk = rsvp_form.cleaned_data['event_pk']
-			relevant_event = Event.objects.get(pk=event_pk)
-			if relevant_event.end_time <= now:
-				messages.add_message(request, messages.ERROR, MESSAGES['ALREADY_PAST'])
+			event = rsvp_form.cleaned_data['event_pk']
+			if profile in event.rsvps.all():
+				event.rsvps.remove(profile)
+				message = MESSAGES['RSVP_REMOVE'].format(event=event.title)
+				messages.add_message(request, messages.SUCCESS, message)
 			else:
-				if profile in relevant_event.rsvps.all():
-					relevant_event.rsvps.remove(profile)
-					message = MESSAGES['RSVP_REMOVE'].format(event=relevant_event.title)
-					messages.add_message(request, messages.SUCCESS, message)
-				else:
-					relevant_event.rsvps.add(profile)
-					message = MESSAGES['RSVP_ADD'].format(event=relevant_event.title)
-					messages.add_message(request, messages.SUCCESS, message)
-				relevant_event.save()
+				event.rsvps.add(profile)
+				message = MESSAGES['RSVP_ADD'].format(event=event.title)
+				messages.add_message(request, messages.SUCCESS, message)
+			event.save()
 			return HttpResponseRedirect(reverse('events:list'))
-	elif request.method == "POST":
-		return red_home(request, MESSAGES['UNKNOWN_FORM'])
+		else:
+			for field, error in rsvp_form.errors.items():
+				messages.add_message(request, messages.ERROR, error)
 	upcoming_events = Event.objects.filter(end_time__gte=now)
 	events_dict = list() # a pseudo-dictionary, actually a list with items of form (event, ongoing, rsvpd, rsvp_form), where ongoing is a boolean of whether the event is currently ongoing, rsvpd is a boolean of whether the user has rsvp'd to the event
 	for event in upcoming_events:
 		form = RsvpForm(initial={'event_pk': event.pk})
-		form.fields['event_pk'].widget = forms.HiddenInput()
 		ongoing = ((event.start_time <= now) and (event.end_time >= now))
 		rsvpd = (profile in event.rsvps.all())
 		events_dict.append((event, ongoing, rsvpd, form))
@@ -96,58 +73,32 @@ def list_all_events_view(request):
 	''' A list view of all events.  Part of archives. '''
 	page_name = "Archives - All Events"
 	profile = UserProfile.objects.get(user=request.user)
-	manager_positions = Manager.objects.filter(incumbent=profile)
-	event_form = EventForm(manager_positions)
+	event_form = EventForm(profile=profile)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
-	if not manager_positions:
-		event_form.fields['as_manager'].widget = forms.HiddenInput()
-	if request.user.username == ANONYMOUS_USERNAME:
-		event_form.fields['rsvp'].widget = forms.HiddenInput()
-	if request.method == 'POST':
-		if 'post_event' in request.POST:
-			event_form = EventForm(manager_positions, post=request.POST)
-			if event_form.is_valid():
-				title = event_form.cleaned_data['title']
-				description = event_form.cleaned_data['description']
-				location = event_form.cleaned_data['location']
-				rsvp = event_form.cleaned_data['rsvp']
-				start_time = event_form.cleaned_data['start_time']
-				end_time = event_form.cleaned_data['end_time']
-				as_manager = event_form.cleaned_data['as_manager']
-				if start_time > end_time:
-					messages.add_message(request, messages.ERROR, "Something went wrong.  Please try again.")
-					event_form.errors['__all__'] = event_form.error_class(["Start time is later than end time.  Unless this event involves time travel, please change the start or end time."])
-				else:
-					new_event = Event(owner=profile, title=title, description=description, location=location, start_time=start_time, end_time=end_time)
-					new_event.save()
-					if rsvp and request.user.username != ANONYMOUS_USERNAME:
-						new_event.rsvps.add(profile)
-					if as_manager:
-						new_event.as_manager = as_manager
-					new_event.save()
-					return HttpResponseRedirect(reverse('events:all'))
-			else:
-				messages.add_message(request, messages.SUCCESS, MESSAGES['EVENT_ERROR'])
-		elif 'rsvp' in request.POST:
-			rsvp_form = RsvpForm(request.POST)
-			if rsvp_form.is_valid():
-				event_pk = rsvp_form.cleaned_data['event_pk']
-				relevant_event = Event.objects.get(pk=event_pk)
-				if relevant_event.end_time <= now:
-					messages.add_message(request, messages.ERROR, MESSAGES['ALREADY_PAST'])
-				else:
-					if profile in relevant_event.rsvps.all():
-						relevant_event.rsvps.remove(profile)
-						message = MESSAGES['RSVP_REMOVE'].format(event=relevant_event.title)
-						messages.add_message(request, messages.SUCCESS, message)
-					else:
-						relevant_event.rsvps.add(profile)
-						message = MESSAGES['RSVP_ADD'].format(event=relevant_event.title)
-						messages.add_message(request, messages.SUCCESS, message)
-					relevant_event.save()
-				return HttpResponseRedirect(reverse('events:all'))
+	if 'post_event' in request.POST:
+		event_form = EventForm(request.POST, profile=profile)
+		if event_form.is_valid():
+			event_form.save()
+			return HttpResponseRedirect(reverse('events:all'))
 		else:
-			return red_home(request, MESSAGES['UNKNOWN_FORM'])
+			messages.add_message(request, messages.ERROR, MESSAGES['EVENT_ERROR'])
+	elif 'rsvp' in request.POST:
+		rsvp_form = RsvpForm(request.POST)
+		if rsvp_form.is_valid():
+			event = rsvp_form.cleaned_data['event_pk']
+			if profile in event.rsvps.all():
+				event.rsvps.remove(profile)
+				message = MESSAGES['RSVP_REMOVE'].format(event=event.title)
+				messages.add_message(request, messages.SUCCESS, message)
+			else:
+				event.rsvps.add(profile)
+				message = MESSAGES['RSVP_ADD'].format(event=event.title)
+				messages.add_message(request, messages.SUCCESS, message)
+			event.save()
+			return HttpResponseRedirect(reverse('events:all'))
+		else:
+			for field, error in rsvp_form.errors.items():
+				messages.add_message(request, messages.ERROR, error)
 	all_events = Event.objects.all()
 	events_dict = list() # a pseudo-dictionary, actually a list with items of form (event, ongoing, rsvpd, rsvp_form, already_past), where ongoing is a boolean of whether the event is currently ongoing, rsvpd is a boolean of whether the user has rsvp'd to the event
 	for event in all_events:
@@ -169,17 +120,14 @@ def event_view(request, event_pk):
 	event = get_object_or_404(Event, pk=event_pk)
 	page_name = "View Event"
 	profile = UserProfile.objects.get(user=request.user)
-	event_form = None
 	can_edit = (event.owner == profile or request.user.is_superuser)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
 	ongoing = event.start_time <= now and event.end_time >= now
 	rsvpd = profile in event.rsvps.all()
-	rsvp_form = RsvpForm(request.POST or None)
+	rsvp_form = RsvpForm(request.POST or None, instance=event)
 	already_passed = event.end_time <= now
-	if "rsvp" in request.POST and rsvp_form.is_valid():
-		if event.end_time <= now:
-			messages.add_message(request, messages.ERROR, MESSAGES['ALREADY_PAST'])
-		else:
+	if "rsvp" in request.POST:
+		if rsvp_form.is_valid():
 			if profile in event.rsvps.all():
 				event.rsvps.remove(profile)
 				message = MESSAGES['RSVP_REMOVE'].format(event=event.title)
@@ -192,6 +140,9 @@ def event_view(request, event_pk):
 			return HttpResponseRedirect(
 				reverse('events:view', kwargs={"event_pk": event_pk}),
 				)
+		else:
+			for field, error in rsvp_form.errors.items():
+				messages.add_message(request, messages.ERROR, error)
 	return render_to_response('view_event.html', {
 			'page_name': page_name,
 			'can_edit': can_edit,
@@ -212,49 +163,14 @@ def edit_event_view(request, event_pk):
 		return HttpResponseRedirect(
 			reverse('events:view', kwargs={"event_pk": event_pk}),
 			)
-	manager_positions = Manager.objects.filter(incumbent=event.owner)
-	rsvpd = (profile in event.rsvps.all())
-	event_form = EventForm(manager_positions, initial={
-			'title': event.title,
-			'description': event.description,
-			'location': event.location,
-			'rsvp': rsvpd,
-			'start_time': event.start_time,
-			'end_time': event.end_time,
-			'as_manager': event.as_manager,
-			'cancelled': event.cancelled
-			})
-	if not manager_positions:
-		event_form.fields['as_manager'].widget = forms.HiddenInput()
-	if request.user.username == ANONYMOUS_USERNAME:
-		event_form.fields['rsvp'].widget = forms.HiddenInput()
-	if request.method == 'POST':
-		event_form = EventForm(manager_positions, post=request.POST)
-		if event_form.is_valid():
-			title = event_form.cleaned_data['title']
-			description = event_form.cleaned_data['description']
-			location = event_form.cleaned_data['location']
-			rsvp = event_form.cleaned_data['rsvp']
-			cancelled = event_form.cleaned_data['cancelled']
-			start_time = event_form.cleaned_data['start_time']
-			end_time = event_form.cleaned_data['end_time']
-			as_manager = event_form.cleaned_data['as_manager']
-			event.title = title
-			event.description = description
-			event.location = location
-			event.cancelled = cancelled
-			event.start_time = start_time
-			event.end_time = end_time
-			if rsvp and request.user.username != ANONYMOUS_USERNAME:
-				event.rsvps.add(profile)
-			if as_manager:
-				event.as_manager = as_manager
-			event.save()
-			message = MESSAGES['EVENT_UPDATED'].format(event=title)
-			messages.add_message(request, messages.SUCCESS, message)
-			return HttpResponseRedirect(
-				reverse('events:view', kwargs={"event_pk": event_pk}),
-				)
+	event_form = EventForm(request.POST or None, profile=profile, instance=event)
+	if event_form.is_valid():
+		event = event_form.save()
+		messages.add_message(request, messages.SUCCESS,
+							 MESSAGES['EVENT_UPDATED'].format(event=event.title))
+		return HttpResponseRedirect(
+			reverse('events:view', kwargs={"event_pk": event_pk}),
+			)
 	return render_to_response('edit_event.html', {
 			'page_name': page_name,
 			'event_form': event_form,
