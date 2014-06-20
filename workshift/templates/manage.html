@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block w_content %}
-<div class="table_container">
+<div id="manage_container">
 
   <a href="{% wurl 'workshift:add_shift' semester=SEMESTER.sem_url %}">Add Shift</a>
   <a href="{% wurl 'workshift:assign_shifts' semester=SEMESTER.sem_url %}">Assign Shifts</a>
@@ -45,7 +45,7 @@
 	</tbody>
   </table>
   {% endif %}
-</div> <!-- .table_container -->
+</div> <!-- #manage_container -->
 {% endblock %}
 
 {% block endscripts %}
