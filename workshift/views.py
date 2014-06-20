@@ -310,11 +310,10 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	# if rating_formset.is_valid() and time_formset.is_valid() and \
 	#   note_form.is_valid():
 	if all(i.is_valid() for i in rating_forms) and time_formset.is_valid() and note_form.is_valid():
-		for rating in wprofile.ratings:
-			rating.delete()
-		for form in rating_forms:
+		for rating in rating_forms:
 			rating = form.save()
-			wprofile.ratings.add(rating)
+			if rating not in wprofile.ratings:
+				wprofile.ratings.add(rating)
 
 		rating_formset.save()
 		time_formset.save()
@@ -323,6 +322,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		return HttpResponseRedirect(wurl('workshift:preferences',
 										 sem_url=semester.sem_url,
 										 targetUsername=request.user.username))
+	print("forms", rating_forms)
 
 	page_name = "{0}'s Workshift Preferences".format(
 		wprofile.user.get_full_name())
