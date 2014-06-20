@@ -13,6 +13,24 @@
 <h3>{{ page_name }}</h3>
 <div class="table_container">
   <a href="{% wurl 'workshift:preferences' targetUsername=profile.user.username sem_url=SEMESTER.sem_url %}">Edit your preferences</a>
+
+  {% if upcoming_shifts %}
+  <h4>Upcoming Shifts</h4>
+  {% for shift in upcoming_shifts %}
+  <div>
+	<p><a href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a> ({{ shift.hours }} hour{{ shift.hours|pluralize }})</p>
+	<p>{{ shift.start_time }} - {{ shift.end_time }}</p>
+  </div>
+  {% endif}
+  {% if past_shifts %}
+  <h4>Past Shifts</h4>
+  {% for shift in past_shifts %}
+  <div>
+	<p><a href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a> - {{ shift.hours }}{% if shift.blown %} - <span color="red">BLOWN</span>{% elif shift.verifier %}- <span color="green">Verified by <a href="{% wurl 'workshift:profile' targetUsername=shift.verifier.user.username sem_url=SEMESTER.sem_url %}">{{ shift.verifier.user.get_full_name }}</a>{% endif %}</p>
+  </div>
+  {% endfor %}
+  {% endif %}
+  {% endif %}
   {% for pool_hour in profile.pool_hours.all %}
   <div>
 	<p><a href="">{{ pool_hour.pool.title }}</a>:</p>
