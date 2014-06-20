@@ -12,7 +12,7 @@
 <h3>{{ page_name }}</h3>
 <div class="table_container">
   <a href="{% wurl 'workshift:preferences' targetUsername=profile.user.username sem_url=SEMESTER.sem_url}">Edit your preferences</a>
-  {% for pool_hour in profile.pool_hours %}
+  {% for pool_hour in profile.pool_hours.all %}
   <div>
 	<p><a href="">{{ pool_hour.pool.title }}</a>:</p>
 	<p>{{ pool_hour.hours }} per week</p>
