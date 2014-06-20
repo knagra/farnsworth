@@ -56,11 +56,11 @@
   function renewDatePickers(row) {
     $("[id$=start_time]", row || null).datetimepicker({
       pickDate: false,
-      format: 'HH:mm PP',
+      pick12HourFormat: true,
     });
     $("[id$=end_time]", row || null).datetimepicker({
       pickDate: false,
-      format: 'HH:mm PP',
+      pick12HourFormat: true,
     });
   };
   $(document).ready(function() {
