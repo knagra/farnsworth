@@ -12,9 +12,14 @@
 {% block w_content %}
 <div class="table_container">
 
-  <a href="{% wurl 'workshift:add_shift' semester=SEMESTER.sem_url %}">Add Shift</a>
-  <a href="{% wurl 'workshift:assign_shifts' semester=SEMESTER.sem_url %}">Assign Shifts</a>
-  <a href="{% wurl 'workshift:add_workshifter' semester=SEMESTER.sem_url %}">Add Workshifter</a>
+  <div>
+	<h4>Links</h4>
+	<ul>
+	  <li><a href="{% wurl 'workshift:add_shift' semester=SEMESTER.sem_url %}">Add Shift</a></li>
+	  <li><a href="{% wurl 'workshift:assign_shifts' semester=SEMESTER.sem_url %}">Assign Shifts</a></li>
+	  <li><a href="{% wurl 'workshift:add_workshifter' semester=SEMESTER.sem_url %}">Add Workshifter</a></li>
+	</ul>
+  </div>
 
   {% for pool_form in pool_forms %}
   {% if not forloop.first %}
@@ -27,19 +32,35 @@
   </form>
   {% endfor %}
 
+  {% if add_instance_form %}
+  <br/>
+  <form method="post" action="">
+	{% csrf_token %}
+	{{ add_instance_form|bootstrap }}
+	<button type="submit" class="btn btn-success" name="add_instance">Add Workshift</button>
+  </form>
+  {% endif %}
+
   {% if workshifters %}
+  <br/>
+
   <table>
 	<thead>
 	  <tr>
 		<th>Workshifter</th>
 		<th>Contact<th>
+		<th>Standing</th>
 	  </tr>
 	</thead>
 	<tbody>
-	  {% for workshifter in workshifters %}
+	  {% for workshifter, pool_hours in workshifters %}
 	  <tr>
 		<td><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=workshifter.user.username %}">{{ workshifter.user.get_full_name }}</td>
 		<td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
+		<td>
+		  {% for hours in pool_hours %}{% if not forloop.first %}, {% endif %}
+		  {{ hours.pool.title }} - {% if 0 > hours.standing %}<span color="red">{% else %}<span color="green">{% endif %}{{ hours.standing }}</span>{% endfor %}
+		</td>
 	  </tr>
 	  {% endfor %}
 	</tbody>

@@ -19,7 +19,7 @@ class FullSemesterForm(forms.ModelForm):
 class SemesterForm(forms.ModelForm):
 	class Meta:
 		model = Semester
-		exclude = ["workshift_managers", "preferences_open", "current"]
+		exclude = ("workshift_managers", "preferences_open", "current",)
 
 	def save(self):
 		semester = super(SemesterForm, self).save()
@@ -76,7 +76,7 @@ class RegularWorkshiftForm(forms.ModelForm):
 class WorkshiftInstanceForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftInstance
-		exclude = ["weekly_workshift", "info", "intended_hours", "log"]
+		exclude = ("weekly_workshift", "info", "intended_hours", "log")
 
 	title = forms.CharField(
 		max_length=255,
@@ -99,29 +99,31 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		help_text="The latest time this shift should be completed.",
 		)
 
-	info_fields = ["title", "description", "pool", "start_time", "end_time"]
+	info_fields = ("title", "description", "pool", "start_time", "end_time")
 
 	def __init__(self, *args, **kwargs):
-		if "instance" in kwargs:
-			instance = kwargs["instance"]
+		self.pools = kwargs.pop('pools', None)
+		self.instance = kwargs.pop('instance', None)
+
+		if self.instance:
 			initial = kwargs.get("initial", {})
 
 			# Django ModelForms don't play nicely with foreign fields, so we
 			# will just manually pre-fill them if an instance is available.
 			for field in self.info_fields:
-				initial.setdefault(field, getattr(instance, field))
+				initial.setdefault(field, getattr(self.instance, field))
 
 			kwargs["initial"] = initial
 
-			super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
+		super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
 
-			# If this is a regular workshift, disable title, description, etc
-			# from being edited
-			if instance.weekly_workshift:
-				for field in self.info_fields:
-					self.fields[field].widget.attrs['readonly'] = True
-		else:
-			super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
+		# If this is a regular workshift, disable title, description, etc
+		# from being edited
+		if self.instance and self.instance.weekly_workshift:
+			for field in self.info_fields:
+				self.fields[field].widget.attrs['readonly'] = True
+		if self.pools:
+			self.fields['pool'].queryset = self.pools
 
 		# Move the forms for title, description, etc to the top
 		keys = self.fields.keyOrder
@@ -278,7 +280,7 @@ class SignOutForm(InteractShiftForm):
 class AddWorkshifterForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftProfile
-		exclude = ["semester", "ratings", "pool_hours", "time_blocks"]
+		exclude = ("semester", "ratings", "pool_hours", "time_blocks",)
 
 	def __init__(self, *args, **kwargs):
 		self.semester = kwargs.pop(
@@ -301,21 +303,11 @@ class AddWorkshifterForm(forms.ModelForm):
 
 		return profile
 
-class WorkshiftInstanceForm(forms.ModelForm):
-	class Meta:
-		model = WorkshiftInstance
-		fields = "__all__"
-
-	def __init__(self, *args, **kwargs):
-		self.pools = kwargs.pop('pools', None)
-		super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
-		if self.pools:
-			# self.fields['pools'].queryset = self.pools
-			pass
-
 class RegularWorkshiftForm(forms.ModelForm):
-	start_time = forms.TimeField(input_formats=valid_time_formats)
-	end_time = forms.TimeField(input_formats=valid_time_formats)
+	start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
+								 input_formats=valid_time_formats)
+	end_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
+							   input_formats=valid_time_formats)
 	class Meta:
 		model = RegularWorkshift
 		fields = "__all__"
@@ -334,18 +326,28 @@ class WorkshiftTypeForm(forms.ModelForm):
 class WorkshiftRatingForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftRating
-		fields = ["rating"]
+		fields = ("rating",)
 
 	def __init__(self, *args, **kwargs):
+		self.profile = kwargs.pop('profile')
 		super(WorkshiftRatingForm, self).__init__(*args, **kwargs)
 		try:
 			self.title = self.instance.workshift_type.title
 		except WorkshiftType.DoesNotExist:
 			self.title = ""
 
+	def save(self):
+		rating = super(WorkshiftRatingForm, self).save()
+		if not self.profile.ratings.filter(pk=rating.pk):
+			self.profile.ratings.add(rating)
+		self.profile.save()
+		return rating
+
 class TimeBlockForm(forms.ModelForm):
-	start_time = forms.TimeField(input_formats=valid_time_formats)
-	end_time = forms.TimeField(input_formats=valid_time_formats)
+	start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
+								 input_formats=valid_time_formats)
+	end_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
+							   input_formats=valid_time_formats)
 	class Meta:
 		model = TimeBlock
 		fields = "__all__"
@@ -370,4 +372,4 @@ TimeBlockFormSet = modelformset_factory(
 class ProfileNoteForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftProfile
-		fields = ["note"]
+		fields = ("note",)

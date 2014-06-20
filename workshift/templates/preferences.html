@@ -27,7 +27,7 @@
   </table>
   {% endif %}
   {% if time_formset %}
-  <h2>Your Schedule</h2>
+  <h2 class="w_title">Your Schedule</h2>
   <table>
   	<tbody>
   	  {% for form in time_formset.forms %}
@@ -43,7 +43,7 @@
   </table>
   {{ time_formset.management_form }}
   {% endif %}
-  <h2>Notes</h2>
+  <h2 class="w_title">Notes</h2>
   {{ note_form|bootstrap }}
   <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>
 </form>

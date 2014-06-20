@@ -443,18 +443,6 @@ class TestPreferences(TestCase):
 		self.assertNotContains(response, self.w2.description)
 		self.assertContains(
 			response,
-			'name="rating-TOTAL_FORMS" type="hidden" value="2"',
-			)
-		self.assertContains(
-			response,
-			'name="rating-INITIAL_FORMS" type="hidden" value="2"',
-			)
-		self.assertContains(
-			response,
-			'name="rating-MAX_NUM_FORMS" type="hidden" value="2"',
-			)
-		self.assertContains(
-			response,
 			'name="time-TOTAL_FORMS" type="hidden" value="1"',
 			)
 		self.assertContains(
@@ -465,17 +453,12 @@ class TestPreferences(TestCase):
 			response,
 			'name="time-MAX_NUM_FORMS" type="hidden" value="50"',
 			)
-		# self.assertEqual(self.wprofile.ratings.count(), 0)
+		self.assertEqual(self.wprofile.ratings.count(), 0)
 
 	def test_preferences_post(self):
 		response = self.client.post(self.url, {
-            "rating-0-id": 1,
-            "rating-0-rating": WorkshiftRating.LIKE,
-            "rating-1-id": 2,
-            "rating-1-rating": WorkshiftRating.DISLIKE,
-            "rating-TOTAL_FORMS": 2,
-            "rating-INITIAL_FORMS": 2,
-            "rating-MAX_NUM_FORMS": 2,
+            "rating-1-rating": WorkshiftRating.LIKE,
+            "rating-2-rating": WorkshiftRating.DISLIKE,
             "time-0-preference": TimeBlock.BUSY,
             "time-0-day": DAYS[0][0], # Monday
             "time-0-start_time": "8:00 AM",
@@ -524,13 +507,8 @@ class TestPreferences(TestCase):
 
 	def test_no_note(self):
 		response = self.client.post(self.url, {
-            "rating-0-id": 1,
-            "rating-0-rating": WorkshiftRating.LIKE,
-            "rating-1-id": 2,
-            "rating-1-rating": WorkshiftRating.DISLIKE,
-            "rating-TOTAL_FORMS": 2,
-            "rating-INITIAL_FORMS": 2,
-            "rating-MAX_NUM_FORMS": 2,
+            "rating-1-rating": WorkshiftRating.LIKE,
+            "rating-2-rating": WorkshiftRating.DISLIKE,
             "time-TOTAL_FORMS": 0,
             "time-INITIAL_FORMS": 0,
             "time-MAX_NUM_FORMS": 50,
@@ -554,15 +532,9 @@ class TestPreferences(TestCase):
 		self.assertContains(response, w4.title)
 
 		response = self.client.post(self.url, {
-            "rating-0-id": 1,
-            "rating-0-rating": WorkshiftRating.LIKE,
-            "rating-1-id": 2,
-            "rating-1-rating": WorkshiftRating.DISLIKE,
-            "rating-2-id": 3,
-            "rating-2-rating": WorkshiftRating.LIKE,
-            "rating-TOTAL_FORMS": 3,
-            "rating-INITIAL_FORMS": 3,
-            "rating-MAX_NUM_FORMS": 3,
+            "rating-1-rating": WorkshiftRating.LIKE,
+            "rating-2-rating": WorkshiftRating.DISLIKE,
+            "rating-{0}-rating".format(w4.pk): WorkshiftRating.LIKE,
             "time-TOTAL_FORMS": 0,
             "time-INITIAL_FORMS": 0,
             "time-MAX_NUM_FORMS": 50,
@@ -579,17 +551,24 @@ class TestPreferences(TestCase):
 		"""
 		Ensure that users cannot delete their rating preferences.
 		"""
-		self.client.post(self.url, {
-            "rating-0-id": 1,
-            "rating-0-rating": WorkshiftRating.LIKE,
-            "rating-TOTAL_FORMS": 1,
-            "rating-INITIAL_FORMS": 2,
-            "rating-MAX_NUM_FORMS": 2,
+		response = self.client.post(self.url, {
+            "rating-1-rating": WorkshiftRating.LIKE,
+            "rating-2-rating": WorkshiftRating.LIKE,
+            "time-TOTAL_FORMS": 0,
+            "time-INITIAL_FORMS": 0,
+            "time-MAX_NUM_FORMS": 50,
+            }, follow=True)
+
+		self.assertRedirects(response, self.url)
+
+		response = self.client.post(self.url, {
+            "rating-1-rating": WorkshiftRating.LIKE,
             "time-TOTAL_FORMS": 0,
             "time-INITIAL_FORMS": 0,
             "time-MAX_NUM_FORMS": 50,
             })
 
+		self.assertEqual(response.status_code, 200)
 		self.assertEqual(self.wprofile.ratings.count(), 2)
 
 	def test_add_rating(self):
@@ -597,21 +576,14 @@ class TestPreferences(TestCase):
 		Ensure that users cannot add extra rating preferences.
 		"""
 		response = self.client.post(self.url, {
-            "rating-0-id": 1,
-            "rating-0-rating": WorkshiftRating.LIKE,
-            "rating-1-id": 2,
             "rating-1-rating": WorkshiftRating.LIKE,
-            "rating-2-id": 3 + 1,
             "rating-2-rating": WorkshiftRating.LIKE,
-            "rating-TOTAL_FORMS": 3,
-            "rating-INITIAL_FORMS": 2,
-            "rating-MAX_NUM_FORMS": 3,
+            "rating-4-rating": WorkshiftRating.LIKE,
             "time-TOTAL_FORMS": 0,
             "time-INITIAL_FORMS": 0,
             "time-MAX_NUM_FORMS": 50,
             })
 
-		self.assertEqual(response.status_code, 200)
 		self.assertEqual(self.wprofile.ratings.count(), 2)
 
 	def test_unrateable(self):
@@ -619,23 +591,14 @@ class TestPreferences(TestCase):
 		Ensure that users cannot rate unrateable shifts.
 		"""
 		response = self.client.post(self.url, {
-            "rating-0-id": 1,
-            "rating-0-rating": WorkshiftRating.LIKE,
-            "rating-1-id": 3,
             "rating-1-rating": WorkshiftRating.LIKE,
-            "rating-TOTAL_FORMS": 2,
-            "rating-INITIAL_FORMS": 2,
-            "rating-MAX_NUM_FORMS": 2,
+            "rating-2-rating": WorkshiftRating.LIKE,
+            "rating-3-rating": WorkshiftRating.LIKE,
             "time-TOTAL_FORMS": 0,
             "time-INITIAL_FORMS": 0,
             "time-MAX_NUM_FORMS": 50,
             })
 
-		self.assertEqual(response.status_code, 200)
-		self.assertContains(
-			response,
-			"That choice is not one of the available choices.",
-			)
 		self.assertEqual(self.wprofile.ratings.count(), 2)
 
 class TestInteractForms(TestCase):

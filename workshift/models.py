@@ -576,9 +576,18 @@ class WorkshiftInstance(models.Model):
 
 		super(WorkshiftInstance, self).__init__(*args, **kwargs)
 
-		if (self.weekly_workshift is None and self.info is None) or \
-		  (self.weekly_workshift is not None and self.info is not None):
+		if self.weekly_workshift is not None and self.info is not None:
 			raise ValueError("Exactly one of [weekly_workshift, info] must be set")
+		elif self.weekly_workshift is None and self.info is None:
+			self.info = InstanceInfo()
+			self.save_info = True
+		else:
+			self.save_info = False
+
+	def save(self):
+		super(WorkshiftInstance, self).save()
+		if self.save_info:
+			self.info.save()
 
 	def __unicode__(self):
 		return "%s, %s" % (self.weekly_workshift.title, self.date)

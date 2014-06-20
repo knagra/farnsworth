@@ -292,6 +292,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 			request.POST or None,
 			prefix="rating-{0}".format(wtype.pk),
 			instance=rating,
+			profile=wprofile,
 			)
 		rating_forms.append(form)
 
@@ -302,15 +303,10 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		)
 	note_form = ProfileNoteForm(request.POST or None, instance=wprofile)
 
-	# if rating_formset.is_valid() and time_formset.is_valid() and \
-	#   note_form.is_valid():
-	if all(i.is_valid() for i in rating_forms) and time_formset.is_valid() and note_form.is_valid():
-		all_ratings = wprofile.ratings.all()
-		for rating in rating_forms:
-			rating = form.save()
-			if rating not in all_ratings:
-				wprofile.ratings.add(rating)
-
+	if all(i.is_valid() for i in rating_forms) and time_formset.is_valid() and \
+	  note_form.is_valid():
+		for form in rating_forms:
+			form.save()
 		time_formset.save()
 		instance = note_form.save()
 		messages.add_message(request, messages.INFO, "Preferences saved.")
@@ -351,6 +347,7 @@ def manage_view(request, semester, profile=None):
 			request.POST if "edit_semester" in request.POST else None,
 			instance=semester,
 			)
+		# TODO: Do we want a "Add Workshift Pool" on this page?
 
 	pool_forms = []
 	for pool in pools:
@@ -358,19 +355,27 @@ def manage_view(request, semester, profile=None):
 			request.POST if "edit_pool" in request.POST else None,
 			prefix=pool.pk,
 			instance=pool,
+			full_management=full_management,
 			)
 		if form.is_valid():
 			form.save()
 			return HttpResponseRedirect(wurl('workshift:manage',
-											 ssem_url=semester.sem_url))
+											 sem_url=semester.sem_url))
 		pool_forms.append(form)
 
 	workshifters = WorkshiftProfile.objects.filter(semester=semester)
-	# add_instance_form = WorkshiftInstanceForm(
-	# 	request.POST if "add_instance" in request.POST else None,
-	# 	pools=pool,
-	# 	)
-	add_instance_form = None
+	add_instance_form = WorkshiftInstanceForm(
+		request.POST if "add_instance" in request.POST else None,
+		pools=pools,
+		)
+	if add_instance_form.is_valid():
+		add_instance_form.save()
+		messages.add_message(request, message.INFO, "Workshift added.")
+		return HttpResponseRedirect(wurl('workshift:manage',
+										 sem_url=semester.sem_url))
+
+	pool_hours = [workshifter.pool_hours.filter(pool__in=pools)
+				  for workshifter in workshifters]
 
 	return render_to_response("manage.html", {
 		"page_name": page_name,
@@ -378,7 +383,7 @@ def manage_view(request, semester, profile=None):
 		"full_management": full_management,
 		"semester_form": semester_form,
 		"pool_forms": pool_forms,
-		"workshifters": workshifters,
+		"workshifters": zip(workshifters, pool_hours),
 		"add_instance_form": add_instance_form,
 	}, context_instance=RequestContext(request))
 
@@ -439,11 +444,10 @@ def add_shift_view(request, semester):
 	else:
 		add_type_form = None
 
-	# add_instance_form = WorkshiftInstanceForm(
-	# 	request.POST if "add_instance" in request.POST else None,
-	# 	pools=pools,
-	# 	)
-	add_instance_form = None
+	add_instance_form = WorkshiftInstanceForm(
+		request.POST if "add_instance" in request.POST else None,
+		pools=pools,
+		)
 	add_shift_form = RegularWorkshiftForm(
 		request.POST if "add_shift" in request.POST else None,
 		pools=pools,
