@@ -16,7 +16,7 @@
   <div>
 	<p><a href="">{{ pool_hour.pool.title }}</a>:</p>
 	<p>{{ pool_hour.hours }} per week</p>
-	<p>{% if pool_hour.standing < 0 >}<span color="red">{% else %}<span color="green">{% endif %}{{ pool_hour.standing }}</span></p>
+	<p>{% if pool_hour.standing < 0 %}<span color="red">{% else %}<span color="green">{% endif %}{{ pool_hour.standing }}</span></p>
 	{% if pool_hour.first_date_standing %}
 	<p>First Fine Date Standing: {{ pool_hour.first_date_standing }}</p>
 	{% endif %}
