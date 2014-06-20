@@ -54,17 +54,20 @@
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
   function renewDatePickers(row) {
-    $("[id$=start_time]", row || null).datetimepicker('destroy');
-    $("[id$=end_time]", row || null).datetimepicker('destroy');
-    $("[id$=start_time]", row || null).datetimepicker({pickDate: false});
-    $("[id$=end_time]", row || null).datetimepicker({pickDate: false});
+    $("[id$=start_time]", row || null).datetimepicker({
+      pickDate: false,
+      format: 'hh:mm p',
+    });
+    $("[id$=end_time]", row || null).datetimepicker({
+      pickDate: false,
+      format: 'hh:mm p',
+    });
   };
   $(document).ready(function() {
     $(function() {
       $(".time_formset_row").formset({
         prefix: "{{ time_formset.prefix }}",
         added: renewDatePickers,
-        removed: renewDatePickers,
       });
       renewDatePickers();
     });
