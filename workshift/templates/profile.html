@@ -14,15 +14,6 @@
 <div class="table_container">
   <a href="{% wurl 'workshift:preferences' targetUsername=profile.user.username sem_url=SEMESTER.sem_url %}">Edit your preferences</a>
 
-  {% if upcoming_shifts %}
-  <h4>Upcoming Shifts</h4>
-  {% for shift in upcoming_shifts %}
-  <div>
-	<p><a href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a> ({{ shift.hours }} hour{{ shift.hours|pluralize }})</p>
-	<p>{{ shift.start_time }} - {{ shift.end_time }}</p>
-  </div>
-  {% endfor %}
-  {% endif %}
   {% if past_shifts %}
   <h4>Past Shifts</h4>
   {% for shift in past_shifts %}

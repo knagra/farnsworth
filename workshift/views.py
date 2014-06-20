@@ -262,12 +262,10 @@ def profile_view(request, semester, targetUsername, profile=None):
 	# TODO: Permissions? Should this be open for anyone on the site to view?
 	wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
 	page_name = "{0}'s Workshift Profile".format(wprofile.user.get_full_name())
-	upcoming_shifts = WorkshiftInstance.objects.filter(workshifter=wprofile, closed=False, date_gte=date.today())
 	past_shifts = WorkshiftInstance.objects.filter(workshifter=wprofile, closed=True)
 	return render_to_response("profile.html", {
 		"page_name": page_name,
 		"profile": wprofile,
-		"upcoming_shifts": upcoming_shifts,
 		"past_shifts": past_shifts,
 	}, context_instance=RequestContext(request))
 
@@ -284,11 +282,24 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		return HttpResponseRedirect(wurl('workshift:view_semester',
 										 sem_url=semester.sem_url))
 
-	rating_formset = WorkshiftRatingFormSet(
-		request.POST or None,
-		prefix="rating",
-        profile=wprofile,
-		)
+	# rating_formset = WorkshiftRatingFormSet(
+	# 	request.POST or None,
+	# 	prefix="rating",
+    #     profile=wprofile,
+	# 	)
+	rating_forms = []
+	for wtype in WorkshiftType.objects.filter(rateable=True):
+		try:
+			rating = wprofile.ratings.get(workshift_type=wtype)
+		except WorkshiftRating.DoesNotExist:
+			rating = WorkshiftRating(workshift_type=wtype)
+		form = WorkshiftRatingForm(
+			request.POST or None,
+			prefix=wtype.pk,
+			instance=rating,
+			)
+		rating_forms.append(form)
+
 	time_formset = TimeBlockFormSet(
 		request.POST or None,
 		prefix="time",
@@ -296,8 +307,15 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		)
 	note_form = ProfileNoteForm(request.POST or None, instance=wprofile)
 
-	if rating_formset.is_valid() and time_formset.is_valid() and \
-	  note_form.is_valid():
+	# if rating_formset.is_valid() and time_formset.is_valid() and \
+	#   note_form.is_valid():
+	if all(i.is_valid() for i in rating_forms) and time_formset.is_valid() and note_form.is_valid():
+		for rating in wprofile.ratings:
+			rating.delete()
+		for form in rating_forms:
+			rating = form.save()
+			wprofile.ratings.add(rating)
+
 		rating_formset.save()
 		time_formset.save()
 		instance = note_form.save()
@@ -311,7 +329,8 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	return render_to_response("preferences.html", {
 		"page_name": page_name,
 		"profile": wprofile,
-		"rating_formset": rating_formset,
+		# "rating_formset": rating_formset,
+		"rating_forms": rating_forms,
 		"time_formset": time_formset,
 		"note_form": note_form,
 	}, context_instance=RequestContext(request))

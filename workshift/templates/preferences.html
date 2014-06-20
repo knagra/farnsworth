@@ -13,41 +13,34 @@
 {% block w_content %}
 <form id="preferences_form" method="post" action="">
   {% csrf_token %}
-  {% if rating_formset %}
+  {% if rating_forms %}
   <h2 class="w_title">Workshift Preferences</h2>
   <table>
-	<!-- <tbody> -->
-	<!--   {% for form in rating_formset.forms %} -->
-	<!--   <tr id="rating_formset_row"> -->
-	<!-- 	<\!-- {{ form.pk }} -\-> -->
-	<!-- 	<\!-- {{ form.workshift_type }} -\-> -->
-	<!-- 	<td>{{ form.title }}:</td> -->
-	<!-- 	<td>{{ form.rating }}</td> -->
-	<!--   </tr> -->
-	<!--   {% endfor %} -->
-	<!-- </tbody> -->
-	{{ rating_formset.as_table }}
+	<tbody>
+	  {% for form in rating_forms %}
+	  <tr id="rating_forms_row">
+		<td>{{ form.title }}:</td>
+		<td>{{ form.rating }}</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
   </table>
-  <!-- {{ rating_formset.management_form }} -->
   {% endif %}
   {% if time_formset %}
   <h2>Your Schedule</h2>
-  <!-- <table> -->
-  <!-- 	<tbody> -->
-  <!-- 	  {% for form in time_formset.forms %} -->
-  <!-- 	  <tr id="time_formset_row"> -->
-  <!-- 		<td>{{ form.preference }}</td> -->
-  <!-- 		<td>{{ form.day }}</td> -->
-  <!-- 		<td>{{ form.start_time }}</td> -->
-  <!-- 		<td>{{ form.end_time }}</td> -->
-  <!-- 	  </tr> -->
-  <!-- 	  {% endfor %} -->
-  <!-- 	</tbody> -->
-  <!-- </table> -->
   <table>
-	{{ time_formset.as_table }}
+  	<tbody>
+  	  {% for form in time_formset.forms %}
+  	  <tr id="time_formset_row">
+  		<td>{{ form.preference }}</td>
+  		<td>{{ form.day }}</td>
+  		<td>{{ form.start_time }}</td>
+  		<td>{{ form.end_time }}</td>
+  	  </tr>
+  	  {% endfor %}
+  	</tbody>
   </table>
-  <!-- {{ time_formset.management_form }} -->
+  {{ time_formset.management_form }}
   {% endif %}
   <h2>Notes</h2>
   {{ note_form|bootstrap }}
