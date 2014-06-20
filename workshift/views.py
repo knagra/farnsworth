@@ -282,11 +282,6 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		return HttpResponseRedirect(wurl('workshift:view_semester',
 										 sem_url=semester.sem_url))
 
-	# rating_formset = WorkshiftRatingFormSet(
-	# 	request.POST or None,
-	# 	prefix="rating",
-    #     profile=wprofile,
-	# 	)
 	rating_forms = []
 	for wtype in WorkshiftType.objects.filter(rateable=True):
 		try:
@@ -316,21 +311,18 @@ def preferences_view(request, semester, targetUsername, profile=None):
 			if rating not in all_ratings:
 				wprofile.ratings.add(rating)
 
-		rating_formset.save()
 		time_formset.save()
 		instance = note_form.save()
 		messages.add_message(request, messages.INFO, "Preferences saved.")
 		return HttpResponseRedirect(wurl('workshift:preferences',
 										 sem_url=semester.sem_url,
 										 targetUsername=request.user.username))
-	print("forms", rating_forms)
 
 	page_name = "{0}'s Workshift Preferences".format(
 		wprofile.user.get_full_name())
 	return render_to_response("preferences.html", {
 		"page_name": page_name,
 		"profile": wprofile,
-		# "rating_formset": rating_formset,
 		"rating_forms": rating_forms,
 		"time_formset": time_formset,
 		"note_form": note_form,

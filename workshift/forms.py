@@ -343,38 +343,6 @@ class WorkshiftRatingForm(forms.ModelForm):
 		except WorkshiftType.DoesNotExist:
 			self.title = ""
 
-class BaseWorkshiftRatingFormSet(BaseModelFormSet):
-	def __init__(self, *args, **kwargs):
-		self.profile = kwargs.pop('profile')
-		super(BaseWorkshiftRatingFormSet, self).__init__(*args, **kwargs)
-		self.wtypes = WorkshiftType.objects.filter(rateable=True)
-		self._refill_ratings()
-		self.queryset = self.profile.ratings.all()
-		self.max_num = self.queryset.count()
-
-	def _refill_ratings(self):
-		if self.wtypes.count() != self.profile.ratings.count():
-			for wtype in self.wtypes:
-				if not self.profile.ratings.filter(workshift_type=wtype):
-					rating = WorkshiftRating(workshift_type=wtype)
-					rating.save()
-					self.profile.ratings.add(rating)
-
-	def save(self, commit=True):
-		ratings = super(BaseWorkshiftRatingFormSet, self).save(commit=commit)
-		self.profile.ratings = ratings
-		self._refill_ratings()
-		if commit:
-			self.profile.save()
-		return ratings
-
-WorkshiftRatingFormSet = modelformset_factory(
-	WorkshiftRating, form=WorkshiftRatingForm,
-	formset=BaseWorkshiftRatingFormSet,
-	widgets={"workshift_type": forms.HiddenInput()},
-	can_delete=False, extra=0,
-	)
-
 class TimeBlockForm(forms.ModelForm):
 	start_time = forms.TimeField(input_formats=valid_time_formats)
 	end_time = forms.TimeField(input_formats=valid_time_formats)
