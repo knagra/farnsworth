@@ -3,6 +3,7 @@
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
+{% load workshift_tags %}
 
 {% block w_headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
@@ -11,38 +12,38 @@
 {% block w_content %}
 <div class="table_container">
 
-<a href="{% wurl 'workshift:add_shift' semester=SEMESTER.sem_url %}">Add Shift</a>
-<a href="{% wurl 'workshift:assign_shifts' semester=SEMESTER.sem_url %}">Assign Shifts</a>
-<a href="{% wurl 'workshift:add_workshifter' semester=SEMESTER.sem_url %}">Add Workshifter</a>
+  <a href="{% wurl 'workshift:add_shift' semester=SEMESTER.sem_url %}">Add Shift</a>
+  <a href="{% wurl 'workshift:assign_shifts' semester=SEMESTER.sem_url %}">Assign Shifts</a>
+  <a href="{% wurl 'workshift:add_workshifter' semester=SEMESTER.sem_url %}">Add Workshifter</a>
 
-{% for pool_form in pool_forms %}
-{% if not forloop.first %}
-<br/>
-{% endif %}
-<form method="post" action="" name="edit_pool">
-  {% csrf_token %}
-  {{ pool_form|bootstrap }}
-  <button type="submit" class="btn btn-success">Edit Workshift Pool</button>
-</form>
-{% endfor %}
+  {% for pool_form in pool_forms %}
+  {% if not forloop.first %}
+  <br/>
+  {% endif %}
+  <form method="post" action="" name="edit_pool">
+	{% csrf_token %}
+	{{ pool_form|bootstrap }}
+	<button type="submit" class="btn btn-success">Edit Workshift Pool</button>
+  </form>
+  {% endfor %}
 
-{% if workshifters %}
-<table>
-  <thead>
-	<tr>
-	  <th>Workshifter</th>
-	  <th>Contact<th>
-	</tr>
-  </thead>
-  <tbody>
-	{% for workshifter in workshifters %}
-	<tr>
-	  <td><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=workshifter.user.username %}">{{ workshifter.user.get_full_name }}</td>
-	  <td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
-	</tr>
-	{% endfor %}
-  </tbody>
-</table>
-{% endif %}
+  {% if workshifters %}
+  <table>
+	<thead>
+	  <tr>
+		<th>Workshifter</th>
+		<th>Contact<th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for workshifter in workshifters %}
+	  <tr>
+		<td><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=workshifter.user.username %}">{{ workshifter.user.get_full_name }}</td>
+		<td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
 </div> <!-- .table_container -->
 {% endblock %}
