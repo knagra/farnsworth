@@ -106,6 +106,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
 	u"Nothing makes you feel more like a man than a Thundercougarfalconbird.",
 	u"You've come to the Wong place.",
 	u"I'm a cold-blooded punk.",
+	u"A byproduct of the web development industry.",
 	)
 
 # Standard messages sent to clients on errors.
