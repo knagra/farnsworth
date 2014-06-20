@@ -420,7 +420,7 @@ def request_profile_view(request):
 
 @admin_required
 def manage_profile_requests_view(request):
-	''' The page to manager user profile requests. '''
+	''' The page to manage user profile requests. '''
 	page_name = "Admin - Manage Profile Requests"
 	profile_requests = ProfileRequest.objects.all()
 	return render_to_response(
