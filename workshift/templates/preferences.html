@@ -31,6 +31,7 @@
   <table>
   	<tbody>
   	  {% for form in time_formset.forms %}
+	  {{ form.id }}
   	  <tr class="time_formset_row">
   		<td>{{ form.preference }}</td>
   		<td>{{ form.day }}</td>

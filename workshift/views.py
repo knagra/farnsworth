@@ -290,7 +290,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 			rating = WorkshiftRating(workshift_type=wtype)
 		form = WorkshiftRatingForm(
 			request.POST or None,
-			prefix=wtype.pk,
+			prefix="rating-{0}".format(wtype.pk),
 			instance=rating,
 			)
 		rating_forms.append(form)
