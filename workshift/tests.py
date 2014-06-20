@@ -433,7 +433,6 @@ class TestPreferences(TestCase):
 		self.url = "/workshift/profile/{0}/preferences/" \
 		  .format(self.wprofile.user.username)
 
-
 	def test_preferences_get(self):
 		response = self.client.get("/workshift/profile/{0}/preferences/"
 								   .format(self.wprofile.user.username))

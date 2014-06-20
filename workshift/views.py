@@ -310,9 +310,10 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	# if rating_formset.is_valid() and time_formset.is_valid() and \
 	#   note_form.is_valid():
 	if all(i.is_valid() for i in rating_forms) and time_formset.is_valid() and note_form.is_valid():
+		all_ratings = wprofile.ratings.all()
 		for rating in rating_forms:
 			rating = form.save()
-			if rating not in wprofile.ratings:
+			if rating not in all_ratings
 				wprofile.ratings.add(rating)
 
 		rating_formset.save()
