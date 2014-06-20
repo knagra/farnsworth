@@ -31,7 +31,7 @@
   <table>
   	<tbody>
   	  {% for form in time_formset.forms %}
-  	  <tr id="time_formset_row">
+  	  <tr class="time_formset_row">
   		<td>{{ form.preference }}</td>
   		<td>{{ form.day }}</td>
   		<td>{{ form.start_time }}</td>
@@ -53,16 +53,16 @@
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
-  function renewDatePickers() {
-    $("[id$=start_time]").datetimepicker('destroy');
-    $("[id$=end_time]").datetimepicker('destroy');
-    $("[id$=start_time]").each(function (i) {$(this).datepicker({pickDate: false})});
-    $("[id$=end_time]").datetimepicker({pickDate: false});
+  function renewDatePickers(row) {
+    $("[id$=start_time]", row || null).datetimepicker('destroy');
+    $("[id$=end_time]", row || null).datetimepicker('destroy');
+    $("[id$=start_time]", row || null).datetimepicker({pickDate: false});
+    $("[id$=end_time]", row || null).datetimepicker({pickDate: false});
   };
   $(document).ready(function() {
     $(renewDatePickers);
     $(function() {
-      $("#time_formset_row").formset({
+      $(".time_formset_row").formset({
         prefix: "{{ time_formset.prefix }}",
         added: renewDatePickers,
         removed: renewDatePickers,
