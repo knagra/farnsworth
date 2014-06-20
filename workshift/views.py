@@ -313,7 +313,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 		all_ratings = wprofile.ratings.all()
 		for rating in rating_forms:
 			rating = form.save()
-			if rating not in all_ratings
+			if rating not in all_ratings:
 				wprofile.ratings.add(rating)
 
 		rating_formset.save()
