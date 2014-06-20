@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block w_content %}
-<div class="table_container">
+<div id="types_container">
   <div class="header">
 	{% if can_edit %}
 	<form action="{% wurl 'workshift:add_shift' %}">
@@ -41,5 +41,5 @@
 	</tbody>
   </table>
   {% endif %}
-</div> <!-- .table_container -->
+</div> <!-- #types_container -->
 {% endblock %}
