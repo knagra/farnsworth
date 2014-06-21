@@ -340,7 +340,7 @@ def profiles_view(request, semester, profile=None):
 	# TODO: Make sure pools and pool hours sort together?
 	return render_to_response("profiles.html", {
 		"page_name": page_name,
-		"profiles": profiles,
+		"workshifters": profiles,
 		"pool": pools,
 	}, context_instance=RequestContext(request))
 
