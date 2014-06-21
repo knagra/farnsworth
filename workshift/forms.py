@@ -64,9 +64,17 @@ class PoolForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		self.full_management = kwargs.pop('full_management', False)
+		self.semester = kwargs.pop('semester', None)
 		super(PoolForm, self).__init__(*args, **kwargs)
 		if not self.full_management:
 			self.fields['managers'].widget.attrs['readonly'] = True
+
+	def save(self):
+		pool = super(PoolForm, self).save(commit=False)
+		if self.semester:
+			pool.semester = self.semester
+		pool.save()
+		return pool
 
 class RegularWorkshiftForm(forms.ModelForm):
 	class Meta:

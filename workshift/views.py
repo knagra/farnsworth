@@ -448,8 +448,10 @@ def add_pool_view(request, semester):
 	View for the workshift manager to create new workshift pools (i.e. HI Hours).
 	"""
 	page_name = "Add Workshift Pool"
-	add_pool_form = WorkshiftPoolForm(
+	add_pool_form = PoolForm(
 		request.POST or None,
+		semester=semester,
+		full_management=True,
 		)
 	if add_pool_form.is_valid():
 		add_pool_form.save()
