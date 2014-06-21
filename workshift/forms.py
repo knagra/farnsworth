@@ -74,6 +74,7 @@ class PoolForm(forms.ModelForm):
 		if self.semester:
 			pool.semester = self.semester
 		pool.save()
+		self.save_m2m()
 		for profile in WorkshiftProfile.objects.filter(semester=pool.semester):
 			if not profile.pool_hours.filter(pool=pool):
 				pool_hours = PoolHours(
