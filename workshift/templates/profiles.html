@@ -23,7 +23,7 @@
 	<tbody>
 	  {% for workshifter in workshifters %}
 	  <tr>
-		<td><a href="{% wurl 'workshift:view_profile' targetUsername=workshifter.user.username sem_url=SEMESTER.sem_url %}">{{ workshifter.user.get_full_name }}</a></td>
+		<td><a href="{% wurl 'workshift:profile' targetUsername=workshifter.user.username sem_url=SEMESTER.sem_url %}">{{ workshifter.user.get_full_name }}</a></td>
 		{% for pool_hours in workshifter.pool_hours.all %}
 		<td>{% if 0 > pool_hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ pool_hours.standing }}</font></td>
 		{% endfor %}
