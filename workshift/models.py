@@ -306,6 +306,17 @@ class PoolHours(models.Model):
 		"Stored in a field for manual adjustment.",
 		)
 
+	def show_hours(self):
+		if self.pool.weeks_per_period == 0:
+			ret = "{0} hour{1} per semester"
+		elif self.pool.weeks_per_period == 1:
+			ret = "{0} hour{1} per week"
+		else:
+			ret = "{{}} hour{{}} per {0} weeks".format(self.pool.weeks_per_period)
+		return ret.format(
+			self.hours, "s" if self.hours != 1 else "",
+			)
+
 class WorkshiftProfile(models.Model):
 	''' A workshift profile for a user for a given semester. '''
 	user = models.ForeignKey(

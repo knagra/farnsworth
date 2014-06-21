@@ -24,7 +24,7 @@
   {% endfor %}
   </p>
   {% endif %}
-  <p>{{ pool.hours }} {% if pool_hours.pool.weeks_per_period == 0 %}per semester{% elif pool_hours.pool.weeks_per_period == 1 %}per week{% else %}per {{ pool_hours.pool.weeks_per_period }} weeks{% endif %}</p>
+  <p>{{ pool.show_hours }}</p>
   {% if pool.first_fine_date %}
   <p>{{ pool.first_fine_date }}</p>
   {% endif %}
