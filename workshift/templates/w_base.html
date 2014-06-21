@@ -35,9 +35,9 @@
   <br />
   {% endif %}
   <div class="row" style="margin-top: 5px;">
-	<div class="col-md-9 col-sm-12 col-xs-12">
+	<div id="workshift_content" class="col-md-9">
 	  {% block w_content %}{% endblock %}
-	</div> <!-- .col-lg-8 -->
+	</div> <!-- #workshift_content -->
 	<div id="side_bar" class="col-md-3">
 	  {% block sidebartop %}{% endblock %}
 	  {% if WORKSHIFT_PROFILE %}
@@ -58,7 +58,7 @@
 	  </div> <!-- #upcoming_shifts -->
 	  {% endif %}
 	  {% block sidebarbottom %}{% endblock %}
-	</div> <!-- .col-md-3 -->
+	</div> <!-- #side_bar -->
   </div> <!-- .row -->
 </div> <!-- .container -->
 {% endblock %}
