@@ -373,16 +373,6 @@ def manage_view(request, semester, profile=None):
 		pool_forms.append(form)
 
 	workshifters = WorkshiftProfile.objects.filter(semester=semester)
-	add_instance_form = WorkshiftInstanceForm(
-		request.POST if "add_instance" in request.POST else None,
-		pools=pools,
-		)
-	if add_instance_form.is_valid():
-		add_instance_form.save()
-		messages.add_message(request, message.INFO, "Workshift added.")
-		return HttpResponseRedirect(wurl('workshift:manage',
-										 sem_url=semester.sem_url))
-
 	pool_hours = [workshifter.pool_hours.filter(pool__in=pools)
 				  for workshifter in workshifters]
 
@@ -393,7 +383,6 @@ def manage_view(request, semester, profile=None):
 		"semester_form": semester_form,
 		"pool_forms": pool_forms,
 		"workshifters": zip(workshifters, pool_hours),
-		"add_instance_form": add_instance_form,
 	}, context_instance=RequestContext(request))
 
 @semester_required

@@ -10,6 +10,7 @@
 
 {% block w_content %}
 <div id="manage_container">
+  <h3>Manage Workshifts</h3>
 
   <div>
 	<h4>Links</h4>
@@ -31,15 +32,6 @@
 	<button type="submit" class="btn btn-success" name="edit_pool">Edit Workshift Pool</button>
   </form>
   {% endfor %}
-
-  {% if add_instance_form %}
-  <br/>
-  <form method="post" action="">
-	{% csrf_token %}
-	{{ add_instance_form|bootstrap }}
-	<button type="submit" class="btn btn-success" name="add_instance">Add Workshift</button>
-  </form>
-  {% endif %}
 
   {% if workshifters %}
   <br/>

@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block w_content %}
+<h3>{{ page_name }}</h3>
 {% if add_instance_form %}
 <form method="post" action="" name="add_instance">
   {% csrf_token %}
