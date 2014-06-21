@@ -10,7 +10,7 @@
 {% block w_content %}
 <div class="instance_container">
   <h3>{{ page_name }}</h3>
-  <form method="post" action="edit_pool">
+  <form method="post" action="">
 	{% csrf_token %}
 	{{ edit_pool_form|bootstrap }}
 	<button type="submit" class="btn btn-success">Edit Workshift Pool</button>
