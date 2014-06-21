@@ -443,6 +443,26 @@ def add_workshifter_view(request, semester):
 
 @semester_required
 @workshift_manager_required
+def add_pool_view(request, semester):
+	"""
+	View for the workshift manager to create new workshift pools (i.e. HI Hours).
+	"""
+	page_name = "Add Workshift Pool"
+	add_pool_form = WorkshiftPoolForm(
+		request.POST or None,
+		)
+	if add_pool_form.is_valid():
+		add_pool_form.save()
+		messages.add_message(request, messages.INFO, "Workshift pool added.")
+		return HttpResponseRedirect(wurl('workshift:manage',
+										 sem_url=semester.sem_url))
+	return render_to_response("add_pool.html", {
+		"page_name": page_name,
+		"add_pool_form": add_pool_form,
+		})
+
+@semester_required
+@workshift_manager_required
 def add_shift_view(request, semester):
 	"""
 	View for the workshift manager to create new types of workshifts.
