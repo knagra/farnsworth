@@ -10,20 +10,9 @@
 
 {% block w_content %}
 <div id="manage_container">
-  <h3>Manage Workshifts</h3>
-
-  <div>
-	<h4>Links</h4>
-	<ul>
-	  <li><a href="{% wurl 'workshift:add_shift' semester=SEMESTER.sem_url %}">Add Shift</a></li>
-	  <li><a href="{% wurl 'workshift:assign_shifts' semester=SEMESTER.sem_url %}">Assign Shifts</a></li>
-	  <li><a href="{% wurl 'workshift:add_pool' semester=SEMESTER.sem_url %}">Add Workshift Pool</a></li>
-	  <li><a href="{% wurl 'workshift:add_workshifter' semester=SEMESTER.sem_url %}">Add Workshifter</a></li>
-	</ul>
-  </div>
+  <h1 class="w_title">Manage Workshifts</h1>
 
   {% if pools %}
-  <br/>
 
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="pools_table">
 	<thead>
@@ -85,7 +74,7 @@
 </div> <!-- #manage_container -->
 {% endblock %}
 
-{% block endscripts %}
+{% block w_endscripts %}
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>

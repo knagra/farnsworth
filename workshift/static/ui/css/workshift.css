@@ -13,10 +13,10 @@
 	margin-top: 0px;
 }
 
-#sidebar_list {
+.sidebar_list {
 	list-style: none;
 	padding-left: 10px;
 }
-#sidebar_list > li {
+.sidebar_list > li {
 	
 }

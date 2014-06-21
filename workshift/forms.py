@@ -1,3 +1,9 @@
+"""
+Project: Farnsworth
+
+Authors: Karandeep Singh Nagra and Nader Morshed
+"""
+
 
 from django import forms
 from django.forms.models import BaseModelFormSet, modelformset_factory, \
@@ -304,8 +310,8 @@ class AddWorkshifterForm(forms.ModelForm):
 		self.semester = kwargs.pop("semester")
 		self.users = kwargs.pop('users', None)
 		super(AddWorkshifterForm, self).__init__(*args, **kwargs)
-		if users:
-			self.fields["user"].queryset = users
+		if self.users:
+			self.fields["user"].queryset = self.users
 
 	def save(self):
 		profile = super(AddWorkshifterForm, self).save(commit=False)

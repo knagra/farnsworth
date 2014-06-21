@@ -41,15 +41,24 @@
 	<br class="visible-sm visible-xs" />
 	<hr class="visible-sm visible-xs" />
 	<div id="side_bar" class="col-md-3">
-		<h4 class="w_subtitle">Quick Links</h4>
 	  {% block sidebartop %}{% endblock %}
 	  {% if WORKSHIFT_PROFILE %}
-	  <ul id="sidebar_list">
+	  <h4 class="w_subtitle">My Profile</h4>
+	  <ul class="sidebar_list">
 		<li><a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">My Workshift History</a></li>
-		<li><a href="{% wurl 'workshift:preferences' targetUsername=profile.user.username sem_url=SEMESTER.sem_url %}">Edit your preferences</a></li>
+		<li><a href="{% wurl 'workshift:preferences' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">Edit your preferences</a></li>
 	  </ul>
 	  {% else %}
 
+	  {% endif %}
+	  {% if WORKSHIFT_MANAGER %}
+	  <h4 class="w_subtitle">Manage Workshift</h4>
+	  <ul class="sidebar_list">
+		<li><a href="{% wurl 'workshift:add_shift' semester=SEMESTER.sem_url %}">Add Shift</a></li>
+		<li><a href="{% wurl 'workshift:assign_shifts' semester=SEMESTER.sem_url %}">Assign Shifts</a></li>
+		<li><a href="{% wurl 'workshift:add_pool' semester=SEMESTER.sem_url %}">Add Workshift Pool</a></li>
+		<li><a href="{% wurl 'workshift:add_workshifter' semester=SEMESTER.sem_url %}">Add Workshifter</a></li>
+	  </ul>
 	  {% endif %}
 	  {% if upcoming_shifts %}
 	  <h5 id="shifts_title">Upcoming Shifts</h5>
