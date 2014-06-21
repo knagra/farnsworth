@@ -12,7 +12,6 @@ from django.utils.timezone import utc
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import models
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -20,7 +19,7 @@ from django.template import RequestContext
 from workshift.templatetags.workshift_tags import wurl
 
 from utils.variables import MESSAGES
-from base.models import UserProfile, User
+from base.models import User
 from managers.models import Manager
 from workshift.decorators import get_workshift_profile, \
 	workshift_manager_required, semester_required
@@ -613,8 +612,7 @@ def edit_instance_view(request, semester, pk, profile=None):
 	View for a manager to edit the details of a particular WorkshiftInstance.
 	"""
 	shift = get_object_or_404(WorkshiftInstance, pk=pk)
-	user_profile = UserProfile.objects.get(user=request.user)
-	managers = shift.pool.managers.filter(incumbent=user_profile)
+	managers = shift.pool.managers.filter(incumbent__user=request.user)
 
 	if not request.user.is_superuser and not managers.count():
 		messages.add_message(request, messages.ERROR,
