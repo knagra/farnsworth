@@ -1,0 +1,38 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<div class="instance_container">
+  <h3>{{ page_name }}</h3>
+  {% if WORKSHIFT_MANAGER %}
+  <p><a href="{% wurl 'workshift:edit_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}">Edit this pool</a></p>
+  {% endif %}
+  {% if pool.managers.count %}
+  <p>Managers:
+  {% for pos in pool.managers.all %}
+  {% if not forloop.first %}, {% endif %}
+  <a {% if pos.active %}title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{% url 'edit_manager' managerTitle=pos.url_title %}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+  {% if pos.incumbent %}
+  (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
+  {% else %}
+  <span title="There is currently no incumbent for this position." class="text-danger">(No incumbent)</span>
+  {% endif %}
+  {% endfor %}
+  </p>
+  {% endif %}
+  <p>{{ pool.hours }} {% if pool_hours.pool.weeks_per_period == 0 %}per semester{% elif pool_hours.pool.weeks_per_period == 1 %}per week{% else %}per {{ pool_hours.pool.weeks_per_period }} weeks{% endif %}</p>
+  {% if pool.first_fine_date %}
+  <p>{{ pool.first_fine_date }}</p>
+  {% endif %}
+  {% if pool.second_fine_date %}
+  <p>{{ pool.second_fine_date }}</p>
+  {% endif %}
+  {% if pool.third_fine_date %}
+  <p>{{ pool.third_fine_date }}</p>
+  {% endif %}
+</div> <!-- .instance_container -->
+{% endblock %}

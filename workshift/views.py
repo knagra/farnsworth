@@ -356,21 +356,6 @@ def manage_view(request, semester, profile=None):
 			request.POST if "edit_semester" in request.POST else None,
 			instance=semester,
 			)
-		# TODO: Do we want a "Add Workshift Pool" on this page?
-
-	pool_forms = []
-	for pool in pools:
-		form = PoolForm(
-			request.POST if "edit_pool" in request.POST else None,
-			prefix=pool.pk,
-			instance=pool,
-			full_management=full_management,
-			)
-		if form.is_valid():
-			form.save()
-			return HttpResponseRedirect(wurl('workshift:manage',
-											 sem_url=semester.sem_url))
-		pool_forms.append(form)
 
 	workshifters = WorkshiftProfile.objects.filter(semester=semester)
 	pool_hours = [workshifter.pool_hours.filter(pool__in=pools)
@@ -381,7 +366,6 @@ def manage_view(request, semester, profile=None):
 		"pools": pools,
 		"full_management": full_management,
 		"semester_form": semester_form,
-		"pool_forms": pool_forms,
 		"workshifters": zip(workshifters, pool_hours),
 	}, context_instance=RequestContext(request))
 
@@ -504,6 +488,48 @@ def add_shift_view(request, semester):
 		"add_shift_form": add_shift_form,
 	}, context_instance=RequestContext(request))
 
+
+@get_workshift_profile
+def pool_view(request, semester, pk, profile=None):
+	pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
+	page_name = pool.title
+
+	return render_to_response("view_pool.html", {
+		"page_name": page_name,
+		"pool": pool,
+	}, context_instance=RequestContext(request))
+
+@workshift_manager_required
+@get_workshift_profile
+def edit_pool_view(request, semester, pk, profile=None):
+	pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
+	page_name = "Edit " + pool.title
+	full_management = can_manage(request, semester)
+	managers = pool.managers.filter(incumbent__user=request.user)
+
+	if not full_management and not managers.count():
+		messages.add_message(request, messages.ERROR,
+							 MESSAGES['ADMINS_ONLY'])
+		return HttpResponseRedirect(wurl('workshift:view_semester',
+										 sem_url=semester.sem_url))
+
+	edit_pool_form = PoolForm(
+		request.POST or None,
+		instance=pool,
+		full_management=full_management,
+		)
+	if edit_pool_form.is_valid():
+		edit_pool_form.save()
+		messages.add_message(request, messages.INFO,
+							 "Workshift pool successfully updated.")
+		return HttpResponseRedirect(wurl('workshift:manage',
+										 sem_url=semester.sem_url))
+
+	return render_to_response("view_pool.html", {
+		"page_name": page_name,
+		"edit_pool_form": edit_pool_form,
+	}, context_instance=RequestContext(request))
+
 @get_workshift_profile
 def shift_view(request, semester, pk, profile=None):
 	"""
@@ -523,8 +549,7 @@ def edit_shift_view(request, semester, pk, profile=None):
 	View for a manager to edit the details of a particular RegularWorkshift.
 	"""
 	shift = get_object_or_404(RegularWorkshift, pk=pk)
-	user_profile = UserProfile.objects.get(user=request.user)
-	managers = shift.pool.managers.filter(incumbent=user_profile)
+	managers = shift.pool.managers.filter(incumbent__user=request.user)
 
 	if not request.user.is_superuser and not managers.count():
 		messages.add_message(request, messages.ERROR,

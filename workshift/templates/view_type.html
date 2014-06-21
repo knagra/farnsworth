@@ -3,15 +3,17 @@
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
-
-{% block w_headers %}
-{% endblock %}
+{% load workshift_tags %}
 
 {% block w_content %}
 <div class="instance_container">
-<p>{{ shift.title }}</p>
-<p>{{ shift.hours }}</p>
-<p>{{ shift.quick_tips }}</p>
-<p>{{ shift.description }}</p>
+  <h3>{{ page_name }}</h3>
+  {% if WORKSHIFT_MANAGER %}
+  <p><a href="{% wurl 'workshift:edit_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}">Edit this shift</a></p>
+  {% endif %}
+  <p>{{ shift.title }}</p>
+  <p>{{ shift.hours }}</p>
+  <p>{{ shift.quick_tips }}</p>
+  <p>{{ shift.description }}</p>
 </div> <!-- .instance_container -->
 {% endblock %}

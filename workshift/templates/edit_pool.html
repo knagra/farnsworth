@@ -1,0 +1,19 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+
+{% block w_headers %}
+{% endblock %}
+
+{% block w_content %}
+<div class="instance_container">
+  <h3>{{ page_name }}</h3>
+  <form method="post" action="edit_pool">
+	{% csrf_token %}
+	{{ edit_pool_form|bootstrap }}
+	<button type="submit" class="btn btn-success">Edit Workshift Pool</button>
+  </form>
+</div> <!-- .instance_container -->
+{% endblock %}

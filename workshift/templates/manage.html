@@ -22,17 +22,6 @@
 	</ul>
   </div>
 
-  {% for pool_form in pool_forms %}
-  {% if not forloop.first %}
-  <br/>
-  {% endif %}
-  <form method="post" action="">
-	{% csrf_token %}
-	{{ pool_form|bootstrap }}
-	<button type="submit" class="btn btn-success" name="edit_pool">Edit Workshift Pool</button>
-  </form>
-  {% endfor %}
-
   {% if workshifters %}
   <br/>
 
@@ -51,7 +40,7 @@
 		<td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
 		<td>
 		  {% for hours in pool_hours %}{% if not forloop.first %}, {% endif %}
-		  {{ hours.pool.title }} - {% if 0 > hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ hours.standing }}</font>{% endfor %}
+		  {{ hours.pool.title }}: {% if 0 > hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ hours.standing }}</font>{% endfor %}
 		</td>
 	  </tr>
 	  {% endfor %}
