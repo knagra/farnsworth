@@ -525,7 +525,7 @@ def edit_pool_view(request, semester, pk, profile=None):
 		return HttpResponseRedirect(wurl('workshift:manage',
 										 sem_url=semester.sem_url))
 
-	return render_to_response("view_pool.html", {
+	return render_to_response("edit_pool.html", {
 		"page_name": page_name,
 		"edit_pool_form": edit_pool_form,
 	}, context_instance=RequestContext(request))
