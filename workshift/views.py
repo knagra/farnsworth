@@ -341,7 +341,7 @@ def profiles_view(request, semester, profile=None):
 	return render_to_response("profiles.html", {
 		"page_name": page_name,
 		"workshifters": profiles,
-		"pool": pools,
+		"pools": pools,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
