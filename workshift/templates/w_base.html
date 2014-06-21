@@ -15,14 +15,14 @@
   <div class="row">
 	<div class="col-xs-12">
 	  <div class="row">
+		<h5 class="col-xs-3 text-left">{{ CURRENT_SEMESTER.start_date|date:"N d" }}<span class="hidden-xs">,
+			{{ CURRENT_SEMESTER.start_date|date:"Y" }}</span></h5>
 		<a href="{% wurl 'workshift:view_semester' sem_url=CURRENT_SEMESTER.sem_url %}">
-		  <h5 class="col-xs-3 text-left">{{ CURRENT_SEMESTER.start_date|date:"N d" }}<span class="hidden-xs">,
-			  {{ CURRENT_SEMESTER.start_date|date:"Y" }}</span></h5>
 		  <h4 class="col-xs-6 text-center" id="current_semester"><span class="hidden-xs">Current Semester
 			  - </span>{{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}</h4>
-		  <h5 class="col-xs-3 text-right">{{ CURRENT_SEMESTER.end_date|date:"N d" }}<span class="hidden-xs">,
-			  {{ CURRENT_SEMESTER.end_date|date:"Y" }}</span></h5>
 		</a>
+		<h5 class="col-xs-3 text-right">{{ CURRENT_SEMESTER.end_date|date:"N d" }}<span class="hidden-xs">,
+			{{ CURRENT_SEMESTER.end_date|date:"Y" }}</span></h5>
 	  </div> <!-- .row -->
 	  <div title="{{ days_passed }} day{{ days_passed|pluralize }} of {{ total_days }} in semester passed ({{ semester_percent}}%)" class="progress">
 		<div class="progress-bar" role="progressbar" aria-valuenow="{{ days_passed }}" aria-valuemin="0" aria-valuemax="{{ total_days }}" style="width: {{ semester_percent }}%;">
