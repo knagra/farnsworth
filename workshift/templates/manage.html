@@ -30,6 +30,7 @@
 	  <tr>
 		<th>Workshift Pool</th>
 		<th>Managers</th>
+		<th>Hours</th>
 	  </tr>
 	</thead>
 	<tbody>
@@ -49,6 +50,7 @@
 		  {% endfor %}
 		  {% endif %}
 		</td>
+		<td>{{ pool.show_hours }}</td>
 	  </tr>
 	  {% endfor %}
 	</tbody>

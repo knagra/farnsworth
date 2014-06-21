@@ -145,6 +145,17 @@ class WorkshiftPool(models.Model):
 	def __unicode__(self):
 		return "<{0}, {1}>".format(self.title, self.semester)
 
+	def show_hours(self):
+		if self.weeks_per_period == 0:
+			string = "{} hour{} per semester"
+		elif self.weeks_per_period == 1:
+			string = "{} hour{} per week"
+		else:
+			string = "{{}} hour{{}} per {} weeks".format(self.weeks_per_period)
+		return string.format(
+			self.hours, "s" if self.hours != 1 else "",
+			)
+
 class WorkshiftType(models.Model):
 	'''
 	A workshift type; for example, a "Pots" workshift type.
