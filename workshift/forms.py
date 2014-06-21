@@ -75,13 +75,14 @@ class PoolForm(forms.ModelForm):
 			pool.semester = self.semester
 		pool.save()
 		for profile in WorkshiftProfile.objects.filter(semester=pool.semester):
-			pool_hours = PoolHours(
-				pool=pool,
-				hours=pool.hours,
-				)
-			pool_hours.save()
-			profile.pool_hours.add(pool_hours)
-			profile.save()
+			if not profile.pool_hours.filter(pool=pool):
+				pool_hours = PoolHours(
+					pool=pool,
+					hours=pool.hours,
+					)
+				pool_hours.save()
+				profile.pool_hours.add(pool_hours)
+				profile.save()
 		return pool
 
 class RegularWorkshiftForm(forms.ModelForm):
