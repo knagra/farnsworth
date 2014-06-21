@@ -450,7 +450,7 @@ def add_pool_view(request, semester):
 	return render_to_response("add_pool.html", {
 		"page_name": page_name,
 		"add_pool_form": add_pool_form,
-		})
+		}, context_instance=RequestContext(request))
 
 @semester_required
 @workshift_manager_required
