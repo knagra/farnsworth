@@ -3,7 +3,7 @@ from django import forms
 from django.forms.models import BaseModelFormSet, modelformset_factory, \
 	 BaseInlineFormSet, inlineformset_factory
 
-from base.models import UserProfile
+from base.models import UserProfile, User
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
