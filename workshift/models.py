@@ -147,12 +147,12 @@ class WorkshiftPool(models.Model):
 
 	def show_hours(self):
 		if self.weeks_per_period == 0:
-			string = "{} hour{} per semester"
+			ret = "{0} hour{1} per semester"
 		elif self.weeks_per_period == 1:
-			string = "{} hour{} per week"
+			ret = "{0} hour{1} per week"
 		else:
-			string = "{{}} hour{{}} per {} weeks".format(self.weeks_per_period)
-		return string.format(
+			ret = "{{}} hour{{}} per {0} weeks".format(self.weeks_per_period)
+		return ret.format(
 			self.hours, "s" if self.hours != 1 else "",
 			)
 
