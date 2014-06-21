@@ -417,7 +417,7 @@ def add_workshifter_view(request, semester):
 	page_name = "Add Workshifter"
 
 	existing = [
-		i.user.pk for i in WorkshiftProfile.objects.filter(semester=self.semester)
+		i.user.pk for i in WorkshiftProfile.objects.filter(semester=semester)
 		]
 	users = User.objects.exclude(pk__in=existing)
 
