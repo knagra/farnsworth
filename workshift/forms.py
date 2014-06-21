@@ -79,6 +79,7 @@ class PoolForm(forms.ModelForm):
 				pool=pool,
 				hours=pool.hours,
 				)
+			pool_hours.save()
 			profile.pool_hours.add(pool_hours)
 			profile.save()
 		return pool
