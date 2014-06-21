@@ -320,7 +320,10 @@ def preferences_view(request, semester, targetUsername, profile=None):
 										 sem_url=semester.sem_url,
 										 targetUsername=request.user.username))
 
-	page_name = "{0}'s Workshift Preferences".format(
+	if wprofile == profile:
+		page_name = "My Workshift Preferences"
+	else:
+		page_name = "{0}'s Workshift Preferences".format(
 		wprofile.user.get_full_name())
 	return render_to_response("preferences.html", {
 		"page_name": page_name,
