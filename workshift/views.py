@@ -333,6 +333,18 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
+def profiles_view(request, semester, targetUsername, profile=None):
+	page_name = "Workshift Profiles"
+	profiles = WorkshiftProfile.objects.filter(semester=semester)
+	pools = WorkshiftPool.objects.filter(semester=semester)
+	# TODO: Make sure pools and pool hours sort together?
+	return render_to_response("profiles.html", {
+		"page_name": page_name,
+		"profiles": profiles,
+		"pool": pools,
+	}, context_instance=RequestContext(request))
+
+@get_workshift_profile
 def manage_view(request, semester, profile=None):
 	"""
 	View all members' preferences. This view also includes forms to create an
