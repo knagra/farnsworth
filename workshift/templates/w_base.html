@@ -38,11 +38,15 @@
 	<div id="workshift_content" class="col-md-9">
 	  {% block w_content %}{% endblock %}
 	</div> <!-- #workshift_content -->
+	<br class="visible-sm visible-xs" />
+	<hr class="visible-sm visible-xs" />
 	<div id="side_bar" class="col-md-3">
+		<h4 class="w_subtitle">Quick Links</h4>
 	  {% block sidebartop %}{% endblock %}
 	  {% if WORKSHIFT_PROFILE %}
-	  <ul>
+	  <ul id="sidebar_list">
 		<li><a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">My Workshift History</a></li>
+		<li><a href="{% wurl 'workshift:preferences' targetUsername=profile.user.username sem_url=SEMESTER.sem_url %}">Edit your preferences</a></li>
 	  </ul>
 	  {% else %}
 

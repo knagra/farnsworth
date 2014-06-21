@@ -12,3 +12,11 @@
 	font-weight: 300;
 	margin-top: 0px;
 }
+
+#sidebar_list {
+	list-style: none;
+	padding-left: 10px;
+}
+#sidebar_list > li {
+	
+}
