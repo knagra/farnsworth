@@ -333,7 +333,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
-def profiles_view(request, semester, targetUsername, profile=None):
+def profiles_view(request, semester, profile=None):
 	page_name = "Workshift Profiles"
 	profiles = WorkshiftProfile.objects.filter(semester=semester)
 	pools = WorkshiftPool.objects.filter(semester=semester)
