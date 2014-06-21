@@ -111,6 +111,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
 	u"This time, it's personal.",
 	u"Provides a full day's supply of vitamin F!",
 	u"If ingested, induce vomiting.",
+	u"For the sophisticated shut-in.",
 	)
 
 # Standard messages sent to clients on errors.
