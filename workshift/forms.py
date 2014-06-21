@@ -299,6 +299,7 @@ class AddWorkshifterForm(forms.ModelForm):
 		profile = super(AddWorkshifterForm, self).save(commit=False)
 
 		profile.semester = self.semester
+		profile.save()
 
 		for pool in WorkshiftPool.objects.filter(semester=self.semester):
 			hours = PoolHours(pool=pool)
