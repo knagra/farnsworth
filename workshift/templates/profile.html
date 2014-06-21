@@ -17,7 +17,7 @@
   <h4>Past Shifts</h4>
   {% for shift in past_shifts %}
   <div>
-	<p><a href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a> - {{ shift.hours }}{% if shift.blown %} - <span color="red">BLOWN</span>{% elif shift.verifier %}- <span color="green">Verified by <a href="{% wurl 'workshift:profile' targetUsername=shift.verifier.user.username sem_url=SEMESTER.sem_url %}">{{ shift.verifier.user.get_full_name }}</a>{% endif %}</p>
+	<p><a href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a> - {{ shift.hours }}{% if shift.blown %} - <font color="red">BLOWN</font>{% elif shift.verifier %}- <font color="green">Verified by <a href="{% wurl 'workshift:profile' targetUsername=shift.verifier.user.username sem_url=SEMESTER.sem_url %}">{{ shift.verifier.user.get_full_name }}</a>{% endif %}</p>
   </div>
   {% endfor %}
   {% endif %}
@@ -25,7 +25,7 @@
   <div>
 	<p><a href="">{{ pool_hour.pool.title }}</a>:</p>
 	<p>{{ pool_hour.hours }} per week</p>
-	<p>{% if pool_hour.standing < 0 %}<span color="red">{% else %}<span color="green">{% endif %}{{ pool_hour.standing }}</span></p>
+	<p>{% if pool_hour.standing < 0 %}<font color="red">{% else %}<font color="green">{% endif %}{{ pool_hour.standing }}</font></p>
 	{% if pool_hour.first_date_standing %}
 	<p>First Fine Date Standing: {{ pool_hour.first_date_standing }}</p>
 	{% endif %}

@@ -58,7 +58,7 @@
 		<td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
 		<td>
 		  {% for hours in pool_hours %}{% if not forloop.first %}, {% endif %}
-		  {{ hours.pool.title }} - {% if 0 > hours.standing %}<span color="red">{% else %}<span color="green">{% endif %}{{ hours.standing }}</span>{% endfor %}
+		  {{ hours.pool.title }} - {% if 0 > hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ hours.standing }}</font>{% endfor %}
 		</td>
 	  </tr>
 	  {% endfor %}
@@ -73,6 +73,7 @@
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
-  $("[id$=fine_date]").datetimepicker({pickTime: false});
+  $("[id$=date]").datetimepicker({pickTime: false});
+  $("[id$=time]").datetimepicker({pickDate: false});
 </script>
 {% endblock %}
