@@ -107,6 +107,8 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
 	u"You've come to the Wong place.",
 	u"I'm a cold-blooded punk.",
 	u"A byproduct of the web development industry.",
+	u"Made you look!",
+	u"This time, it's personal.",
 	)
 
 # Ordered integer representations of days of the week.  Used in parts of the workshift module.

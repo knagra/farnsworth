@@ -24,10 +24,11 @@
 	  {% endfor %}
 	</tbody>
   </table>
+  <br />
   {% endif %}
   {% if time_formset %}
   <h2 class="w_title">Your Schedule</h2>
-  <table>
+  <table border="0" cellpadding="0" cellspacing="0">
   	<tbody>
   	  {% for form in time_formset.forms %}
 	  {{ form.id }}
@@ -41,6 +42,7 @@
   	</tbody>
   </table>
   {{ time_formset.management_form }}
+  <br />
   {% endif %}
   <h2 class="w_title">Notes</h2>
   {{ note_form|bootstrap }}
