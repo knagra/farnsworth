@@ -13,6 +13,15 @@
 <div class="instance_container">
   <a href="{% wurl 'workshift:preferences' targetUsername=profile.user.username sem_url=SEMESTER.sem_url %}">Edit your preferences</a>
 
+  {% if regular_shifts %}
+  <h4>Regular Shifts</h4>
+  {% for shift in regular_shifts %}
+  <div>
+	<p><a href="{% wurl 'workshift:view_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a>: {% if not shift.week_long %} {{ shift.day }}, {{ shift.start_time }}-{{ shift.end_time }}, {% endif %} {{ shift.hours }} hour{{ shift.hours|pluralize }}</p>
+  </div>
+  {% endfor %}
+  {% endif %}
+
   {% if past_shifts %}
   <h4>Past Shifts</h4>
   {% for shift in past_shifts %}

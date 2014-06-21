@@ -263,10 +263,13 @@ def profile_view(request, semester, targetUsername, profile=None):
 	wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
 	page_name = "{0}'s Workshift Profile".format(wprofile.user.get_full_name())
 	past_shifts = WorkshiftInstance.objects.filter(workshifter=wprofile, closed=True)
+	regular_shifts = RegularWorkshift.objects.filter(active=True,
+													 current_assignee=wprofile)
 	return render_to_response("profile.html", {
 		"page_name": page_name,
 		"profile": wprofile,
 		"past_shifts": past_shifts,
+		"regular_shifts": regular_shifts,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile

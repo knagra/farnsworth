@@ -38,7 +38,9 @@
 <div id="side_bar" class="col-md-3">
 {% block sidebartop %}{% endblock %}
 {% if WORKSHIFT_PROFILE %}
-
+<ul>
+  <li><a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">My Workshift History</a></li>
+</ul>
 {% else %}
 
 {% endif %}
