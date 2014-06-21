@@ -333,6 +333,9 @@ class WorkshiftProfile(models.Model):
 	def __unicode__(self):
 		return "<{0}, {1}>".format(self.user.get_full_name(), self.semester)
 
+	class Meta:
+		unique_together = ("user", "semester")
+
 class RegularWorkshift(models.Model):
 	'''
 	A weekly workshift for a semester.  Used to generate individual instances of

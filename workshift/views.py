@@ -20,7 +20,7 @@ from django.template import RequestContext
 from workshift.templatetags.workshift_tags import wurl
 
 from utils.variables import MESSAGES
-from base.models import UserProfile
+from base.models import UserProfile, User
 from managers.models import Manager
 from workshift.decorators import get_workshift_profile, \
 	workshift_manager_required, semester_required
@@ -416,13 +416,25 @@ def add_workshifter_view(request, semester):
 	"""
 	page_name = "Add Workshifter"
 
-	add_workshifter_form = AddWorkshifterForm(request.POST or None)
+	existing = [
+		i.user.pk for i in WorkshiftProfile.objects.filter(semester=self.semester)
+		]
+	users = User.objects.exclude(pk__in=existing)
 
-	if add_workshifter_form.is_valid():
-		add_workshifter_form.save()
-		messages.add_message(request, messages.INFO, "Workshifter added.")
-		return HttpResponseRedirect(wurl("workshift:manage",
-										 sem_url=semester.sem_url))
+	if users:
+		add_workshifter_form = AddWorkshifterForm(
+			request.POST or None,
+			semester=semester,
+			users=users,
+			)
+
+		if add_workshifter_form.is_valid():
+			add_workshifter_form.save()
+			messages.add_message(request, messages.INFO, "Workshifter added.")
+			return HttpResponseRedirect(wurl("workshift:manage",
+											 sem_url=semester.sem_url))
+	else:
+		add_workshifter_form = None
 
 	return render_to_response("add_workshifter.html", {
 		"page_name": page_name,

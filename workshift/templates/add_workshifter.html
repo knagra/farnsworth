@@ -8,10 +8,14 @@
 
 {% block w_content %}
 <div class="instance_container">
+  {% if add_workshifter_form %}
   <form method="post" action="">
 	{% csrf_token %}
 	{{ add_workshifter_form|bootstrap }}
 	<button type="submit" class="btn btn-success">Add Workshifter</button>
   </form>
+  {% else %}
+  <p>Everyone in the database already has a workshift profile for this semester!</p>
+  {% endif %}
 </div>
 {% endblock %}
