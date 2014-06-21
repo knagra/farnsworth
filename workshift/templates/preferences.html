@@ -54,11 +54,7 @@
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
   function renewDatePickers(row) {
-    $("[id$=start_time]", row || null).datetimepicker({
-      pickDate: false,
-      pick12HourFormat: true,
-    });
-    $("[id$=end_time]", row || null).datetimepicker({
+    $("[id$=_time]", row || null).datetimepicker({
       pickDate: false,
       pick12HourFormat: true,
     });

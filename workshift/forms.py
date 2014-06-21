@@ -94,7 +94,8 @@ class RegularWorkshiftForm(forms.ModelForm):
 class WorkshiftInstanceForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftInstance
-		exclude = ("weekly_workshift", "info", "intended_hours", "log")
+		exclude = ("weekly_workshift", "info", "intended_hours", "logs",
+				   "blown", "semester", "verifier")
 
 	title = forms.CharField(
 		max_length=255,
