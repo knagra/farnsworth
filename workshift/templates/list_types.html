@@ -10,16 +10,14 @@
 
 {% block w_content %}
 <div id="types_container">
-  <div class="header">
 	{% if can_edit %}
-	<form action="{% wurl 'workshift:add_shift' %}">
+	<form action="{% wurl 'workshift:add_shift' %}" class="pull-right">
 	  <button class="btn btn-primary" type="submit">
 		<span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Shift</span>
 	  </button>
 	</form>
 	{% endif %}
-	<h3 class="table_title small_title">{{ page_name }}</h3>
-  </div> <!-- .header -->
+	<h1 class="w_title">{{ page_name }}</h1>
   {% if not shifts %}
   <div class="field_wrapper text-info">No shifts found.</div>
   {% else %}
