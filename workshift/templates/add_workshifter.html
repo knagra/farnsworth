@@ -5,5 +5,11 @@
 {% endblock %}
 
 {% block w_content %}
-
+<div class="instance_container">
+  <form method="post" action="">
+	{% csrf_token %}
+	{{ add_workshifter_form|bootstrap }}
+	<button type="submit" class="btn btn-success">Add Workshifter</button>
+  </form>
+</div>
 {% endblock %}

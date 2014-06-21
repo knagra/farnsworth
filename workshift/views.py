@@ -426,7 +426,7 @@ def add_workshifter_view(request, semester):
 
 	return render_to_response("add_workshifter.html", {
 		"page_name": page_name,
-		"form": add_workshifter_form,
+		"add_workshifter_form": add_workshifter_form,
 	}, context_instance=RequestContext(request))
 
 @semester_required
