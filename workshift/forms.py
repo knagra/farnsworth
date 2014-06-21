@@ -289,7 +289,9 @@ class AddWorkshifterForm(forms.ModelForm):
 			)
 		super(AddWorkshifterForm, self).__init__(*args, **kwargs)
 
-		existing = [i.user.pk for i in WorkshiftProfile.objects.filter(semestr=semester)]
+		existing = [
+			i.user.pk for i in WorkshiftProfile.objects.filter(semester=self.semester)
+			]
 
 		self.fields["user"].queryset = User.objects.exclude(pk__in=existing)
 
