@@ -11,53 +11,55 @@
 
 {% block jumbotron %}
 <div class="container">
-{% if CURRENT_SEMESTER %}
-<div class="row">
-<div class="col-xs-12">
-	<div class="row">
-	<h5 class="col-xs-3 text-left">{{ CURRENT_SEMESTER.start_date|date:"N d" }}<span class="hidden-xs">,
-		{{ CURRENT_SEMESTER.start_date|date:"Y" }}</span></h5>
-	<h4 class="col-xs-6 text-center" id="current_semester"><span class="hidden-xs">Current Semester
-	- </span>{{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}</h4>
-	<h5 class="col-xs-3 text-right">{{ CURRENT_SEMESTER.end_date|date:"N d" }}<span class="hidden-xs">,
-		{{ CURRENT_SEMESTER.end_date|date:"Y" }}</span></h5>
-	</div> <!-- .row -->
-	<div title="{{ days_passed }} day{{ days_passed|pluralize }} of {{ total_days }} in semester passed ({{ semester_percent}}%)" class="progress">
-	<div class="progress-bar" role="progressbar" aria-valuenow="{{ days_passed }}" aria-valuemin="0" aria-valuemax="{{ total_days }}" style="width: {{ semester_percent }}%;">
-		<span class="sr-only">{{ semester_percent }}%</span>
-	</div> <!-- .progress-bar -->
-	</div> <!-- .progress -->
-</div> <!-- .col-xs-12 -->
-</div> <!-- .row -->
-{% else %}
-<br />
-{% endif %}
-<div class="row" style="margin-top: 5px;">
-<div class="col-md-9 col-sm-12 col-xs-12">
-{% block w_content %}{% endblock %}
-</div> <!-- .col-lg-8 -->
-<div id="side_bar" class="col-md-3">
-{% block sidebartop %}{% endblock %}
-{% if WORKSHIFT_PROFILE %}
-<ul>
-  <li><a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">My Workshift History</a></li>
-</ul>
-{% else %}
+  {% if CURRENT_SEMESTER %}
+  <div class="row">
+	<div class="col-xs-12">
+	  <div class="row">
+		<a href="{% wurl 'workshift:view_semester' sem_url=CURRENT_SEMESTER.sem_url %}">
+		  <h5 class="col-xs-3 text-left">{{ CURRENT_SEMESTER.start_date|date:"N d" }}<span class="hidden-xs">,
+			  {{ CURRENT_SEMESTER.start_date|date:"Y" }}</span></h5>
+		  <h4 class="col-xs-6 text-center" id="current_semester"><span class="hidden-xs">Current Semester
+			  - </span>{{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}</h4>
+		  <h5 class="col-xs-3 text-right">{{ CURRENT_SEMESTER.end_date|date:"N d" }}<span class="hidden-xs">,
+			  {{ CURRENT_SEMESTER.end_date|date:"Y" }}</span></h5>
+		</a>
+	  </div> <!-- .row -->
+	  <div title="{{ days_passed }} day{{ days_passed|pluralize }} of {{ total_days }} in semester passed ({{ semester_percent}}%)" class="progress">
+		<div class="progress-bar" role="progressbar" aria-valuenow="{{ days_passed }}" aria-valuemin="0" aria-valuemax="{{ total_days }}" style="width: {{ semester_percent }}%;">
+		  <span class="sr-only">{{ semester_percent }}%</span>
+		</div> <!-- .progress-bar -->
+	  </div> <!-- .progress -->
+	</div> <!-- .col-xs-12 -->
+  </div> <!-- .row -->
+  {% else %}
+  <br />
+  {% endif %}
+  <div class="row" style="margin-top: 5px;">
+	<div class="col-md-9 col-sm-12 col-xs-12">
+	  {% block w_content %}{% endblock %}
+	</div> <!-- .col-lg-8 -->
+	<div id="side_bar" class="col-md-3">
+	  {% block sidebartop %}{% endblock %}
+	  {% if WORKSHIFT_PROFILE %}
+	  <ul>
+		<li><a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">My Workshift History</a></li>
+	  </ul>
+	  {% else %}
 
-{% endif %}
-{% if upcoming_shifts %}
-<h5 id="shifts_title">Upcoming Shifts</h5>
-<div id="upcoming_shifts" class="list-group">
-{% for shift, happening in upcoming_shifts %}
-<a title="See shift info" href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="list-group-item"><span class="badge">{{ shift.hours }}</span>{{ shift.title }},
-{{ shift.date }}{% if shift.start_time %}{{ shift.start_time }}{% if shift.end_time %}
-- {{ shift.end_time }} {% endif %}{% endif %}</a>
-{% endfor %}
-</div> <!-- #upcoming_shifts -->
-{% endif %}
-{% block sidebarbottom %}{% endblock %}
-</div> <!-- .col-md-3 -->
-</div> <!-- .row -->
+	  {% endif %}
+	  {% if upcoming_shifts %}
+	  <h5 id="shifts_title">Upcoming Shifts</h5>
+	  <div id="upcoming_shifts" class="list-group">
+		{% for shift, happening in upcoming_shifts %}
+		<a title="See shift info" href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="list-group-item"><span class="badge">{{ shift.hours }}</span>{{ shift.title }},
+		  {{ shift.date }}{% if shift.start_time %}{{ shift.start_time }}{% if shift.end_time %}
+		  - {{ shift.end_time }} {% endif %}{% endif %}</a>
+		{% endfor %}
+	  </div> <!-- #upcoming_shifts -->
+	  {% endif %}
+	  {% block sidebarbottom %}{% endblock %}
+	</div> <!-- .col-md-3 -->
+  </div> <!-- .row -->
 </div> <!-- .container -->
 {% endblock %}
 
