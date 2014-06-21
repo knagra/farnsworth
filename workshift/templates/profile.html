@@ -58,22 +58,39 @@
 	</tbody>
   </table>
   {% endif %}
-  {% for pool_hour in profile.pool_hours.all %}
-  <div>
-	<p><a href="">{{ pool_hour.pool.title }}</a>:</p>
-	<p>{{ pool_hour.hours }} per week</p>
-	<p>{% if pool_hour.standing < 0 %}<font color="red">{% else %}<font color="green">{% endif %}{{ pool_hour.standing }}</font></p>
-	{% if pool_hour.first_date_standing %}
-	<p>First Fine Date Standing: {{ pool_hour.first_date_standing }}</p>
-	{% endif %}
-	{% if pool_hour.second_date_standing %}
-	<p>Second Fine Date Standing: {{ pool_hour.second_date_standing }}</p>
-	{% endif %}
-	{% if pool_hour.third_date_standing %}
-	<p>Third Fine Date Standing: {{ pool_hour.third_date_standing }}</p>
-	{% endif %}
-  </div>
-  {% endfor %}
+  {% if profile.pool_hours.all %}
+  <h4>Workshift Requirements</h4>
+  <table class="table table-striped table-bordered table-condensed table-hover members_table" id="pool_hours_table">
+	<thead>
+	  <tr>
+		<th>Title</th>
+		<th>Hours</th>
+		<th>Current Standing</th>
+		<th>First Fine Date Standing</th>
+		<th>Second Fine Date Standing</th>
+		<th>Third Fine Date Standing</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for pool_hour in profile.pool_hours.all %}
+	  <tr>
+		<td><a href="">{{ pool_hour.pool.title }}</a>:</td>
+		<td>{{ pool_hour.hours }} per week</td>
+		<td>{% if 0 > pool_hour.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ pool_hour.standing }}</font></td>
+		{% if pool_hour.first_date_standing %}
+		<td>First Fine Date Standing: {{ pool_hour.first_date_standing }}</td>
+		{% endif %}
+		{% if pool_hour.second_date_standing %}
+		<td>Second Fine Date Standing: {{ pool_hour.second_date_standing }}</td>
+		{% endif %}
+		{% if pool_hour.third_date_standing %}
+		<td>Third Fine Date Standing: {{ pool_hour.third_date_standing }}</td>
+		{% endif %}
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
   {% if profile.note %}
   <p>Profile notes: {{ profile.note }}</p>
   {% endif %}
