@@ -287,10 +287,14 @@ class AddWorkshifterForm(forms.ModelForm):
 			"semester",
 			Semester.objects.get(current=True),
 			)
-		return super(AddWorkshifterForm, self).__init__(*args, **kwargs)
+		super(AddWorkshifterForm, self).__init__(*args, **kwargs)
 
-	def save(self, *args, **kwargs):
-		profile = super(AddWorkshifterForm, self).save(*args, **kwargs)
+		existing = [i.user.pk for i in WorkshiftProfile.objects.filter(semestr=semester)]
+
+		self.fields["user"].queryset = User.objects.exclude(pk__in=existing)
+
+	def save(self):
+		profile = super(AddWorkshifterForm, self).save(commit=False)
 
 		profile.semester = self.semester
 
