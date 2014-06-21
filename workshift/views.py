@@ -261,7 +261,10 @@ def profile_view(request, semester, targetUsername, profile=None):
 	"""
 	# TODO: Permissions? Should this be open for anyone on the site to view?
 	wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
-	page_name = "{0}'s Workshift Profile".format(wprofile.user.get_full_name())
+	if wprofile == profile:
+		page_name = "My Workshift Profile"
+	else:
+		page_name = "{0}'s Workshift Profile".format(wprofile.user.get_full_name())
 	past_shifts = WorkshiftInstance.objects.filter(workshifter=wprofile, closed=True)
 	regular_shifts = RegularWorkshift.objects.filter(active=True,
 													 current_assignee=wprofile)
