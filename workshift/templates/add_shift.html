@@ -10,31 +10,42 @@
 {% endblock %}
 
 {% block w_content %}
-<h3>{{ page_name }}</h3>
+<h1 class="w_title">{{ page_name }}</h1>
 {% if add_instance_form %}
+<h3 class="w_subtitle">Add Workshift Instance</h3>
 <form method="post" action="" name="add_instance">
   {% csrf_token %}
   {{ add_instance_form|bootstrap }}
-  <button type="submit" class="btn btn-success">Create Single Workshift</button>
+  <div class="text-center">
+    <button type="submit" class="btn btn-success">Create Single Workshift</button>
+  </div>
 </form>
 {% endif %}
 {% if add_shift_form %}
+{% if add_instance_form %}<hr />{% endif %}
+<h3 class="w_subtitle">Add Regular Workshift</h3>
 <form method="post" action="" name="add_shift">
   {% csrf_token %}
   {{ add_shift_form|bootstrap }}
-  <button type="submit" class="btn btn-success">Create Regular Workshift</button>
+  <div class="text-center">
+    <button type="submit" class="btn btn-success">Create Regular Workshift</button>
+  </div>
 </form>
 {% endif %}
 {% if add_type_form %}
+{% if add_instance_form or add_shift_form %}<hr />{% endif %}
+<h3 class="w_subtitle">Add Workshift Type</h3>
 <form method="post" action="" name="add_type">
   {% csrf_token %}
   {{ add_type_form|bootstrap }}
-  <button type="submit" class="btn btn-success">Create Workshift Type</button>
+  <div class="text-center">
+    <button type="submit" class="btn btn-success">Create Workshift Type</button>
+  </div>
 </form>
 {% endif %}
 {% endblock %}
 
-{% block endscripts %}
+{% block w_endscripts %}
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
