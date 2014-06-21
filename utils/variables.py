@@ -97,7 +97,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
 	u"Fine, I'll go build my own 404 page.  With blackjack.  And hookers!  In fact, forget the 404 page and the blackjack!  Eeeh, screw the whole thing!",
 	u"Kill all humans...kill all humans...",
 	u"Like most of life's problems, this one can be solved by bending.",
-	u"Tempers are wearing thin.  Let's just hope some robot doesn't kill everybody.",
+	u"Tempers are wearing thin.  Let's just hope some 404 page doesn't kill everybody.",
 	u"It worked for me.  I used to be a little blonde girl named Virginia.",
 	u"Maybe it's time to leave the science to the hundred and twenty year olds.",
 	u"Let's face it, comedy is a dead artform.  Now, tragedy...that's funny.",
