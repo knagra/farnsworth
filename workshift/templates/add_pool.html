@@ -1,0 +1,20 @@
+{% extends "w_base.html" %}
+
+{% load bootstrap %}
+
+{% block w_headers %}
+
+{% endblock %}
+
+{% block w_content %}
+<div class="instance_container">
+  <h3>{{ page_name }}</h3>
+  {% if add_pool_form %}
+  <form method="post" action="">
+	{% csrf_token %}
+	{{ add_pool_form|bootstrap }}
+	<button type="submit" class="btn btn-success">Add Workshift Pool</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
