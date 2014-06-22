@@ -184,8 +184,8 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		instance = super(WorkshiftInstanceForm, self).save(commit=False)
 		instance.semester = self.semester
 		instance.save()
-		self.save_m2m()
 		if self.new:
+			instance.logs = []
 			instance.intended_hours = instance.hours
 			if instance.workshifter:
 				log = ShiftLogEntry(
@@ -210,6 +210,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
 			info.save()
 			instance.info = info
 		instance.save()
+		self.save_m2m()
 		return instance
 
 class InteractShiftForm(forms.Form):
