@@ -29,11 +29,11 @@
   {% csrf_token %}
   {% if rating_forms %}
   <h3 class="w_title">Workshift Preferences</h3>
-  <table>
+  <table class="table table-striped table-bordered table-condensed table-hover">
 	<tbody>
 	  {% for form in rating_forms %}
 	  <tr id="rating_forms_row">
-		<td>{{ form.title }}:</td>
+		<td><a href="{% wurl 'workshift:view_type' pk=form.instance.pk %}">{{ form.title }}</a></td>
 		<td>{{ form.rating }}</td>
 	  </tr>
 	  {% endfor %}
