@@ -525,10 +525,12 @@ def add_shift_view(request, semester):
 def pool_view(request, semester, pk, profile=None):
 	pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
 	page_name = pool.title
+	shifts = RegularWorkshift.objects.filter(pool=pool, active=True)
 
 	return render_to_response("view_pool.html", {
 		"page_name": page_name,
 		"pool": pool,
+		"shifts": shifts,
 	}, context_instance=RequestContext(request))
 
 @workshift_manager_required

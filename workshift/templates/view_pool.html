@@ -34,5 +34,28 @@
   {% if pool.third_fine_date %}
   <p>{{ pool.third_fine_date }}</p>
   {% endif %}
+  {% if shifts %}
+  <h4>Regular Workshifts</h4>
+  <table class="table table-striped table-bordered table-condensed table-hover">
+	<thead>
+	  <tr>
+		<th>Title</th>
+		<th>Time</th>
+		<th>Hours</th>
+		<th>Workshifter</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for shift in shifts %}
+	  <tr>
+		<td><a href="{% wurl 'workshift:view_shift' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</td>
+		<td>{% if shift.week_long %}Week long{% else %}{{ shift.day }}{% if shift.start_time %}{{ shift.start_time }}{% if shift.end_time %} - {{ shift.end_time }}{% endif %}{% endif %}{% endif %}
+		<td>{{ shift.hours }}</td>
+		<td>{% if shift.current_assignee %}<a href="{% wurl 'workshfit:profile' sem_url=SEMESTER.sem_url targetUsername=shift.current_assignee.user.username %}">{{ shift.current_assignee.user.get_full_name }}</a>{% endif %}</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
 </div> <!-- .instance_container -->
 {% endblock %}
