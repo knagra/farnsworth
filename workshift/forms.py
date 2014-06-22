@@ -381,6 +381,12 @@ class AssignShiftForm(forms.ModelForm):
 	class Meta:
 		model = RegularWorkshift
 		fields = ("current_assignee",)
+		labels = {
+			"current_assignee": "",
+			}
+		help_texts = {
+			"current_assignee": "",
+			}
 
 	def __init__(self, *args, **kwargs):
 		self.semester = kwargs.pop('semester')
