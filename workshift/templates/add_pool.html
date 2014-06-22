@@ -6,6 +6,9 @@
 {% load workshift_tags %}
 
 {% block w_headers %}
+<script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 {% endblock %}
 
 {% block w_content %}
@@ -21,4 +24,18 @@
   </form>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+  function renewDatePickers(row) {
+    $("[id$=date]", row || null).datetimepicker({pickTime: false});
+  };
+  $(document).ready(function() {
+    renewDatePickers();
+  });
+</script>
 {% endblock %}
