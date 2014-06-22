@@ -402,6 +402,18 @@ class TimeBlockForm(forms.ModelForm):
 	class Meta:
 		model = TimeBlock
 		fields = "__all__"
+		labels = {
+			"preference": "",
+			"day": "",
+			"start_time": "",
+			"end_time": "",
+			}
+		help_text = {
+			"preference": "",
+			"day": "",
+			"start_time": "",
+			"end_time": "",
+			}
 
 	def is_valid(self):
 		if not super(TimeBlockForm, self).is_valid():
