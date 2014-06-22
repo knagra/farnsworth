@@ -136,7 +136,7 @@ def start_semester_view(request):
 	except IndexError:
 		pass
 	else:
-		for pool in WorkshiftPool.objects.filter(semester=semester):
+		for pool in WorkshiftPool.objects.filter(semester=prev_semester):
 			form = StartPoolForm(
 				request.POST or None,
 				copy=pool,
