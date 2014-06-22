@@ -434,9 +434,9 @@ TimeBlockFormSet = modelformset_factory(
 	can_delete=True, extra=1, max_num=50,
 	labels=dict(preference="", day="", start_time="", end_time=""),
 	help_texts=dict(preference="", day="", start_time="", end_time=""),
-	widgets=dict(start_time=forms.TimeInput(format='%I:%M %p'),
-				 end_time=forms.TimeInput(format='%I:%M %p'),
-				 ),
+	# widgets=dict(start_time=forms.TimeInput(format='%I:%M %p'),
+	# 			 end_time=forms.TimeInput(format='%I:%M %p'),
+	# 			 ),
 	)
 
 class ProfileNoteForm(forms.ModelForm):
