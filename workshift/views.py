@@ -211,7 +211,7 @@ def view_semester(request, semester, profile=None):
 		except (TypeError, ValueError):
 			pass
 
-	template_dict["day"] = day
+o	template_dict["day"] = day
 	if day > semester.start_date:
 		template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
 	if day < semester.end_date:
@@ -406,8 +406,29 @@ def assign_shifts_view(request, semester):
 	entire semester's worth of weekly workshifts.
 	"""
 	page_name = "Assign Shifts"
+	assign_forms = []
+	for shift in RegularWorkshift.objects.filter(pool__semester=semester,
+												 active=True):
+		form = AssignShiftForm(
+			request.POST or None,
+			prefix="shift-{0}".format(shift.pk),
+			semester=semester,
+			)
+		assign_forms.append(form)
+	if all(i.is_valid() for i in assign_forms):
+		for form in assign_forms:
+			form.save()
+		messages.add_message(request, messages.INFO, "Workshift assignments saved.")
+		if "finalize" in request.POST:
+			# TODO: Finalize everything, close preferences, etc?
+			return HttpResponseRedirect(wurl('workshift:manage',
+											 sem_url=semester.sem_url))
+		else:
+			return HttpResponseRedirect(wurl('workshift:assign_shifts',
+											sem_url=semester.sem_url))
 	return render_to_response("assign_shifts.html", {
 		"page_name": page_name,
+		"assign_forms": assign_forms,
 	}, context_instance=RequestContext(request))
 
 @semester_required

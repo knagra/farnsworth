@@ -10,5 +10,21 @@
 {% block w_content %}
 <div id="assign_container">
   <h1 class="w_title">{{ page_name }}</h1>
+  <table id="assign_shifts_table" class="table table-condensed">
+	<thead>
+	  <tr>
+		<th>Title</th>
+		<th>Workshifter</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for form in assign_forms %}
+	  <tr>
+		<td><a href="{% wurl 'workshift:view_shift' pk=form.instance.pk sem_url=SEMESTER.sem_url %}">{{ form.instance.title }}</td>
+		<td>{{ form.current_assignee|bootstrap }}</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
 </div> <!-- #assign_container -->
 {% endblock %}
