@@ -402,18 +402,6 @@ class TimeBlockForm(forms.ModelForm):
 	class Meta:
 		model = TimeBlock
 		fields = "__all__"
-		labels = {
-			"preference": "",
-			"day": "",
-			"start_time": "",
-			"end_time": "",
-			}
-		help_text = {
-			"preference": "",
-			"day": "",
-			"start_time": "",
-			"end_time": "",
-			}
 
 	def is_valid(self):
 		if not super(TimeBlockForm, self).is_valid():
@@ -441,7 +429,10 @@ class BaseTimeBlockFormSet(BaseModelFormSet):
 
 TimeBlockFormSet = modelformset_factory(
 	TimeBlock, form=TimeBlockForm, formset=BaseTimeBlockFormSet,
-	can_delete=True, extra=1, max_num=50)
+	can_delete=True, extra=1, max_num=50,
+	labels={"preference": "", "day": "", "start_time": "", "end_time": ""},
+	help_text={"preference": "", "day": "", "start_time": "", "end_time": ""},
+	)
 
 class ProfileNoteForm(forms.ModelForm):
 	class Meta:
