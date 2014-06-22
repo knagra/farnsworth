@@ -57,11 +57,12 @@
   </div> <!-- .main_table -->
 </div>
 <div class="text-center text-info" style="margin-top: 10px;">
-	Showing {{ threads.count }} thread{{ threads|pluralize }}.
+	{{ threads.count }} thread{{ threads|pluralize }} in total.
 </div>
 {% endblock %}
 
 {% block endscripts %}
+<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.min.js' %}"></script>
 <script>
 $.tablesorter.addParser({
 	id: 'farnsworth_datetime',
@@ -86,10 +87,6 @@ $(document).ready(function() {
 			}
 		},
 		sortList: [[4,1], [3,1]],
-		widgets: ["filter"],
-		widgetOptions: {
-			filter_hideFilters: true,
-		}
 		{% else %}
 		headers: {
 			2: {
@@ -99,12 +96,10 @@ $(document).ready(function() {
 				sorter: 'farnsworth_datetime',
 			}
 		},
-		sortList: [[3,1], [2,1]]
+		sortList: [[3,1], [2,1]],
 		{% endif %}
+		widgets: ["filter"]
 	});
 });
 </script>
-{% if page_name == 'Archives - All Threads' %}
-<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.min.js' %}"></script>
-{% endif %}
 {% endblock %}
