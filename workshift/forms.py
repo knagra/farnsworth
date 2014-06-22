@@ -405,7 +405,7 @@ class TimeBlockForm(forms.ModelForm):
 
 	def clean(self):
 		if self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
-			raise forms.ValdiationError('Start time later than end time.')
+			raise forms.ValidationError('Start time later than end time.')
 		return self.cleaned_data
 
 class BaseTimeBlockFormSet(BaseModelFormSet):
