@@ -6,8 +6,15 @@
 {% load workshift_tags %}
 
 {% block w_content %}
-<div class="instance_container">
-  <h3>{{ page_name }}</h3>
+<div class="type_container">
+  {% if WORKSHIFT_MANAGER %}
+  <form action="{% wurl 'workshift:edit_type' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
+	<button class="btn btn-default" type="submit">
+	  <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span>
+	</button>
+  </form>
+  {% endif %}
+  <h1 class="w_title">{{ page_name }}</h1>
   {% if WORKSHIFT_MANAGER %}
   <p><a href="{% wurl 'workshift:edit_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}">Edit this shift</a></p>
   {% endif %}
