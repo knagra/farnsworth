@@ -8,10 +8,11 @@
 {% endblock %}
 
 {% block w_content %}
-<div class="instance_container">
-  <form method="post" action="edit_shift">
+<div class="type_container">
+  <form method="post" action="">
 	{% csrf_token %}
 	{{ edit_form|bootstrap }}
+	<button type="submit" class="btn btn-success">Edit Workshift Type</button>
   </form>
 </div> <!-- .instance_container -->
 {% endblock %}
