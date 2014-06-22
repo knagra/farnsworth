@@ -6,10 +6,9 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 
 
 from django import forms
-from django.forms.models import BaseModelFormSet, modelformset_factory, \
-	 BaseInlineFormSet, inlineformset_factory
+from django.forms.models import BaseModelFormSet, modelformset_factory
 
-from base.models import UserProfile, User
+from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
@@ -117,10 +116,14 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		)
 	start_time = forms.TimeField(
 		required=False,
+		widget=forms.TimeInput(format='%I:%M %p'),
+		input_formats=valid_time_formats,
 		help_text="The earliest time this shift should be started.",
 		)
 	end_time = forms.TimeField(
 		required=False,
+		widget=forms.TimeInput(format='%I:%M %p'),
+		input_formats=valid_time_formats,
 		help_text="The latest time this shift should be completed.",
 		)
 
@@ -128,23 +131,27 @@ class WorkshiftInstanceForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		self.pools = kwargs.pop('pools', None)
-		self.instance = kwargs.pop('instance', None)
+		instance = kwargs.get('instance', None)
+		self.semester = kwargs.pop('semester')
 
-		if self.instance:
+		if instance:
 			initial = kwargs.get("initial", {})
 
 			# Django ModelForms don't play nicely with foreign fields, so we
 			# will just manually pre-fill them if an instance is available.
 			for field in self.info_fields:
-				initial.setdefault(field, getattr(self.instance, field))
+				initial.setdefault(field, getattr(instance, field))
 
 			kwargs["initial"] = initial
+			self.new = False
+		else:
+			self.new = True
 
 		super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
 
 		# If this is a regular workshift, disable title, description, etc
 		# from being edited
-		if self.instance and self.instance.weekly_workshift:
+		if instance and instance.weekly_workshift:
 			for field in self.info_fields:
 				self.fields[field].widget.attrs['readonly'] = True
 		if self.pools:
@@ -156,13 +163,24 @@ class WorkshiftInstanceForm(forms.ModelForm):
 			keys.remove(field)
 			keys.insert(0, field)
 
-	def save(self, commit=True):
-		instance = super(WorkshiftInstanceForm, self).save(commit=commit)
-		if instance.info:
+	def save(self):
+		instance = super(WorkshiftInstanceForm, self).save(commit=False)
+		instance.semester = self.semester
+		if self.new:
+			info = InstanceInfo()
+		elif not instance.info:
+			if any(self.cleaned_data[field] != getattr(instance, field)
+				   for field in self.info_fields):
+				info = InstanceInfo()
+				instance.weekly_workshift = None
+			else:
+				info = None
+		if info:
 			for field in self.info_fields:
-				setattr(instance.info, field, self.cleaned_data[field])
-			if commit:
-				self.info.save()
+				setattr(info, field, self.cleaned_data[field])
+			info.save()
+			instance.info = info
+		instance.save()
 		return instance
 
 class InteractShiftForm(forms.Form):
@@ -345,11 +363,11 @@ class RegularWorkshiftForm(forms.ModelForm):
 			self.fields['pool'].queryset = self.pools
 
 class WorkshiftTypeForm(forms.ModelForm):
-    class Meta:
-        model = WorkshiftType
-        fields = "__all__"
+	class Meta:
+		model = WorkshiftType
+		fields = "__all__"
 
-    def __init__(self, *args, **kwargs):
+	def __init__(self, *args, **kwargs):
 		kwargs.setdefault('auto_id', '%s')
 		kwargs.setdefault('label_suffix', '')
 		super(WorkshiftTypeForm, self).__init__(*args, **kwargs)

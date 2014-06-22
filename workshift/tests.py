@@ -457,25 +457,25 @@ class TestPreferences(TestCase):
 
 	def test_preferences_post(self):
 		response = self.client.post(self.url, {
-            "rating-1-rating": WorkshiftRating.LIKE,
-            "rating-2-rating": WorkshiftRating.DISLIKE,
-            "time-0-preference": TimeBlock.BUSY,
-            "time-0-day": DAYS[0][0], # Monday
-            "time-0-start_time": "8:00 AM",
-            "time-0-end_time": "5:00 PM",
-            "time-1-preference": TimeBlock.FREE,
-            "time-1-day": DAYS[-1][0], # Sunday
-            "time-1-start_time": "4:00 PM",
-            "time-1-end_time": "9:00 PM",
-            "time-2-preference": TimeBlock.PREFERRED,
-            "time-2-day": DAYS[1][0], # Tuesday
-            "time-2-start_time": "6:00 PM",
-            "time-2-end_time": "10:00 PM",
-            "time-TOTAL_FORMS": 3,
-            "time-INITIAL_FORMS": 0,
-            "time-MAX_NUM_FORMS": 50,
-            "note": "Dishes are fun, pots are cathartic.",
-            }, follow=True)
+			"rating-1-rating": WorkshiftRating.LIKE,
+			"rating-2-rating": WorkshiftRating.DISLIKE,
+			"time-0-preference": TimeBlock.BUSY,
+			"time-0-day": DAYS[0][0], # Monday
+			"time-0-start_time": "8:00 AM",
+			"time-0-end_time": "5:00 PM",
+			"time-1-preference": TimeBlock.FREE,
+			"time-1-day": DAYS[-1][0], # Sunday
+			"time-1-start_time": "4:00 PM",
+			"time-1-end_time": "9:00 PM",
+			"time-2-preference": TimeBlock.PREFERRED,
+			"time-2-day": DAYS[1][0], # Tuesday
+			"time-2-start_time": "6:00 PM",
+			"time-2-end_time": "10:00 PM",
+			"time-TOTAL_FORMS": 3,
+			"time-INITIAL_FORMS": 0,
+			"time-MAX_NUM_FORMS": 50,
+			"note": "Dishes are fun, pots are cathartic.",
+			}, follow=True)
 
 		self.assertRedirects(response, self.url)
 		self.assertContains(response, "Preferences saved.")
@@ -507,12 +507,12 @@ class TestPreferences(TestCase):
 
 	def test_no_note(self):
 		response = self.client.post(self.url, {
-            "rating-1-rating": WorkshiftRating.LIKE,
-            "rating-2-rating": WorkshiftRating.DISLIKE,
-            "time-TOTAL_FORMS": 0,
-            "time-INITIAL_FORMS": 0,
-            "time-MAX_NUM_FORMS": 50,
-            }, follow=True)
+			"rating-1-rating": WorkshiftRating.LIKE,
+			"rating-2-rating": WorkshiftRating.DISLIKE,
+			"time-TOTAL_FORMS": 0,
+			"time-INITIAL_FORMS": 0,
+			"time-MAX_NUM_FORMS": 50,
+			}, follow=True)
 
 		self.assertRedirects(response, self.url)
 		self.assertContains(response, "Preferences saved.")
@@ -532,12 +532,12 @@ class TestPreferences(TestCase):
 		self.assertContains(response, w4.title)
 
 		response = self.client.post(self.url, {
-            "rating-1-rating": WorkshiftRating.LIKE,
-            "rating-2-rating": WorkshiftRating.DISLIKE,
-            "rating-{0}-rating".format(w4.pk): WorkshiftRating.LIKE,
-            "time-TOTAL_FORMS": 0,
-            "time-INITIAL_FORMS": 0,
-            "time-MAX_NUM_FORMS": 50,
+			"rating-1-rating": WorkshiftRating.LIKE,
+			"rating-2-rating": WorkshiftRating.DISLIKE,
+			"rating-{0}-rating".format(w4.pk): WorkshiftRating.LIKE,
+			"time-TOTAL_FORMS": 0,
+			"time-INITIAL_FORMS": 0,
+			"time-MAX_NUM_FORMS": 50,
 			}, follow=True)
 
 		self.assertRedirects(response, self.url)
@@ -552,21 +552,21 @@ class TestPreferences(TestCase):
 		Ensure that users cannot delete their rating preferences.
 		"""
 		response = self.client.post(self.url, {
-            "rating-1-rating": WorkshiftRating.LIKE,
-            "rating-2-rating": WorkshiftRating.LIKE,
-            "time-TOTAL_FORMS": 0,
-            "time-INITIAL_FORMS": 0,
-            "time-MAX_NUM_FORMS": 50,
-            }, follow=True)
+			"rating-1-rating": WorkshiftRating.LIKE,
+			"rating-2-rating": WorkshiftRating.LIKE,
+			"time-TOTAL_FORMS": 0,
+			"time-INITIAL_FORMS": 0,
+			"time-MAX_NUM_FORMS": 50,
+			}, follow=True)
 
 		self.assertRedirects(response, self.url)
 
 		response = self.client.post(self.url, {
-            "rating-1-rating": WorkshiftRating.LIKE,
-            "time-TOTAL_FORMS": 0,
-            "time-INITIAL_FORMS": 0,
-            "time-MAX_NUM_FORMS": 50,
-            })
+			"rating-1-rating": WorkshiftRating.LIKE,
+			"time-TOTAL_FORMS": 0,
+			"time-INITIAL_FORMS": 0,
+			"time-MAX_NUM_FORMS": 50,
+			})
 
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(self.wprofile.ratings.count(), 2)
@@ -576,13 +576,13 @@ class TestPreferences(TestCase):
 		Ensure that users cannot add extra rating preferences.
 		"""
 		response = self.client.post(self.url, {
-            "rating-1-rating": WorkshiftRating.LIKE,
-            "rating-2-rating": WorkshiftRating.LIKE,
-            "rating-4-rating": WorkshiftRating.LIKE,
-            "time-TOTAL_FORMS": 0,
-            "time-INITIAL_FORMS": 0,
-            "time-MAX_NUM_FORMS": 50,
-            })
+			"rating-1-rating": WorkshiftRating.LIKE,
+			"rating-2-rating": WorkshiftRating.LIKE,
+			"rating-4-rating": WorkshiftRating.LIKE,
+			"time-TOTAL_FORMS": 0,
+			"time-INITIAL_FORMS": 0,
+			"time-MAX_NUM_FORMS": 50,
+			})
 
 		self.assertEqual(self.wprofile.ratings.count(), 2)
 
@@ -591,13 +591,13 @@ class TestPreferences(TestCase):
 		Ensure that users cannot rate unrateable shifts.
 		"""
 		response = self.client.post(self.url, {
-            "rating-1-rating": WorkshiftRating.LIKE,
-            "rating-2-rating": WorkshiftRating.LIKE,
-            "rating-3-rating": WorkshiftRating.LIKE,
-            "time-TOTAL_FORMS": 0,
-            "time-INITIAL_FORMS": 0,
-            "time-MAX_NUM_FORMS": 50,
-            })
+			"rating-1-rating": WorkshiftRating.LIKE,
+			"rating-2-rating": WorkshiftRating.LIKE,
+			"rating-3-rating": WorkshiftRating.LIKE,
+			"time-TOTAL_FORMS": 0,
+			"time-INITIAL_FORMS": 0,
+			"time-MAX_NUM_FORMS": 50,
+			})
 
 		self.assertEqual(self.wprofile.ratings.count(), 2)
 
@@ -1064,7 +1064,7 @@ class TestWorkshifts(TestCase):
 		self.up = WorkshiftProfile(user=self.u, semester=self.sem)
 		self.up.save()
 
-		self.type = WorkshiftType(title="Test Posts")
+		self.type = WorkshiftType(title="Test Posts", description="Test Description")
 		self.type.save()
 
 		now = datetime.now()
@@ -1073,8 +1073,8 @@ class TestWorkshifts(TestCase):
 			pool=self.pool,
 			title="Clean the floors",
 			day=DAYS[0][0],
-			start_time=now.time(),
-			end_time=(now + timedelta(hours=2)).time(),
+			start_time=time(16, 0, 0),
+			end_time=time(18, 0, 0)
 			)
 		self.shift.save()
 
@@ -1105,62 +1105,97 @@ class TestWorkshifts(TestCase):
 		url = "/workshift/manage/add_shift/"
 		response = self.client.post(url, {
 			"add_instance": "",
+			"title": "Add Instance Title",
+			"description": "Add Instance Description",
+			"pool": self.pool.pk,
+			"start_time": "6:00 PM",
+			"end_time": "8:00 PM",
+			"date": "05/27/2014",
+			"workshifter": self.wp.pk,
+			"closed": False,
+			"hours": 2,
+			"auto_verify": False,
+			"week_long": False,
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
+		instance = WorkshiftInstance.objects.get(pk=self.once.pk + 1)
+		self.assertEqual(instance.title, "Add Instance Title")
+		self.assertEqual(instance.description, "Add Instance Description")
+		self.assertEqual(instance.pool, self.pool)
+		self.assertEqual(instance.start_time, time(18, 0, 0))
+		self.assertEqual(instance.end_time, time(20, 0, 0))
+		self.assertEqual(instance.date, date(2014, 5, 27))
+		self.assertEqual(instance.workshifter, self.wp)
+		self.assertEqual(instance.closed, False)
+		self.assertEqual(instance.hours, 2)
+		self.assertEqual(instance.auto_verify, False)
+		self.assertEqual(instance.week_long, False)
 
 	def test_edit_instance(self):
 		url = "/workshift/instance/{0}/edit/".format(self.instance.pk)
 		response = self.client.post(url, {
 			"edit": "",
-			"workshifter": self.up.pk,
-			"date": date.today(),
+			"title": self.instance.title,
+			"description": self.instance.description,
+			"pool": self.instance.pool.pk,
+			"start_time": self.instance.start_time.strftime("%I:%M %p"),
+			"end_time": self.instance.end_time.strftime("%I:%M %p"),
+			"date": "05/27/2014",
+			"workshifter": self.wp.pk,
 			"closed": False,
-			"blown": False,
-			"intended_hours": 10,
-			"auto_verify": True,
-			"week_long": True,
+			"hours": 2,
+			"auto_verify": False,
+			"week_long": False,
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/instance/{0}/".format(self.instance.pk))
+		self.assertEqual(InstanceInfo.objects.count(), 1)
 		instance = WorkshiftInstance.objects.get(pk=self.instance.pk)
-		self.assertEqual(instance.weekly_workshift, self.shift)
-		self.assertEqual(instance.workshifter, self.up)
-		self.assertEqual(instance.date, date.today())
+		self.assertEqual(instance.weekly_workshift, self.instance.weekly_workshift)
+		self.assertEqual(instance.title, self.instance.title)
+		self.assertEqual(instance.description, self.instance.description)
+		self.assertEqual(instance.pool, self.pool)
+		self.assertEqual(instance.start_time, self.instance.start_time)
+		self.assertEqual(instance.end_time, self.instance.end_time)
+		self.assertEqual(instance.date, date(2014, 5, 27))
+		self.assertEqual(instance.workshifter, self.wp)
 		self.assertEqual(instance.closed, False)
-		self.assertEqual(instance.blown, False)
-		self.assertEqual(instance.intended_hours, 10)
-		self.assertEqual(instance.auto_verify, True)
-		self.assertEqual(instance.week_long, True)
+		self.assertEqual(instance.hours, 2)
+		self.assertEqual(instance.auto_verify, False)
+		self.assertEqual(instance.week_long, False)
 
 	def test_edit_instance_full(self):
 		url = "/workshift/instance/{0}/edit/".format(self.instance.pk)
 		response = self.client.post(url, {
 			"edit": "",
-			"title": "New Instance Title",
+			"title": "Edit Instance Title",
 			"description": "I once was from a long line of workshifts",
-			"start_time": "02:00 PM",
-			"end_time": "04:00 PM",
-			"workshifter": self.up.pk,
-			"date": date.today(),
+			"pool": self.instance.pool.pk,
+			"start_time": "2:00 PM",
+			"end_time": "4:00 PM",
+			"date": "05/27/2014",
+			"workshifter": self.wp.pk,
 			"closed": False,
-			"blown": False,
-			"intended_hours": 10,
-			"auto_verify": True,
-			"week_long": True,
+			"hours": 2,
+			"auto_verify": False,
+			"week_long": False,
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/instance/{0}/".format(self.instance.pk))
+		self.assertEqual(InstanceInfo.objects.count(), 2)
 		instance = WorkshiftInstance.objects.get(pk=self.instance.pk)
+		self.assertEqual(instance.weekly_workshift, self.instance.weekly_workshift)
 		self.assertEqual(instance.weekly_workshift, None)
-		self.assertEqual(instance.title, "New Instance Title")
+		self.assertEqual(instance.title, "Edit Instance Title")
 		self.assertEqual(instance.description, "I once was from a long line of workshifts")
+		self.assertEqual(instance.pool, self.pool)
 		self.assertEqual(instance.start_time, time(14, 0, 0))
 		self.assertEqual(instance.end_time, time(16, 0, 0))
-		self.assertEqual(instance.workshifter, self.up)
-		self.assertEqual(instance.date, date.today())
+		self.assertEqual(instance.title, self.instance.title)
+		self.assertEqual(instance.date, date(2014, 5, 27))
+		self.assertEqual(instance.workshifter, self.wp)
 		self.assertEqual(instance.closed, False)
-		self.assertEqual(instance.blown, False)
-		self.assertEqual(instance.intended_hours, 10)
-		self.assertEqual(instance.auto_verify, True)
-		self.assertEqual(instance.week_long, True)
+		self.assertEqual(instance.hours, 2)
+		self.assertEqual(instance.auto_verify, False)
+		self.assertEqual(instance.week_long, False)
 
 	def test_delete_instance(self):
 		url = "/workshift/instance/{0}/edit/".format(self.instance.pk)
