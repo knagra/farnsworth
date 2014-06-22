@@ -415,6 +415,8 @@ class RegularWorkshift(models.Model):
 		help_text="If this shift is for the entire week.",
 		)
 	addendum = models.TextField(
+		null=True,
+		blank=True,
 		help_text="Addendum to the description for this workshift.",
 		)
 
