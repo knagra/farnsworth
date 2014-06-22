@@ -183,11 +183,10 @@ class WorkshiftInstanceForm(forms.ModelForm):
 	def save(self):
 		instance = super(WorkshiftInstanceForm, self).save(commit=False)
 		instance.semester = self.semester
-		instance.save()
 		if self.new:
-			instance.logs = []
 			instance.intended_hours = instance.hours
 			if instance.workshifter:
+				instance.save()
 				log = ShiftLogEntry(
 					person=instance.workshifter,
 					entry_type=ShiftLogEntry.ASSIGNED,
