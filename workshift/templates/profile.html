@@ -65,9 +65,9 @@
 	    <th>Title</th>
 	    <th>Hours</th>
 	    <th>Current Standing</th>
-	    <th>First Fine Date Standing</th>
-	    <th>Second Fine Date Standing</th>
-	    <th>Third Fine Date Standing</th>
+		{% if first_standing %}<th>First Fine Date Standing</th>{% endif %}
+	    {% if second_standing %}<th>Second Fine Date Standing</th>{% endif %}
+	    {% if third_standing %}<th>Third Fine Date Standing</th>{% endif %}
 	  </tr>
 	</thead>
 	<tbody>

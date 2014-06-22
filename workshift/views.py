@@ -284,11 +284,18 @@ def profile_view(request, semester, targetUsername, profile=None):
 	past_shifts = WorkshiftInstance.objects.filter(workshifter=wprofile, closed=True)
 	regular_shifts = RegularWorkshift.objects.filter(active=True,
 													 current_assignee=wprofile)
+	first_standing, second_standing, third_standing = \
+	  any(pool_hours.first_date_standing for pool_hours in profile.pool_hours.all()), \
+	  any(pool_hours.second_date_standing for pool_hours in profile.pool_hours.all()), \
+	  any(pool_hours.third_date_standing for pool_hours in profile.pool_hours.all())
 	return render_to_response("profile.html", {
 		"page_name": page_name,
 		"profile": wprofile,
 		"past_shifts": past_shifts,
 		"regular_shifts": regular_shifts,
+		"first_standing": first_standing,
+		"second_standing": second_standing,
+		"third_standing": third_standing,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
