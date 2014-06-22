@@ -284,11 +284,18 @@ def profile_view(request, semester, targetUsername, profile=None):
 	past_shifts = WorkshiftInstance.objects.filter(workshifter=wprofile, closed=True)
 	regular_shifts = RegularWorkshift.objects.filter(active=True,
 													 current_assignee=wprofile)
+	first_standing, second_standing, third_standing = \
+	  any(pool_hours.first_date_standing for pool_hours in profile.pool_hours.all()), \
+	  any(pool_hours.second_date_standing for pool_hours in profile.pool_hours.all()), \
+	  any(pool_hours.third_date_standing for pool_hours in profile.pool_hours.all())
 	return render_to_response("profile.html", {
 		"page_name": page_name,
 		"profile": wprofile,
 		"past_shifts": past_shifts,
 		"regular_shifts": regular_shifts,
+		"first_standing": first_standing,
+		"second_standing": second_standing,
+		"third_standing": third_standing,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -406,8 +413,30 @@ def assign_shifts_view(request, semester):
 	entire semester's worth of weekly workshifts.
 	"""
 	page_name = "Assign Shifts"
+	assign_forms = []
+	for shift in RegularWorkshift.objects.filter(pool__semester=semester,
+												 active=True):
+		form = AssignShiftForm(
+			request.POST or None,
+			prefix="shift-{0}".format(shift.pk),
+			instance=shift,
+			semester=semester,
+			)
+		assign_forms.append(form)
+	if all(i.is_valid() for i in assign_forms):
+		for form in assign_forms:
+			form.save()
+		messages.add_message(request, messages.INFO, "Workshift assignments saved.")
+		if "finalize" in request.POST:
+			# TODO: Finalize everything, close preferences, etc?
+			return HttpResponseRedirect(wurl('workshift:manage',
+											 sem_url=semester.sem_url))
+		else:
+			return HttpResponseRedirect(wurl('workshift:assign_shifts',
+											sem_url=semester.sem_url))
 	return render_to_response("assign_shifts.html", {
 		"page_name": page_name,
+		"assign_forms": assign_forms,
 	}, context_instance=RequestContext(request))
 
 @semester_required

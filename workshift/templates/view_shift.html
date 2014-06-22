@@ -18,8 +18,8 @@
   <p>{{ shift.get_day_display }}</p>
   <p>{{ shift.workshifter.user.get_full_name }}</p>
   <p>{{ shift.hours }}</p>
-  <p>{{ shift.workshift_type.quick_tips }}</p>
-  <p>{{ shift.workshift_type.description }}</p>
+  <p>{{ shift.workshift_type.quick_tips|safe }}</p>
+  <p>{{ shift.workshift_type.description|safe }}</p>
   {% if shift.current_assignee %}<p>{{ shift.current_assignee.user.get_full_name }}</p>{% endif %}
 </div> <!-- .instance_container -->
 {% endblock %}

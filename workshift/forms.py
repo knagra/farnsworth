@@ -6,6 +6,7 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 
 
 from django import forms
+from django.db.models import Q
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from base.models import UserProfile
@@ -375,6 +376,36 @@ class AddWorkshifterForm(forms.ModelForm):
 		profile.save()
 
 		return profile
+
+class AssignShiftForm(forms.ModelForm):
+	class Meta:
+		model = RegularWorkshift
+		fields = ("current_assignee",)
+		labels = {
+			"current_assignee": "",
+			}
+		help_texts = {
+			"current_assignee": "",
+			}
+
+	def __init__(self, *args, **kwargs):
+		self.semester = kwargs.pop('semester')
+		super(AssignShiftForm, self).__init__(*args, **kwargs)
+		start, end = self.instance.start_time, self.instance.end_time
+		if start and end:
+			query = []
+			for profile in WorkshiftProfile.objects.filter(semester=self.semester):
+				time_blocks = profile.time_blocks.filter(
+					Q(start_time__lt=start, end_time__gt=start) |
+					Q(start_time__lt=end, end_time__gt=end) |
+					Q(start_time__gt=start, end_time__lt=end),
+					preference=TimeBlock.BUSY, day=self.instance.day,
+					)
+				if not time_blocks:
+					query.append(profile.pk)
+
+			self.fields['current_assignee'].queryset = \
+			  WorkshiftProfile.objects.filter(pk__in=query)
 
 class RegularWorkshiftForm(forms.ModelForm):
 	start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),

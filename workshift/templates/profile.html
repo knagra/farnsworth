@@ -26,7 +26,7 @@
 	  {% for shift in regular_shifts %}
 	  <tr>
 	    <td><a href="{% wurl 'workshift:view_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a></td>
-	    <td>{% if not shift.week_long %} {{ shift.day }} {{ shift.start_time }}-{{ shift.end_time }}{% else %}Week long{% endif %}</td>
+	    <td>{% if not shift.week_long %} {{ shift.get_day_display }} {{ shift.start_time }}-{{ shift.end_time }}{% else %}Week long{% endif %}</td>
 	    <td>{{ shift.hours }} hour{{ shift.hours|pluralize }}</td>
 	  </tr>
 	  {% endfor %}
@@ -65,9 +65,9 @@
 	    <th>Title</th>
 	    <th>Hours</th>
 	    <th>Current Standing</th>
-	    <th>First Fine Date Standing</th>
-	    <th>Second Fine Date Standing</th>
-	    <th>Third Fine Date Standing</th>
+		{% if first_standing %}<th>First Fine Date Standing</th>{% endif %}
+	    {% if second_standing %}<th>Second Fine Date Standing</th>{% endif %}
+	    {% if third_standing %}<th>Third Fine Date Standing</th>{% endif %}
 	  </tr>
 	</thead>
 	<tbody>
@@ -92,7 +92,7 @@
   {% endif %}
   {% if profile.note %}
   <h3 class="w_subtitle">Profile notes</h3>
-  <p>{{ profile.note }}</p>
+  <p>{{ profile.note|safe }}</p>
   {% endif %}
 </div> <!-- .instance_container -->
 {% endblock %}
@@ -102,7 +102,7 @@
   $(document).ready(function() {
 	 $('table').tablesorter({
 	    sortList: [[0,0]]
-	 }); 
+	 });
   });
 </script>
 {% endblock %}
