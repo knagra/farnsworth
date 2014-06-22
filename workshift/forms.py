@@ -175,6 +175,8 @@ class WorkshiftInstanceForm(forms.ModelForm):
 				instance.weekly_workshift = None
 			else:
 				info = None
+		else:
+			info = instance.info
 		if info:
 			for field in self.info_fields:
 				setattr(info, field, self.cleaned_data[field])
@@ -401,17 +403,26 @@ class TimeBlockForm(forms.ModelForm):
 		model = TimeBlock
 		fields = "__all__"
 
+	def clean(self):
+		start_time = self.cleaned_data['start_time']
+		end_time = self.cleaned_data['end_time']
+
+		if end_time < start_time:
+			raise forms.ValidationError("Start time later than end time.")
+
+		return self.cleaned_data
+
 class BaseTimeBlockFormSet(BaseModelFormSet):
 	def __init__(self, *args, **kwargs):
 		self.profile = kwargs.pop('profile')
 		super(BaseTimeBlockFormSet, self).__init__(*args, **kwargs)
 		self.queryset = self.profile.time_blocks.all()
 
-	def save(self, commit=True):
-		blocks = super(BaseTimeBlockFormSet, self).save(commit=commit)
-		self.profile.time_blocks = blocks
-		if commit:
-			self.profile.save()
+	def save(self):
+		blocks = super(BaseTimeBlockFormSet, self).save()
+		for block in blocks:
+			self.profile.time_blocks.add(block)
+		self.profile.save()
 		return blocks
 
 TimeBlockFormSet = modelformset_factory(
