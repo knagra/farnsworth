@@ -13,7 +13,8 @@
   <form method="post" action="">
 	{% csrf_token %}
 	{{ edit_form|bootstrap }}
-	<button type="submit" class="btn btn-success" name="edit">Edit Workshift Instance</button>
+	<button type="submit" class="btn btn-success" name="edit">Edit</button>
+	<button type="submit" class="btn btn-danger" name="delete"><span class="glyphicon glyphicon-fire"></span> Delete</button>
   </form>
   {% if shift.logs.all %}
   <table>

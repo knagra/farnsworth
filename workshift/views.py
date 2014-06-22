@@ -552,6 +552,10 @@ def edit_pool_view(request, semester, pk, profile=None):
 		instance=pool,
 		full_management=full_management,
 		)
+	if "delete" in request.POST:
+		pool.delete()
+		return HttpResponseRedirect(wurl('workshift:manage',
+										 sem_url=semester.sem_url))
 	if edit_pool_form.is_valid():
 		edit_pool_form.save()
 		messages.add_message(request, messages.INFO,
