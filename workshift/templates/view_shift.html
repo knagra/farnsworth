@@ -8,7 +8,7 @@
 {% block w_content %}
 <div class="instancee_container">
   <p>{{ shift.pool.title }}</p>
-  <p>{{ shift.date }}</p>
+  <p>{{ shift.get_day_display }}</p>
   <p>{{ shift.workshifter.user.get_full_name }}</p>
   <p>{{ shift.hours }}</p>
   <p>{{ shift.workshift_type.quick_tips }}</p>
