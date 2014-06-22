@@ -474,6 +474,7 @@ def add_shift_view(request, semester):
 	add_instance_form = WorkshiftInstanceForm(
 		request.POST if "add_instance" in request.POST else None,
 		pools=pools,
+		semester=semester,
 		)
 	add_shift_form = RegularWorkshiftForm(
 		request.POST if "add_shift" in request.POST else None,
@@ -498,7 +499,6 @@ def add_shift_view(request, semester):
 		"add_instance_form": add_instance_form,
 		"add_shift_form": add_shift_form,
 	}, context_instance=RequestContext(request))
-
 
 @get_workshift_profile
 def pool_view(request, semester, pk, profile=None):
@@ -637,6 +637,7 @@ def edit_instance_view(request, semester, pk, profile=None):
 	edit_form = WorkshiftInstanceForm(
 		request.POST if "edit" in request.POST else None,
 		instance=shift,
+		semester=semester,
 		)
 
 	if "delete" in request.POST:
