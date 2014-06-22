@@ -21,29 +21,29 @@
 </ul>
 <div class="tab-content">
 {% if add_instance_form %}
-<form class="tab-pane active" id="workshift_instance" method="post" action="" name="add_instance">
+<form class="tab-pane active" id="workshift_instance" method="post" action="">
   {% csrf_token %}
   {{ add_instance_form|bootstrap }}
   <div class="text-center">
-    <button type="submit" class="btn btn-success">Create Single Workshift</button>
+    <button type="submit" class="btn btn-success" name="add_instance">Create Single Workshift</button>
   </div>
 </form>
 {% endif %}
 {% if add_shift_form %}
-<form class="tab-pane" id="regular_workshift" method="post" action="" name="add_shift">
+<form class="tab-pane" id="regular_workshift" method="post" action="">
   {% csrf_token %}
   {{ add_shift_form|bootstrap }}
   <div class="text-center">
-    <button type="submit" class="btn btn-success">Create Regular Workshift</button>
+    <button type="submit" class="btn btn-success" name="add_shift">Create Regular Workshift</button>
   </div>
 </form>
 {% endif %}
 {% if add_type_form %}
-<form class="tab-pane" id="workshift_type" method="post" action="" name="add_type">
+<form class="tab-pane" id="workshift_type" method="post" action="">
   {% csrf_token %}
   {{ add_type_form|bootstrap }}
   <div class="text-center">
-    <button type="submit" class="btn btn-success">Create Workshift Type</button>
+    <button type="submit" class="btn btn-success" name="add_type">Create Workshift Type</button>
   </div>
 </form>
 {% endif %}
