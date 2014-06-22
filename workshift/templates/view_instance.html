@@ -38,7 +38,7 @@
 		  {% elif log.enty_type == 'V' %}
 		  verified that this shift was completed.
 		  {% endif %}</td>
-		<td>{{ log.note }}</td>
+		<td>{% if log.note %}{{ log.note }}{% endif %}</td>
 	  </tr>
 	  {% endfor %}
 	</tbody>
