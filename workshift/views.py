@@ -493,10 +493,13 @@ def add_shift_view(request, semester):
 		pools=pools,
 		semester=semester,
 		)
-	add_shift_form = RegularWorkshiftForm(
-		request.POST if "add_shift" in request.POST else None,
-		pools=pools,
-		)
+	if WorkshiftType.objects.count():
+		add_shift_form = RegularWorkshiftForm(
+			request.POST if "add_shift" in request.POST else None,
+			pools=pools,
+			)
+	else:
+		add_shift_form = None
 
 	if add_type_form and add_type_form.is_valid():
 		add_type_form.save()
@@ -506,7 +509,7 @@ def add_shift_view(request, semester):
 		add_instance_form.save()
 		return HttpResponseRedirect(wurl("workshift:manage",
 										 sem_url=semester.sem_url))
-	elif add_shift_form.is_valid():
+	elif add_shift_form and add_shift_form.is_valid():
 		add_shift_form.save()
 		return HttpResponseRedirect(wurl("workshift:manage",
 										 sem_url=semester.sem_url))
