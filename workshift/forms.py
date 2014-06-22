@@ -62,6 +62,22 @@ class SemesterForm(forms.ModelForm):
 
 		return semester
 
+class StartPoolForm(forms.Form):
+	copy_pool = forms.BooleanField(initial=True)
+
+	def __init__(self, *args, **kwargs):
+		self.copy = kwargs.pop('copy')
+		super(StartPoolForm, self).__init__(*args, **kwargs)
+
+	def save(self, semester):
+		if self.cleaned_data['copy_pool']:
+			self.copy.pk = None
+			self.copy.semester = semester
+			self.copy.first_fine_date = None
+			self.copy.second_fine_date = None
+			self.copy.third_fine_date = None
+			self.copy.save()
+
 class PoolForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftPool
@@ -108,6 +124,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		)
 	description = forms.CharField(
 		widget=forms.Textarea(),
+		required=False,
 		help_text="Description of the shift.",
 		)
 	pool = forms.ModelChoiceField(
@@ -167,6 +184,15 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		instance = super(WorkshiftInstanceForm, self).save(commit=False)
 		instance.semester = self.semester
 		if self.new:
+			instance.intended_hours = instance.hours
+			if instance.workshifter:
+				instance.save()
+				log = ShiftLogEntry(
+					person=instance.workshifter,
+					entry_type=ShiftLogEntry.ASSIGNED,
+					)
+				log.save()
+				instance.logs.add(log)
 			info = InstanceInfo()
 		elif not instance.info:
 			if any(self.cleaned_data[field] != getattr(instance, field)
@@ -183,6 +209,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
 			info.save()
 			instance.info = info
 		instance.save()
+		self.save_m2m()
 		return instance
 
 class InteractShiftForm(forms.Form):

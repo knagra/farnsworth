@@ -130,12 +130,28 @@ def start_semester_view(request):
 			"season": season,
 		})
 
-	if semester_form.is_valid():
+	pool_forms = []
+	try:
+		prev_semester = Semester.objects.all()[0]
+	except IndexError:
+		pass
+	else:
+		for pool in WorkshiftPool.objects.filter(semester=prev_semester):
+			form = StartPoolForm(
+				request.POST or None,
+				copy=pool,
+				prefix="pool-{0}".format(pool.pk),
+				)
+			pool_forms.append(form)
+
+	if semester_form.is_valid() and all(i.is_valid() for i in pool_forms):
 		# And save this semester
 		semester = semester_form.save()
 		semester.workshift_managers = \
 		  [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
 		semester.save()
+		for pool_form in pool_forms:
+			pool_form.save(semester=semester)
 		return HttpResponseRedirect(wurl("workshift:manage",
 										 sem_url=semester.sem_url))
 
@@ -144,6 +160,7 @@ def start_semester_view(request):
 	return render_to_response("start_semester.html", {
 		"page_name": page_name,
 		"semester_form": semester_form,
+		"pool_forms": pool_forms,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -299,6 +316,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 			instance=rating,
 			profile=wprofile,
 			)
+		print(form.instance.workshift_type.pk)
 		rating_forms.append(form)
 
 	time_formset = TimeBlockFormSet(
@@ -476,10 +494,13 @@ def add_shift_view(request, semester):
 		pools=pools,
 		semester=semester,
 		)
-	add_shift_form = RegularWorkshiftForm(
-		request.POST if "add_shift" in request.POST else None,
-		pools=pools,
-		)
+	if WorkshiftType.objects.count():
+		add_shift_form = RegularWorkshiftForm(
+			request.POST if "add_shift" in request.POST else None,
+			pools=pools,
+			)
+	else:
+		add_shift_form = None
 
 	if add_type_form and add_type_form.is_valid():
 		add_type_form.save()
@@ -489,7 +510,7 @@ def add_shift_view(request, semester):
 		add_instance_form.save()
 		return HttpResponseRedirect(wurl("workshift:manage",
 										 sem_url=semester.sem_url))
-	elif add_shift_form.is_valid():
+	elif add_shift_form and add_shift_form.is_valid():
 		add_shift_form.save()
 		return HttpResponseRedirect(wurl("workshift:manage",
 										 sem_url=semester.sem_url))
@@ -504,10 +525,12 @@ def add_shift_view(request, semester):
 def pool_view(request, semester, pk, profile=None):
 	pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
 	page_name = pool.title
+	shifts = RegularWorkshift.objects.filter(pool=pool, active=True)
 
 	return render_to_response("view_pool.html", {
 		"page_name": page_name,
 		"pool": pool,
+		"shifts": shifts,
 	}, context_instance=RequestContext(request))
 
 @workshift_manager_required
@@ -529,6 +552,10 @@ def edit_pool_view(request, semester, pk, profile=None):
 		instance=pool,
 		full_management=full_management,
 		)
+	if "delete" in request.POST:
+		pool.delete()
+		return HttpResponseRedirect(wurl('workshift:manage',
+										 sem_url=semester.sem_url))
 	if edit_pool_form.is_valid():
 		edit_pool_form.save()
 		messages.add_message(request, messages.INFO,

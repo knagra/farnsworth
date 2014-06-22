@@ -8,12 +8,13 @@
 {% endblock %}
 
 {% block w_content %}
-<div class="instance_container">
-  <h3>{{ page_name }}</h3>
+<div class="pool_container">
+  <h1 class="w_title">{{ page_name }}</h1>
   <form method="post" action="">
 	{% csrf_token %}
 	{{ edit_pool_form|bootstrap }}
-	<button type="submit" class="btn btn-success">Edit Workshift Pool</button>
+	<button type="submit" class="btn btn-success" name="edit">Edit</button>
+	<button type="submit" class="btn btn-danger" name="delete"><span class="glyphicon glyphicon-fire"></span> Delete</button>
   </form>
 </div> <!-- .instance_container -->
 {% endblock %}

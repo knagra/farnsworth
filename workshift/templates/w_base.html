@@ -47,8 +47,8 @@
 	  <div id="upcoming_shifts" class="list-group">
 		{% for shift, happening in upcoming_shifts %}
 		<a title="See shift info" href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="list-group-item"><span class="badge">{{ shift.hours }}</span>{{ shift.title }},
-		  {{ shift.date }}{% if shift.start_time %}{{ shift.start_time }}{% if shift.end_time %}
-		  - {{ shift.end_time }} {% endif %}{% endif %}</a>
+		  {{ shift.date|date:"l" }} {% if shift.start_time %}{{ shift.start_time }}{% if shift.end_time %}
+		  - {{ shift.end_time }}{% endif %}{% endif %}</a>
 		{% endfor %}
 	  </div> <!-- #upcoming_shifts -->
 	  {% endif %}

@@ -151,7 +151,7 @@ class WorkshiftPool(models.Model):
 		elif self.weeks_per_period == 1:
 			ret = "{0} hour{1} per week"
 		else:
-			ret = "{{}} hour{{}} per {0} weeks".format(self.weeks_per_period)
+			ret = "{{0}} hour{{1}} per {0} weeks".format(self.weeks_per_period)
 		return ret.format(
 			self.hours, "s" if self.hours != 1 else "",
 			)
@@ -312,7 +312,7 @@ class PoolHours(models.Model):
 		elif self.pool.weeks_per_period == 1:
 			ret = "{0} hour{1} per week"
 		else:
-			ret = "{{}} hour{{}} per {0} weeks".format(self.pool.weeks_per_period)
+			ret = "{{0}} hour{{1}} per {0} weeks".format(self.pool.weeks_per_period)
 		return ret.format(
 			self.hours, "s" if self.hours != 1 else "",
 			)
@@ -415,6 +415,8 @@ class RegularWorkshift(models.Model):
 		help_text="If this shift is for the entire week.",
 		)
 	addendum = models.TextField(
+		null=True,
+		blank=True,
 		help_text="Addendum to the description for this workshift.",
 		)
 
@@ -462,6 +464,9 @@ class ShiftLogEntry(models.Model):
 			self.person,
 			self.entry_type,
 			)
+
+	class Meta:
+		ordering = ['-entry_time']
 
 class InstanceInfo(models.Model):
 	"""

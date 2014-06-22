@@ -7,14 +7,24 @@
 
 {% block w_content %}
 <div class="instance_container">
-  <p>{{ shift.pool.title }}</p>
+  {% if WORKSHIFT_MANAGER %}
+  <form action="{% wurl 'workshift:edit_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
+	<button class="btn btn-default" type="submit">
+	  <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span>
+	</button>
+  </form>
+  {% endif %}
+  <h1 class="w_title">{{ page_name }}</h1>
   <p>{{ shift.date }}</p>
   <p>{{ shift.workshifter.user.get_full_name }}</p>
   <p>{{ shift.description }}</p>
   {% if shift.weekly_workshift %}<p>{{ shift.weekly_workshift.workshift_type.quick_tips }}</p>{% endif %}
   <p>{{ shift.hours }}</p>
+  {% if shift.addendum %}
+  <p>{{ shift.addendum }}</p>
+  {% endif %}
   {% if shift.logs.all %}
-  <table>
+  <table class=" table table-striped table-bordered table-condensed table-hover">
 	<thead>
 	  <tr>
 		<th>Time</th>
@@ -38,7 +48,7 @@
 		  {% elif log.enty_type == 'V' %}
 		  verified that this shift was completed.
 		  {% endif %}</td>
-		<td>{{ log.note }}</td>
+		<td>{% if log.note %}{{ log.note }}{% endif %}</td>
 	  </tr>
 	  {% endfor %}
 	</tbody>
