@@ -14,7 +14,7 @@
   {% if shift.weekly_workshift %}<p>{{ shift.weekly_workshift.workshift_type.quick_tips }}</p>{% endif %}
   <p>{{ shift.hours }}</p>
   {% if shift.logs.all %}
-  <table>
+  <table class=" table table-striped table-bordered table-condensed table-hover">
 	<thead>
 	  <tr>
 		<th>Time</th>
