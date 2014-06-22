@@ -34,7 +34,7 @@
 	<tbody>
 	  {% for form in rating_forms %}
 	  <tr id="rating_forms_row">
-		<td><a href="{% wurl 'workshift:view_type' pk=form.instance.pk %}">{{ form.title }}</a></td>
+		<td><a href="{% wurl 'workshift:view_type' pk=form.pk %}">{{ form.title }}</a></td>
 		<td>{{ form.rating }}</td>
 	  </tr>
 	  {% endfor %}

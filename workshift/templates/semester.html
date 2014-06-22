@@ -12,7 +12,7 @@
 <div class="row">
 {% if prev_day %}
 <div class="col-sm-1 col-xs-2 text-left">
-<a title="Previous day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=semester.sem_url %}?day={{ prev_day }}">
+<a title="Previous day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ prev_day }}">
 <span class="glyphicon glyphicon-chevron-left"></span>
 </a>
 </div> <!-- .col-xs-1 -->
@@ -22,7 +22,7 @@
 		{{ day|date:"d, Y"  }}</h3>
 {% if next_day %}
 <div class="col-sm-1 col-xs-2 text-right">
-<a title="Next day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=semester.sem_url %}?day={{ next_day }}">
+<a title="Next day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ next_day }}">
 <span class="glyphicon glyphicon-chevron-right"></span>
 </a>
 </div> <!-- .col-sm-1 -->
