@@ -16,34 +16,5 @@
 	<button type="submit" class="btn btn-success" name="edit">Edit</button>
 	<button type="submit" class="btn btn-danger" name="delete"><span class="glyphicon glyphicon-fire"></span> Delete</button>
   </form>
-  <table>
-	<thead>
-	  <tr>
-		<th>Time</th>
-		<th>Entry</th>
-		<th>Note</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for log in shift.shift_log.all %}
-	  <tr>
-		<td>{{ log.entry_time }}</td>
-		<td><a href="{% url 'workshift:profile' log.person.pk %}">{{ log.person.user.get_full_name }}</a>
-		  {% if log.entry_type == 'A' %}
-		  was assigned to this shift.
-		  {% elif log.entry_type == 'B' %}
-		  marked this shift as blown.
-		  {% elif log.entry_type == 'I' %}
-		  signed into this shift.
-		  {% elif log.entry_type == 'O' %}
-		  signed out of this shift.
-		  {% elif log.enty_type == 'V' %}
-		  verified that this shift was completed.
-		  {% endif %}</td>
-		<td>{{ log.note }}</td>
-	  </tr>
-	  {% endfor %}
-	</tbody>
-  </table>
-</div> <!-- .instance_container -->
+</div> <!-- .shift_container -->
 {% endblock %}
