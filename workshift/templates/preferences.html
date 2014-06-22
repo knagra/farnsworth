@@ -47,7 +47,7 @@
   	<tbody>
 	  {% for form in time_formset.forms %}
 	  {{ form.id }}
-	  <tr id="time_formset_row">
+	  <tr class="time_formset_row">
 		<td>{{ form.preference|bootstrap }}</td>
 		<td>{{ form.day|bootstrap }}</td>
 		<td>{{ form.start_time|bootstrap }}</td>
@@ -81,7 +81,7 @@
   };
   $(document).ready(function() {
     $(function() {
-      $("#time_formset_row").formset({
+      $(".time_formset_row").formset({
         prefix: "{{ time_formset.prefix }}",
         added: renewDatePickers,
       });
