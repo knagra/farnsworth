@@ -129,7 +129,7 @@ class TestHomepage(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, "Recent Threads")
 		self.assertContains(response, "Recent Announcements")
-		self.assertContains(response, "Today's Events")
+		self.assertContains(response, "Week's Events")
 		self.assertContains(response, self.ev.title)
 		self.assertContains(response, "{0} Requests".format(self.rt.name))
 
@@ -285,7 +285,6 @@ class TestRequestProfile(TestCase):
 			"user:name",
 			"user+name",
 			"\"username",
-			"-username",
 			"~username",
 			"\'username",
 			]
