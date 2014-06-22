@@ -396,8 +396,10 @@ class AssignShiftForm(forms.ModelForm):
 					preference=TimeBlock.BUSY, day=self.instance.day,
 					)
 				if not time_blocks:
-					query.append(profile)
-			self.fields['current_assignee'].queryset = query
+					query.append(profile.pk)
+
+			self.fields['current_assignee'].queryset = \
+			  WorkshiftProfile.objects.filter(pk__in=query)
 
 class RegularWorkshiftForm(forms.ModelForm):
 	start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
