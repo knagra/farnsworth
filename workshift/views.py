@@ -316,6 +316,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
 			instance=rating,
 			profile=wprofile,
 			)
+		print(form.instance.workshift_type.pk)
 		rating_forms.append(form)
 
 	time_formset = TimeBlockFormSet(
