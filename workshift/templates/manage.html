@@ -65,7 +65,7 @@
 		<td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
 		<td>
 		  {% for hours in pool_hours %}{% if not forloop.first %}, {% endif %}
-		  {{ hours.pool.title }}: {% if 0 > hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ hours.standing }}</font>{% endfor %}
+		  <a href="{% wurl 'workshift:view_pool' pk=hours.pool.pk sem_url=SEMESTER.sem_url %}">{{ hours.pool.title }}</a>: {% if 0 > hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ hours.standing }}</font>{% endfor %}
 		</td>
 	  </tr>
 	  {% endfor %}
