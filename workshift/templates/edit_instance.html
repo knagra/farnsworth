@@ -9,10 +9,11 @@
 
 {% block w_content %}
 <div class="instance_container">
-  <p>{{ shift.pool.title }}</p>
-  <form method="post" action="edit_shift">
+  <h1 class="w_title">{{ page_name }}</h1>
+  <form method="post" action="">
 	{% csrf_token %}
 	{{ edit_form|bootstrap }}
+	<button type="submit" class="btn btn-success" name="edit">Edit Workshift Instance</button>
   </form>
   {% if shift.logs.all %}
   <table>

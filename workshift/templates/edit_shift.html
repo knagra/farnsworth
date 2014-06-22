@@ -8,11 +8,12 @@
 {% endblock %}
 
 {% block w_content %}
-<div class="instance_container">
-  <p>{{ shift.pool.title }}</p>
-  <form method="post" action="edit_shift">
+<div class="shift_container">
+  <h1 class="w_title">{{ page_name }}</h1>
+  <form method="post" action="">
 	{% csrf_token %}
 	{{ edit_form|bootstrap }}
+	<button type="submit" class="btn btn-success" name="edit">Edit Regular Workshift</button>
   </form>
   <table>
 	<thead>
