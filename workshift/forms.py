@@ -403,15 +403,10 @@ class TimeBlockForm(forms.ModelForm):
 		model = TimeBlock
 		fields = "__all__"
 
-	def is_valid(self):
-		if not super(TimeBlockForm, self).is_valid():
-			return False
-		validity = True
+	def clean(self):
 		if self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
-			self._errors['start_time'] = forms.util.ErrorList([u"Start time later than end time."])
-			self._errors['end_time'] = forms.util.ErrorList([u"Start time later than end time."])
-			validity = False
-		return validity
+			raise forms.ValdiationError('Start time later than end time.')
+		return self.cleaned_data
 
 class BaseTimeBlockFormSet(BaseModelFormSet):
 	def __init__(self, *args, **kwargs):
@@ -430,8 +425,6 @@ class BaseTimeBlockFormSet(BaseModelFormSet):
 TimeBlockFormSet = modelformset_factory(
 	TimeBlock, form=TimeBlockForm, formset=BaseTimeBlockFormSet,
 	can_delete=True, extra=1, max_num=50,
-	labels={"preference": "", "day": "", "start_time": "", "end_time": ""},
-	help_texts={"preference": "", "day": "", "start_time": "", "end_time": ""},
 	)
 
 class ProfileNoteForm(forms.ModelForm):
