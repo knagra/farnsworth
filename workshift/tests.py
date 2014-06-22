@@ -1105,11 +1105,7 @@ class TestWorkshifts(TestCase):
 		url = "/workshift/manage/add_shift/"
 		response = self.client.post(url, {
 			"add_instance": "",
-			"title": "Add Instance Title",
-			"description": "Add Instance Description",
-			"pool": self.pool.pk,
-			"start_time": "6:00 PM",
-			"end_time": "8:00 PM",
+			"weekly_workshift": self.shift.pk,
 			"date": "05/27/2014",
 			"workshifter": self.wp.pk,
 			"closed": False,
@@ -1119,11 +1115,7 @@ class TestWorkshifts(TestCase):
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
 		instance = WorkshiftInstance.objects.get(pk=self.once.pk + 1)
-		self.assertEqual(instance.title, "Add Instance Title")
-		self.assertEqual(instance.description, "Add Instance Description")
-		self.assertEqual(instance.pool, self.pool)
-		self.assertEqual(instance.start_time, time(18, 0, 0))
-		self.assertEqual(instance.end_time, time(20, 0, 0))
+		self.assertEqual(instance.weekly_workshift, self.shift)
 		self.assertEqual(instance.date, date(2014, 5, 27))
 		self.assertEqual(instance.workshifter, self.wp)
 		self.assertEqual(instance.closed, False)
@@ -1214,22 +1206,63 @@ class TestWorkshifts(TestCase):
 		url = "/workshift/manage/add_shift/"
 		response = self.client.post(url, {
 			"add_instance": "",
+			"title": "Add Instance Title",
+			"description": "Add Instance Description",
+			"pool": self.pool,
+			"start_time": "6:00 PM",
+			"end_time": "8:00 PM",
+			"date": "05/27/2014",
+			"workshifter": self.wp,
+			"closed": False,
+			"hours": 2,
+			"auto_verify": False,
+			"week_long": False,
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
+		instance = WorkshiftInstance.objects.get(pk=self.once.pk + 1)
+		self.assertEqual(instance.title, "Add Instance Title")
+		self.assertEqual(instance.description, "Add Instance Description")
+		self.assertEqual(instance.pool, self.pool)
+		self.assertEqual(instance.start_time, time(18, 0, 0))
+		self.assertEqual(instance.end_time, time(20, 0, 0))
+		self.assertEqual(instance.date, date(2014, 5, 27))
+		self.assertEqual(instance.workshifter, self.wp)
+		self.assertEqual(instance.closed, False)
+		self.assertEqual(instance.hours, 2)
+		self.assertEqual(instance.auto_verify, False)
+		self.assertEqual(instance.week_long, False)
 
 	def test_edit_once(self):
 		url = "/workshift/instance/{0}/edit/".format(self.once.pk)
 		response = self.client.post(url, {
 			"edit": "",
-			"workshifter": self.up.pk,
-			"date": date.today(),
+			"title": "Edit Instance Title",
+			"description": "I once was from a long line of workshifts",
+			"pool": self.instance.pool.pk,
+			"start_time": "2:00 PM",
+			"end_time": "4:00 PM",
+			"date": "05/27/2014",
+			"workshifter": self.wp.pk,
 			"closed": False,
-			"blown": False,
-			"intended_hours": 10,
-			"auto_verify": True,
-			"week_long": True,
+			"hours": 2,
+			"auto_verify": False,
+			"week_long": False,
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/instance/{0}/".format(self.once.pk))
+		self.assertEqual(InstanceInfo.objects.count(), 1)
+		instance = WorkshiftInstance.objects.get(pk=self.once.pk)
+		self.assertEqual(instance.weekly_workshift, None)
+		self.assertEqual(instance.title, "Edit Instance Title")
+		self.assertEqual(instance.description, "I once was from a long line of workshifts")
+		self.assertEqual(instance.pool, self.pool)
+		self.assertEqual(instance.start_time, time(14, 0, 0))
+		self.assertEqual(instance.end_time, time(16, 0, 0))
+		self.assertEqual(instance.date, date(2014, 5, 27))
+		self.assertEqual(instance.workshifter, self.wp)
+		self.assertEqual(instance.closed, False)
+		self.assertEqual(instance.hours, 2)
+		self.assertEqual(instance.auto_verify, False)
+		self.assertEqual(instance.week_long, False)
 
 	def test_delete_once(self):
 		url = "/workshift/instance/{0}/edit/".format(self.once.pk)
