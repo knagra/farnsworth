@@ -9,13 +9,20 @@
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
+<style>
+	.time_formset_row td {
+		padding-right: 5px;
+		padding-bottom: 5px;
+	}
+</style>
 {% endblock %}
 
 {% block w_content %}
+<h1 class="w_title">My Preferences</h1>
 <form id="preferences_form" method="post" action="">
   {% csrf_token %}
   {% if rating_forms %}
-  <h2 class="w_title">Workshift Preferences</h2>
+  <h3 class="w_title">Workshift Preferences</h3>
   <table>
 	<tbody>
 	  {% for form in rating_forms %}
@@ -29,8 +36,8 @@
   <br />
   {% endif %}
   {% if time_formset %}
-  <h2 class="w_title">Your Schedule</h2>
-  <table border="0" cellpadding="0" cellspacing="0">
+  <h3 class="w_subtitle">Your Schedule</h3>
+  <table id="time_blocks" border="0" cellpadding="0" cellspacing="0">
   	<tbody>
   	  {% for form in time_formset.forms %}
 	  {{ form.id }}
@@ -47,7 +54,7 @@
   {{ time_formset.management_form }}
   <br />
   {% endif %}
-  <h2 class="w_title">Note</h2>
+  <h3 class="w_subtitle">Note</h3>
   {{ note_form|bootstrap }}
   <div class="text-center">
     <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>
@@ -55,7 +62,7 @@
 </form>
 {% endblock %}
 
-{% block endscripts %}
+{% block w_endscripts %}
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
