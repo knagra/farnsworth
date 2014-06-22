@@ -403,10 +403,17 @@ class TimeBlockForm(forms.ModelForm):
 		model = TimeBlock
 		fields = "__all__"
 
-	def clean(self):
+	# def clean(self):
+	# 	if self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
+	# 		raise forms.ValidationError('Start time later than end time.')
+	# 	return self.cleaned_data
+
+	def is_valid(self):
+		if not super(TimeBlockForm, self).is_valid():
+			return False
 		if self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
-			raise forms.ValidationError('Start time later than end time.')
-		return self.cleaned_data
+			self._errors['start_time'] = forms.utils.ErrorList([u"Start time later than end time."])
+			self._errors['end_time'] = forms.utils.ErrorList([u"Start time later than end time."])
 
 class BaseTimeBlockFormSet(BaseModelFormSet):
 	def __init__(self, *args, **kwargs):
