@@ -463,6 +463,9 @@ class ShiftLogEntry(models.Model):
 			self.entry_type,
 			)
 
+	class Meta:
+		ordering = ['-entry_time']
+
 class InstanceInfo(models.Model):
 	"""
 	The info associated with a WorkshiftInstance for a non-recurring task.
