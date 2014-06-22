@@ -1283,8 +1283,33 @@ class TestWorkshifts(TestCase):
 		url = "/workshift/manage/add_shift/"
 		response = self.client.post(url, {
 			"add_shift": "",
+			"workshift_type": self.type.pk,
+			"pool": self.pool.pk,
+			"title": "IKC",
+			"day": 1,
+			"hours": 3,
+			"active": True,
+			"current_assignee": self.wp.pk,
+			"start_time": "8:00 PM",
+			"end_time": "11:00 PM",
+			"auto_verify": False,
+			"week_long": False,
+			"addendum": "IKC needs no addendum.",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
+		shift = RegularWorkshift.objects.get(pk=self.shift.pk + 1)
+		self.assertEqual(shift.workshift_type, self.type)
+		self.assertEqual(shift.pool, self.pool)
+		self.assertEqual(shift.title, "IKC")
+		self.assertEqual(shift.day, 1)
+		self.assertEqual(shift.hours, 3)
+		self.assertEqual(shift.active, True)
+		self.assertEqual(shift.current_assignee, self.wp)
+		self.assertEqual(shift.start_time, time(20, 0, 0))
+		self.assertEqual(shift.end_time, time(23, 0, 0))
+		self.assertEqual(shift.auto_verify, False)
+		self.assertEqual(shift.week_long, False)
+		self.assertEqual(shift.addendum, "IKC needs no addendum.")
 
 	def test_edit_shift(self):
 		url = "/workshift/shift/{0}/edit/".format(self.shift.pk)
@@ -1308,6 +1333,7 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.workshift_type, self.type)
 		self.assertEqual(shift.pool, self.pool)
 		self.assertEqual(shift.title, "Edited Title")
+		self.assertEqual(shift.day, 1)
 		self.assertEqual(shift.hours, 42)
 		self.assertEqual(shift.active, False)
 		self.assertEqual(shift.current_assignee, self.up)
