@@ -14,6 +14,12 @@
 		padding-right: 5px;
 		padding-bottom: 5px;
 	}
+	.time_formset_row td div {
+	    margin: 0px;
+	}
+	.time_formset_row td div label {
+	    display: none;
+	}
 </style>
 {% endblock %}
 
@@ -41,7 +47,7 @@
   	<tbody>
 	  {% for form in time_formset.forms %}
 	  {{ form.id }}
-	  <tr class="time_formset_row">
+	  <tr id="time_formset_row">
 		<td>{{ form.preference|bootstrap }}</td>
 		<td>{{ form.day|bootstrap }}</td>
 		<td>{{ form.start_time|bootstrap }}</td>
