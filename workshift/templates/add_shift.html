@@ -9,18 +9,18 @@
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
 {% endblock %}
 
 {% block w_content %}
 <h1 class="w_title">{{ page_name }}</h1>
 <ul class="nav nav-pills" style="margin-bottom: 10px;">
-  <li class="active"><a href="#workshift_instance" data-toggle="tab">Workshift Instance</a></li>
-  <li><a href="#regular_workshift" data-toggle="tab">Regular Workshift</a></li>
-  <li><a href="#workshift_type" data-toggle="tab">Workshift Type</a></li>
+  {% if add_instance_form %}<li class="active"><a href="#workshift_instance" data-toggle="tab">Workshift Instance</a></li>{% endif %}
+  {% if add_shift_form %}<li><a href="#regular_workshift" data-toggle="tab">Regular Workshift</a></li>{% endif %}
+  {% if add_type_form %}<li><a href="#workshift_type" data-toggle="tab">Workshift Type</a></li>{% endif %}
 </ul>
 <div class="tab-content">
 {% if add_instance_form %}
-<!--<h3 class="w_subtitle">Add Workshift Instance</h3>-->
 <form class="tab-pane active" id="workshift_instance" method="post" action="" name="add_instance">
   {% csrf_token %}
   {{ add_instance_form|bootstrap }}
