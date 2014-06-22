@@ -339,6 +339,8 @@ class RegularWorkshiftForm(forms.ModelForm):
 		fields = "__all__"
 
 	def __init__(self, *args, **kwargs):
+		kwargs.setdefault('auto_id', '%s')
+		kwargs.setdefault('label_suffix', '')
 		self.pools = kwargs.pop('pools', None)
 		super(RegularWorkshiftForm, self).__init__(*args, **kwargs)
 		if self.pools:

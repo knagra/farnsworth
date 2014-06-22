@@ -6,14 +6,22 @@
 {% load workshift_tags %}
 
 {% block w_headers %}
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 {% endblock %}
 
 {% block w_content %}
 <h1 class="w_title">{{ page_name }}</h1>
+<ul class="nav nav-pills" style="margin-bottom: 10px;">
+  <li class="active"><a href="#workshift_instance" data-toggle="tab">Workshift Instance</a></li>
+  <li><a href="#regular_workshift" data-toggle="tab">Regular Workshift</a></li>
+  <li><a href="#workshift_type" data-toggle="tab">Workshift Type</a></li>
+</ul>
+<div class="tab-content">
 {% if add_instance_form %}
-<h3 class="w_subtitle">Add Workshift Instance</h3>
-<form method="post" action="" name="add_instance">
+<!--<h3 class="w_subtitle">Add Workshift Instance</h3>-->
+<form class="tab-pane active" id="workshift_instance" method="post" action="" name="add_instance">
   {% csrf_token %}
   {{ add_instance_form|bootstrap }}
   <div class="text-center">
@@ -22,9 +30,7 @@
 </form>
 {% endif %}
 {% if add_shift_form %}
-{% if add_instance_form %}<hr />{% endif %}
-<h3 class="w_subtitle">Add Regular Workshift</h3>
-<form method="post" action="" name="add_shift">
+<form class="tab-pane" id="regular_workshift" method="post" action="" name="add_shift">
   {% csrf_token %}
   {{ add_shift_form|bootstrap }}
   <div class="text-center">
@@ -33,9 +39,7 @@
 </form>
 {% endif %}
 {% if add_type_form %}
-{% if add_instance_form or add_shift_form %}<hr />{% endif %}
-<h3 class="w_subtitle">Add Workshift Type</h3>
-<form method="post" action="" name="add_type">
+<form class="tab-pane" id="workshift_type" method="post" action="" name="add_type">
   {% csrf_token %}
   {{ add_type_form|bootstrap }}
   <div class="text-center">
@@ -43,6 +47,7 @@
   </div>
 </form>
 {% endif %}
+</div>
 {% endblock %}
 
 {% block w_endscripts %}

@@ -6,6 +6,8 @@
 
 {% block w_headers %}
 <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
 {% endblock %}
 
@@ -44,9 +46,11 @@
   {{ time_formset.management_form }}
   <br />
   {% endif %}
-  <h2 class="w_title">Notes</h2>
+  <h2 class="w_title">Note</h2>
   {{ note_form|bootstrap }}
-  <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>
+  <div class="text-center">
+    <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>
+  </div>
 </form>
 {% endblock %}
 
@@ -68,6 +72,7 @@
         added: renewDatePickers,
       });
       renewDatePickers();
+      $('label[for="id_note"]').hide();
     });
   });
 </script>

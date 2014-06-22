@@ -3,6 +3,10 @@
  * Authors: Karandeep Singh Nagra and Nader Morshed
  */
 
+#workshift_content {
+	overflow-x: auto;
+}
+
 .w_title {
 	font-weight: 300;
 	margin-top: 0px;
