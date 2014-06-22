@@ -182,8 +182,17 @@ class WorkshiftInstanceForm(forms.ModelForm):
 	def save(self):
 		instance = super(WorkshiftInstanceForm, self).save(commit=False)
 		instance.semester = self.semester
+		instance.save()
+		self.save_m2m()
 		if self.new:
 			instance.intended_hours = instance.hours
+			if instance.workshifter:
+				log = ShiftLogEntry(
+					person=instance.workshifter,
+					entry_type=ShiftLogEntry.ASSIGNED,
+					)
+				log.save()
+				instance.logs.add(log)
 			info = InstanceInfo()
 		elif not instance.info:
 			if any(self.cleaned_data[field] != getattr(instance, field)
