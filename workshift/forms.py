@@ -183,6 +183,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		instance = super(WorkshiftInstanceForm, self).save(commit=False)
 		instance.semester = self.semester
 		if self.new:
+			instance.intended_hours = instance.hours
 			info = InstanceInfo()
 		elif not instance.info:
 			if any(self.cleaned_data[field] != getattr(instance, field)
