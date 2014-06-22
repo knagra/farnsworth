@@ -211,7 +211,7 @@ def view_semester(request, semester, profile=None):
 		except (TypeError, ValueError):
 			pass
 
-o	template_dict["day"] = day
+	template_dict["day"] = day
 	if day > semester.start_date:
 		template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
 	if day < semester.end_date:
