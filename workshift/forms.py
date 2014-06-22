@@ -414,6 +414,8 @@ class TimeBlockForm(forms.ModelForm):
 		if self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
 			self._errors['start_time'] = forms.utils.ErrorList([u"Start time later than end time."])
 			self._errors['end_time'] = forms.utils.ErrorList([u"Start time later than end time."])
+			return False
+		return True
 
 class BaseTimeBlockFormSet(BaseModelFormSet):
 	def __init__(self, *args, **kwargs):
@@ -432,6 +434,8 @@ class BaseTimeBlockFormSet(BaseModelFormSet):
 TimeBlockFormSet = modelformset_factory(
 	TimeBlock, form=TimeBlockForm, formset=BaseTimeBlockFormSet,
 	can_delete=True, extra=1, max_num=50,
+	labels=dict(preference="", day="", start_time="", end_time=""),
+	help_texts=dict(preference="", day="", start_time="", end_time=""),
 	)
 
 class ProfileNoteForm(forms.ModelForm):
