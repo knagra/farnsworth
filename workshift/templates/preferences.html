@@ -43,6 +43,9 @@
 	  <div class={% if form.errors %}"form-group has-error"{% else %}"form-group"{% endif %}>
 		{{ form.id }}
 		<tr class="time_formset_row">
+		  {% for field in form.fields %}
+		  <td>{{ field|bootstrap }}</td>
+		  {% endfor %}
 		  <td>{{ form.preference }}</td>
 		  <td>{{ form.day }}</td>
 		  <td>{{ form.start_time }}</td>
