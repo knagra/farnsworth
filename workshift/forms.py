@@ -395,10 +395,6 @@ class WorkshiftRatingForm(forms.ModelForm):
 		return rating
 
 class TimeBlockForm(forms.ModelForm):
-	start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
-								 input_formats=valid_time_formats)
-	end_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
-							   input_formats=valid_time_formats)
 	class Meta:
 		model = TimeBlock
 		fields = "__all__"
@@ -436,6 +432,9 @@ TimeBlockFormSet = modelformset_factory(
 	can_delete=True, extra=1, max_num=50,
 	labels=dict(preference="", day="", start_time="", end_time=""),
 	help_texts=dict(preference="", day="", start_time="", end_time=""),
+	widgets=dict(start_time=forms.TimeInput(format='%I:%M %p'),
+				 end_time=forms.TimeInput(format='%I:%M %p'),
+				 ),
 	)
 
 class ProfileNoteForm(forms.ModelForm):
