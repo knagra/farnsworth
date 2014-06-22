@@ -130,12 +130,28 @@ def start_semester_view(request):
 			"season": season,
 		})
 
-	if semester_form.is_valid():
+	pool_forms = []
+	try:
+		prev_semester = Semester.objects.all()[0]
+	except IndexError:
+		pass
+	else:
+		for pool in WorkshiftPool.objects.filter(semester=semester):
+			form = StartPoolForm(
+				request.POST or None,
+				copy=pool,
+				prefix="pool-{0}".format(pool.pk),
+				)
+			pool_forms.append(form)
+
+	if semester_form.is_valid() and all(i.is_valid() for i in pool_forms):
 		# And save this semester
 		semester = semester_form.save()
 		semester.workshift_managers = \
 		  [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
 		semester.save()
+		for pool_form in pool_forms:
+			pool_form.save(semester=semester)
 		return HttpResponseRedirect(wurl("workshift:manage",
 										 sem_url=semester.sem_url))
 
@@ -144,6 +160,7 @@ def start_semester_view(request):
 	return render_to_response("start_semester.html", {
 		"page_name": page_name,
 		"semester_form": semester_form,
+		"pool_forms": pool_forms,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile

@@ -14,8 +14,28 @@
 	{% csrf_token %}
 	<div class="form-group">
 	  {{ semester_form|bootstrap }}
-	  <div class="text-center"><button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-plus"></span> Start Semester</button></div>
 	</div> <!-- .form-group -->
+	{% if pool_forms %}
+	<table>
+	  <thead>
+		<th>Copy Workshift Pool</th>
+		<th>Title</th>
+		<th>Hours</th>
+	  </thead>
+	  <tbody>
+		{% for form in pool_forms %}
+		<tr>
+		  <td>{{ form.copy_pool }}</td>
+		  <td>{{ form.copy.title }}</td>
+		  <td>{{ form.copy.hours }}</td>
+		</tr>
+		{% endfor %}
+	  </tbody>
+	</table>
+	{% endif %}
+	<div class="text-center">
+	  <button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-plus"></span> Start Semester</button>
+	</div>
   </form>
 </div> <!-- .w_container -->
 {% endblock %}
@@ -24,8 +44,7 @@
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript">
-  $(function() {$("#id_start_date").datetimepicker({pickTime: false});});
-  $(function() {$("#id_end_date").datetimepicker({pickTime: false});});
+  $(function() {$("[id$=date]").datetimepicker({pickTime: false});});
   //$(function() {$("#id_year").datetimepicker({
 	//	format: "YYYY",
 	//	viewMode: "years",

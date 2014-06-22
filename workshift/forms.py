@@ -62,6 +62,22 @@ class SemesterForm(forms.ModelForm):
 
 		return semester
 
+class StartPoolForm(forms.form):
+	copy_pool = forms.BooleanField(initial=True)
+
+	def __init__(self, *args, **kwargs):
+		self.copy = kwargs.pop('copy')
+		super(StartPoolForm, self).__init__(*args, **kwargs)
+
+	def save(self, semester):
+		if self.cleaned_data['copy_pool']:
+			self.copy.pk = None
+			self.copy.semester = semester
+			self.copy.first_fine_date = None
+			self.copy.second_fine_date = None
+			self.copy.third_fine_date = None
+			self.copy.save()
+
 class PoolForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftPool
