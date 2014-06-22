@@ -6,8 +6,15 @@
 {% load workshift_tags %}
 
 {% block w_content %}
-<div class="instance_container">
-  <h3>{{ page_name }}</h3>
+<div class="pool_container">
+  {% if can_edit %}
+  <form action="{% wurl 'workshift:edit_pool' %}" class="pull-right">
+	<button class="btn btn-default" type="submit">
+	  <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit Pool</span>
+	</button>
+  </form>
+  {% endif %}
+  <h1 class="w_title">{{ page_name }}</h1>
   {% if WORKSHIFT_MANAGER %}
   <p><a href="{% wurl 'workshift:edit_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}">Edit this pool</a></p>
   {% endif %}
