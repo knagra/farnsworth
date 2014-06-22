@@ -422,7 +422,8 @@ class BaseTimeBlockFormSet(BaseModelFormSet):
 	def save(self):
 		blocks = super(BaseTimeBlockFormSet, self).save()
 		for block in blocks:
-			self.profile.time_blocks.add(block)
+			if not self.profile.time_blocks.filter(pk=block.pk):
+				self.profile.time_blocks.add(block)
 		self.profile.save()
 		return blocks
 

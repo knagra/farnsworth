@@ -46,6 +46,7 @@
   		<td>{{ form.day }}</td>
   		<td>{{ form.start_time }}</td>
   		<td>{{ form.end_time }}</td>
+		{% if form.errors %}<td>{{ form.errors }}</td>{% endif %}
 		<td></td>
   	  </tr>
   	  {% endfor %}
