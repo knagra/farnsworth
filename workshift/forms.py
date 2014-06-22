@@ -431,7 +431,7 @@ TimeBlockFormSet = modelformset_factory(
 	TimeBlock, form=TimeBlockForm, formset=BaseTimeBlockFormSet,
 	can_delete=True, extra=1, max_num=50,
 	labels={"preference": "", "day": "", "start_time": "", "end_time": ""},
-	help_text={"preference": "", "day": "", "start_time": "", "end_time": ""},
+	help_texts={"preference": "", "day": "", "start_time": "", "end_time": ""},
 	)
 
 class ProfileNoteForm(forms.ModelForm):
