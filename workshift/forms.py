@@ -62,7 +62,7 @@ class SemesterForm(forms.ModelForm):
 
 		return semester
 
-class StartPoolForm(forms.form):
+class StartPoolForm(forms.Form):
 	copy_pool = forms.BooleanField(initial=True)
 
 	def __init__(self, *args, **kwargs):
