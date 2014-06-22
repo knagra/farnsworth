@@ -407,7 +407,9 @@ class TimeBlockForm(forms.ModelForm):
 	def is_valid(self):
 		if not super(TimeBlockForm, self).is_valid():
 			return False
-		if self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
+		if 'start_time' in self.cleaned_data and \
+		  'end_time' in self.cleaned_data and \
+		  self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
 			self._errors['start_time'] = forms.util.ErrorList([u"Start time later than end time."])
 			self._errors['end_time'] = forms.util.ErrorList([u"Start time later than end time."])
 			return False
