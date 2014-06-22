@@ -81,7 +81,7 @@ class Semester(models.Model):
 		ordering = ['-start_date']
 
 	def __unicode__(self):
-		return "<{0} {1}>".format(self.season, self.year)
+		return "{0} {1}".format(self.get_season_display(), self.year)
 
 class WorkshiftPool(models.Model):
 	title = models.CharField(
@@ -143,7 +143,7 @@ class WorkshiftPool(models.Model):
 		unique_together = ("semester", "title")
 
 	def __unicode__(self):
-		return "<{0}, {1}>".format(self.title, self.semester)
+		return self.title
 
 	def show_hours(self):
 		if self.weeks_per_period == 0:
@@ -189,7 +189,7 @@ class WorkshiftType(models.Model):
 		)
 
 	def __unicode__(self):
-		return "<{0}>".format(self.title)
+		return self.title
 
 class TimeBlock(models.Model):
 	'''
@@ -353,7 +353,7 @@ class WorkshiftProfile(models.Model):
 		)
 
 	def __unicode__(self):
-		return "<{0}, {1}>".format(self.user.get_full_name(), self.semester)
+		return self.user.get_full_name()
 
 	class Meta:
 		unique_together = ("user", "semester")
