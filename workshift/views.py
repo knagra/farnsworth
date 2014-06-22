@@ -412,6 +412,7 @@ def assign_shifts_view(request, semester):
 		form = AssignShiftForm(
 			request.POST or None,
 			prefix="shift-{0}".format(shift.pk),
+			instance=shift,
 			semester=semester,
 			)
 		assign_forms.append(form)
