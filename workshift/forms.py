@@ -124,6 +124,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		)
 	description = forms.CharField(
 		widget=forms.Textarea(),
+		required=False,
 		help_text="Description of the shift.",
 		)
 	pool = forms.ModelChoiceField(
