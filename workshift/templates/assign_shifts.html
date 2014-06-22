@@ -6,6 +6,11 @@
 {% load workshift_tags %}
 
 {% block w_headers %}
+<style>
+	.assign_row td div label {
+	    display: none;
+	}
+</style>
 {% endblock %}
 
 {% block w_content %}
@@ -20,7 +25,7 @@
 	</thead>
 	<tbody>
 	  {% for form in assign_forms %}
-	  <tr>
+	  <tr class="assign_row">
 		<td><a href="{% wurl 'workshift:view_shift' pk=form.instance.pk sem_url=SEMESTER.sem_url %}">{{ form.instance.title }}</td>
 		<td>{{ form.current_assignee|bootstrap }}</td>
 	  </tr>
