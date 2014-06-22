@@ -65,7 +65,7 @@
   </div> <!-- .main_table -->
 </div>
 <div class="text-center text-info" style="margin-top: 10px">
-	Showing {{ requests.count }} request{{ requests.count|pluralize }}.
+	{{ requests.count }} request{{ requests.count|pluralize }} in total.
 </div>
 {% endblock %}
 
@@ -93,11 +93,13 @@ $(document).ready(function() {
 			}
 		},
 		{% if request_type %}
-		sortList: [[3,0], [4,0]]
+		sortList: [[5,1], [6,1]],
 		{% else %}
-		sortList: [[6,1], [5,1]]
+		sortList: [[6,1], [5,1]],
 		{% endif %}
+		widgets: ["filter"]
 	});
 });
 </script>
+<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
 {% endblock %}
