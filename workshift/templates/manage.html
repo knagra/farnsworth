@@ -6,6 +6,7 @@
 {% load workshift_tags %}
 
 {% block w_headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
 {% endblock %}
 
 {% block w_content %}
@@ -53,7 +54,7 @@
 	<thead>
 	  <tr>
 		<th>Workshifter</th>
-		<th>Contact</th>
+		<th>E-mail</th>
 		<th>Standing</th>
 	  </tr>
 	</thead>
@@ -81,5 +82,10 @@
 <script type="text/javascript">
   $("[id$=date]").datetimepicker({pickTime: false});
   $("[id$=time]").datetimepicker({pickDate: false});
+  $(document).ready(function() {
+    $('table').tablesorter({
+        sortList: [[0,0]]
+    });
+  });
 </script>
 {% endblock %}
