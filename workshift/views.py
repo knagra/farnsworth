@@ -139,7 +139,10 @@ def start_semester_view(request):
 		for pool in WorkshiftPool.objects.filter(semester=prev_semester):
 			form = StartPoolForm(
 				request.POST or None,
-				copy=pool,
+				initial={
+					"title": pool.title,
+					"hours": pool.hours,
+					},
 				prefix="pool-{0}".format(pool.pk),
 				)
 			pool_forms.append(form)
