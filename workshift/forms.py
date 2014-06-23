@@ -351,7 +351,7 @@ class SignOutForm(InteractShiftForm):
 
 class AddWorkshifterForm(forms.Form):
 	add_profile = forms.BooleanField(initial=True)
-	hours = forms.IntegerField(min_value=0, default=DEFAULT_SEMESTER_HOURS)
+	hours = forms.IntegerField(min_value=0, initial=DEFAULT_SEMESTER_HOURS)
 
 	def __init__(self, *args, **kwargs):
 		self.semester = kwargs.pop("semester")
