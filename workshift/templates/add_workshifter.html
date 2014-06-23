@@ -14,11 +14,21 @@
 {% block w_content %}
 <div class="instance_container">
   <h1 class="w_title">Add Workshifter</h1>
-  {% if add_workshifter_form %}
+  {% if add_workshifter_forms %}
   <form method="post" action="">
 	{% csrf_token %}
-	{{ add_workshifter_form|bootstrap }}
-	<button type="submit" class="btn btn-success">Add Workshifter</button>
+	<table>
+	  <tbody>
+		{% for form in add_workshifter_forms %}
+		<tr>
+		  <td>{{ form.add_profile|bootstrap }}</td>
+		  <td>{{ form.hours|bootstrap }}</td>
+		  <td>{{ form.user.get_full_name }}</td>
+		</tr>
+		{% endfor %}
+	  </tbody>
+	</table>
+	<button type="submit" class="btn btn-success">Add Workshifters</button>
   </form>
   {% else %}
   <p>Everyone in the database already has a workshift profile for this semester!</p>

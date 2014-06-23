@@ -138,6 +138,10 @@ class WorkshiftPool(models.Model):
 		default=False,
 		help_text="If any member is allowed to mark a shift as blown.",
 		)
+	is_primary = models.BooleanField(
+		default=False,
+		help_text="Is the primary workshift pool for the house.",
+		)
 
 	class Meta:
 		unique_together = ("semester", "title")
