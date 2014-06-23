@@ -22,9 +22,6 @@
 	.time_formset_row td div label {
 	    display: none;
 	}
-    .formset_remove {
-        vertical-align: middle;
-    }
 </style>
 {% endblock %}
 
@@ -74,7 +71,7 @@
 		<td>{{ form.day|bootstrap }}</td>
 		<td>{{ form.start_time|bootstrap }}</td>
 		<td>{{ form.end_time|bootstrap }}</td>
-		<td class="formset_remove"></td>
+		<td style="vertical-align: middle;"></td>
 	  </tr>
 	  {% endfor %}
   	</tbody>
