@@ -13,6 +13,8 @@
 	.time_formset_row td {
 		padding-right: 5px;
 		padding-bottom: 5px;
+		border-top: none !important;
+		border-bottom: 1px solid #e4e4e4;
 	}
 	.time_formset_row td div {
 	    margin: 0px;
@@ -25,21 +27,38 @@
 
 {% block w_content %}
 <h1 class="w_title">My Preferences</h1>
+
+{% if rating_forms %}
+<h3 class="w_subtitle">Workshift Descriptions</h3>
+<p id="descriptions_information" class="text-info text-center">Please select a workshift type from Workshift Preferences below.</p>
+<hr class="text-center" style="width: 75%;" />
+<div class="tab-content">
+{% for form in rating_forms %}
+	<div class="tab-pane{% if forloop.counter == 1 %} active{% endif %}" id="description_{{ form.instance.workshift_type.pk }}">
+	  <h4 class="w_subtitle text-center">{{ form.instance.workshift_type.title }}</h4>
+	  {{ form.instance.workshift_type.description|safe }}
+	</div> <!-- .tab-pane -->
+{% endfor %}
+<hr class="text-center" style="width: 75%;" />
+</div> <!-- .tab-content -->
+{% endif %}
+
 <form id="preferences_form" method="post" action="">
   {% csrf_token %}
   {% if rating_forms %}
-  <h3 class="w_title">Workshift Preferences</h3>
+  <h3 class="w_subtitle">Workshift Preferences</h3>
+  <p class="text-info text-center">Click on a workshift type to see its description above.</p>
   <table class="table table-striped table-bordered table-condensed">
 	<tbody>
 	  {% for form in rating_forms %}
 	  <tr id="rating_forms_row">
-		<td><a href="{% wurl 'workshift:view_type' pk=form.instance.workshift_type.pk %}">{{ form.title }}</a></td>
+		<td{% if forloop.counter == 1 %} class="active"{% endif %}><a href="#description_{{ form.instance.workshift_type.pk }}" data-toggle="tab">{{ form.title }}</a></td>
 		<td>{{ form.rating }}</td>
 	  </tr>
 	  {% endfor %}
 	</tbody>
   </table>
-  <br />
+
   {% endif %}
   {% if time_formset %}
   <h3 class="w_subtitle">Your Schedule</h3>
@@ -58,9 +77,9 @@
   	</tbody>
   </table>
   {{ time_formset.management_form }}
-  <br />
+
   {% endif %}
-  <h3 class="w_subtitle">Note</h3>
+  <h3 class="w_subtitle">Note to Workshift Manager(s)</h3>
   {{ note_form|bootstrap }}
   <div class="text-center">
     <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>

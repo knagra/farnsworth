@@ -18,8 +18,7 @@
 </div> <!-- .col-xs-1 -->
 {% endif %}
 <h3 id="day_title" class="col-sm-10 col-xs-8 text-center w_subtitle"><span class="hidden-xs w_subtitle">Workshifts
-	for {{ day|date:"l, F" }}</span><span class="visible-xs w_subtitle">{{ day|date:"D., N" }}</span>
-		{{ day|date:"d, Y"  }}</h3>
+	for {{ day|date:"l, F d, Y" }}</span><span class="visible-xs w_subtitle">{{ day|date:"D., N d, Y" }}</span></h3>
 {% if next_day %}
 <div class="col-sm-1 col-xs-2 text-right">
 <a title="Next day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ next_day }}">
