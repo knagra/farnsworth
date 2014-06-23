@@ -457,6 +457,7 @@ def add_workshifter_view(request, semester):
 			request.POST or None,
 			prefix="user-{0}".format(user.pk),
 			initial={"user": user},
+			semester=semester,
 			)
 		add_workshifter_forms.append(form)
 
