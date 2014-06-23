@@ -9,6 +9,9 @@
     table tbody tr td div label {
         display: none;
     }
+    .checkbox label span {
+        display: none;
+    }
 </style>
 {% endblock %}
 
@@ -21,9 +24,10 @@
 	  {{ semester_form|bootstrap }}
 	</div> <!-- .form-group -->
 	{% if pool_forms %}
-	<table>
+	<h3>Workshift Pool</h3>
+	<table class="table table-striped table-bordered table-condensed">
 	  <thead>
-		<th>Copy Workshift Pool</th>
+		<th>Add</th>
 		<th>Title</th>
 		<th>Hours</th>
 	  </thead>
