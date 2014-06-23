@@ -12,9 +12,14 @@
 {% block w_content %}
 <div id="manage_container">
   <h1 class="w_title">Manage Workshifts</h1>
+  <ul class="nav nav-pills" style="margin-bottom: 10px;">
+    {% if pools %}<li class="active"><a href="#pools_table" data-toggle="tab">Workshift Pools</a></li>{% endif %}
+    {% if workshifters %}<li{% if not pools %} class="active"{% endif %}><a href="#workshifters_table" data-toggle="tab">Workshifters</a></li>{% endif %}
+  </ul>
 
+  <div class="tab-content">
   {% if pools %}
-  <table class="table table-striped table-bordered table-condensed table-hover members_table" id="pools_table">
+  <table class="tab-pane table table-striped table-bordered table-condensed table-hover members_table active" id="pools_table">
 	<thead>
 	  <tr>
 		<th>Workshift Pool</th>
@@ -47,9 +52,7 @@
   {% endif %}
 
   {% if workshifters %}
-  <br/>
-
-  <table class="table table-striped table-bordered table-condensed table-hover members_table" id="workshifters_table">
+  <table class="tab-pane table table-striped table-bordered table-condensed table-hover members_table{% if not pools %} active{% endif %}" id="workshifters_table">
 	<thead>
 	  <tr>
 		<th>Workshifter</th>
@@ -72,6 +75,7 @@
 	</tbody>
   </table>
   {% endif %}
+  </div> <!-- .tab-content -->
 </div> <!-- #manage_container -->
 {% endblock %}
 
