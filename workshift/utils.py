@@ -26,5 +26,23 @@ def is_available(workshift_profile, regular_workshift):
 	Parameters:
 		workshift_profile is the workshift profile for a user
 		regular_workshift is a weekly recurring workshift
+	Returns:
+		True if the user has enough free time between the shift's start time
+			and end time to do the shift's required number of hours.
+		False otherwise.
 	"""
+	if regular_workshift.week_long:
+		return True
+	day = regular_workshift.day
+	start_time = regular_workshift.start_time
+	end_time = regular_workshift.end_time
+	relevant_blocks = list()
+	for block in workshift_profile.time_blocks:
+		if block.day == day and block.preference == TimeBlock.BUSY \
+		  and block.start_time < end_time \
+		  and block.end_time > start_time:
+			relevant_blocks.append(block)
+	if not relevant_blocks:
+		return True
+	hours = regular_workshift.hours
 	
