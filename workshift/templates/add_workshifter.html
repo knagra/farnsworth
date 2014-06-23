@@ -14,6 +14,9 @@
     .checkbox label span {
         display: none;
     }
+    .username {
+        vertical-align: middle;
+    }
 </style>
 {% endblock %}
 
@@ -35,7 +38,7 @@
 		{% for form in add_workshifter_forms %}
 		<tr>
 		  <td>{{ form.add_profile|bootstrap }}</td>
-		  <td><a href="{% wurl 'workshift:profile' targetUsername=form.user.username sem_url=SEMESTER.sem_url %}">{{ form.user.get_full_name }}</a></td>
+		  <td class="username"><a href="{% wurl 'workshift:profile' targetUsername=form.user.username sem_url=SEMESTER.sem_url %}">{{ form.user.get_full_name }}</a></td>
 		  <td>{{ form.hours|bootstrap }}</td>
 		</tr>
 		{% endfor %}
