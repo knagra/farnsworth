@@ -438,7 +438,7 @@ class RegularWorkshiftForm(forms.ModelForm):
 					instance.delete()
 				instance.workshifter = shift.current_assignee
 				instance.save()
-		next_day = today - timedelta(days=today.weekday() + shift.day)
+		next_day = today + timedelta(days=shift.day - today.weekday())
 		for day in _date_range(next_day, self.semester.end_date, timedelta(weeks=1)):
 			# Create new instances for the entire semester
 			if WorkshiftInstance.objects.filter(weekly_workshift=shift, date=day):
