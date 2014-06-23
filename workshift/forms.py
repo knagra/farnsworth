@@ -14,7 +14,6 @@ from datetime import date, timedelta
 from farnsworth.settings import DEFAULT_SEMESTER_HOURS
 from base.models import UserProfile
 from managers.models import Manager
-from workshift.fields import UserModelChoiceField
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
 	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
