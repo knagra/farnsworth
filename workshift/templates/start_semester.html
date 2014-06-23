@@ -5,6 +5,11 @@
 
 {% block w_headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
+<style>
+    table tbody tr td div label {
+        display: none;
+    }
+</style>
 {% endblock %}
 
 {% block w_content %}
@@ -25,9 +30,9 @@
 	  <tbody>
 		{% for form in pool_forms %}
 		<tr>
-		  <td>{{ form.copy_pool }}</td>
-		  <td>{{ form.copy.title }}</td>
-		  <td>{{ form.copy.hours }}</td>
+		  <td>{{ form.copy_pool|bootstrap }}</td>
+		  <td>{{ form.title|bootstrap }}</td>
+		  <td>{{ form.hours|bootstrap }}</td>
 		</tr>
 		{% endfor %}
 	  </tbody>

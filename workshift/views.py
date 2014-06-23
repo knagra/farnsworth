@@ -449,26 +449,29 @@ def add_workshifter_view(request, semester):
 	existing = [
 		i.user.pk for i in WorkshiftProfile.objects.filter(semester=semester)
 		]
-	users = User.objects.exclude(pk__in=existing)
+	users = User.objects.exclude(pk__in=existing, is_active=True)
 
-	if users:
-		add_workshifter_form = AddWorkshifterForm(
+	add_workshifter_forms = []
+	for user in users:
+		form = AddWorkshifterForm(
 			request.POST or None,
+			prefix="user-{0}".format(user.pk),
+			user=user,
 			semester=semester,
-			users=users,
 			)
+		add_workshifter_forms.append(form)
 
-		if add_workshifter_form.is_valid():
-			add_workshifter_form.save()
-			messages.add_message(request, messages.INFO, "Workshifter added.")
-			return HttpResponseRedirect(wurl("workshift:manage",
-											 sem_url=semester.sem_url))
-	else:
-		add_workshifter_form = None
+	if add_workshifter_forms and \
+	  all(form.is_valid() for form in add_workshifter_forms):
+		for form in add_workshifter_forms:
+			form.save()
+		messages.add_message(request, messages.INFO, "Workshifters added.")
+		return HttpResponseRedirect(wurl("workshift:manage",
+										 sem_url=semester.sem_url))
 
 	return render_to_response("add_workshifter.html", {
 		"page_name": page_name,
-		"add_workshifter_form": add_workshifter_form,
+		"add_workshifter_forms": add_workshifter_forms,
 	}, context_instance=RequestContext(request))
 
 @semester_required

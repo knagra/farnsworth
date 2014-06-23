@@ -11,6 +11,7 @@ from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from datetime import date, timedelta
 
+from farnsworth.settings import DEFAULT_SEMESTER_HOURS
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
@@ -65,21 +66,22 @@ class SemesterForm(forms.ModelForm):
 
 		return semester
 
-class StartPoolForm(forms.Form):
+class StartPoolForm(forms.ModelForm):
 	copy_pool = forms.BooleanField(initial=True)
 
-	def __init__(self, *args, **kwargs):
-		self.copy = kwargs.pop('copy')
-		super(StartPoolForm, self).__init__(*args, **kwargs)
+	class Meta:
+		model = WorkshiftPool
+		fields = ("title", "hours")
+		help_texts = {
+			"title": "",
+			"hours": "",
+			}
 
 	def save(self, semester):
 		if self.cleaned_data['copy_pool']:
-			self.copy.pk = None
-			self.copy.semester = semester
-			self.copy.first_fine_date = None
-			self.copy.second_fine_date = None
-			self.copy.third_fine_date = None
-			self.copy.save()
+			pool = super(StartPoolForm, self).save(commit=False)
+			pool.semester = semester
+			pool.save()
 
 class PoolForm(forms.ModelForm):
 	class Meta:
@@ -347,32 +349,42 @@ class SignOutForm(InteractShiftForm):
 		instance.logs.add(entry)
 		instance.save()
 
-class AddWorkshifterForm(forms.ModelForm):
-	class Meta:
-		model = WorkshiftProfile
-		exclude = ("semester", "ratings", "pool_hours", "time_blocks",)
+class AddWorkshifterForm(forms.Form):
+	add_profile = forms.BooleanField(initial=True)
+	hours = forms.IntegerField(min_value=0, initial=DEFAULT_SEMESTER_HOURS)
 
 	def __init__(self, *args, **kwargs):
 		self.semester = kwargs.pop("semester")
-		self.users = kwargs.pop('users', None)
+		self.user = kwargs.pop("user")
+		if "initial" not in kwargs:
+			try:
+				pool = WorkshiftPool.objects.get(semester=self.semester,
+												 is_primary=True)
+			except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
+				pass
+			else:
+				kwargs["initial"] = {"hours": pool.hours}
 		super(AddWorkshifterForm, self).__init__(*args, **kwargs)
-		if self.users:
-			self.fields["user"].queryset = self.users
 
 	def save(self):
-		profile = super(AddWorkshifterForm, self).save(commit=False)
+		if self.cleaned_data['add_profile']:
+			profile = WorkshiftProfile(
+				user=self.user,
+				semester=self.semester,
+				)
 
-		profile.semester = self.semester
-		profile.save()
+			profile.save()
 
-		for pool in WorkshiftPool.objects.filter(semester=self.semester):
-			hours = PoolHours(pool=pool)
-			hours.save()
-			profile.pool_hours.add(hours)
+			for pool in WorkshiftPool.objects.filter(semester=self.semester):
+				pool_hours = PoolHours(pool=pool)
+				if pool.is_primary:
+					pool_hours.hours = self.cleaned_data['hours']
+				pool_hours.save()
+				profile.pool_hours.add(pool_hours)
 
-		profile.save()
+			profile.save()
 
-		return profile
+			return profile
 
 class AssignShiftForm(forms.ModelForm):
 	class Meta:

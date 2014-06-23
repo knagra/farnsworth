@@ -9,6 +9,7 @@ Custom fields for workshift models.
 from __future__ import absolute_import
 
 from django.db import models
+
 from utils.variables import DAYS
 
 class DayField(models.PositiveSmallIntegerField):
