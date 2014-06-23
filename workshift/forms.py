@@ -360,7 +360,7 @@ class AddWorkshifterForm(forms.Form):
 			try:
 				pool = WorkshiftPool.objects.get(semester=self.semester,
 												 is_primary=True)
-			except (WorkshiftPool.DosNotExist, WorkshiftPool.MultipleObjectsReturned):
+			except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
 				pass
 			else:
 				kwargs["initial"] = {"hours": pool.hours}
