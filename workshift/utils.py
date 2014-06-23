@@ -1,5 +1,11 @@
+"""
+Project: Farnsworth
+
+Authors: Karandeep Singh Nagra and Nader Morshed
+"""
 
 from managers.models import Manager
+from workshift.models import TimeBlock
 
 def can_manage(request, semester=None):
 	"""
@@ -13,3 +19,12 @@ def can_manage(request, semester=None):
 	  .filter(workshift_manager=True).count() > 0:
 		return True
 	return request.user.is_superuser
+
+def is_available(workshift_profile, regular_workshift):
+	"""
+	Check whether a specified user is able to do a specified workshift.
+	Parameters:
+		workshift_profile is the workshift profile for a user
+		regular_workshift is a weekly recurring workshift
+	"""
+	
