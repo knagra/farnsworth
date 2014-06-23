@@ -9,6 +9,8 @@ from django import forms
 from django.db.models import Q
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
+from datetime import date, timedelta
+
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
@@ -107,11 +109,6 @@ class PoolForm(forms.ModelForm):
 				profile.pool_hours.add(pool_hours)
 				profile.save()
 		return pool
-
-class RegularWorkshiftForm(forms.ModelForm):
-	class Meta:
-		model = RegularWorkshift
-		fields = "__all__"
 
 class WorkshiftInstanceForm(forms.ModelForm):
 	class Meta:
@@ -407,6 +404,12 @@ class AssignShiftForm(forms.ModelForm):
 			self.fields['current_assignee'].queryset = \
 			  WorkshiftProfile.objects.filter(pk__in=query)
 
+def _date_range(start, end, step):
+	day = start
+	while day <= end:
+		yield day
+		day += step
+
 class RegularWorkshiftForm(forms.ModelForm):
 	start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
 								 input_formats=valid_time_formats)
@@ -418,9 +421,48 @@ class RegularWorkshiftForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		self.pools = kwargs.pop('pools', None)
+		self.semester = kwargs.pop('semester')
 		super(RegularWorkshiftForm, self).__init__(*args, **kwargs)
 		if self.pools:
 			self.fields['pool'].queryset = self.pools
+
+	def save(self):
+		prev_shift = self.instance
+		shift = super(RegularWorkshiftForm, self).save()
+		today = date.today()
+		if prev_shift:
+			for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift):
+				# Update dates
+				instance.date += timedelta(days=shift.day - prev_shift.day)
+				if instance.date > self.semester.end_date:
+					instance.delete()
+				instance.workshifter = shift.current_assignee
+				instance.save()
+		next_day = today - timedelta(days=today.weekday() + shift.day)
+		for day in _date_range(next_day, self.semester.end_date, timedelta(weeks=1)):
+			# Create new instances for the entire semester
+			if WorkshiftInstance.objects.filter(weekly_workshift=shift, date=day):
+				continue
+			instance = WorkshiftInstance(
+				weekly_workshift=shift,
+				date=day,
+				workshifter=shift.current_assignee,
+				intended_hours=shift.hours,
+				auto_verify=shift.auto_verify,
+				week_long=shift.week_long,
+				)
+			instance.save()
+		if shift.current_assignee:
+			for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift,
+															 date__gte=today):
+				log = ShiftLogEntry(
+					person=shift.current_assignee,
+					entry_type=ShiftLogEntry.ASSIGNED,
+					)
+				log.save()
+				instance.logs.add(log)
+				instance.save()
+		return shift
 
 class WorkshiftTypeForm(forms.ModelForm):
 	class Meta:
