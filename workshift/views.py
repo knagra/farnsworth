@@ -285,9 +285,9 @@ def profile_view(request, semester, targetUsername, profile=None):
 	regular_shifts = RegularWorkshift.objects.filter(active=True,
 													 current_assignee=wprofile)
 	first_standing, second_standing, third_standing = \
-	  any(pool_hours.first_date_standing for pool_hours in profile.pool_hours.all()), \
-	  any(pool_hours.second_date_standing for pool_hours in profile.pool_hours.all()), \
-	  any(pool_hours.third_date_standing for pool_hours in profile.pool_hours.all())
+	  any(pool_hours.first_date_standing for pool_hours in wprofile.pool_hours.all()), \
+	  any(pool_hours.second_date_standing for pool_hours in wprofile.pool_hours.all()), \
+	  any(pool_hours.third_date_standing for pool_hours in wprofile.pool_hours.all())
 	return render_to_response("profile.html", {
 		"page_name": page_name,
 		"profile": wprofile,
@@ -323,7 +323,6 @@ def preferences_view(request, semester, targetUsername, profile=None):
 			instance=rating,
 			profile=wprofile,
 			)
-		print(form.instance.workshift_type.pk)
 		rating_forms.append(form)
 
 	time_formset = TimeBlockFormSet(
@@ -527,6 +526,7 @@ def add_shift_view(request, semester):
 		add_shift_form = RegularWorkshiftForm(
 			request.POST if "add_shift" in request.POST else None,
 			pools=pools,
+			semester=semester,
 			)
 	else:
 		add_shift_form = None
@@ -627,6 +627,7 @@ def edit_shift_view(request, semester, pk, profile=None):
 	edit_form = RegularWorkshiftForm(
 		request.POST if "edit" in request.POST else None,
 		instance=shift,
+		semester=semester,
 		)
 
 	if "delete" in request.POST:
