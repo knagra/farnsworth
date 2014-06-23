@@ -432,7 +432,7 @@ class RegularWorkshiftForm(forms.ModelForm):
 		today = date.today()
 		if prev_shift:
 			for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift):
-				# Update dates
+				# Update existing workshift instances
 				instance.date += timedelta(days=shift.day - prev_shift.day)
 				if instance.date > self.semester.end_date:
 					instance.delete()
