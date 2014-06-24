@@ -30,6 +30,7 @@ function hide_form(form_id) {
 {% block content %}
 {% if requests_dict %}
 {% for type_tuple in requests_dict %}
+{% with x=forloop.counter|stringformat:"s" %}
 {% if type_tuple.1 %}
 <div class="row" style="margin-bottom: 10px;">
 <div class="col-lg-12">
@@ -95,8 +96,8 @@ function hide_form(form_id) {
 			</div> <!-- .response_row -->
 			{% endfor %}
 			{% with y=forloop.counter|stringformat:"s" %}
-			{% with response_form_id="response_form_"|add:y %}
-			{% with button_id="button_"|add:y %}
+			{% with response_form_id="response_form_"|add:x|add:"_"|add:y %}
+			{% with button_id="button_"|add:x|add:"_"|add:y %}
 			<div class="text-center">
 			<button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
 			</div> <!-- .text-center -->
@@ -133,6 +134,7 @@ function hide_form(form_id) {
 </div> <!-- .col-md-12 -->
 </div> <!-- .row -->
 {% endif %}
+{% endwith %}
 {% endfor %}
 {% endif %}
 
