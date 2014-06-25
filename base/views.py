@@ -114,7 +114,7 @@ def homepage_view(request, message=None):
 		announcements_dict.append((a, unpin_form))
 	now = datetime.utcnow().replace(tzinfo=utc)
 	within_life = now - timedelta(days=announcement_life) # Oldest genesis of an unpinned announcement to be displayed.
-	for a in Announcement.objects.filter(pinned=False, post_date__gte=x_days_ago):
+	for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
 		unpin_form = None
 		if request.user.is_superuser or (a.manager.incumbent == userProfile):
 			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
