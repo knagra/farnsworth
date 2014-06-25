@@ -396,7 +396,7 @@ def request_profile_view(request):
 		else:
 			form.save()
 			messages.add_message(request, messages.SUCCESS, MESSAGES['PROFILE_SUBMITTED'])
-			if settings.SEND_EMAILS and (email not in EMAIL_BLACKLIST):
+			if settings.SEND_EMAILS and (email not in settings.EMAIL_BLACKLIST):
 				submission_subject = SUBMISSION_SUBJECT.format(house=HOUSE_NAME)
 				submission_email = SUBMISSION_EMAIL.format(house=HOUSE_NAME, full_name=first_name + " " + last_name, admin_name=ADMINS[0][0],
 					admin_email=ADMINS[0][1])
@@ -448,7 +448,7 @@ def modify_profile_request_view(request, request_pk):
 			deletion_email = DELETION_EMAIL.format(house=HOUSE_NAME, full_name=profile_request.first_name + " " + profile_request.last_name,
 				admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
 			try:
-				send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
+				send_mail(deletion_subject, deletion_email, settings.EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
 				addendum = MESSAGES['PROFILE_REQUEST_DELETION_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
 					email=profile_request.email)
 			except SMTPException as e:
@@ -460,7 +460,7 @@ def modify_profile_request_view(request, request_pk):
 		return HttpResponseRedirect(reverse('manage_profile_requests'))
 	if mod_form.is_valid():
 		new_user = mod_form.save(profile_request)
-		if new_user.is_active and settings.SEND_EMAILS and (new_user.email not in EMAIL_BLACKLIST):
+		if new_user.is_active and settings.SEND_EMAILS and (new_user.email not in settings.EMAIL_BLACKLIST):
 			approval_subject = APPROVAL_SUBJECT.format(house=HOUSE_NAME)
 			if profile_request.provider:
 				username_bit = profile_request.provider.title()
@@ -472,7 +472,7 @@ def modify_profile_request_view(request, request_pk):
 			approval_email = APPROVAL_EMAIL.format(house=HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
 				admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
 			try:
-				send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [new_user.email], fail_silently=False)
+				send_mail(approval_subject, approval_email, settings.EMAIL_HOST_USER, [new_user.email], fail_silently=False)
 				addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name="{0} {1}".format(new_user.first_name, new_user.last_name),
 					email=new_user.email)
 			except SMTPException as e:
