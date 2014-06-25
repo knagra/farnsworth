@@ -2,22 +2,59 @@
 
 {% load static from staticfiles %}
 {% load bootstrap %}
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/custom_add_user.css' %}" />
-{% endblock %}
 
 {% block content %}
-	<div id="add_user_form" class="table_container">
-		<div class="header"><h3 class="table_title">Add a User</h3></div>
-		<div class="main_table">
-		<form method="post" action="">
-			{% csrf_token %}
-			<div class="form-group">
-				{{ add_user_form|bootstrap }}
-				<div class="text-center"><button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-plus"></span> Add User</button></div>
-			</div>
-		</form>
-		</div> <!-- .main_table -->
-	</div> <!-- #add_user_form -->
+<div class="row">
+<div class="main_table col-md-7">
+<h1 class="w_title">Add a User</h1>
+<hr class="w_line" />
+<form method="post" action="">
+	{% csrf_token %}
+	<div class="form-group">
+		{{ add_user_form|bootstrap }}
+		<div class="text-center"><button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add User</button></div>
+	</div>
+</form>
+</div> <!-- .main_table -->
+<div class="main_table col-md-5">
+<br class="hidden-md hidden-lg" />
+<hr class="hidden-md hidden-lg" />
+<h1 class="w_title">Existing Users</h1>
+<hr class="w_line" />
+    <div class="main_table">
+    <table class="table table-striped table-bordered table-condensed table-hover members_table">
+    <thead>
+	<tr>
+	  <th>Username</th>
+	  <th>First Name</th>
+	  <th>Last Name</th>
+	</tr>
+    </thead>
+    <tbody>
+	{% for member in members %}
+	<tr>
+	  <td><a class="page_link" title="Modify Profile" href="{% url 'custom_modify_user' targetUsername=member.username %}"><span class="glyphicon glyphicon-cog"></span> {{ member.username }}</a></td>
+	  <td>{{ member.first_name }}</td>
+	  <td>{{ member.last_name }}</td>
+	</tr>
+	{% endfor %}
+    </tbody>
+    </table> <!-- .table -->
+    </div> <!-- .main_table -->
+</div> <!-- .col-md-4 -->
+</div> <!-- .row -->
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+	$('table').tablesorter({
+		sortList: [[1,0], [2,0]],
+        widgets: ["filter", "resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+	});
+});
+</script>
 {% endblock %}

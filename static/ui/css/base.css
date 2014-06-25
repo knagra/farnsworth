@@ -106,12 +106,8 @@ html {
 }
 
 #body {
-    clear: both;
-    position: relative;
-    width: 100%;
-    height: auto;
-    color: black;
     padding-bottom: 50px;
+    overflow-x: auto;
 }
 
 #title {

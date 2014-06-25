@@ -4,31 +4,79 @@
 {% load request_tags %}
 {% load bootstrap %}
 {% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/custom_modify_user.css' %}" />
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-	<div id="update_profile" class="table_container">
-		<div class="header">
-			{% if page_name = 'Admin - Edit Manager' %}
-			<h3 class="table_title{% if manager_title|longer_than:'123456789012345' %} medium_title{% elif manager_title|longer_than:'123456789012' %} small_title{% endif %}">Modify {{ manager_title }}</h3>
-			{% else %}
-			<h3 class="table_title">Add Manager</h3>
-			{% endif %}
-		</div> <!-- .header -->
-		<div class="main_table">
-			<form method="post" action="">
-				{% csrf_token %}
-				<div class="form-group">
-					{{ form|bootstrap }}
-					<div class="text-center">
-						<button type="submit" class="btn btn-lg btn-success" name="update_manager"><span class="glyphicon glyphicon-{% if page_name = 'Admin - Edit Manager' %}floppy-disk{% else %}plus{% endif %}"></span> {% if page_name = 'Admin - Edit Manager' %}Update{% else %}Add{% endif %} Manager</button>
-					</div> <!-- .text-center -->
-				</div> <!-- .form-group -->
-			</form>
-		</div> <!-- main_table -->
-	</div> <!-- #update_profile -->
+<div class="row">
+<div class="col-md-7">
+{% if page_name = 'Admin - Edit Manager' %}
+    <h1 class="w_title">Modify {{ manager_title }}</h1>
+{% else %}
+    <h1 class="w_title">Add Manager</h1>
+{% endif %}
+<hr class="w_line" />
+<div class="main_table">
+    <form method="post" action="">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form|bootstrap }}
+            <div class="text-center">
+                <button type="submit" class="btn btn-success" name="update_manager"><span class="glyphicon glyphicon-{% if page_name = 'Admin - Edit Manager' %}floppy-disk{% else %}plus{% endif %}"></span> {% if page_name = 'Admin - Edit Manager' %}Update{% else %}Add{% endif %} Manager</button>
+            </div> <!-- .text-center -->
+        </div> <!-- .form-group -->
+    </form>
+</div> <!-- .main_table -->
+</div>
+
+<br class="visible-xs visible-sm" />
+<hr class="visible-xs visible-sm" />
+
+<div class="col-md-5">
+<h1 class="w_title">Existing Managers</h1>
+<hr class="w_line" />
+{% if not managerset %}
+<div class="field_wrapper text-danger">No managers in database.</div>
+{% else %}
+<table class="table table-striped table-bordered table-condensed table-hover members_table">
+<thead>
+<tr>
+  <th>Title</th>
+  <th>Incumbent</th>
+  <th class="filter-false">Active</th>
+</tr>
+</thead>
+<tbody>
+{% for pos in managerset %}
+<tr>
+  <td><a title="Edit Manager" href="{% url 'edit_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-wrench"></span> {{ pos.title }}</a></td>
+  <td>{% if pos.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent.user.get_full_name }}</a>{% endif %}</td>
+  <td>{% if pos.active %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table> <!-- .table -->
+{% endif %}
+{% if page_name = 'Admin - Edit Manager' %}
+<form class="text-center" action="{% url 'add_manager' %}" style="margin-top: 10px;">
+    <button id="add_manager" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Manager</span></button>
+</form>
+{% endif %}
+</div> <!-- .col-md-5 -->
+</div> <!-- .row -->
+{% endblock %}
+
+{% block endscripts %}
+<script>
+	$(document).ready(function() {
+		$('table').tablesorter({
+			sortList: [[0,0], [1,0]],
+            widgets: ["filter", "resizable"],
+            widgetOptions: {
+                resizable: true
+            }
+		});
+	});
+</script>
 {% endblock %}

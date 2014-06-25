@@ -15,10 +15,12 @@
 	<link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
 	<meta name="viewport" content="width: device-width, initial-scale=1" />
 	<link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 	<link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
 	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
 	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:300,400,700" />
 	<link type="text/css" rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/dark.min.css" />
+    <link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
     {% block headers %} {% endblock %}
 </head>
 <body id="html_body">
@@ -146,7 +148,7 @@
     {% if messages %}
     {% for message in messages %}
     <div class="container">
-    <div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}" style="margin-top: 0px;">
+    <div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}" style="margin-top: 0px; margin-bottom: 0px;">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
     {{ message|safe }}
     </div> <!-- .alert -->
@@ -155,20 +157,19 @@
     {% endif %}
 
 		{% block jumbotron %}{% endblock %}
-    <div class="container">
+    <div id="body" class="container">
 		{% block title %}{% endblock %}
-    <div id="body">
-	<div id="content">
+        <div id="content">
 		{% block content %}{% endblock %}
-	</div> <!-- close "content" -->
-	{% block gallery %}{% endblock %}
-      </div> <!-- close "body" -->
+        </div> <!-- close #content -->
+        {% block gallery %}{% endblock %}
     </div> <!-- .container -->
-	<div id="bottom" class="container text-center">
+	<div id="bottom" class="container-fluid text-center">
       Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.
     </div> <!-- #bottom -->
     <script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>
 	<script>
@@ -194,82 +195,30 @@
 			$(this).css("border", "none");
 		});
 
+    <!-- remove top and bottom margins on tables of class .table-->
+        $(document).ready(function() {
+            $('table.table').css('margin-top', '0');
+            $('table.table').css('margin-bottom', '0');
+        });
+
 	<!-- change display format for some things depending on window width -->
 		$(window).ready(function() {
 			var wi = $(window).width();
-			if (wi <= 300) {
-				$(".large_title").css("font-size", "39%");
-				$(".medium_title").css("font-size", "55%");
-				$(".small_title").css("font-size", "75%");
+			if (wi <= 480) {
 				$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-			} else if (wi <= 380) {
-				$(".large_title").css("font-size", "45%");
-				$(".medium_title").css("font-size", "75%");
-				$(".small_title").css("font-size", "85%");
-				$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-			} else if (wi <= 440) {
-				$(".large_title").css("font-size", "55%");
-				$(".medium_title").css("font-size", "85%");
-				$(".small_title").css("font-size", "100%");
-				$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-			} else if (wi <= 480) {
-				$(".large_title").css("font-size", "75%");
-				$(".medium_title").css("font-size", "100%");
-				$(".small_title").css("font-size", "100%");
-				$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-			} else if (wi <= 550) {
-				$(".large_title").css("font-size", "85%");
-				$(".medium_title").css("font-size", "100%");
-				$(".small_title").css("font-size", "100%");
-				$("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
 			} else if (wi <= 768) {
-				$(".large_title").css("font-size", "100%");
-				$(".medium_title").css("font-size", "100%");
-				$(".small_title").css("font-size", "100%");
 				$("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
 			} else if (wi > 768) {
-				$(".large_title").css("font-size", "100%");
-				$(".medium_title").css("font-size", "100%");
-				$(".small_title").css("font-size", "100%");
 				$("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
 			}
 
 			$(window).resize(function() {
 				var wi = $(window).width();
-				if (wi <= 300) {
-					$(".large_title").css("font-size", "39%");
-					$(".medium_title").css("font-size", "55%");
-					$(".small_title").css("font-size", "75%");
+                if (wi <= 480) {
 					$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-				} else if (wi <= 380) {
-					$(".large_title").css("font-size", "45%");
-					$(".medium_title").css("font-size", "75%");
-					$(".small_title").css("font-size", "85%");
-					$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-				} else if (wi <= 440) {
-					$(".large_title").css("font-size", "55%");
-					$(".medium_title").css("font-size", "85%");
-					$(".small_title").css("font-size", "100%");
-					$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-				} else if (wi <= 480) {
-					$(".large_title").css("font-size", "75%");
-					$(".medium_title").css("font-size", "100%");
-					$(".small_title").css("font-size", "100%");
-					$("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-				} else if (wi <= 550) {
-					$(".large_title").css("font-size", "85%");
-					$(".medium_title").css("font-size", "100%");
-					$(".small_title").css("font-size", "100%");
-					$("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
 				} else if (wi <= 768) {
-					$(".large_title").css("font-size", "100%");
-					$(".medium_title").css("font-size", "100%");
-					$(".small_title").css("font-size", "100%");
 					$("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
 				} else if (wi > 768) {
-					$(".large_title").css("font-size", "100%");
-					$(".medium_title").css("font-size", "100%");
-					$(".small_title").css("font-size", "100%");
 					$("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
 				}
 			});

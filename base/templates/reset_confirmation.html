@@ -2,16 +2,14 @@
 
 {% load static from staticfiles %}
 {% load bootstrap %}
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-{% endblock %}
 
 {% block template_page_name %} - Reset Password{% endblock %}
 
 {% block content %}
 {% if validlink %}
-<div class="table_container" style="position: relative; margin: 0px auto; max-width: 60%;">
-	<div class="header"><h3 class="table_title">Password Reset Confirmation</h3></div> <!-- .header -->
+<div class="col-md-8 col-md-offset-2">
+	<h1 class="w_title">Password Reset Confirmation</h1>
+    <hr class="w_line" />
 	<div class="main_table">
 	<form method="post">
 		{% csrf_token %}
@@ -23,7 +21,7 @@
 		</div> <!-- .form-group -->
 	</form>
 	</div> <!-- .main_table -->
-</div> <!-- .table_container -->
+</div> <!-- .col-md-8 -->
 {% else %}
 <div class="text-center alert alert-danger">This password reset token is no longer valid.
 You may request another password reset token from <a class="page_link" href="{% url 'reset_pw' %}">this page</a>.</div>

@@ -99,6 +99,7 @@ def add_manager_view(request):
 		return HttpResponseRedirect(reverse('add_manager'))
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Add Manager",
+            'managerset': Manager.objects.all(),
 			'form': form,
 			}, context_instance=RequestContext(request))
 
@@ -121,6 +122,7 @@ def edit_manager_view(request, managerTitle):
 		return HttpResponseRedirect(reverse('meta_manager'))
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Edit Manager",
+            'managerset': Manager.objects.all(),
 			'form': form,
 			'manager_title': targetManager.title,
 			}, context_instance=RequestContext(request))
@@ -148,6 +150,7 @@ def add_request_type_view(request):
 		return HttpResponseRedirect(reverse('manage_request_types'))
 	return render_to_response('edit_request_type.html', {
 			'page_name': "Admin - Add Request Type",
+            'request_types': RequestType.objects.all(),
 			'form': form,
 			}, context_instance=RequestContext(request))
 
@@ -170,6 +173,7 @@ def edit_request_type_view(request, typeName):
 		return HttpResponseRedirect(reverse('manage_request_types'))
 	return render_to_response('edit_request_type.html', {
 			'page_name': "Admin - Edit Request Type",
+            'request_types': RequestType.objects.all(),
 			'form': form,
 			'requestType': requestType,
 			}, context_instance=RequestContext(request))
