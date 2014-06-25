@@ -398,9 +398,9 @@ def request_profile_view(request):
 			form.save()
 			messages.add_message(request, messages.SUCCESS, MESSAGES['PROFILE_SUBMITTED'])
 			if settings.SEND_EMAILS and (email not in settings.EMAIL_BLACKLIST):
-				submission_subject = SUBMISSION_SUBJECT.format(house=HOUSE_NAME)
-				submission_email = SUBMISSION_EMAIL.format(house=HOUSE_NAME, full_name=first_name + " " + last_name, admin_name=ADMINS[0][0],
-					admin_email=ADMINS[0][1])
+				submission_subject = SUBMISSION_SUBJECT.format(house=settings.HOUSE_NAME)
+				submission_email = SUBMISSION_EMAIL.format(house=settings.HOUSE_NAME, full_name=first_name + " " + last_name, admin_name=settings.ADMINS[0][0],
+					admin_email=settings.ADMINS[0][1])
 				try:
 					send_mail(submission_subject, submission_email, settings.EMAIL_HOST_USER, [email], fail_silently=False)
 					# Add logging here
@@ -445,9 +445,9 @@ def modify_profile_request_view(request, request_pk):
 	addendum = ""
 	if 'delete_request' in request.POST:
 		if settings.SEND_EMAILS and (profile_request.email not in settings.EMAIL_BLACKLIST):
-			deletion_subject = DELETION_SUBJECT.format(house=HOUSE_NAME)
-			deletion_email = DELETION_EMAIL.format(house=HOUSE_NAME, full_name=profile_request.first_name + " " + profile_request.last_name,
-				admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
+			deletion_subject = DELETION_SUBJECT.format(house=settings.HOUSE_NAME)
+			deletion_email = DELETION_EMAIL.format(house=settings.HOUSE_NAME, full_name=profile_request.first_name + " " + profile_request.last_name,
+				admin_name=settings.ADMINS[0][0], admin_email=settings.ADMINS[0][1])
 			try:
 				send_mail(deletion_subject, deletion_email, settings.EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
 				addendum = MESSAGES['PROFILE_REQUEST_DELETION_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
@@ -462,7 +462,7 @@ def modify_profile_request_view(request, request_pk):
 	if mod_form.is_valid():
 		new_user = mod_form.save(profile_request)
 		if new_user.is_active and settings.SEND_EMAILS and (new_user.email not in settings.EMAIL_BLACKLIST):
-			approval_subject = APPROVAL_SUBJECT.format(house=HOUSE_NAME)
+			approval_subject = APPROVAL_SUBJECT.format(house=settings.HOUSE_NAME)
 			if profile_request.provider:
 				username_bit = profile_request.provider.title()
 			elif new_user.username == profile_request.username:
@@ -470,8 +470,8 @@ def modify_profile_request_view(request, request_pk):
 			else:
 				username_bit = "the username %s and the password you selected" % new_user.username
 			login_url = request.build_absolute_uri(reverse('login'))
-			approval_email = APPROVAL_EMAIL.format(house=HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
-				admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
+			approval_email = APPROVAL_EMAIL.format(house=settings.HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=settings.ADMINS[0][0],
+				admin_email=settings.ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
 			try:
 				send_mail(approval_subject, approval_email, settings.EMAIL_HOST_USER, [new_user.email], fail_silently=False)
 				addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name="{0} {1}".format(new_user.first_name, new_user.last_name),
