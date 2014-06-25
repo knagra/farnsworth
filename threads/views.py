@@ -4,15 +4,16 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from django.template import RequestContext
+from django.conf import settings
 from django.contrib.auth.models import User
-from datetime import datetime
 from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
 
-from farnsworth.settings import max_threads, max_messages
+from datetime import datetime
+
 from utils.variables import MESSAGES
 from base.models import UserProfile
 from base.decorators import profile_required
@@ -30,15 +31,15 @@ def _threads_dict(threads, limited=False):
 		for message in Message.objects.filter(thread=thread).reverse():
 			thread_messages.append(message)
 			y += 1
-			if y >= max_messages:
+			if y >= settings.MAX_MESSAGES:
 				break
-		more_messages = thread.number_of_messages - max_messages
+		more_messages = thread.number_of_messages - settings.MAX_MESSAGES
 		if more_messages < 0:
 			more_messages = 0
 		thread_messages.reverse()
 		threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
 		x += 1
-		if x >= max_threads and limited:
+		if x >= settings.MAX_THREADS and limited:
 			break
 	return threads_dict
 
