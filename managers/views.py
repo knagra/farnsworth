@@ -15,7 +15,7 @@ from django.template import RequestContext
 from django.contrib import messages
 from django.utils.timezone import utc
 
-from farnsworth.settings import max_requests
+from farnsworth.settings import max_requests, announcement_life
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from base.decorators import admin_required, profile_required, president_admin_required
 from base.models import UserProfile
@@ -509,7 +509,7 @@ def announcements_view(request):
 		announcements_dict.append((a, unpin_form))
 	now = datetime.utcnow().replace(tzinfo=utc)
 	within_life = now - timedelta(days=announcement_life) # Oldest genesis of an unpinned announcement to be displayed.
-	for a in Announcement.objects.filter(pinned=False, post_date__gte=x_days_ago):
+	for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
 		unpin_form = None
 		if request.user.is_superuser or (a.manager.incumbent == userProfile):
 			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
