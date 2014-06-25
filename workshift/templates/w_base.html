@@ -11,7 +11,7 @@
 {% block jumbotron %}
 <div class="container">
   {% if CURRENT_SEMESTER %}
-  <div class="row">
+  <div class="row" style="margin-top: 0px;">
 	<div class="col-xs-12">
 	  <div class="row">
 		<h5 class="col-xs-3 text-left">{{ CURRENT_SEMESTER.start_date|date:"N d" }}<span class="hidden-xs">,
@@ -31,9 +31,9 @@
 	</div> <!-- .col-xs-12 -->
   </div> <!-- .row -->
   {% else %}
-  <div style="margin-top: 20px;"></div>
+  <div style="margin-top: 10px;"></div>
   {% endif %}
-  <div class="row" style="margin-top: 5px;">
+  <div class="row" style="margin-top: 0px;">
 	<div id="workshift_content" class="col-md-9">
 	  {% block w_content %}{% endblock %}
 	</div> <!-- #workshift_content -->

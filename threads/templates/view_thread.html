@@ -5,22 +5,20 @@
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/threads.css' %}" />
 {% endblock %}
 
 {% block content %}
-<div class="table_container">
-  <div class="header">
+<div class="">
     <form action="{% url 'member_forums' %}">
 	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-comment"></span><span class="hidden-xs"> Member Forums</span></button>
 	</form>
-    <h3 class="table_title">View Thread</h3>
-  </div> <!-- table_header -->
-  <div class="thread_table main_table">
+    <h1 class="w_title">View Thread</h1>
+    <hr class="w_line" />
     {% if not thread %}
     <div class="field_wrapper text-warning">Thread not found.</div>
     {% else %}
+  <div class="thread_table main_table bordered_div">
     <div class="thread_messages">
       <div class="message_table">
 	<h3 class="thread_name">{{ thread.subject }}</h3>
@@ -47,7 +45,7 @@
 		</div>
 			<div class="text-center">
 			<div class="btn-group">
-				<button type="submit" class="btn btn-success" name="submit_message_form"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
+				<button type="submit" class="btn btn-success" name="submit_message_form"><span class="glyphicon glyphicon-comment"></span> Post</button>
 				<button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
 			</div> <!-- .btn-group -->
 			</div> <!-- .text-center -->
