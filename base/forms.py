@@ -235,7 +235,7 @@ class ModifyUserForm(forms.Form):
 				'former_houses': self.profile.former_houses,
 				'is_active': self.user.is_active,
 				'is_staff': self.user.is_staff,
-				'is_superself.user': self.user.is_superuser,
+				'is_superuser': self.user.is_superuser,
 				'groups': self.user.groups.all(),
 				}
 		super(ModifyUserForm, self).__init__(*args, **kwargs)
