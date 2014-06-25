@@ -195,6 +195,12 @@
 			$(this).css("border", "none");
 		});
 
+    <!-- remove top and bottom margins on tables of class .table-->
+        $(document).ready(function() {
+            $('table.table').css('margin-top', '0');
+            $('table.table').css('margin-bottom', '0');
+        });
+
 	<!-- change display format for some things depending on window width -->
 		$(window).ready(function() {
 			var wi = $(window).width();
