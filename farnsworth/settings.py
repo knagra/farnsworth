@@ -78,8 +78,10 @@ max_requests = 30
 # Max number of responses loaded for each request.
 max_responses = 4
 
-# Max number of announcements loaded for home page.
-home_max_announcements = 5
+# Hold old, in days, an announcement should be before it's automatically excluded
+# from being displayed on the homepage and in the manager announcements page.
+# Pinned announcements will be displayed anyway.
+announcement_life = 4
 
 # Max number of threads loaded for home page.
 home_max_threads = 15
