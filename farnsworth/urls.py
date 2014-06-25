@@ -53,6 +53,7 @@ urlpatterns += patterns('threads.views',
 	url(r'^threads/list/$', 'list_all_threads_view', name="list_all_threads"),
 	url(r'^my_threads/$', 'my_threads_view', name='my_threads'),
 	url(r'^profile/(?P<targetUsername>[-\w]+)/threads/$', 'list_user_threads_view', name="list_user_threads"),
+	url(r'^house_map/$', 'house_map_view', name='house_map'),
 )
 
 urlpatterns += patterns('managers.views',

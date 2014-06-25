@@ -4,31 +4,36 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 */
 
-p {
+.carousel_img {
+	width: 100%;
+	height: auto;
+}
+
+.description {
 	padding-top: 10px;
 	clear: left;
 	padding-left: 10px;
 	padding-right: 10px;
+	text-shadow: 1px 1px black;
+	font-size: 180%;
 }
 
-.slider-wrapper {
-	width: 100%;
-	padding-top: 10px;
+.info {
+	text-shadow: 1px 1px black;
+	font-size: 150%;
 }
 
-#google_map_large {
-	max-width: 600px;
-	margin-left: auto;
-	margin-right: auto;
-	position: relative;
-	margin-top: 20px;
-	margin-bottom: 10px;
+.img_heading {
+	font-size: 1000%;
+	font-weight: 200;
+	text-shadow: 2px 1px black;
 }
 
-#google_map_small {
-	max-width: 400px;
-	margin-left: auto;
-	margin-right: auto;
-	position: relative;
-	margin-top: 10px;
+.carousel_link {
+	color: #dadada;
+	text-decoration: underline;
+}
+
+.carousel_link:hover {
+	text-decoration: none;
 }
