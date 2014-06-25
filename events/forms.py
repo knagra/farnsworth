@@ -6,8 +6,9 @@ Author: Karandeep Singh Nagra
 from datetime import datetime
 
 from django import forms
+from django.conf import settings
 from django.utils.timezone import utc
-from farnsworth.settings import house
+
 from utils.variables import time_formats, ANONYMOUS_USERNAME, MESSAGES
 from managers.models import Manager
 from events.models import Event
@@ -48,7 +49,7 @@ class EventForm(forms.Form):
 		if 'initial' not in kwargs:
 			kwargs['initial'] = {
 				"rsvp": True,
-				"location": house,
+				"location": settings.HOUSE,
 				}
 		super(EventForm, self).__init__(*args, **kwargs)
 		if self.manager_positions:
