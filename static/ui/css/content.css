@@ -58,6 +58,34 @@ form > .form-group {
 	overflow: hidden;
 }
 
+.w_title {
+	font-weight: 300;
+	margin-top: 0px;
+	margin-bottom: 5px;
+}
+
+.w_subtitle {
+	font-weight: 300;
+	margin-top: 0px;
+}
+
+.bordered_div {
+    border: 1px solid #e7e7e7;
+}
+
+.w_line {
+    margin-top: 0px;
+    margin-bottom: 5px;
+}
+
+.table_60 {
+    width: 60%;
+}
+
+.table_85 {
+    width: 85%;
+}
+
 .float_form {
 	float: right;
 	position: relative;
@@ -66,8 +94,8 @@ form > .form-group {
 }
 
 .main_table {
-	width: 100%;
 	overflow-x: auto;
+    margin: 0px auto;
 }
 
 .main_form {

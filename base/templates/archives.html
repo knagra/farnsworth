@@ -22,8 +22,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="table_container">
-<div class="header"><h3 class="table_title">Archives</h3></div> <!-- .header -->
+<h1 class="w_title">Archives</h1>
+<hr class="w_line"/>
 <div class="main_table">
 	<p>Welcome to the archives! You can find really old (and recent) threads, requests, announcements, and events here.</p>
 	<p>If you're curious, here are some basic statistics on the database:</p>
@@ -39,6 +39,7 @@
 			<li>{{ announcement_count }} announcement{{ announcement_count|pluralize }}</li>
 			<li>{{ event_count }} event{{ event_count|pluralize }}</li>
 		</ul>
+    <div class="bordered_div">
 	<div class="field_wrapper">Please choose from the links below:</div>
 		<ul class="list-group link_list">
 			<a href="{% url 'list_all_threads' %}" class="list-group-item"><span class="badge pull-right">{{ thread_count }}</span><span class="glyphicon glyphicon-comment"></span>
@@ -50,6 +51,6 @@
 			<a href="{% url 'events:all' %}" class="list-group-item"><span class="badge pull-right">{{ event_count }}</span><span class="glyphicon glyphicon-calendar"></span>
 				All Events</a>
 		</ul>
+    </div> <!-- .bordered-div -->
 </div> <!-- .main_table -->
-</div> <!-- .table_container -->
 {% endblock %}

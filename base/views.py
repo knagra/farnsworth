@@ -586,6 +586,7 @@ def custom_add_user_view(request):
 	return render_to_response('custom_add_user.html', {
 			'page_name': page_name,
 			'add_user_form': add_user_form,
+            'members': User.objects.all().exclude(username=ANONYMOUS_USERNAME),
 			}, context_instance=RequestContext(request))
 
 @admin_required

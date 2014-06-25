@@ -8,8 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="update_profile" class="table_container">
-  <div class="header"><h3 class="table_title medium_title">Modify {{ targetUser.username }}'s Profile</h3></div>
+<h1 class="w_title">Modify {{ targetUser.username }}'s Profile</h3></div>
   <div class="main_table">
     <form method="post" action="">
       {% csrf_token %}
@@ -18,8 +17,7 @@
 			<button type="submit" class="btn btn-lg btn-success" name="update_user_profile"><span class="glyphicon glyphicon-floppy-disk"></span> Update User Profile</button>
 		</div>
     </form>
-  </div> <!-- .main_table -->
-</div> <!-- #update_profile -->
+</div> <!-- .main_table -->
 {% if targetUser = user %}
 <h2 class="sub_subtitle text-center text-primary" style="margin-top: 40px;">
 For your own security, you are only able to change your password from the <a href="{% url 'my_profile' %}">my profile</a> page.
