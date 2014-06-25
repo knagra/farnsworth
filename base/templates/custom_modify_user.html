@@ -4,43 +4,54 @@
 {% load bootstrap %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/custom_modify_user.css' %}" />
 {% endblock %}
 
 {% block content %}
-<h1 class="w_title">Modify {{ targetUser.username }}'s Profile</h3></div>
-  <div class="main_table">
+<div class="row">
+<div class="col-md-7">
+<h1 class="w_title">Modify {{ targetUser.username }}'s Profile</h3>
+<hr class="w_line" />
+<div class="main_table">
     <form method="post" action="">
       {% csrf_token %}
 		{{ modify_user_form|bootstrap }}
 		<div class="text-center form-group">
-			<button type="submit" class="btn btn-lg btn-success" name="update_user_profile"><span class="glyphicon glyphicon-floppy-disk"></span> Update User Profile</button>
+			<button type="submit" class="btn btn-success" name="update_user_profile"><span class="glyphicon glyphicon-floppy-disk"></span> Update User Profile</button>
 		</div>
     </form>
 </div> <!-- .main_table -->
+</div>
 {% if targetUser = user %}
+<div class="col-md-5">
 <h2 class="sub_subtitle text-center text-primary" style="margin-top: 40px;">
-For your own security, you are only able to change your password from the <a href="{% url 'my_profile' %}">my profile</a> page.
+For your own security, you are only able to change your password from the
+<a href="{% url 'my_profile' %}">my profile</a> page.
 </h2>
+</div> <!-- .col-md-5 -->
+</div> <!-- .row -->
 {% else %}
-<div id="change_password" class="table_container">
-  <div class="header"><h3 class="table_title large_title">Change {{ targetUser.username }}'s Password</h3></div>
-  <div class="main_table">
+<div class="col-md-5">
+<h1 class="w_title">Change {{ targetUser.username }}'s Password</h1>
+<hr class="w_line" />
+<div class="main_table">
     <form method="post" action="">
 		{% csrf_token %}
 		{{ change_user_password_form|bootstrap }}
 		<div class="text-center form-group">
-			<button type="submit" class="btn btn-lg btn-warning" name="change_user_password"><span class="glyphicon glyphicon-flash"></span> Change User Password</button>
+			<button type="submit" class="btn btn-warning" name="change_user_password"><span class="glyphicon glyphicon-flash"></span> Change User Password</button>
 		</div>
     </form>
-  </div> <!-- .main_table -->
-</div> <!-- #change_password -->
-<div id="delete_user" class="table_container">
-  <div class="header"><h3 class="table_title large_title">Delete {{ targetUser.username }}</h3></div>
+</div> <!-- .main_table -->
+</div> <!-- .col-md-5 -->
+</div> <!-- .row -->
+<br />
+<hr />
+<div class="table_60 centered_table">
+  <h1 class="w_title">Delete {{ targetUser.username }}</h1>
   <div class="main_table">
     <div class="text-danger" style="margin-left: 10px; margin-right: 10px; margin-top: 10px;">
-      This will permenantly delete the user's account, her/his forum posts, requests, events--EVERYTHING! This cannot be undone.
-      This user owns the following items, all of which will be deleted:
+      This will permenantly delete {{ targetUser.username }}'s account, her/his forum posts, requests, events--EVERYTHING!
+      This cannot be undone. This user owns the following items, all of which will be deleted:
     </div>
     <ul class="text-danger" style="list-style: none">
 		<li{% if thread_count > 0 %} class="danger_li"{% endif %}>{{ thread_count }}
@@ -70,10 +81,10 @@ For your own security, you are only able to change your password from the <a hre
 		{% csrf_token %}
 		{{ delete_user_form|bootstrap }}
 		<div class="text-center form-group">
-			<button type="submit" class="btn btn-lg btn-danger" name="delete_user"><span class="glyphicon glyphicon-fire"></span> Delete User</button>
+			<button type="submit" class="btn btn-danger" name="delete_user"><span class="glyphicon glyphicon-fire"></span> Delete User</button>
 		</div>
     </form>
   </div> <!-- .main_table -->
-</div> <!-- #change_password -->
+</div> <!-- .table_60 -->
 {% endif %}
 {% endblock %}

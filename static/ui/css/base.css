@@ -106,11 +106,7 @@ html {
 }
 
 #body {
-    clear: both;
-    position: relative;
-    width: 100%;
-    height: auto;
-    color: black;
+    padding-top: 10px;
     padding-bottom: 50px;
 }
 

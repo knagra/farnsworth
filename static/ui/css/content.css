@@ -98,6 +98,10 @@ form > .form-group {
     margin: 0px auto;
 }
 
+.centered_table {
+    margin: 0px auto;
+}
+
 .main_form {
 	display: none;
 }
