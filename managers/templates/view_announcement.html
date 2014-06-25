@@ -37,9 +37,9 @@
       {% csrf_token %}
       {{ unpin_form }}
       {% if announcement.pinned %}
-      <button type="submit" class="main_link warning_link" name="unpin" title="Unpin this announcement">Unpin</button>
+      <button type="submit" class="main_link warning_link" name="unpin" title="Unpin from homepage">Unpin</button>
       {% else %}
-      <button type="submit" class="main_link success_link" name="unpin" title="Repin this announcement">Repin</button>
+      <button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
       {% endif %}
     </form>
 	<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=announcement.pk %}">

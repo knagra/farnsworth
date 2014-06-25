@@ -89,6 +89,7 @@ label {
 
 .request_body {
     padding-left: 5px;
+    padding-right: 5px;
     font-size: 13pt;
     word-wrap: break-word;
     overflow-x: auto;

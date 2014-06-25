@@ -195,7 +195,6 @@ class AnnouncementForm(forms.ModelForm):
 	def save(self, *args, **kwargs):
 		announcement = super(AnnouncementForm, self).save(commit=False)
 		if announcement.pk is None:
-			announcement.pinned = True
 			announcement.incumbent = self.profile
 		announcement.save()
 
