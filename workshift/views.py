@@ -185,19 +185,6 @@ def view_semester(request, semester, profile=None):
 
 	template_dict["profile"] = profile
 
-	# Forms to interact with workshift
-	if profile:
-		for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
-			if form.action_name in request.POST:
-				f = form(request.POST, profile=profile)
-				if f.is_valid():
-					f.save()
-					return HttpResponseRedirect(wurl("workshift:view_semester",
-													 sem_url=semester.sem_url))
-				else:
-					for error in f.errors.values():
-						messages.add_message(request, messages.ERROR, error)
-
 	# We want a form for verification, a notification of upcoming shifts, and a
 	# chart displaying the entire house's workshift for the day as well as
 	# weekly shifts.
@@ -219,6 +206,20 @@ def view_semester(request, semester, profile=None):
 		template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
 	if day < semester.end_date:
 		template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
+
+	# Forms to interact with workshift
+	if profile:
+		for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
+			if form.action_name in request.POST:
+				f = form(request.POST, profile=profile)
+				if f.is_valid():
+					f.save()
+					return HttpResponseRedirect(
+						wurl("workshift:view_semester", sem_url=semester.sem_url) +
+						"?day={0}".format(day) if "day" in request.GET else "")
+				else:
+					for error in f.errors.values():
+						messages.add_message(request, messages.ERROR, error)
 
 	# Grab the shifts for just today, as well as week-long shifts
 	last_sunday = day - timedelta(days=day.weekday() + 1)
