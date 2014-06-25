@@ -9,9 +9,8 @@
 {% block content %}
 <div class="row">
 <div class="col-md-7">
-<h1 class="w_title">Modify {{ targetUser.username }}'s Profile</h3>
-<hr class="w_line" />
-<div class="main_table">
+    <h1 class="w_title">Modify {{ targetUser.username }}'s Profile</h3>
+    <hr class="w_line" />
     <form method="post" action="">
       {% csrf_token %}
 		{{ modify_user_form|bootstrap }}
@@ -19,7 +18,6 @@
 			<button type="submit" class="btn btn-success" name="update_user_profile"><span class="glyphicon glyphicon-floppy-disk"></span> Update User Profile</button>
 		</div>
     </form>
-</div> <!-- .main_table -->
 </div> <!-- .col-md-7 -->
 <br class="visible-xs visible-sm" />
 <hr class="visible-xs visible-sm" />
@@ -33,24 +31,22 @@ For your own security, you are only able to change your password from the
 </div> <!-- .row -->
 {% else %}
 <div class="col-md-5">
-<h1 class="w_title">Change {{ targetUser.username }}'s Password</h1>
-<hr class="w_line" />
-<div class="main_table">
-    <form method="post" action="">
+	<h1 class="w_title">Change {{ targetUser.username }}'s Password</h1>
+	<hr class="w_line" />
+	<form method="post" action="">
 		{% csrf_token %}
 		{{ change_user_password_form|bootstrap }}
 		<div class="text-center form-group">
 			<button type="submit" class="btn btn-warning" name="change_user_password"><span class="glyphicon glyphicon-flash"></span> Change User Password</button>
 		</div>
-    </form>
-</div> <!-- .main_table -->
+	</form>
 </div> <!-- .col-md-5 -->
 </div> <!-- .row -->
 <br />
 <hr />
 <div class="col-md-6 col-md-offset-6">
   <h1 class="w_title">Delete {{ targetUser.username }}</h1>
-  <div class="main_table">
+  <hr class="w_line" />
     <div class="text-danger" style="margin-left: 10px; margin-right: 10px; margin-top: 10px;">
       This will permenantly delete {{ targetUser.username }}'s account, her/his forum posts, requests, events--EVERYTHING!
       This cannot be undone. This user owns the following items, all of which will be deleted:
@@ -86,7 +82,6 @@ For your own security, you are only able to change your password from the
 			<button type="submit" class="btn btn-danger" name="delete_user"><span class="glyphicon glyphicon-fire"></span> Delete User</button>
 		</div>
     </form>
-  </div> <!-- .main_table -->
 </div> <!-- .col-md-6 -->
 {% endif %}
 {% endblock %}
