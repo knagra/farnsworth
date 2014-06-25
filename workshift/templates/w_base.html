@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load workshift_tags %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/workshift.css' %}" />
+{% block w_headers %}{% endblock %}
+{% endblock %}
+
+{% block jumbotron %}
+<div class="container">
+  {% if CURRENT_SEMESTER %}
+  <div class="row">
+	<div class="col-xs-12">
+	  <div class="row">
+		<h5 class="col-xs-3 text-left">{{ CURRENT_SEMESTER.start_date|date:"N d" }}<span class="hidden-xs">,
+			{{ CURRENT_SEMESTER.start_date|date:"Y" }}</span></h5>
+		<a href="{% wurl 'workshift:view_semester' sem_url=CURRENT_SEMESTER.sem_url %}">
+		  <h4 class="col-xs-6 text-center" id="current_semester"><span class="hidden-xs">Current Semester
+			  - </span>{{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}</h4>
+		</a>
+		<h5 class="col-xs-3 text-right">{{ CURRENT_SEMESTER.end_date|date:"N d" }}<span class="hidden-xs">,
+			{{ CURRENT_SEMESTER.end_date|date:"Y" }}</span></h5>
+	  </div> <!-- .row -->
+	  <div title="{{ days_passed }} day{{ days_passed|pluralize }} of {{ total_days }} in semester passed ({{ semester_percent}}%)" class="progress">
+		<div class="progress-bar" role="progressbar" aria-valuenow="{{ days_passed }}" aria-valuemin="0" aria-valuemax="{{ total_days }}" style="width: {{ semester_percent }}%;">
+		  <span class="sr-only">{{ semester_percent }}%</span>
+		</div> <!-- .progress-bar -->
+	  </div> <!-- .progress -->
+	</div> <!-- .col-xs-12 -->
+  </div> <!-- .row -->
+  {% else %}
+  <br />
+  {% endif %}
+  <div class="row" style="margin-top: 5px;">
+	<div id="workshift_content" class="col-md-9">
+	  {% block w_content %}{% endblock %}
+	</div> <!-- #workshift_content -->
+	<br class="visible-sm visible-xs" />
+	<hr class="visible-sm visible-xs" />
+	<div id="sidebar" class="col-md-3">
+	  {% block sidebartop %}{% endblock %}
+	  {% if upcoming_shifts %}
+	  <h5 id="shifts_title">Upcoming Shifts</h5>
+	  <div id="upcoming_shifts" class="list-group">
+		{% for shift, happening in upcoming_shifts %}
+		<a title="See shift info" href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="list-group-item"><span class="badge">{{ shift.hours }}</span>{{ shift.title }},
+		  {{ shift.date|date:"l" }} {% if shift.start_time %}{{ shift.start_time }}{% if shift.end_time %}
+		  - {{ shift.end_time }}{% endif %}{% endif %}</a>
+		{% endfor %}
+	  </div> <!-- #upcoming_shifts -->
+	  {% endif %}
+	  <div class="row">
+	  {% if WORKSHIFT_PROFILE %}
+	  <div class="col-md-12 col-lg-12{% if WORKSHIFT_MANAGER %} col-sm-6 col-xs-6{% endif %}">
+	  <h4 class="w_subtitle"><a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">My Profile</a></h4>
+	  <ul class="sidebar_list">
+		<li><a href="{% wurl 'workshift:preferences' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">Edit My Preferences</a></li>
+	  </ul>
+	  {% else %}
+
+	  {% endif %}
+	  </div> <!-- .col-md-12 -->
+	  {% if WORKSHIFT_MANAGER %}
+	  <div class="col-md-12 col-lg-12 col-sm-6 col-xs-6">
+	  <h4 class="w_subtitle"><a href="{% wurl 'workshift:manage' semester=SEMESTER.sem_url %}">Manage Workshift</a></h4>
+	  <ul class="sidebar_list">
+		<li><a href="{% wurl 'workshift:add_shift' semester=SEMESTER.sem_url %}">Add Shift</a></li>
+		<li><a href="{% wurl 'workshift:assign_shifts' semester=SEMESTER.sem_url %}">Assign Shifts</a></li>
+		<li><a href="{% wurl 'workshift:add_pool' semester=SEMESTER.sem_url %}">Add Workshift Pool</a></li>
+		<li><a href="{% wurl 'workshift:add_workshifter' semester=SEMESTER.sem_url %}">Add Workshifter</a></li>
+	  </ul>
+	  </div> <!-- .col-md-12 -->
+	  {% endif %}
+	  </div> <!-- .row -->
+	  {% block sidebarbottom %}{% endblock %}
+	</div> <!-- #side_bar -->
+  </div> <!-- .row -->
+</div> <!-- .container -->
+{% endblock %}
+
+{% block endscripts %}
+<script>
+	$(document).ready(function() {
+		$('<hr style="margin-top: 0px;"/>').insertAfter('.w_title');
+		$('.navbar').css('margin-bottom', '0');
+		$('.alert').css('margin-top', '10');
+	});
+</script>
+{% block w_endscripts %}{% endblock %}
+{% endblock %}

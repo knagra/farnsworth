@@ -1,0 +1,108 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+{% endblock %}
+
+{% block w_content %}
+<h1 class="w_title">{{ page_name }}</h1>
+<div class="instance_container">
+  {% if regular_shifts %}
+  <h3 class="w_subtitle">Regular Shifts</h3>
+  <table class="table table-striped table-bordered table-condensed table-hover members_table" id="regular_shifts_table">
+	<thead>
+	  <tr>
+	    <th>Title</th>
+	    <th>Time</th>
+	    <th>Hours</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for shift in regular_shifts %}
+	  <tr>
+	    <td><a href="{% wurl 'workshift:view_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a></td>
+	    <td>{% if not shift.week_long %} {{ shift.get_day_display }} {{ shift.start_time }}-{{ shift.end_time }}{% else %}Week long{% endif %}</td>
+	    <td>{{ shift.hours }} hour{{ shift.hours|pluralize }}</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
+
+  {% if past_shifts %}
+  <h3 class="w_subtitle">Past Shifts</h3>
+  <table class="table table-striped table-bordered table-condensed table-hover members_table" id="past_shifts_table">
+	<thead>
+	  <tr>
+	    <th>Title</th>
+	    <th>Date</th>
+	    <th>Hours</th>
+	    <th>Status</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for shift in past_shifts %}
+	  <tr>
+	    <td><a href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a></td>
+	    <td>{{ shift.date }}</td>
+	    <td>{{ shift.hours }}</td>
+	    <td>{% if shift.blown %}<font color="red">BLOWN</font>{% elif shift.verifier %}- <font color="green">Verified by <a href="{% wurl 'workshift:profile' targetUsername=shift.verifier.user.username sem_url=SEMESTER.sem_url %}">{{ shift.verifier.user.get_full_name }}</a>{% endif %}</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
+  {% if profile.pool_hours.all %}
+  <h3 class="w_subtitle">Workshift Requirements</h3>
+  <table class="table table-striped table-bordered table-condensed table-hover members_table" id="pool_hours_table">
+	<thead>
+	  <tr>
+	    <th>Title</th>
+	    <th>Hours</th>
+	    <th>Current Standing</th>
+		{% if first_standing %}<th>First Fine Date Standing</th>{% endif %}
+	    {% if second_standing %}<th>Second Fine Date Standing</th>{% endif %}
+	    {% if third_standing %}<th>Third Fine Date Standing</th>{% endif %}
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for pool_hours in profile.pool_hours.all %}
+	  <tr>
+	    <td><a href="{% wurl 'workshift:view_pool' pk=pool_hours.pool.pk sem_url=SEMESTER.sem_url %}">{{ pool_hours.pool.title }}</a></td>
+	    <td>{{ pool_hours.show_hours }}</td>
+	    <td>{% if 0 > pool_hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ pool_hours.standing }}</font></td>
+	    {% if pool_hours.first_date_standing %}
+	    <td>First Fine Date Standing: {{ pool_hours.first_date_standing }}</td>
+	    {% endif %}
+	    {% if pool_hours.second_date_standing %}
+	    <td>Second Fine Date Standing: {{ pool_hours.second_date_standing }}</td>
+	    {% endif %}
+	    {% if pool_hours.third_date_standing %}
+	    <td>Third Fine Date Standing: {{ pool_hours.third_date_standing }}</td>
+	    {% endif %}
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
+  {% if profile.note %}
+  <h3 class="w_subtitle">Profile notes</h3>
+  <p>{{ profile.note|safe }}</p>
+  {% endif %}
+</div> <!-- .instance_container -->
+{% endblock %}
+
+{% block w_endscripts %}
+<script>
+  $(document).ready(function() {
+	 $('table').tablesorter({
+	    sortList: [[0,0]]
+	 });
+  });
+</script>
+{% endblock %}

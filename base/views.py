@@ -608,3 +608,29 @@ def reset_pw_confirm_view(request, uidb64=None, token=None):
 	return password_reset_confirm(request,
 		template_name="reset_confirmation.html",
 		uidb64=uidb64, token=token, post_reset_redirect=reverse('login'))
+
+def archives_view(request):
+	""" View of the archives page. """
+	resident_count = UserProfile.objects.filter(status=UserProfile.RESIDENT).count()
+	boarder_count = UserProfile.objects.filter(status=UserProfile.BOARDER).count()
+	alumni_count = UserProfile.objects.filter(status=UserProfile.ALUMNUS).exclude(user__username=ANONYMOUS_USERNAME).count()
+	member_count = resident_count + boarder_count + alumni_count
+	thread_count = Thread.objects.all().count()
+	message_count = Message.objects.all().count()
+	request_count = Request.objects.all().count()
+	response_count = Response.objects.all().count()
+	announcement_count = Announcement.objects.all().count()
+	event_count = Event.objects.all().count()
+	return render_to_response('archives.html', {
+			'page_name': "Archives",
+			'resident_count': resident_count,
+			'boarder_count': boarder_count,
+			'alumni_count': alumni_count,
+			'member_count': member_count,
+			'thread_count': thread_count,
+			'message_count': message_count,
+			'request_count': request_count,
+			'response_count': response_count,
+			'announcement_count': announcement_count,
+			'event_count': event_count,
+			}, context_instance=RequestContext(request))

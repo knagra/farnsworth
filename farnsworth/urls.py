@@ -21,7 +21,8 @@ urlpatterns = patterns('',
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^search/$', login_required(FacetedSearchView(form_class=FacetedSearchForm, searchqueryset=sqs)), name='haystack_search'),
 	url(r'', include('social.apps.django_app.urls', namespace='social')),
-	url(r'', include('events.urls', namespace='events')),
+	url(r'', include('workshift.urls', namespace="workshift")),
+    url(r'', include('events.urls', namespace='events')),
 )
 
 urlpatterns += patterns('base.views',
@@ -44,6 +45,7 @@ urlpatterns += patterns('base.views',
 	url(r'^reset/$', 'reset_pw_view', name='reset_pw'),
 	url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
 		'reset_pw_confirm_view', name='reset_pw_confirm'),
+	url(r'^archives/$', 'archives_view', name='archives'),
 )
 
 urlpatterns += patterns('threads.views',

@@ -85,7 +85,10 @@ home_max_announcements = 5
 home_max_threads = 15
 
 # Add the context that populates a few variables used on every page in the site.
-TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("base.views.add_context",)
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+	"base.views.add_context",
+	"workshift.views.add_workshift_context",
+	)
 
 try:
 	ENABLE_OAUTH
@@ -126,6 +129,20 @@ else:
 			'PORT': '',
 		},
 	}
+
+########################################################################
+####	Workshift Settings
+########################################################################
+
+# Default number of hours for creating new semester instances.
+DEFAULT_HOURS = 5
+
+# Default cutoff for signing out of workshifts, in hours.
+# Users will be allowed to sign out of shifts with more time than this
+# number of hours before the workshift starts.
+DEFAULT_CUTOFF = 24
+
+########################################################################
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -170,7 +187,7 @@ MEDIA_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'media/').
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = '/media/'
+MEDIA_URL = BASE_URL + '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -180,7 +197,7 @@ STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static/'
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
+STATIC_URL = BASE_URL + '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -235,7 +252,9 @@ INSTALLED_APPS = (
 	'base',
 	'threads',
 	'events',
+	'requests',
 	'managers',
+	'workshift',
 	'bootstrapform',
 	'haystack',
 	'django.contrib.admin',
@@ -336,11 +355,19 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
 
+DEFAULT_SEMESTER_HOURS = 2
+DEFAULT_CUTOFF = 1
+DEFAULT_WORKSHIFT_HOURS = 2
+APPEND_SLASH = True
+
 if 'test' in sys.argv:
 	PASSWORD_HASHERS = (
 		'django.contrib.auth.hashers.MD5PasswordHasher',
 	)
-	DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+	DATABASES['default'] = {
+		'ENGINE': 'django.db.backends.sqlite3',
+		'NAME': os.path.join(os.path.dirname(__file__), 'farnsworth.db').replace('\\', '/'),
+		}
 	HAYSTACK_CONNECTIONS['default']['INDEX_NAME'] = SHORT_HOUSE_NAME.lower() + "_test"
 
 try:

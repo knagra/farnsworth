@@ -1,0 +1,27 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+
+{% block w_headers %}
+<script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+{% endblock %}
+
+{% block w_content %}
+<div class="type_container">
+  <h1 class="w_title">{{ page_name }}</h1>
+  <form method="post" action="">
+	{% csrf_token %}
+	{{ edit_form|bootstrap }}
+	<div class="text-center">
+	  <div class="btn-group">
+	    <button type="submit" class="btn btn-success" name="edit"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+	    <button type="submit" class="btn btn-danger" name="delete"><span class="glyphicon glyphicon-fire"></span> Delete</button>
+	  </div> <!-- .btn-group -->
+	</div> <!-- .text-center -->
+  </form>
+</div> <!-- .type_container -->
+{% endblock %}

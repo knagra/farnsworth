@@ -1,0 +1,66 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_headers %}
+<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
+{% endblock %}
+
+{% block w_content %}
+<h1 class="w_title">{{ page_name }}</h1>
+<ul class="nav nav-pills" style="margin-bottom: 10px;">
+  {% if add_instance_form %}<li class="active"><a href="#workshift_instance" data-toggle="tab">Workshift Instance</a></li>{% endif %}
+  {% if add_shift_form %}<li><a href="#regular_workshift" data-toggle="tab">Regular Workshift</a></li>{% endif %}
+  {% if add_type_form %}<li><a href="#workshift_type" data-toggle="tab">Workshift Type</a></li>{% endif %}
+</ul>
+<div class="tab-content">
+{% if add_instance_form %}
+<form class="tab-pane active" id="workshift_instance" method="post" action="">
+  {% csrf_token %}
+  {{ add_instance_form|bootstrap }}
+  <div class="text-center">
+    <button type="submit" class="btn btn-success" name="add_instance">Create Single Workshift</button>
+  </div>
+</form>
+{% endif %}
+{% if add_shift_form %}
+<form class="tab-pane" id="regular_workshift" method="post" action="">
+  {% csrf_token %}
+  {{ add_shift_form|bootstrap }}
+  <div class="text-center">
+    <button type="submit" class="btn btn-success" name="add_shift">Create Regular Workshift</button>
+  </div>
+</form>
+{% endif %}
+{% if add_type_form %}
+<form class="tab-pane" id="workshift_type" method="post" action="">
+  {% csrf_token %}
+  {{ add_type_form|bootstrap }}
+  <div class="text-center">
+    <button type="submit" class="btn btn-success" name="add_type">Create Workshift Type</button>
+  </div>
+</form>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+  $("[id$=_time]").datetimepicker({
+    pickDate: false,
+    pick12HourFormat: true,
+  });
+  $("[id$=date]").datetimepicker({
+    pickTime: false,
+  });
+</script>
+{% endblock %}

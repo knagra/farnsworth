@@ -1,0 +1,36 @@
+/* Project: Farnsworth
+ * 
+ * Authors: Karandeep Singh Nagra and Nader Morshed
+ */
+
+#workshift_content {
+	overflow-x: auto;
+}
+
+#sidebar {
+	
+}
+
+.w_title {
+	font-weight: 300;
+	margin-top: 0px;
+	margin-bottom: 5px;
+}
+
+.w_subtitle {
+	font-weight: 300;
+	margin-top: 0px;
+}
+
+.sidebar_list {
+	list-style: none;
+	padding-left: 10px;
+}
+.sidebar_list > li {
+	
+}
+
+.alert {
+	margin-top: 10px !important;
+	margin-bottom: 0px !important;
+}

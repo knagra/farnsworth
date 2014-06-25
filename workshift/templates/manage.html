@@ -1,0 +1,95 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+{% endblock %}
+
+{% block w_content %}
+<div id="manage_container">
+  <h1 class="w_title">Manage Workshifts</h1>
+  <ul class="nav nav-pills" style="margin-bottom: 10px;">
+    {% if pools %}<li class="active"><a href="#pools_table" data-toggle="tab">Workshift Pools</a></li>{% endif %}
+    {% if workshifters %}<li{% if not pools %} class="active"{% endif %}><a href="#workshifters_table" data-toggle="tab">Workshifters</a></li>{% endif %}
+  </ul>
+
+  <div class="tab-content">
+  {% if pools %}
+  <table class="tab-pane table table-striped table-bordered table-condensed table-hover members_table active" id="pools_table">
+	<thead>
+	  <tr>
+		<th>Workshift Pool</th>
+		<th>Managers</th>
+		<th>Hours</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for pool in pools %}
+	  <tr>
+		<td><a href="{% wurl 'workshift:view_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}">{{ pool.title }}</a></td>
+		<td>
+		  {% if pool.managers.count %}
+		  {% for pos in pool.managers.all %}
+		  {% if not forloop.first %}, {% endif %}
+		  <a {% if pos.active %}title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{% url 'edit_manager' managerTitle=pos.url_title %}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+		  {% if pos.incumbent %}
+		  (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
+		  {% else %}
+		  <span title="There is currently no incumbent for this position." class="text-danger">(No incumbent)</span>
+		  {% endif %}
+		  {% endfor %}
+		  {% endif %}
+		</td>
+		<td>{{ pool.show_hours }}</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
+
+  {% if workshifters %}
+  <table class="tab-pane table table-striped table-bordered table-condensed table-hover members_table{% if not pools %} active{% endif %}" id="workshifters_table">
+	<thead>
+	  <tr>
+		<th>Workshifter</th>
+		<th>E-mail</th>
+		{% for pool in pools %}
+		<th>{{ pool.title }}</th>
+		{% endfor %}
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for workshifter, pool_hours in workshifters %}
+	  <tr>
+		<td><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=workshifter.user.username %}">{{ workshifter.user.get_full_name }}</td>
+		<td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
+		{% for hours in pool_hours %}
+		<td>{% if 0 > hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ hours.standing }}</font></td>
+		{% endfor %}
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
+  </div> <!-- .tab-content -->
+</div> <!-- #manage_container -->
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+  $("[id$=date]").datetimepicker({pickTime: false});
+  $("[id$=time]").datetimepicker({pickDate: false});
+  $(document).ready(function() {
+    $('table').tablesorter({
+        sortList: [[0,0]]
+    });
+  });
+</script>
+{% endblock %}
