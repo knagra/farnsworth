@@ -17,7 +17,7 @@ from django.utils.timezone import utc
 from datetime import datetime, timedelta
 
 from farnsworth.settings import HOUSE_NAME, SHORT_HOUSE_NAME, ADMINS, \
-	 home_max_announcements, home_max_threads, SEND_EMAILS
+	 announcement_life, home_max_threads, SEND_EMAILS
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
 	APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
 	SUBMISSION_EMAIL
