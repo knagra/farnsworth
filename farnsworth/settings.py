@@ -30,10 +30,10 @@ MANAGERS = ADMINS
 BASE_URL = "/" + SHORT_HOUSE_NAME.lower()
 
 # Name of the house
-house = HOUSE_NAME
+HOUSE = HOUSE_NAME
 
 # Short name of the house. Alphabet only; otherwise, search won't work.
-short_house = SHORT_HOUSE_NAME
+SHORT_HOUSE = SHORT_HOUSE_NAME
 
 try:
 	NETWORK_MANAGER_PASSWORD
@@ -67,24 +67,24 @@ else:
 EMAIL_BLACKLIST = ()
 
 # Max number of threads loaded in member_forums.
-max_threads = 20
+MAX_THREADS = 20
 
 # Max number of messages loaded for each thread.
-max_messages = 4
+MAX_MESSAGES = 4
 
 # Max number of requests loaded in requests_view.
-max_requests = 30
+MAX_REQUESTS = 30
 
 # Max number of responses loaded for each request.
-max_responses = 4
+MAX_RESPONSES = 4
 
 # Hold old, in days, an announcement should be before it's automatically excluded
 # from being displayed on the homepage and in the manager announcements page.
 # Pinned announcements will be displayed anyway.
-announcement_life = 4
+ANNOUNCEMENT_LIFE = 4
 
 # Max number of threads loaded for home page.
-home_max_threads = 15
+HOME_MAX_THREADS = 15
 
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
