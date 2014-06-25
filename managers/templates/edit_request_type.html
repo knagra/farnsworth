@@ -56,7 +56,11 @@
 </tbody>
 </table> <!-- #user_table -->
 {% endif %}
-
+{% if page_name = 'Admin - Edit Request Type' %}
+<form class="text-center" action="{% url 'add_request_type' %}" style="margin-top: 10px;">
+    <button id="add_request_type" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Request Type</span></button>
+</form>
+{% endif %}
 </div> <!-- .col-md-5 -->
 </div>
 {% endblock %}
