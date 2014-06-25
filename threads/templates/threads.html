@@ -6,16 +6,14 @@
 {% block headers %}
 <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/threads.css' %}" />
 {% endblock %}
 
 {% block content %}
-<div class="table_container">
-  <div class="header">
-    <button class="btn btn-primary add_thread" align="right" onclick="show_new_thread_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
-    <h3 class="table_title{% if thread_title|longer_than:'12345678901234567890' %} medium_title{% elif thread_title|longer_than:'12345678901234' %} small_title{% endif %}">{{ thread_title }}</h3>
-  </div> <!-- table_header -->
+<div>
+<button class="btn btn-primary add_thread pull-right" onclick="show_new_thread_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
+<h1 class="w_title">{{ thread_title }}</h1>
+<hr class="w_line" />
   <div class="main_table">
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}
@@ -34,10 +32,10 @@
       </div> <!-- .btn-group -->
       </div> <!-- .text-center" -->
   </form>
-  <div class="threads_table">
     {% if not threads_dict %}
     <div class="field_wrapper text-info">No threads found.</div>
     {% else %}
+  <div class="threads_table bordered_div">
     {% for thread_tuple in threads_dict %}
     {% if forloop.counter > 1 %}
     <hr class="main_divider"/>
