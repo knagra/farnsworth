@@ -595,6 +595,13 @@ def utilities_view(request):
 			'page_name': "Admin - Site Utilities",
 			}, context_instance=RequestContext(request))
 
+@profile_required
+def bylaws_view(request):
+	""" View for bylaws. """
+	return render_to_response('bylaws.html', {
+			'page_name': "House Bylaws",
+			}, context_instance=RequestContext(request))
+
 def reset_pw_view(request):
 	""" View to send an e-mail to reset password. """
 	return password_reset(request,

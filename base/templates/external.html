@@ -20,18 +20,100 @@
 {% block content %}
 <div class="table_container main_table container_fluid page_container">
 <p>
-	We are a member house of the <a href="//bsc.coop">Berkeley Student Cooperative</a>.
-	Please check there for more information on our house and how to apply to board or live in {{ HOUSE }}.
-	Questions and tour requests are always welcome.  Please contact us at the e-mail address below to arrange a tour.
+Kingman Hall is one of the houses of the <a class="page_link" href="http://www.bsc.coop" target="_blank">Berkeley
+Student Cooperative</a> in Berkeley, California.
+The building houses 50 students every semester.
+The house phone number is 1-510-900-2179.
+We are located at 1730 La Loma Avenue, just a few steps north of the Ridge Road and La Loma Avenue intersection,
+at the northeast corner of the
+<a class="page_link" href="http://www.berkeley.edu" target="_blank">UC Berkeley</a> campus.
+Look for the big butterfly painted next to the front door.
 </p>
+
 <p>
-	If you are a new member, please request an account from the <a href="{% url 'request_profile' %}">request profile</a> page.
-	If you already have an account, you may login from the <a href="{% url 'login' %}">login</a> page.
+Kingman Hall was acquired by the BSC in 1977 at the price of $300,000 from the
+<a class="page_link"
+href="https://en.wikipedia.org/wiki/Ken_Keyes,_Jr.#Going_west.2C_and_the_Living_Love_Center_in_Berkeley">Living
+Love Center</a>, which later became Cornucopia in St. Mary, Kentucky,
+and later the Ken Keyes College in Coos Bay, Oregon.
+The BSC named the building in honor of
+<a class="page_link" href="//en.wikipedia.org/wiki/Harry_Kingman">Henry Lees "Harry" Kingman</a>,
+who motivated the original founders to pool their resources and form a cooperative in 1933.
 </p>
+
 <p>
-	Please check the <a href="{% url 'helppage' %}">help</a> page for more information about this web site.
+At the time, Harry Kingman was the General Secretary of
+<a class="page_link" href="http://www.stileshall.org/">Stiles Hall</a>, a UC Berkeley YMCA facility.
+Harry Kingman along with <a class="page_link" href="http://en.wikipedia.org/wiki/Clark_Kerr">Clark Kerr</a>
+initiated cooperative housing in Berkeley by offering students discounted room and board
+in exchange for part-time work around the building.
+When 14 students approached Kingman for guidance on how to find affordable housing,
+Kingman recommended that they form a collective, pool their resources, and rent a house in the area
+surrounding the UC Berkeley campus.
+In Fall of 1933, the students leased Barrington Hall, which housed 48 residents, creating the first house in the
+Berkeley Student Cooperative and founding an organization that has flourished into more than a dozen houses,
+a thousand members, and multiple thousands of alumni.
 </p>
+
+<p>
+Known primarily for his influence and involvement in baseball,
+Kingman was also a renowned educator who promoted civil rights
+and fought against the forced relocation of Japanese-Americans during World War II.
+If you would like to learn more about our namesake, please see
+<a class="page_link" href="http://sabr.org/bioproj/person/789104fb">Harry Kingman's biography</a>
+on the BioProject of the <a class="page_link" href="http://sabr.org/">Society for American Baseball Research</a>.
+</p>
+
+<p>Please visit the
+<a class="page_link" href="http://www.berkeleyheritage.com/" target="_blank">Berkeley Architectural
+Heritage Association</a>'s page on the
+<a class="page_link" href="http://www.berkeleyheritage.com/berkeley_landmarks/theta-xi.html" target="_blank">history
+of Kingman Hall</a> for more information on the history of our beautiful building.
+</p>
+<div id="google_map_large">
+	<iframe class="hidden-xs"
+	src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3149.2712727301296!2d-122.25850047364789!3d37.87733822178231!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80857c2250585659%3A0x211221b4592e74dd!2s1730+La+Loma+Ave!5e0!3m2!1sen!2sus!4v1396782313453&wmode=opaque" width="600" height="400" frameborder="0" style="border:0" wmode="opaque"></iframe>
+</div>
+<div id="google_map_small">
+	<iframe class="visible-xs"
+	src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3149.2712727301296!2d-122.25850047364789!3d37.87733822178231!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80857c2250585659%3A0x211221b4592e74dd!2s1730+La+Loma+Ave!5e0!3m2!1sen!2sus!4v1396782313453&wmode=opaque" width="400" height="300" frameborder="0" style="border:0" wmode="opaque"></iframe>
+</div>
+</div>
+{% endblock %}
+
+{% block gallery %}
+<div class="slider-wrapper theme-default">
+	<div class="ribbon"></div>
+	<div id="slider" class="nivoSlider">
+		<img class="page_image" src="{% static 'ui/images/IMG_0107.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/IMG_0108.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/IMG_0109.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/IMG_0110.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/IMG_0111.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/IMG_0112.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/IMG_0113.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/IMG_0114.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/IMG_0116.jpg' %}" />
+		<img class="page_image" src="{% static 'ui/images/IMG_0117.jpg' %}" />
+	</div>
 </div>
 {% endblock %}
 {% block endscripts %}
+<script type="text/javascript" src="{% static 'jquery/nivo/jquery.nivo.slider.js' %}"></script>
+<script type="text/javascript">
+	$(window).load(function() {
+		$('#slider').nivoSlider({
+			effect: 'fade',
+			animSpeed: 700,
+			pauseTime: 5000,
+			startSlide: 0,
+			directionNav: true,
+			controlNav: true,
+			pauseOnHover: true,
+			prevText: '<',
+			nextText: '>',
+
+		});
+	});
+</script>
 {% endblock %}
