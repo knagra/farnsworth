@@ -2,25 +2,10 @@
 
 {% load static from staticfiles %}
 
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
-<script type="text/javascript" src="{% static 'jquery/jquery-1.11.0.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/manage_profile_requests.css' %}" />
-<script>
-$(document).ready(function() {
-	$('table').tablesorter({
-		sortList: [[1,0], [2,0]]
-	});
-});
-</script>
-{% endblock %}
-
 {% block content %}
-<div class="table_container">
-	<div class="header"><h3 class="table_title">Profile Requests</h3></div>
-	<div class="main_table">
+<h1 class="w_title">Profile Requests</h1>
+<hr class="w_line" />
+<div class="main_table">
 	{% if not profile_requests %}
 		<div class="field_wrapper text-success">No profile requests in database.</div>
 	{% else %}
@@ -49,12 +34,21 @@ $(document).ready(function() {
 	</tbody>
 	</table>
 	{% endif %}
-	</div> <!-- .main_table -->
-</div> <!-- .table_container -->
+</div> <!-- .main_table -->
 <div class="alert alert-info" style="margin-top: 10px;">
 Don't know how profile requests work?  Check out the
 <a target="_blank" href="{% url 'helppage' %}#profile_requests" class="alert-link"><span class="glyphicon glyphicon-new-window"></span>
 Profile Requests sub-section</a> of the
 <a target="_blank" href="{% url 'helppage' %}" class="alert-link"><span class="glyphicon glyphicon-new-window"></span> help page</a>.
 </div>
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+	$('table').tablesorter({
+		sortList: [[1,0], [2,0]]
+	});
+});
+</script>
 {% endblock %}

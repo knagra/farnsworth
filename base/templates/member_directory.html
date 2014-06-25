@@ -2,16 +2,10 @@
 
 {% load static from staticfiles %}
 
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_directory.css' %}" />
-{% endblock %}
-
 {% block content %}
 {% if residents %}
-<div class="table_container">
-  <div class="header"><h3 class="table_title">Residents</h3></div>
+<h1 class="w_title">Residents</h1>
+<hr class="w_line" />
   <div class="main_table">
     <table class="table table-striped table-bordered table-condensed table-hover" id="residents_table">
       <thead>
@@ -37,13 +31,12 @@
 	{% endfor %}
       </tbody>
     </table> <!-- #residents_table -->
-  </div> <!-- .main_table -->
-</div> <!-- .table_container -->
+</div> <!-- .main_table -->
 {% endif %}
 {% if boarders %}
-<div class="table_container">
-  <div class="header"><h3 class="table_title">Boarders</h3></div>
-  <div class="main_table">
+<h1 class="w_title">Boarders</h1>
+<hr class="w_line" />
+<div class="main_table">
     <table class="table table-striped table-bordered table-condensed table-hover" id="boarders_table">
       <thead>
 	<tr>
@@ -66,12 +59,11 @@
 	{% endfor %}
       </tbody>
     </table> <!-- #boarders_table -->
-  </div> <!-- .main_table -->
-</div> <!-- .table_container -->
+</div> <!-- .main_table -->
 {% endif %}
 {% if alumni %}
-<div class="table_container">
-  <div class="header"><h3 class="table_title">Alumni</h3></div>
+<h1 class="w_title">Alumni</h1>
+<hr class="w_line" />
   <div class="main_table">
     <table class="table table-striped table-bordered table-condensed table-hover" id="alumni_table">
       <thead>
@@ -97,8 +89,7 @@
 	{% endfor %}
       </tbody>
     </table> <!-- #alumni_table -->
-  </div> <!-- .main_table -->
-</div> <!-- .table_container -->
+</div> <!-- .main_table -->
 {% endif %}
 <div class="text-center text-info" style="margin-top: 10px;">
 	{{ residents.count }} resident{{ residents|pluralize }}, {{ boarders.count }} boarder{{ boarders|pluralize }},
@@ -110,11 +101,14 @@
 {% block endscripts %}
 <script>
   $(document).ready(function() {
-  $('table').tablesorter({
-  sortList: [[1,0], [2,0]],
-  widgets: ["filter"]
-  });
-  });
+        $('table').tablesorter({
+        sortList: [[1,0], [2,0]],
+        widgets: ["filter", "resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+        }); 
+    });
 </script>
 <script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
 {% endblock %}

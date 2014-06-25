@@ -195,3 +195,7 @@ pre {
 code {
 	font-family: "Source Code Pro", "Courier New", monospace;
 }
+
+.tablesorter-filter-row td {
+    padding: 0px 0px !important;
+}
