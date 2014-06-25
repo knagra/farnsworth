@@ -13,9 +13,9 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.contrib import messages
+from django.conf import settings
 from django.utils.timezone import utc
 
-from farnsworth.settings import max_requests, announcement_life
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from base.decorators import admin_required, profile_required, president_admin_required
 from base.models import UserProfile
@@ -244,7 +244,7 @@ def requests_view(request, requestType):
 			)
 		requests_dict.append((req, request_responses, resp_form, upvote, vote_form))
 		x += 1
-		if x >= max_requests:
+		if x >= settings.MAX_REQUESTS:
 			break
 	return render_to_response('requests.html', {
 			'manager': manager,
@@ -508,7 +508,8 @@ def announcements_view(request):
 					})
 		announcements_dict.append((a, unpin_form))
 	now = datetime.utcnow().replace(tzinfo=utc)
-	within_life = now - timedelta(days=announcement_life) # Oldest genesis of an unpinned announcement to be displayed.
+    # Oldest genesis of an unpinned announcement to be displayed.
+	within_life = now - timedelta(days=settings.ANNOUNCEMENT_LIFE)
 	for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
 		unpin_form = None
 		if request.user.is_superuser or (a.manager.incumbent == userProfile):

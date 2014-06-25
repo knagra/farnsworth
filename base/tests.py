@@ -222,6 +222,8 @@ class TestHomepage(TestCase):
 		self.assertContains(response, MESSAGES['REQ_FILLED'])
 
 	def test_unpin(self):
+		self.announce.pinned = True
+		self.announce.save()
 		response = self.client.post("/", {
 			"unpin": "",
 			"announcement_pk": self.announce.pk,
