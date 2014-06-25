@@ -9,29 +9,46 @@
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/external.css' %}" />
 {% endblock %}
 
-{% block title %}
-<div id="title">
-	<h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
-	<h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
-	<br />
-</div> <!-- close "title" -->
+{% block jumbotron %}
+<div id="jumbotron" class="jumbotron">
+	<div class="container">
+	<h1 id="page_title" class="hidden-xs hidden-sm hidden-md">We are Afro.</h1>
+	<h1 id="large_page_title" class="visible-md">We are Afro.</h1>
+	<h1 id="medium_page_title" class="visible-sm">We are Afro.</h1>
+	<h1 id="small_page_title" class="visible-xs">We are Afro.</h1>
+	</div>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="table_container main_table container_fluid page_container">
-<p>
-	We are a member house of the <a href="//bsc.coop">Berkeley Student Cooperative</a>.
-	Please check there for more information on our house and how to apply to board or live in {{ HOUSE }}.
-	Questions and tour requests are always welcome.  Please contact us at the e-mail address below to arrange a tour.
+<div class="row">
+<div class="col-md-6">
+<h1 class="sub_title">We are part of the BSC.</h1>
+<p>We are a member house of the <a href="http://bsc.coop">Berkeley Student Cooperative</a>,
+an organization founded to provide low-cost, high quality housing to under-privileged students of <a href="https://www.berkeley.edu/">UC Berkeley</a>
+and other Bay Area colleges and universities.
 </p>
-<p>
-	If you are a new member, please request an account from the <a href="{% url 'request_profile' %}">request profile</a> page.
-	If you already have an account, you may login from the <a href="{% url 'login' %}">login</a> page.
-</p>
-<p>
-	Please check the <a href="{% url 'helppage' %}">help</a> page for more information about this web site.
-</p>
+<p>To apply to live at Afro, visit the BSC's <a href="http://www.bsc.coop/housing/apply-for-housing-main/apply-for-housing" target="_blank">application page</a>.</p>
+<p>To apply to board at Afro, visit the BSC's <a href="http://www.bsc.coop/food/meal-contract-info-rates" target="_blank">boarding information page</a>.</p>
+<p>Or drop by for dinner.  We are accepting house-level boarders.</p>
+<p>We are located at 2347 Prospect Street, Berkeley, CA 94704 (<a href="{% url 'house_map' %}">click for map</a>).</p>
+</div>
+<br class="visible-xs visible-sm" />
+<div class="col-md-6">
+<h1 class="sub_title">We are partners with our community.</h1>
+<p>We host events for African-American student and community groups.</p>
+<p>We actively do community service in reaching out to and helping the cause of African-American groups in the greater Bay Area.</p>
+<p>In our boarding and housing candidate selection, we give priority preference to members of African-American student organizations.</p>
+<p>If your values align with ours, we encourage you to reach out to us.  E-mail our house manager at <a href="mailto:athhm@bsc.coop">athhm@bsc.coop</a>.</p>
+</div>
 </div>
 {% endblock %}
+
 {% block endscripts %}
+<script>
+$(document).ready(function() {
+	$('.navbar').css('margin-bottom', 0);
+	$('.alert').css('margin-top', 10)
+});
+</script>
 {% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+{% endblock %}
+
+{% block jumbotron %}
+<div class="container-fluid" style="height: 100%;">
+<div class="row" style="height: 100%;">
+<div class="col-md-12" style="padding: 0px; height: 100%">
+	<iframe id="big_frame" width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;geocode=&amp;q=2347+Prospect+Street,+Berkeley,+CA+94704&amp;aq=0&amp;oq=2347+prospect+street,+berkeley,+ca+947&amp;sll=37.868349,-122.249851&amp;sspn=0.081037,0.169086&amp;ie=UTF8&amp;hq=2347+Prospect+Street,+Berkeley,+CA+94704&amp;hnear=&amp;radius=15000&amp;t=m&amp;ll=37.868366,-122.249828&amp;spn=0.071946,0.071946&amp;output=embed"></iframe>
+</div>
+</div>
+</div>
+{% endblock %}
+
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+	$('html').css('height', $(window).height() - 51);
+	$('html').css('overflow', 'hidden');
+	$('#bottom').hide();
+	$('#body').parent().hide();
+	$('.navbar').css('margin-bottom', 0);
+	$(window).resize(function () {
+		$('html').css('height', $(window).height() - 51);
+	});
+});
+</script>
+{% endblock %}
