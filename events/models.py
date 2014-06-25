@@ -24,9 +24,10 @@ class Event(models.Model):
 	cancelled = models.BooleanField(default=False, help_text="Optional cancellation field.")
 	as_manager = models.ForeignKey(Manager, blank=True, null=True, on_delete=models.SET_NULL, help_text="The manager position this event is posted, if this is a manager event.")
 	rsvps = models.ManyToManyField(UserProfile, blank=True, null=True, help_text="The users who plan to attend this event.", related_name="rsvps")
+	public = models.BooleanField(default=False, help_text="Whether this event can be seen by non-members.")
 	
 	def __unicode__(self):
-		return "Event %s posted by %s" % (self.title, self.owner)
+		return self.title
 	
 	class Meta:
 		ordering = ['-start_time']	# could also do -start_time, -end_time, post_date but opting for the slight performance increase

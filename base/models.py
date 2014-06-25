@@ -10,6 +10,8 @@ from django.contrib.auth.models import User, Group, Permission
 
 from social.utils import setting_name
 
+from rooms.models import Room
+
 UID_LENGTH = getattr(settings, setting_name('UID_LENGTH'), 255)
 
 class UserProfile(models.Model):
@@ -18,8 +20,19 @@ class UserProfile(models.Model):
 	room numbers, and phone number.
 	'''
 	user = models.OneToOneField(User)
-	current_room = models.CharField(blank=True, null=True, max_length=100, help_text="User's current room number")
-	former_rooms = models.CharField(blank=True, null=True, max_length=100, help_text="List of user's former room numbers")
+	current_room = models.ForeignKey(
+        Room,
+        blank=True,
+        null=True,
+        help_text="User's current room number",
+        )
+	former_rooms = models.ManyToManyField(
+        Room,
+        blank=True,
+        null=True,
+        help_text="List of user's former room numbers",
+        related_name="former_rooms",
+        )
 	former_houses = models.CharField(blank=True, null=True, max_length=100, help_text="List of user's former BSC houses")
 	phone_number = models.CharField(blank=True, null=True, max_length=20, help_text="User's phone number")
 	email_visible = models.BooleanField(default=False, help_text="Whether the email is visible in the directory")
@@ -33,10 +46,10 @@ class UserProfile(models.Model):
 		(ALUMNUS, 'Alumna/Alumnus'),
 	)
 	status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=RESIDENT, help_text="Member status (resident, boarder, alumnus)")
-	
+
 	def __unicode__(self):
 		return self.user.get_full_name()
-	
+
 	def is_userprofile(self):
 		return True
 

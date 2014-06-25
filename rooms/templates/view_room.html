@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/view_room.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="table_container">
+  <div class="header">{% if can_edit %}
+	<form action="{% url 'rooms:edit' room_title=room.title %}" class="header_form">
+	  <button class="btn btn btn-primary"><span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit Room</span></button>
+	</form>
+	{% endif %}
+    <h3 class="table_title medium_title">{{ page_name }}</h3>
+  </div> <!-- .header -->
+  <div class="main_body">
+	<div>
+	  {{ room.description|safe }}
+	</div>
+	<p>Current residents:
+	  {% for person in residents %}{% if not forloop.first %}, {% endif %}<a title="View Profile" href="{% url 'member_profile' targetUsername=person.user.username %}">{{ person }}</a>{% endfor %}
+	</p>
+	<p>Total occupancy: {{ room.occupancy }}</p>
+  </div> <!-- .main_body -->
+</div> <!-- .table_container -->
+{% endblock %}

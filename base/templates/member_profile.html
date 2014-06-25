@@ -34,7 +34,7 @@
 				<dt>Current Room</dt>
 					<dd>{% if targetProfile.current_room %}{{ targetProfile.current_room }}{% else %}&nbsp;{% endif %}</dd>
 				<dt>Former Rooms</dt>
-					<dd>{% if targetProfile.former_rooms %}{{ targetProfile.former_rooms }}{% else %}&nbsp;{% endif %}</dd>
+					<dd>{% if targetProfile.former_rooms.all %}{{ targetProfile.former_rooms.all }}{% else %}&nbsp;{% endif %}</dd>
 				<dt>Other Houses</dt>
 					<dd>{% if targetProfile.former_houses %}{{ targetProfile.former_houses }}{% else %}&nbsp;{% endif %}</dd>
 				{% if targetProfile.email_visible %}

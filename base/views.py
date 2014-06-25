@@ -33,6 +33,7 @@ from managers.models import RequestType, Manager, Request, Response, Announcemen
 from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, UnpinForm
 from events.models import Event
 from events.forms import RsvpForm
+from rooms.models import Room
 
 try:
 	from farnsworth.settings import EMAIL_HOST_USER, EMAIL_BLACKLIST

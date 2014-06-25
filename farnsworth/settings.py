@@ -235,6 +235,7 @@ INSTALLED_APPS = (
 	'base',
 	'threads',
 	'events',
+	'rooms',
 	'managers',
 	'bootstrapform',
 	'haystack',
