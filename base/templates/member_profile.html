@@ -3,27 +3,26 @@
 {% load static from staticfiles %}
 {% load request_tags %}
 {% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_profile.css' %}" />
+<style>
+#profile_table {
+    font-size: 15px;
+    position: relative;
+    padding-top: 10px;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+</style>
 {% endblock %}
 
 {% block content %}
-	<div id="user_profile">
-		<div class="header">
-			{% if user.is_superuser and targetUser.username != ANONYMOUS_USERNAME and targetUser %}
-				<form class="header_form" action="{% url 'custom_modify_user' targetUsername=targetUser.username %}">
-					<button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs"> Edit</span></button>
-				</form>
-			{% endif %}
-			{% if targetUser %}
-			<h3 class="table_title{% if targetUser.username|longer_than:'1234567890123456' %} medium_title{% elif targetUser.username|longer_than:'123456890' %} small_title{% endif %}">
-				{{ targetUser.username }}'s Profile
-			{% else %}
-			<h3 class="table_title small_title">
-				User Not Found
-			{% endif %}
-			</h3>
-		</div> <!-- .header -->
+<div class="table_60 centered_table">
+{% if user.is_superuser and targetUser.username != ANONYMOUS_USERNAME and targetUser %}
+	<form class="pull-right" action="{% url 'custom_modify_user' targetUsername=targetUser.username %}">
+		<button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs"> Edit</span></button>
+	</form>
+{% endif %}
+<h1 class="w_title">{{ targetUser.username }}'s Profile</h1>
+<hr class="w_line" />
 		<div class="main_table">
 			<dl id="profile_table" class="dl-horizontal">
 				<dt>Name</dt>
@@ -54,7 +53,7 @@
 		<hr>
 		<div class="text-center">
 			<form action="{% url 'member_directory' %}">
-				<button id="member_directory" type="submit" class="btn btn-lg btn-info"><span class="glyphicon glyphicon-book"></span> Member Directory</button>
+				<button id="member_directory" type="submit" class="btn btn-info"><span class="glyphicon glyphicon-book"></span> Member Directory</button>
 			</form>
 		</div>
 		</div> <!-- .main_table -->
