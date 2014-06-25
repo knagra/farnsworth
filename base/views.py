@@ -17,7 +17,7 @@ from django.utils.timezone import utc
 from datetime import datetime, timedelta
 
 from farnsworth.settings import HOUSE_NAME, SHORT_HOUSE_NAME, ADMINS, \
-	 home_max_announcements, home_max_threads, SEND_EMAILS
+	 announcement_life, home_max_threads, SEND_EMAILS
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
 	APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
 	SUBMISSION_EMAIL
@@ -108,17 +108,18 @@ def homepage_view(request, message=None):
 			requests_dict.append((request_type, requests_list))
 	announcement_form = None
 	announcements_dict = list() # Pseudo-dictionary, list with items of form (announcement, announcement_unpin_form)
-	announcements = Announcement.objects.filter(pinned=True)
-	x = 0 # Number of announcements loaded
-	for a in announcements:
+	for a in Announcement.objects.filter(pinned=True):
 		unpin_form = None
-		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
+		if request.user.is_superuser or (a.manager.incumbent == userProfile):
 			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
 		announcements_dict.append((a, unpin_form))
-		x += 1
-		if x >= home_max_announcements:
-			break
 	now = datetime.utcnow().replace(tzinfo=utc)
+	within_life = now - timedelta(days=announcement_life) # Oldest genesis of an unpinned announcement to be displayed.
+	for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
+		unpin_form = None
+		if request.user.is_superuser or (a.manager.incumbent == userProfile):
+			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
+		announcements_dict.append((a, unpin_form))
 	week_from_now = now + timedelta(days=7)
 	# Get only next 7 days of events:
 	events_list = Event.objects.all().exclude(start_time__gte=week_from_now).exclude(end_time__lte=now)
