@@ -187,7 +187,11 @@ function hide_form(form_id) {
 					<form class="pull-right" method="post" action="">
 						{% csrf_token %}
 						{{ tuple.1 }}
-						<button type="submit" class="main_link warning_link" name="unpin" title="Unpin this announcement">Unpin</button>
+						{% if tuple.0.pinned %}
+						<button type="submit" class="main_link warning_link" name="unpin" title="Unpin from homepage">Unpin</button>
+						{% else %}
+						<button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
+						{% endif %}
 					</form>
 					<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=tuple.0.pk %}">
 						<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>

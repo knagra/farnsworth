@@ -16,8 +16,6 @@ from django.utils.timezone import utc
 
 from datetime import datetime, timedelta
 
-from farnsworth.settings import HOUSE_NAME, SHORT_HOUSE_NAME, ADMINS, \
-	 home_max_announcements, home_max_threads, SEND_EMAILS
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
 	APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
 	SUBMISSION_EMAIL
@@ -33,11 +31,6 @@ from managers.models import RequestType, Manager, Request, Response, Announcemen
 from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, UnpinForm
 from events.models import Event
 from events.forms import RsvpForm
-
-try:
-	from farnsworth.settings import EMAIL_HOST_USER, EMAIL_BLACKLIST
-except ImportError:
-	EMAIL_HOST_USER, EMAIL_BLACKLIST = None, None
 
 def add_context(request):
 	''' Add variables to all dictionaries passed to templates. '''
@@ -59,10 +52,10 @@ def add_context(request):
 		request_types.append((request_type, Request.objects.filter(request_type=request_type, filled=False, closed=False).count()))
 	return {
 		'REQUEST_TYPES': request_types,
-		'HOUSE': HOUSE_NAME,
-		'ANONYMOUS_USERNAME':ANONYMOUS_USERNAME,
-		'SHORT_HOUSE': SHORT_HOUSE_NAME,
-		'ADMIN': ADMINS[0],
+		'HOUSE': settings.HOUSE_NAME,
+		'ANONYMOUS_USERNAME': ANONYMOUS_USERNAME,
+		'SHORT_HOUSE': settings.SHORT_HOUSE_NAME,
+		'ADMIN': settings.ADMINS[0],
 		'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
 		'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
 		'PRESIDENT': PRESIDENT,
@@ -107,17 +100,19 @@ def homepage_view(request, message=None):
 			requests_dict.append((request_type, requests_list))
 	announcement_form = None
 	announcements_dict = list() # Pseudo-dictionary, list with items of form (announcement, announcement_unpin_form)
-	announcements = Announcement.objects.filter(pinned=True)
-	x = 0 # Number of announcements loaded
-	for a in announcements:
+	for a in Announcement.objects.filter(pinned=True):
 		unpin_form = None
-		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
+		if request.user.is_superuser or (a.manager.incumbent == userProfile):
 			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
 		announcements_dict.append((a, unpin_form))
-		x += 1
-		if x >= home_max_announcements:
-			break
 	now = datetime.utcnow().replace(tzinfo=utc)
+    # Oldest genesis of an unpinned announcement to be displayed.
+	within_life = now - timedelta(days=settings.ANNOUNCEMENT_LIFE)
+	for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
+		unpin_form = None
+		if request.user.is_superuser or (a.manager.incumbent == userProfile):
+			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
+		announcements_dict.append((a, unpin_form))
 	week_from_now = now + timedelta(days=7)
 	# Get only next 7 days of events:
 	events_list = Event.objects.all().exclude(start_time__gte=week_from_now).exclude(end_time__lte=now)
@@ -150,7 +145,7 @@ def homepage_view(request, message=None):
 		profile=userProfile,
 		)
 	thread_set = [] # List of with items of form (thread, most_recent_message_in_thread)
-	for thread in Thread.objects.all()[:home_max_threads]:
+	for thread in Thread.objects.all()[:settings.HOME_MAX_THREADS]:
 		try:
 			latest_message = Message.objects.filter(thread=thread).latest('post_date')
 		except Message.DoesNotExist:
@@ -401,12 +396,12 @@ def request_profile_view(request):
 		else:
 			form.save()
 			messages.add_message(request, messages.SUCCESS, MESSAGES['PROFILE_SUBMITTED'])
-			if SEND_EMAILS and (email not in EMAIL_BLACKLIST):
-				submission_subject = SUBMISSION_SUBJECT.format(house=HOUSE_NAME)
-				submission_email = SUBMISSION_EMAIL.format(house=HOUSE_NAME, full_name=first_name + " " + last_name, admin_name=ADMINS[0][0],
-					admin_email=ADMINS[0][1])
+			if settings.SEND_EMAILS and (email not in settings.EMAIL_BLACKLIST):
+				submission_subject = SUBMISSION_SUBJECT.format(house=settings.HOUSE_NAME)
+				submission_email = SUBMISSION_EMAIL.format(house=settings.HOUSE_NAME, full_name=first_name + " " + last_name, admin_name=settings.ADMINS[0][0],
+					admin_email=settings.ADMINS[0][1])
 				try:
-					send_mail(submission_subject, submission_email, EMAIL_HOST_USER, [email], fail_silently=False)
+					send_mail(submission_subject, submission_email, settings.EMAIL_HOST_USER, [email], fail_silently=False)
 					# Add logging here
 				except SMTPException:
 					pass # Add logging here
@@ -448,12 +443,12 @@ def modify_profile_request_view(request, request_pk):
 			})
 	addendum = ""
 	if 'delete_request' in request.POST:
-		if SEND_EMAILS and (profile_request.email not in EMAIL_BLACKLIST):
-			deletion_subject = DELETION_SUBJECT.format(house=HOUSE_NAME)
-			deletion_email = DELETION_EMAIL.format(house=HOUSE_NAME, full_name=profile_request.first_name + " " + profile_request.last_name,
-				admin_name=ADMINS[0][0], admin_email=ADMINS[0][1])
+		if settings.SEND_EMAILS and (profile_request.email not in settings.EMAIL_BLACKLIST):
+			deletion_subject = DELETION_SUBJECT.format(house=settings.HOUSE_NAME)
+			deletion_email = DELETION_EMAIL.format(house=settings.HOUSE_NAME, full_name=profile_request.first_name + " " + profile_request.last_name,
+				admin_name=settings.ADMINS[0][0], admin_email=settings.ADMINS[0][1])
 			try:
-				send_mail(deletion_subject, deletion_email, EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
+				send_mail(deletion_subject, deletion_email, settings.EMAIL_HOST_USER, [profile_request.email], fail_silently=False)
 				addendum = MESSAGES['PROFILE_REQUEST_DELETION_EMAIL'].format(full_name=profile_request.first_name + ' ' + profile_request.last_name,
 					email=profile_request.email)
 			except SMTPException as e:
@@ -465,8 +460,8 @@ def modify_profile_request_view(request, request_pk):
 		return HttpResponseRedirect(reverse('manage_profile_requests'))
 	if mod_form.is_valid():
 		new_user = mod_form.save(profile_request)
-		if new_user.is_active and SEND_EMAILS and (new_user.email not in EMAIL_BLACKLIST):
-			approval_subject = APPROVAL_SUBJECT.format(house=HOUSE_NAME)
+		if new_user.is_active and settings.SEND_EMAILS and (new_user.email not in settings.EMAIL_BLACKLIST):
+			approval_subject = APPROVAL_SUBJECT.format(house=settings.HOUSE_NAME)
 			if profile_request.provider:
 				username_bit = profile_request.provider.title()
 			elif new_user.username == profile_request.username:
@@ -474,10 +469,10 @@ def modify_profile_request_view(request, request_pk):
 			else:
 				username_bit = "the username %s and the password you selected" % new_user.username
 			login_url = request.build_absolute_uri(reverse('login'))
-			approval_email = APPROVAL_EMAIL.format(house=HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=ADMINS[0][0],
-				admin_email=ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
+			approval_email = APPROVAL_EMAIL.format(house=settings.HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=settings.ADMINS[0][0],
+				admin_email=settings.ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
 			try:
-				send_mail(approval_subject, approval_email, EMAIL_HOST_USER, [new_user.email], fail_silently=False)
+				send_mail(approval_subject, approval_email, settings.EMAIL_HOST_USER, [new_user.email], fail_silently=False)
 				addendum = MESSAGES['PROFILE_REQUEST_APPROVAL_EMAIL'].format(full_name="{0} {1}".format(new_user.first_name, new_user.last_name),
 					email=new_user.email)
 			except SMTPException as e:

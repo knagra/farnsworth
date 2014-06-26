@@ -4,6 +4,8 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from datetime import datetime, timedelta
+
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -11,8 +13,9 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.contrib import messages
+from django.conf import settings
+from django.utils.timezone import utc
 
-from farnsworth.settings import max_requests
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from base.decorators import admin_required, profile_required, president_admin_required
 from base.models import UserProfile
@@ -241,7 +244,7 @@ def requests_view(request, requestType):
 			)
 		requests_dict.append((req, request_responses, resp_form, upvote, vote_form))
 		x += 1
-		if x >= max_requests:
+		if x >= settings.MAX_REQUESTS:
 			break
 	return render_to_response('requests.html', {
 			'manager': manager,
@@ -494,16 +497,23 @@ def announcements_view(request):
 	if announcement_form and announcement_form.is_valid():
 		announcement_form.save()
 		return HttpResponseRedirect(reverse('announcements'))
-	announcements = Announcement.objects.filter(pinned=True)
 	# A pseudo-dictionary, actually a list with items of form:
 	# (announcement, announcement_unpin_form)
 	announcements_dict = list()
-	for a in announcements:
+	for a in Announcement.objects.filter(pinned=True):
 		unpin_form = None
 		if (a.manager.incumbent == userProfile) or request.user.is_superuser:
 			unpin_form = UnpinForm(initial={
 					'announcement_pk': a.pk,
 					})
+		announcements_dict.append((a, unpin_form))
+	now = datetime.utcnow().replace(tzinfo=utc)
+    # Oldest genesis of an unpinned announcement to be displayed.
+	within_life = now - timedelta(days=settings.ANNOUNCEMENT_LIFE)
+	for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
+		unpin_form = None
+		if request.user.is_superuser or (a.manager.incumbent == userProfile):
+			unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
 		announcements_dict.append((a, unpin_form))
 	return render_to_response('announcements.html', {
 			'page_name': page_name,

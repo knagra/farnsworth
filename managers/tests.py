@@ -7,6 +7,7 @@ Replace this with more appropriate tests for your application.
 
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 
 from datetime import datetime
@@ -649,7 +650,10 @@ class TestAnnouncements(TestCase):
 
 		self.assertEqual(new_body, Announcement.objects.get(pk=self.a.pk).body)
 
+	@override_settings(ANNOUNCEMENT_LIFE=0)
 	def test_unpin(self):
+		self.a.pinned = True
+		self.a.save()
 		response = self.client.post("/announcements/", {
 				"announcement_pk": self.a.pk,
 				"unpin": "",
@@ -670,7 +674,10 @@ class TestAnnouncements(TestCase):
 		response = self.client.get("/announcements/{0}/edit/".format(self.a.pk))
 		self.assertEqual(response.status_code, 200)
 
+	@override_settings(ANNOUNCEMENT_LIFE=0)
 	def test_unpin_individual(self):
+		self.a.pinned = True
+		self.a.save()
 		url = "/announcements/{0}/".format(self.a.pk)
 		response = self.client.post(url, {
 				"unpin": "",
