@@ -34,7 +34,7 @@
 {% endfor %}
 </tbody>
 </table>
-<br />
+{% if boarders or alumni %}<br />{% endif %}
 {% endif %}
 
 {% if boarders %}
@@ -70,7 +70,7 @@
     </tbody>
     </table> <!-- #boarders_table -->
 </div> <!-- .main_table -->
-<br />
+{% if alumni %}<br />{% endif %}
 {% endif %}
 
 {% if alumni %}
