@@ -2,7 +2,7 @@
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 
-alphanumeric = RegexValidator(r'^[0-9A-Z]+$', 'Only uppercase alphanumeric characters are allowed.')
+alphanumeric = RegexValidator(r'^[0-9A-Za-z]+$', 'Only alphanumeric characters are allowed.')
 
 class Room(models.Model):
 	title = models.CharField(
