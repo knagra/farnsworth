@@ -67,7 +67,7 @@
 	<div class="list-group" style="margin-left: 10px; margin-right: 10px;">
 	{% for datum in facets.fields.exact_status %}
 	{% if datum.0 %}
-		<a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_status:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{% if datum.0 = 'R' %}Resident{% elif datum.0 = 'B' %}Boarder{% elif datum.0 = 'U' %}Alumnus{% else %}Unknown Status{% endif %}</a>
+		<a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_status:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{% if datum.0 = 'R' %}Resident{% elif datum.0 = 'B' %}Boarder{% elif datum.0 = 'A' %}Alumnus{% else %}Unknown Status{% endif %}</a>
 	{% endif %}
 	{% endfor %}
 	</div>
