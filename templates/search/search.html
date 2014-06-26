@@ -77,6 +77,9 @@
 	<button type="button" class="btn btn-default" onclick="hide_facets()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
 </div>
 </div> <!-- #facets_container -->
+{% if not page.object_list %}
+	<div class="field_wrapper">No results found.</div>
+{% else %}
 <div class="results_container bordered_div">
 {% for result in page.object_list %}
 	{% if forloop.counter > 1 %}
@@ -101,8 +104,6 @@
 		{% include "search/event.html" %}
 	{% endif %}
 	</div> <!-- .hover_row -->
-{% empty %}
-	<div class="field_wrapper">No results found.</div>
 {% endfor %}
 
 {% if page.has_previous or page.has_next %}
@@ -113,6 +114,7 @@
 	</div> <!-- text-center" -->
 {% endif %}
 </div> <!-- .results_container -->
+{% endif %}
 </div> <!-- .table_container -->
 {% endif %}
 {% endblock %}
