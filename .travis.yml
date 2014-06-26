@@ -1,6 +1,5 @@
 language: python
 python:
-  - "2.5"
   - "2.6"
   - "2.7"
 
@@ -11,7 +10,7 @@ install:
 
 # command to run tests
 script:
-  - coverage run --source=base,threads,events,managers python setup.py test
+  - coverage run --source=base,threads,events,managers setup.py test
 
 # command to notify coveralls
 after_success:
