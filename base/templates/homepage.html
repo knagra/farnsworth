@@ -250,11 +250,11 @@ function hide_form(form_id) {
     </form>
 	<h1 class="w_title">Week's Events</h1>
 	<hr class="w_line" />
-	<div class="bordered_div">
 	{% if not events_dict %}
 	<div class="field_wrapper">
 		No events in next 7 days.
 	</div>
+	<div class="bordered_div">
 	{% else %}
 	{% for tuple in events_dict %}
 	{% if forloop.counter > 1 %}
