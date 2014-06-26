@@ -4,21 +4,17 @@
 {% load thread_tags %}
 {% load bootstrap %}
 {% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/requests.css' %}" />
 {% endblock %}
 
 {% block content %}
-<div class="requests table_container">
-  <div class="header">
-    <form action="{% url 'list_all_requests' requestType=relevant_request.request_type.url_name %}">
-	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-{% if relevant_request.request_type.glyphicon %}{{ relevant_request.request_type.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> List All Requests</span></button>
-	</form>
-    <h3 class="table_title">{{ page_name }}</h3>
-  </div> <!-- table_header -->
-  <div class="requests_table main_table">
+<div class="requests">
+<form action="{% url 'list_all_requests' requestType=relevant_request.request_type.url_name %}" class="pull-right">
+	<button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if relevant_request.request_type.glyphicon %}{{ relevant_request.request_type.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> List All Requests</span></button>
+</form>
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+  <div class="requests_table bordered_div">
 	{% if relevant_managers %}
     <div class="field_wrapper text-info">{{ relevant_request.request_type.name.capitalize }} requests are made to:
 		{% for pos in relevant_managers %}

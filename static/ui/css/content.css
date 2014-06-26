@@ -46,9 +46,9 @@ form > .form-group {
     margin-bottom: 5px;
 }
 
-.main_table {
-	overflow-x: auto;
-    margin: 0px auto;
+.line_75 {
+    text-align: center;
+    width: 75%;
 }
 
 .centered_table {

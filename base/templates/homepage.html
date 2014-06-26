@@ -5,11 +5,7 @@
 {% load thread_tags %}
 {% load request_tags %}
 {% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/homepage.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <script>
 function show_new_response_form(response_form_id, button_id) {
 	document.getElementById(response_form_id).style.display="inline";
@@ -32,18 +28,15 @@ function hide_form(form_id) {
 {% for type_tuple in requests_dict %}
 {% with x=forloop.counter|stringformat:"s" %}
 {% if type_tuple.1 %}
-<div class="row" style="margin-bottom: 10px;">
+<div class="row" style="margin-bottom: 20px;">
 <div class="col-lg-12">
-<div class="requests table_container">
-	<div class="header">
-		<form style="display: inline-block; position: relative; top: -3px; float: right; margin-right: 3px;" action="{% url 'requests' requestType=type_tuple.0.url_name %}">
-			<button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> Requests Page</span></button>
-		</form>
-		<h3 class="table_title{% if type_tuple.0.name|longer_than:'1234567890123456789012' %} large_title{% elif type_tuple.0.name|longer_than:'123456789012345' %} medium_title{% elif type_tuple.0.name|longer_than:'1234567' %} small_title{% endif %}">
-			{{ type_tuple.0.name }} Requests
-		</h3>
-	</div>
-	<div class="main_table">
+<div class="requests">
+    <form class="pull-right" action="{% url 'requests' requestType=type_tuple.0.url_name %}">
+        <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> Requests Page</span></button>
+    </form>
+    <h1 class="w_title">{{ type_tuple.0.name }} Requests</h1>
+    <hr class="w_line" />
+	<div class="bordered_div">
     <div class="field_wrapper text-info">You hold a manager position responsible for addressing these requests.</div>
 	{% for request_tuple in type_tuple.1 %}
 	{% if forloop.counter > 1 %}
@@ -140,82 +133,75 @@ function hide_form(form_id) {
 
 <div class="row">
 <div class="col-md-12">
-<div class="announcements table_container">
-	<div class="header">
-		{% if announcement_form %}
-		<button class="btn btn-primary header_button" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
-		{% endif %}
-		<h3 class="table_title small_title">
-			Recent Announcements
-		</h3>
-	</div>
-	<div class="main_table">
-		{% if announcement_form %}
-		<form id="new_announcement_form" class="main_form" method="post" action="">
-			{% csrf_token %}
-			<div class="form-group">
-				<label class="control-label" for="id_as_manager">As Manager</label>
-				{{ announcement_form.manager }}
-			</div>
-			<div class="form-group">
-				<label class="control-label" for="id_announcement_body">Body</label>
-				<textarea id="id_announcement_body" name="body"></textarea>
-			</div>
-			<div class="text-center">
-			<div class="btn-group">
-				<button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
-				<button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_form('new_announcement_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-			</div> <!-- .btn-group -->
-			</div> <!-- .text-center -->
-		</form>
-		{% endif %}
-		{% if not announcements_dict %}
-			<div class="field_wrapper">No recent announcements.</div>
-		{% else %}
-		{% for tuple in announcements_dict %}
-			{% if forloop.counter > 1 %}
-				<hr class="main_divider" />
-			{% endif %}
-			<div class="main_row hover_row">
-			<div class="announcement_owner">
-				<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
-				(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">{{ tuple.0.incumbent|display_user:user }}</a>),
-				{{ tuple.0.post_date }}:
-			</div> <!-- .announcement_owner -->
-			<div class="announcement_body">{{ tuple.0.body|safe }}
-				{% if tuple.1 %}
-					<form class="pull-right" method="post" action="">
-						{% csrf_token %}
-						{{ tuple.1 }}
-						{% if tuple.0.pinned %}
-						<button type="submit" class="main_link warning_link" name="unpin" title="Unpin from homepage">Unpin</button>
-						{% else %}
-						<button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
-						{% endif %}
-					</form>
-					<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=tuple.0.pk %}">
-						<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
-					</form>
-				{% endif %}
-			</div>
-			</div> <!-- .announcement_row -->
-		{% endfor %}
-		{% endif %}
-	</div>
+<div class="announcements">
+    {% if announcement_form %}
+    <button class="btn btn-primary pull-right" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+    {% endif %}
+    <h1 class="w_title">Recent Announcements</h1>
+    <hr class="w_line" />
+    {% if announcement_form %}
+    <form id="new_announcement_form" class="main_form" method="post" action="">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="control-label" for="id_as_manager">As Manager</label>
+            {{ announcement_form.manager }}
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="id_announcement_body">Body</label>
+            <textarea id="id_announcement_body" name="body"></textarea>
+        </div>
+        <div class="text-center">
+        <div class="btn-group">
+            <button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
+            <button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_form('new_announcement_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+        </div> <!-- .btn-group -->
+        </div> <!-- .text-center -->
+    </form>
+    {% endif %}
+    <div class="bordered_div">
+    {% if not announcements_dict %}
+        <div class="field_wrapper">No recent announcements.</div>
+    {% else %}
+    {% for tuple in announcements_dict %}
+        {% if forloop.counter > 1 %}
+            <hr class="main_divider" />
+        {% endif %}
+        <div class="main_row hover_row">
+        <div class="announcement_owner">
+            <a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
+            (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">{{ tuple.0.incumbent|display_user:user }}</a>),
+            {{ tuple.0.post_date }}:
+        </div> <!-- .announcement_owner -->
+        <div class="announcement_body">{{ tuple.0.body|safe }}
+            {% if tuple.1 %}
+                <form class="pull-right" method="post" action="">
+                    {% csrf_token %}
+                    {{ tuple.1 }}
+                    {% if tuple.0.pinned %}
+                    <button type="submit" class="main_link warning_link" name="unpin" title="Unpin from homepage">Unpin</button>
+                    {% else %}
+                    <button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
+                    {% endif %}
+                </form>
+                <form class="pull-right" action="{% url 'edit_announcement' announcement_pk=tuple.0.pk %}">
+                    <button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
+                </form>
+            {% endif %}
+        </div>
+        </div> <!-- .announcement_row -->
+    {% endfor %}
+    {% endif %}
+    </div>
 </div> <!-- .announcements -->
 </div> <!-- .col-md-12 -->
 </div> <!-- .row -->
 
 <div class="row">
-<div class="col-lg-7" style="margin-top: 10px;">
-<div class="threads table_container">
-	<div class="header">
-		<button class="btn btn-primary header_button" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
-		<h3 class="table_title">
-			Recent Threads
-		</h3>
-	</div> <!-- .header -->
-	<div class="main_table">
+<div class="col-lg-7" style="margin-top: 20px;">
+<div class="threads">
+    <button class="btn btn-primary pull-right" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
+    <h1 class="w_title">Recent Threads</h1>
+    <hr class="w_line" />
 	<form id="new_thread_form" method="post" action="">
 		{% csrf_token %}
 		<div class="form-group">
@@ -254,21 +240,17 @@ function hide_form(form_id) {
     </tbody>
   </table>
   {% endif %}
-  </div> <!-- .main_table -->
 </div> <!-- .threads -->
 </div> <!-- .col-lg-7 -->
 
-<div class="col-lg-5" style="margin-top: 10px;">
-<div class="table_container events">
-	<div class="header">
-		<form action="{% url 'events:list' %}">
-		<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-calendar"></span><span class="hidden-xs"> Events Page</span></button>
-		</form>
-		<h3 class="table_title">
-			Week's Events
-		</h3>
-	</div> <!-- .header -->
-	<div class="main_table">
+<div class="col-lg-5" style="margin-top: 20px;">
+<div class="events">
+    <form action="{% url 'events:list' %}" class="pull-right">
+        <button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-calendar"></span><span class="hidden-xs"> Events Page</span></button>
+    </form>
+	<h1 class="w_title">Week's Events</h1>
+	<hr class="w_line" />
+	<div class="bordered_div">
 	{% if not events_dict %}
 	<div class="field_wrapper">
 		No events in next 7 days.
@@ -327,7 +309,7 @@ function hide_form(form_id) {
 	</div> <!-- .main_row -->
 	{% endfor %}
 	{% endif %}
-	</div> <!-- .main_table -->
+	</div> <!-- .bordered_div -->
 </div> <!-- .events -->
 </div> <!-- .col-lg-5 -->
 </div> <!-- .row -->

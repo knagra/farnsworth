@@ -4,9 +4,6 @@
 {% load thread_tags %}
 {% load request_tags %}
 {% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/my_requests.css' %}" />
 <script>
   function show_new_request_form(request_form_id) {
@@ -46,19 +43,19 @@
     <div class="form-group">
       <label for="id_body">New {{ type_tuple.0.name }} Request</label>
       <textarea name="body"></textarea>
-      <div class="text-center">
-      <div class="btn-group">
-      <button type="submit" class="btn btn-success" name="submit_request"><span class="glyphicon glyphicon-inbox"></span> Submit Request</button>
-      <button type="button" class="btn btn-default" name="cancel_request_form" onclick="hide_new_request_form('{{ request_form_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-      </div>
-      </div>
     </div>
+    <div class="text-center">
+    <div class="btn-group">
+        <button type="submit" class="btn btn-success" name="submit_request"><span class="glyphicon glyphicon-inbox"></span> Submit Request</button>
+        <button type="button" class="btn btn-default" name="cancel_request_form" onclick="hide_new_request_form('{{ request_form_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+    </div> <!-- .btn-group -->
+    </div> <!-- .text-center -->
   </form>
   {% else %}
   <div class="field_wrapper text-danger">This request type has been disabled.</div>
   {% endif %}
   {% endwith %}
-  <div class="requests_table">
+  <div class="requests_table bordered_div">
 	{% if type_tuple.4 %}
     <div class="field_wrapper text-info">{{ type_tuple.0.name.capitalize }} requests are made to:
 		{% for pos in type_tuple.4 %}
@@ -133,8 +130,8 @@
 	      <div class="btn-group">
 	      <button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-send"></span> Post Message</button>
 	      <button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-	      </div>
-	      </div>
+	      </div> <!-- .btn-group -->
+	      </div> <!-- .text-center -->
 	    </form>
 	    {% endwith %}
 	    {% endwith %}

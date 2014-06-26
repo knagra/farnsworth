@@ -21,6 +21,9 @@
 	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:300,400,700" />
 	<link type="text/css" rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/dark.min.css" />
     <link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
+    <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
     {% block headers %} {% endblock %}
 </head>
 <body id="html_body">
@@ -172,6 +175,8 @@
     <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 	<script>
 	<!-- Add highlight.js to pre blocks -->
 		$(document).ready(function(){

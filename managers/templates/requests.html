@@ -4,9 +4,6 @@
 {% load thread_tags %}
 {% load request_tags %}
 {% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/requests.css' %}" />
 {% endblock %}
 
@@ -27,7 +24,7 @@
   document.getElementById(button_id).style.display="inline";
   }
 </script>
-<div class="requests table_container">
+<div class="requests">
 <button type="button" class="btn btn-primary pull-right" onclick="show_new_request_form()"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
 <h1 class="w_title">Recent {{ request_type|title }} Requests</h1>
 <hr class="w_line" />
@@ -45,7 +42,7 @@
       </div> <!-- .text-center -->
   </form>
 
-  <div class="requests_table">
+  <div class="requests_table bordered_div">
 	{% if relevant_managers %}
     <div class="field_wrapper text-info">{{ request_type.capitalize }} requests are made to:
 		{% for pos in relevant_managers %}

@@ -2,11 +2,6 @@
 
 {% load static from staticfiles %}
 {% load bootstrap %}
-{% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
-{% endblock %}
 
 {% block content %}
 <h1 class="w_title">Edit Announcement</h1>
@@ -25,8 +20,6 @@
 {% endblock %}
 
 {% block endscripts %}
-<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript">
   $(function(){$("#id_start_time").datetimepicker();});
   $(function(){$("#id_end_time").datetimepicker();});

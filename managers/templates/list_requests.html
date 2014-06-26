@@ -6,7 +6,7 @@
 {% block content %}
 {% if page_name == 'My Requests' %}
     <form action="{% url 'my_requests' %}" class="pull-right">
-    <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-th-large"></span><span class="hidden-xs"> Expanded View</span></button>
+    <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-fullscreen"></span><span class="hidden-xs"> Expanded View</span></button>
     </form>
 {% elif request_type.enabled %}
     <form action="{% url 'requests' requestType=request_type.url_name %}" class="pull-right">

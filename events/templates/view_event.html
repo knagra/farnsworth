@@ -4,9 +4,6 @@
 {% load bootstrap %}
 {% load thread_tags %}
 {% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <script>
   function show_new_event_form() {
   document.getElementById("new_event_form").style.display="inline";
@@ -18,15 +15,14 @@
 {% endblock %}
 
 {% block content %}
-<div class="table_container">
-  <div class="header">{% if can_edit %}
-	<form action="{% url 'events:edit' event_pk=event.pk %}" class="header_form">
-	  <button class="btn btn btn-primary"><span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span></button>
-	</form>
-	{% endif %}
-    <h3 class="table_title medium_title">{{ page_name }}</h3>
-  </div> <!-- .header -->
-  <div class="main_body hover_row{% if event.cancelled %} bg-danger" title="Cancelled{% elif ongoing %} bg-success" title="Happening Now{% elif event.as_manager %} bg-info" title="Official House Event{% endif %}">
+{% if can_edit %}
+<form action="{% url 'events:edit' event_pk=event.pk %}" class="pull-right">
+  <button class="btn btn btn-primary"><span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span></button>
+</form>
+{% endif %}
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+  <div class="bordered_div hover_row{% if event.cancelled %} bg-danger" title="Cancelled{% elif ongoing %} bg-success" title="Happening Now{% elif event.as_manager %} bg-info" title="Official House Event{% endif %}">
   <div class="event_owner" style="padding-left: 5px;">
 	{% if event.as_manager %}
 	<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=event.as_manager.url_title %}">{{ event.as_manager }}</a>
@@ -77,6 +73,5 @@
 	{% endif %}
 	</div> <!-- .pull-right -->
   </div> <!-- .event_body -->
-  </div> <!-- .main_body -->
-</div> <!-- .table_container -->
+  </div> <!-- .bordered_div -->
 {% endblock %}

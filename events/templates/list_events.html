@@ -4,11 +4,7 @@
 {% load bootstrap %}
 {% load thread_tags %}
 {% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/list_events.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
 <script>
 	function show_new_event_form() {
 		document.getElementById("new_event_form").style.display="inline";
@@ -20,83 +16,86 @@
 {% endblock %}
 
 {% block content %}
-<div class="table_container">
-	<div class="header"><button class="btn btn-primary add_event" onclick="show_new_event_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Event</span></button>
-		<h3 class="table_title small_title">{{ page_name }}</h3>
-	</div> <!-- .header -->
-	<div class="events_table main_table">
-		<form id="new_event_form" method="post" action="">
-			{% csrf_token %}
-			<div class="form-group">
-				{{ event_form|bootstrap }}
-				<div class="text-center">
-				<div class="btn-group">
-					<button type="submit" class="btn btn-success" name="post_event"><span class="glyphicon glyphicon-plus-sign"></span> Add Event</button>
-					<button type="button" class="btn btn-default" name="cancel_event" onclick="hide_new_event_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-				</div> <!-- .btn-group -->
-				</div> <!-- .text-center -->
-			</div> <!-- .form-group -->
-		</form>
-	{% if not events_dict %}
-	<div class="field_wrapper text-info">No events found.</div>
-	{% else %}
-	{% for event_tuple in events_dict %}
-		{% if forloop.counter > 1 %}
-		<hr class="main_divider"/>
-		{% endif %}
-		<div class="event_row hover_row{% if event_tuple.0.cancelled %} bg-danger" title="Cancelled{% elif event_tuple.1 %} bg-success" title="Happening Now{% elif event_tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
-		<div class="event_owner">
-		{% if event_tuple.0.as_manager %}
-			<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=event_tuple.0.as_manager.url_title %}">{{ event_tuple.0.as_manager }}</a>
-			(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>), {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
-		{% else %}
-			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>, {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
-		{% endif %}
-		</div> <!-- .event_owner -->
-		<div class="event_body">
-			<div class="text-center">
-				<h3 class="event_header">{{ event_tuple.0.title }}{% if event_tuple.0.cancelled %}
-					<small class="text-danger">CANCELLED</small>{% endif %}
-				<br />
-				<small>{{ event_tuple.0.location }}</small>
-				<br />
-				<small>{{ event_tuple.0.start_time }} to {{ event_tuple.0.end_time }}</small></h3>
-				<hr style="width: 75%;">
-			</div>
-			{{ event_tuple.0.description|safe }}
-			<hr style="width: 75%;" />
-			{% if event_tuple.0.rsvps.all %}
-				RSVPs: {% for member in event_tuple.0.rsvps.all %}{% if forloop.counter > 1 %},
-					{% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
-			{% else %}
-				No RSVPs.
-			{% endif %}
-			<div class="pull-right">
-			{% if user.username != ANONYMOUS_USERNAME %}
-			<form class="pull-right" method="post" action="">
-				{% csrf_token %}
-					{{ event_tuple.3 }}
-					{% if not event_tuple.4 %}
-					{% if event_tuple.2 %}
-						<button type="submit" class="main_link warning_link" name="rsvp" title="Remove yourself from the RSVPs for this event">Un-RSVP</button>
-					{% else %}
-						<button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
-					{% endif %}
-					{% endif %}
-			</form>
-			{% endif %}
-			{% if event_tuple.0.owner.user == user or user.is_superuser %}
-				<form class="pull-right" action="{% url 'events:edit' event_pk=event_tuple.0.pk %}">
-					<button class="main_link primary_link" title="Edit this event">Edit</button>
-				</form>
-			{% endif %}
-			</div> <!-- .pull-right -->
-		</div> <!-- .event_body -->
-		</div> <!-- .event_row -->
-	{% endfor %}
-	{% endif %}
-	</div> <!-- .events_table -->
+<button class="btn btn-primary pull-right" onclick="show_new_event_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Event</span></button>
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+<div class="events_table bordered_div">
+    <form id="new_event_form" method="post" action="">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ event_form|bootstrap }}
+            <div class="text-center">
+            <div class="btn-group">
+                <button type="submit" class="btn btn-success" name="post_event"><span class="glyphicon glyphicon-plus-sign"></span> Add Event</button>
+                <button type="button" class="btn btn-default" name="cancel_event" onclick="hide_new_event_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+            </div> <!-- .btn-group -->
+            </div> <!-- .text-center -->
+        </div> <!-- .form-group -->
+    </form>
+{% if not events_dict %}
+<div class="field_wrapper text-info">No events found.</div>
+{% else %}
+{% for event_tuple in events_dict %}
+    {% if forloop.counter > 1 %}
+    <hr class="main_divider"/>
+    {% endif %}
+    <div class="event_row hover_row{% if event_tuple.0.cancelled %} bg-danger" title="Cancelled{% elif event_tuple.1 %} bg-success" title="Happening Now{% elif event_tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
+    <div class="event_owner">
+    {% if event_tuple.0.as_manager %}
+        <a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=event_tuple.0.as_manager.url_title %}">{{ event_tuple.0.as_manager }}</a>
+        (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>), {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
+    {% else %}
+        <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>, {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
+    {% endif %}
+    </div> <!-- .event_owner -->
+    <div class="event_body">
+        <div class="text-center">
+            <h3 class="event_header">{{ event_tuple.0.title }}{% if event_tuple.0.cancelled %}
+                <small class="text-danger">CANCELLED</small>{% endif %}
+            <br />
+            <small>{{ event_tuple.0.location }}</small>
+            <br />
+            <small>{{ event_tuple.0.start_time }} to {{ event_tuple.0.end_time }}</small></h3>
+            <hr style="width: 75%;">
+        </div>
+        {{ event_tuple.0.description|safe }}
+        <hr style="width: 75%;" />
+        {% if event_tuple.0.rsvps.all %}
+            RSVPs: {% for member in event_tuple.0.rsvps.all %}{% if forloop.counter > 1 %},
+                {% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
+        {% else %}
+            No RSVPs.
+        {% endif %}
+        <div class="pull-right">
+        {% if user.username != ANONYMOUS_USERNAME %}
+        <form class="pull-right" method="post" action="">
+            {% csrf_token %}
+                {{ event_tuple.3 }}
+                {% if not event_tuple.4 %}
+                {% if event_tuple.2 %}
+                    <button type="submit" class="main_link warning_link" name="rsvp" title="Remove yourself from the RSVPs for this event">Un-RSVP</button>
+                {% else %}
+                    <button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
+                {% endif %}
+                {% endif %}
+        </form>
+        {% endif %}
+        {% if event_tuple.0.owner.user == user or user.is_superuser %}
+            <form class="pull-right" action="{% url 'events:edit' event_pk=event_tuple.0.pk %}">
+                <button class="main_link primary_link" title="Edit this event">Edit</button>
+            </form>
+        {% endif %}
+        </div> <!-- .pull-right -->
+    </div> <!-- .event_body -->
+    </div> <!-- .event_row -->
+{% endfor %}
+{% endif %}
+</div> <!-- .events_table -->
+{% if events_dict %}
+<div class="field_wrapper text-info">
+{{ events_dict|length }} event{{ events_dict|length|pluralize }} in total.
 </div>
+{% endif %}
 {% endblock %}
 
 {% block endscripts %}

@@ -4,8 +4,6 @@
 {% load bootstrap %}
 {% load thread_tags %}
 {% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/announcements.css' %}" />
 <script>
 	function show_new_announcement_form() {
@@ -70,4 +68,9 @@
 {% endfor %}
 {% endif %}
 </div> <!-- .announcements_table -->
+{% if announcements_dict %}
+<div class="field_wrapper text-info">
+{{ announcements_dict|length }} announcement{{ announcements_dict|length|pluralize }} in total.
+</div>
+{% endif %}
 {% endblock %}

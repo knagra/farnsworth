@@ -5,16 +5,16 @@
 
 {% block content %}
 {% if page_name == 'Archives - All Threads' %}
-    <form action="{% url 'all_threads' %}">
-    <button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span><span class="hidden-xs"> Expanded View</span></button>
+    <form action="{% url 'all_threads' %}" class="pull-right">
+    <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-fullscreen"></span><span class="hidden-xs"> Expanded View</span></button>
     </form>
 {% elif page_name == 'My Threads' %}
-    <form action="{% url 'my_threads' %}">
-    <button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span><span class="hidden-xs"> Expanded View</span></button>
+    <form action="{% url 'my_threads' %}" class="pull-right">
+    <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-fullscreen"></span><span class="hidden-xs"> Expanded View</span></button>
     </form>
 {% elif targetUsername %}
-    <form action="{% url 'member_profile' targetUsername=targetUsername %}">
-    <button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-user"></span><span class="hidden-xs"> {{ targetUsername }}'s Profile</span></button>
+    <form action="{% url 'member_profile' targetUsername=targetUsername %}" class="pull-right">
+    <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-user"></span><span class="hidden-xs"> {{ targetUsername }}'s Profile</span></button>
     </form>
 {% endif %}
 <h1 class="w_title">{{ page_name }}</h1>
