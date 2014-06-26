@@ -20,42 +20,10 @@ form > .form-group {
 	margin-bottom: 15px;
 }
 
-.table_container {
-	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-}
-
 .field_wrapper {
     padding-top: 5px;
     padding-bottom: 5px;
     text-align: center;
-}
-
-.header {
-	margin: auto;
-	background: #5e5e5e;
-	color: #fafafa;
-	font-size: 20pt;
-	height: 40px;
-}
-
-.header_form {
-	display: inline-block;
-	position: relative;
-	top: -3px;
-	float: right;
-	margin-right: 3px;
-	height: auto;
-}
-
-.table_title {
-	padding-left: 10px;
-	font-size: 100%;
-	margin-top: 0px;
-	padding-top: 5px;
-	font-weight: 200;
-	margin-bottom: 0px;
-	height: 100%;
-	overflow: hidden;
 }
 
 .w_title {
@@ -76,21 +44,6 @@ form > .form-group {
 .w_line {
     margin-top: 0px;
     margin-bottom: 5px;
-}
-
-.table_60 {
-    width: 60%;
-}
-
-.table_85 {
-    width: 85%;
-}
-
-.float_form {
-	float: right;
-	position: relative;
-	top: -6px;
-	padding-right: 1px;
 }
 
 .main_table {
@@ -143,12 +96,6 @@ form > .form-group {
 
 .primary_link:hover {
 	color: #428bca;
-}
-
-.header_button {
-	float: right;
-	margin-top: 3px;
-	margin-right: 3px;
 }
 
 .main_divider {

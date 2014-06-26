@@ -6,7 +6,6 @@
 {% block content %}
 <h1 class="w_title">Managers</h1>
 <hr class="w_line" />
-<div class="main_table">
 {% if not managerset %}
     <div class="field_wrapper text-danger">No managers in database.</div>
 {% else %}
@@ -35,7 +34,6 @@
 </tbody>
 </table>
 {% endif %}
-</div> <!-- .main_table -->
 <div class="field_wrapper text-info">{{ managerset.count }} manager{{ managerset|pluralize }} in database.</div>
 {% endblock %}
 

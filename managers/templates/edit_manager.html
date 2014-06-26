@@ -17,17 +17,15 @@
     <h1 class="w_title">Add Manager</h1>
 {% endif %}
 <hr class="w_line" />
-<div class="main_table">
-    <form method="post" action="">
-        {% csrf_token %}
-        <div class="form-group">
-            {{ form|bootstrap }}
-            <div class="text-center">
-                <button type="submit" class="btn btn-success" name="update_manager"><span class="glyphicon glyphicon-{% if page_name = 'Admin - Edit Manager' %}floppy-disk{% else %}plus{% endif %}"></span> {% if page_name = 'Admin - Edit Manager' %}Update{% else %}Add{% endif %} Manager</button>
-            </div> <!-- .text-center -->
-        </div> <!-- .form-group -->
-    </form>
-</div> <!-- .main_table -->
+<form method="post" action="">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form|bootstrap }}
+        <div class="text-center">
+            <button type="submit" class="btn btn-success" name="update_manager"><span class="glyphicon glyphicon-{% if page_name = 'Admin - Edit Manager' %}floppy-disk{% else %}plus{% endif %}"></span> {% if page_name = 'Admin - Edit Manager' %}Update{% else %}Add{% endif %} Manager</button>
+        </div> <!-- .text-center -->
+    </div> <!-- .form-group -->
+</form>
 </div>
 
 <br class="visible-xs visible-sm" />

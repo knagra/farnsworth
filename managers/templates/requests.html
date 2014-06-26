@@ -28,11 +28,9 @@
   }
 </script>
 <div class="requests table_container">
-  <div class="header">
-    <button type="button" class="btn btn-primary header_button" onclick="show_new_request_form()"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
-    <h3 class="table_title {% if request_type|longer_than:'123456789012' %}large{% elif request_type|longer_than:'123' %}medium{% else %}small{% endif %}_title">Recent {{ request_type|title }} Requests</h3>
-  </div> <!-- table_header -->
-  <div class="main_table">
+<button type="button" class="btn btn-primary pull-right" onclick="show_new_request_form()"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
+<h1 class="w_title">Recent {{ request_type|title }} Requests</h1>
+<hr class="w_line" />
   <form id="new_request_form" method="post" action="">
     {% csrf_token %}
       <div class="form-group">

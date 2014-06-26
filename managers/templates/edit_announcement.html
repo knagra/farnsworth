@@ -11,7 +11,7 @@
 {% block content %}
 <h1 class="w_title">Edit Announcement</h1>
 <hr class="w_line" />
-<div class="announcement_table main_table">
+<div class="announcement_table">
 <form id="announcement_form" method="post" action="">
   {% csrf_token %}
   <div class="form-group">
@@ -21,7 +21,7 @@
 </div> <!-- .text-center -->
   </div> <!-- .form-group -->
 </form>
-</div> <!-- .main_table -->
+</div> <!-- .announcement_table -->
 {% endblock %}
 
 {% block endscripts %}

@@ -32,15 +32,13 @@
 {% else %}
 {% for type_tuple in request_dict %}
 {% with x=forloop.counter|stringformat:"s" %}
-<div class="requests table_container">
+<div class="requests">
   {% with request_form_id="request_form_"|add:x %}
-  <div class="header">
 	{% if type_tuple.0.enabled %}
-    <button class="btn btn-primary header_button" onclick="show_new_request_form('{{ request_form_id }}')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
+    <button class="btn btn-primary pull-right" onclick="show_new_request_form('{{ request_form_id }}')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
     {% endif %}
-    <h3 class="table_title {% if type_tuple.0.name|longer_than:'123456789012' %}large{% elif type_tuple.0.name|longer_than:'123456' %}medium{% else %}small{% endif %}_title">My {{ type_tuple.0.name }} Requests</h3>
-  </div> <!-- header -->
-  <div class="main_table">
+    <h1 class="w_title">My {{ type_tuple.0.name }} Requests</h1>
+    <hr class="w_line" />
   {% if type_tuple.0.enabled %}
   <form class="new_request_form" id="{{ request_form_id }}" method="post" action="">
     {% csrf_token %}
@@ -147,7 +145,6 @@
     {% endfor %}
     {% endif %}
     </div>
-  </div> <!-- .main_table -->
 </div>
 {% endwith %}
 {% endfor %}

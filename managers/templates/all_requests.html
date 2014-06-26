@@ -5,7 +5,6 @@
 {% block content %}
 <h1 class="w_title">Archives - All Requests</h1>
 <hr class="w_line" />
-<div class="main_table">
 {% if not types_dict %}
 <div class="field_wrapper text-info">No enabled request types.</div>
 {% else %}
@@ -18,5 +17,4 @@
     {% endfor %}
 </ul>
 {% endif %}
-</div> <!-- .main_table -->
 {% endblock %}
