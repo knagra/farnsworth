@@ -11,7 +11,7 @@ setup(
 	url="https://github.com/knagra/farnsworth",
 	packages=find_packages(exclude=["tests*"]),
 	include_package_data=True,
-	description="Website for BSC houses."
+	description="Website for BSC houses.",
 	long_description=README,
 	install_requires=[
 		"Django>=1.6",
