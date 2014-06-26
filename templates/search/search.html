@@ -3,7 +3,6 @@
 {% load bootstrap %}
 {% block template_page_name %} - Search{% endblock %}
 {% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/search.css' %}" />
 <script>
 	function show_facets() {
@@ -23,14 +22,9 @@
 	</div>
 </form>
 {% else %}
-<div class="table_container">
-<div class="header">
-	<button type="button" class="btn btn-info header_button" onclick="show_facets()" title="Show filters"><span class="glyphicon glyphicon-filter"></span><span class="hidden-xs"> Filter</span></button>
-	<h3 class="table_title">Search</h3>
-</div>
-<div class="main_table">
-<h2 class="text-center">Results matching "{{ query }}"</h2>
-<hr class="main_divider" style="width: 75%;" />
+<button type="button" class="btn btn-info pull-right" onclick="show_facets()" title="Show filters"><span class="glyphicon glyphicon-filter"></span><span class="hidden-xs"> Filter</span></button>
+<h1 class="w_title">Search: "{{ query }}"</h1>
+<hr class="w_line" />
 <div id="facets_container">
 <h3 class="text-center">Filter</h3>
 <hr class="main_divider" style="width:50%;" />
@@ -84,7 +78,7 @@
 	<hr class="main_divider" style="width: 75%;" />
 </div>
 </div> <!-- #facets_container -->
-<div class="results_container">
+<div class="results_container bordered_div">
 {% for result in page.object_list %}
 	{% if forloop.counter > 1 %}
 		<hr class="main_divider" />
@@ -120,7 +114,6 @@
 	</div> <!-- text-center" -->
 {% endif %}
 </div> <!-- .results_container -->
-</div> <!-- .main_table -->
 </div> <!-- .table_container -->
 {% endif %}
 {% endblock %}
