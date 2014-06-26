@@ -21,7 +21,6 @@
 {% endif %}
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />
-<div class="announcements_table bordered_div">
 {% if manager_positions %}
 <form id="new_announcement_form" method="post" action="">
   {% csrf_token %}
@@ -39,6 +38,7 @@
 {% if not announcements_dict %}
 <div class="field_wrapper text-info">No announcements found.</div>
 {% else %}
+<div class="announcements_table bordered_div">
 {% for announcement_tuple in announcements_dict %}
 {% if forloop.counter > 1 %}
 <hr class="main_divider" />

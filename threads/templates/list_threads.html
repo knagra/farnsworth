@@ -47,9 +47,11 @@
   </table>
   {% endif %}
   </div> <!-- .main_table -->
+{% if threads.count %}
 <div class="text-center text-info" style="margin-top: 10px;">
 	{{ threads.count }} thread{{ threads|pluralize }} in total.
 </div>
+{% endif %}
 {% endblock %}
 
 {% block endscripts %}
