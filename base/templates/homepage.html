@@ -158,10 +158,10 @@ function hide_form(form_id) {
         </div> <!-- .text-center -->
     </form>
     {% endif %}
-    <div class="bordered_div">
     {% if not announcements_dict %}
         <div class="field_wrapper">No recent announcements.</div>
     {% else %}
+    <div class="bordered_div">
     {% for tuple in announcements_dict %}
         {% if forloop.counter > 1 %}
             <hr class="main_divider" />
@@ -190,8 +190,8 @@ function hide_form(form_id) {
         </div>
         </div> <!-- .announcement_row -->
     {% endfor %}
-    {% endif %}
     </div>
+    {% endif %}
 </div> <!-- .announcements -->
 </div> <!-- .col-md-12 -->
 </div> <!-- .row -->
@@ -254,8 +254,8 @@ function hide_form(form_id) {
 	<div class="field_wrapper">
 		No events in next 7 days.
 	</div>
-	<div class="bordered_div">
 	{% else %}
+	<div class="bordered_div">
 	{% for tuple in events_dict %}
 	{% if forloop.counter > 1 %}
 	<hr class="main_divider">
@@ -308,8 +308,8 @@ function hide_form(form_id) {
 		</div> <!-- .event_body -->
 	</div> <!-- .main_row -->
 	{% endfor %}
-	{% endif %}
 	</div> <!-- .bordered_div -->
+	{% endif %}
 </div> <!-- .events -->
 </div> <!-- .col-lg-5 -->
 </div> <!-- .row -->
