@@ -107,6 +107,7 @@ html {
 
 #body {
     padding-bottom: 50px;
+    overflow-x: auto;
 }
 
 #title {

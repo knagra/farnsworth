@@ -18,58 +18,57 @@
 {% endblock %}
 
 {% block content %}
-{% if manager_positions %}
-<button class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
-{% endif %}
-<h1 class="w_title">{{ page_name }}</h1>
-<hr class="w_line" />
-<div class="announcements_table main_table">
-    {% if manager_positions %}
-    <form id="new_announcement_form" method="post" action="">
-        {% csrf_token %}
-        <div class="form-group">
-            {{ announcement_form|bootstrap }}
-            <div class="text-center">
-            <div class="btn-group">
-                <button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
-                <button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_new_announcement_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-            </div> <!-- .btn-group -->
-            </div> <!-- .text-center -->
-        </div> <!-- .form-group -->
-    </form>
-    {% endif %}
-{% if not announcements_dict %}
-<div class="field_wrapper text-info">No announcements found.</div>
-{% else %}
-<div class="bordered_div">
-{% for announcement_tuple in announcements_dict %}
-    {% if forloop.counter > 1 %}
-    <hr class="main_divider" />
-    {% endif %}
-    <div class="announcement_row">
-    <div class="announcement_owner">
-        <a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=announcement_tuple.0.manager.url_title %}">{{ announcement_tuple.0.manager }}</a>
-        (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=announcement_tuple.0.incumbent.user.username %}">{{ announcement_tuple.0.incumbent|display_user:user }}</a>), {{ announcement_tuple.0.post_date }}:
-    </div> <!-- .announcement_owner -->
-    <div class="announcement_body">{{ announcement_tuple.0.body|safe }}
-    {% if announcement_tuple.1 %}
-        <form class="pull-right" method="post" action="">
-            {% csrf_token %}
-            {{ announcement_tuple.1 }}
-            {% if announcement_tuple.0.pinned %}
-                <button type="submit" class="main_link warning_link" name="unpin" title="Unpin this announcement">Unpin</button>
-            {% else %}
-                <button type="submit" class="main_link success_link" name="unpin" title="Repin this announcement">Repin</button>
-            {% endif %}
-        </form>
-        <form class="pull-right" action="{% url 'edit_announcement' announcement_pk=announcement_tuple.0.pk %}">
-            <button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
-        </form>
-    {% endif %}
-    </div>
-    </div> <!-- .announcement_row -->
-{% endfor %}
-</div> <!-- .bordered_div -->
-{% endif %}
-</div> <!-- .announcements_table -->
+<div class="table_container">
+  <div class="header">{% if manager_positions %}
+	<button class="btn btn-primary add_announcement" onclick="show_new_announcement_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+	{% endif %}<h3 class="table_title medium_title">{{ page_name }}</h3>
+  </div> <!-- .header -->
+  <div class="announcements_table main_table">
+	{% if manager_positions %}
+	<form id="new_announcement_form" method="post" action="">
+	  {% csrf_token %}
+	  <div class="form-group">
+		{{ announcement_form|bootstrap }}
+		<div class="text-center">
+		  <div class="btn-group">
+			<button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
+			<button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_new_announcement_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+		  </div> <!-- .btn-group -->
+		</div> <!-- .text-center -->
+	  </div> <!-- .form-group -->
+	</form>
+	{% endif %}
+	{% if not announcements_dict %}
+	<div class="field_wrapper text-info">No announcements found.</div>
+	{% else %}
+	{% for announcement_tuple in announcements_dict %}
+	{% if forloop.counter > 1 %}
+	<hr class="main_divider" />
+	{% endif %}
+	<div class="announcement_row">
+	  <div class="announcement_owner">
+		<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=announcement_tuple.0.manager.url_title %}">{{ announcement_tuple.0.manager }}</a>
+		(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=announcement_tuple.0.incumbent.user.username %}">{{ announcement_tuple.0.incumbent|display_user:user }}</a>), {{ announcement_tuple.0.post_date }}:
+	  </div> <!-- .announcement_owner -->
+	  <div class="announcement_body">{{ announcement_tuple.0.body|safe }}
+		{% if announcement_tuple.1 %}
+		<form class="pull-right" method="post" action="">
+		  {% csrf_token %}
+		  {{ announcement_tuple.1 }}
+		  {% if announcement_tuple.0.pinned %}
+		  <button type="submit" class="main_link warning_link" name="unpin" title="Unpin from homepage">Unpin</button>
+		  {% else %}
+		  <button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
+		  {% endif %}
+		</form>
+		<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=announcement_tuple.0.pk %}">
+		  <button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
+		</form>
+		{% endif %}
+	  </div>
+	</div> <!-- .announcement_row -->
+	{% endfor %}
+	{% endif %}
+  </div> <!-- .announcements_table -->
+</div>
 {% endblock %}

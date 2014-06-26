@@ -10,22 +10,22 @@
 
 {% block w_content %}
 <div class="row">
-{% if prev_day %}
 <div class="col-sm-1 col-xs-2 text-left">
+{% if prev_day %}
 <a title="Previous day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ prev_day }}">
 <span class="glyphicon glyphicon-chevron-left"></span>
 </a>
-</div> <!-- .col-xs-1 -->
 {% endif %}
+</div> <!-- .col-xs-1 -->
 <h3 id="day_title" class="col-sm-10 col-xs-8 text-center w_subtitle"><span class="hidden-xs w_subtitle">Workshifts
 	for {{ day|date:"l, F d, Y" }}</span><span class="visible-xs w_subtitle">{{ day|date:"D., N d, Y" }}</span></h3>
-{% if next_day %}
 <div class="col-sm-1 col-xs-2 text-right">
+{% if next_day %}
 <a title="Next day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ next_day }}">
 <span class="glyphicon glyphicon-chevron-right"></span>
 </a>
-</div> <!-- .col-sm-1 -->
 {% endif %}
+</div> <!-- .col-sm-1 -->
 </div> <!-- .row -->
 <div class="workshift_table">
   <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
@@ -36,7 +36,7 @@
 			<th>Hours</th>
 			<th>Workshifter</th>
 			<th>Verifier</th>
-			<th>Mark</th>
+			<th>Action</th>
 		</tr>
 	</thead>
 	<tbody>
