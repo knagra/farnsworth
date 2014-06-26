@@ -2,23 +2,28 @@
 import os
 from setuptools import setup, find_packages
 
-README = open(os.path.join(os.path.dirname(__file__), "README")).read()
+README = open(os.path.join(os.path.dirname(__file__), "README.txt")).read()
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+
+required = [
+	"Django>=1.6",
+	"django-bootstrap-form>=3.1",
+	"django-haystack",
+	]
 
 setup(
 	name="Farnsworth",
 	version="1.1.0",
+	author="Karandeep Nagra",
 	url="https://github.com/knagra/farnsworth",
-	packages=find_packages(exclude=["tests*"]),
+	author_email="karandeepsnagra@gmail.com",
+	packages=find_packages(),
 	include_package_data=True,
 	description="Website for BSC houses.",
 	long_description=README,
-	install_requires=[
-		"Django>=1.6",
-		"django-bootstrap-form>=3.1",
-		"elasticsearch>=1.0.0",
-		"django-haystack",
-		],
+	install_requires=required +  ["elasticsearch>=1.0.0"],
+	tests_require=required,
+	test_suite="runtests.runtests",
 	package_data={
 		"": ["*/static/*/*/*", "*/templates/*", "templates/search/*/*/*"],
 		},
@@ -28,7 +33,7 @@ setup(
 		"Natural Language :: English",
 		"Operating System :: OS Independent",
 		"Programming Language :: Python",
-        "Programming Language :: Python :: 2",
+		"Programming Language :: Python :: 2",
 		"Programming Language :: Python :: 2.6",
 		"Programming Language :: Python :: 2.7",
 		"Topic :: Internet :: WWW/HTTP",
