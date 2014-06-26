@@ -27,7 +27,7 @@ django-bootstrap-form 3.1
 moment.js (included in static folder)
 bootstrap-datetime-picker (included in static/bootstrap/js and static/ui/css)
 Django-Haystack 2.1.1-dev (from GitHub, read 'Get started' on haystacksearch.org)
-elasticsearch 1.1.1 (https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.1.deb)
+elasticsearch 1.2.1 (https://www.elasticsearch.org/overview/elkdownloads/)
 Python elasticsearch (pip install elasticsearch)
 Python Social Auth 0.1.23
 
@@ -37,7 +37,7 @@ Deployment
 System Packages
 ===
 On CentOS:
-  
+
     $ sudo yum install postgres python python-devel virtualenv gcc mod_wsgi
 
 On Debian:
@@ -49,7 +49,7 @@ See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-
 Apache
 ===
 Add the following lines to the httpd.conf file for Apache:
-  
+
     WSGIScriptAlias /farnsworth /path/to/farnsworth/farnsworth/wsgi.py
     WSGIPythonPath /path/to/farnsworth:/path/to/farnsworth/lib/python<python-version>/site-packages
     Alias /static/ /path/to/farnsworth/static/
