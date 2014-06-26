@@ -44,14 +44,16 @@ Live versions of the site can be accessed at https://kingmanhall.org/internal/, 
 
 To install all of the dependencies of CentOS, run the following as root:
 
-```# yum install postgres python python-devel virtualenv gcc mod_wsgi
+```
+# yum install postgres python python-devel virtualenv gcc mod_wsgi
 ```
 
 ### Debian
 
 To install all of the dependencies of Debian, run the following as root:
 
-```# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3
+```
+# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3
 ```
 
 See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html on installing elasticsearch on either distribution.
@@ -60,7 +62,8 @@ See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-
 
 Once your system packages have been installed, run the following as the apache user to set up a virtual environment with the site-specific packages
 
-```$ cd /path/to/farnsworth
+```
+$ cd /path/to/farnsworth
 $ virtualenv .
 $ source bin/activate
 $ pip install -r requirements.txt
@@ -100,7 +103,8 @@ postgres=# GRANT ALL PRIVILEGES ON DATABASE <house> TO <house>_admin;
 
 To enable the use of PostgreSQL and elasticsearch, enter the following as root:
 
-```# setsebool -P httpd_can_network_connect_db 1
+```
+# setsebool -P httpd_can_network_connect_db 1
 # setsebool -P httpd_can_network_connect on
 ```
 
@@ -109,24 +113,28 @@ To enable the use of PostgreSQL and elasticsearch, enter the following as root:
 
 Simply copy and compress the SQLite database file:
 
-```$ gzip farnsworth/<house>.db > "backup-<house>-$(date +%F).db.gz"
+```
+$ gzip farnsworth/<house>.db > "backup-<house>-$(date +%F).db.gz"
 ```
 
 And restore by decompressing and copying back:
 
-```$ gunzip backup-<house>-<date>.db.gz > farnsworth/<house>.db
+```
+$ gunzip backup-<house>-<date>.db.gz > farnsworth/<house>.db
 ```
 
 ### PostgreSQL
 
 Back up the house's database with the following command:
 
-```$ pg_dump -U <house>_admin <house> | gzip > "backup-<house>-$(date +%F).db.gz"
+```
+$ pg_dump -U <house>_admin <house> | gzip > "backup-<house>-$(date +%F).db.gz"
 ```
 
 Restore the house's database with the following command:
 
-```$ gunzip -c backup-<house>-<date>.db.gz | psql -U <house>_admin <house>
+```
+$ gunzip -c backup-<house>-<date>.db.gz | psql -U <house>_admin <house>
 ```
 
 See http://www.postgresql.org/docs/current/static/backup.html for a detailed description of other methods to back up the database.
