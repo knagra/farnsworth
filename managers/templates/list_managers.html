@@ -33,8 +33,8 @@
     {% endfor %}
 </tbody>
 </table>
+<div class="field_wrapper text-info">{{ managerset.count }} manager{{ managerset|pluralize }} in total.</div>
 {% endif %}
-<div class="field_wrapper text-info">{{ managerset.count }} manager{{ managerset|pluralize }} in database.</div>
 {% endblock %}
 
 {% block endscripts %}

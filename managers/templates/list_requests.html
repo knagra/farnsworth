@@ -52,10 +52,10 @@
       {% endfor %}
     </tbody>
   </table>
+    <div class="text-center text-info" style="margin-top: 10px">
+        {{ requests.count }} request{{ requests.count|pluralize }} in total.
+    </div>
   {% endif %}
-<div class="text-center text-info" style="margin-top: 10px">
-	{{ requests.count }} request{{ requests.count|pluralize }} in total.
-</div>
 {% endblock %}
 
 {% block endscripts %}

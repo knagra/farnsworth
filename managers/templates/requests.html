@@ -42,7 +42,7 @@
       </div> <!-- .text-center -->
   </form>
 
-  <div class="requests_table bordered_div">
+  <div class="requests_table">
 	{% if relevant_managers %}
     <div class="field_wrapper text-info">{{ request_type.capitalize }} requests are made to:
 		{% for pos in relevant_managers %}
@@ -61,6 +61,7 @@
     {% if not requests_dict %}
     <div class="field_wrapper text-info">No {{ request_type.lower }} requests found.</div>
     {% else %}
+    <div class="bordered_div">
     {% for request_tuple in requests_dict %}
     {% if forloop.counter > 1 %}
     <hr class="main_divider"/>
@@ -145,6 +146,7 @@
 	</div> <!-- response_table -->
       </div> <!-- request_name -->
     {% endfor %}
+    </div>
     {% endif %}
   </div> <!-- .requests_table -->
   </div> <!-- .main_table -->
