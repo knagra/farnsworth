@@ -4,7 +4,7 @@
 {% load bootstrap %}
 
 {% block content %}
-<div class="container">
+<div class="row">
   <div class="col-sm-8{% if not oauth_providers %} col-sm-offset-2 {% endif %}">
     <div class="alert alert-info">
       When you fill out and submit this form, your request will be saved for an admin to approve.
@@ -39,5 +39,5 @@
       {% endfor %}
   </div> <!-- .col-sm-4 -->
   {% endif %}
-</div>
+</div> <!-- .row -->
 {% endblock %}
