@@ -236,35 +236,36 @@ def _get_forms(profile, shift):
 	Gets the forms for profile interacting with a shift. This includes verify
 	shift, mark shift as blown, sign in, and sign out.
 	"""
-	forms = []
+	ret = []
 	if not shift.closed and profile:
 		if shift.workshifter:
 			pool = shift.pool
 
-			if pool.self_verify or shift.workshifter != profile:
+			if pool.self_verify or shift.workshifter != profile and \
+              not shift.auto_verify:
 				verify_form = VerifyShiftForm(initial={
 					"pk": shift.pk,
 					}, profile=profile)
-				forms.append(verify_form)
+				ret.append(verify_form)
 
 			if pool.any_blown or \
 			  pool.managers.filter(incumbent__user=profile.user).count():
 				blown_form = BlownShiftForm(initial={
 					"pk": shift.pk,
 					}, profile=profile)
-				forms.append(blown_form)
+				ret.append(blown_form)
 
 			if shift.workshifter == profile:
 				sign_out_form = SignOutForm(initial={
 					"pk": shift.pk,
 					}, profile=profile)
-				forms.append(sign_out_form)
+				ret.append(sign_out_form)
 		else:
 			sign_in_form = SignInForm(initial={
 				"pk": shift.pk,
 				}, profile=profile)
-			forms.append(sign_in_form)
-	return forms
+			ret.append(sign_in_form)
+	return ret
 
 @get_workshift_profile
 def profile_view(request, semester, targetUsername, profile=None):
