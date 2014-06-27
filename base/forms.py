@@ -244,7 +244,7 @@ class ModifyUserForm(forms.Form):
 				'phone_visible_to_others': self.profile.phone_visible,
 				'status': self.profile.status,
 				'current_room': self.profile.current_room,
-				'former_rooms': self.profile.former_rooms,
+				'former_rooms': self.profile.former_rooms.all(),
 				'former_houses': self.profile.former_houses,
 				'is_active': self.user.is_active,
 				'is_staff': self.user.is_staff,
@@ -423,15 +423,15 @@ class ModifyProfileRequestForm(forms.Form):
 
 		return user
 
-class UpdateProfileForm(forms.Form):
+class UpdateProfileForm(forms.ModelForm):
 	''' Form for a user to update own profile. '''
+	email = forms.EmailField(max_length=255, required=False)
+	enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+
 	class Meta:
 		model = UserProfile
 		fields = ("current_room", "former_rooms", "former_houses",
 				  "email_visible", "phone_number", "phone_visible")
-
-	email = forms.EmailField(max_length=255, required=False)
-	enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
 	def __init__(self, *args, **kwargs):
 		self.user = kwargs.pop("user")

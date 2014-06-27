@@ -601,11 +601,8 @@ class TestProfilePages(TestCase):
 		self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
 		self.ou = User.objects.create_user(username="ou", email="ou@email.com")
 
-		self.r = Room(title="2E")
-		self.r.save()
-
-		self.fr = Room(title="1A")
-		self.fr.save()
+		self.r = Room.objects.create(title="2E")
+		self.fr = Room.objects.create(title="1A")
 
 		self.profile = UserProfile.objects.get(user=self.u)
 		self.profile.current_room = self.r
@@ -627,6 +624,7 @@ class TestProfilePages(TestCase):
 		self.oprofile.status = UserProfile.RESIDENT
 		self.oprofile.save()
 		self.oprofile.former_rooms = [self.fr]
+		self.oprofile.save()
 
 		self.client.login(username="u", password="pwd")
 
@@ -634,12 +632,6 @@ class TestProfilePages(TestCase):
 		response = self.client.get("/profile/")
 
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Update Your Profile", response.content)
-		self.assertIn(self.u.email, response.content)
-		self.assertIn(self.profile.current_room.title, response.content)
-		self.assertIn(self.profile.former_rooms.all()[0].title, response.content)
-		self.assertIn(self.profile.former_houses, response.content)
-		self.assertIn(self.profile.phone_number, response.content)
 		self.assertContains(response, "Update Your Profile")
 		self.assertContains(response, self.u.email)
 		self.assertContains(response, self.profile.current_room.title)
@@ -663,7 +655,6 @@ class TestProfilePages(TestCase):
 			)
 		self.assertContains(response, UserProfile.STATUS_CHOICES[0][1])
 		self.assertContains(response, self.oprofile.current_room.title)
-		self.assertContains(response, self.oprofile.former_rooms)
 		for room in self.oprofile.former_rooms.all():
 			self.assertContains(response, room.title)
 		self.assertNotContains(response, self.oprofile.phone_number)

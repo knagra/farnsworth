@@ -32,9 +32,19 @@
 					<dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ targetProfile.get_status_display }}{% endif %}</dd>
 				{% if not targetUser.username == ANONYMOUS_USERNAME %}
 				<dt>Current Room</dt>
-					<dd>{% if targetProfile.current_room %}{{ targetProfile.current_room }}{% else %}&nbsp;{% endif %}</dd>
+					<dd>
+					  {% if targetProfile.current_room %}
+					  <a href="{% url 'rooms:view' room_title=targetProfile.current_room.title %}">{{ targetProfile.current_room.title }}</a>
+					  {% else %}&nbsp;{% endif %}
+					</dd>
 				<dt>Former Rooms</dt>
-					<dd>{% if targetProfile.former_rooms.all %}{{ targetProfile.former_rooms.all }}{% else %}&nbsp;{% endif %}</dd>
+					<dd>
+					  {% if targetProfile.former_rooms.all %}
+					  {% for room in targetProfile.former_rooms.all %}
+					  <a href="{% url 'rooms:view' room_title=room.title %}">{{ room.title }}</a>
+					  {% endfor %}
+					  {% else %}&nbsp;{% endif %}
+					</dd>
 				<dt>Other Houses</dt>
 					<dd>{% if targetProfile.former_houses %}{{ targetProfile.former_houses }}{% else %}&nbsp;{% endif %}</dd>
 				{% if targetProfile.email_visible %}

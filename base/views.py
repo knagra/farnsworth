@@ -223,7 +223,7 @@ def my_profile_view(request):
 		user=request.user,
 		initial={
 			'current_room': userProfile.current_room,
-			'former_rooms': userProfile.former_rooms,
+			'former_rooms': userProfile.former_rooms.all(),
 			'former_houses': userProfile.former_houses,
 			'email': user.email,
 			'email_visible_to_others': userProfile.email_visible,
