@@ -244,6 +244,8 @@ class VerifyShiftForm(InteractShiftForm):
 			raise forms.ValidationError("Workshift is not filled.")
 		if not shift.pool.self_verify and shift.workshifter == self.profile:
 			raise forms.ValidationError("Workshifter cannot verify self.")
+		if shift.auto_verify:
+			raise forms.ValidationError("Workshift is automatically verified.")
 
 		return shift
 
@@ -264,6 +266,8 @@ class VerifyShiftForm(InteractShiftForm):
 		  .get(pool=instance.get_info().pool)
 		pool_hours.standing += instance.hours
 		pool_hours.save()
+
+		return instance
 
 class BlownShiftForm(InteractShiftForm):
 	title_short = "B"
@@ -300,6 +304,8 @@ class BlownShiftForm(InteractShiftForm):
 		pool_hours.standing -= instance.hours
 		pool_hours.save()
 
+		return instance
+
 class SignInForm(InteractShiftForm):
 	title_short = "I"
 	title_long = "Sign In"
@@ -325,6 +331,8 @@ class SignInForm(InteractShiftForm):
 		instance.logs.add(entry)
 		instance.save()
 
+		return instance
+
 class SignOutForm(InteractShiftForm):
 	title_short = "O"
 	title_long = "Sign Out"
@@ -349,6 +357,8 @@ class SignOutForm(InteractShiftForm):
 		instance.workshifter = None
 		instance.logs.add(entry)
 		instance.save()
+
+		return instance
 
 class AddWorkshifterForm(forms.Form):
 	add_profile = forms.BooleanField(initial=True)

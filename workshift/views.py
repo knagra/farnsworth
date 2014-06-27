@@ -218,10 +218,13 @@ def view_semester(request, semester, profile=None):
 	last_sunday = day - timedelta(days=day.weekday() + 1)
 	next_sunday = last_sunday + timedelta(weeks=1)
 
-	day_shifts = WorkshiftInstance.objects.filter(date=day)
-	week_shifts = WorkshiftInstance.objects.filter(date__gt=last_sunday) \
-	  .filter(date__lt=next_sunday) \
-	  .filter(week_long=True)
+	day_shifts = WorkshiftInstance.objects.filter(
+        date=day, week_long=False,
+        )
+	week_shifts = WorkshiftInstance.objects.filter(
+        date__gte=last_sunday, date__lt=next_sunday,
+        week_long=True,
+        )
 
 	template_dict["day_shifts"] = [(shift, _get_forms(profile, shift))
 								   for shift in day_shifts]
@@ -236,35 +239,36 @@ def _get_forms(profile, shift):
 	Gets the forms for profile interacting with a shift. This includes verify
 	shift, mark shift as blown, sign in, and sign out.
 	"""
-	forms = []
+	ret = []
 	if not shift.closed and profile:
 		if shift.workshifter:
 			pool = shift.pool
 
-			if pool.self_verify or shift.workshifter != profile:
+			if pool.self_verify or shift.workshifter != profile and \
+              not shift.auto_verify:
 				verify_form = VerifyShiftForm(initial={
 					"pk": shift.pk,
 					}, profile=profile)
-				forms.append(verify_form)
+				ret.append(verify_form)
 
 			if pool.any_blown or \
 			  pool.managers.filter(incumbent__user=profile.user).count():
 				blown_form = BlownShiftForm(initial={
 					"pk": shift.pk,
 					}, profile=profile)
-				forms.append(blown_form)
+				ret.append(blown_form)
 
 			if shift.workshifter == profile:
 				sign_out_form = SignOutForm(initial={
 					"pk": shift.pk,
 					}, profile=profile)
-				forms.append(sign_out_form)
+				ret.append(sign_out_form)
 		else:
 			sign_in_form = SignInForm(initial={
 				"pk": shift.pk,
 				}, profile=profile)
-			forms.append(sign_in_form)
-	return forms
+			ret.append(sign_in_form)
+	return ret
 
 @get_workshift_profile
 def profile_view(request, semester, targetUsername, profile=None):
@@ -652,7 +656,7 @@ def edit_shift_view(request, semester, pk, profile=None):
 		shift = edit_form.save()
 		return HttpResponseRedirect(wurl('workshift:view_shift',
 										 sem_url=semester.sem_url,
-										 pk=pk))
+										 pk=shift.pk))
 
 	page_name = "Edit " + shift.title
 
@@ -667,12 +671,26 @@ def instance_view(request, semester, pk, profile=None):
 	"""
 	View the details of a particular WorkshiftInstance.
 	"""
-	shift = get_object_or_404(WorkshiftInstance, pk=pk)
-	page_name = shift.title
+	instance = get_object_or_404(WorkshiftInstance, pk=pk)
+	page_name = instance.title
+	interact_forms = _get_forms(profile, instance)
+
+	for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
+		if form.action_name in request.POST:
+			f = form(request.POST, profile=profile)
+			if f.is_valid():
+				instance = f.save()
+				return HttpResponseRedirect(wurl('workshift:view_instance',
+												 sem_url=semester.sem_url,
+												 pk=instance.pk))
+			else:
+				for error in f.errors.values():
+					messages.add_message(request, messages.ERROR, error)
 
 	return render_to_response("view_instance.html", {
 		"page_name": page_name,
-		"shift": shift,
+		"instance": instance,
+        "interact_forms": interact_forms,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -680,8 +698,8 @@ def edit_instance_view(request, semester, pk, profile=None):
 	"""
 	View for a manager to edit the details of a particular WorkshiftInstance.
 	"""
-	shift = get_object_or_404(WorkshiftInstance, pk=pk)
-	managers = shift.pool.managers.filter(incumbent__user=request.user)
+	instance = get_object_or_404(WorkshiftInstance, pk=pk)
+	managers = instance.pool.managers.filter(incumbent__user=request.user)
 
 	if not request.user.is_superuser and not managers.count():
 		messages.add_message(request, messages.ERROR,
@@ -689,27 +707,27 @@ def edit_instance_view(request, semester, pk, profile=None):
 		return HttpResponseRedirect(wurl('workshift:view_semester',
 										 sem_url=semester.sem_url))
 
-	page_name = "Edit " + shift.title
+	page_name = "Edit " + instance.title
 
 	edit_form = WorkshiftInstanceForm(
 		request.POST if "edit" in request.POST else None,
-		instance=shift,
+		instance=instance,
 		semester=semester,
 		)
 
 	if "delete" in request.POST:
-		shift.delete()
+		instance.delete()
 		return HttpResponseRedirect(wurl('workshift:manage',
 										 sem_url=semester.sem_url))
 	elif edit_form.is_valid():
-		shift = edit_form.save()
+		instance = edit_form.save()
 		return HttpResponseRedirect(wurl('workshift:view_instance',
 										 sem_url=semester.sem_url,
-										 pk=pk))
+										 pk=instance.pk))
 
 	return render_to_response("edit_instance.html", {
 		"page_name": page_name,
-		"shift": shift,
+		"instance": instance,
         "edit_form": edit_form,
 	}, context_instance=RequestContext(request))
 
