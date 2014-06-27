@@ -1,4 +1,4 @@
--e git://github.com/django/django.git#egg=django-master
+-e git://github.com/django/django.git#egg=django-1.7c1
 django-bootstrap-form>=3.1
 -e hg+https://bitbucket.org/schinckel/django-weekday-field@6cb823c5e94aad1aa5dd1caad4dd7a5be7391b28#egg=django_weekday_field-dev
 elasticsearch==1.0.0

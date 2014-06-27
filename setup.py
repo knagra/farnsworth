@@ -48,7 +48,7 @@ setup(
 		],
 	dependency_links=[
 		"git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master",
-		"git://github.com/django/django.git#egg=django-master",
+		"git://github.com/django/django.git#egg=django-1.7c1",
 		],
 	extras_require={
 		"PostgreSQL": ["psycopg2"],
