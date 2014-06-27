@@ -19,13 +19,13 @@ class Thread(models.Model):
 	change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this thread was modified.")
 	number_of_messages = models.PositiveSmallIntegerField(default=1, help_text="The number of messages in this thread.")
 	active = models.BooleanField(default=True, help_text="Whether this thread is still active.")
-	
+
 	def __unicode__(self):
 		return self.subject
-	
+
 	class Meta:
 		ordering = ['-change_date']
-	
+
 	def is_thread(self):
 		return True
 
@@ -37,12 +37,12 @@ class Message(models.Model):
 	owner = models.ForeignKey(UserProfile, help_text="The user who posted this message.")
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this message was posted.")
 	thread = models.ForeignKey(Thread, help_text="The thread to which this message belongs.")
-	
+
 	def __unicode__(self):
 		return "Message by %s on thread %s, posted %s" % (self.owner, self.thread.subject, self.post_date)
-	
+
 	class Meta:
 		ordering = ['post_date']
-	
+
 	def is_message(self):
 		return True
