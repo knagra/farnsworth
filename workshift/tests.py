@@ -155,16 +155,25 @@ class TestUtils(TestCase):
 	def test_make_pool_hours_all(self):
 		utils.make_workshift_pool_hours(self.semester)
 		self.assertEqual(2, PoolHours.objects.count())
+		self.assertEqual(2, self.profile.pool_hours.count())
 
 	def test_make_pool_hours_profile(self):
+		utils.make_workshift_pool_hours(self.semester, profiles=[])
+		self.assertEqual(0, PoolHours.objects.count())
+		self.assertEqual(0, self.profile.pool_hours.count())
+
 		utils.make_workshift_pool_hours(self.semester, profiles=[self.profile])
 		self.assertEqual(2, PoolHours.objects.count())
+		self.assertEqual(2, self.profile.pool_hours.count())
 
 	def test_make_pool_hours_pools(self):
 		utils.make_workshift_pool_hours(self.semester, pools=[self.p1])
 		self.assertEqual(1, PoolHours.objects.count())
+		self.assertEqual(1, self.profile.pool_hours.count())
+
 		utils.make_workshift_pool_hours(self.semester, pools=[self.p2])
 		self.assertEqual(2, PoolHours.objects.count())
+		self.assertEqual(2, self.profile.pool_hours.count())
 
 	def test_make_pool_hours_primary(self):
 		utils.make_workshift_pool_hours(self.semester, primary_hours=6)
