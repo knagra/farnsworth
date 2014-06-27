@@ -5,3 +5,4 @@ elasticsearch==1.0.0
 python-social-auth==0.1.26
 psycopg2==2.5.3
 -e git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master
+elasticsearch==1.0.0

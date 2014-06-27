@@ -348,9 +348,7 @@ if 'test' in sys.argv:
 	DATABASES['default'] = {
 		'ENGINE': 'django.db.backends.sqlite3',
 		}
-	HAYSTACK_CONNECTIONS['default'] = {
-		'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-		}
+	HAYSTACK_CONNECTIONS['default']['INDEX_NAME'] = SHORT_HOUSE_NAME.lower() + "_test"
 
 try:
 	from farnsworth.local_settings import *
