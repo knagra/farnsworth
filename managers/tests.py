@@ -691,7 +691,7 @@ class TestAnnouncements(TestCase):
 
 class TestPreFill(TestCase):
 	def test_pre_fill(self):
-		from pre_fill import main, REQUESTS, MANAGERS
+		from farnsworth.pre_fill import main, REQUESTS, MANAGERS
 		main([])
 		for title in [i[0] for i in MANAGERS]:
 			self.assertEqual(1, Manager.objects.filter(title=title).count())
