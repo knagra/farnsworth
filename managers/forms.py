@@ -179,7 +179,6 @@ class AnnouncementForm(forms.ModelForm):
 		super(AnnouncementForm, self).__init__(*args, **kwargs)
 		if self.manager_positions:
 			self.fields["manager"].queryset = self.manager_positions
-			self.fields["manager"].empty_label = None
 			self.fields["manager"].initial = self.manager_positions[0].pk
 		else:
 			self.fields["manager"].widget = forms.HiddenInput()
