@@ -218,10 +218,13 @@ def view_semester(request, semester, profile=None):
 	last_sunday = day - timedelta(days=day.weekday() + 1)
 	next_sunday = last_sunday + timedelta(weeks=1)
 
-	day_shifts = WorkshiftInstance.objects.filter(date=day)
-	week_shifts = WorkshiftInstance.objects.filter(date__gt=last_sunday) \
-	  .filter(date__lt=next_sunday) \
-	  .filter(week_long=True)
+	day_shifts = WorkshiftInstance.objects.filter(
+        date=day, week_long=False,
+        )
+	week_shifts = WorkshiftInstance.objects.filter(
+        date__gte=last_sunday, date__lt=next_sunday,
+        week_long=True,
+        )
 
 	template_dict["day_shifts"] = [(shift, _get_forms(profile, shift))
 								   for shift in day_shifts]
