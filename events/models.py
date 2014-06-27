@@ -26,7 +26,7 @@ class Event(models.Model):
 	rsvps = models.ManyToManyField(UserProfile, blank=True, null=True, help_text="The users who plan to attend this event.", related_name="rsvps")
 	
 	def __unicode__(self):
-		return "Event %s posted by %s" % (self.title, self.owner)
+		return self.title
 	
 	class Meta:
 		ordering = ['-start_time']	# could also do -start_time, -end_time, post_date but opting for the slight performance increase

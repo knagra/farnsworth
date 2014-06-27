@@ -109,57 +109,29 @@ def all_threads_view(request):
 			}, context_instance=RequestContext(request))
 
 @profile_required
-def my_threads_view(request):
-	''' View of my threads. '''
-	page_name = "My Threads"
-	userProfile = UserProfile.objects.get(user=request.user)
-	thread_form = ThreadForm(
-		request.POST if 'submit_thread_form' in request.POST else None,
-		profile=userProfile,
-		)
-	message_form = MessageForm(
-		request.POST if 'submit_message_form' in request.POST else None,
-		profile=userProfile,
-		)
-
-	if thread_form.is_valid():
-		thread_form.save()
-		return HttpResponseRedirect(reverse('my_threads'))
-	elif 'submit_thread_form' in request.POST:
-		messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
-	if message_form.is_valid():
-		message_form.save()
-		return HttpResponseRedirect(reverse('my_threads'))
-	elif 'submit_message_form' in request.POST:
-		messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
-
-	threads_dict = _threads_dict(Thread.objects.filter(owner=userProfile))
-	return render_to_response('threads.html', {
-			'page_name': page_name,
-			'thread_title': 'My Threads',
-			'threads_dict': threads_dict,
-			'thread_form': thread_form,
-			}, context_instance=RequestContext(request))
-
-@profile_required
-def list_my_threads_view(request):
-	''' View of my threads. '''
-	userProfile = UserProfile.objects.get(user=request.user)
-	threads = Thread.objects.filter(owner=userProfile)
-	return render_to_response('list_threads.html', {
-			'page_name': "My Threads",
-			'threads': threads,
-			}, context_instance=RequestContext(request))
-
-@profile_required
 def list_user_threads_view(request, targetUsername):
-	''' View of my threads. '''
-	if targetUsername == request.user.username:
-		return list_my_threads_view(request)
+	''' View of users a user has created. '''
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	threads = Thread.objects.filter(owner=targetProfile)
-	page_name = "%s's Threads" % targetUsername
+	page_name = "{0}'s Threads".format(targetUser.get_full_name())
+	return render_to_response('list_threads.html', {
+			'page_name': page_name,
+			'threads': threads,
+			'targetUsername': targetUsername,
+			}, context_instance=RequestContext(request))
+
+@profile_required
+def list_user_messages_view(request, targetUsername):
+	''' View of threads a user has posted in. '''
+	targetUser = get_object_or_404(User, username=targetUsername)
+	targetProfile = get_object_or_404(UserProfile, user=targetUser)
+	user_messages = Message.objects.filter(owner=targetProfile)
+	threads = []
+	for message in user_messages:
+		if message.thread not in threads:
+			threads.append(message.thread)
+	page_name = "Threads {0} has posted in".format(targetUser.get_full_name())
 	return render_to_response('list_threads.html', {
 			'page_name': page_name,
 			'threads': threads,
@@ -198,7 +170,3 @@ def thread_view(request, thread_pk):
 			'page_name': "View Thread",
 			'messages_list': messages_list,
 			}, context_instance=RequestContext(request))
-
-def house_map_view(request):
-	''' Show the house map to a visitor. '''
-	return render_to_response('house_map.html', {'page_name': "House Map"}, context_instance=RequestContext(request))

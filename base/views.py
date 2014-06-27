@@ -359,6 +359,7 @@ def member_profile_view(request, targetUsername):
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	number_of_threads = Thread.objects.filter(owner=targetProfile).count()
+	number_of_threads = Message.objects.filter(owner=targetProfile).count()
 	number_of_requests = Request.objects.filter(owner=targetProfile).count()
 	return render_to_response('member_profile.html', {
 			'page_name': page_name,
@@ -603,3 +604,7 @@ def reset_pw_confirm_view(request, uidb64=None, token=None):
 	return password_reset_confirm(request,
 		template_name="reset_confirmation.html",
 		uidb64=uidb64, token=token, post_reset_redirect=reverse('login'))
+
+def house_map_view(request):
+	''' Show the house map to a visitor. '''
+	return render_to_response('house_map.html', {'page_name': "House Map"}, context_instance=RequestContext(request))
