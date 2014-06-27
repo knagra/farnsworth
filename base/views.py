@@ -248,7 +248,7 @@ def login_view(request):
 	''' The view of the login page. '''
 	ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
 	page_name = "Login Page"
-	redirect_to = request.REQUEST.get('next', reverse('homepage'))
+	redirect_to = request.GET.get('next', reverse('homepage'))
 	if (request.user.is_authenticated() and not ANONYMOUS_SESSION) or (ANONYMOUS_SESSION and request.user.username != ANONYMOUS_USERNAME):
 		return HttpResponseRedirect(redirect_to)
 	form = LoginForm(request.POST or None)
@@ -372,7 +372,7 @@ def member_profile_view(request, targetUsername):
 def request_profile_view(request):
 	''' The page to request a user profile on the site. '''
 	page_name = "Profile Request Page"
-	redirect_to = request.REQUEST.get('next', reverse('homepage'))
+	redirect_to = request.GET.get('next', reverse('homepage'))
 	if request.user.is_authenticated() and request.user.username != ANONYMOUS_USERNAME:
 		return HttpResponseRedirect(redirect_to)
 	form = ProfileRequestForm(request.POST or None)
