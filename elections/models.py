@@ -154,5 +154,11 @@ class PollChoice(models.Model):
 
 class PollAnswer(models.Model):
     """ Text answer to a TEXT type question. """
-    question = models.ForeignKey(Question
-    body = models.TextField(
+    question = models.ForeignKey(Question,
+        help_text="The question being answered.")
+    body = models.TextField(blank=True,
+        null=True,
+        help_text="The text body for this answer.")
+    owner = models.ForeignKey(UserProfile,
+        help_text="The user who posted this answer.")
+        
