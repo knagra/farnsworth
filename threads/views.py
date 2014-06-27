@@ -110,7 +110,7 @@ def all_threads_view(request):
 
 @profile_required
 def list_user_threads_view(request, targetUsername):
-	''' View of users a user has created. '''
+	''' View of threads a user has created. '''
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	threads = Thread.objects.filter(owner=targetProfile)
@@ -127,10 +127,8 @@ def list_user_messages_view(request, targetUsername):
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	user_messages = Message.objects.filter(owner=targetProfile)
-	threads = []
-	for message in user_messages:
-		if message.thread not in threads:
-			threads.append(message.thread)
+	thread_pks = list(set([i.thread.pk for i in user_messages]))
+	threads = Thread.objects.filter(pk__in=thread_pks)
 	page_name = "Threads {0} has posted in".format(targetUser.get_full_name())
 	return render_to_response('list_threads.html', {
 			'page_name': page_name,
@@ -140,7 +138,7 @@ def list_user_messages_view(request, targetUsername):
 
 @profile_required
 def list_all_threads_view(request):
-	''' View of my threads. '''
+	''' View of all threads. '''
 	threads = Thread.objects.all()
 	return render_to_response('list_threads.html', {
 			'page_name': "Archives - All Threads",
