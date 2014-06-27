@@ -40,9 +40,7 @@
 		  <td>{{ room.0.occupancy }}</td>
 		  <td>
 			{% for person in room.1 %}
-			{% if not forloop.first %},{% endif %}
-			<a title="View Profile" href="{% url 'member_profile' targetUsername=person.user.username %}">{{ person }}</a>
-			{% endfor %}
+			{% if not forloop.first %}, {% endif %} <a title="View Profile" href="{% url 'member_profile' targetUsername=person.user.username %}">{{ person.user.get_full_name }}</a> {% endfor %}
 		  </td>
 		</tr>
 		{% endfor %}

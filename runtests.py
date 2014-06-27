@@ -18,7 +18,13 @@ def runtests():
 
 	TestRunner = get_runner(settings)
 	test_runner = TestRunner(verbosity=1, interactive=True, failfast=False)
-	failures = test_runner.run_tests(["base", "threads", "events", "managers"])
+	failures = test_runner.run_tests([
+		"base",
+		"threads",
+		"events",
+		"managers",
+		"rooms",
+		])
 	sys.exit(bool(failures))
 
 if __name__ == "__main__":

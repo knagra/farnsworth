@@ -22,7 +22,7 @@
 	  {{ room.description|safe }}
 	</div>
 	<p>Current residents:
-	  {% for person in residents %}{% if not forloop.first %}, {% endif %}<a title="View Profile" href="{% url 'member_profile' targetUsername=person.user.username %}">{{ person }}</a>{% endfor %}
+	  {% for person in residents %}{% if not forloop.first %}, {% endif %}<a title="View Profile" href="{% url 'member_profile' targetUsername=person.user.username %}">{{ person.user.get_full_name }}</a>{% endfor %}
 	</p>
 	<p>Total occupancy: {{ room.occupancy }}</p>
   </div> <!-- .main_body -->
