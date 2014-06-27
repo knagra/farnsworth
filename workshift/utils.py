@@ -122,6 +122,7 @@ def make_instances(semester, shift):
 				weekly_workshift=shift,
 				date=day,
 				workshifter=shift.current_assignee,
+				hours=shift.hours,
 				intended_hours=shift.hours,
 				auto_verify=shift.auto_verify,
 				week_long=shift.week_long,

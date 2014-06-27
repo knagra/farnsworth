@@ -474,6 +474,11 @@ class RegularWorkshiftForm(forms.ModelForm):
 				for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift):
 					# Update existing workshift instances
 					instance.workshifter = shift.current_assignee
+					instance.intended_hours = shift.hours
+					if instance.hours == prev_shift.hours:
+						# Update workshift hours if instance's hours have not
+						# yet been altered
+						instance.hours = shift.hours
 					instance.save()
 		else:
 			make_instances(self.semester, shift)
