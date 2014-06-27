@@ -102,7 +102,7 @@
 	  </tr>
 	</thead>
 	<tbody>
-	  {% for shift, form in week_shifts %}
+	  {% for shift, forms in week_shifts %}
 	  <tr>
 		<td>
 		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
