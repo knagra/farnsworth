@@ -32,7 +32,7 @@
 	  <td>{{ member.user.last_name }}</td>
 	  <td>{% if member.email_visible and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
 	  <td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
-	  <td>{% if member.current_room %}{{ member.current_room }}{% endif %}</td>
+	  <td>{% if member.current_room %}<a href="{% url 'rooms:view' room_title=member.current_room.title %}">{{ member.current_room.title }}</a>{% endif %}</td>
 	</tr>
 	{% endfor %}
       </tbody>
