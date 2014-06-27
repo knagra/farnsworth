@@ -119,16 +119,23 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		exclude = ("weekly_workshift", "info", "intended_hours", "logs",
 				   "blown", "semester", "verifier")
 
+	weekly_workshift = forms.ModelChoiceField(
+		required=False,
+		queryset=RegularWorkshift.objects.filter(active=True),
+		help_text="Link this instance to a regular shift.",
+		)
 	title = forms.CharField(
+		required=False,
 		max_length=255,
 		help_text="The title for this workshift",
 		)
 	description = forms.CharField(
-		widget=forms.Textarea(),
 		required=False,
+		widget=forms.Textarea(),
 		help_text="Description of the shift.",
 		)
 	pool = forms.ModelChoiceField(
+		required=False,
 		queryset=WorkshiftPool.objects.filter(semester__current=True),
 		help_text="The workshift pool for this shift.",
 		)
@@ -167,19 +174,30 @@ class WorkshiftInstanceForm(forms.ModelForm):
 
 		super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
 
-		# If this is a regular workshift, disable title, description, etc
-		# from being edited
-		if instance and instance.weekly_workshift:
-			for field in self.info_fields:
-				self.fields[field].widget.attrs['readonly'] = True
 		if self.pools:
 			self.fields['pool'].queryset = self.pools
 
 		# Move the forms for title, description, etc to the top
 		keys = self.fields.keyOrder
-		for field in reversed(self.info_fields):
+		for field in reversed(["weekly_workshift"] + list(self.info_fields)):
 			keys.remove(field)
 			keys.insert(0, field)
+
+	def is_valid(self):
+		if not super(WorkshiftInstanceForm, self).is_valid():
+			return False
+
+		validity = True
+		shift = self.cleaned_data["weekly_workshift"]
+		title = self.cleaned_data["title"]
+		if not shift and not title:
+			self._errors["weekly_workshift"] = forms.util.ErrorList(["Pick a shift or give this instance a title."])
+			self._errors["title"] = forms.util.ErrorList(["Pick a shift or give this instance a title."])
+			validity = False
+		elif not shift and not self.cleaned_data["pool"]:
+			self._errors["pool"] = forms.util.ErrorList(["This field is required."])
+			validity = False
+		return validity
 
 	def save(self):
 		instance = super(WorkshiftInstanceForm, self).save(commit=False)
@@ -204,7 +222,9 @@ class WorkshiftInstanceForm(forms.ModelForm):
 				info = None
 		else:
 			info = instance.info
-		if info:
+		if self.cleaned_data["weekly_workshift"]:
+			instance.weekly_workshift = self.cleaned_data["weekly_workshift"]
+		elif info:
 			for field in self.info_fields:
 				setattr(info, field, self.cleaned_data[field])
 			info.save()
@@ -497,11 +517,6 @@ class TimeBlockForm(forms.ModelForm):
 	class Meta:
 		model = TimeBlock
 		fields = "__all__"
-
-	# def clean(self):
-	# 	if self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
-	# 		raise forms.ValidationError('Start time later than end time.')
-	# 	return self.cleaned_data
 
 	def is_valid(self):
 		if not super(TimeBlockForm, self).is_valid():

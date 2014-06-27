@@ -700,7 +700,7 @@ class TestInteractForms(TestCase):
 
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
@@ -723,7 +723,7 @@ class TestInteractForms(TestCase):
 
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.op)
@@ -733,7 +733,7 @@ class TestInteractForms(TestCase):
 
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.BLOWN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.op)
@@ -758,7 +758,7 @@ class TestInteractForms(TestCase):
 
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.wp)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.BLOWN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.wp)
@@ -768,7 +768,7 @@ class TestInteractForms(TestCase):
 
 		form = SignInForm({"pk": self.once.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.once.logs.filter(entry_type=ShiftLogEntry.SIGNIN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
@@ -782,7 +782,7 @@ class TestInteractForms(TestCase):
 
 		form = SignOutForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.SIGNOUT)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
@@ -1093,6 +1093,7 @@ class TestWorkshifts(TestCase):
 		self.assertRedirects(response, "/workshift/manage/")
 		instance = WorkshiftInstance.objects.get(pk=self.once.pk + 1)
 		self.assertEqual(instance.weekly_workshift, self.shift)
+		self.assertEqual(instance.info, None)
 		self.assertEqual(instance.date, date(2014, 5, 27))
 		self.assertEqual(instance.workshifter, self.wp)
 		self.assertEqual(instance.closed, False)

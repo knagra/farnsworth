@@ -62,5 +62,23 @@
   $("[id$=date]").datetimepicker({
     pickTime: false,
   });
+  function show_hide_details() {
+    var weekly_workshift = $("#weekly_workshift").val();
+    if (weekly_workshift != "") {
+      $("#id_title").hide()
+      $("#id_description").hide()
+      $("#id_pool").hide()
+      $("#id_start_time").hide()
+      $("#id_end_time").hide()
+    } else {
+      $("#id_title").show()
+      $("#id_description").show()
+      $("#id_pool").show()
+      $("#id_start_time").show()
+      $("#id_end_time").show()
+    }
+  }
+  $(document).ready(show_hide_details)
+  $("#id_weekly_workshift").change(show_hide_details)
 </script>
 {% endblock %}

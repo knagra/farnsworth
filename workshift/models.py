@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
 from weekday_field.fields import WeekdayField
+from weekday_field.utils import DAY_CHOICES
 
 from managers.models import Manager
 from workshift.fields import DayField
@@ -424,7 +425,10 @@ class RegularWorkshift(models.Model):
 		)
 
 	def __unicode__(self):
-		return "%s, %s" % (self.title, self.get_day_display)
+		days = []
+		for day in self.days:
+			days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
+		return "{0}, {1}".format(self.title, ", ".join(days))
 
 class ShiftLogEntry(models.Model):
 	''' Entries for sign-ins, sign-outs, and verification. '''
