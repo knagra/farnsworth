@@ -50,15 +50,15 @@
 	  <dt>Messages Posted</dt>
 	  <dd>{% if number_of_messages > 0 %}<a class="page_link" title="See Messages" href="{% url 'list_user_messages' targetUsername=targetUser.username %}">{{ number_of_messages }}</a>{% else %}{{ number_of_messages }}{% endif %}</dd>
 	  <dt>Requests Posted</dt>
-	  <dd>{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}</a></dd>
-{% endif %}
-</dl>
-<hr>
-<div class="text-center">
-  <form action="{% url 'member_directory' %}">
-	<button id="member_directory" type="submit" class="btn btn-lg btn-info"><span class="glyphicon glyphicon-book"></span> Member Directory</button>
-  </form>
-</div>
-</div> <!-- .main_table -->
+	  <dd>{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}</dd>
+	  {% endif %}
+	</dl>
+	<hr>
+	<div class="text-center">
+	  <form action="{% url 'member_directory' %}">
+		<button id="member_directory" type="submit" class="btn btn-lg btn-info"><span class="glyphicon glyphicon-book"></span> Member Directory</button>
+	  </form>
+	</div>
+  </div> <!-- .main_table -->
 </div>
 {% endblock %}
