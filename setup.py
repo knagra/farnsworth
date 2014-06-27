@@ -15,6 +15,7 @@ required = [
 	"Django",
 	"django-bootstrap-form>=3.1",
 	"django-haystack",
+	"elasticsearch==1.0.0",
 	]
 
 setup(
