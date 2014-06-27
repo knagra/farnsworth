@@ -42,8 +42,8 @@ class VerifyThread(TestCase):
 			"/threads/{0}/".format(self.thread.pk),
 			"/threads/all/",
 			"/threads/list/",
-			"/my_threads/",
 			"/profile/{0}/threads/".format(self.u.username),
+			"/profile/{0}/messages/".format(self.u.username),
 			]
 
 		for url in urls:
@@ -54,7 +54,6 @@ class VerifyThread(TestCase):
 
 	def test_create_thread(self):
 		urls = [
-			"/my_threads/",
 			"/threads/",
 			"/threads/all/",
 			]
@@ -80,7 +79,6 @@ class VerifyThread(TestCase):
 
 	def test_bad_thread(self):
 		urls = [
-			"/my_threads/",
 			"/threads/",
 			"/threads/all/",
 			]
@@ -107,13 +105,12 @@ class VerifyThread(TestCase):
 			"/threads/",
 			"/threads/{0}/".format(self.thread.pk),
 			"/threads/all/",
-			"/my_threads/",
 			]
 		body = "Reply Body Test"
 		for url in urls:
 			response = self.client.post(url, {
 					"submit_message_form": "",
-					"thread_pk": "{0}".format(self.thread.pk),
+					"thread_pk": self.thread.pk,
 					"body": body,
 					}, follow=True)
 			self.assertRedirects(response, url)
@@ -135,7 +132,6 @@ class VerifyThread(TestCase):
 			"/threads/",
 			"/threads/{0}/".format(self.thread.pk),
 			"/threads/all/",
-			"/my_threads/",
 			]
 		body = "Reply Body Test"
 		for url in urls:
