@@ -1,7 +1,7 @@
 # Farnsworth
 
-[![Coverage Status](https://img.shields.io/coveralls/knagra/farnsworth.svg)](https://coveralls.io/r/knagra/farnsworth)
-[![Build Status](https://travis-ci.org/knagra/farnsworth.svg)](https://travis-ci.org/knagra/farnsworth)
+[![Coverage Status](https://coveralls.io/repos/knagra/farnsworth/badge.svg?branch=master)](https://coveralls.io/r/knagra/farnsworth?branch=master)
+[![Build Status](https://travis-ci.org/knagra/farnsworth.svg?branch=master)](https://travis-ci.org/knagra/farnsworth)
 
 ## Authors
 
@@ -139,5 +139,5 @@ $ gunzip -c backup-<house>-<date>.db.gz | psql -U <house>_admin <house>
 
 See http://www.postgresql.org/docs/current/static/backup.html for a detailed description of other methods to back up the database.
 
-[![Coverage Status](https://img.shields.io/coveralls/knagra/farnsworth.svg)](https://coveralls.io/r/knagra/farnsworth)
-[![Build Status](https://travis-ci.org/knagra/farnsworth.svg)](https://travis-ci.org/knagra/farnsworth)
+[![Coverage Status](https://coveralls.io/repos/knagra/farnsworth/badge.svg?branch=master)](https://coveralls.io/r/knagra/farnsworth?branch=master)
+[![Build Status](https://travis-ci.org/knagra/farnsworth.svg?branch=master)](https://travis-ci.org/knagra/farnsworth)
