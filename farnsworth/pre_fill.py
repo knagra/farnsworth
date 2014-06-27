@@ -17,9 +17,9 @@ from workshift.utils import get_year_season, make_instances, \
 	 get_semester_start_end, get_int_days
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "farnsworth.settings")
-this_dir = os.path.abspath(os.path.dirname(__file__))
+this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if this_dir not in sys.path:
-	sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+	sys.path.insert(0, this_dir)
 
 MANAGERS = [
 	("President", "", 5, "hp", """<ol>
