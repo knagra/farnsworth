@@ -47,7 +47,7 @@ setup(
 		],
 	dependency_links=[
 		"git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master",
-		"https://www.djangoproject.com/download/1.7.b4/tarball/",
+		"git://github.com/django/django.git#django-master",
 		],
 	extras_require={
 		"PostgreSQL": ["psycopg2"],
