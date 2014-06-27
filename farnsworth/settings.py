@@ -339,6 +339,8 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
 
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 if 'test' in sys.argv:
 	PASSWORD_HASHERS = (
 		'django.contrib.auth.hashers.MD5PasswordHasher',
