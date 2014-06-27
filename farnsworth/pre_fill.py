@@ -20,7 +20,7 @@ from managers.models import Manager, RequestType
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	 RegularWorkshift, WorkshiftProfile
 from workshift.utils import get_year_season, make_instances, \
-	 get_semester_start_end, get_int_days
+	 get_semester_start_end, get_int_days, make_workshift_pool_hours
 
 MANAGERS = [
 	("President", "", 5, "hp", """<ol>
@@ -269,6 +269,7 @@ def main(args):
 	pool = WorkshiftPool.objects.create(
 		semester=semester,
 		is_primary=True,
+		hours=5,
 		any_blown=True,
 		self_verify=True,
 		)
@@ -308,6 +309,8 @@ def main(args):
 		)
 	humor_pool.managers = Manager.objects.filter(workshift_manager=True)
 	humor_pool.save()
+
+	make_workshift_pool_hours(semester)
 
 	# Workshift Types
 	for title, description, quick_tips, hours, rateable in WORKSHIFT_TYPES:

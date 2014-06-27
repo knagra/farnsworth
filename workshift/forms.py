@@ -10,14 +10,12 @@ from django.conf import settings
 from django.db.models import Q
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
-from datetime import date, timedelta
-
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
-	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
+	TimeBlock, WorkshiftRating, WorkshiftProfile, \
 	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
-from workshift.utils import make_instances
+from workshift.utils import make_instances, make_workshift_pool_hours
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
 
@@ -58,10 +56,7 @@ class SemesterForm(forms.ModelForm):
 				semester=semester,
 				)
 
-			hours = PoolHours.objects.create(pool=pool)
-
-			profile.pool_hours.add(hours)
-			profile.save()
+		make_workshift_pool_hours(semester)
 
 		return semester
 
@@ -82,15 +77,7 @@ class StartPoolForm(forms.ModelForm):
 			pool.semester = semester
 			pool.save()
 
-			for profile in WorkshiftProfile.objects.filter(semester=pool.semester):
-				if not profile.pool_hours.filter(pool=pool):
-					pool_hours = PoolHours(
-						pool=pool,
-						hours=pool.hours,
-						)
-					pool_hours.save()
-					profile.pool_hours.add(pool_hours)
-					profile.save()
+			make_workshift_pool_hours(pool.semester, pools=[pool])
 
 class PoolForm(forms.ModelForm):
 	class Meta:
@@ -110,15 +97,7 @@ class PoolForm(forms.ModelForm):
 			pool.semester = self.semester
 		pool.save()
 		self.save_m2m()
-		for profile in WorkshiftProfile.objects.filter(semester=pool.semester):
-			if not profile.pool_hours.filter(pool=pool):
-				pool_hours = PoolHours(
-					pool=pool,
-					hours=pool.hours,
-					)
-				pool_hours.save()
-				profile.pool_hours.add(pool_hours)
-				profile.save()
+		make_workshift_pool_hours(self.semester, pools=[pool])
 		return pool
 
 class WorkshiftInstanceForm(forms.ModelForm):
@@ -414,15 +393,8 @@ class AddWorkshifterForm(forms.Form):
 				)
 
 			profile.save()
-
-			for pool in WorkshiftPool.objects.filter(semester=self.semester):
-				pool_hours = PoolHours(pool=pool)
-				if pool.is_primary:
-					pool_hours.hours = self.cleaned_data['hours']
-				pool_hours.save()
-				profile.pool_hours.add(pool_hours)
-
-			profile.save()
+			make_workshift_pool_hours(semester, profiles=[profile],
+									  primary_hours=self.cleaned_data["hours"])
 
 			return profile
 
