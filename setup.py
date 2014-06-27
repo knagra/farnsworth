@@ -12,7 +12,7 @@ except (ImportError, OSError):
 	read_md = lambda f: open(f, 'r').read()
 
 required = [
-	"Django>=1.6",
+	"Django",
 	"django-bootstrap-form>=3.1",
 	"django-haystack",
 	]
@@ -47,6 +47,7 @@ setup(
 		],
 	dependency_links=[
 		"git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master",
+		"https://www.djangoproject.com/download/1.7.b4/tarball/",
 		],
 	extras_require={
 		"PostgreSQL": ["psycopg2"],
