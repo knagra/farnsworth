@@ -46,7 +46,7 @@
 	  {% endif %}
 	  <dt>Threads Started</dt>
 	  <dd>{% if number_of_threads > 0 %}<a class="page_link" title="See Threads" href="{% url 'list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a>{% else %}{{ number_of_threads }}{% endif %}</dd>
-	  <dt>Messages Started</dt>
+	  <dt>Messages Posted</dt>
 	  <dd>{% if number_of_messages > 0 %}<a class="page_link" title="See Messages" href="{% url 'list_user_messages' targetUsername=targetUser.username %}">{{ number_of_messages }}</a>{% else %}{{ number_of_messages }}{% endif %}</dd>
 	  <dt>Requests Posted</dt>
 	  <dd>{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}
