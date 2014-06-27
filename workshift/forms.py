@@ -43,24 +43,22 @@ class SemesterForm(forms.ModelForm):
 		semester.preferences_open = True
 		semester.save()
 
-		# TODO Copy workshift and pools over from previous semester?
-		pool = WorkshiftPool(
+		# Create the primary workshift pool
+		pool = WorkshiftPool.objects.create(
 			semester=semester,
+			is_primary=True,
 			)
-		pool.save()
 		pool.managers = Manager.objects.filter(workshift_manager=True)
 		pool.save()
 
-		# TODO Create this semester's workshift profiles
+		# Create this semester's workshift profiles
 		for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
-			profile = WorkshiftProfile(
+			profile = WorkshiftProfile.objects.create(
 				user=uprofile.user,
 				semester=semester,
 				)
-			profile.save()
 
-			hours = PoolHours(pool=pool)
-			hours.save()
+			hours = PoolHours.objects.create(pool=pool)
 
 			profile.pool_hours.add(hours)
 			profile.save()
@@ -83,6 +81,16 @@ class StartPoolForm(forms.ModelForm):
 			pool = super(StartPoolForm, self).save(commit=False)
 			pool.semester = semester
 			pool.save()
+
+			for profile in WorkshiftProfile.objects.filter(semester=pool.semester):
+				if not profile.pool_hours.filter(pool=pool):
+					pool_hours = PoolHours(
+						pool=pool,
+						hours=pool.hours,
+						)
+					pool_hours.save()
+					profile.pool_hours.add(pool_hours)
+					profile.save()
 
 class PoolForm(forms.ModelForm):
 	class Meta:
