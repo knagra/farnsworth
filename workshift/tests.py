@@ -12,7 +12,7 @@ from base.models import User, UserProfile
 from managers.models import Manager
 from workshift.models import *
 from workshift.forms import *
-from workshift.utils import get_year_season, get_semester_start_end
+from workshift import utils
 
 class TestStart(TestCase):
 	def setUp(self):
@@ -31,7 +31,7 @@ class TestStart(TestCase):
 		self.assertTrue(self.client.login(username="wu", password="pwd"))
 
 	def test_get_year_season(self):
-		year, season = get_year_season()
+		year, season = utils.get_year_season()
 		self.assertLess(abs(year - date.today().year), 2)
 		self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
 
@@ -50,29 +50,6 @@ class TestStart(TestCase):
 		response = self.client.get("/workshift/", follow=True)
 		self.assertRedirects(response, "/")
 
-	def test_starting_month(self):
-		# Starting in Summer / Fall / Spring
-		self.assertEqual((2015, Semester.SPRING),
-						 get_year_season(day=date(2014, 12, 20)))
-		self.assertEqual((2015, Semester.SPRING),
-						 get_year_season(day=date(2015, 3, 20)))
-		self.assertEqual((2014, Semester.SUMMER),
-						 get_year_season(day=date(2014, 4, 1)))
-		self.assertEqual((2014, Semester.SUMMER),
-						 get_year_season(day=date(2014, 7, 20)))
-		self.assertEqual((2014, Semester.FALL),
-						 get_year_season(day=date(2014, 8, 1)))
-		self.assertEqual((2014, Semester.FALL),
-						 get_year_season(day=date(2014, 10, 20)))
-
-	def test_start_end(self):
-		self.assertEqual((date(2014, 1, 20), date(2014, 5, 17)),
-						 get_semester_start_end(2014, Semester.SPRING))
-		self.assertEqual((date(2014, 5, 25), date(2014, 8, 16)),
-						 get_semester_start_end(2014, Semester.SUMMER))
-		self.assertEqual((date(2014, 8, 24), date(2014, 12, 20)),
-						 get_semester_start_end(2014, Semester.FALL))
-
 	def test_start(self):
 		response = self.client.post("/workshift/start/", {
 			"season": Semester.SUMMER,
@@ -85,19 +62,19 @@ class TestStart(TestCase):
 		self.assertRedirects(response, "/workshift/manage/")
 
 		self.assertEqual(
-			Semester.objects.filter(year=2014).filter(season=Semester.SUMMER).count(),
 			1,
+			Semester.objects.filter(year=2014).filter(season=Semester.SUMMER).count(),
 			)
 
 		semester = Semester.objects.get(year=2014, season=Semester.SUMMER)
 
 		self.assertEqual(
-			WorkshiftProfile.objects.filter(semester=semester).count(),
 			2,
+			WorkshiftProfile.objects.filter(semester=semester).count(),
 			)
 		self.assertEqual(
-			WorkshiftPool.objects.filter(semester=semester).count(),
 			1,
+			WorkshiftPool.objects.filter(semester=semester).count(),
 			)
 
 		pool = WorkshiftPool.objects.get(semester=semester)
@@ -107,7 +84,92 @@ class TestStart(TestCase):
 		pool_hours = PoolHours.objects.filter(pool=pool)
 
 		for profile in WorkshiftProfile.objects.filter(semester=semester):
+			self.assertEqual(1, profile.pool_hours.count())
 			self.assertIn(profile.pool_hours.all()[0], pool_hours)
+			self.assertEqual(1, profile.pool_hours.filter(pool=pool).count())
+
+class TestUtils(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.semester = Semester.objects.create(
+			year=2014,
+			season=Semester.SUMMER,
+			start_date=date(2014, 5, 25),
+			end_date=date(2014, 8, 16),
+			)
+		self.profile = WorkshiftProfile.objects.create(
+			user=self.u,
+			semester=self.semester,
+			)
+		self.p1 = WorkshiftPool.objects.create(
+			title="Regular Workshift",
+			is_primary=True,
+			semester=self.semester,
+			)
+		self.p2 = WorkshiftPool.objects.create(
+			title="Alternate Workshift",
+			semester=self.semester,
+			)
+
+	def test_starting_month(self):
+		# Starting in Summer / Fall / Spring
+		self.assertEqual(
+			(2015, Semester.SPRING),
+			utils.get_year_season(day=date(2014, 12, 20)),
+			)
+		self.assertEqual(
+			(2015, Semester.SPRING),
+			utils.get_year_season(day=date(2015, 3, 20)),
+			)
+		self.assertEqual(
+			(2014, Semester.SUMMER),
+			utils.get_year_season(day=date(2014, 4, 1)),
+			)
+		self.assertEqual(
+			(2014, Semester.SUMMER),
+			utils.get_year_season(day=date(2014, 7, 20)),
+			)
+		self.assertEqual(
+			(2014, Semester.FALL),
+			utils.get_year_season(day=date(2014, 8, 1)),
+			)
+		self.assertEqual(
+			(2014, Semester.FALL),
+			utils.get_year_season(day=date(2014, 10, 20)),
+			)
+
+	def test_start_end(self):
+		self.assertEqual(
+			(date(2014, 1, 20), date(2014, 5, 17)),
+			utils.get_semester_start_end(2014, Semester.SPRING),
+			)
+		self.assertEqual(
+			(date(2014, 5, 25), date(2014, 8, 16)),
+			utils.get_semester_start_end(2014, Semester.SUMMER),
+			)
+		self.assertEqual(
+			(date(2014, 8, 24), date(2014, 12, 20)),
+			utils.get_semester_start_end(2014, Semester.FALL),
+			)
+
+	def test_make_pool_hours_all(self):
+		utils.make_workshift_pool_hours(self.semester)
+		self.assertEqual(2, PoolHours.objects.count())
+
+	def test_make_pool_hours_profile(self):
+		utils.make_workshift_pool_hours(self.semester, profiles=[self.profile])
+		self.assertEqual(2, PoolHours.objects.count())
+
+	def test_make_pool_hours_pools(self):
+		utils.make_workshift_pool_hours(self.semester, pools=[self.p1])
+		self.assertEqual(1, PoolHours.objects.count())
+		utils.make_workshift_pool_hours(self.semester, pools=[self.p2])
+		self.assertEqual(2, PoolHours.objects.count())
+
+	def test_make_pool_hours_primary(self):
+		utils.make_workshift_pool_hours(self.semester, primary_hours=6)
+		self.assertEqual(6, PoolHours.objects.get(pool=self.p1).hours)
+		self.assertEqual(self.p2.hours, PoolHours.objects.get(pool=self.p2).hours)
 
 class TestViews(TestCase):
 	"""
