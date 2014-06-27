@@ -2,6 +2,7 @@
 
 [![Coverage Status](https://img.shields.io/coveralls/knagra/farnsworth.svg)](https://coveralls.io/r/knagra/farnsworth?branch=master)
 [![Build Status](https://travis-ci.org/knagra/farnsworth.svg?branch=master)](https://travis-ci.org/knagra/farnsworth)
+[![Coverage Status](https://coveralls.io/repos/knagra/farnsworth/badge.png?branch=master)](https://coveralls.io/r/knagra/farnsworth?branch=master)
 
 ## Authors
 
