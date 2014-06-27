@@ -6,7 +6,6 @@ Author: Karandeep Singh Nagra
 Search indexes for the threads app.
 '''
 
-from datetime import datetime
 from haystack import indexes
 
 from base.models import UserProfile
@@ -23,10 +22,10 @@ class UserProfileIndex(indexes.SearchIndex, indexes.Indexable):
 	former_houses = indexes.EdgeNgramField(model_attr='former_houses', null=True)
 	status = indexes.EdgeNgramField(model_attr='status')
 	exact_status = indexes.CharField(model_attr='status', faceted=True)
-	
+
 	def get_model(self):
 		return UserProfile
-	
+
 	def index_queryset(self, using=None):
 		return self.get_model().objects.all().exclude(user__username=ANONYMOUS_USERNAME)
 
