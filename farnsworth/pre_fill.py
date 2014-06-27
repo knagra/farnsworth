@@ -5,8 +5,14 @@ import sys
 
 from django.conf import settings
 
+from datetime import time
+
 from utils.funcs import convert_to_url
 from managers.models import Manager, RequestType
+from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
+	 RegularWorkshift
+from workshift.utils import get_year_season, make_instances, \
+	 get_semester_start_end, get_int_days
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "farnsworth.settings")
 this_dir = os.path.abspath(os.path.dirname(__file__))
@@ -182,33 +188,155 @@ REQUESTS = [
 	("Social", ["Social Manager"], "comment"),
 	]
 
+WORKSHIFT_TYPES = [
+	("Clean", "", "", 1, True),
+	("Food Put Away", "", "", 1, True),
+	("Pots", "", "", 2, True),
+	("Basement/Laundry Room Clean", "", "", 1, True),
+	("Bathroom Clean", "", "", 1, True),
+	("Bike/Living/Study Room Clean", "", "", 1, True),
+	("Bread Run", "", "", 2, True),
+	("Brunch", "", "", 2, True),
+	("Dishes", "", "", 1, True),
+	("Farmer's Market Run", "", "", 1, True),
+	("Hummus", "", "", 2, True),
+	("Granola", "", "", 2, True),
+	("Laundry", "", "", 1, True),
+	("Roofdeck Clean & Top Two Floors", "", "", 1, True),
+	("Sweep & Mop", "", "", 1, True),
+	("Cook", "", "", 3, True),
+	("Free Pile Clean", "", "", 1.5, True),
+	("IKC", "", "", 3, True),
+	("Main Entrance/Front Walk Clean", "", "", 1, True),
+	("Mail Sort/Forward", "", "", 1, True),
+	]
+
+REGULAR_WORKSHIFTS = [
+	("Morning Clean", "Clean", "Any day", time(10), time(12)),
+	("Afternoon Clean", "Clean", "Any day", time(13), time(15)),
+	("Evening Clean", "Clean", "Any day", time(20), time(23)),
+	("Co-Cook", "Cook", ["Weekdays", "Sunday"], time(16), time(19)),
+	]
+HUMOR_WORKSHIFTS = [
+	("Pots", "Pots", ["Friday", "Saturday"], time(20), time(0)),
+	("Sweep & Mop", "Sweep & Mop", ["Friday", "Saturday"], time(20), time(0)),
+	]
+
 def main(args):
 	# Add Managers
 	for title, compensation, email, duties in MANAGERS:
-		m = Manager(
+		Manager.objects.create(
 			title=title,
-			url_title=convert_to_url(title),
 			compensation=compensation,
 			duties=duties,
 			email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
 			president="president" in title.lower(),
 			workshift_manager="workshift" in title.lower(),
 			)
-		m.save()
 
 	# Add Requests
 	for name, managers, glyphicon in REQUESTS:
-		r = RequestType(
+		r = RequestType.objects.create(
 			name=name,
 			url_name=convert_to_url(name),
 			glyphicon=glyphicon,
 			)
-		r.save()
 		r.managers = [Manager.objects.get(title=i) for i in managers]
 		r.save()
 
-	# Add Workshifts
-	# ...
+	# Start the Workshift Semester
+	year, season = get_year_season()
+	start_date, end_date = get_semester_start_end(year, season)
+	semester = Semester.objects.create(
+		year=year,
+		season=season,
+		start_date=start_date,
+		end_date=end_date,
+		)
+
+	# Regular Weekly Workshift Hours
+	pool = WorkshiftPool.objects.create(
+		semester=semester,
+		is_primary=True,
+		any_blown=True,
+		self_verify=True,
+		)
+	pool.managers = Manager.objects.filter(workshift_manager=True)
+	pool.save()
+
+	# HI Hours
+	hi_pool = WorkshiftPool.objects.create(
+		title="House Improvement",
+		semester=semester,
+		self_verify=False,
+		hours=4,
+		weeks_per_period=0,
+		)
+	hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
+	hi_pool.save()
+
+	# Social Hours
+	social_pool = WorkshiftPool.objects.create(
+		title="Social",
+		semester=semester,
+		self_verify=False,
+		hours=1,
+		weeks_per_period=6,
+		)
+	social_pool.managers = Manager.objects.filter(title="Social Manager")
+	social_pool.save()
+
+	# Humor Shift
+	humor_pool = WorkshiftPool.objects.create(
+		title="Humor Shift",
+		semester=semester,
+		self_verify=True,
+		any_blown=True,
+		hours=2,
+		weeks_per_period=6,
+		)
+	humor_pool.managers = Manager.objects.filter(workshift_manager=True)
+	humor_pool.save()
+
+	# Workshift Types
+	for title, description, quick_tips, hours, rateable in WORKSHIFT_TYPES:
+		WorkshiftType.objects.create(
+			title=title,
+			description=description,
+			quick_tips=quick_tips,
+			hours=hours,
+			rateable=rateable,
+			)
+
+	# Regular Workshifts
+	for title, type_title, days, start, end in REGULAR_WORKSHIFTS:
+		wtype = WorkshiftType.objects.get(title=type_title)
+		shift = RegularWorkshift.objects.create(
+			workshift_type=wtype,
+			title=title,
+			pool=pool,
+			start_time=start,
+			end_time=end,
+			hours=wtype.hours,
+			)
+		shift.days = get_int_days(days)
+		shift.save()
+		make_instances(semester, shift)
+
+	# Humor Workshifts
+	for title, type_title, days, start, end in HUMOR_WORKSHIFTS:
+		wtype = WorkshiftType.objects.get(title=type_title)
+		shift = RegularWorkshift.objects.create(
+			workshift_type=wtype,
+			title=title,
+			pool=humor_pool,
+			start_time=start,
+			end_time=end,
+			hours=wtype.hours,
+			)
+		shift.days = get_int_days(days)
+		shift.save()
+		make_instances(semester, shift)
 
 if __name__ == "__main__":
 	main(sys.argv[1:])

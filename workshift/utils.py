@@ -4,8 +4,11 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
+from datetime import date, timedelta
+from weekday_field.utils import ADVANCED_DAY_CHOICES
+
 from managers.models import Manager
-from workshift.models import TimeBlock
+from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, Semester
 
 def can_manage(request, semester=None):
 	"""
@@ -45,4 +48,95 @@ def is_available(workshift_profile, regular_workshift):
 	if not relevant_blocks:
 		return True
 	hours = regular_workshift.hours
-	
+
+def get_year_season(day=None):
+	"""
+	Returns a guess of the year and season of the current semester.
+	"""
+	if day is None:
+		day = date.today()
+	year = day.year
+
+	if day.month > 3 and day.month <= 7:
+		season = Semester.SUMMER
+	elif day.month > 7 and day.month <= 10:
+		season = Semester.FALL
+	else:
+		season = Semester.SPRING
+		if day.month > 10:
+			year += 1
+	return year, season
+
+def get_semester_start_end(year, season):
+	"""
+	Returns a guess of the start and end dates for given semester.
+	"""
+	if season == Semester.SPRING:
+		start_month, start_day = 1, 20
+		end_month, end_day = 5, 17
+	elif season == Semester.SUMMER:
+		start_month, start_day = 5, 25
+		end_month, end_day = 8, 16
+	else:
+		start_month, start_day = 8, 24
+		end_month, end_day = 12, 20
+
+	return date(year, start_month, start_day), date(year, end_month, end_day)
+
+def get_int_days(days):
+	"""
+	Converts a string, or list of strings into integers for their respective
+	days of the week.
+	"""
+	if not isinstance(days, list) and not isinstance(days, tuple):
+		days = [days]
+	ret = []
+	for day in days:
+		day = [i[0] for i in ADVANCED_DAY_CHOICES if i[1] == day][0]
+		if isinstance(day, int):
+			ret.append(day)
+		else:
+			for value in day.strip("[]").split(","):
+				ret.append(int(value))
+	return ret
+
+def _date_range(start, end, step):
+	"""
+	'range' for datetime.date
+	"""
+	day = start
+	while day <= end:
+		yield day
+		day += step
+
+def make_instances(semester, shift):
+	today = date.today()
+	new_instances = []
+	for weekday in shift.days:
+		next_day = today + timedelta(days=weekday - today.weekday())
+		for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
+			# Create new instances for the entire semester
+			if WorkshiftInstance.objects.filter(weekly_workshift=shift, date=day):
+				continue
+			instance = WorkshiftInstance(
+				weekly_workshift=shift,
+				date=day,
+				workshifter=shift.current_assignee,
+				intended_hours=shift.hours,
+				auto_verify=shift.auto_verify,
+				week_long=shift.week_long,
+				)
+			instance.save()
+			new_instances.append(instance)
+		if shift.current_assignee:
+			# Update the list of assigned workshifters
+			for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift,
+															 date__gte=today):
+				log = ShiftLogEntry(
+					person=shift.current_assignee,
+					entry_type=ShiftLogEntry.ASSIGNED,
+					)
+				log.save()
+				instance.logs.add(log)
+				instance.save()
+	return new_instances

@@ -25,7 +25,7 @@ from workshift.decorators import get_workshift_profile, \
 	workshift_manager_required, semester_required
 from workshift.models import *
 from workshift.forms import *
-from workshift.utils import can_manage
+from workshift.utils import can_manage, get_year_season, get_semester_start_end
 
 def add_workshift_context(request):
 	""" Add workshift variables to all dictionaries passed to templates. """
@@ -111,24 +111,17 @@ def start_semester_view(request):
 	types from the previous semester.
 	"""
 	page_name = "Start Semester"
-	today = date.today()
-	year = today.year
-
-	if today.month > 3 and today.month <= 7:
-		season = Semester.SUMMER
-	elif today.month > 7 and today.month <= 10:
-		season = Semester.FALL
-	else:
-		season = Semester.SPRING
-		if today.month > 10:
-			year += 1
+	year, season = get_year_season()
+	start_date, end_date = get_semester_start_end(year, season)
 
 	semester_form = SemesterForm(
 		request.POST or None,
 		initial={
 			"year": year,
 			"season": season,
-		})
+            "start_date": start_date,
+            "end_date": end_date,
+            })
 
 	pool_forms = []
 	try:

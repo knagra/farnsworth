@@ -20,6 +20,7 @@
   <p>{{ shift.hours }}</p>
   <p>{{ shift.workshift_type.quick_tips|safe }}</p>
   <p>{{ shift.workshift_type.description|safe }}</p>
+  <p><a href="{% wurl 'workshift:view_pool' pk=shift.pool.pk sem_url=SEMESTER.sem_url %}">{{ shift.pool.title }}</a></p>
   {% if shift.current_assignee %}<p>{{ shift.current_assignee.user.get_full_name }}</p>{% endif %}
 </div> <!-- .instance_container -->
 {% endblock %}

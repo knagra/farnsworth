@@ -10,7 +10,7 @@ from __future__ import absolute_import
 
 from django.db import models
 
-from utils.variables import DAYS
+from weekday_field.utils import DAY_CHOICES
 
 class DayField(models.PositiveSmallIntegerField):
 	'''
@@ -18,6 +18,6 @@ class DayField(models.PositiveSmallIntegerField):
 	Extends PositiveSmallIntegerField.
 	'''
 	def __init__(self, *args, **kwargs):
-		kwargs['choices'] = DAYS
+		kwargs['choices'] = DAY_CHOICES
 		kwargs['max_length'] = 1
-		super(DayField,self).__init__(*args, **kwargs)
+		super(DayField, self).__init__(*args, **kwargs)

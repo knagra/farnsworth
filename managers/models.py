@@ -7,6 +7,7 @@ Author: Karandeep Singh Nagra
 from django.db import models
 
 from base.models import UserProfile
+from utils.funcs import convert_to_url
 
 class Manager(models.Model):
 	'''
@@ -25,12 +26,17 @@ class Manager(models.Model):
 		help_text="Number of workshift hours this position is worth during spring and fall.")
 	summer_hours = models.PositiveSmallIntegerField(default=3, null=True, blank=True,
 		help_text="Number of workshift hours this position is worth during summer.")
-	
+
 	def __unicode__(self):
 		return "%s" % self.title
-	
+
 	def is_manager(self):
 		return True
+
+	def __init__(self, *args, **kwargs):
+		if "url_title" not in kwargs and "title" in kwargs:
+			kwargs["url_title"] = convert_to_url(kwargs["title"])
+		super(Manager, self).__init__(*args, **kwargs)
 
 class RequestType(models.Model):
 	'''
@@ -41,13 +47,13 @@ class RequestType(models.Model):
 	managers = models.ManyToManyField(Manager, help_text="Managers to whom this type of request is made.")
 	enabled = models.BooleanField(default=True, help_text="Whether this type of request is currently accepted. Toggle this to off to temporarily disable accepting this type of request.")
 	glyphicon = models.CharField(max_length=100, blank=True, null=True, help_text="Glyphicon for this request type (e.g., cutlery).  Check Bootstrap documentation for more info.")
-	
+
 	def __unicode__(self):
 		return "%s RequestType" % self.name
-	
+
 	class Meta:
 		ordering = ['name']
-	
+
 	def is_requesttype(self):
 		return True
 
@@ -65,13 +71,13 @@ class Request(models.Model):
 	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
 	number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
 	upvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Up votes for this request.", related_name="up_votes")
-	
+
 	def __unicode__(self):
 		return "%s request by %s on %s" % (self.request_type.name, self.owner, self.post_date)
-	
+
 	class Meta:
 		ordering = ['-post_date']
-	
+
 	def is_request(self):
 		return True
 
@@ -84,13 +90,13 @@ class Response(models.Model):
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this response was posted.")
 	request = models.ForeignKey(Request, blank=False, null=False, help_text="The request to which this is a response.")
 	manager = models.BooleanField(default=False, help_text="Whether this is a relevant manager response.")
-	
+
 	def __unicode__(self):
 		return "Response by %s to: %s" % (self.owner, self.request)
-	
+
 	class Meta:
 		ordering = ['post_date']
-	
+
 	def is_response(self):
 		return True
 
@@ -104,12 +110,12 @@ class Announcement(models.Model):
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this announcement was posted.")
 	pinned = models.BooleanField(default=False, help_text="Whether this announcment should be pinned permanently.")
 	change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
-	
+
 	def __unicode__(self):
 		return "Announcement by %s as %s on %s" % (self.incumbent, self.manager, self.post_date)
-	
+
 	class Meta:
 		ordering = ['-post_date']
-	
+
 	def is_announcement(self):
 		return True

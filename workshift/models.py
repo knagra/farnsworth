@@ -4,12 +4,11 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
+from django.db import models
+from weekday_field.fields import WeekdayField
 
-from farnsworth.settings import DEFAULT_SEMESTER_HOURS, DEFAULT_CUTOFF, \
-	DEFAULT_WORKSHIFT_HOURS
-from base.models import UserProfile
 from managers.models import Manager
 from workshift.fields import DayField
 
@@ -100,14 +99,14 @@ class WorkshiftPool(models.Model):
 		help_text="Managers who are able to control this workshift category."
 		)
 	sign_out_cutoff = models.PositiveSmallIntegerField(
-		default=DEFAULT_CUTOFF,
+		default=settings.DEFAULT_CUTOFF,
 		help_text="Cut-off for signing out of workshifts without requiring "
 		"a substitute, in hours.",
 		)
 	hours = models.DecimalField(
 		max_digits=5,
 		decimal_places=2,
-		default=DEFAULT_SEMESTER_HOURS,
+		default=settings.DEFAULT_SEMESTER_HOURS,
 		help_text="Default regular workshift hours required per week.",
 		)
 	weeks_per_period = models.PositiveSmallIntegerField(
@@ -267,7 +266,7 @@ class PoolHours(models.Model):
 	hours = models.DecimalField(
 		max_digits=5,
 		decimal_places=2,
-		default=DEFAULT_SEMESTER_HOURS,
+		default=settings.DEFAULT_SEMESTER_HOURS,
 		help_text="Periodic hour requirement.",
 		)
 	standing = models.DecimalField(
@@ -379,13 +378,13 @@ class RegularWorkshift(models.Model):
 		max_length=255,
 		help_text="The title for this weekly workshift (i.e. Monday morning dishes).",
 		)
-	day = DayField(
-		help_text="The day of the week when this workshift takes place.",
+	days = WeekdayField(
+		help_text="The days of the week when this workshift takes place.",
 		)
 	hours = models.DecimalField(
 		max_digits=5,
 		decimal_places=2,
-		default=DEFAULT_WORKSHIFT_HOURS,
+		default=settings.DEFAULT_WORKSHIFT_HOURS,
 		help_text="Number of hours for this shift.",
 		)
 	active = models.BooleanField(
@@ -551,13 +550,13 @@ class WorkshiftInstance(models.Model):
 	intended_hours = models.DecimalField(
 		max_digits=5,
 		decimal_places=2,
-		default=DEFAULT_WORKSHIFT_HOURS,
+		default=settings.DEFAULT_WORKSHIFT_HOURS,
 		help_text="Intended hours given for this shift.",
 		)
 	hours = models.DecimalField(
 		max_digits=5,
 		decimal_places=2,
-		default=DEFAULT_WORKSHIFT_HOURS,
+		default=settings.DEFAULT_WORKSHIFT_HOURS,
 		help_text="Number of hours actually given for this shift.",
 		)
 	logs = models.ManyToManyField(

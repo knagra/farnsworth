@@ -19,6 +19,7 @@
   <p>{{ shift.workshifter.user.get_full_name }}</p>
   <p>{{ shift.description|safe }}</p>
   {% if shift.weekly_workshift %}<p>{{ shift.weekly_workshift.workshift_type.quick_tips }}</p>{% endif %}
+  <p><a href="{% wurl 'workshift:view_pool' pk=shift.pool.pk sem_url=SEMESTER.sem_url %}">{{ shift.pool.title }}</a></p>
   <p>{{ shift.hours }}</p>
   {% if shift.addendum %}
   <p>{{ shift.addendum|safe }}</p>
