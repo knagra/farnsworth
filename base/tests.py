@@ -1080,7 +1080,7 @@ class TestSearch(TestCase):
 				 self.sqs.facet(self.profile.phone_number)[0].object)
 
 	def test_search_results(self):
-		response = self.client.get("/search/?q={0}".format(self.u.username))
+		response = self.client.get("/search/?q={0}".format(self.u.first_name))
 		self.assertEqual(response.status_code, 200)
 		self.assertNotContains(response, "No results found.")
 		self.assertContains(response, self.u.first_name)
