@@ -656,7 +656,7 @@ def edit_shift_view(request, semester, pk, profile=None):
 		shift = edit_form.save()
 		return HttpResponseRedirect(wurl('workshift:view_shift',
 										 sem_url=semester.sem_url,
-										 pk=pk))
+										 pk=shift.pk))
 
 	page_name = "Edit " + shift.title
 
@@ -671,12 +671,26 @@ def instance_view(request, semester, pk, profile=None):
 	"""
 	View the details of a particular WorkshiftInstance.
 	"""
-	shift = get_object_or_404(WorkshiftInstance, pk=pk)
-	page_name = shift.title
+	instance = get_object_or_404(WorkshiftInstance, pk=pk)
+	page_name = instance.title
+	interact_forms = _get_forms(profile, instance)
+
+	for form in interact_forms:
+		if form.action_name in request.POST:
+			f = form(request.POST, profile=profile)
+			if f.is_valid():
+				instance = f.save()
+				return HttpResponseRedirect(wurl('workshift:view_instance',
+												 sem_url=semester.sem_url,
+												 pk=instance.pk))
+			else:
+				for error in f.errors.values():
+					messages.add_message(request, messages.ERROR, error)
 
 	return render_to_response("view_instance.html", {
 		"page_name": page_name,
-		"shift": shift,
+		"instance": instance,
+        "interact_forms": interact_forms,
 	}, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -684,8 +698,8 @@ def edit_instance_view(request, semester, pk, profile=None):
 	"""
 	View for a manager to edit the details of a particular WorkshiftInstance.
 	"""
-	shift = get_object_or_404(WorkshiftInstance, pk=pk)
-	managers = shift.pool.managers.filter(incumbent__user=request.user)
+	instance = get_object_or_404(WorkshiftInstance, pk=pk)
+	managers = instance.pool.managers.filter(incumbent__user=request.user)
 
 	if not request.user.is_superuser and not managers.count():
 		messages.add_message(request, messages.ERROR,
@@ -693,27 +707,27 @@ def edit_instance_view(request, semester, pk, profile=None):
 		return HttpResponseRedirect(wurl('workshift:view_semester',
 										 sem_url=semester.sem_url))
 
-	page_name = "Edit " + shift.title
+	page_name = "Edit " + instance.title
 
 	edit_form = WorkshiftInstanceForm(
 		request.POST if "edit" in request.POST else None,
-		instance=shift,
+		instance=instance,
 		semester=semester,
 		)
 
 	if "delete" in request.POST:
-		shift.delete()
+		instance.delete()
 		return HttpResponseRedirect(wurl('workshift:manage',
 										 sem_url=semester.sem_url))
 	elif edit_form.is_valid():
-		shift = edit_form.save()
+		instance = edit_form.save()
 		return HttpResponseRedirect(wurl('workshift:view_instance',
 										 sem_url=semester.sem_url,
-										 pk=pk))
+										 pk=instance.pk))
 
 	return render_to_response("edit_instance.html", {
 		"page_name": page_name,
-		"shift": shift,
+		"instance": instance,
         "edit_form": edit_form,
 	}, context_instance=RequestContext(request))
 
