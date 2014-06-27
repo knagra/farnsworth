@@ -23,7 +23,7 @@ Live versions of the site can be accessed at https://kingmanhall.org/internal/, 
 
 ## Dependencies
 
-* Django 1.6.5
+* Django >= 1.6
 * Python >= 2.6
 * SQLite3 (for running tests)
 * TinyMCE 4.0.21 (included in static folder)
