@@ -396,9 +396,11 @@ class TestManager(TestCase):
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
-				"president": "off",
-				"workshift_manager": "off",
-				"active": "on",
+				"president": False,
+				"workshift_manager": False,
+				"active": True,
+                "semester_hours": 5,
+                "summer_hours": 5,
 				"update_manager": "",
 				}, follow=True)
 		self.assertRedirects(response, "/custom_admin/add_manager/")
@@ -416,9 +418,9 @@ class TestManager(TestCase):
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
-				"president": "off",
-				"workshift_manager": "off",
-				"active": "on",
+				"president": False,
+				"workshift_manager": False,
+				"active": True,
 				"update_manager": "",
 				})
 		self.assertEqual(response.status_code, 200)
@@ -431,9 +433,9 @@ class TestManager(TestCase):
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
-				"president": "off",
-				"workshift_manager": "off",
-				"active": "on",
+				"president": False,
+				"workshift_manager": False,
+				"active": True,
 				"update_manager": "",
 				})
 		self.assertEqual(response.status_code, 200)
@@ -448,9 +450,11 @@ class TestManager(TestCase):
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
-				"president": "off",
-				"workshift_manager": "off",
-				"active": "on",
+				"president": False,
+				"workshift_manager": False,
+				"active": True,
+                "semester_hours": 5,
+                "summer_hours": 5,
 				"update_manager": "",
 				}, follow=True)
 		self.assertRedirects(response, "/custom_admin/managers/")
@@ -469,9 +473,9 @@ class TestManager(TestCase):
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
-				"president": "off",
-				"workshift_manager": "off",
-				"active": "on",
+				"president": False,
+				"workshift_manager": False,
+				"active": True,
 				"update_manager": "",
 				}, follow=True)
 		self.assertEqual(response.status_code, 200)
@@ -485,9 +489,9 @@ class TestManager(TestCase):
 				"compensation": "Test % Compensation",
 				"duties": "Testing Add Managers Page",
 				"email": "tester@email.com",
-				"president": "off",
-				"workshift_manager": "off",
-				"active": "on",
+				"president": False,
+				"workshift_manager": False,
+				"active": True,
 				"update_manager": "",
 				}, follow=True)
 		self.assertEqual(response.status_code, 200)

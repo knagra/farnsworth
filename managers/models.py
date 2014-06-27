@@ -4,6 +4,7 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from django.conf import settings
 from django.db import models
 
 from base.models import UserProfile
@@ -22,10 +23,18 @@ class Manager(models.Model):
 	president = models.BooleanField(default=False, help_text="Whether this manager has president privileges (edit managers, bylaws, etc.).")
 	workshift_manager = models.BooleanField(default=False, help_text="Whether this manager has workshift manager privileges (assign workshifts, etc.).")
 	active = models.BooleanField(default=True, help_text="Whether this is an active manager position (visible in directory, etc.).")
-	semester_hours = models.PositiveSmallIntegerField(default=5, null=True, blank=True,
-		help_text="Number of workshift hours this position is worth during spring and fall.")
-	summer_hours = models.PositiveSmallIntegerField(default=3, null=True, blank=True,
-		help_text="Number of workshift hours this position is worth during summer.")
+	semester_hours = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		default=settings.DEFAULT_WORKSHIFT_HOURS,
+		help_text="Number of workshift hours this position is worth during spring and fall.",
+		)
+	summer_hours = models.DecimalField(
+		max_digits=5,
+		decimal_places=2,
+		default=settings.DEFAULT_WORKSHIFT_HOURS,
+		help_text="Number of workshift hours this position is worth during summer.",
+		)
 
 	def __unicode__(self):
 		return "%s" % self.title
