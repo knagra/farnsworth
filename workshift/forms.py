@@ -92,12 +92,20 @@ class PoolForm(forms.ModelForm):
 			self.fields['managers'].widget.attrs['readonly'] = True
 
 	def save(self):
+		prev_pool = self.instance
 		pool = super(PoolForm, self).save(commit=False)
 		if self.semester:
 			pool.semester = self.semester
 		pool.save()
 		self.save_m2m()
-		make_workshift_pool_hours(self.semester, pools=[pool])
+
+		if prev_pool:
+			for pool_hours in PoolHours.objects.filter(pool=pool):
+				if pool_hours.hours == prev_pool.hours:
+					pool_hours.hours = pool.hours
+					pool_hours.save()
+		else:
+			make_workshift_pool_hours(self.semester, pools=[pool])
 		return pool
 
 class WorkshiftInstanceForm(forms.ModelForm):
