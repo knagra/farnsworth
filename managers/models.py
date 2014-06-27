@@ -108,6 +108,17 @@ class Response(models.Model):
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this response was posted.")
 	request = models.ForeignKey(Request, blank=False, null=False, help_text="The request to which this is a response.")
 	manager = models.BooleanField(default=False, help_text="Whether this is a relevant manager response.")
+	CLOSED = 'C'
+	REOPENED = 'R'
+	FILLED = 'F'
+	NONE = 'N'
+	EVENT_CHOICES = (
+		(CLOSED, "Marked closed"),
+		(REOPENED, "Marked reopened"),
+		(FILLED, "Marked filled"),
+		(NONE, "No event")
+	)
+	event = models.CharField(max_length=1, choices=EVENT_CHOICES, help_text="A mark event(e.g., 'marked closed'), if any.")
 
 	def __unicode__(self):
 		return "Response by %s to: %s" % (self.owner, self.request)
