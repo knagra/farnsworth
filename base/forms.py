@@ -372,9 +372,6 @@ class ModifyProfileRequestForm(forms.Form):
 			self._errors['__all__'] = forms.util.ErrorList([non_field_error])
 		return True
 
-<<<<<<< HEAD
-class UpdateProfileForm(forms.ModelForm):
-=======
 	def clean_username(self):
 		username = self.cleaned_data["username"]
 		if not verify_username(username):
@@ -427,7 +424,6 @@ class UpdateProfileForm(forms.ModelForm):
 		return user
 
 class UpdateProfileForm(forms.Form):
->>>>>>> master
 	''' Form for a user to update own profile. '''
 	class Meta:
 		model = UserProfile
@@ -438,25 +434,6 @@ class UpdateProfileForm(forms.Form):
 	enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
 
 	def __init__(self, *args, **kwargs):
-<<<<<<< HEAD
-		if "instance" in kwargs:
-			user = kwargs["instance"].user
-			initial = kwargs.get("initial", {})
-			initial["email"] = user.email
-			kwargs["initial"] = initial
-
-		super(UpdateProfileForm, self).__init__(*args, **kwargs)
-
-		keys = self.fields.keyOrder
-		keys.remove("email")
-		keys.insert(keys.index("email_visible"), "email")
-
-	def save(self, *args, **kwargs):
-		instance = super(UpdateProfileForm, self).save(*args, **kwargs)
-		instance.user.email = self.cleaned_data["email"]
-		instance.save()
-		return instance
-=======
 		self.user = kwargs.pop("user")
 		super(UpdateProfileForm, self).__init__(*args, **kwargs)
 
@@ -488,7 +465,6 @@ class UpdateProfileForm(forms.Form):
 		profile.save()
 		self.user.email = self.cleaned_data["email"]
 		self.user.save()
->>>>>>> master
 
 class LoginForm(forms.Form):
 	''' Form to login. '''
