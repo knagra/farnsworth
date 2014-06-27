@@ -8,6 +8,13 @@ A collection of functions used elsewhere in Farnsworth.
 
 import re
 
+from django import forms
+
+if hasattr(forms, "utils"):
+	ErrorList = forms.utils.ErrorList
+else:
+	ErrorList = forms.util.ErrorList
+
 def verify_username(username):
 	''' Verify a potential username.
 	Parameters:
