@@ -28,7 +28,11 @@ class Event(models.Model):
 
 	def __unicode__(self):
 		return self.title
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> master
 	class Meta:
 		ordering = ['-start_time']	# could also do -start_time, -end_time, post_date but opting for the slight performance increase
 

@@ -360,6 +360,7 @@ def member_profile_view(request, targetUsername):
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	number_of_threads = Thread.objects.filter(owner=targetProfile).count()
+	number_of_threads = Message.objects.filter(owner=targetProfile).count()
 	number_of_requests = Request.objects.filter(owner=targetProfile).count()
 	return render_to_response('member_profile.html', {
 			'page_name': page_name,
