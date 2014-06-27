@@ -15,9 +15,10 @@ if this_dir not in sys.path:
 	sys.path.insert(0, this_dir)
 
 from utils.funcs import convert_to_url
+from base.models import UserProfile
 from managers.models import Manager, RequestType
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
-	 RegularWorkshift
+	 RegularWorkshift, WorkshiftProfile
 from workshift.utils import get_year_season, make_instances, \
 	 get_semester_start_end, get_int_days
 
@@ -257,6 +258,12 @@ def main(args):
 		start_date=start_date,
 		end_date=end_date,
 		)
+
+	for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
+		profile = WorkshiftProfile.objects.create(
+			user=uprofile.user,
+			semester=semester,
+			)
 
 	# Regular Weekly Workshift Hours
 	pool = WorkshiftPool.objects.create(
