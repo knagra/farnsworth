@@ -675,7 +675,7 @@ def instance_view(request, semester, pk, profile=None):
 	page_name = instance.title
 	interact_forms = _get_forms(profile, instance)
 
-	for form in interact_forms:
+	for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
 		if form.action_name in request.POST:
 			f = form(request.POST, profile=profile)
 			if f.is_valid():
