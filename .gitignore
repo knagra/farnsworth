@@ -20,3 +20,6 @@ lib/
 lib64
 src/
 .coverage
+dist/
+*.egg-info
+flycheck_*

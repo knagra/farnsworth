@@ -343,8 +343,12 @@ if 'test' in sys.argv:
 	PASSWORD_HASHERS = (
 		'django.contrib.auth.hashers.MD5PasswordHasher',
 	)
-	DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
-	HAYSTACK_CONNECTIONS['default']['INDEX_NAME'] = SHORT_HOUSE_NAME.lower() + "_test"
+	DATABASES['default'] = {
+		'ENGINE': 'django.db.backends.sqlite3',
+		}
+	HAYSTACK_CONNECTIONS['default'] = {
+		'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+		}
 
 try:
 	from farnsworth.local_settings import *

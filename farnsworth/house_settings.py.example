@@ -12,15 +12,15 @@ SECRET_KEY = ''
 
 ### The full house name (i.e. "Kingman Hall")
 
-HOUSE_NAME = ""
+HOUSE_NAME = "Example Hall"
 
 ### A shorter version of the house name, for display in navbar (i.e. "Kingman")
 
-SHORT_HOUSE_NAME = ""
+SHORT_HOUSE_NAME = "Example"
 
 ### Used for generating manager contacts for BSC email accounts (i.e. "kng")
 
-HOUSE_ABBREV = ""
+HOUSE_ABBREV = "exa"
 
 ### Base site domain (i.e. "kingmanhall.org")
 ### Required by Django when not in debug mode.
