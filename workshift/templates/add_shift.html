@@ -63,19 +63,19 @@
     pickTime: false,
   });
   function show_hide_details() {
-    var weekly_workshift = $("#weekly_workshift").val();
+    var weekly_workshift = $("#id_weekly_workshift").val();
     if (weekly_workshift != "") {
-      $("#id_title").hide()
-      $("#id_description").hide()
-      $("#id_pool").hide()
-      $("#id_start_time").hide()
-      $("#id_end_time").hide()
+      $("#id_title").parent().parent().hide()
+      $("#id_description").parent().parent().hide()
+      $("#id_pool").parent().parent().hide()
+      $("#id_start_time").parent().parent().hide()
+      $("#id_end_time").parent().parent().hide()
     } else {
-      $("#id_title").show()
-      $("#id_description").show()
-      $("#id_pool").show()
-      $("#id_start_time").show()
-      $("#id_end_time").show()
+      $("#id_title").parent().parent().show()
+      $("#id_description").parent().parent().show()
+      $("#id_pool").parent().parent().show()
+      $("#id_start_time").parent().parent().show()
+      $("#id_end_time").parent().parent().show()
     }
   }
   $(document).ready(show_hide_details)
