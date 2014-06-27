@@ -10,7 +10,7 @@ install:
 
 before_script:
   - cp farnsworth/house_settings.py.example farnsworth/house_settings.py
-  - cat "SECRET_KEY = 'TESTING SECRET KEY'" >> farnsworth/house_settings.py"
+  - cat "SECRET_KEY = 'TESTING SECRET KEY'" >> farnsworth/house_settings.py
 
 # command to run tests
 script:
