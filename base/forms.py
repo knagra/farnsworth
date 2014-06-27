@@ -127,10 +127,10 @@ class AddUserForm(forms.Form):
 			non_field_error = "A profile for {0} {1} already exists with username {2}." \
 			  .format(first_name, last_name,
 					  User.objects.get(first_name=first_name, last_name=last_name).username)
-			self._errors['__all__'] = forms.util.ErrorList([non_field_error])
+			self._errors['__all__'] = forms.utils.ErrorList([non_field_error])
 		if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
-			self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['user_password'] = forms.utils.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.utils.ErrorList([u"Passwords don't match."])
 			return False
 		return True
 
@@ -321,8 +321,8 @@ class ChangeUserPasswordForm(forms.Form):
 			self._errors["__all__"] = MESSAGES['ADMIN_PASSWORD']
 			return False
 		if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
-			self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['user_password'] = forms.utils.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.utils.ErrorList([u"Passwords don't match."])
 			return False
 		return True
 
@@ -369,7 +369,7 @@ class ModifyProfileRequestForm(forms.Form):
 			  .format(first_name, last_name,
 					  User.objects.get(first_name=first_name,
 									   last_name=last_name).username)
-			self._errors['__all__'] = forms.util.ErrorList([non_field_error])
+			self._errors['__all__'] = forms.utils.ErrorList([non_field_error])
 		return True
 
 	def clean_username(self):
@@ -505,8 +505,8 @@ class ChangePasswordForm(forms.Form):
 		if not super(ChangePasswordForm, self).is_valid():
 			return False
 		elif self.cleaned_data['new_password'] != self.cleaned_data['confirm_password']:
-			self._errors['new_password'] = forms.util.ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+			self._errors['new_password'] = forms.utils.ErrorList([u"Passwords don't match."])
+			self._errors['confirm_password'] = forms.utils.ErrorList([u"Passwords don't match."])
 			return False
 		return True
 

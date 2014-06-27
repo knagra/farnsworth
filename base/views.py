@@ -383,12 +383,12 @@ def request_profile_view(request):
 		email = form.cleaned_data['email']
 		if User.objects.filter(username=username).count():
 			reset_url = request.build_absolute_uri(reverse('reset_pw'))
-			form._errors['username'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
+			form._errors['username'] = forms.utils.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
 			messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
 		elif User.objects.filter(email=email).count():
 			reset_url = request.build_absolute_uri(reverse('reset_pw'))
 			messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
-			form._errors['email'] = forms.util.ErrorList([MESSAGES["EMAIL_TAKEN"]])
+			form._errors['email'] = forms.utils.ErrorList([MESSAGES["EMAIL_TAKEN"]])
 		elif ProfileRequest.objects.filter(first_name=first_name, last_name=last_name).count():
 			form.errors['__all__'] = form.error_class([MESSAGES["PROFILE_TAKEN"].format(first_name=first_name, last_name=last_name)])
 		elif User.objects.filter(first_name=first_name, last_name=last_name).count():
