@@ -24,30 +24,31 @@ class TestViews(TestCase):
 	def test_list(self):
 		response = self.client.get("/rooms/")
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.r.title, response.content)
-		self.assertNotIn("Login", response.content)
-		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
-					  response.content)
+		self.assertContains(response, self.r.title)
+		self.assertNotContains(response, "Login")
+		self.assertContains(response,
+                            "{0} {1}".format(self.su.first_name, self.su.last_name))
 
 	def test_add(self):
 		response = self.client.get("/rooms/add")
 		self.assertEqual(response.status_code, 200)
-		self.assertNotIn("Login", response.content)
+		self.assertNotContains(response, "Login")
 
 	def test_view(self):
 		response = self.client.get("/room/{0}/".format(self.r.title))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.r.title, response.content)
-		#print response.content
-		self.assertIn("{0} {1}".format(self.su.first_name, self.su.last_name),
-					  response.content)
-		self.assertNotIn("Login", response.content)
+		self.assertContains(response, self.r.title)
+		self.assertContains(
+            response,
+            "{0} {1}".format(self.su.first_name, self.su.last_name),
+            )
+		self.assertNotContains(response, "Login")
 
 	def test_edit(self):
 		response = self.client.get("/room/{0}/edit".format(self.r.title))
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(self.r.title, response.content)
-		self.assertNotIn("Login", response.content)
+		self.assertContains(response, self.r.title)
+		self.assertNotContains(response, "Login")
 
 class TestAddRoom(TestCase):
 	def setUp(self):
@@ -69,12 +70,17 @@ class TestAddRoom(TestCase):
 			"add_room": "",
 		}, follow=True)
 		self.assertRedirects(response, "/rooms/")
-		self.assertIn("2E", response.content)
-		self.assertIn("<td>1</td>", response.content)
-		self.assertIn("Starry Night", response.content)
-		self.assertNotIn("Home to the best person on earth.", response.content)
-		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
-						response.content)
+		self.assertContains(response, "2E")
+		self.assertContains(response, "<td>1</td>")
+		self.assertContains(response, "Starry Night")
+		self.assertNotContains(
+            response,
+            "Home to the best person on earth.",
+            )
+		self.assertNotContains(
+            response,
+            "{0} {1}".format(self.su.first_name, self.su.last_name),
+            )
 
 	def test_no_duplicate(self):
 		r = Room(title="1A")
@@ -87,7 +93,10 @@ class TestAddRoom(TestCase):
 			"occupancy": 1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Room with this Title already exists.", response.content)
+		self.assertContains(
+            response,
+            "Room with this Title already exists.",
+            )
 
 	def test_bad_title(self):
 		response = self.client.post("/rooms/add", {
@@ -97,16 +106,22 @@ class TestAddRoom(TestCase):
 			"occupancy": 1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("This field is required.", response.content)
+		self.assertContains(
+            response,
+            "This field is required.",
+            )
 
 		response = self.client.post("/rooms/add", {
-			"title": "2e",
+			"title": "2e.",
 			"unofficial_name": "",
 			"description": "",
 			"occupancy": 1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Only uppercase alphanumeric characters are allowed.", response.content)
+		self.assertContains(
+            response,
+            "Only alphanumeric characters are allowed.",
+            )
 
 		response = self.client.post("/rooms/add", {
 			"title": "2_",
@@ -115,7 +130,10 @@ class TestAddRoom(TestCase):
 			"occupancy": 1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Only uppercase alphanumeric characters are allowed.", response.content)
+		self.assertContains(
+            response,
+            "Only alphanumeric characters are allowed.",
+            )
 
 	def test_bad_occupancy(self):
 		response = self.client.post("/rooms/add", {
@@ -125,7 +143,10 @@ class TestAddRoom(TestCase):
 			"occupancy": -1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Ensure this value is greater than or equal to 0.", response.content)
+		self.assertContains(
+            response,
+            "Ensure this value is greater than or equal to 0.",
+            )
 
 		response = self.client.post("/rooms/add", {
 			"title": "2E",
@@ -134,7 +155,10 @@ class TestAddRoom(TestCase):
 			"occupancy": "",
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("This field is required.", response.content)
+		self.assertContains(
+            response,
+            "This field is required.",
+            )
 
 	def test_add_room_minimal(self):
 		response = self.client.post("/rooms/add", {
@@ -144,12 +168,17 @@ class TestAddRoom(TestCase):
 			"occupancy": 1,
 		}, follow=True)
 		self.assertRedirects(response, "/rooms/")
-		self.assertIn("2E", response.content)
-		self.assertIn("<td>1</td>", response.content)
-		self.assertNotIn("Starry Night", response.content)
-		self.assertNotIn("Home to the best person on earth.", response.content)
-		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
-						response.content)
+		self.assertContains(response, "2E")
+		self.assertContains(response, "<td>1</td>")
+		self.assertNotContains(response, "Starry Night")
+		self.assertNotContains(
+            response,
+            "Home to the best person on earth.",
+            )
+		self.assertNotContains(
+            response,
+            "{0} {1}".format(self.su.first_name, self.su.last_name),
+            )
 
 class TestEditRoom(TestCase):
 	def setUp(self):
@@ -173,12 +202,17 @@ class TestEditRoom(TestCase):
 			"occupancy": 5,
 		}, follow=True)
 		self.assertRedirects(response, "/room/{0}/".format(self.r.title))
-		self.assertIn("2E", response.content)
-		self.assertIn("Total occupancy: 5", response.content)
-		self.assertIn("Starry Night Surprise", response.content)
-		self.assertIn("Previous home to the best person on earth.", response.content)
-		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
-						response.content)
+		self.assertContains(response, "2E")
+		self.assertContains(response, "Total occupancy: 5")
+		self.assertContains(response, "Starry Night Surprise")
+		self.assertContains(
+            response,
+            "Previous home to the best person on earth.",
+            )
+		self.assertNotContains(
+            response,
+            "{0} {1}".format(self.su.first_name, self.su.last_name),
+            )
 
 	def test_no_duplicate(self):
 		r = Room(title="1A")
@@ -191,7 +225,10 @@ class TestEditRoom(TestCase):
 			"occupancy": 1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Room with this Title already exists.", response.content)
+		self.assertContains(
+            response,
+            "Room with this Title already exists.",
+            )
 
 	def test_edit_room_minimal(self):
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
@@ -201,10 +238,12 @@ class TestEditRoom(TestCase):
 			"occupancy": 5,
 		}, follow=True)
 		self.assertRedirects(response, "/room/{0}/".format(self.r.title))
-		self.assertIn("Total occupancy: 5", response.content)
-		self.assertNotIn("Starry Night Surprise", response.content)
-		self.assertNotIn("{0} {1}".format(self.su.first_name, self.su.last_name),
-					  response.content)
+		self.assertContains(response, "Total occupancy: 5")
+		self.assertNotContains(response, "Starry Night Surprise")
+		self.assertNotContains(
+            response,
+            "{0} {1}".format(self.su.first_name, self.su.last_name),
+			)
 
 	def test_bad_occupancy(self):
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
@@ -214,7 +253,10 @@ class TestEditRoom(TestCase):
 			"occupancy": -1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Ensure this value is greater than or equal to 0.", response.content)
+		self.assertContains(
+            response,
+            "Ensure this value is greater than or equal to 0.",
+            )
 
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
 			"title": self.r.title,
@@ -223,7 +265,7 @@ class TestEditRoom(TestCase):
 			"occupancy": "",
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("This field is required.", response.content)
+		self.assertContains(response, "This field is required.")
 
 	def test_bad_title(self):
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
@@ -233,16 +275,19 @@ class TestEditRoom(TestCase):
 			"occupancy": 1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("This field is required.", response.content)
+		self.assertContains(response, "This field is required.")
 
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
-			"title": "2a",
+			"title": "2a.",
 			"unofficial_name": "",
 			"description": "",
 			"occupancy": 1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Only uppercase alphanumeric characters are allowed.", response.content)
+		self.assertContains(
+            response,
+            "Only alphanumeric characters are allowed.",
+            )
 
 		response = self.client.post("/room/{0}/edit".format(self.r.title), {
 			"title": "3_",
@@ -251,4 +296,7 @@ class TestEditRoom(TestCase):
 			"occupancy": 1,
 		})
 		self.assertEqual(response.status_code, 200)
-		self.assertIn("Only uppercase alphanumeric characters are allowed.", response.content)
+		self.assertContains(
+            response,
+            "Only alphanumeric characters are allowed.",
+            )
