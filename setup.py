@@ -26,7 +26,7 @@ setup(
 	packages=find_packages(),
 	include_package_data=True,
 	description="Website for BSC houses.",
-	long_description=read_md,
+	long_description=read_md(),
 	install_requires=required +  ["elasticsearch>=1.0.0"],
 	tests_require=required,
 	test_suite="runtests.runtests",
