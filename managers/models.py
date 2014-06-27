@@ -76,6 +76,15 @@ class Request(models.Model):
 	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this request was posted.")
 	change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
 	request_type = models.ForeignKey(RequestType, blank=False, null=False, help_text="The type of request this is.")
+    OPEN = 'O'
+    CLOSED = 'C'
+    FILLED = 'F'
+    STATUS_CHOICES = (
+        (OPEN, "Open"),
+        (CLOSED, "Closed"),
+        (FILLED, "Filled")
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=OPEN, help_text="Status of this request.")
 	filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
 	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
 	number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
