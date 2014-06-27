@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 try:
-	from pyandoc import convert
+	from pypandoc import convert
 	read_md = lambda f: convert(f, 'rst')
 except (ImportError, OSError):
 	print("warning: pypandoc module not found, could not convert Markdown to RST")
