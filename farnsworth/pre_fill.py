@@ -228,8 +228,8 @@ def main(args):
 		Manager.objects.create(
 			title=title,
 			compensation=compensation,
-            semester_hours=hours,
-            summer_hours=hours,
+            semester_hours=str(hours),
+            summer_hours=str(hours),
 			duties=duties,
 			email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
 			president="president" in title.lower(),
@@ -271,7 +271,7 @@ def main(args):
 		title="House Improvement",
 		semester=semester,
 		self_verify=False,
-		hours=4,
+		hours=str(4),
 		weeks_per_period=0,
 		)
 	hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
@@ -282,7 +282,7 @@ def main(args):
 		title="Social",
 		semester=semester,
 		self_verify=False,
-		hours=1,
+		hours=str(1),
 		weeks_per_period=6,
 		)
 	social_pool.managers = Manager.objects.filter(title="Social Manager")
@@ -294,7 +294,7 @@ def main(args):
 		semester=semester,
 		self_verify=True,
 		any_blown=True,
-		hours=2,
+		hours=str(2),
 		weeks_per_period=6,
 		)
 	humor_pool.managers = Manager.objects.filter(workshift_manager=True)
@@ -306,7 +306,7 @@ def main(args):
 			title=title,
 			description=description,
 			quick_tips=quick_tips,
-			hours=hours,
+			hours=str(hours),
 			rateable=rateable,
 			)
 
