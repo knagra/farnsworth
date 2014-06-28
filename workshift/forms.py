@@ -248,7 +248,7 @@ class InteractShiftForm(forms.Form):
 # TODO: SellShiftForm
 
 class VerifyShiftForm(InteractShiftForm):
-	title_short = "V"
+	title_short = '<span class="glyphicon glyphicon-ok"></span>'
 	title_long = "Verify"
 	action_name = "verify_shift"
 
@@ -285,7 +285,7 @@ class VerifyShiftForm(InteractShiftForm):
 		return instance
 
 class BlownShiftForm(InteractShiftForm):
-	title_short = "B"
+	title_short = '<span class="glyphicon glyphicon-remove"></span>'
 	title_long = "Blown"
 	action_name = "blown_shift"
 
@@ -322,7 +322,7 @@ class BlownShiftForm(InteractShiftForm):
 		return instance
 
 class SignInForm(InteractShiftForm):
-	title_short = "I"
+	title_short = '<span class="glyphicon glyphicon-log-in"></span>'
 	title_long = "Sign In"
 	action_name = "sign_in"
 
@@ -349,7 +349,7 @@ class SignInForm(InteractShiftForm):
 		return instance
 
 class SignOutForm(InteractShiftForm):
-	title_short = "O"
+	title_short = '<span class="glyphicon glyphicon-log-out"></span>'
 	title_long = "Sign Out"
 	action_name = "sign_out"
 
