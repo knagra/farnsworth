@@ -78,11 +78,8 @@ class Poll(models.Model):
         help_text="When this poll closes.")
     closed = models.BooleanField(default=False,
         help_text="Whether this poll has closed.")
-    pollees = models.ManyToManyField(UserProfile,
-        null=True,
-        blank=True,
-        help_text="Those who have answered this poll.",
-        related_name="pollees")
+    anonymity_allowed = models.BooleanField(default=False,
+        help_text="Whether anonymity is allowed.")
     election = models.BooleanField(default=False,
         help_text="Treat this poll as a formal election.")
     
@@ -91,6 +88,28 @@ class Poll(models.Model):
     
     def is_poll(self):
         return True
+
+class PollSettings(models.Model):
+    """
+    Settings for someone who has filled a petition.
+    Also used to see who had filled a poll, as settings are only
+    stored for those who have done a poll.
+    """
+    poll = models.ForeignKey(Poll,
+        help_text="The relevant poll.")
+    owner = models.ForeignKey(UserProfile,
+        help_text="The user whose settings these are.")
+    anonymous = models.BooleanField(default=False,
+        help_text="Whether this user decided to be anonymous for this poll.")
+    complete_date = models.DateTimeField(blank=False,
+        null=False,
+        auto_now_add=True,
+        help_text="When this user finished the poll.")
+    updated = models.DateTimeField(blank=False,
+        null=False,
+        auto_now_add=True,
+        auto_now=True,
+        help_text="When this user last updated her/his input for this poll.")
 
 class PollQuestion(models.Model):
     """ Poll question model. """
