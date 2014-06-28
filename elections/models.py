@@ -102,13 +102,15 @@ class PollQuestion(models.Model):
         null=False,
         blank=False,
         help_text="The body of this question.")
-    CHOICE = "C"
-    BOOLEAN = "B"
-    TEXT = "T"
+    CHOICE = 'C'
+    BOOLEAN = 'B'
+    TEXT = 'T'
+    RANK = 'R'
     TYPE_CHOICES = (
         (CHOICE, "Multiple Choice"),
         (BOOLEAN, "Yes/No"),
-        (TEXT, "Text Input")
+        (TEXT, "Text Input"),
+        (RANK, "Ranked Choice")
     )
     question_type = models.CharField(max_length=1,
         choices=TYPE_CHOICES,
@@ -124,6 +126,8 @@ class PollQuestion(models.Model):
         blank=True,
         help_text="No votes for this question, if a yes/no question.",
         related_name="no_answers")
+    writeins_allowed = models.BooleanField(default=False,
+        help_text="Whether write-ins are allowed, if this is a multiple choice question.")
     
     def __unicode__(self):
         return self.body
@@ -132,8 +136,8 @@ class PollQuestion(models.Model):
         return True
 
 class PollChoice(models.Model):
-    """ A possible choice to a question. """
-    question = models.ForeignKey(Question,
+    """ A possible choice to a CHOICE type question. """
+    question = models.ForeignKey(PollQuestion,
         null=False,
         blank=False,
         help_text="The corresponding question.")
@@ -154,5 +158,14 @@ class PollChoice(models.Model):
 
 class PollAnswer(models.Model):
     """ Text answer to a TEXT type question. """
-    question = models.ForeignKey(Question
-    body = models.TextField(
+    question = models.ForeignKey(PollQuestion,
+        null=False,
+        blank=False,
+        help_text="The question being answered.")
+    body = models.TextField(null=False,
+        blank=False,
+        help_text="Text body for this poll answer.")
+    owner = models.ForeignKey(UserProfile,
+        null=False,
+        blank=False,
+        help_text="User who posted this answer.")

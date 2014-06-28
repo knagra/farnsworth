@@ -37,7 +37,7 @@ class Manager(models.Model):
 		)
 
 	def __unicode__(self):
-		return "%s" % self.title
+		return self.title
 
 	def is_manager(self):
 		return True
@@ -58,7 +58,7 @@ class RequestType(models.Model):
 	glyphicon = models.CharField(max_length=100, blank=True, null=True, help_text="Glyphicon for this request type (e.g., cutlery).  Check Bootstrap documentation for more info.")
 
 	def __unicode__(self):
-		return "%s RequestType" % self.name
+		return self.name
 
 	class Meta:
 		ordering = ['name']
@@ -67,15 +67,15 @@ class RequestType(models.Model):
 		return True
 
 class Request(models.Model):
-	'''
-	The Request model.  Contains an owner, body, post_date, change_date, and relevant
-	manager.
-	'''
-	owner = models.ForeignKey(UserProfile, blank=False, null=False, help_text="The user who made this request.")
-	body = models.TextField(blank=False, null=False, help_text="The body of this request.")
-	post_date = models.DateTimeField(auto_now_add=True, help_text="The date this request was posted.")
-	change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
-	request_type = models.ForeignKey(RequestType, blank=False, null=False, help_text="The type of request this is.")
+    '''
+    The Request model.  Contains an owner, body, post_date, change_date, and relevant
+    manager.
+    '''
+    owner = models.ForeignKey(UserProfile, blank=False, null=False, help_text="The user who made this request.")
+    body = models.TextField(blank=False, null=False, help_text="The body of this request.")
+    post_date = models.DateTimeField(auto_now_add=True, help_text="The date this request was posted.")
+    change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
+    request_type = models.ForeignKey(RequestType, blank=False, null=False, help_text="The type of request this is.")
     OPEN = 'O'
     CLOSED = 'C'
     FILLED = 'F'
@@ -85,19 +85,19 @@ class Request(models.Model):
         (FILLED, "Filled")
     )
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=OPEN, help_text="Status of this request.")
-	filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
-	closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
-	number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
-	upvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Up votes for this request.", related_name="up_votes")
+    filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
+    closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
+    number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
+    upvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Up votes for this request.", related_name="up_votes")
 
-	def __unicode__(self):
-		return "%s request by %s on %s" % (self.request_type.name, self.owner, self.post_date)
+    def __unicode__(self):
+        return "{0} request by {1} on {2}".format(self.request_type.name, self.owner, self.post_date)
 
-	class Meta:
-		ordering = ['-post_date']
+    class Meta:
+        ordering = ['-post_date']
 
-	def is_request(self):
-		return True
+    def is_request(self):
+        return True
 
 class Response(models.Model):
 	'''
@@ -110,7 +110,7 @@ class Response(models.Model):
 	manager = models.BooleanField(default=False, help_text="Whether this is a relevant manager response.")
 
 	def __unicode__(self):
-		return "Response by %s to: %s" % (self.owner, self.request)
+		return "Response by {0} to: {1}".format(self.owner, self.request)
 
 	class Meta:
 		ordering = ['post_date']
@@ -130,7 +130,7 @@ class Announcement(models.Model):
 	change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
 
 	def __unicode__(self):
-		return "Announcement by %s as %s on %s" % (self.incumbent, self.manager, self.post_date)
+		return "Announcement by {0} as {1} on {2}".format(self.incumbent, self.manager, self.post_date)
 
 	class Meta:
 		ordering = ['-post_date']
