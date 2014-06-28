@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+
 import os
 import sys
 
@@ -7,17 +9,18 @@ from django.conf import settings
 
 from datetime import time
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "farnsworth.settings")
+this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if this_dir not in sys.path:
+	sys.path.insert(0, this_dir)
+
 from utils.funcs import convert_to_url
+from base.models import UserProfile
 from managers.models import Manager, RequestType
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
-	 RegularWorkshift
+	 RegularWorkshift, WorkshiftProfile
 from workshift.utils import get_year_season, make_instances, \
-	 get_semester_start_end, get_int_days
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "farnsworth.settings")
-this_dir = os.path.abspath(os.path.dirname(__file__))
-if this_dir not in sys.path:
-	sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+	 get_semester_start_end, get_int_days, make_workshift_pool_hours
 
 MANAGERS = [
 	("President", "", 5, "hp", """<ol>
@@ -256,10 +259,17 @@ def main(args):
 		end_date=end_date,
 		)
 
+	for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
+		profile = WorkshiftProfile.objects.create(
+			user=uprofile.user,
+			semester=semester,
+			)
+
 	# Regular Weekly Workshift Hours
 	pool = WorkshiftPool.objects.create(
 		semester=semester,
 		is_primary=True,
+		hours=5,
 		any_blown=True,
 		self_verify=True,
 		)
@@ -299,6 +309,8 @@ def main(args):
 		)
 	humor_pool.managers = Manager.objects.filter(workshift_manager=True)
 	humor_pool.save()
+
+	make_workshift_pool_hours(semester)
 
 	# Workshift Types
 	for title, description, quick_tips, hours, rateable in WORKSHIFT_TYPES:

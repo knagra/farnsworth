@@ -10,14 +10,12 @@ from django.conf import settings
 from django.db.models import Q
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
-from datetime import date, timedelta
-
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
-	TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
+	TimeBlock, WorkshiftRating, WorkshiftProfile, \
 	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
-from workshift.utils import make_instances
+from workshift.utils import make_instances, make_workshift_pool_hours
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
 
@@ -43,27 +41,22 @@ class SemesterForm(forms.ModelForm):
 		semester.preferences_open = True
 		semester.save()
 
-		# TODO Copy workshift and pools over from previous semester?
-		pool = WorkshiftPool(
+		# Create the primary workshift pool
+		pool = WorkshiftPool.objects.create(
 			semester=semester,
+			is_primary=True,
 			)
-		pool.save()
 		pool.managers = Manager.objects.filter(workshift_manager=True)
 		pool.save()
 
-		# TODO Create this semester's workshift profiles
+		# Create this semester's workshift profiles
 		for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
-			profile = WorkshiftProfile(
+			profile = WorkshiftProfile.objects.create(
 				user=uprofile.user,
 				semester=semester,
 				)
-			profile.save()
 
-			hours = PoolHours(pool=pool)
-			hours.save()
-
-			profile.pool_hours.add(hours)
-			profile.save()
+		make_workshift_pool_hours(semester)
 
 		return semester
 
@@ -84,6 +77,8 @@ class StartPoolForm(forms.ModelForm):
 			pool.semester = semester
 			pool.save()
 
+			make_workshift_pool_hours(pool.semester, pools=[pool])
+
 class PoolForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftPool
@@ -97,20 +92,20 @@ class PoolForm(forms.ModelForm):
 			self.fields['managers'].widget.attrs['readonly'] = True
 
 	def save(self):
+		prev_pool = self.instance
 		pool = super(PoolForm, self).save(commit=False)
 		if self.semester:
 			pool.semester = self.semester
 		pool.save()
 		self.save_m2m()
-		for profile in WorkshiftProfile.objects.filter(semester=pool.semester):
-			if not profile.pool_hours.filter(pool=pool):
-				pool_hours = PoolHours(
-					pool=pool,
-					hours=pool.hours,
-					)
-				pool_hours.save()
-				profile.pool_hours.add(pool_hours)
-				profile.save()
+
+		if prev_pool:
+			for pool_hours in PoolHours.objects.filter(pool=pool):
+				if pool_hours.hours == prev_pool.hours:
+					pool_hours.hours = pool.hours
+					pool_hours.save()
+		else:
+			make_workshift_pool_hours(self.semester, pools=[pool])
 		return pool
 
 class WorkshiftInstanceForm(forms.ModelForm):
@@ -119,16 +114,23 @@ class WorkshiftInstanceForm(forms.ModelForm):
 		exclude = ("weekly_workshift", "info", "intended_hours", "logs",
 				   "blown", "semester", "verifier")
 
+	weekly_workshift = forms.ModelChoiceField(
+		required=False,
+		queryset=RegularWorkshift.objects.filter(active=True),
+		help_text="Link this instance to a regular shift.",
+		)
 	title = forms.CharField(
+		required=False,
 		max_length=255,
 		help_text="The title for this workshift",
 		)
 	description = forms.CharField(
-		widget=forms.Textarea(),
 		required=False,
+		widget=forms.Textarea(),
 		help_text="Description of the shift.",
 		)
 	pool = forms.ModelChoiceField(
+		required=False,
 		queryset=WorkshiftPool.objects.filter(semester__current=True),
 		help_text="The workshift pool for this shift.",
 		)
@@ -167,19 +169,30 @@ class WorkshiftInstanceForm(forms.ModelForm):
 
 		super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
 
-		# If this is a regular workshift, disable title, description, etc
-		# from being edited
-		if instance and instance.weekly_workshift:
-			for field in self.info_fields:
-				self.fields[field].widget.attrs['readonly'] = True
 		if self.pools:
 			self.fields['pool'].queryset = self.pools
 
 		# Move the forms for title, description, etc to the top
 		keys = self.fields.keyOrder
-		for field in reversed(self.info_fields):
+		for field in reversed(["weekly_workshift"] + list(self.info_fields)):
 			keys.remove(field)
 			keys.insert(0, field)
+
+	def is_valid(self):
+		if not super(WorkshiftInstanceForm, self).is_valid():
+			return False
+
+		validity = True
+		shift = self.cleaned_data["weekly_workshift"]
+		title = self.cleaned_data["title"]
+		if not shift and not title:
+			self._errors["weekly_workshift"] = forms.util.ErrorList(["Pick a shift or give this instance a title."])
+			self._errors["title"] = forms.util.ErrorList(["Pick a shift or give this instance a title."])
+			validity = False
+		elif not shift and not self.cleaned_data["pool"]:
+			self._errors["pool"] = forms.util.ErrorList(["This field is required."])
+			validity = False
+		return validity
 
 	def save(self):
 		instance = super(WorkshiftInstanceForm, self).save(commit=False)
@@ -204,7 +217,9 @@ class WorkshiftInstanceForm(forms.ModelForm):
 				info = None
 		else:
 			info = instance.info
-		if info:
+		if self.cleaned_data["weekly_workshift"]:
+			instance.weekly_workshift = self.cleaned_data["weekly_workshift"]
+		elif info:
 			for field in self.info_fields:
 				setattr(info, field, self.cleaned_data[field])
 			info.save()
@@ -362,7 +377,8 @@ class SignOutForm(InteractShiftForm):
 
 class AddWorkshifterForm(forms.Form):
 	add_profile = forms.BooleanField(initial=True)
-	hours = forms.IntegerField(min_value=0, initial=settings.DEFAULT_SEMESTER_HOURS)
+	hours = forms.DecimalField(min_value=0, max_digits=7, decimal_places=2,
+							   initial=settings.DEFAULT_SEMESTER_HOURS)
 
 	def __init__(self, *args, **kwargs):
 		self.semester = kwargs.pop("semester")
@@ -385,15 +401,8 @@ class AddWorkshifterForm(forms.Form):
 				)
 
 			profile.save()
-
-			for pool in WorkshiftPool.objects.filter(semester=self.semester):
-				pool_hours = PoolHours(pool=pool)
-				if pool.is_primary:
-					pool_hours.hours = self.cleaned_data['hours']
-				pool_hours.save()
-				profile.pool_hours.add(pool_hours)
-
-			profile.save()
+			make_workshift_pool_hours(semester, profiles=[profile],
+									  primary_hours=self.cleaned_data["hours"])
 
 			return profile
 
@@ -454,6 +463,11 @@ class RegularWorkshiftForm(forms.ModelForm):
 				for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift):
 					# Update existing workshift instances
 					instance.workshifter = shift.current_assignee
+					instance.intended_hours = shift.hours
+					if instance.hours == prev_shift.hours:
+						# Update workshift hours if instance's hours have not
+						# yet been altered
+						instance.hours = shift.hours
 					instance.save()
 		else:
 			make_instances(self.semester, shift)
@@ -497,11 +511,6 @@ class TimeBlockForm(forms.ModelForm):
 	class Meta:
 		model = TimeBlock
 		fields = "__all__"
-
-	# def clean(self):
-	# 	if self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
-	# 		raise forms.ValidationError('Start time later than end time.')
-	# 	return self.cleaned_data
 
 	def is_valid(self):
 		if not super(TimeBlockForm, self).is_valid():

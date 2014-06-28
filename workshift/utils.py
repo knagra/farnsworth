@@ -8,7 +8,8 @@ from datetime import date, timedelta
 from weekday_field.utils import ADVANCED_DAY_CHOICES
 
 from managers.models import Manager
-from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, Semester
+from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
+	 Semester, PoolHours, WorkshiftProfile, WorkshiftPool
 
 def can_manage(request, semester=None):
 	"""
@@ -97,7 +98,9 @@ def get_int_days(days):
 			ret.append(day)
 		else:
 			for value in day.strip("[]").split(","):
-				ret.append(int(value))
+				value = int(value)
+				if value not in ret:
+					ret.append(value)
 	return ret
 
 def _date_range(start, end, step):
@@ -122,6 +125,7 @@ def make_instances(semester, shift):
 				weekly_workshift=shift,
 				date=day,
 				workshifter=shift.current_assignee,
+				hours=shift.hours,
 				intended_hours=shift.hours,
 				auto_verify=shift.auto_verify,
 				week_long=shift.week_long,
@@ -140,3 +144,24 @@ def make_instances(semester, shift):
 				instance.logs.add(log)
 				instance.save()
 	return new_instances
+
+def make_workshift_pool_hours(semester, profiles=None, pools=None,
+							  primary_hours=None):
+	if profiles is None:
+		profiles = WorkshiftProfile.objects.filter(semester=semester)
+	if pools is None:
+		pools = WorkshiftPool.objects.filter(semester=semester)
+
+	for profile in profiles:
+		for pool in pools:
+			if not profile.pool_hours.filter(pool=pool):
+				if pool.is_primary and primary_hours:
+					hours = primary_hours
+				else:
+					hours = pool.hours
+				pool_hours = PoolHours.objects.create(
+					pool=pool,
+					hours=hours,
+					)
+				profile.pool_hours.add(pool_hours)
+		profile.save()

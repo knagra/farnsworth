@@ -12,7 +12,7 @@ from base.models import User, UserProfile
 from managers.models import Manager
 from workshift.models import *
 from workshift.forms import *
-from workshift.utils import get_year_season, get_semester_start_end
+from workshift import utils
 
 class TestStart(TestCase):
 	def setUp(self):
@@ -30,11 +30,6 @@ class TestStart(TestCase):
 
 		self.assertTrue(self.client.login(username="wu", password="pwd"))
 
-	def test_get_year_season(self):
-		year, season = get_year_season()
-		self.assertLess(abs(year - date.today().year), 2)
-		self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
-
 	def test_unauthenticated(self):
 		self.client.logout()
 		response = self.client.get("/workshift/", follow=True)
@@ -50,29 +45,6 @@ class TestStart(TestCase):
 		response = self.client.get("/workshift/", follow=True)
 		self.assertRedirects(response, "/")
 
-	def test_starting_month(self):
-		# Starting in Summer / Fall / Spring
-		self.assertEqual((2015, Semester.SPRING),
-						 get_year_season(day=date(2014, 12, 20)))
-		self.assertEqual((2015, Semester.SPRING),
-						 get_year_season(day=date(2015, 3, 20)))
-		self.assertEqual((2014, Semester.SUMMER),
-						 get_year_season(day=date(2014, 4, 1)))
-		self.assertEqual((2014, Semester.SUMMER),
-						 get_year_season(day=date(2014, 7, 20)))
-		self.assertEqual((2014, Semester.FALL),
-						 get_year_season(day=date(2014, 8, 1)))
-		self.assertEqual((2014, Semester.FALL),
-						 get_year_season(day=date(2014, 10, 20)))
-
-	def test_start_end(self):
-		self.assertEqual((date(2014, 1, 20), date(2014, 5, 17)),
-						 get_semester_start_end(2014, Semester.SPRING))
-		self.assertEqual((date(2014, 5, 25), date(2014, 8, 16)),
-						 get_semester_start_end(2014, Semester.SUMMER))
-		self.assertEqual((date(2014, 8, 24), date(2014, 12, 20)),
-						 get_semester_start_end(2014, Semester.FALL))
-
 	def test_start(self):
 		response = self.client.post("/workshift/start/", {
 			"season": Semester.SUMMER,
@@ -85,19 +57,19 @@ class TestStart(TestCase):
 		self.assertRedirects(response, "/workshift/manage/")
 
 		self.assertEqual(
-			Semester.objects.filter(year=2014).filter(season=Semester.SUMMER).count(),
 			1,
+			Semester.objects.filter(year=2014).filter(season=Semester.SUMMER).count(),
 			)
 
 		semester = Semester.objects.get(year=2014, season=Semester.SUMMER)
 
 		self.assertEqual(
-			WorkshiftProfile.objects.filter(semester=semester).count(),
 			2,
+			WorkshiftProfile.objects.filter(semester=semester).count(),
 			)
 		self.assertEqual(
-			WorkshiftPool.objects.filter(semester=semester).count(),
 			1,
+			WorkshiftPool.objects.filter(semester=semester).count(),
 			)
 
 		pool = WorkshiftPool.objects.get(semester=semester)
@@ -107,7 +79,145 @@ class TestStart(TestCase):
 		pool_hours = PoolHours.objects.filter(pool=pool)
 
 		for profile in WorkshiftProfile.objects.filter(semester=semester):
+			self.assertEqual(1, profile.pool_hours.count())
 			self.assertIn(profile.pool_hours.all()[0], pool_hours)
+			self.assertEqual(1, profile.pool_hours.filter(pool=pool).count())
+
+class TestUtils(TestCase):
+	def setUp(self):
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.semester = Semester.objects.create(
+			year=2014,
+			season=Semester.SUMMER,
+			start_date=date(2014, 5, 25),
+			end_date=date(2014, 8, 16),
+			)
+		self.profile = WorkshiftProfile.objects.create(
+			user=self.u,
+			semester=self.semester,
+			)
+		self.p1 = WorkshiftPool.objects.create(
+			title="Regular Workshift",
+			is_primary=True,
+			semester=self.semester,
+			)
+		self.p2 = WorkshiftPool.objects.create(
+			title="Alternate Workshift",
+			semester=self.semester,
+			)
+
+	def test_get_year_season(self):
+		year, season = utils.get_year_season()
+		self.assertLess(abs(year - date.today().year), 2)
+ 		self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
+
+	def test_starting_month(self):
+		# Starting in Summer / Fall / Spring
+		self.assertEqual(
+			(2015, Semester.SPRING),
+			utils.get_year_season(day=date(2014, 12, 20)),
+			)
+		self.assertEqual(
+			(2015, Semester.SPRING),
+			utils.get_year_season(day=date(2015, 3, 20)),
+			)
+		self.assertEqual(
+			(2014, Semester.SUMMER),
+			utils.get_year_season(day=date(2014, 4, 1)),
+			)
+		self.assertEqual(
+			(2014, Semester.SUMMER),
+			utils.get_year_season(day=date(2014, 7, 20)),
+			)
+		self.assertEqual(
+			(2014, Semester.FALL),
+			utils.get_year_season(day=date(2014, 8, 1)),
+			)
+		self.assertEqual(
+			(2014, Semester.FALL),
+			utils.get_year_season(day=date(2014, 10, 20)),
+			)
+
+	def test_start_end(self):
+		self.assertEqual(
+			(date(2014, 1, 20), date(2014, 5, 17)),
+			utils.get_semester_start_end(2014, Semester.SPRING),
+			)
+		self.assertEqual(
+			(date(2014, 5, 25), date(2014, 8, 16)),
+			utils.get_semester_start_end(2014, Semester.SUMMER),
+			)
+		self.assertEqual(
+			(date(2014, 8, 24), date(2014, 12, 20)),
+			utils.get_semester_start_end(2014, Semester.FALL),
+			)
+
+	def test_make_pool_hours_all(self):
+		utils.make_workshift_pool_hours(self.semester)
+		self.assertEqual(2, PoolHours.objects.count())
+		self.assertEqual(2, self.profile.pool_hours.count())
+
+	def test_make_pool_hours_profile(self):
+		utils.make_workshift_pool_hours(self.semester, profiles=[])
+		self.assertEqual(0, PoolHours.objects.count())
+		self.assertEqual(0, self.profile.pool_hours.count())
+
+		utils.make_workshift_pool_hours(self.semester, profiles=[self.profile])
+		self.assertEqual(2, PoolHours.objects.count())
+		self.assertEqual(2, self.profile.pool_hours.count())
+
+	def test_make_pool_hours_pools(self):
+		utils.make_workshift_pool_hours(self.semester, pools=[self.p1])
+		self.assertEqual(1, PoolHours.objects.count())
+		self.assertEqual(1, self.profile.pool_hours.count())
+
+		utils.make_workshift_pool_hours(self.semester, pools=[self.p2])
+		self.assertEqual(2, PoolHours.objects.count())
+		self.assertEqual(2, self.profile.pool_hours.count())
+
+	def test_make_pool_hours_primary(self):
+		utils.make_workshift_pool_hours(self.semester, primary_hours=6)
+		self.assertEqual(6, PoolHours.objects.get(pool=self.p1).hours)
+		self.assertEqual(self.p2.hours, PoolHours.objects.get(pool=self.p2).hours)
+
+	def test_int_days(self):
+		self.assertEqual([0], utils.get_int_days("Monday"))
+		self.assertEqual([1], utils.get_int_days(["Tuesday"]))
+		self.assertEqual([0, 1, 2, 3, 4, 5, 6], utils.get_int_days(["Any day"]))
+		self.assertEqual([0, 1, 2, 3, 4], utils.get_int_days(["Weekdays"]))
+		self.assertEqual([5, 6], utils.get_int_days(["Weekends"]))
+
+	def test_can_manage(self):
+		pass
+
+	def test_is_available(self):
+		pass
+
+	def test_make_instances(self):
+		wtype = WorkshiftType.objects.create(
+			title="Test Make Instances",
+			)
+		shift = RegularWorkshift.objects.create(
+			title="Test Shift",
+			workshift_type=wtype,
+			pool=self.p1,
+			days=[0, 1, 2, 3, 4],
+			current_assignee=self.profile,
+			hours=7,
+			)
+		WorkshiftInstance.objects.create(
+			weekly_workshift=shift,
+			date=date.today() - timedelta(date.today().weekday())
+			)
+		instances = make_instances(self.semester, shift)
+
+		for instance in instances:
+			self.assertEqual("Test Shift", instance.title)
+			self.assertEqual(shift, instance.weekly_workshift)
+			self.assertEqual(7, instance.hours)
+			self.assertEqual(7, instance.intended_hours)
+
+		self.assertEqual(set(shift.days), set(i.date.weekday() for i in instances))
 
 class TestViews(TestCase):
 	"""
@@ -700,7 +810,7 @@ class TestInteractForms(TestCase):
 
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
@@ -723,7 +833,7 @@ class TestInteractForms(TestCase):
 
 		form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.op)
@@ -733,7 +843,7 @@ class TestInteractForms(TestCase):
 
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.op)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.BLOWN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.op)
@@ -758,7 +868,7 @@ class TestInteractForms(TestCase):
 
 		form = BlownShiftForm({"pk": self.instance.pk}, profile=self.wp)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.BLOWN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.wp)
@@ -768,7 +878,7 @@ class TestInteractForms(TestCase):
 
 		form = SignInForm({"pk": self.once.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.once.logs.filter(entry_type=ShiftLogEntry.SIGNIN)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
@@ -782,7 +892,7 @@ class TestInteractForms(TestCase):
 
 		form = SignOutForm({"pk": self.instance.pk}, profile=self.up)
 		self.assertTrue(form.is_valid())
-		self.assertEqual(None, form.save())
+		self.assertIsInstance(form.save(), WorkshiftInstance)
 		log = self.instance.logs.filter(entry_type=ShiftLogEntry.SIGNOUT)
 		self.assertEqual(1, log.count())
 		self.assertEqual(log[0].person, self.up)
@@ -1093,6 +1203,7 @@ class TestWorkshifts(TestCase):
 		self.assertRedirects(response, "/workshift/manage/")
 		instance = WorkshiftInstance.objects.get(pk=self.once.pk + 1)
 		self.assertEqual(instance.weekly_workshift, self.shift)
+		self.assertEqual(instance.info, None)
 		self.assertEqual(instance.date, date(2014, 5, 27))
 		self.assertEqual(instance.workshifter, self.wp)
 		self.assertEqual(instance.closed, False)

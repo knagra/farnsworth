@@ -257,7 +257,7 @@ INSTALLED_APPS = (
 	'requests',
 	'managers',
 	'workshift',
-    'elections',
+	# 'elections',
 	'bootstrapform',
 	'haystack',
 	'django.contrib.admin',
