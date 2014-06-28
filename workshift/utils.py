@@ -98,7 +98,9 @@ def get_int_days(days):
 			ret.append(day)
 		else:
 			for value in day.strip("[]").split(","):
-				ret.append(int(value))
+				value = int(value)
+				if value not in ret:
+					ret.append(value)
 	return ret
 
 def _date_range(start, end, step):

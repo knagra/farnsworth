@@ -30,11 +30,6 @@ class TestStart(TestCase):
 
 		self.assertTrue(self.client.login(username="wu", password="pwd"))
 
-	def test_get_year_season(self):
-		year, season = utils.get_year_season()
-		self.assertLess(abs(year - date.today().year), 2)
-		self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
-
 	def test_unauthenticated(self):
 		self.client.logout()
 		response = self.client.get("/workshift/", follow=True)
@@ -111,6 +106,11 @@ class TestUtils(TestCase):
 			semester=self.semester,
 			)
 
+	def test_get_year_season(self):
+		year, season = utils.get_year_season()
+		self.assertLess(abs(year - date.today().year), 2)
+ 		self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
+
 	def test_starting_month(self):
 		# Starting in Summer / Fall / Spring
 		self.assertEqual(
@@ -179,6 +179,45 @@ class TestUtils(TestCase):
 		utils.make_workshift_pool_hours(self.semester, primary_hours=6)
 		self.assertEqual(6, PoolHours.objects.get(pool=self.p1).hours)
 		self.assertEqual(self.p2.hours, PoolHours.objects.get(pool=self.p2).hours)
+
+	def test_int_days(self):
+		self.assertEqual([0], utils.get_int_days("Monday"))
+		self.assertEqual([1], utils.get_int_days(["Tuesday"]))
+		self.assertEqual([0, 1, 2, 3, 4, 5, 6], utils.get_int_days(["Any day"]))
+		self.assertEqual([0, 1, 2, 3, 4], utils.get_int_days(["Weekdays"]))
+		self.assertEqual([5, 6], utils.get_int_days(["Weekends"]))
+
+	def test_can_manage(self):
+		pass
+
+	def test_is_available(self):
+		pass
+
+	def test_make_instances(self):
+		wtype = WorkshiftType.objects.create(
+			title="Test Make Instances",
+			)
+		shift = RegularWorkshift.objects.create(
+			title="Test Shift",
+			workshift_type=wtype,
+			pool=self.p1,
+			days=[0, 1, 2, 3, 4],
+			current_assignee=self.profile,
+			hours=7,
+			)
+		WorkshiftInstance.objects.create(
+			weekly_workshift=shift,
+			date=date.today() - timedelta(date.today().weekday())
+			)
+		instances = make_instances(self.semester, shift)
+
+		for instance in instances:
+			self.assertEqual("Test Shift", instance.title)
+			self.assertEqual(shift, instance.weekly_workshift)
+			self.assertEqual(7, instance.hours)
+			self.assertEqual(7, instance.intended_hours)
+
+		self.assertEqual(set(shift.days), set(i.date.weekday() for i in instances))
 
 class TestViews(TestCase):
 	"""
