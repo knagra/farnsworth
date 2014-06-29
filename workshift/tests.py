@@ -209,7 +209,10 @@ class TestUtils(TestCase):
 			weekly_workshift=shift,
 			date=date.today() - timedelta(date.today().weekday())
 			)
-		instances = make_instances(self.semester, shift)
+		instances = make_instances(
+			semester=self.semester,
+			shifts=[shift],
+			)
 
 		for instance in instances:
 			self.assertEqual("Test Shift", instance.title)

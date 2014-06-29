@@ -20,7 +20,8 @@ from managers.models import Manager, RequestType
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	 RegularWorkshift, WorkshiftProfile
 from workshift.utils import get_year_season, make_instances, \
-	 get_semester_start_end, get_int_days, make_workshift_pool_hours
+	 get_semester_start_end, get_int_days, make_workshift_pool_hours, \
+	 make_manager_workshifts
 
 MANAGERS = [
 	("President", "", 5, "hp", """<ol>
@@ -375,7 +376,6 @@ def main(args):
 			)
 		shift.days = get_int_days(days)
 		shift.save()
-		make_instances(semester, shift)
 
 	for title, type_title, count in WEEK_LONG:
 		wtype = WorkshiftType.objects.get(title=type_title)
@@ -389,7 +389,6 @@ def main(args):
 			end_time=None,
 			hours=wtype.hours,
 			)
-		make_instances(semester, shift)
 
 	# Humor Workshifts
 	for title, type_title, days, start, end in HUMOR_WORKSHIFTS:
@@ -404,7 +403,9 @@ def main(args):
 			)
 		shift.days = get_int_days(days)
 		shift.save()
-		make_instances(semester, shift)
+
+	make_instances(semester=semester)
+	make_manager_workshifts(semester)
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
