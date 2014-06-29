@@ -195,31 +195,70 @@ WORKSHIFT_TYPES = [
 	("Clean", "", "", 1, True),
 	("Food Put Away", "", "", 1, True),
 	("Pots", "", "", 2, True),
-	("Basement/Laundry Room Clean", "", "", 1, True),
+	("Basement / Laundry Room Clean", "", "", 1, True),
 	("Bathroom Clean", "", "", 1, True),
-	("Bike/Living/Study Room Clean", "", "", 1, True),
+	("Bike / Living / Study Room Clean", "", "", 1, True),
+	("Roofdeck Clean & Top Two Floors", "", "", 1, True),
+	("Ramp and Amphitheater Clean", "", "", 1, True),
+	("Ramp and Gazebo Clean", "", "", 0.5, True),
+	("Pantry / Fridge Clean", "", "", 0.5, True),
+	("Free Pile Clean", "", "", 1.5, True),
 	("Bread Run", "", "", 2, True),
 	("Brunch", "", "", 2, True),
+	("Extra bagels", "", "", 1, True),
 	("Dishes", "", "", 1, True),
+	("Dairy / Non-perishables Run", "", "", 2, True),
 	("Farmer's Market Run", "", "", 1, True),
 	("Hummus", "", "", 2, True),
 	("Granola", "", "", 2, True),
 	("Laundry", "", "", 1, True),
-	("Roofdeck Clean & Top Two Floors", "", "", 1, True),
 	("Sweep & Mop", "", "", 1, True),
 	("Cook", "", "", 3, True),
-	("Free Pile Clean", "", "", 1.5, True),
 	("IKC", "", "", 3, True),
-	("Main Entrance/Front Walk Clean", "", "", 1, True),
-	("Mail Sort/Forward", "", "", 1, True),
+	("Main Entrance / Front Walk Clean", "", "", 1, True),
+	("Mail Sort / Forward", "", "", 1, True),
+	("Vacuum", "", "", 2, True),
 	]
 
 REGULAR_WORKSHIFTS = [
-	("Morning Clean", "Clean", "Any day", time(10), time(12)),
-	("Afternoon Clean", "Clean", "Any day", time(13), time(15)),
-	("Evening Clean", "Clean", "Any day", time(20), time(23)),
-	("Co-Cook", "Cook", ["Weekdays", "Sunday"], time(16), time(19)),
+	("Morning Clean", "Clean", "Any day", 1, None, time(11)),
+	("Morning Dishes", "Dishes", "Any day", 1, None, time(11)),
+	("Morning Pots", "Pots", "Any day", 1, time(10), time(11)),
+	("Early Afternoon Dishes", "Dishes", "Any day", 1, time(13), time(17)),
+	("Afternoon Clean", "Clean", "Any day", 1, time(13), time(15)),
+	("Afternoon Pots", "Pots", "Any day", 2, time(13), time(15)),
+	("Before Dinner Clean", "Clean", ["Weekdays", "Sunday"], 1, time(18), time(19)),
+	("Before Dinner Dishes", "Dishes", ["Weekdays", "Sunday"], 1, time(13), time(15)),
+	("Evening Dishes", "Dishes", ["Tuesday", "Wednesday", "Sunday"], 1, time(20), time(0)),
+	("Evening Pots", "Pots", ["Tuesday", "Wednesday", "Sunday"], 2, time(20), time(0)),
+	("Evening Sweep & Mop", "Sweep & Mop", ["Tuesday", "Wednesday", "Thursday"], 1, time(21), time(0)),
+	("Main Entrance / Front Walk Clean", "Main Entrance / Front Walk Clean", ["Tuesday", "Thursday"], 1, None, None),
+	("Basement / Laundry Room Clean", "Basement / Laundry Room Clean", ["Tuesday", "Friday"], 1, None, time(19)),
+	("Bike / Living / Study Room Clean", "Bike / Living / Study Room Clean", ["Tuesday", "Friday"], 1, None, time(19)),
+	("Roofdeck Clean & Top Two Floors", "Roofdeck Clean & Top Two Floors", ["Tuesday", "Friday"], 1, None, time(19)),
+	("Ramp and Amphitheater Clean", "Ramp and Amphitheater Clean", "Wednesday", 1, None, None),
+	("Ramp and Gazebo Clean", "Ramp and Gazebo Clean", "Wednesday", 1, None, None),
+	("Pantry / Fridge Clean", "Pantry / Fridge Clean", "Wednesday", 1, None, time(20)),
+	("Free Pile Clean", "Free Pile Clean", "Wednesday", 1, None, None),
+	("Laundry", "Laundry", "Wednesday", 1, None, None),
+	("Vacuum", "Vacuum", ["Tuesday", "Friday"], 1, None, None),
+	("Food Put Away", "Food Put Away", ["Monday", "Thursday"], 1, None, None),
+	("Bread Run", "Bread Run", "Thursday", 1, None, None),
+	("Dairy / Non-perishables Run", "Dairy / Non-perishables Run", "Thursday", 2, None, None),
+	("Afternoon Food Put Away", "Food Put Away", ["Thursday"], 1, time(15), time(19)),
+	("Co-Cook", "Cook", ["Weekdays", "Sunday"], 3, time(16), time(19)),
+	("IKC", "IKC", ["Monday"], 8, time(20), time(23)),
+	("IKC", "IKC", ["Thursday"], 7, time(20), time(23)),
 	]
+
+WEEK_LONG = (
+	("Extra bagels", "Extra bagels", 1),
+	("Farmer's Market Run", "Farmer's Market Run", 1),
+	("Granola", "Granola", 1),
+	("Hummus", "Hummus", 1),
+	("Mail Sort / Forward", "Mail Sort / Forward", 1),
+	)
+
 HUMOR_WORKSHIFTS = [
 	("Pots", "Pots", ["Friday", "Saturday"], time(20), time(0)),
 	("Sweep & Mop", "Sweep & Mop", ["Friday", "Saturday"], time(20), time(0)),
@@ -231,8 +270,8 @@ def main(args):
 		Manager.objects.create(
 			title=title,
 			compensation=compensation,
-            semester_hours=str(hours),
-            summer_hours=str(hours),
+			semester_hours=str(hours),
+			summer_hours=str(hours),
 			duties=duties,
 			email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
 			president="president" in title.lower(),
@@ -323,18 +362,33 @@ def main(args):
 			)
 
 	# Regular Workshifts
-	for title, type_title, days, start, end in REGULAR_WORKSHIFTS:
+	for title, type_title, days, count, start, end in REGULAR_WORKSHIFTS:
 		wtype = WorkshiftType.objects.get(title=type_title)
 		shift = RegularWorkshift.objects.create(
 			workshift_type=wtype,
 			title=title,
 			pool=pool,
+			count=count,
 			start_time=start,
 			end_time=end,
 			hours=wtype.hours,
 			)
 		shift.days = get_int_days(days)
 		shift.save()
+		make_instances(semester, shift)
+
+	for title, type_title, count in WEEK_LONG:
+		wtype = WorkshiftType.objects.get(title=type_title)
+		shift = RegularWorkshift.objects.create(
+			workshift_type=wtype,
+			title=title,
+			pool=pool,
+			count=count,
+			week_long=True,
+			start_time=None,
+			end_time=None,
+			hours=wtype.hours,
+			)
 		make_instances(semester, shift)
 
 	# Humor Workshifts
