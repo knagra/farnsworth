@@ -382,6 +382,10 @@ class RegularWorkshift(models.Model):
 	days = WeekdayField(
 		help_text="The days of the week when this workshift takes place.",
 		)
+	count = models.PositiveSmallIntegerField(
+		max_length=4,
+		help_text="Number of instances to create with each occurrence.",
+		)
 	hours = models.DecimalField(
 		max_digits=5,
 		decimal_places=2,
