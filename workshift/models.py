@@ -384,6 +384,7 @@ class RegularWorkshift(models.Model):
 		)
 	count = models.PositiveSmallIntegerField(
 		max_length=4,
+		default=1,
 		help_text="Number of instances to create with each occurrence.",
 		)
 	hours = models.DecimalField(

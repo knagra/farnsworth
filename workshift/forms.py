@@ -93,13 +93,14 @@ class PoolForm(forms.ModelForm):
 
 	def save(self):
 		prev_pool = self.instance
+		new = prev_pool.pk is None
 		pool = super(PoolForm, self).save(commit=False)
 		if self.semester:
 			pool.semester = self.semester
 		pool.save()
 		self.save_m2m()
 
-		if prev_pool:
+		if not new:
 			for pool_hours in PoolHours.objects.filter(pool=pool):
 				if pool_hours.hours == prev_pool.hours:
 					pool_hours.hours = pool.hours
@@ -454,8 +455,9 @@ class RegularWorkshiftForm(forms.ModelForm):
 
 	def save(self):
 		prev_shift = self.instance
+		new = prev_shift.pk is None
 		shift = super(RegularWorkshiftForm, self).save()
-		if prev_shift:
+		if not new:
 			if shift.days != prev_shift.days:
 				WorkshiftInstance.objects.filter(weekly_workshift=shift).delete()
 				make_instances(self.semester, shift)

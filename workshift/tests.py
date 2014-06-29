@@ -1376,6 +1376,7 @@ class TestWorkshifts(TestCase):
 			"title": "IKC",
 			"days": [0, 3],
 			"hours": 3,
+			"count": 2,
 			"active": True,
 			"current_assignee": self.wp.pk,
 			"start_time": "8:00 PM",
@@ -1391,6 +1392,7 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.title, "IKC")
 		self.assertEqual(shift.days, [0, 3])
 		self.assertEqual(shift.hours, 3)
+		self.assertEqual(shift.count, 2)
 		self.assertEqual(shift.active, True)
 		self.assertEqual(shift.current_assignee, self.wp)
 		self.assertEqual(shift.start_time, time(20, 0, 0))
@@ -1398,6 +1400,7 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.auto_verify, False)
 		self.assertEqual(shift.week_long, False)
 		self.assertEqual(shift.addendum, "IKC needs no addendum.")
+		self.assertEqual(2 + 8, WorkshiftInstance.objects.count())
 
 	def test_edit_shift(self):
 		url = "/workshift/shift/{0}/edit/".format(self.shift.pk)

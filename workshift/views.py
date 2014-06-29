@@ -25,8 +25,8 @@ from workshift.decorators import get_workshift_profile, \
 	workshift_manager_required, semester_required
 from workshift.models import *
 from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
-    PoolForm, WorkshiftInstanceForm, InstanceShiftForm, VerifyShiftForm, \
-    BlownShiftForm, SignInForm, SignOutForm, AddWorkshiftForm, \
+    PoolForm, WorkshiftInstanceForm, VerifyShiftForm, \
+    BlownShiftForm, SignInForm, SignOutForm, AddWorkshifterForm, \
     AssignShiftForm, RegularWorkshiftForm, WorkshiftTypeForm, \
     WorkshiftRatingForm, TimeBlockForm, BaseTimeBlockFormSet, \
     TimeBlockFormSet, ProfileNoteForm

@@ -116,22 +116,24 @@ def make_instances(semester, shift):
 	today = date.today()
 	new_instances = []
 	for weekday in shift.days:
-		next_day = today + timedelta(days=weekday - today.weekday())
+		next_day = today + timedelta(days=int(weekday) - today.weekday())
 		for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
 			# Create new instances for the entire semester
-			if WorkshiftInstance.objects.filter(weekly_workshift=shift, date=day):
-				continue
-			instance = WorkshiftInstance(
-				weekly_workshift=shift,
-				date=day,
-				workshifter=shift.current_assignee,
-				hours=shift.hours,
-				intended_hours=shift.hours,
-				auto_verify=shift.auto_verify,
-				week_long=shift.week_long,
-				)
-			instance.save()
-			new_instances.append(instance)
+			prev_instances = WorkshiftInstance.objects.filter(
+				weekly_workshift=shift, date=day)
+			for instance in prev_instances[shift.count:]:
+				instance.delete()
+			for i in range(prev_instances.count(), shift.count):
+				instance = WorkshiftInstance.objects.create(
+					weekly_workshift=shift,
+					date=day,
+					workshifter=shift.current_assignee,
+					hours=shift.hours,
+					intended_hours=shift.hours,
+					auto_verify=shift.auto_verify,
+					week_long=shift.week_long,
+					)
+				new_instances.append(instance)
 		if shift.current_assignee:
 			# Update the list of assigned workshifters
 			for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift,
