@@ -227,7 +227,7 @@ def view_semester(request, semester, profile=None):
         date=day, week_long=False,
         )
 	week_shifts = WorkshiftInstance.objects.filter(
-        date__gte=last_sunday, date__lt=next_sunday,
+        date__gt=last_sunday, date__lte=next_sunday,
         week_long=True,
         )
 
