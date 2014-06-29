@@ -165,7 +165,7 @@ def thread_view(request, thread_pk):
 		messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 	return render_to_response('view_thread.html', {
 			'thread': thread,
-			'page_name': "View Thread",
+			'page_name': thread.subject,
 			'messages_list': messages_list,
 			}, context_instance=RequestContext(request))
 
