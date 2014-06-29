@@ -1428,7 +1428,7 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.workshift_type, self.type)
 		self.assertEqual(shift.pool, self.pool)
 		self.assertEqual(shift.title, "Edited Title")
-		self.assertEqual(shift.days, [1, 5])
+		self.assertEqual([], shift.days)
 		self.assertEqual(shift.hours, 42)
 		self.assertEqual(4, shift.count)
 		self.assertEqual(shift.active, False)
