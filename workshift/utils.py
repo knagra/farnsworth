@@ -121,7 +121,12 @@ def make_instances(semester, shifts=None):
 	today = date.today()
 	new_instances = []
 	for shift in shifts:
-		for weekday in shift.days:
+		if shift.week_long:
+			# Workshifts have until Sunday to complete their shift
+			days = [6]
+		else:
+			days = shift.days
+		for weekday in days:
 			next_day = today + timedelta(days=int(weekday) - today.weekday())
 			for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
 				# Create new instances for the entire semester
