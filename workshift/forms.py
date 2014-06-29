@@ -459,7 +459,8 @@ class RegularWorkshiftForm(forms.ModelForm):
 		shift = super(RegularWorkshiftForm, self).save()
 		if not new:
 			if shift.days != prev_shift.days:
-				WorkshiftInstance.objects.filter(weekly_workshift=shift).delete()
+				WorkshiftInstance.objects.filter(
+					weekly_workshift=shift, closed=False).delete()
 				make_instances(self.semester, shift)
 			elif prev_shift.current_assignee != shift.current_assignee:
 				for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift):

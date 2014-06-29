@@ -120,7 +120,7 @@ def make_instances(semester, shift):
 		for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
 			# Create new instances for the entire semester
 			prev_instances = WorkshiftInstance.objects.filter(
-				weekly_workshift=shift, date=day)
+				weekly_workshift=shift, date=day, closed=False)
 			for instance in prev_instances[shift.count:]:
 				instance.delete()
 			for i in range(prev_instances.count(), shift.count):

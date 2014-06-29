@@ -1411,6 +1411,7 @@ class TestWorkshifts(TestCase):
 			"title": "Edited Title",
 			"days": [1, 5],
 			"hours": 42,
+			"count": 4,
 			"active": False,
 			"current_assignee": self.up.pk,
 			"start_time": "04:00 PM",
@@ -1426,6 +1427,7 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.title, "Edited Title")
 		self.assertEqual(shift.days, [1, 5])
 		self.assertEqual(shift.hours, 42)
+		self.assertEqual(4, shift.count)
 		self.assertEqual(shift.active, False)
 		self.assertEqual(shift.current_assignee, self.up)
 		self.assertEqual(shift.start_time, time(16, 0, 0))
