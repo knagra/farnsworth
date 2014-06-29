@@ -318,7 +318,7 @@ def main(args):
 
 	# HI Hours
 	hi_pool = WorkshiftPool.objects.create(
-		title="House Improvement",
+		title="Home Improvement",
 		semester=semester,
 		self_verify=False,
 		hours=str(4),
