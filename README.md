@@ -123,7 +123,7 @@ And restore by decompressing and copying back:
 $ gunzip backup-<house>-<date>.db.gz > farnsworth/<house>.db
 ```
 
-### PostgreSQL
+#### PostgreSQL
 
 Back up the house's database with the following command:
 
