@@ -397,8 +397,10 @@ class AddWorkshifterForm(forms.Form):
 				)
 
 			profile.save()
-			make_workshift_pool_hours(semester, profiles=[profile],
-									  primary_hours=self.cleaned_data["hours"])
+			make_workshift_pool_hours(
+				self.semester, profiles=[profile],
+				primary_hours=self.cleaned_data["hours"],
+				)
 
 			return profile
 
