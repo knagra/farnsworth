@@ -213,6 +213,7 @@ MIDDLEWARE_CLASSES = (
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'farnsworth.urls'
@@ -281,6 +282,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email']
 LOGIN_URL = BASE_URL + "/login/"
 LOGOUT_URL = BASE_URL + "/logout/"
 LOGIN_REDIRECT_URL = BASE_URL
+LOGIN_ERROR_URL = BASE_URL
 
 SOCIAL_AUTH_PIPELINE = (
 	'social.pipeline.social_auth.social_details',

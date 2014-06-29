@@ -118,7 +118,6 @@ def list_all_events_view(request):
 @profile_required
 def event_view(request, event_pk):
 	event = get_object_or_404(Event, pk=event_pk)
-	page_name = "View Event"
 	profile = UserProfile.objects.get(user=request.user)
 	can_edit = (event.owner == profile or request.user.is_superuser)
 	now = datetime.datetime.utcnow().replace(tzinfo=utc)
@@ -144,7 +143,7 @@ def event_view(request, event_pk):
 			for field, error in rsvp_form.errors.items():
 				messages.add_message(request, messages.ERROR, error)
 	return render_to_response('view_event.html', {
-			'page_name': page_name,
+			'page_name': event.title,
 			'can_edit': can_edit,
 			'event': event,
 			'ongoing': ongoing,
