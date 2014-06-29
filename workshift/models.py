@@ -380,6 +380,8 @@ class RegularWorkshift(models.Model):
 		help_text="The title for this weekly workshift (i.e. Monday morning dishes).",
 		)
 	days = WeekdayField(
+        null=True,
+        blank=True,
 		help_text="The days of the week when this workshift takes place.",
 		)
 	count = models.PositiveSmallIntegerField(
