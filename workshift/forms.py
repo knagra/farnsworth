@@ -179,21 +179,16 @@ class WorkshiftInstanceForm(forms.ModelForm):
 			keys.remove(field)
 			keys.insert(0, field)
 
-	def is_valid(self):
-		if not super(WorkshiftInstanceForm, self).is_valid():
-			return False
-
-		validity = True
-		shift = self.cleaned_data["weekly_workshift"]
-		title = self.cleaned_data["title"]
+	def clean(self):
+		cleaned_data = super(WorkshiftInstanceForm, self).clean()
+		shift = cleaned_data["weekly_workshift"]
+		title = cleaned_data["title"]
 		if not shift and not title:
-			self._errors["weekly_workshift"] = forms.util.ErrorList(["Pick a shift or give this instance a title."])
-			self._errors["title"] = forms.util.ErrorList(["Pick a shift or give this instance a title."])
-			validity = False
+			self.add_error("weekly_workshift", "Pick a shift or give this instance a title.")
+			self.add_error("title", "Pick a shift or give this instance a title.")
 		elif not shift and not self.cleaned_data["pool"]:
-			self._errors["pool"] = forms.util.ErrorList(["This field is required."])
-			validity = False
-		return validity
+			self.add_error("pool", "This field is required.")
+		return cleaned_data
 
 	def save(self):
 		instance = super(WorkshiftInstanceForm, self).save(commit=False)
@@ -453,6 +448,12 @@ class RegularWorkshiftForm(forms.ModelForm):
 		if self.pools:
 			self.fields['pool'].queryset = self.pools
 
+	def clean(self):
+		data = super(RegularWorkshiftForm, self).clean()
+		if data['week_long']:
+			data["days"] = []
+		return data
+
 	def save(self):
 		prev_shift = self.instance
 		new = prev_shift.pk is None
@@ -521,16 +522,14 @@ class TimeBlockForm(forms.ModelForm):
 		model = TimeBlock
 		fields = "__all__"
 
-	def is_valid(self):
-		if not super(TimeBlockForm, self).is_valid():
-			return False
-		if 'start_time' in self.cleaned_data and \
-		  'end_time' in self.cleaned_data and \
-		  self.cleaned_data['start_time'] > self.cleaned_data['end_time']:
-			self._errors['start_time'] = forms.util.ErrorList([u"Start time later than end time."])
-			self._errors['end_time'] = forms.util.ErrorList([u"Start time later than end time."])
-			return False
-		return True
+	def clean(self):
+		cleaned_data = super(TimeBlockForm, self).clean()
+		if 'start_time' in cleaned_data and \
+		  'end_time' in cleaned_data and \
+		  cleaned_data['start_time'] > cleaned_data['end_time']:
+			self.add_error('start_time', u"Start time later than end time.")
+			self.add_error('end_time', u"Start time later than end time.")
+		return cleaned_data
 
 class BaseTimeBlockFormSet(BaseModelFormSet):
 	def __init__(self, *args, **kwargs):
