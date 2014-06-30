@@ -661,9 +661,9 @@ class TestProfilePages(TestCase):
 		url = "/profile/"
 		response = self.client.post(url, {
 			"submit_password_form": "",
-			"current_password": "pwd",
-			"new_password": "Jenkins",
-			"confirm_password": "Jenkins",
+			"old_password": "pwd",
+			"new_password1": "Jenkins",
+			"new_password2": "Jenkins",
 			}, follow=True)
 
 		self.assertRedirects(response, url)
@@ -676,16 +676,16 @@ class TestProfilePages(TestCase):
 		url = "/profile/"
 		response = self.client.post(url, {
 			"submit_password_form": "",
-			"current_password": "pwd",
-			"new_password": "Jenkins",
-			"confirm_password": "Jeknins",
+			"old_password": "pwd",
+			"new_password1": "Jenkins",
+			"new_password2": "Jeknins",
 			})
 
 		self.assertEqual(response.status_code, 200)
 		self.assertNotContains(
 			response, MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
 		self.assertContains(
-			response, "Passwords don't match.".replace("'", "&#39;")
+			response, "The two password fields didn't match.".replace("'", "&#39;")
 			)
 		self.client.logout()
 		self.assertEqual(False, self.client.login(username="u", password="Jenkins"))

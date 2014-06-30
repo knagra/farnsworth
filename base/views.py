@@ -6,7 +6,8 @@ from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate
-from django.contrib.auth.forms import AdminPasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm, \
+	 AdminPasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.urlresolvers import reverse
@@ -25,7 +26,7 @@ from base.models import UserProfile, ProfileRequest
 from base.redirects import red_ext, red_home
 from base.decorators import profile_required, admin_required
 from base.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, \
-	 ModifyProfileRequestForm, LoginForm, ChangePasswordForm, \
+	 ModifyProfileRequestForm, LoginForm, \
 	 UpdateProfileForm, DeleteUserForm
 from threads.models import Thread, Message
 from threads.forms import ThreadForm
@@ -215,9 +216,9 @@ def my_profile_view(request):
 		return red_home(request, MESSAGES['SPINELESS'])
 	user = request.user
 	userProfile = UserProfile.objects.get(user=request.user)
-	change_password_form = ChangePasswordForm(
+	change_password_form = PasswordChangeForm(
+		request.user,
 		request.POST if 'submit_password_form' in request.POST else None,
-		user=user,
 		)
 	update_profile_form = UpdateProfileForm(
 		request.POST if 'submit_profile_form' in request.POST else None,
