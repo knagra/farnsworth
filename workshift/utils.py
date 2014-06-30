@@ -116,12 +116,13 @@ def _date_range(start, end, step):
 		yield day
 		day += step
 
-def make_instances(semester, shifts=None):
+def make_instances(semester, shifts=None, now=None):
 	if semester is None:
 		semester = Semester.objects.get(current=True)
 	if shifts is None:
 		shifts = RegularWorkshift.objects.filter(pool__semester=semester)
-	today = date.today()
+	if now is None:
+		now = date.today()
 	new_instances = []
 	for shift in shifts:
 		if shift.week_long:
@@ -130,7 +131,7 @@ def make_instances(semester, shifts=None):
 		else:
 			days = shift.days
 		for weekday in days:
-			next_day = today + timedelta(days=int(weekday) - today.weekday())
+			next_day = now + timedelta(days=int(weekday) - now.weekday())
 			for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
 				# Create new instances for the entire semester
 				prev_instances = WorkshiftInstance.objects.filter(
@@ -150,8 +151,8 @@ def make_instances(semester, shifts=None):
 					new_instances.append(instance)
 			if shift.current_assignee:
 				# Update the list of assigned workshifters
-				for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift,
-																 date__gte=today):
+				for instance in WorkshiftInstance.objects \
+				  .filter(weekly_workshift=shift, date__gte=now):
 					log = ShiftLogEntry(
 						person=shift.current_assignee,
 						entry_type=ShiftLogEntry.ASSIGNED,
@@ -228,6 +229,40 @@ def make_manager_workshifts(semester=None, managers=None):
 	make_instances(semester=semester, shifts=shifts)
 	return shifts
 
+def past_verify(instance, now=None):
+	if now is None:
+		now = datetime.now().replace(tzinfo=utc)
+
+	if instance.end_time is not None:
+		end_time = timedelta(
+			hours=instance.end_time.hour,
+			minutes=instance.end_time.minute,
+			)
+	else:
+		end_time = timedelta(hours=24)
+
+	end_datetime = (
+		datetime.combine(instance.date, time(0)) +
+		timedelta(hours=instance.pool.verify_cutoff) + end_time
+		).replace(tzinfo=utc)
+
+	return now > end_datetime
+
+def past_sign_out(instance, now=None):
+	if now is None:
+		now = datetime.now().replace(tzinfo=utc)
+
+	if instance.start_time is not None:
+		start_time = instance.start_time
+	else:
+		start_time = time(0)
+	start_datetime = (
+		datetime.combine(instance.date, start_time) -
+		 timedelta(hours=instance.pool.sign_out_cutoff)
+		).replace(tzinfo=utc)
+
+	return now > start_datetime
+
 def collect_blown(semester=None, now=None):
 	if semester is None:
 		try:
@@ -241,24 +276,9 @@ def collect_blown(semester=None, now=None):
 	instances = WorkshiftInstance.objects.filter(
 		semester=semester, closed=False, date__lte=today,
 		)
-	# TODO: Blown buffer period?
-	buffer_hours = 0
 	for instance in instances:
-		if instance.end_time is not None:
-			end_time = timedelta(
-				hours=instance.end_time.hour,
-				minutes=instance.end_time.minute,
-				)
-		else:
-			end_time = timedelta(hours=24)
-
-		end_datetime = (
-			datetime.combine(instance.date, time(0)) +
-			timedelta(hours=buffer_hours) + end_time
-			).replace(tzinfo=utc)
-
 		# Skip shifts not yet ended
-		if now <= end_datetime:
+		if not past_verify(instance, now=now):
 			continue
 
 		instance.closed = True
@@ -268,21 +288,7 @@ def collect_blown(semester=None, now=None):
 
 		if workshifter is None:
 			# Grab the last workshifter to sign out after the cutoff time
-			if instance.start_time is not None:
-				start_time = instance.start_time
-			else:
-				start_time = time(0)
-			start_datetime = (
-				datetime.combine(instance.date, start_time) -
-				 timedelta(hours=instance.pool.sign_out_cutoff)
-				).replace(tzinfo=utc)
-
-			sign_outs = instance.logs.filter(
-				entry_type=ShiftLogEntry.SIGNOUT,
-				entry_time__gt=start_datetime,
-				).order_by('-entry_time')
-			if sign_outs.count():
-				workshifter = sign_outs[0].person
+			workshifter = instance.liable
 
 		# Skip shifts that have no assignees
 		if workshifter is None:
