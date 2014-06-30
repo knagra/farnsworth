@@ -14,7 +14,8 @@ from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	TimeBlock, WorkshiftRating, WorkshiftProfile, \
-	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
+	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance, \
+	PoolHours
 from workshift import utils
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
