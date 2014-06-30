@@ -25,8 +25,8 @@ from workshift.decorators import get_workshift_profile, \
 	workshift_manager_required, semester_required
 from workshift.models import *
 from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
-    PoolForm, WorkshiftInstanceForm, InstanceShiftForm, VerifyShiftForm, \
-    BlownShiftForm, SignInForm, SignOutForm, AddWorkshiftForm, \
+    PoolForm, WorkshiftInstanceForm, VerifyShiftForm, \
+    BlownShiftForm, SignInForm, SignOutForm, AddWorkshifterForm, \
     AssignShiftForm, RegularWorkshiftForm, WorkshiftTypeForm, \
     WorkshiftRatingForm, TimeBlockForm, BaseTimeBlockFormSet, \
     TimeBlockFormSet, ProfileNoteForm
@@ -227,7 +227,7 @@ def view_semester(request, semester, profile=None):
         date=day, week_long=False,
         )
 	week_shifts = WorkshiftInstance.objects.filter(
-        date__gte=last_sunday, date__lt=next_sunday,
+        date__gt=last_sunday, date__lte=next_sunday,
         week_long=True,
         )
 

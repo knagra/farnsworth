@@ -209,7 +209,10 @@ class TestUtils(TestCase):
 			weekly_workshift=shift,
 			date=date.today() - timedelta(date.today().weekday())
 			)
-		instances = make_instances(self.semester, shift)
+		instances = make_instances(
+			semester=self.semester,
+			shifts=[shift],
+			)
 
 		for instance in instances:
 			self.assertEqual("Test Shift", instance.title)
@@ -1376,6 +1379,7 @@ class TestWorkshifts(TestCase):
 			"title": "IKC",
 			"days": [0, 3],
 			"hours": 3,
+			"count": 2,
 			"active": True,
 			"current_assignee": self.wp.pk,
 			"start_time": "8:00 PM",
@@ -1391,6 +1395,7 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.title, "IKC")
 		self.assertEqual(shift.days, [0, 3])
 		self.assertEqual(shift.hours, 3)
+		self.assertEqual(shift.count, 2)
 		self.assertEqual(shift.active, True)
 		self.assertEqual(shift.current_assignee, self.wp)
 		self.assertEqual(shift.start_time, time(20, 0, 0))
@@ -1398,6 +1403,7 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.auto_verify, False)
 		self.assertEqual(shift.week_long, False)
 		self.assertEqual(shift.addendum, "IKC needs no addendum.")
+		self.assertEqual(2 + 8, WorkshiftInstance.objects.count())
 
 	def test_edit_shift(self):
 		url = "/workshift/shift/{0}/edit/".format(self.shift.pk)
@@ -1408,6 +1414,7 @@ class TestWorkshifts(TestCase):
 			"title": "Edited Title",
 			"days": [1, 5],
 			"hours": 42,
+			"count": 4,
 			"active": False,
 			"current_assignee": self.up.pk,
 			"start_time": "04:00 PM",
@@ -1421,8 +1428,9 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.workshift_type, self.type)
 		self.assertEqual(shift.pool, self.pool)
 		self.assertEqual(shift.title, "Edited Title")
-		self.assertEqual(shift.days, [1, 5])
+		self.assertEqual([], shift.days)
 		self.assertEqual(shift.hours, 42)
+		self.assertEqual(4, shift.count)
 		self.assertEqual(shift.active, False)
 		self.assertEqual(shift.current_assignee, self.up)
 		self.assertEqual(shift.start_time, time(16, 0, 0))

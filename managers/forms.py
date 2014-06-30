@@ -12,6 +12,10 @@ from django.utils.timezone import utc
 from utils.funcs import convert_to_url, verify_url
 from managers.models import Manager, Announcement, RequestType, Request, Response
 
+try:
+	from workshift.utils import make_manager_workshifts
+except ImportError:
+	make_manager_workshifts = None
 
 class ManagerForm(forms.ModelForm):
 	''' Form to create or modify a manager position. '''
@@ -45,6 +49,8 @@ class ManagerForm(forms.ModelForm):
 		manager = super(ManagerForm, self).save(commit=False)
 		manager.url_title = convert_to_url(self.cleaned_data['title'])
 		manager.save()
+		if make_manager_workshifts:
+			make_manager_workshifts(managers=[manager])
 		return manager
 
 class RequestTypeForm(forms.ModelForm):

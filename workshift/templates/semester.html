@@ -46,10 +46,9 @@
 		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
 		</td>
 		<td>
-		  {% if shift.start_time %}
 		  {{ shift.start_time }}
-		  {% if shift.end_time %} - {{ shift.end_time }}{% endif %}
-		  {% endif %}
+		  {% if shift.end_time and shift.end_time %} - {% endif %}
+		  {{ shift.end_time }}
 		</td>
 		<td>
 		  {% if shift.intended_hours == shift.hours %}
