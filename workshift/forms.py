@@ -113,7 +113,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftInstance
 		exclude = ("weekly_workshift", "info", "intended_hours", "logs",
-				   "blown", "semester", "verifier")
+				   "blown", "semester", "verifier", "liable",)
 
 	weekly_workshift = forms.ModelChoiceField(
 		required=False,
