@@ -126,13 +126,13 @@ In order for the workshift application to regularly mark shifts as blown, you wi
 ```
 crontab -u <username> -e
 # Append the following line:
-*/5 * * * * /path/to/farnsworth/manage.py runcrons
+*/5 * * * * source /path/to/farnsworth/bin/activate && /path/to/farnsworth/manage.py runcrons
 ```
 
 Alternatively, create the following file:
 
 ```
-# cat > /etc/cron.d/farnsworth <<< "*/5 * * * * <username> /path/to/farnsworth/manage.py runcrons"
+# cat > /etc/cron.d/farnsworth <<< "*/5 * * * * <username> source /path/to/farnsworth/bin/activate && /path/to/farnsworth/manage.py runcrons"
 ```
 
 ### Backups
