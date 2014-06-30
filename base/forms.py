@@ -273,43 +273,6 @@ class ModifyUserForm(forms.Form):
 		self.profile.former_houses = self.cleaned_data['former_houses']
 		self.profile.save()
 
-class ChangeUserPasswordForm(forms.Form):
-	''' Form for an admin to change a user's password. '''
-	user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-
-	def __init__(self, *args, **kwargs):
-		self.user = kwargs.pop('user')
-		self.request = kwargs.pop('request')
-		super(ChangeUserPasswordForm, self).__init__(*args, **kwargs)
-
-	def clean_user_password(self):
-		password = self.cleaned_data['user_password']
-		hashed_password = hashers.make_password(password)
-		if not hashers.is_password_usable(hashed_password):
-			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
-		return password
-
-	def clean_confirm_password(self):
-		password = self.cleaned_data['confirm_password']
-		hashed_password = hashers.make_password(password)
-		if not hashers.is_password_usable(hashed_password):
-			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
-		return password
-
-	def clean(self):
-		cleaned_data = super(ChangeUserPasswordForm, self).clean()
-		if self.user == self.request.user:
-			self.add_error("__all__", MESSAGES['ADMIN_PASSWORD'])
-		if cleaned_data['user_password'] != cleaned_data['confirm_password']:
-			self.add_error('user_password', u"Passwords don't match.")
-			self.add_error('confirm_password', u"Passwords don't match.")
-		return cleaned_data
-
-	def save(self):
-		self.user.password = hashers.make_password(self.cleaned_data['user_password'])
-		self.user.save()
-
 class ModifyProfileRequestForm(forms.Form):
 	''' Form to modify a profile request. '''
 	username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, -, or _.')
@@ -445,44 +408,3 @@ class LoginForm(forms.Form):
 	''' Form to login. '''
 	username_or_email = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
 	password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-
-class ChangePasswordForm(forms.Form):
-	''' Form for a user to change own password. '''
-	current_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-	new_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-	confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-
-	def __init__(self, *args, **kwargs):
-		self.user = kwargs.pop('user')
-		super(ChangePasswordForm, self).__init__(*args, **kwargs)
-
-	def clean_current_password(self):
-		current_password = self.cleaned_data['current_password']
-		if not hashers.check_password(current_password, self.user.password):
-			raise forms.ValidationError("Wrong password.")
-		return None
-
-	def clean_new_password(self):
-		password = self.cleaned_data['new_password']
-		hashed_password = hashers.make_password(password)
-		if not hashers.is_password_usable(hashed_password):
-			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
-		return password
-
-	def clean_confirm_password(self):
-		password = self.cleaned_data['confirm_password']
-		hashed_password = hashers.make_password(password)
-		if not hashers.is_password_usable(hashed_password):
-			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
-		return password
-
-	def clean(self):
-		cleaned_data = super(ChangePasswordForm, self).clean()
-		if cleaned_data['new_password'] != cleaned_data['confirm_password']:
-			self.add_error('new_password', u"Passwords don't match.")
-			self.add_error('confirm_password', u"Passwords don't match.")
-		return cleaned_data
-
-	def save(self):
-		self.user.password = hashers.make_password(self.cleaned_data['new_password'])
-		self.user.save()
