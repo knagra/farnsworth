@@ -60,6 +60,8 @@
 		<td>
 		  {% if shift.workshifter %}
 		  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.workshifter.user.username %}">{{ shift.workshifter.user.get_full_name }}</a>
+		  {% elif shift.liable %}
+		  <del><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
 		  {% endif %}
 		</td>
 		<td>
@@ -125,6 +127,8 @@
 		  Auto Verify
 		  {% elif shift.verifier %}
 		  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
+		  {% elif shift.liable %}
+		  <del><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
 		  {% endif %}
 		</td>
 		<td>
