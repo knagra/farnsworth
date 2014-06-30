@@ -119,6 +119,22 @@ postgres=# GRANT ALL PRIVILEGES ON DATABASE <house> TO <house>_admin;
 
 Make sure to update farnsworth/house_settings.py with the password for the postgres user.
 
+### Scheduler
+
+In order for the workshift application to regularly mark shifts as blown, you will need to add a cron job to execute an internal scheduler every five minutes. Here, <username> can be the apache / httpd user or another user that has access to the installation:
+
+```
+crontab -u <username> -e
+# Append the following line:
+*/5 * * * * /path/to/farnsworth/manage.py runcrons
+```
+
+Alternatively, create the following file:
+
+```
+# cat > /etc/cron.d/farnsworth <<< "*/5 * * * * <username> /path/to/farnsworth/manage.py runcrons"
+```
+
 ### Backups
 #### SQLite
 
