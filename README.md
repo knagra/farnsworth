@@ -48,6 +48,15 @@ To install all of the dependencies of CentOS, run the following as root:
 # yum install postgres python python-devel virtualenv gcc mod_wsgi
 ```
 
+#### SELinux
+
+CentOS comes pre-packaged with SELinux for increased security. To enable the use of PostgreSQL and elasticsearch in this context, run the following as root:
+
+```
+# setsebool -P httpd_can_network_connect_db 1
+# setsebool -P httpd_can_network_connect on
+```
+
 ### Debian
 
 To install all of the dependencies of Debian, run the following as root:
@@ -60,7 +69,7 @@ See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-
 
 ### virtualenv
 
-Once your system packages have been installed, run the following as the apache user to set up a virtual environment with the site-specific packages
+Once your system packages have been installed, run the following as the apache user or root to set up a virtual environment with the site-specific packages:
 
 ```
 $ cd /path/to/farnsworth
@@ -69,7 +78,11 @@ $ source bin/activate
 $ pip install -r requirements.txt
 ```
 
-### Apache
+### HTTP Proxy
+
+Though you can run django applications with ./manage.py runserver, it is usually preferable to place them behind a HTTP proxy. This allows you to add HTTPS for encryption and host other applications or static pages on the same domain. Popular proxies include Apache, nginx, and unicorn.
+
+#### Apache
 
 Add the following lines to the httpd.conf file for Apache:
 
@@ -87,7 +100,12 @@ WSGIPythonPath /path/to/farnsworth/lib/python<python-version>/site-packages
 </VirtualHost>
 ```
 
-### PostgreSQL
+### Database
+#### SQLite
+
+Farnsworth is set up to use SQLite by default. The database will be stored in farnsworth/farnsworth.db
+
+#### PostgreSQL
 
 To create the PostgreSQL database, enter the following as root:
 
@@ -99,14 +117,7 @@ $ psql
 postgres=# GRANT ALL PRIVILEGES ON DATABASE <house> TO <house>_admin;
 ```
 
-### SELinux
-
-To enable the use of PostgreSQL and elasticsearch, enter the following as root:
-
-```
-# setsebool -P httpd_can_network_connect_db 1
-# setsebool -P httpd_can_network_connect on
-```
+Make sure to update farnsworth/house_settings.py with the password for the postgres user.
 
 ### Backups
 #### SQLite
