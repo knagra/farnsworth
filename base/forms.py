@@ -9,7 +9,7 @@ from django.contrib.auth import hashers
 
 from social.apps.django_app.default.models import UserSocialAuth
 
-from utils.funcs import verify_username, ErrorList
+from utils.funcs import verify_username
 from utils.variables import MESSAGES
 from rooms.models import Room
 from base.models import UserProfile, ProfileRequest
@@ -46,19 +46,12 @@ class ProfileRequestForm(forms.Form):
 			raise forms.ValidationError(MESSAGES["PASSWORD_UNHASHABLE"])
 		return password
 
-	def is_valid(self):
-		''' Validate form.
-		Return True if Django validates the form, the username obeys the parameters, and passwords match.
-		Return False otherwise.
-		'''
-		if not super(ProfileRequestForm, self).is_valid():
-			return False
-		validity = True
-		if self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
-			self._errors['password'] = ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = ErrorList([u"Passwords don't match."])
-			validity = False
-		return validity
+	def clean(self):
+		cleaned_data = super(ProfileRequestForm, self).clean()
+		if cleaned_data['password'] != cleaned_data['confirm_password']:
+			self.add_error('password', u"Passwords don't match.")
+			self.add_error('confirm_password', u"Passwords don't match.")
+		return cleaned_data
 
 	def save(self):
 		hashed_password = hashers.make_password(self.cleaned_data['password'])
@@ -114,25 +107,19 @@ class AddUserForm(forms.Form):
 			raise forms.ValidationError(MESSAGES["EMAIL_TAKEN"])
 		return email
 
-	def is_valid(self):
-		''' Validate form.
-		Return True if Django validates the form, the username obeys the parameters, and passwords match.
-		Return False otherwise.
-		'''
-		if not super(AddUserForm, self).is_valid():
-			return False
-		first_name = self.cleaned_data['first_name']
-		last_name = self.cleaned_data['last_name']
+	def clean(self):
+		cleaned_data = super(AddUserForm, self).clean()
+		first_name = cleaned_data['first_name']
+		last_name = cleaned_data['last_name']
 		if User.objects.filter(first_name=first_name, last_name=last_name).count():
 			non_field_error = "A profile for {0} {1} already exists with username {2}." \
 			  .format(first_name, last_name,
 					  User.objects.get(first_name=first_name, last_name=last_name).username)
-			self._errors['__all__'] = ErrorList([non_field_error])
-		if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
-			self._errors['user_password'] = ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = ErrorList([u"Passwords don't match."])
-			return False
-		return True
+			self.add_error('__all__', non_field_error)
+		if cleaned_data['user_password'] != cleaned_data['confirm_password']:
+			self.add_error('user_password', u"Passwords don't match.")
+			self.add_error('confirm_password', u"Passwords don't match.")
+		return cleaned_data
 
 	def save(self):
 		new_user = User.objects.create_user(
@@ -310,21 +297,14 @@ class ChangeUserPasswordForm(forms.Form):
 			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
 		return password
 
-	def is_valid(self):
-		''' Validate form.
-		Return True if Django validates form and the passwords match.
-		Return False otherwise.
-		'''
-		if not super(ChangeUserPasswordForm, self).is_valid():
-			return False
+	def clean(self):
+		cleaned_data = super(ChangeUserPasswordForm, self).clean()
 		if self.user == self.request.user:
-			self._errors["__all__"] = MESSAGES['ADMIN_PASSWORD']
-			return False
-		if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
-			self._errors['user_password'] = ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = ErrorList([u"Passwords don't match."])
-			return False
-		return True
+			self.add_error("__all__", MESSAGES['ADMIN_PASSWORD'])
+		if cleaned_data['user_password'] != cleaned_data['confirm_password']:
+			self.add_error('user_password', u"Passwords don't match.")
+			self.add_error('confirm_password', u"Passwords don't match.")
+		return cleaned_data
 
 	def save(self):
 		self.user.password = hashers.make_password(self.cleaned_data['user_password'])
@@ -355,22 +335,17 @@ class ModifyProfileRequestForm(forms.Form):
 	is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
 	groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
 
-	def is_valid(self):
-		''' Validate form.
-		Return True if the form is valid by Django's requirements and the username obeys the parameters.
-		Return False otherwise.
-		'''
-		if not super(ModifyProfileRequestForm, self).is_valid():
-			return False
-		first_name = self.cleaned_data["first_name"]
-		last_name = self.cleaned_data["last_name"]
+	def clean(self):
+		cleaned_data = super(ModifyProfileRequestForm, self).clean()
+		first_name = cleaned_data["first_name"]
+		last_name = cleaned_data["last_name"]
 		if User.objects.filter(first_name=first_name, last_name=last_name).count():
 			non_field_error = "A profile for {0} {1} already exists with username {2}." \
 			  .format(first_name, last_name,
 					  User.objects.get(first_name=first_name,
 									   last_name=last_name).username)
-			self._errors['__all__'] = ErrorList([non_field_error])
-		return True
+			self.add_error('__all__', non_field_error)
+		return cleaned_data
 
 	def clean_username(self):
 		username = self.cleaned_data["username"]
@@ -501,14 +476,12 @@ class ChangePasswordForm(forms.Form):
 			raise forms.ValidationError("Password didn't hash properly.  Please try again.")
 		return password
 
-	def is_valid(self):
-		if not super(ChangePasswordForm, self).is_valid():
-			return False
-		elif self.cleaned_data['new_password'] != self.cleaned_data['confirm_password']:
-			self._errors['new_password'] = ErrorList([u"Passwords don't match."])
-			self._errors['confirm_password'] = ErrorList([u"Passwords don't match."])
-			return False
-		return True
+	def clean(self):
+		cleaned_data = super(ChangePasswordForm, self).clean()
+		if cleaned_data['new_password'] != cleaned_data['confirm_password']:
+			self.add_error('new_password', u"Passwords don't match.")
+			self.add_error('confirm_password', u"Passwords don't match.")
+		return cleaned_data
 
 	def save(self):
 		self.user.password = hashers.make_password(self.cleaned_data['new_password'])

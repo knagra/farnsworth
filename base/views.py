@@ -15,7 +15,6 @@ from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import utc
 
-from utils.funcs import ErrorList
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
 	APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
 	SUBMISSION_EMAIL
@@ -384,14 +383,14 @@ def request_profile_view(request):
 		email = form.cleaned_data['email']
 		if User.objects.filter(username=username).count():
 			reset_url = request.build_absolute_uri(reverse('reset_pw'))
-			form._errors['username'] = ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
+			form.add_error('username', MESSAGES["USERNAME_TAKEN"].format(username=username))
 			messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
 		elif User.objects.filter(email=email).count():
 			reset_url = request.build_absolute_uri(reverse('reset_pw'))
 			messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
-			form._errors['email'] = ErrorList([MESSAGES["EMAIL_TAKEN"]])
+			form.add_error('email', MESSAGES["EMAIL_TAKEN"])
 		elif ProfileRequest.objects.filter(first_name=first_name, last_name=last_name).count():
-			form.errors['__all__'] = form.error_class([MESSAGES["PROFILE_TAKEN"].format(first_name=first_name, last_name=last_name)])
+			form.add_error('__all__', MESSAGES["PROFILE_TAKEN"].format(first_name=first_name, last_name=last_name))
 		elif User.objects.filter(first_name=first_name, last_name=last_name).count():
 			reset_url = request.build_absolute_uri(reverse('reset_pw'))
 			messages.add_message(request, messages.INFO, MESSAGES['PROFILE_REQUEST_RESET'].format(reset_url=reset_url))
