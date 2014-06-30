@@ -239,38 +239,39 @@ def view_semester(request, semester, profile=None):
 	return render_to_response("semester.html", template_dict,
 							   context_instance=RequestContext(request))
 
-def _get_forms(profile, shift):
+def _get_forms(profile, instance):
 	"""
-	Gets the forms for profile interacting with a shift. This includes verify
-	shift, mark shift as blown, sign in, and sign out.
+	Gets the forms for profile interacting with an instance of a shift. This
+	includes verify shift, mark shift as blown, sign in, and sign out.
 	"""
 	ret = []
-	if not shift.closed and profile:
-		if shift.workshifter:
-			pool = shift.pool
+	if not instance.closed and profile:
+		workshifter = instance.workshifer or instance.liable
+		if workshifter:
+			pool = instance.pool
 
-			if pool.self_verify or shift.workshifter != profile and \
-              not shift.auto_verify and not utils.past_verify(shift):
+			if pool.self_verify or workshifter != profile and \
+              not instance.auto_verify and not utils.past_verify(instance):
 				verify_form = VerifyShiftForm(initial={
-					"pk": shift.pk,
+					"pk": instance.pk,
 					}, profile=profile)
 				ret.append(verify_form)
 
 			if pool.any_blown or \
 			  pool.managers.filter(incumbent__user=profile.user).count():
 				blown_form = BlownShiftForm(initial={
-					"pk": shift.pk,
+					"pk": instance.pk,
 					}, profile=profile)
 				ret.append(blown_form)
 
-			if shift.workshifter == profile:
+			if workshifter == profile:
 				sign_out_form = SignOutForm(initial={
-					"pk": shift.pk,
+					"pk": instance.pk,
 					}, profile=profile)
 				ret.append(sign_out_form)
 		else:
 			sign_in_form = SignInForm(initial={
-				"pk": shift.pk,
+				"pk": instance.pk,
 				}, profile=profile)
 			ret.append(sign_in_form)
 	return ret
