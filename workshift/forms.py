@@ -251,9 +251,11 @@ class VerifyShiftForm(InteractShiftForm):
 	def clean_pk(self):
 		instance = super(VerifyShiftForm, self).clean_pk()
 
-		if not instance.workshifter:
+		workshifter = instance.workshifter or instance.liable
+
+		if not workshifter:
 			raise forms.ValidationError("Workshift is not filled.")
-		if not instance.pool.self_verify and instance.workshifter == self.profile:
+		if not instance.pool.self_verify and workshifter == self.profile:
 			raise forms.ValidationError("Workshifter cannot verify self.")
 		if instance.auto_verify:
 			raise forms.ValidationError("Workshift is automatically verified.")
@@ -275,8 +277,9 @@ class VerifyShiftForm(InteractShiftForm):
 		instance.logs.add(entry)
 		instance.save()
 
-		pool_hours = instance.workshifter.pool_hours \
-		  .get(pool=instance.get_info().pool)
+		workshifter = instance.workshifter or instance.liable
+
+		pool_hours = workshifter.pool_hours.get(pool=instance.get_info().pool)
 		pool_hours.standing += instance.hours
 		pool_hours.save()
 
