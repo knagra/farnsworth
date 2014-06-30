@@ -79,6 +79,18 @@ $ source bin/activate
 $ pip install -r requirements.txt
 ```
 
+### Configuration
+
+In order to configure your personal Farnsworth, you will need to configure its settings. A brief list of house-specific settings is read from `farnsworth/house_settings.py`:
+
+```
+$ cd /path/to/farnsworth
+$ cp farnsworth/house_settings.py.example farnsworth/house_settings.py
+$ $EDITOR farnsworth/house_settings.py
+```
+
+See `farnsworth/settings.py` for the full list of settings used by Django.
+
 ### HTTP Proxy
 
 Though you can run django applications with ./manage.py runserver, it is usually preferable to place them behind a HTTP proxy. This allows you to add HTTPS for encryption and host other applications or static pages on the same domain. Popular proxies include Apache, nginx, and unicorn.
