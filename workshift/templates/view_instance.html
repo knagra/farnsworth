@@ -55,7 +55,12 @@
 	  {% for log in instance.logs.all %}
 	  <tr>
 		<td>{{ log.entry_time }}</td>
-		<td><a href="{% url 'workshift:profile' log.person.pk %}">{{ log.person.user.get_full_name }}</a>
+		<td>
+		  {% if log.person %}
+		  <a href="{% url 'workshift:profile' log.person.pk %}">{{ log.person.user.get_full_name }}</a>
+		  {% else %}
+		  The system automatically
+		  {% endif %}
 		  {% if log.entry_type == 'A' %}
 		  was assigned to this shift.
 		  {% elif log.entry_type == 'B' %}
