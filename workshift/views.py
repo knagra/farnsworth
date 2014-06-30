@@ -264,7 +264,7 @@ def _get_forms(profile, instance):
 					}, profile=profile)
 				ret.append(blown_form)
 
-			if workshifter == profile:
+			if shift.workshifter == profile:
 				sign_out_form = SignOutForm(initial={
 					"pk": instance.pk,
 					}, profile=profile)
