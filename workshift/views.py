@@ -48,7 +48,7 @@ def add_workshift_context(request):
 		workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
 	except WorkshiftProfile.DoesNotExist:
 		return {'WORKSHIFT_ENABLED': False}
-	WORKSHIFT_MANAGER = utils.can_manage(request, SEMESTER)
+	WORKSHIFT_MANAGER = utils.can_manage(request.user, semester=SEMESTER)
     # Current semester is for navbar notifications
 	try:
 		CURRENT_SEMESTER = Semester.objects.get(current=True)
@@ -311,7 +311,8 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	"""
 	wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
 
-	if wprofile.user != request.user and not utils.can_manage(request, semester):
+	if wprofile.user != request.user and \
+	  not utils.can_manage(request.user, semester=semester):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(wurl('workshift:view_semester',
@@ -382,7 +383,7 @@ def manage_view(request, semester, profile=None):
 	"""
 	page_name = "Manage Workshift"
 	pools = WorkshiftPool.objects.filter(semester=semester)
-	full_management = utils.can_manage(request, semester)
+	full_management = utils.can_manage(request.user, semester=semester)
 	semester_form = None
 
 	if not full_management:
@@ -510,7 +511,7 @@ def add_shift_view(request, semester):
 	"""
 	page_name = "Add Workshift"
 	pools = WorkshiftPool.objects.filter(semester=semester)
-	full_management = utils.can_manage(request, semester)
+	full_management = utils.can_manage(request.user, semester=semester)
 	if not full_management:
 		pools = pools.filter(managers__incumbent__user=request.user)
 		if not pools.count():
@@ -576,7 +577,7 @@ def pool_view(request, semester, pk, profile=None):
 def edit_pool_view(request, semester, pk, profile=None):
 	pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
 	page_name = "Edit " + pool.title
-	full_management = utils.can_manage(request, semester)
+	full_management = utils.can_manage(request.user, semester=semester)
 	managers = pool.managers.filter(incumbent__user=request.user)
 
 	if not full_management and not managers.count():
@@ -746,7 +747,7 @@ def list_types_view(request):
 	return render_to_response("list_types.html", {
 		"page_name": page_name,
 		"shifts": shifts,
-		"can_edit": utils.can_manage(request),
+		"can_edit": utils.can_manage(request.user),
 	}, context_instance=RequestContext(request))
 
 @login_required
@@ -759,7 +760,7 @@ def type_view(request, pk):
 	return render_to_response("view_type.html", {
 		"page_name": page_name,
 		"shift": shift,
-		"can_edit": utils.can_manage(request),
+		"can_edit": utils.can_manage(request.user),
 	}, context_instance=RequestContext(request))
 
 @workshift_manager_required

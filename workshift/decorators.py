@@ -68,7 +68,7 @@ def workshift_manager_required(function=None, redirect_no_user='login',
 					redirect_to += "?next=" + request.path
 				return HttpResponseRedirect(redirect_to)
 
-			if not can_manage(request, kwargs.get("semester", None)):
+			if not can_manage(request.user, semester=kwargs.get("semester", None)):
 				messages = MESSAGES['ADMINS_ONLY']
 				if Semester.objects.filter(current=True).count() == 0:
 					messages = "Workshift semester has not been created yet. " + messages
