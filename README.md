@@ -38,6 +38,7 @@ Live versions of the site can be accessed at https://kingmanhall.org/internal/, 
 * elasticsearch 1.2.1 (https://www.elasticsearch.org/overview/elkdownloads/)
 * Python elasticsearch
 * Python Social Auth 0.1.23
+* django-cron 0.3.3
 
 ## Installation
 ### CentOS
