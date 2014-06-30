@@ -100,9 +100,14 @@ class WorkshiftPool(models.Model):
 		help_text="Managers who are able to control this workshift category."
 		)
 	sign_out_cutoff = models.PositiveSmallIntegerField(
-		default=settings.DEFAULT_CUTOFF,
-		help_text="Cut-off for signing out of workshifts without requiring "
+		default=settings.DEFAULT_SIGN_OUT_CUTOFF,
+		help_text="Cutoff for signing out of workshifts without requiring "
 		"a substitute, in hours.",
+		)
+	verify_cutoff = models.PositiveSmallIntegerField(
+		default=settings.DEFAULT_VERIFY_CUTOFF,
+		help_text="Cutoff for verifying a workshift after it has finished, "
+		"in hours. After this cutoff, the shift will be marked as blown."
 		)
 	hours = models.DecimalField(
 		max_digits=5,
@@ -542,6 +547,14 @@ class WorkshiftInstance(models.Model):
 		related_name="instance_workshifter",
 		help_text="Workshifter who was signed into this shift at the time "
 		"it started.",
+		)
+	liable = models.ForeignKey(
+		WorkshiftProfile,
+		null=True,
+		blank=True,
+		related_name="instance_liable",
+		help_text="Workshifter who is liable for this shift if no one else "
+		"signs in.",
 		)
 	verifier = models.ForeignKey(
 		WorkshiftProfile,
