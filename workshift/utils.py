@@ -4,7 +4,10 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
-from datetime import date, timedelta
+from datetime import date, timedelta, time, datetime
+
+from django.utils.timezone import utc
+
 from weekday_field.utils import ADVANCED_DAY_CHOICES
 
 from managers.models import Manager
@@ -158,13 +161,19 @@ def make_instances(semester, shifts=None):
 					instance.save()
 	return new_instances
 
-def make_workshift_pool_hours(semester, profiles=None, pools=None,
+def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
 							  primary_hours=None):
+	if semester is None:
+		try:
+			semester = Semester.objects.get(current=True)
+		except Semester.DoesNotExist:
+			return []
 	if profiles is None:
 		profiles = WorkshiftProfile.objects.filter(semester=semester)
 	if pools is None:
 		pools = WorkshiftPool.objects.filter(semester=semester)
 
+	ret = []
 	for profile in profiles:
 		for pool in pools:
 			if not profile.pool_hours.filter(pool=pool):
@@ -177,7 +186,9 @@ def make_workshift_pool_hours(semester, profiles=None, pools=None,
 					hours=hours,
 					)
 				profile.pool_hours.add(pool_hours)
+				ret.append(pool_hours)
 		profile.save()
+	return ret
 
 def make_manager_workshifts(semester=None, managers=None):
 	if semester is None:
@@ -216,3 +227,81 @@ def make_manager_workshifts(semester=None, managers=None):
 		shifts.append(shift)
 	make_instances(semester=semester, shifts=shifts)
 	return shifts
+
+def collect_blown(semester=None, now=None):
+	if semester is None:
+		try:
+			semester = Semester.objects.get(current=True)
+		except Semester.DoesNotExist:
+			return []
+	if now is None:
+		now = datetime.now().replace(tzinfo=utc)
+	closed, blown = [], []
+	today = date.today()
+	instances = WorkshiftInstance.objects.filter(
+		semester=semester, closed=False, date__lte=today,
+		)
+	# TODO: Blown buffer period?
+	buffer_hours = 0
+	for instance in instances:
+		if instance.end_time is not None:
+			end_time = timedelta(
+				hours=instance.end_time.hour,
+				minutes=instance.end_time.minute,
+				)
+		else:
+			end_time = timedelta(hours=24)
+
+		end_datetime = (
+			datetime.combine(instance.date, time(0)) +
+			timedelta(hours=buffer_hours) + end_time
+			).replace(tzinfo=utc)
+
+		# Skip shifts not yet ended
+		if now <= end_datetime:
+			continue
+
+		instance.closed = True
+		instance.save()
+
+		workshifter = instance.workshifter
+
+		if workshifter is None:
+			# Grab the last workshifter to sign out after the cutoff time
+			if instance.start_time is not None:
+				start_time = instance.start_time
+			else:
+				start_time = time(0)
+			start_datetime = (
+				datetime.combine(instance.date, start_time) -
+				 timedelta(hours=instance.pool.sign_out_cutoff)
+				).replace(tzinfo=utc)
+
+			sign_outs = instance.logs.filter(
+				entry_type=ShiftLogEntry.SIGNOUT,
+				entry_time__gt=start_datetime,
+				).order_by('-entry_time')
+			if sign_outs.count():
+				workshifter = sign_outs[0].person
+
+		# Skip shifts that have no assignees
+		if workshifter is None:
+			closed.append(instance)
+			continue
+
+		# Update the workshifter's standing
+		pool_hours = workshifter.pool_hours.get(pool=instance.pool)
+		pool_hours.standing -= instance.hours
+		pool_hours.save()
+
+		# Make a log entry
+		log = ShiftLogEntry.objects.create(
+			entry_type=ShiftLogEntry.BLOWN,
+			person=workshifter,
+			)
+		instance.logs.add(log)
+		instance.save()
+
+		blown.append(instance)
+
+	return closed, blown

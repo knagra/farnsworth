@@ -624,4 +624,4 @@ class WorkshiftInstance(models.Model):
 			raise ValueError("Only one of [weekly_workshift, info] can be set")
 
 	def __unicode__(self):
-		return "%s, %s" % (self.weekly_workshift.title, self.date)
+		return "{0}, {1}".format(self.title, self.date)
