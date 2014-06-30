@@ -41,7 +41,7 @@
 	</thead>
 	<tbody>
 	  {% for shift, forms in day_shifts %}
-	  <tr>
+	  <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif not shift.closed and shift.verifier %}info{% endif %}">
 		<td>
 		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
 		</td>
