@@ -102,6 +102,7 @@ class TestUtils(TestCase):
 			is_primary=True,
 			semester=self.semester,
 			sign_out_cutoff=24,
+			verify_cutoff=2,
 			)
 		self.p2 = WorkshiftPool.objects.create(
 			title="Alternate Workshift",
@@ -226,7 +227,7 @@ class TestUtils(TestCase):
 			weekly_workshift=shift,
 			date=date.today() - timedelta(date.today().weekday())
 			)
-		instances = make_instances(
+		instances = utils.make_instances(
 			semester=self.semester,
 			shifts=[shift],
 			)
@@ -299,7 +300,7 @@ class TestUtils(TestCase):
 		edge_case_2 = WorkshiftInstance.objects.create(
 			info=InstanceInfo.objects.create(
 				title="Edge Case 2: Closed",
-				end_time=time(19, 59),
+				end_time=time(17, 59),
 				pool=self.p1,
 				),
 			date=now.date(),
@@ -312,30 +313,15 @@ class TestUtils(TestCase):
 			date=past.date(),
 			semester=self.semester,
 			)
-		log = ShiftLogEntry.objects.create(
-			entry_type=ShiftLogEntry.SIGNOUT,
-			person=self.profile,
-			)
-		log.entry_time = datetime(2014, 5, 26, 0).replace(tzinfo=utc)
-		log.save()
-		signed_out_1.logs.add(log)
-		signed_out_1.save()
 		signed_out_2 = WorkshiftInstance.objects.create(
 			info=InstanceInfo.objects.create(
 				title="Workshifter signed out too late",
 				pool=self.p1,
 				),
+			liable=self.profile,
 			date=past.date(),
 			semester=self.semester,
 			)
-		log = ShiftLogEntry.objects.create(
-			entry_type=ShiftLogEntry.SIGNOUT,
-			person=self.profile,
-			)
-		log.entry_time = datetime(2014, 5, 31, 0).replace(tzinfo=utc)
-		log.save()
-		signed_out_2.logs.add(log)
-		signed_out_2.save()
 		self.assertEqual(
 			([to_close, edge_case_2, signed_out_1], [blown, signed_out_2]),
 			utils.collect_blown(now=now),
@@ -1403,14 +1389,22 @@ class TestWorkshifts(TestCase):
 			"delete": "",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
-		self.assertEqual(WorkshiftType.objects.filter(pk=self.type.pk).count(),
-						 1)
-		self.assertEqual(RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
-						 1)
-		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
-						 0)
-		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
-						 1)
+		self.assertEqual(
+			1,
+			WorkshiftType.objects.filter(pk=self.type.pk).count(),
+			)
+		self.assertEqual(
+			1,
+			RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
+			)
+		self.assertEqual(
+			0,
+			WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
+			)
+		self.assertEqual(
+			1,
+			WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
+			)
 
 	def test_add_once(self):
 		url = "/workshift/manage/add_shift/"
@@ -1480,14 +1474,22 @@ class TestWorkshifts(TestCase):
 			"delete": "",
 			}, follow=True)
 		self.assertRedirects(response, "/workshift/manage/")
-		self.assertEqual(WorkshiftType.objects.filter(pk=self.type.pk).count(),
-						 1)
-		self.assertEqual(RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
-						 1)
-		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
-						 1)
-		self.assertEqual(WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
-						 0)
+		self.assertEqual(
+			1,
+			WorkshiftType.objects.filter(pk=self.type.pk).count(),
+			)
+		self.assertEqual(
+			1,
+			RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
+			)
+		self.assertEqual(
+			WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
+			1,
+			)
+		self.assertEqual(
+			0,
+			WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
+			)
 
 	def test_add_shift(self):
 		url = "/workshift/manage/add_shift/"
@@ -1522,7 +1524,6 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.auto_verify, False)
 		self.assertEqual(shift.week_long, False)
 		self.assertEqual(shift.addendum, "IKC needs no addendum.")
-		self.assertEqual(2 + 8, WorkshiftInstance.objects.count())
 
 	def test_edit_shift(self):
 		url = "/workshift/shift/{0}/edit/".format(self.shift.pk)
