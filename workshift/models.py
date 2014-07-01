@@ -152,7 +152,6 @@ class WorkshiftPool(models.Model):
 
 	class Meta:
 		unique_together = ("semester", "title")
-		ordering = ["title", "semester"]
 
 	def __unicode__(self):
 		return self.title
