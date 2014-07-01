@@ -45,7 +45,7 @@ Live versions of the site can be accessed at https://kingmanhall.org/internal/, 
 To install all of the dependencies of CentOS, run the following as root:
 
 ```
-# yum install postgres python python-devel virtualenv gcc mod_wsgi
+# yum install postgres python python-devel virtualenv gcc mod_wsgi mercurial
 ```
 
 #### SELinux
@@ -62,7 +62,7 @@ CentOS comes pre-packaged with SELinux for increased security. To enable the use
 To install all of the dependencies of Debian, run the following as root:
 
 ```
-# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3
+# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3 mercurial
 ```
 
 See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html on installing elasticsearch on either distribution.
