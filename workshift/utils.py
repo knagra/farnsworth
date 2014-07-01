@@ -282,35 +282,35 @@ def collect_blown(semester=None, now=None):
 			continue
 
 		instance.closed = True
-		instance.save()
 
 		workshifter = instance.workshifter or instance.liable
 
 		# Skip shifts that have no assignees
 		if workshifter is None:
 			closed.append(instance)
-			continue
-
-		# Update the workshifter's standing
-		pool_hours = workshifter.pool_hours.get(pool=instance.pool)
-
-		if not instance.auto_verify or instance.liable:
-			pool_hours.standing -= instance.hours
-			entry_type = ShiftLogEntry.BLOWN
-			blown.append(instance)
 		else:
-			pool_hours.standing += instance.hours
-			entry_type = ShiftLogEntry.VERIFY
-			verified.append(instance)
+			# Update the workshifter's standing
+			pool_hours = workshifter.pool_hours.get(pool=instance.pool)
 
-		pool_hours.save()
+			if not instance.auto_verify or instance.liable:
+				pool_hours.standing -= instance.hours
+				entry_type = ShiftLogEntry.BLOWN
+				instance.blown = True
+				blown.append(instance)
+			else:
+				pool_hours.standing += instance.hours
+				entry_type = ShiftLogEntry.VERIFY
+				verified.append(instance)
 
-		# Make a log entry
-		if entry_type:
-			log = ShiftLogEntry.objects.create(
-				entry_type=entry_type,
-				)
-			instance.logs.add(log)
-			instance.save()
+			pool_hours.save()
+
+			# Make a log entry
+			if entry_type:
+				log = ShiftLogEntry.objects.create(
+					entry_type=entry_type,
+					)
+				instance.logs.add(log)
+
+		instance.save()
 
 	return closed, verified, blown
