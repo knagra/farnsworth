@@ -138,26 +138,28 @@ def make_instances(semester, shifts=None, now=None):
 					weekly_workshift=shift, date=day, closed=False)
 				for instance in prev_instances[shift.count:]:
 					instance.delete()
+				assignees = shift.current_assignees.all()
 				for i in range(prev_instances.count(), shift.count):
 					instance = WorkshiftInstance.objects.create(
 						weekly_workshift=shift,
 						date=day,
-						workshifter=shift.current_assignee,
 						hours=shift.hours,
 						intended_hours=shift.hours,
 						auto_verify=shift.auto_verify,
 						week_long=shift.week_long,
 						)
+					if i < len(assignees):
+						instance.workshifter = assignees[i]
+						instance.save()
 					new_instances.append(instance)
-			if shift.current_assignee:
+			if shift.current_assignees:
 				# Update the list of assigned workshifters
 				for instance in WorkshiftInstance.objects \
 				  .filter(weekly_workshift=shift, date__gte=now):
-					log = ShiftLogEntry(
-						person=shift.current_assignee,
+					log = ShiftLogEntry.objects.create(
+						person=instance.workshifter,
 						entry_type=ShiftLogEntry.ASSIGNED,
 						)
-					log.save()
 					instance.logs.add(log)
 					instance.save()
 	return new_instances

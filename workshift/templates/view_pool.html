@@ -68,7 +68,11 @@
 		  {% if shift.start_time and shift.end_time %} - {% endif %}
 		  {{ shift.end_time }}
 		<td>{{ shift.hours }}</td>
-		<td>{% if shift.current_assignee %}<a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.current_assignee.user.username %}">{{ shift.current_assignee.user.get_full_name }}</a>{% endif %}</td>
+		<td>
+		  {% if shift.current_assignee %}
+		  {% for assignee in shift.current_assignees.all %}{% if not forloop.first %}, {% endif %}<a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.current_assignee.user.username %}">{{ shift.current_assignee.user.get_full_name }}</a>{% endfor %}
+		  {% endif %}
+		</td>
 	  </tr>
 	  {% endfor %}
 	</tbody>

@@ -407,7 +407,7 @@ class RegularWorkshift(models.Model):
 		help_text="Whether this shift is actively being used currently "
 		"(displayed in list of shifts, given hours, etc.).",
 		)
-	current_assignee = models.ForeignKey(
+	current_assignees = models.ManyToManyField(
 		WorkshiftProfile,
 		null=True,
 		blank=True,
@@ -443,7 +443,7 @@ class RegularWorkshift(models.Model):
 		for day in self.days:
 			days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
 		if days:
-			return "{0}: {1}".format(self.title, ", ".join(days))
+			return "{0}:{1}".format(self.title, ", ".join(days))
 		else:
 			return self.title
 

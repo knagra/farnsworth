@@ -220,9 +220,10 @@ class TestUtils(TestCase):
 			workshift_type=wtype,
 			pool=self.p1,
 			days=[0, 1, 2, 3, 4],
-			current_assignee=self.profile,
 			hours=7,
 			)
+		shift.current_assignees = [self.profile]
+		shift.save()
 		WorkshiftInstance.objects.create(
 			weekly_workshift=shift,
 			date=date.today() - timedelta(date.today().weekday())
@@ -369,12 +370,12 @@ class TestViews(TestCase):
 
 		self.shift = RegularWorkshift.objects.create(
 			workshift_type=self.wtype,
-			current_assignee=self.wprofile,
 			pool=self.pool,
 			title="Test Regular Shift",
 			start_time=datetime.now(),
 			end_time=datetime.now() + timedelta(hours=2),
 			)
+		self.shift.current_assignees = [self.wprofile]
 		self.shift.days = [DAY_CHOICES[0][0]]
 		self.shift.save()
 
@@ -521,14 +522,16 @@ class TestViews(TestCase):
 		self.assertContains(response, str(self.shift.hours))
 		self.assertContains(response, self.shift.workshift_type.quick_tips)
 		self.assertContains(response, self.shift.workshift_type.description)
-		self.assertContains(response, self.shift.current_assignee.user.get_full_name())
+		for assignee in self.shift.current_assignees.all():
+			self.assertContains(response, assignee.user.get_full_name())
 
 	def test_edit_shift(self):
 		response = self.client.get("/workshift/shift/{0}/edit/".format(self.shift.pk))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.shift.title)
 		self.assertContains(response, str(self.shift.hours))
-		self.assertContains(response, self.shift.current_assignee.user.get_full_name())
+		for assignee in self.shift.current_assignees.all():
+			self.assertContains(response, assignee.user.get_full_name())
 
 	def test_instance(self):
 		response = self.client.get("/workshift/instance/{0}/"
@@ -1502,7 +1505,7 @@ class TestWorkshifts(TestCase):
 			"hours": 3,
 			"count": 2,
 			"active": True,
-			"current_assignee": self.wp.pk,
+			"current_assignees": [self.wp.pk],
 			"start_time": "8:00 PM",
 			"end_time": "11:00 PM",
 			"auto_verify": False,
@@ -1518,7 +1521,10 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.hours, 3)
 		self.assertEqual(shift.count, 2)
 		self.assertEqual(shift.active, True)
-		self.assertEqual(shift.current_assignee, self.wp)
+		self.assertEqual(
+			[self.wp],
+			list(shift.current_assignees.all()),
+			)
 		self.assertEqual(shift.start_time, time(20, 0, 0))
 		self.assertEqual(shift.end_time, time(23, 0, 0))
 		self.assertEqual(shift.auto_verify, False)
@@ -1536,7 +1542,7 @@ class TestWorkshifts(TestCase):
 			"hours": 42,
 			"count": 4,
 			"active": False,
-			"current_assignee": self.up.pk,
+			"current_assignees": [self.up.pk],
 			"start_time": "04:00 PM",
 			"end_time": "06:00 PM",
 			"auto_verify": True,
@@ -1552,7 +1558,10 @@ class TestWorkshifts(TestCase):
 		self.assertEqual(shift.hours, 42)
 		self.assertEqual(4, shift.count)
 		self.assertEqual(shift.active, False)
-		self.assertEqual(shift.current_assignee, self.up)
+		self.assertEqual(
+			[self.up],
+			list(shift.current_assignees.all()),
+			)
 		self.assertEqual(shift.start_time, time(16, 0, 0))
 		self.assertEqual(shift.end_time, time(18, 0, 0))
 		self.assertEqual(shift.auto_verify, True)

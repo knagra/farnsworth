@@ -289,8 +289,8 @@ def profile_view(request, semester, targetUsername, profile=None):
 	else:
 		page_name = "{0}'s Workshift Profile".format(wprofile.user.get_full_name())
 	past_shifts = WorkshiftInstance.objects.filter(workshifter=wprofile, closed=True)
-	regular_shifts = RegularWorkshift.objects.filter(active=True,
-													 current_assignee=wprofile)
+	regular_shifts = RegularWorkshift.objects.filter(
+		active=True, current_assignees=wprofile)
 	first_standing, second_standing, third_standing = \
 	  any(pool_hours.first_date_standing for pool_hours in wprofile.pool_hours.all()), \
 	  any(pool_hours.second_date_standing for pool_hours in wprofile.pool_hours.all()), \

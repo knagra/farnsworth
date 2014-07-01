@@ -242,8 +242,6 @@ class InteractShiftForm(forms.Form):
 			raise forms.ValidationError("Workshift has been closed.")
 		return shift
 
-# TODO: SellShiftForm
-
 class VerifyShiftForm(InteractShiftForm):
 	title_short = '<span class="glyphicon glyphicon-ok"></span>'
 	title_long = "Verify"
@@ -412,12 +410,12 @@ class AddWorkshifterForm(forms.Form):
 class AssignShiftForm(forms.ModelForm):
 	class Meta:
 		model = RegularWorkshift
-		fields = ("current_assignee",)
+		fields = ("current_assignees",)
 		labels = {
-			"current_assignee": "",
+			"current_assignees": "",
 			}
 		help_texts = {
-			"current_assignee": "",
+			"current_assignees": "",
 			}
 
 	def __init__(self, *args, **kwargs):
@@ -436,7 +434,7 @@ class AssignShiftForm(forms.ModelForm):
 				if not time_blocks:
 					query.append(profile.pk)
 
-			self.fields['current_assignee'].queryset = \
+			self.fields['current_assignees'].queryset = \
 			  WorkshiftProfile.objects.filter(pk__in=query)
 
 class RegularWorkshiftForm(forms.ModelForm):
@@ -459,6 +457,10 @@ class RegularWorkshiftForm(forms.ModelForm):
 		data = super(RegularWorkshiftForm, self).clean()
 		if data['week_long']:
 			data["days"] = []
+		if data['count'] < len(data['current_assignees']):
+			raise forms.ValidationError(
+				"Not enough shifts to cover the workshifters you selected."
+				)
 		return data
 
 	def save(self):
@@ -466,23 +468,13 @@ class RegularWorkshiftForm(forms.ModelForm):
 		new = prev_shift.pk is None
 		shift = super(RegularWorkshiftForm, self).save()
 		if not new:
-			if shift.days != prev_shift.days:
-				WorkshiftInstance.objects.filter(
-					weekly_workshift=shift, closed=False).delete()
-				utils.make_instances(
-					semester=self.semester,
-					shifts=[shift],
-					)
-			elif prev_shift.current_assignee != shift.current_assignee:
-				for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift):
-					# Update existing workshift instances
-					instance.workshifter = shift.current_assignee
-					instance.intended_hours = shift.hours
-					if instance.hours == prev_shift.hours:
-						# Update workshift hours if instance's hours have not
-						# yet been altered
-						instance.hours = shift.hours
-					instance.save()
+			# Nuke all future instances and just re-create them anew
+			WorkshiftInstance.objects.filter(
+				weekly_workshift=shift, closed=False).delete()
+			utils.make_instances(
+				semester=self.semester,
+				shifts=[shift],
+				)
 		else:
 			utils.make_instances(
 				semester=self.semester,
