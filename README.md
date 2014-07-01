@@ -119,14 +119,20 @@ Farnsworth is set up to use SQLite by default. The database will be stored in fa
 
 #### PostgreSQL
 
-To create the PostgreSQL database, enter the following as root:
+To create the PostgreSQL database, run the following commands as root:
 
 ```
 # su - postgres
 $ createdb <house>
 $ createuser -PS <house>_admin
+Enter password for new role:
+Enter it again:
+Shall the new role be able to create databases? (y/n) n
+Shall the new role be allowed to create more new roles? (y/n) n
 $ psql
 postgres=# GRANT ALL PRIVILEGES ON DATABASE <house> TO <house>_admin;
+GRANT
+postgres=# \q
 ```
 
 Make sure to update farnsworth/house_settings.py with the password for the postgres user.
