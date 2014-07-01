@@ -446,6 +446,8 @@ class ShiftLogEntry(models.Model):
 	''' Entries for sign-ins, sign-outs, and verification. '''
 	person = models.ForeignKey(
 		WorkshiftProfile,
+		blank=True,
+		null=True,
 		help_text="Relevant person.",
 		)
 	entry_time = models.DateTimeField(
