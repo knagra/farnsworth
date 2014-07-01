@@ -137,6 +137,18 @@ postgres=# \q
 
 Make sure to update farnsworth/house_settings.py with the password for the postgres user.
 
+#### Initialization
+
+To create the tables in the database and an initial user, run the following:
+
+```
+$ cd /path/to/farnsworth
+$ source bin/activate
+$ ./manage.py syncdb
+```
+
+There will be a prompt to create a superuser, if you mistakenly close the prompt before the user is created, you can get back to it with: `./manage.py createsuperuser`
+
 ### Backups
 #### SQLite
 
