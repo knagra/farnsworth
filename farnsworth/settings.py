@@ -136,9 +136,6 @@ else:
 ####	Workshift Settings
 ########################################################################
 
-# Default number of hours for creating new semester instances.
-DEFAULT_HOURS = 5
-
 # Default cutoff for signing out of workshifts, in hours.
 # Users will be allowed to sign out of shifts with more time than this
 # number of hours before the workshift starts.
@@ -148,6 +145,10 @@ DEFAULT_SIGN_OUT_CUTOFF = 24
 # hours. After this cutoff, the shift will be marked as blown.
 
 DEFAULT_VERIFY_CUTOFF = 8
+
+
+# Default number of hours for creating new semester instances.
+DEFAULT_WORKSHIFT_HOURS = 5
 
 ########################################################################
 
@@ -370,9 +371,6 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
 
-DEFAULT_SEMESTER_HOURS = 2
-DEFAULT_CUTOFF = 1
-DEFAULT_WORKSHIFT_HOURS = 2
 APPEND_SLASH = True
 
 if 'test' in sys.argv:

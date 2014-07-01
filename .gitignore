@@ -6,7 +6,12 @@
 .#*
 migrations/
 static/admin/
+static/bootstrap/
+static/jquery/
+static/js/
+static/tinymce/
 static/ui/css/
+static/ui/images/
 *.swp
 *.tmp
 .svn/
