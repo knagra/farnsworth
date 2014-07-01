@@ -14,7 +14,7 @@ from threads.models import Thread, Message
 
 class ThreadForm(forms.Form):
 	''' Form to post a new thread. '''
-	subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}), required=True)
+	subject = forms.CharField(widget=forms.TextInput(), required=True)
 	body = forms.CharField(widget=forms.Textarea())
 
 	def __init__(self, *args, **kwargs):

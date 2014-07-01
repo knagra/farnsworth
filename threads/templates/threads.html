@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
+{% load bootstrap %}
 {% load request_tags %}
 {% load thread_tags %}
 {% block headers %}
@@ -15,20 +16,15 @@
   <div class="main_table">
   <form id="new_thread_form" method="post" action="">
     {% csrf_token %}
-      <div class="form-group">
-        <label class="control-label for="id_subject">Subject</label>
-        <input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
-      </div> <!-- .form-group -->
-      <div class="form-group">
-		<label class="control-label" for="id_body">Body</label>
-        <textarea class="thread" id="id_body" name="body"></textarea>
-      </div>
-      <div class="text-center">
-      <div class="btn-group">
+    <div class="form-group">
+    {{ thread_form|bootstrap }}
+    </div>
+    <div class="text-center">
+    <div class="btn-group">
         <button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Create</button>
         <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_new_thread_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-      </div> <!-- .btn-group -->
-      </div> <!-- .text-center" -->
+    </div> <!-- .btn-group -->
+    </div> <!-- .text-center" -->
   </form>
     {% if not threads_dict %}
     <div class="field_wrapper text-info">No threads found.</div>
