@@ -304,11 +304,10 @@ class BlownShiftForm(InteractShiftForm):
 		return shift
 
 	def save(self):
-		entry = ShiftLogEntry(
+		entry = ShiftLogEntry.objects.create(
 			person=self.profile,
 			entry_type=ShiftLogEntry.BLOWN,
 			)
-		entry.save()
 
 		instance = self.cleaned_data["pk"]
 		instance.blown = True
@@ -337,11 +336,10 @@ class SignInForm(InteractShiftForm):
 		return shift
 
 	def save(self):
-		entry = ShiftLogEntry(
+		entry = ShiftLogEntry.objects.create(
 			person=self.profile,
 			entry_type=ShiftLogEntry.SIGNIN,
 			)
-		entry.save()
 
 		instance = self.cleaned_data["pk"]
 		instance.workshifter = self.profile
@@ -360,16 +358,15 @@ class SignOutForm(InteractShiftForm):
 		shift = super(SignOutForm, self).clean_pk()
 
 		if shift.workshifter != self.profile:
-			raise forms.ValidationError("Cannot sign out of others' workshift.")
+			raise forms.ValidationError("Not signed into workshift.")
 
 		return shift
 
 	def save(self):
-		entry = ShiftLogEntry(
+		entry = ShiftLogEntry.objects.create(
 			person=self.profile,
 			entry_type=ShiftLogEntry.SIGNOUT,
 			)
-		entry.save()
 
 		instance = self.cleaned_data["pk"]
 		instance.workshifter = None
@@ -400,12 +397,11 @@ class AddWorkshifterForm(forms.Form):
 
 	def save(self):
 		if self.cleaned_data['add_profile']:
-			profile = WorkshiftProfile(
+			profile = WorkshiftProfile.objects.create(
 				user=self.user,
 				semester=self.semester,
 				)
 
-			profile.save()
 			utils.make_workshift_pool_hours(
 				self.semester, profiles=[profile],
 				primary_hours=self.cleaned_data["hours"],
