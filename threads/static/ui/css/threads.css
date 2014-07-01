@@ -85,10 +85,4 @@ label {
 
 #new_thread_form {
     display: none;
-    padding-bottom: 10px;
-}
-
-#id_subject {
-    margin-bottom: 5px;
-    max-width: 75%;
 }
