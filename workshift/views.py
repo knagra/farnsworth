@@ -400,8 +400,10 @@ def manage_view(request, semester, profile=None):
 			instance=semester,
 			)
 
+	pools = pools.order_by('-is_primary', 'title')
 	workshifters = WorkshiftProfile.objects.filter(semester=semester)
 	pool_hours = [workshifter.pool_hours.filter(pool__in=pools)
+				  .order_by('-pool__is_primary', 'pool__title')
 				  for workshifter in workshifters]
 
 	return render_to_response("manage.html", {
