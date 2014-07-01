@@ -243,12 +243,12 @@ class TestUtils(TestCase):
 	def test_collect_blown(self):
 		utils.make_workshift_pool_hours()
 		self.assertEqual(
-			([], []),
+			([], [], []),
 			utils.collect_blown(),
 			)
 
 		self.assertEqual(
-			([], []),
+			([], [], []),
 			utils.collect_blown(semester=self.semester),
 			)
 
@@ -323,7 +323,7 @@ class TestUtils(TestCase):
 			semester=self.semester,
 			)
 		self.assertEqual(
-			([to_close, edge_case_2, signed_out_1], [blown, signed_out_2]),
+			([to_close, edge_case_2, signed_out_1], [], [blown, signed_out_2]),
 			utils.collect_blown(now=now),
 			)
 
@@ -1007,7 +1007,7 @@ class TestInteractForms(TestCase):
 
 		form = SignOutForm({"pk": self.once.pk}, profile=self.up)
 		self.assertFalse(form.is_valid())
-		self.assertIn("Cannot sign out of others' workshift.", form.errors["pk"])
+		self.assertEqual(["Not signed into workshift."], form.errors["pk"])
 
 	def test_missing_shift(self):
 		pass

@@ -271,7 +271,7 @@ def collect_blown(semester=None, now=None):
 			return []
 	if now is None:
 		now = datetime.now().replace(tzinfo=utc)
-	closed, blown = [], []
+	closed, verified, blown = [], [], []
 	today = date.today()
 	instances = WorkshiftInstance.objects.filter(
 		semester=semester, closed=False, date__lte=today,
@@ -284,11 +284,7 @@ def collect_blown(semester=None, now=None):
 		instance.closed = True
 		instance.save()
 
-		workshifter = instance.workshifter
-
-		if workshifter is None:
-			# Grab the last workshifter to sign out after the cutoff time
-			workshifter = instance.liable
+		workshifter = instance.workshifter or instance.liable
 
 		# Skip shifts that have no assignees
 		if workshifter is None:
@@ -297,17 +293,24 @@ def collect_blown(semester=None, now=None):
 
 		# Update the workshifter's standing
 		pool_hours = workshifter.pool_hours.get(pool=instance.pool)
-		pool_hours.standing -= instance.hours
+
+		if not instance.auto_verify or instance.liable:
+			pool_hours.standing -= instance.hours
+			entry_type = ShiftLogEntry.BLOWN
+			blown.append(instance)
+		else:
+			pool_hours.standing += instance.hours
+			entry_type = ShiftLogEntry.VERIFY
+			verified.append(instance)
+
 		pool_hours.save()
 
 		# Make a log entry
-		log = ShiftLogEntry.objects.create(
-			entry_type=ShiftLogEntry.BLOWN,
-			person=workshifter,
-			)
-		instance.logs.add(log)
-		instance.save()
+		if entry_type:
+			log = ShiftLogEntry.objects.create(
+				entry_type=entry_type,
+				)
+			instance.logs.add(log)
+			instance.save()
 
-		blown.append(instance)
-
-	return closed, blown
+	return closed, verified, blown
