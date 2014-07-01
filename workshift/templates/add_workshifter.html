@@ -50,3 +50,11 @@
   {% endif %}
 </div>
 {% endblock %}
+
+{% block w_endscripts %}
+<script>
+	$(document).ready(function(){
+		$('div.form-group').css('margin', 0);
+	})
+</script>
+{% endblock %}
