@@ -30,7 +30,7 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     AssignShiftForm, RegularWorkshiftForm, WorkshiftTypeForm, \
     WorkshiftRatingForm, TimeBlockForm, BaseTimeBlockFormSet, \
     TimeBlockFormSet, ProfileNoteForm
-from workshift.utils import can_manage, get_year_season, get_semester_start_end
+from workshift import utils
 
 def add_workshift_context(request):
 	""" Add workshift variables to all dictionaries passed to templates. """
@@ -48,7 +48,7 @@ def add_workshift_context(request):
 		workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
 	except WorkshiftProfile.DoesNotExist:
 		return {'WORKSHIFT_ENABLED': False}
-	WORKSHIFT_MANAGER = can_manage(request, SEMESTER)
+	WORKSHIFT_MANAGER = utils.can_manage(request.user, semester=SEMESTER)
     # Current semester is for navbar notifications
 	try:
 		CURRENT_SEMESTER = Semester.objects.get(current=True)
@@ -116,8 +116,8 @@ def start_semester_view(request):
 	types from the previous semester.
 	"""
 	page_name = "Start Semester"
-	year, season = get_year_season()
-	start_date, end_date = get_semester_start_end(year, season)
+	year, season = utils.get_year_season()
+	start_date, end_date = utils.get_semester_start_end(year, season)
 
 	semester_form = SemesterForm(
 		request.POST or None,
@@ -239,38 +239,39 @@ def view_semester(request, semester, profile=None):
 	return render_to_response("semester.html", template_dict,
 							   context_instance=RequestContext(request))
 
-def _get_forms(profile, shift):
+def _get_forms(profile, instance):
 	"""
-	Gets the forms for profile interacting with a shift. This includes verify
-	shift, mark shift as blown, sign in, and sign out.
+	Gets the forms for profile interacting with an instance of a shift. This
+	includes verify shift, mark shift as blown, sign in, and sign out.
 	"""
 	ret = []
-	if not shift.closed and profile:
-		if shift.workshifter:
-			pool = shift.pool
+	if not instance.closed and profile:
+		workshifter = instance.workshifter or instance.liable
+		if workshifter:
+			pool = instance.pool
 
-			if pool.self_verify or shift.workshifter != profile and \
-              not shift.auto_verify:
+			if pool.self_verify or workshifter != profile and \
+              not instance.auto_verify and not utils.past_verify(instance):
 				verify_form = VerifyShiftForm(initial={
-					"pk": shift.pk,
+					"pk": instance.pk,
 					}, profile=profile)
 				ret.append(verify_form)
 
 			if pool.any_blown or \
 			  pool.managers.filter(incumbent__user=profile.user).count():
 				blown_form = BlownShiftForm(initial={
-					"pk": shift.pk,
+					"pk": instance.pk,
 					}, profile=profile)
 				ret.append(blown_form)
 
-			if shift.workshifter == profile:
+			if instance.workshifter == profile:
 				sign_out_form = SignOutForm(initial={
-					"pk": shift.pk,
+					"pk": instance.pk,
 					}, profile=profile)
 				ret.append(sign_out_form)
 		else:
 			sign_in_form = SignInForm(initial={
-				"pk": shift.pk,
+				"pk": instance.pk,
 				}, profile=profile)
 			ret.append(sign_in_form)
 	return ret
@@ -311,7 +312,8 @@ def preferences_view(request, semester, targetUsername, profile=None):
 	"""
 	wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
 
-	if wprofile.user != request.user and not can_manage(request, semester):
+	if wprofile.user != request.user and \
+	  not utils.can_manage(request.user, semester=semester):
 		messages.add_message(request, messages.ERROR,
 							 MESSAGES['ADMINS_ONLY'])
 		return HttpResponseRedirect(wurl('workshift:view_semester',
@@ -382,7 +384,7 @@ def manage_view(request, semester, profile=None):
 	"""
 	page_name = "Manage Workshift"
 	pools = WorkshiftPool.objects.filter(semester=semester)
-	full_management = can_manage(request, semester)
+	full_management = utils.can_manage(request.user, semester=semester)
 	semester_form = None
 
 	if not full_management:
@@ -510,7 +512,7 @@ def add_shift_view(request, semester):
 	"""
 	page_name = "Add Workshift"
 	pools = WorkshiftPool.objects.filter(semester=semester)
-	full_management = can_manage(request, semester)
+	full_management = utils.can_manage(request.user, semester=semester)
 	if not full_management:
 		pools = pools.filter(managers__incumbent__user=request.user)
 		if not pools.count():
@@ -576,7 +578,7 @@ def pool_view(request, semester, pk, profile=None):
 def edit_pool_view(request, semester, pk, profile=None):
 	pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
 	page_name = "Edit " + pool.title
-	full_management = can_manage(request, semester)
+	full_management = utils.can_manage(request.user, semester=semester)
 	managers = pool.managers.filter(incumbent__user=request.user)
 
 	if not full_management and not managers.count():
@@ -746,7 +748,7 @@ def list_types_view(request):
 	return render_to_response("list_types.html", {
 		"page_name": page_name,
 		"shifts": shifts,
-		"can_edit": can_manage(request),
+		"can_edit": utils.can_manage(request.user),
 	}, context_instance=RequestContext(request))
 
 @login_required
@@ -759,7 +761,7 @@ def type_view(request, pk):
 	return render_to_response("view_type.html", {
 		"page_name": page_name,
 		"shift": shift,
-		"can_edit": can_manage(request),
+		"can_edit": utils.can_manage(request.user),
 	}, context_instance=RequestContext(request))
 
 @workshift_manager_required

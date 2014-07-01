@@ -139,7 +139,12 @@ else:
 # Default cutoff for signing out of workshifts, in hours.
 # Users will be allowed to sign out of shifts with more time than this
 # number of hours before the workshift starts.
-DEFAULT_CUTOFF = 24
+DEFAULT_SIGN_OUT_CUTOFF = 24
+
+# Default cutoff for verifying a workshift after it has finished, in
+# hours. After this cutoff, the shift will be marked as blown.
+
+DEFAULT_VERIFY_CUTOFF = 8
 
 
 # Default number of hours for creating new semester instances.
@@ -259,6 +264,7 @@ INSTALLED_APPS = (
 	'requests',
 	'managers',
 	'workshift',
+	"django_cron",
 	# 'elections',
 	'bootstrapform',
 	'haystack',
@@ -266,6 +272,10 @@ INSTALLED_APPS = (
 	'django.contrib.admindocs',
 	'social.apps.django_app.default',
 )
+
+CRON_CLASSES = [
+	"workshift.cron.CollectBlownCronJob",
+	]
 
 AUTHENTICATION_BACKENDS = (
 	'django.contrib.auth.backends.ModelBackend',

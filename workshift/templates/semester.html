@@ -41,7 +41,7 @@
 	</thead>
 	<tbody>
 	  {% for shift, forms in day_shifts %}
-	  <tr>
+	  <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
 		<td>
 		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
 		</td>
@@ -60,6 +60,8 @@
 		<td>
 		  {% if shift.workshifter %}
 		  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.workshifter.user.username %}">{{ shift.workshifter.user.get_full_name }}</a>
+		  {% elif shift.liable %}
+		  <del><a title="Workshifter is still liable for this shift" href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
 		  {% endif %}
 		</td>
 		<td>
@@ -102,7 +104,7 @@
 	</thead>
 	<tbody>
 	  {% for shift, forms in week_shifts %}
-	  <tr>
+	  <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
 		<td>
 		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
 		</td>
@@ -125,6 +127,8 @@
 		  Auto Verify
 		  {% elif shift.verifier %}
 		  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
+		  {% elif shift.liable %}
+		  <del><a title="Workshifter is still liable for this shift" href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
 		  {% endif %}
 		</td>
 		<td>

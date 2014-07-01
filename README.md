@@ -38,6 +38,7 @@ Live versions of the site can be accessed at https://kingmanhall.org/internal/, 
 * elasticsearch 1.2.1 (https://www.elasticsearch.org/overview/elkdownloads/)
 * Python elasticsearch
 * Python Social Auth 0.1.23
+* django-cron 0.3.3
 
 ## Installation
 ### CentOS
@@ -46,6 +47,15 @@ To install all of the dependencies of CentOS, run the following as root:
 
 ```
 # yum install postgres python python-devel virtualenv gcc mod_wsgi
+```
+
+#### SELinux
+
+CentOS comes pre-packaged with SELinux for increased security. To enable the use of PostgreSQL and elasticsearch in this context, run the following as root:
+
+```
+# setsebool -P httpd_can_network_connect_db 1
+# setsebool -P httpd_can_network_connect on
 ```
 
 ### Debian
@@ -60,7 +70,7 @@ See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-
 
 ### virtualenv
 
-Once your system packages have been installed, run the following as the apache user to set up a virtual environment with the site-specific packages
+Once your system packages have been installed, run the following as the apache user or root to set up a virtual environment with the site-specific packages:
 
 ```
 $ cd /path/to/farnsworth
@@ -69,7 +79,23 @@ $ source bin/activate
 $ pip install -r requirements.txt
 ```
 
-### Apache
+### Configuration
+
+In order to configure your personal Farnsworth, you will need to configure its settings. A brief list of house-specific settings is read from `farnsworth/house_settings.py`:
+
+```
+$ cd /path/to/farnsworth
+$ cp farnsworth/house_settings.py.example farnsworth/house_settings.py
+$ $EDITOR farnsworth/house_settings.py
+```
+
+See `farnsworth/settings.py` for the full list of settings used by Django.
+
+### HTTP Proxy
+
+Though you can run django applications with ./manage.py runserver, it is usually preferable to place them behind a HTTP proxy. This allows you to add HTTPS for encryption and host other applications or static pages on the same domain. Popular proxies include Apache, nginx, and unicorn.
+
+#### Apache
 
 Add the following lines to the httpd.conf file for Apache:
 
@@ -87,7 +113,12 @@ WSGIPythonPath /path/to/farnsworth/lib/python<python-version>/site-packages
 </VirtualHost>
 ```
 
-### PostgreSQL
+### Database
+#### SQLite
+
+Farnsworth is set up to use SQLite by default. The database will be stored in farnsworth/farnsworth.db
+
+#### PostgreSQL
 
 To create the PostgreSQL database, enter the following as root:
 
@@ -99,13 +130,22 @@ $ psql
 postgres=# GRANT ALL PRIVILEGES ON DATABASE <house> TO <house>_admin;
 ```
 
-### SELinux
+Make sure to update farnsworth/house_settings.py with the password for the postgres user.
 
-To enable the use of PostgreSQL and elasticsearch, enter the following as root:
+### Scheduler
+
+In order for the workshift application to regularly mark shifts as blown, you will need to add a cron job to execute an internal scheduler every five minutes. Here, <username> can be the apache / httpd user or another user that has access to the installation:
 
 ```
-# setsebool -P httpd_can_network_connect_db 1
-# setsebool -P httpd_can_network_connect on
+crontab -u <username> -e
+# Append the following line:
+*/5 * * * * source /path/to/farnsworth/bin/activate && /path/to/farnsworth/manage.py runcrons
+```
+
+Alternatively, create the following file:
+
+```
+# cat > /etc/cron.d/farnsworth <<< "*/5 * * * * <username> source /path/to/farnsworth/bin/activate && /path/to/farnsworth/manage.py runcrons"
 ```
 
 ### Backups
@@ -123,7 +163,7 @@ And restore by decompressing and copying back:
 $ gunzip backup-<house>-<date>.db.gz > farnsworth/<house>.db
 ```
 
-### PostgreSQL
+#### PostgreSQL
 
 Back up the house's database with the following command:
 

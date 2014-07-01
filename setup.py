@@ -6,10 +6,10 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 try:
 	from pypandoc import convert
-	read_md = lambda f: convert(f, 'rst')
+	README = convert("README.md", 'rst')
 except (ImportError, OSError):
 	print("warning: pypandoc module not found, could not convert Markdown to RST")
-	read_md = lambda f: open(f, 'r').read()
+	README = open("README.md", 'r').read()
 
 required = [
 	"Django>=1.6",
@@ -26,7 +26,7 @@ setup(
 	packages=find_packages(),
 	include_package_data=True,
 	description="Website for BSC houses.",
-	long_description=read_md("README.md"),
+	long_description=README,
 	install_requires=required +  ["elasticsearch>=1.0.0"],
 	tests_require=required,
 	test_suite="runtests.runtests",

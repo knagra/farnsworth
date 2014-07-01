@@ -14,8 +14,9 @@ from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 	TimeBlock, WorkshiftRating, WorkshiftProfile, \
-	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
-from workshift.utils import make_instances, make_workshift_pool_hours
+	RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance, \
+	PoolHours
+from workshift import utils
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
 
@@ -56,7 +57,7 @@ class SemesterForm(forms.ModelForm):
 				semester=semester,
 				)
 
-		make_workshift_pool_hours(semester)
+		utils.make_workshift_pool_hours(semester)
 
 		return semester
 
@@ -77,7 +78,7 @@ class StartPoolForm(forms.ModelForm):
 			pool.semester = semester
 			pool.save()
 
-			make_workshift_pool_hours(pool.semester, pools=[pool])
+			utils.make_workshift_pool_hours(pool.semester, pools=[pool])
 
 class PoolForm(forms.ModelForm):
 	class Meta:
@@ -106,14 +107,14 @@ class PoolForm(forms.ModelForm):
 					pool_hours.hours = pool.hours
 					pool_hours.save()
 		else:
-			make_workshift_pool_hours(self.semester, pools=[pool])
+			utils.make_workshift_pool_hours(self.semester, pools=[pool])
 		return pool
 
 class WorkshiftInstanceForm(forms.ModelForm):
 	class Meta:
 		model = WorkshiftInstance
 		exclude = ("weekly_workshift", "info", "intended_hours", "logs",
-				   "blown", "semester", "verifier")
+				   "blown", "semester", "verifier", "liable",)
 
 	weekly_workshift = forms.ModelChoiceField(
 		required=False,
@@ -249,16 +250,20 @@ class VerifyShiftForm(InteractShiftForm):
 	action_name = "verify_shift"
 
 	def clean_pk(self):
-		shift = super(VerifyShiftForm, self).clean_pk()
+		instance = super(VerifyShiftForm, self).clean_pk()
 
-		if not shift.workshifter:
+		workshifter = instance.workshifter or instance.liable
+
+		if not workshifter:
 			raise forms.ValidationError("Workshift is not filled.")
-		if not shift.pool.self_verify and shift.workshifter == self.profile:
+		if not instance.pool.self_verify and workshifter == self.profile:
 			raise forms.ValidationError("Workshifter cannot verify self.")
-		if shift.auto_verify:
+		if instance.auto_verify:
 			raise forms.ValidationError("Workshift is automatically verified.")
+		if utils.past_verify(instance):
+			raise forms.ValidationError("Workshift is past verification period.")
 
-		return shift
+		return instance
 
 	def save(self):
 		entry = ShiftLogEntry(
@@ -273,8 +278,9 @@ class VerifyShiftForm(InteractShiftForm):
 		instance.logs.add(entry)
 		instance.save()
 
-		pool_hours = instance.workshifter.pool_hours \
-		  .get(pool=instance.get_info().pool)
+		workshifter = instance.workshifter or instance.liable
+
+		pool_hours = workshifter.pool_hours.get(pool=instance.get_info().pool)
 		pool_hours.standing += instance.hours
 		pool_hours.save()
 
@@ -298,11 +304,10 @@ class BlownShiftForm(InteractShiftForm):
 		return shift
 
 	def save(self):
-		entry = ShiftLogEntry(
+		entry = ShiftLogEntry.objects.create(
 			person=self.profile,
 			entry_type=ShiftLogEntry.BLOWN,
 			)
-		entry.save()
 
 		instance = self.cleaned_data["pk"]
 		instance.blown = True
@@ -331,14 +336,14 @@ class SignInForm(InteractShiftForm):
 		return shift
 
 	def save(self):
-		entry = ShiftLogEntry(
+		entry = ShiftLogEntry.objects.create(
 			person=self.profile,
 			entry_type=ShiftLogEntry.SIGNIN,
 			)
-		entry.save()
 
 		instance = self.cleaned_data["pk"]
 		instance.workshifter = self.profile
+		instance.liable = None
 		instance.logs.add(entry)
 		instance.save()
 
@@ -353,19 +358,20 @@ class SignOutForm(InteractShiftForm):
 		shift = super(SignOutForm, self).clean_pk()
 
 		if shift.workshifter != self.profile:
-			raise forms.ValidationError("Cannot sign out of others' workshift.")
+			raise forms.ValidationError("Not signed into workshift.")
 
 		return shift
 
 	def save(self):
-		entry = ShiftLogEntry(
+		entry = ShiftLogEntry.objects.create(
 			person=self.profile,
 			entry_type=ShiftLogEntry.SIGNOUT,
 			)
-		entry.save()
 
 		instance = self.cleaned_data["pk"]
 		instance.workshifter = None
+		if utils.past_sign_out(instance):
+			instance.liable = self.profile
 		instance.logs.add(entry)
 		instance.save()
 
@@ -391,13 +397,12 @@ class AddWorkshifterForm(forms.Form):
 
 	def save(self):
 		if self.cleaned_data['add_profile']:
-			profile = WorkshiftProfile(
+			profile = WorkshiftProfile.objects.create(
 				user=self.user,
 				semester=self.semester,
 				)
 
-			profile.save()
-			make_workshift_pool_hours(
+			utils.make_workshift_pool_hours(
 				self.semester, profiles=[profile],
 				primary_hours=self.cleaned_data["hours"],
 				)
@@ -464,7 +469,7 @@ class RegularWorkshiftForm(forms.ModelForm):
 			if shift.days != prev_shift.days:
 				WorkshiftInstance.objects.filter(
 					weekly_workshift=shift, closed=False).delete()
-				make_instances(
+				utils.make_instances(
 					semester=self.semester,
 					shifts=[shift],
 					)
@@ -479,7 +484,7 @@ class RegularWorkshiftForm(forms.ModelForm):
 						instance.hours = shift.hours
 					instance.save()
 		else:
-			make_instances(
+			utils.make_instances(
 				semester=self.semester,
 				shifts=[shift],
 				)

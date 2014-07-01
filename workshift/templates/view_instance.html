@@ -30,11 +30,15 @@
   </div>
   {% endif %}
   <p>{{ instance.date }}</p>
-  <p>{{ instance.workshifter.user.get_full_name }}</p>
+  {% if instance.workshifter %}
+  <p><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.workshifter.user.username %}">{{ instance.workshifter.user.get_full_name }}</a></p>
+  {% elif instance.liable %}
+  <p><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.liable.user.username %}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.poool.sign_out_cutoff|pluralize }} before the beginning of this shift. They are still expected to complete the shift if it is not filled by another person.</p>
+  {% endif %}
   <p>{{ instance.description|safe }}</p>
   {% if instance.weekly_workshift %}<p>{{ instance.weekly_workshift.workshift_type.quick_tips }}</p>{% endif %}
   <p><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool.title }}</a></p>
-  <p>{{ instance.hours }}</p>
+  <p>{{ instance.hours }} hour{{ instance.hours|pluralize }}</p>
   {% if instance.addendum %}
   <p>{{ instance.addendum|safe }}</p>
   {% endif %}
@@ -51,7 +55,12 @@
 	  {% for log in instance.logs.all %}
 	  <tr>
 		<td>{{ log.entry_time }}</td>
-		<td><a href="{% url 'workshift:profile' log.person.pk %}">{{ log.person.user.get_full_name }}</a>
+		<td>
+		  {% if log.person %}
+		  <a href="{% url 'workshift:profile' log.person.pk %}">{{ log.person.user.get_full_name }}</a>
+		  {% else %}
+		  Farnsworth automatically
+		  {% endif %}
 		  {% if log.entry_type == 'A' %}
 		  was assigned to this shift.
 		  {% elif log.entry_type == 'B' %}

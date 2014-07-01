@@ -4,7 +4,10 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
-from datetime import date, timedelta
+from datetime import date, timedelta, time, datetime
+
+from django.utils.timezone import utc
+
 from weekday_field.utils import ADVANCED_DAY_CHOICES
 
 from managers.models import Manager
@@ -12,18 +15,18 @@ from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
 	 Semester, PoolHours, WorkshiftProfile, WorkshiftPool, \
 	 WorkshiftType, RegularWorkshift
 
-def can_manage(request, semester=None):
+def can_manage(user, semester=None):
 	"""
 	Whether a user is allowed to manage a workshift semester. This includes the
 	current workshift managers, that semester's workshift managers, and site
 	superusers.
 	"""
-	if semester and request.user in semester.workshift_managers.all():
+	if semester and user in semester.workshift_managers.all():
 		return True
-	if Manager and Manager.objects.filter(incumbent__user=request.user) \
+	if Manager and Manager.objects.filter(incumbent__user=user) \
 	  .filter(workshift_manager=True).count() > 0:
 		return True
-	return request.user.is_superuser
+	return user.is_superuser
 
 def is_available(workshift_profile, regular_workshift):
 	"""
@@ -113,12 +116,13 @@ def _date_range(start, end, step):
 		yield day
 		day += step
 
-def make_instances(semester, shifts=None):
+def make_instances(semester, shifts=None, now=None):
 	if semester is None:
 		semester = Semester.objects.get(current=True)
 	if shifts is None:
 		shifts = RegularWorkshift.objects.filter(pool__semester=semester)
-	today = date.today()
+	if now is None:
+		now = date.today()
 	new_instances = []
 	for shift in shifts:
 		if shift.week_long:
@@ -127,7 +131,7 @@ def make_instances(semester, shifts=None):
 		else:
 			days = shift.days
 		for weekday in days:
-			next_day = today + timedelta(days=int(weekday) - today.weekday())
+			next_day = now + timedelta(days=int(weekday) - now.weekday())
 			for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
 				# Create new instances for the entire semester
 				prev_instances = WorkshiftInstance.objects.filter(
@@ -147,8 +151,8 @@ def make_instances(semester, shifts=None):
 					new_instances.append(instance)
 			if shift.current_assignee:
 				# Update the list of assigned workshifters
-				for instance in WorkshiftInstance.objects.filter(weekly_workshift=shift,
-																 date__gte=today):
+				for instance in WorkshiftInstance.objects \
+				  .filter(weekly_workshift=shift, date__gte=now):
 					log = ShiftLogEntry(
 						person=shift.current_assignee,
 						entry_type=ShiftLogEntry.ASSIGNED,
@@ -158,13 +162,19 @@ def make_instances(semester, shifts=None):
 					instance.save()
 	return new_instances
 
-def make_workshift_pool_hours(semester, profiles=None, pools=None,
+def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
 							  primary_hours=None):
+	if semester is None:
+		try:
+			semester = Semester.objects.get(current=True)
+		except Semester.DoesNotExist:
+			return []
 	if profiles is None:
 		profiles = WorkshiftProfile.objects.filter(semester=semester)
 	if pools is None:
 		pools = WorkshiftPool.objects.filter(semester=semester)
 
+	ret = []
 	for profile in profiles:
 		for pool in pools:
 			if not profile.pool_hours.filter(pool=pool):
@@ -177,7 +187,9 @@ def make_workshift_pool_hours(semester, profiles=None, pools=None,
 					hours=hours,
 					)
 				profile.pool_hours.add(pool_hours)
+				ret.append(pool_hours)
 		profile.save()
+	return ret
 
 def make_manager_workshifts(semester=None, managers=None):
 	if semester is None:
@@ -216,3 +228,89 @@ def make_manager_workshifts(semester=None, managers=None):
 		shifts.append(shift)
 	make_instances(semester=semester, shifts=shifts)
 	return shifts
+
+def past_verify(instance, now=None):
+	if now is None:
+		now = datetime.now().replace(tzinfo=utc)
+
+	if instance.end_time is not None:
+		end_time = timedelta(
+			hours=instance.end_time.hour,
+			minutes=instance.end_time.minute,
+			)
+	else:
+		end_time = timedelta(hours=24)
+
+	end_datetime = (
+		datetime.combine(instance.date, time(0)) +
+		timedelta(hours=instance.pool.verify_cutoff) + end_time
+		).replace(tzinfo=utc)
+
+	return now > end_datetime
+
+def past_sign_out(instance, now=None):
+	if now is None:
+		now = datetime.now().replace(tzinfo=utc)
+
+	if instance.start_time is not None:
+		start_time = instance.start_time
+	else:
+		start_time = time(0)
+	start_datetime = (
+		datetime.combine(instance.date, start_time) -
+		 timedelta(hours=instance.pool.sign_out_cutoff)
+		).replace(tzinfo=utc)
+
+	return now > start_datetime
+
+def collect_blown(semester=None, now=None):
+	if semester is None:
+		try:
+			semester = Semester.objects.get(current=True)
+		except Semester.DoesNotExist:
+			return []
+	if now is None:
+		now = datetime.now().replace(tzinfo=utc)
+	closed, verified, blown = [], [], []
+	today = date.today()
+	instances = WorkshiftInstance.objects.filter(
+		semester=semester, closed=False, date__lte=today,
+		)
+	for instance in instances:
+		# Skip shifts not yet ended
+		if not past_verify(instance, now=now):
+			continue
+
+		instance.closed = True
+
+		workshifter = instance.workshifter or instance.liable
+
+		# Skip shifts that have no assignees
+		if workshifter is None:
+			closed.append(instance)
+		else:
+			# Update the workshifter's standing
+			pool_hours = workshifter.pool_hours.get(pool=instance.pool)
+
+			if not instance.auto_verify or instance.liable:
+				pool_hours.standing -= instance.hours
+				entry_type = ShiftLogEntry.BLOWN
+				instance.blown = True
+				blown.append(instance)
+			else:
+				pool_hours.standing += instance.hours
+				entry_type = ShiftLogEntry.VERIFY
+				verified.append(instance)
+
+			pool_hours.save()
+
+			# Make a log entry
+			if entry_type:
+				log = ShiftLogEntry.objects.create(
+					entry_type=entry_type,
+					)
+				instance.logs.add(log)
+
+		instance.save()
+
+	return closed, verified, blown
