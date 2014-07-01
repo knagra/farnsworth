@@ -107,12 +107,14 @@ class WorkshiftPool(models.Model):
 	hours = models.DecimalField(
 		max_digits=5,
 		decimal_places=2,
-		default=settings.DEFAULT_SEMESTER_HOURS,
-		help_text="Default regular workshift hours required per week.",
+		default=settings.DEFAULT_WORKSHIFT_HOURS,
+		help_text="Default hours required per member per period "
+        "(e.g., 2 weeks per period and 2 hours required per period means 2 hours required every two weeks).",
 		)
 	weeks_per_period = models.PositiveSmallIntegerField(
 		default=1,
-		help_text="Number of weeks for each pass of required hours. "
+		help_text="Number of weeks for requirement period "
+        "(e.g., 2 weeks per period and 2 hours required per period means 2 hours required every two weeks). "
 		"0 makes this a semesterly requirement",
 		)
 	first_fine_date = models.DateField(
@@ -267,7 +269,7 @@ class PoolHours(models.Model):
 	hours = models.DecimalField(
 		max_digits=5,
 		decimal_places=2,
-		default=settings.DEFAULT_SEMESTER_HOURS,
+		default=settings.DEFAULT_WORKSHIFT_HOURS,
 		help_text="Periodic hour requirement.",
 		)
 	standing = models.DecimalField(

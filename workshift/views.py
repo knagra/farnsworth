@@ -18,7 +18,7 @@ from django.template import RequestContext
 
 from workshift.templatetags.workshift_tags import wurl
 
-from utils.variables import MESSAGES
+from utils.variables import MESSAGES, date_formats
 from base.models import User
 from managers.models import Manager
 from workshift.decorators import get_workshift_profile, \
@@ -124,8 +124,8 @@ def start_semester_view(request):
 		initial={
 			"year": year,
 			"season": season,
-            "start_date": start_date,
-            "end_date": end_date,
+            "start_date": start_date.strftime(date_formats[0]),
+            "end_date": end_date.strftime(date_formats[0]),
             })
 
 	pool_forms = []

@@ -13,6 +13,9 @@ ANONYMOUS_USERNAME = "spineless"
 # List of time formats accepted by event forms.
 time_formats = ['%m/%d/%Y %I:%M %p', '%m/%d/%Y %I:%M:%S %p', '%Y-%m-%d %H:%M:%S']
 
+# Date formats excepted by the site.
+date_formats = ['%m/%d/%Y', '%Y-%m-%d']
+
 # The e-mail subject used when sending profile request approval messages.
 APPROVAL_SUBJECT = u"[Farnsworth - {house}] Welcome to {house}"
 
