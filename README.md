@@ -21,24 +21,6 @@ Built with Django, Python, and SQLite. Tested and deployed on PostgreSQL.
 
 Live versions of the site can be accessed at https://kingmanhall.org/internal/, https://kingmanhall.org/afro/, and https://kingmanhall.org/hoyt/.
 
-## Dependencies
-
-* Django >= 1.6
-* Python >= 2.6
-* SQLite3 (for running tests)
-* TinyMCE 4.0.21 (included in static folder)
-* jQuery 1.11.0 (included in static/jquery folder)
-* tablesorter 2.15.13 (included in static/jquery folder)
-* Nivo Slider 3.2 (included in static/jquery folder)
-* Bootstrap 3.1.1
-* django-bootstrap-form 3.1
-* moment.js (included in static folder)
-* bootstrap-datetime-picker (included in static/bootstrap/js and static/ui/css)
-* Django-Haystack 2.1.1-dev (from GitHub, read 'Get started' on haystacksearch.org)
-* elasticsearch 1.2.1 (https://www.elasticsearch.org/overview/elkdownloads/)
-* Python elasticsearch
-* Python Social Auth 0.1.23
-
 ## Installation
 ### CentOS
 
@@ -64,6 +46,8 @@ To install all of the dependencies of Debian, run the following as root:
 ```
 # apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3 mercurial git
 ```
+
+### elasticsearch
 
 See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html on installing elasticsearch on either distribution.
 
