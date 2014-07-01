@@ -246,8 +246,8 @@ def _get_forms(profile, instance):
 	"""
 	ret = []
 	if not instance.closed and profile:
-		workshifter = instance.workshifter or instance.liable
-		if workshifter:
+		if instance.workshifter:
+			workshifter = instance.workshifter or instance.liable
 			pool = instance.pool
 
 			if pool.self_verify or workshifter != profile and \
