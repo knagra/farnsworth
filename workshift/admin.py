@@ -10,7 +10,7 @@ Registrations for models for the Django admin pages.
 from django.contrib import admin
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     TimeBlock, WorkshiftRating, PoolHours, WorkshiftProfile, \
-    RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance, \
+    RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance
 
 class SemesterAdmin(admin.ModelAdmin):
     list_display = ('season', 'year', 'start_date', 'end_date')
@@ -36,7 +36,7 @@ admin.site.register(WorkshiftType, WorkshiftTypeAdmin)
 class TimeBlockAdmin(admin.ModelAdmin):
     list_display = ('preference', 'day', 'start_time', 'end_time')
     search_fields = ('preference', 'day', 'start_time', 'end_time')
-    list_filter ('preference', 'day')
+    list_filter = ('preference', 'day')
     ordering = ('day',)
 admin.site.register(TimeBlock, TimeBlockAdmin)
 
@@ -51,7 +51,7 @@ class PoolHoursAdmin(admin.ModelAdmin):
     list_display = ('pool', 'hours', 'standing')
     search_fields = ('pool', 'hours', 'standing')
     list_filter = ('pool', 'hours',)
-    ordering = ('pool')
+    ordering = ('pool',)
 admin.site.register(PoolHours, PoolHoursAdmin)
 
 class WorkshiftProfileAdmin(admin.ModelAdmin):
