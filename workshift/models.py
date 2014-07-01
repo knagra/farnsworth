@@ -440,7 +440,10 @@ class RegularWorkshift(models.Model):
 		days = []
 		for day in self.days:
 			days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
-		return "{0}, {1}".format(self.title, ", ".join(days))
+		if days:
+			return "{0}: {1}".format(self.title, ", ".join(days))
+		else:
+			return self.title
 
 class ShiftLogEntry(models.Model):
 	''' Entries for sign-ins, sign-outs, and verification. '''
