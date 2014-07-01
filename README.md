@@ -142,7 +142,7 @@ Make sure to update farnsworth/house_settings.py with the password for the postg
 To create the tables in the database and an initial user, first start elasticsearch as root:
 
 ```
-service elasticsearch start
+# service elasticsearch start
 ```
 
 Then run the following as a user with write access to the farnsworth directory:
