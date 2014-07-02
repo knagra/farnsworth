@@ -32,6 +32,23 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     TimeBlockFormSet, ProfileNoteForm
 from workshift import utils
 
+def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
+    """ Given a workshift pool and a workshift profile,
+    return all upcoming, vacant shifts along with sign-in forms
+    for the profile in that pool. """
+    now = datetime.utcnow().replace(tzinfo=utc)
+    upcoming_shifts = list()
+    for shift in WorkshiftInstance.objects.filter(date__gte=now.date(),
+                                                    closed=False,
+                                                    blown=False,
+                                                    workshifter=None,
+                                                    liable=None):
+        if shift.pool == workshift_pool:
+            form = SignInForm(initial={"pk": shift.pk,},
+                                profile=workshift_profile)
+            upcoming_shifts.append((shift, form))
+    return upcoming_shifts
+
 def add_workshift_context(request):
 	""" Add workshift variables to all dictionaries passed to templates. """
 	if not request.user.is_authenticated():
@@ -565,15 +582,30 @@ def add_shift_view(request, semester):
 
 @get_workshift_profile
 def pool_view(request, semester, pk, profile=None):
-	pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
-	page_name = pool.title
-	shifts = RegularWorkshift.objects.filter(pool=pool, active=True)
+    pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
+    if profile:
+        if SignInForm.action_name in request.POST:
+            f = SignInForm(request.POST, profile=profile)
+            if f.is_valid():
+                f.save()
+                return HttpResponseRedirect(wurl("workshift:view_pool",
+                                                    sem_url=semester.sem_url,
+                                                    pk=pk))
+            else:
+                for error in f.errors.values():
+                    messages.add_message(request, messages.ERROR, error)
+        upcoming_pool_shifts = _pool_upcoming_vacant_shifts(pool, profile)
+    else:
+        upcoming_pool_shifts = None
+    page_name = "{0} Pool".format(pool.title)
+    shifts = RegularWorkshift.objects.filter(pool=pool, active=True)
 
-	return render_to_response("view_pool.html", {
-		"page_name": page_name,
-		"pool": pool,
-		"shifts": shifts,
-	}, context_instance=RequestContext(request))
+    return render_to_response("view_pool.html", {
+        "page_name": page_name,
+        "pool": pool,
+        "shifts": shifts,
+        "upcoming_pool_shifts": upcoming_pool_shifts,
+    }, context_instance=RequestContext(request))
 
 @workshift_manager_required
 @get_workshift_profile
