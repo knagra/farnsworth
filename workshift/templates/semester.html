@@ -29,7 +29,8 @@
 	<thead>
 	  <tr>
 		<th>Title</th>
-		<th>Time</th>
+		<th>Starts</th>
+        <th>Ends</th>
 		<th>Hours</th>
 		<th>Workshifter</th>
 		<th>Verifier</th>
@@ -42,11 +43,8 @@
 		<td>
 		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
 		</td>
-		<td>
-		  {{ shift.start_time }}
-		  {% if shift.end_time and shift.end_time %} - {% endif %}
-		  {{ shift.end_time }}
-		</td>
+		<td>{{ shift.start_time }}</td>
+        <td>{{ shift.end_time }}</td>
 		<td>
 		  {% if shift.intended_hours == shift.hours %}
 		  {{ shift.hours }}
