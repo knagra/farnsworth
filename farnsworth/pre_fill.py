@@ -289,123 +289,124 @@ def main(args):
 		r.managers = [Manager.objects.get(title=i) for i in managers]
 		r.save()
 
-	# Start the Workshift Semester
-	year, season = get_year_season()
-	start_date, end_date = get_semester_start_end(year, season)
-	semester = Semester.objects.create(
-		year=year,
-		season=season,
-		start_date=start_date,
-		end_date=end_date,
-		)
+	if "workshift" in settings.INSTALLED_APPS:
+		# Start the Workshift Semester
+		year, season = get_year_season()
+		start_date, end_date = get_semester_start_end(year, season)
+		semester = Semester.objects.create(
+			year=year,
+			season=season,
+			start_date=start_date,
+			end_date=end_date,
+			)
 
-	for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
-		profile = WorkshiftProfile.objects.create(
-			user=uprofile.user,
+		for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
+			profile = WorkshiftProfile.objects.create(
+				user=uprofile.user,
+				semester=semester,
+				)
+
+		# Regular Weekly Workshift Hours
+		pool = WorkshiftPool.objects.create(
 			semester=semester,
+			is_primary=True,
+			hours=5,
+			any_blown=True,
+			self_verify=True,
 			)
+		pool.managers = Manager.objects.filter(workshift_manager=True)
+		pool.save()
 
-	# Regular Weekly Workshift Hours
-	pool = WorkshiftPool.objects.create(
-		semester=semester,
-		is_primary=True,
-		hours=5,
-		any_blown=True,
-		self_verify=True,
-		)
-	pool.managers = Manager.objects.filter(workshift_manager=True)
-	pool.save()
-
-	# HI Hours
-	hi_pool = WorkshiftPool.objects.create(
-		title="Home Improvement",
-		semester=semester,
-		self_verify=False,
-		hours=str(4),
-		weeks_per_period=0,
-		)
-	hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
-	hi_pool.save()
-
-	# Social Hours
-	social_pool = WorkshiftPool.objects.create(
-		title="Social",
-		semester=semester,
-		self_verify=False,
-		hours=str(1),
-		weeks_per_period=6,
-		)
-	social_pool.managers = Manager.objects.filter(title="Social Manager")
-	social_pool.save()
-
-	# Humor Shift
-	humor_pool = WorkshiftPool.objects.create(
-		title="Humor Shift",
-		semester=semester,
-		self_verify=True,
-		any_blown=True,
-		hours=str(2),
-		weeks_per_period=6,
-		)
-	humor_pool.managers = Manager.objects.filter(workshift_manager=True)
-	humor_pool.save()
-
-	make_workshift_pool_hours(semester)
-
-	# Workshift Types
-	for title, description, quick_tips, hours, rateable in WORKSHIFT_TYPES:
-		WorkshiftType.objects.create(
-			title=title,
-			description=description,
-			quick_tips=quick_tips,
-			hours=str(hours),
-			rateable=rateable,
+		# HI Hours
+		hi_pool = WorkshiftPool.objects.create(
+			title="Home Improvement",
+			semester=semester,
+			self_verify=False,
+			hours=str(4),
+			weeks_per_period=0,
 			)
+		hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
+		hi_pool.save()
 
-	# Regular Workshifts
-	for title, type_title, days, count, start, end in REGULAR_WORKSHIFTS:
-		wtype = WorkshiftType.objects.get(title=type_title)
-		shift = RegularWorkshift.objects.create(
-			workshift_type=wtype,
-			title=title,
-			pool=pool,
-			count=count,
-			start_time=start,
-			end_time=end,
-			hours=wtype.hours,
+		# Social Hours
+		social_pool = WorkshiftPool.objects.create(
+			title="Social",
+			semester=semester,
+			self_verify=False,
+			hours=str(1),
+			weeks_per_period=6,
 			)
-		shift.days = get_int_days(days)
-		shift.save()
+		social_pool.managers = Manager.objects.filter(title="Social Manager")
+		social_pool.save()
 
-	for title, type_title, count in WEEK_LONG:
-		wtype = WorkshiftType.objects.get(title=type_title)
-		shift = RegularWorkshift.objects.create(
-			workshift_type=wtype,
-			title=title,
-			pool=pool,
-			count=count,
-			week_long=True,
-			start_time=None,
-			end_time=None,
-			hours=wtype.hours,
+		# Humor Shift
+		humor_pool = WorkshiftPool.objects.create(
+			title="Humor Shift",
+			semester=semester,
+			self_verify=True,
+			any_blown=True,
+			hours=str(2),
+			weeks_per_period=6,
 			)
+		humor_pool.managers = Manager.objects.filter(workshift_manager=True)
+		humor_pool.save()
 
-	# Humor Workshifts
-	for title, type_title, days, start, end in HUMOR_WORKSHIFTS:
-		wtype = WorkshiftType.objects.get(title=type_title)
-		shift = RegularWorkshift.objects.create(
-			workshift_type=wtype,
-			title=title,
-			pool=humor_pool,
-			start_time=start,
-			end_time=end,
-			hours=wtype.hours,
-			)
-		shift.days = get_int_days(days)
-		shift.save()
+		make_workshift_pool_hours(semester)
 
-	make_instances(semester=semester)
-	make_manager_workshifts(semester)
+		# Workshift Types
+		for title, description, quick_tips, hours, rateable in WORKSHIFT_TYPES:
+			WorkshiftType.objects.create(
+				title=title,
+				description=description,
+				quick_tips=quick_tips,
+				hours=str(hours),
+				rateable=rateable,
+				)
+
+		# Regular Workshifts
+		for title, type_title, days, count, start, end in REGULAR_WORKSHIFTS:
+			wtype = WorkshiftType.objects.get(title=type_title)
+			shift = RegularWorkshift.objects.create(
+				workshift_type=wtype,
+				title=title,
+				pool=pool,
+				count=count,
+				start_time=start,
+				end_time=end,
+				hours=wtype.hours,
+				)
+			shift.days = get_int_days(days)
+			shift.save()
+
+		for title, type_title, count in WEEK_LONG:
+			wtype = WorkshiftType.objects.get(title=type_title)
+			shift = RegularWorkshift.objects.create(
+				workshift_type=wtype,
+				title=title,
+				pool=pool,
+				count=count,
+				week_long=True,
+				start_time=None,
+				end_time=None,
+				hours=wtype.hours,
+				)
+
+		# Humor Workshifts
+		for title, type_title, days, start, end in HUMOR_WORKSHIFTS:
+			wtype = WorkshiftType.objects.get(title=type_title)
+			shift = RegularWorkshift.objects.create(
+				workshift_type=wtype,
+				title=title,
+				pool=humor_pool,
+				start_time=start,
+				end_time=end,
+				hours=wtype.hours,
+				)
+			shift.days = get_int_days(days)
+			shift.save()
+
+		make_instances(semester=semester)
+		make_manager_workshifts(semester)
 
 if __name__ == "__main__":
 	main(sys.argv[1:])

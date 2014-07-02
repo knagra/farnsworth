@@ -7,14 +7,15 @@ Author: Karandeep Singh Nagra
 from datetime import datetime
 
 from django import forms
+from django.conf import settings
 from django.utils.timezone import utc
 
 from utils.funcs import convert_to_url, verify_url
 from managers.models import Manager, Announcement, RequestType, Request, Response
 
-try:
+if "workshift" in settings.INSTALLED_APPS:
 	from workshift.utils import make_manager_workshifts
-except ImportError:
+else:
 	make_manager_workshifts = None
 
 class ManagerForm(forms.ModelForm):
