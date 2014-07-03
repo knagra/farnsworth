@@ -61,25 +61,27 @@
 			</ul> <!-- .dropdown-menu -->
 		  </li> <!-- .dropdown -->
 		  {% endif %} {% comment %} End if user.username == ANONYMOUS_USERNAME, else {% endcomment %}
-	      {% if REQUEST_TYPES %}
 	      <li class="dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-inbox"></span> Requests <b class="caret"></b></a>
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-tower"></span> Managers <b class="caret"></b></a>
 			<ul class="dropdown-menu">
+	        	<li><a href="{% url 'list_managers' %}" ><span class="glyphicon glyphicon-book"></span> Manager Directory</a></li>
+			<li><a href="{% url 'announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Announcements</a></li>
+	      		{% if REQUEST_TYPES %}
+	      		<li class="divier"></li>
+	      		<li class="dropdown-header">Requests</li>
 			{% for type_tuple in REQUEST_TYPES %}
 				<li><a href="{% url 'requests' requestType=type_tuple.0.url_name %}" ><span title="{{ type_tuple.1 }} open request{{ type_tuple.1|pluralize }}" class="badge pull-right">{% if type_tuple.1 > 0 %}{{ type_tuple.1 }}{% endif %}</span>
 				<span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span>
 				{{ type_tuple.0.name }}</a></li>
 			{% endfor %}
+	      		{% endif %} {% comment %} End if REQUEST_TYPES {% endcomment %}
 			</ul> <!-- .dropdown-menu -->
 	      </li>
-	      {% endif %} {% comment %} End if REQUEST_TYPES {% endcomment %}
 	     <li class="dropdown">
 	      <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-arrow-right"></span> Go<b class="caret"></b></a>
 	      <ul class="dropdown-menu">
 	        <li><a href="{% url 'member_forums' %}" ><span class="glyphicon glyphicon-comment"></span> Forums</a></li>
 	        <li><a href="{% url 'member_directory' %}" ><span class="glyphicon glyphicon-book"></span> Member Directory</a></li>
-	        <li><a href="{% url 'list_managers' %}" ><span class="glyphicon glyphicon-tower"></span> Manager Directory</a></li>
-			<li><a href="{% url 'announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Manager Announcements</a></li>
 			<li><a href="{% url 'events:list' %}" ><span class="glyphicon glyphicon-calendar"></span> Upcoming Events</a></li>
 			{% if WORKSHIFT_PROFILE %}
 			<li class="divider"></li>
