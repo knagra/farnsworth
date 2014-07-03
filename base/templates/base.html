@@ -67,7 +67,7 @@
 	        	<li><a href="{% url 'list_managers' %}" ><span class="glyphicon glyphicon-book"></span> Manager Directory</a></li>
 			<li><a href="{% url 'announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Announcements</a></li>
 	      		{% if REQUEST_TYPES %}
-	      		<li class="divier"></li>
+	      		<li class="divider"></li>
 	      		<li class="dropdown-header">Requests</li>
 			{% for type_tuple in REQUEST_TYPES %}
 				<li><a href="{% url 'requests' requestType=type_tuple.0.url_name %}" ><span title="{{ type_tuple.1 }} open request{{ type_tuple.1|pluralize }}" class="badge pull-right">{% if type_tuple.1 > 0 %}{{ type_tuple.1 }}{% endif %}</span>
