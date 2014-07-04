@@ -112,7 +112,7 @@ class TestUtils(TestCase):
     def test_get_year_season(self):
         year, season = utils.get_year_season()
         self.assertLess(abs(year - date.today().year), 2)
-         self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
+        self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
 
     def test_starting_month(self):
         # Starting in Summer / Fall / Spring
