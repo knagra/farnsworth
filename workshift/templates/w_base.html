@@ -42,7 +42,7 @@
 	<div id="sidebar" class="col-md-3">
 	  {% block sidebartop %}{% endblock %}
 	  {% if upcoming_shifts %}
-	  <h4 id="shifts_title">Upcoming Shifts</h4>
+	  <h4 id="shifts_title">Upcoming &amp; Recent Shifts</h4>
 	  <div id="upcoming_shifts" class="list-group">
 		{% for shift, happening in upcoming_shifts %}
 		<a title="See shift info" href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="list-group-item">

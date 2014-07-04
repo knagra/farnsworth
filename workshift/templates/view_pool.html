@@ -53,6 +53,7 @@
   {% endif %}
   </dl>
   {% if shifts %}
+  <hr />
   <h3 class="w_subtitle">Recurring Workshifts</h3>
   <table id="recurring_shifts" class="table table-striped table-bordered table-condensed table-hover">
 	<thead>
@@ -84,7 +85,7 @@
   </table>
   {% endif %}
   {% if upcoming_pool_shifts %}
-  {% if shifts %}<br />{% endif %}
+  {% if shifts %}<hr />{% endif %}
   <h3 class="w_subtitle">Vacant Shifts</h3>
   <table id="vacant_shifts" class="table table-striped table-bordered table-condensed table-hover">
     <thead>

@@ -10,14 +10,14 @@
   <h1 class="w_title">Manage Workshifts</h1>
   <hr class="w_line" />
   <ul class="nav nav-pills" style="margin-bottom: 10px;">
-    {% if pools %}<li class="active"><a href="#pools_table" data-toggle="tab">Workshift Pools</a></li>{% endif %}
-    {% if workshifters %}<li{% if not pools %} class="active"{% endif %}><a href="#workshifters_table" data-toggle="tab">Workshifters</a></li>{% endif %}
+    {% if pools %}<li class="active"><a href="#pools_div" data-toggle="tab">Workshift Pools</a></li>{% endif %}
+    {% if workshifters %}<li{% if not pools %} class="active"{% endif %}><a href="#workshifters_div" data-toggle="tab">Workshifters</a></li>{% endif %}
   </ul>
 
   <div class="tab-content">
   {% if pools %}
-  <div class="tab-pane active" id="pools_table">
-  <table class="table table-striped table-bordered table-condensed table-hover members_table">
+  <div class="tab-pane active" id="pools_div">
+  <table id="pools_table" class="table table-striped table-bordered table-condensed table-hover members_table">
 	<thead>
 	  <tr>
 		<th>Workshift Pool</th>
@@ -51,11 +51,12 @@
   {% endif %}
 
   {% if workshifters %}
-  <div class="tab-pane{% if not pools %} active{% endif %}" id="workshifters_table">
-  <table class="table table-striped table-bordered table-condensed table-hover members_table">
+  <div class="tab-pane{% if not pools %} active{% endif %}" id="workshifters_div">
+  <table id="workshifters_table" class="table table-striped table-bordered table-condensed table-hover members_table">
 	<thead>
 	  <tr>
-		<th>Workshifter</th>
+		<th>First Name</th>
+        <th>Last Name</th>
 		<th>E-mail</th>
 		{% for pool in pools %}
 		<th>{{ pool.title }}</th>
@@ -65,7 +66,8 @@
 	<tbody>
 	  {% for workshifter, pool_hours in workshifters %}
 	  <tr>
-		<td><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=workshifter.user.username %}">{{ workshifter.user.get_full_name }}</td>
+		<td><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=workshifter.user.username %}">{{ workshifter.user.first_name }}</td>
+        <td>{{ workshifter.user.last_name }}</td>
 		<td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
 		{% for hours in pool_hours %}
 		<td>{% if 0 > hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ hours.standing }}</font></td>
@@ -88,8 +90,19 @@
   $("[id$=date]").datetimepicker({pickTime: false});
   $("[id$=time]").datetimepicker({pickDate: false});
   $(document).ready(function() {
-    $('table').tablesorter({
-        sortList: [[0,0]]
+    $('#pools_table').tablesorter({
+        sortList: [[0,0]],
+        widgets: ["resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+    $('#workshifters_table').tablesorter({
+        sortList: [[0,0], [1,0]],
+        widgets: ["resizable", "filter"],
+        widgetOptions: {
+            resizable: true
+        }
     });
   });
 </script>
