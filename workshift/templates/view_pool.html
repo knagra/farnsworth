@@ -9,14 +9,14 @@
 <div class="pool_container">
   {% if WORKSHIFT_MANAGER %}
   <form action="{% wurl 'workshift:edit_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
-	<button class="btn btn-warning" type="submit">
-	  <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit Pool</span>
-	</button>
+    <button class="btn btn-warning" type="submit">
+      <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit Pool</span>
+    </button>
   </form>
   <form action="{% wurl 'workshift:add_shift' sem_url=SEMESTER.sem_url %}" class="pull-right" style="margin-right: 5px;">
-	<button class="btn btn-default" type="submit">
-	  <span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Shift</span>
-	</button>
+    <button class="btn btn-default" type="submit">
+      <span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Shift</span>
+    </button>
   </form>
   {% endif %}
   <h1 class="w_title">{{ page_name }}</h1>
@@ -56,32 +56,32 @@
   <hr />
   <h3 class="w_subtitle">Recurring Workshifts</h3>
   <table id="recurring_shifts" class="table table-striped table-bordered table-condensed table-hover">
-	<thead>
-	  <tr>
-		<th>Title</th>
+    <thead>
+      <tr>
+        <th>Title</th>
         <th>Days</th>
-		<th>Starts</th>
+        <th>Starts</th>
         <th>Ends</th>
-		<th>Hours</th>
-		<th>Workshifter</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for shift in shifts %}
-	  <tr>
-		<td><a href="{% wurl 'workshift:view_shift' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a></td>
-		<td>{% if shift.week_long %}Week long{% else %}{% for day in shift.days %}{{ day.display }}{% endfor %}{% endif %}</td>
+        <th>Hours</th>
+        <th>Workshifter</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for shift in shifts %}
+      <tr>
+        <td><a href="{% wurl 'workshift:view_shift' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a></td>
+        <td>{% if shift.week_long %}Week long{% else %}{% for day in shift.days %}{{ day.display }}{% endfor %}{% endif %}</td>
         <td>{{ shift.start_time }}</td>
         <td>{{ shift.end_time }}</td>
-		<td>{{ shift.hours }}</td>
-		<td>
-		  {% if shift.current_assignee %}
-		  {% for assignee in shift.current_assignees.all %}{% if not forloop.first %}, {% endif %}<a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.current_assignee.user.username %}">{{ shift.current_assignee.user.get_full_name }}</a>{% endfor %}
-		  {% endif %}
-		</td>
-	  </tr>
-	  {% endfor %}
-	</tbody>
+        <td>{{ shift.hours }}</td>
+        <td>
+          {% if shift.current_assignee %}
+          {% for assignee in shift.current_assignees.all %}{% if not forloop.first %}, {% endif %}<a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.current_assignee.user.username %}">{{ shift.current_assignee.user.get_full_name }}</a>{% endfor %}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
   {% endif %}
   {% if upcoming_pool_shifts %}

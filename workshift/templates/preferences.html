@@ -7,18 +7,18 @@
 
 {% block w_headers %}
 <style>
-	.time_formset_row td {
-		padding-right: 5px;
-		padding-bottom: 5px;
-		border-top: none !important;
-		border-bottom: 1px solid #e4e4e4;
-	}
-	.time_formset_row td div {
-	    margin: 0px;
-	}
-	.time_formset_row td div label {
-	    display: none;
-	}
+    .time_formset_row td {
+        padding-right: 5px;
+        padding-bottom: 5px;
+        border-top: none !important;
+        border-bottom: 1px solid #e4e4e4;
+    }
+    .time_formset_row td div {
+        margin: 0px;
+    }
+    .time_formset_row td div label {
+        display: none;
+    }
 </style>
 {% endblock %}
 
@@ -31,16 +31,16 @@
 <hr class="text-center" style="width: 75%;" />
 <div class="tab-content">
 {% for form in rating_forms %}
-	<div class="tab-pane{% if forloop.counter == 1 %} active{% endif %}" id="description_{{ form.instance.workshift_type.pk }}">
+    <div class="tab-pane{% if forloop.counter == 1 %} active{% endif %}" id="description_{{ form.instance.workshift_type.pk }}">
     <dl class="dl-horizontal">
       <dt>Title</dt>
-	  <dd>{{ form.instance.workshift_type.title }}</dd>
-	  <dt>Description</dt>
+      <dd>{{ form.instance.workshift_type.title }}</dd>
+      <dt>Description</dt>
       <dd>{{ form.instance.workshift_type.description|safe }}&nbsp;</dd>
       <dt>Tips</dt>
       <dd>{{ form.instance.workshift_type.quick_tips|safe }}&nbsp;</dd>
     </dl>
-	</div> <!-- .tab-pane -->
+    </div> <!-- .tab-pane -->
 {% endfor %}
 </div> <!-- .tab-content -->
 {% endif %}
@@ -52,14 +52,14 @@
   <h3 class="w_subtitle">Workshift Preferences</h3>
   <p class="text-info text-center">Click on a workshift type to see its description above.</p>
   <table class="table table-striped table-bordered table-condensed">
-	<tbody>
-	  {% for form in rating_forms %}
-	  <tr id="rating_forms_row">
-		<td{% if forloop.counter == 1 %} class="active"{% endif %}><a href="#description_{{ form.instance.workshift_type.pk }}" data-toggle="tab">{{ form.title }}</a></td>
-		<td>{{ form.rating }}</td>
-	  </tr>
-	  {% endfor %}
-	</tbody>
+    <tbody>
+      {% for form in rating_forms %}
+      <tr id="rating_forms_row">
+        <td{% if forloop.counter == 1 %} class="active"{% endif %}><a href="#description_{{ form.instance.workshift_type.pk }}" data-toggle="tab">{{ form.title }}</a></td>
+        <td>{{ form.rating }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
 
   {% endif %}
@@ -69,18 +69,18 @@
   {% endif %}
   <h3 class="w_subtitle">Your Schedule</h3>
   <table id="time_blocks" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
-  	<tbody>
-	  {% for form in time_formset.forms %}
-	  {{ form.id }}
-	  <tr class="time_formset_row">
-		<td>{{ form.preference|bootstrap }}</td>
-		<td>{{ form.day|bootstrap }}</td>
-		<td>{{ form.start_time|bootstrap }}</td>
-		<td>{{ form.end_time|bootstrap }}</td>
-		<td style="vertical-align: middle;"></td>
-	  </tr>
-	  {% endfor %}
-  	</tbody>
+      <tbody>
+      {% for form in time_formset.forms %}
+      {{ form.id }}
+      <tr class="time_formset_row">
+        <td>{{ form.preference|bootstrap }}</td>
+        <td>{{ form.day|bootstrap }}</td>
+        <td>{{ form.start_time|bootstrap }}</td>
+        <td>{{ form.end_time|bootstrap }}</td>
+        <td style="vertical-align: middle;"></td>
+      </tr>
+      {% endfor %}
+      </tbody>
   </table>
   {{ time_formset.management_form }}
 

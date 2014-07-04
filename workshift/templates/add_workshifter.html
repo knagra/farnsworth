@@ -22,28 +22,28 @@
   <hr class="w_line" />
   {% if add_workshifter_forms %}
   <form method="post" action="">
-	{% csrf_token %}
-	<table class="table table-striped table-bordered table-condensed">
-	  <thead>
-		<tr>
-		  <th>Add</th>
-		  <th>Full Name</th>
-		  <th>Workshift Hours</th>
-		</tr>
-	  </thead>
-	  <tbody>
-		{% for form in add_workshifter_forms %}
-		<tr>
-		  <td>{{ form.add_profile|bootstrap }}</td>
-		  <td style="vertical-align: middle;"><a href="{% wurl 'workshift:profile' targetUsername=form.user.username sem_url=SEMESTER.sem_url %}">{{ form.user.get_full_name }}</a></td>
-		  <td>{{ form.hours|bootstrap }}</td>
-		</tr>
-		{% endfor %}
-	  </tbody>
-	</table>
-	<div class="text-center field_wrapper">
-	  <button type="submit" class="btn btn-success">Add Workshifters</button>
-	</div>
+    {% csrf_token %}
+    <table class="table table-striped table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th>Add</th>
+          <th>Full Name</th>
+          <th>Workshift Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in add_workshifter_forms %}
+        <tr>
+          <td>{{ form.add_profile|bootstrap }}</td>
+          <td style="vertical-align: middle;"><a href="{% wurl 'workshift:profile' targetUsername=form.user.username sem_url=SEMESTER.sem_url %}">{{ form.user.get_full_name }}</a></td>
+          <td>{{ form.hours|bootstrap }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="text-center field_wrapper">
+      <button type="submit" class="btn btn-success">Add Workshifters</button>
+    </div>
   </form>
   {% else %}
   <div class="field_wrapper text-info">Every resident and boarder already has a workshift profile for this semester!</div>
@@ -53,8 +53,8 @@
 
 {% block w_endscripts %}
 <script>
-	$(document).ready(function(){
-		$('div.form-group').css('margin', 0);
-	})
+    $(document).ready(function(){
+        $('div.form-group').css('margin', 0);
+    })
 </script>
 {% endblock %}
