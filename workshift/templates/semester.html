@@ -86,7 +86,7 @@
 {% if week_shifts %}
 <hr/>
 <div class="workshift_week_table">
-  <h3 class="w_title">Weeklong Shifts</h3>
+  <h3 class="w_subtitle">Weeklong Shifts</h3>
   <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
 	<thead>
 	  <tr>
@@ -147,7 +147,7 @@
 {% endblock %}
 
 {% block sidebartop %}
-<form class="inline-form" action="{% wurl 'workshift:view_semester' %}">
+<form class="inline-form" action="{% wurl 'workshift:view_semester' %}" class="margin-bottom: 10px;">
     <span class="input-group">
     <input id="jump_day" name="day" placeholder="Jump to date..." class="form-control">
     <span class="input-group-btn">
