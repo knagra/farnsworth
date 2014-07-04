@@ -17,28 +17,34 @@
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
   {% if interact_forms %}
-  <h3 class="w_subtitle">Information</h3>
+  <h3 class="w_subtitle">Description</h3>
   <dl id="info_table" class="dl-horizontal">
+  <dt>Workshift Pool</dt>
+  <dd><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool.title }}</a></dd>
+  <dt>Date</dt>
+  <dd>{{ instance.date }}</dd>
+  <dt>Worth</dt>
+  <dd>{{ instance.hours }} hour{{ instance.hours|pluralize }}</dd>
   <dt>Action</dt>
   <dd>
 	{% for form in interact_forms %}
 	<form style="display:inline" method="POST">
 	  {% csrf_token %}
 	  {{ form }}
-	  <button type="submit" class="btn btn-xs btn-primary" name="{{ form.action_name }}">{{ form.title_short|safe }}
+	  <button type="submit"
+        class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
+        name="{{ form.action_name }}">{{ form.title_short|safe }}
 		{{ form.title_long }}</button>
 	</form>
 	{% endfor %}
   </dd>
   {% endif %}
-  <dt>Date</dt>
-  <dd>{{ instance.date }}</dd>
   {% if instance.workshifter %}
   <dt>Assignee</dt>
-  <dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.workshifter.user.username %}">{{ instance.workshifter.user.get_full_name }}</a><dd>
+  <dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.workshifter.user.username %}">{{ instance.workshifter.user.get_full_name }}</a></dd>
   {% elif instance.liable %}
   <dt>Event</dt>
-  <dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.liable.user.username %}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.poool.sign_out_cutoff|pluralize }} before the beginning of this shift. They are still expected to complete the shift if it is not filled by another person.</dd>
+  <dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.liable.user.username %}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of this shift and is still expected to complete the shift if it is not filled by another person.</dd>
   {% endif %}
   {% if instance.weekly_workshift %}
   <dt>Quick Tips</dt>
@@ -46,12 +52,9 @@
   {% endif %}
   <dt>Description</dt>
   <dd>{{ instance.description|safe }}<br />{% if instance.addendum %}{{ instance.addendum|safe }}{% endif %}</dd>
-  <dt>Workshift Pool</dt>
-  <dd><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool.title }}</a></dd>
-  <dt>Worth</dt>
-  <dd>{{ instance.hours }} hour{{ instance.hours|pluralize }}</dd>
+  </dl>
   {% if instance.logs.all %}
-  <br />
+  <hr />
   <h3 class="w_subtitle">Logs</h3>
   <table class=" table table-striped table-bordered table-condensed table-hover">
 	<thead>
@@ -89,4 +92,23 @@
   </table>
   {% endif %}
 </div> <!-- .instance_container -->
+{% endblock %}
+
+{% block w_endscripts %}
+<script>
+$(document).ready(function() {
+    $('table').tablesorter({
+        headers: {
+            0: {
+                sorter: 'farnsworth_datetime'
+            }
+        },
+        sortList: [[0, 1]],
+        widgets: ["resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+});
+</script>
 {% endblock %}

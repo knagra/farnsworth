@@ -7,6 +7,7 @@
 
 {% block w_content %}
 <h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
 <div class="instance_container">
   {% if regular_shifts %}
   <h3 class="w_subtitle">Regular Shifts</h3>
@@ -106,7 +107,11 @@
 <script>
   $(document).ready(function() {
 	 $('table').tablesorter({
-	    sortList: [[0,0]]
+	    sortList: [[0,0]],
+        widgets: ["resizable"],
+        widgetOptions: {
+            resizable: true
+        }
 	 });
   });
 </script>

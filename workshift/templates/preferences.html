@@ -24,7 +24,7 @@
 
 {% block w_content %}
 <h1 class="w_title">My Preferences</h1>
-
+<hr class="w_line" />
 {% if rating_forms %}
 <h3 class="w_subtitle">Workshift Descriptions</h3>
 <p id="descriptions_information" class="text-info text-center">Please select a workshift type from Workshift Preferences below.</p>
@@ -32,18 +32,22 @@
 <div class="tab-content">
 {% for form in rating_forms %}
 	<div class="tab-pane{% if forloop.counter == 1 %} active{% endif %}" id="description_{{ form.instance.workshift_type.pk }}">
-	  <h4 class="w_subtitle text-center">{{ form.instance.workshift_type.title }}</h4>
-	  {{ form.instance.workshift_type.description|safe }}
+    <dl class="dl-horizontal">
+      <dt>Title</dt>
+	  <dd>{{ form.instance.workshift_type.title }}</dd>
+	  <dt>Description</dt>
+      <dd>{{ form.instance.workshift_type.description|safe }}&nbsp;</dd>
+      <dt>Tips</dt>
+      <dd>{{ form.instance.workshift_type.quick_tips|safe }}&nbsp;</dd>
+    </dl>
 	</div> <!-- .tab-pane -->
 {% endfor %}
-<hr class="text-center" style="width: 75%;" />
 </div> <!-- .tab-content -->
 {% endif %}
 
 <form id="preferences_form" method="post" action="">
   {% csrf_token %}
   {% if rating_forms %}
-  <br />
   <hr />
   <h3 class="w_subtitle">Workshift Preferences</h3>
   <p class="text-info text-center">Click on a workshift type to see its description above.</p>

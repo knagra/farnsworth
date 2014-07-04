@@ -19,6 +19,7 @@
 {% block w_content %}
 <div class="instance_container">
   <h1 class="w_title">Add Workshifter</h1>
+  <hr class="w_line" />
   {% if add_workshifter_forms %}
   <form method="post" action="">
 	{% csrf_token %}
@@ -45,7 +46,7 @@
 	</div>
   </form>
   {% else %}
-  <p>Everyone in the database already has a workshift profile for this semester!</p>
+  <div class="field_wrapper text-info">Every resident and boarder already has a workshift profile for this semester!</div>
   {% endif %}
 </div>
 {% endblock %}
