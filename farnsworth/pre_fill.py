@@ -192,12 +192,50 @@ REQUESTS = [
 	("Social", ["Social Manager"], "comment"),
 	]
 
+# Items of form (title, description, quick_tips, hours, rateable)
 WORKSHIFT_TYPES = [
-	("Clean", "", "", 1, True),
-	("Food Put Away", "", "", 1, True),
-	("Pots", "", "", 2, True),
-	("Basement / Laundry Room Clean", "", "", 1, True),
-	("Bathroom Clean", "", "", 1, True),
+	("Clean",
+        """<ol>
+        <li>Put away any perishables left out.</li>
+        <li>clear all dishes from dining room into dishroom.</li>
+        <li>Throw away yesterday's paper.</li>
+        <li>Put away your cleaning supplies.<li>
+        <li>Clean and sanitize all counters and tables with sponge and a spray bottle.</li>
+        </ol>
+        """, "", 1, True),
+	("Food Put Away",
+        """<ol>
+        <li>Put away food.</li>
+        <li>Place opened food in containers and label containers.</li>
+        </ol>
+        """, "", 1, True),
+	("Pots",
+        """<ol>
+        <li>Wash and sanitize all pots.</li>
+        <li>Clean up pots area after all pots are washed and sanitized.</li>
+        <li>Soak any pots that you can't wash in soap water.</li>
+        <li>Clean out all scraps from the disposals.</li>
+        <li>Allow pots to air dry.</li>
+        </ol>
+        """, "", 2, True),
+	("Basement / Laundry Room Clean",
+        """<ol>
+        <li>Take all dishes to the dishroom.</li>
+        <li>Throw away any trash lying around.</li>
+        <li>Organize the laundry room and maintenance hallway.</li>
+        <li>Sweep laundry room floor.</li>
+        <li>Organize free pile by category.  Throw away anything that's obviously trash.</li>
+        <li>Make sure basement doors are closed.  These should never be left open.</li>
+        </ol>
+        """, "", 1, True),
+	("Bathroom Clean",
+        """<ol>
+        <li>Clean all sinks, toilets and handles.</li>
+        <li>Sweep and mop the floors.</li>
+        <li>Scrub the grout and surfaces in the showers.</li>
+        <li>Take out all trash, recycling, and compost.</li>
+        </ol>
+        """, "", 1, True),
 	("Bike / Living / Study Room Clean", "", "", 1, True),
 	("Roofdeck Clean & Top Two Floors", "", "", 1, True),
 	("Ramp and Amphitheater Clean", "", "", 1, True),
