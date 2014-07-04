@@ -8,6 +8,7 @@
 {% block w_content %}
 <div id="manage_container">
   <h1 class="w_title">Manage Workshifts</h1>
+  <hr class="w_line" />
   <ul class="nav nav-pills" style="margin-bottom: 10px;">
     {% if pools %}<li class="active"><a href="#pools_table" data-toggle="tab">Workshift Pools</a></li>{% endif %}
     {% if workshifters %}<li{% if not pools %} class="active"{% endif %}><a href="#workshifters_table" data-toggle="tab">Workshifters</a></li>{% endif %}
@@ -36,7 +37,7 @@
 		  {% if pos.incumbent %}
 		  (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
 		  {% else %}
-		  <span title="There is currently no incumbent for this position." class="text-danger">(No incumbent)</span>
+		  (<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
 		  {% endif %}
 		  {% endfor %}
 		  {% endif %}

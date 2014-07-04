@@ -47,6 +47,11 @@ Profile Requests sub-section</a> of the
 <script>
 $(document).ready(function() {
 	$('table').tablesorter({
+        headers: {
+            4: {
+                sorter: 'farnsworth_datetime'
+            }
+        },
 		sortList: [[1,0], [2,0]]
 	});
 });

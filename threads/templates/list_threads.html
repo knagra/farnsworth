@@ -56,17 +56,6 @@
 
 {% block endscripts %}
 <script>
-$.tablesorter.addParser({
-	id: 'farnsworth_datetime',
-	is: function(s) {
-		return /d{1,2}\/d{1,2}\/d{1,4} d{1,2}:d{1,2} s(AM|PM)/.test(s);
-	},
-	format: function(s) {
-		return Date.parse(s);
-	},
-	type: 'numeric'
-});
-
 $(document).ready(function() {
 	$('table').tablesorter({
 		{% if page_name == 'Archives - All Threads' %}

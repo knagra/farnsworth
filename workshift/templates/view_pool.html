@@ -20,6 +20,7 @@
   </form>
   {% endif %}
   <h1 class="w_title">{{ page_name }}</h1>
+  <hr class="w_line" />
   <h3 class="w_subtitle">Details</h3>
   <dl id="information_table" class="dl-horizontal">
   {% if pool.managers.count %}
@@ -52,8 +53,8 @@
   {% endif %}
   </dl>
   {% if shifts %}
-  <h3 class="w_subtitle">Regular Workshifts</h3>
-  <table class="table table-striped table-bordered table-condensed table-hover">
+  <h3 class="w_subtitle">Recurring Workshifts</h3>
+  <table id="recurring_shifts" class="table table-striped table-bordered table-condensed table-hover">
 	<thead>
 	  <tr>
 		<th>Title</th>
@@ -85,7 +86,7 @@
   {% if upcoming_pool_shifts %}
   {% if shifts %}<br />{% endif %}
   <h3 class="w_subtitle">Vacant Shifts</h3>
-  <table class="table table-striped table-bordered table-condensed table-hover">
+  <table id="vacant_shifts" class="table table-striped table-bordered table-condensed table-hover">
     <thead>
       <tr>
         <td>Title</td>
@@ -98,8 +99,7 @@
     <tbody>
       {% for shift, form in upcoming_pool_shifts %}
       <tr>
-        <td><a href="{% wurl 'workshift:view_instance'
-            sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a></td>
+        <td><a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a></td>
         <td>{{ shift.date }}</td>
         <td>{{ shift.start_time }}</td>
         <td>{{ shift.end_time }}</td>
@@ -118,9 +118,25 @@
 {% block w_endscripts %}
 <script>
 $(document).ready(function() {
-   $('table').tablesorter({
-       sortList: [[0,0], [4, 0]]
-   }); 
+   $('#recurring_shifts').tablesorter({
+       sortList: [[0,0], [1, 0]],
+       widgets: ["filter", "resizable"],
+       widgetOptions: {
+           resizable: true
+       }
+   });
+   $('#vacant_shifts').tablesorter({
+       headers: {
+           1: {
+               sorter: 'farnsworth_datetime'
+           }
+       },
+       sortList: [[0,0], [1, 0]],
+       widgets: ["filter", "resizable"],
+       widgetOptions: {
+           resizable: true
+       }
+   });
 });
 </script>
 {% endblock %}

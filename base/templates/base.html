@@ -190,6 +190,17 @@
     <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 	<script>
+    <!-- Custom datetime parser -->
+    $.tablesorter.addParser({
+        id: 'farnsworth_datetime',
+        is: function(s) {
+            return /d{1,2}\/d{1,2}\/d{1,4} d{1,2}:d{1,2} s(AM|PM)/.test(s);
+        },
+        format: function(s) {
+            return Date.parse(s);
+        },
+        type: 'numeric'
+    });
 	<!-- Add highlight.js to pre blocks -->
 		$(document).ready(function(){
 			hljs.configure({useBR: true});
