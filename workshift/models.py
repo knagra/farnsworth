@@ -383,8 +383,8 @@ class WorkshiftProfile(models.Model):
 
 class RegularWorkshift(models.Model):
     '''
-    A weekly workshift for a semester.  Used to generate individual instances of
-    workshifts.
+    A weekly workshift for a semester.
+    Used to generate individual instances of workshifts.
     '''
     workshift_type = models.ForeignKey(
         WorkshiftType,

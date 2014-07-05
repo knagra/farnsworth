@@ -102,6 +102,18 @@
         {% include "search/announcement.html" %}
     {% elif result.object.is_event %}
         {% include "search/event.html" %}
+    {% elif result.is_semester %}
+        {% include "search/semester.html" %}
+    {% elif result.is_workshift_pool %}
+        {% include "search/workshift_pool.html" %}
+    {% elif result.is_workshift_type %}
+        {% include "search/workshift_type.html" %}
+    {% elif result.is_workshift_profile %}
+        {% include "search/workshift_profile.html" %}
+    {% elif result.is_regular_workshift %}
+        {% include "search/regular_workshift.html" %}
+    {% elif result.is_workshift_instance %}
+        {% include "search/workshift_instance.html" %}
     {% endif %}
     </div> <!-- .hover_row -->
 {% endfor %}
