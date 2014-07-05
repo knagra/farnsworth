@@ -9,11 +9,11 @@
 <h1 class="w_title">Add a User</h1>
 <hr class="w_line" />
 <form method="post" action="">
-	{% csrf_token %}
-	<div class="form-group">
-		{{ add_user_form|bootstrap }}
-		<div class="text-center"><button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add User</button></div>
-	</div>
+    {% csrf_token %}
+    <div class="form-group">
+        {{ add_user_form|bootstrap }}
+        <div class="text-center"><button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add User</button></div>
+    </div>
 </form>
 </div> <!-- .main_table -->
 <div class="main_table col-md-5">
@@ -24,20 +24,20 @@
     <div class="main_table">
     <table class="table table-striped table-bordered table-condensed table-hover members_table">
     <thead>
-	<tr>
-	  <th>Username</th>
-	  <th>First Name</th>
-	  <th>Last Name</th>
-	</tr>
+    <tr>
+      <th>Username</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+    </tr>
     </thead>
     <tbody>
-	{% for member in members %}
-	<tr>
-	  <td><a class="page_link" title="Modify Profile" href="{% url 'custom_modify_user' targetUsername=member.username %}"><span class="glyphicon glyphicon-cog"></span> {{ member.username }}</a></td>
-	  <td>{{ member.first_name }}</td>
-	  <td>{{ member.last_name }}</td>
-	</tr>
-	{% endfor %}
+    {% for member in members %}
+    <tr>
+      <td><a class="page_link" title="Modify Profile" href="{% url 'custom_modify_user' targetUsername=member.username %}"><span class="glyphicon glyphicon-cog"></span> {{ member.username }}</a></td>
+      <td>{{ member.first_name }}</td>
+      <td>{{ member.last_name }}</td>
+    </tr>
+    {% endfor %}
     </tbody>
     </table> <!-- .table -->
     </div> <!-- .main_table -->
@@ -48,13 +48,13 @@
 {% block endscripts %}
 <script>
 $(document).ready(function() {
-	$('table').tablesorter({
-		sortList: [[1,0], [2,0]],
+    $('table').tablesorter({
+        sortList: [[1,0], [2,0]],
         widgets: ["filter", "resizable"],
         widgetOptions: {
             resizable: true
         }
-	});
+    });
 });
 </script>
 {% endblock %}

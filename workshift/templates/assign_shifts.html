@@ -7,9 +7,9 @@
 
 {% block w_headers %}
 <style>
-	.assign_row td div label {
-	    display: none;
-	}
+    .assign_row td div label {
+        display: none;
+    }
 </style>
 {% endblock %}
 
@@ -17,24 +17,24 @@
 <div id="assign_container">
   <h1 class="w_title">{{ page_name }}</h1>
   <form method="post" action="">
-	{% csrf_token %}
-	<table id="assign_shifts_table" class="table table-striped table-bordered table-condensed">
-	  <thead>
-		<tr>
-		  <th>Title</th>
-		  <th>Workshifter</th>
-		</tr>
-	  </thead>
-	  <tbody>
-		{% for form in assign_forms %}
-		<tr class="assign_row">
-		  <td><a href="{% wurl 'workshift:view_shift' pk=form.instance.pk sem_url=SEMESTER.sem_url %}">{{ form.instance.title }}</td>
-		  <td>{{ form.current_assignees|bootstrap }}</td>
-		</tr>
-		{% endfor %}
-	  </tbody>
-	</table>
-	<button type="submit" class="btn btn-success">Assign Shifts</button>
+    {% csrf_token %}
+    <table id="assign_shifts_table" class="table table-striped table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Workshifter</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in assign_forms %}
+        <tr class="assign_row">
+          <td><a href="{% wurl 'workshift:view_shift' pk=form.instance.pk sem_url=SEMESTER.sem_url %}">{{ form.instance.title }}</td>
+          <td>{{ form.current_assignees|bootstrap }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-success">Assign Shifts</button>
   </form>
 </div> <!-- #assign_container -->
 {% endblock %}

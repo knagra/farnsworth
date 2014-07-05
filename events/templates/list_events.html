@@ -6,12 +6,12 @@
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/list_events.css' %}" />
 <script>
-	function show_new_event_form() {
-		document.getElementById("new_event_form").style.display="inline";
-	}
-	function hide_new_event_form() {
-		document.getElementById("new_event_form").style.display="none";
-	}
+    function show_new_event_form() {
+        document.getElementById("new_event_form").style.display="inline";
+    }
+    function hide_new_event_form() {
+        document.getElementById("new_event_form").style.display="none";
+    }
 </script>
 {% endblock %}
 
@@ -104,7 +104,7 @@
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript">
-	$(function(){$("#id_start_time").datetimepicker();});
-	$(function(){$("#id_end_time").datetimepicker();});
+    $(function(){$("#id_start_time").datetimepicker();});
+    $(function(){$("#id_end_time").datetimepicker();});
 </script>
 {% endblock %}

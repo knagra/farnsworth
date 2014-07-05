@@ -45,14 +45,14 @@ Meta-Manager section</a> of the
 
 {% block endscripts %}
 <script>
-	$(document).ready(function() {
-		$('table').tablesorter({
-			sortList: [[0,0], [1,0]],
+    $(document).ready(function() {
+        $('table').tablesorter({
+            sortList: [[0,0], [1,0]],
             widgets: ["filter", "resizable"],
             widgetOptions: {
                 resizable: true
             }
-		});
-	});
+        });
+    });
 </script>
 {% endblock %}

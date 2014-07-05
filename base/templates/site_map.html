@@ -5,15 +5,15 @@
 {% block headers %}
 <style>
 .pages_list {
-	list-style-type: none;
-	padding-left: 40px;
-	padding-bottom: 10px;
+    list-style-type: none;
+    padding-left: 40px;
+    padding-bottom: 10px;
 }
 
 .pages_list li {
-	display: block;
-	padding-top: 5px;
-	font-size: 13pt;
+    display: block;
+    padding-top: 5px;
+    font-size: 13pt;
 }
 </style>
 {% endblock %}
@@ -22,13 +22,13 @@
 <h1 class="w_title">General Pages</h1>
 <hr class="w_line" />
 <ul class="pages_list">
-	<li><a class="page_link" href="{% url 'external' %}" >External Landing</a> - go to the external landing to this site.</li>
-	<li><a class="page_link" href="{% url 'helppage' %}" >Help Page</a> - see some helpful information about the site.</li>
-	<li><a class="page_link" href="https://github.com/knagra/farnsworth" target="_blank" >Project Source Code</a> - see this project's source code on <a class="page_link" href="https://github.com" target="_blank" >GitHub</a>.</li>
-	{% if not user.is_authenticated %}
-		<li><a class="page_link" href="{% url 'login' %}" >Login Page</a> - login to an existing member account.</li>
-		<li><a class="page_link" href="{% url 'request_profile' %}" >Create Account</a> - request a new account and profile on the site.</li>
-	{% endif %}
+    <li><a class="page_link" href="{% url 'external' %}" >External Landing</a> - go to the external landing to this site.</li>
+    <li><a class="page_link" href="{% url 'helppage' %}" >Help Page</a> - see some helpful information about the site.</li>
+    <li><a class="page_link" href="https://github.com/knagra/farnsworth" target="_blank" >Project Source Code</a> - see this project's source code on <a class="page_link" href="https://github.com" target="_blank" >GitHub</a>.</li>
+    {% if not user.is_authenticated %}
+        <li><a class="page_link" href="{% url 'login' %}" >Login Page</a> - login to an existing member account.</li>
+        <li><a class="page_link" href="{% url 'request_profile' %}" >Create Account</a> - request a new account and profile on the site.</li>
+    {% endif %}
 </ul>
 {% if user.is_authenticated and user.username != ANONYMOUS_USERNAME %}
 <h1 class="w_title">Profile Pages</h1>

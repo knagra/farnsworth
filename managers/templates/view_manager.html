@@ -25,32 +25,32 @@
 {% endif %}
     <h1 class="w_title">View Manager</h1>
     <hr class="w_line" />
-	<dl id="profile_table" class="dl-horizontal">
-		<dt>Title</dt>
-			<dd>{{ targetManager.title }}</dd>
-		<dt>Incumbent</dt>
-			<dd>{% if targetManager.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=targetManager.incumbent.user.username %}" >{{ targetManager.incumbent|display_user:user }}</a>{% else %}&nbsp;{% endif %}</dd>
-		{% if targetManager.email %}
-		<dt>E-mail</dt>
-			<dd><a title="Write E-mail" href="mailto:{{ targetManager.email }}">{{ targetManager.email }}</a></dd>
-		{% elif targetManager.incumbent.email_visible and targetManager.incumbent.user.email %}
-		<dt title="No e-mail address for this manager in database. This is the incumbent's personal e-mail address.">Personal E-mail</dt>
-			<dd><a title="Write E-mail" href="mailto:{{ targetManager.incumbent.user.email }}">{{ targetManager.incumbent.user.email }}</a></dd>
-		{% endif %}
-		{% if targetManager.incumbent.phone_visible %}
-		<dt>Personal Phone</dt>
-			<dd>{{ targetManager.incumbent.phone_number }}</dd>
-		{% endif %}
-		<dt>Compensation</dt>
-			<dd>{% if targetManager.compensation %}{{ targetManager.compensation|safe }}{% else %}&nbsp;{% endif %}</dd>
-		<dt>Duties</dt>
-			<dd>{% if targetManager.duties %}{{ targetManager.duties|safe }}{% else %}&nbsp;{% endif %}</dd>
-	</dl>
-	<hr class="line_75">
-	<div class="text-center">
-		<form action="{% url 'list_managers' %}">
-			<button id="member_directory" type="submit" class="btn btn-info"><span class="glyphicon glyphicon-tower"></span> Manager Directory</button>
-		</form>
-	</div>
+    <dl id="profile_table" class="dl-horizontal">
+        <dt>Title</dt>
+            <dd>{{ targetManager.title }}</dd>
+        <dt>Incumbent</dt>
+            <dd>{% if targetManager.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=targetManager.incumbent.user.username %}" >{{ targetManager.incumbent|display_user:user }}</a>{% else %}&nbsp;{% endif %}</dd>
+        {% if targetManager.email %}
+        <dt>E-mail</dt>
+            <dd><a title="Write E-mail" href="mailto:{{ targetManager.email }}">{{ targetManager.email }}</a></dd>
+        {% elif targetManager.incumbent.email_visible and targetManager.incumbent.user.email %}
+        <dt title="No e-mail address for this manager in database. This is the incumbent's personal e-mail address.">Personal E-mail</dt>
+            <dd><a title="Write E-mail" href="mailto:{{ targetManager.incumbent.user.email }}">{{ targetManager.incumbent.user.email }}</a></dd>
+        {% endif %}
+        {% if targetManager.incumbent.phone_visible %}
+        <dt>Personal Phone</dt>
+            <dd>{{ targetManager.incumbent.phone_number }}</dd>
+        {% endif %}
+        <dt>Compensation</dt>
+            <dd>{% if targetManager.compensation %}{{ targetManager.compensation|safe }}{% else %}&nbsp;{% endif %}</dd>
+        <dt>Duties</dt>
+            <dd>{% if targetManager.duties %}{{ targetManager.duties|safe }}{% else %}&nbsp;{% endif %}</dd>
+    </dl>
+    <hr class="line_75">
+    <div class="text-center">
+        <form action="{% url 'list_managers' %}">
+            <button id="member_directory" type="submit" class="btn btn-info"><span class="glyphicon glyphicon-tower"></span> Manager Directory</button>
+        </form>
+    </div>
 </div> <!-- #user_profile -->
 {% endblock %}

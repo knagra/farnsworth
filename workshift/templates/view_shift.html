@@ -9,9 +9,9 @@
 <div class="shift_container">
   {% if WORKSHIFT_MANAGER %}
   <form action="{% wurl 'workshift:edit_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
-	<button class="btn btn-warning" type="submit">
-	  <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span>
-	</button>
+    <button class="btn btn-warning" type="submit">
+      <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span>
+    </button>
   </form>
   {% endif %}
   <h1 class="w_title">{{ page_name }}</h1>
@@ -23,9 +23,9 @@
   <p><a href="{% wurl 'workshift:view_pool' pk=shift.pool.pk sem_url=SEMESTER.sem_url %}">{{ shift.pool.title }}</a></p>
   {% if shift.current_assignees.count %}
   <div>
-	{% for assignee in shift.current_assignees.all %}
-	<p>{{ assignee.user.get_full_name }}</p>
-	{% endfor %}
+    {% for assignee in shift.current_assignees.all %}
+    <p>{{ assignee.user.get_full_name }}</p>
+    {% endfor %}
   </div>
   {% endif %}
 </div> <!-- .instance_container -->

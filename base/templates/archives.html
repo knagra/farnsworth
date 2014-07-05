@@ -4,19 +4,19 @@
 
 {% block headers %}
 <style>
-	.stats_list {
-		list-style: none;
-	}
-	p {
-		margin-left: 5px;
-		margin-right: 5px;
-		margin-top: 5px;
-		marging-bottom: 5px;
-	}
-	.link_list {
-		margin-left: 10px;
-		margin-right: 10px;
-	}
+    .stats_list {
+        list-style: none;
+    }
+    p {
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-top: 5px;
+        marging-bottom: 5px;
+    }
+    .link_list {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
 </style>
 {% endblock %}
 
@@ -24,32 +24,32 @@
 <h1 class="w_title">Archives</h1>
 <hr class="w_line"/>
 <div class="main_table">
-	<p>Welcome to the archives! You can find really old (and recent) threads, requests, announcements, and events here.</p>
-	<p>If you're curious, here are some basic statistics on the database:</p>
-		<ul class="stats_list">
-			<li>{{ resident_count }} resident{{ resident_count|pluralize }}</li>
-			<li>{{ boarder_count }} boarder{{ boarder_count|pluralize }}</li>
-			<li>{{ alumni_count }} alumn{{ alumni_count|pluralize:"a/alumnus,i" }}</li>
-			<li>{{ member_count }} total member{{ member_count|pluralize }}</li>
-			<li>{{ thread_count }} thread{{ thread_count|pluralize }}</li>
-			<li>{{ message_count }} message{{ message_count|pluralize }}</li>
-			<li>{{ request_count }} request{{ request_count|pluralize }}</li>
-			<li>{{ response_count }} response{{ response_count|pluralize }}</li>
-			<li>{{ announcement_count }} announcement{{ announcement_count|pluralize }}</li>
-			<li>{{ event_count }} event{{ event_count|pluralize }}</li>
-		</ul>
+    <p>Welcome to the archives! You can find really old (and recent) threads, requests, announcements, and events here.</p>
+    <p>If you're curious, here are some basic statistics on the database:</p>
+        <ul class="stats_list">
+            <li>{{ resident_count }} resident{{ resident_count|pluralize }}</li>
+            <li>{{ boarder_count }} boarder{{ boarder_count|pluralize }}</li>
+            <li>{{ alumni_count }} alumn{{ alumni_count|pluralize:"a/alumnus,i" }}</li>
+            <li>{{ member_count }} total member{{ member_count|pluralize }}</li>
+            <li>{{ thread_count }} thread{{ thread_count|pluralize }}</li>
+            <li>{{ message_count }} message{{ message_count|pluralize }}</li>
+            <li>{{ request_count }} request{{ request_count|pluralize }}</li>
+            <li>{{ response_count }} response{{ response_count|pluralize }}</li>
+            <li>{{ announcement_count }} announcement{{ announcement_count|pluralize }}</li>
+            <li>{{ event_count }} event{{ event_count|pluralize }}</li>
+        </ul>
     <div class="bordered_div">
-	<div class="field_wrapper">Please choose from the links below:</div>
-		<ul class="list-group link_list">
-			<a href="{% url 'list_all_threads' %}" class="list-group-item"><span class="badge pull-right">{{ thread_count }}</span><span class="glyphicon glyphicon-comment"></span>
-				All Threads</a>
-			<a href="{% url 'all_requests' %}" class="list-group-item"><span class="badge pull-right">{{ request_count }}</span><span class="glyphicon glyphicon-inbox"></span>
-				All Requests</a>
-			<a href="{% url 'all_announcements' %}" class="list-group-item"><span class="badge pull-right">{{ announcement_count }}</span><span class="glyphicon glyphicon-bullhorn"></span>
-				All Announcements</a>
-			<a href="{% url 'events:all' %}" class="list-group-item"><span class="badge pull-right">{{ event_count }}</span><span class="glyphicon glyphicon-calendar"></span>
-				All Events</a>
-		</ul>
+    <div class="field_wrapper">Please choose from the links below:</div>
+        <ul class="list-group link_list">
+            <a href="{% url 'list_all_threads' %}" class="list-group-item"><span class="badge pull-right">{{ thread_count }}</span><span class="glyphicon glyphicon-comment"></span>
+                All Threads</a>
+            <a href="{% url 'all_requests' %}" class="list-group-item"><span class="badge pull-right">{{ request_count }}</span><span class="glyphicon glyphicon-inbox"></span>
+                All Requests</a>
+            <a href="{% url 'all_announcements' %}" class="list-group-item"><span class="badge pull-right">{{ announcement_count }}</span><span class="glyphicon glyphicon-bullhorn"></span>
+                All Announcements</a>
+            <a href="{% url 'events:all' %}" class="list-group-item"><span class="badge pull-right">{{ event_count }}</span><span class="glyphicon glyphicon-calendar"></span>
+                All Events</a>
+        </ul>
     </div> <!-- .bordered-div -->
 </div> <!-- .main_table -->
 {% endblock %}

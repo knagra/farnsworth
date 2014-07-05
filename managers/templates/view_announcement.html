@@ -39,9 +39,9 @@
       <button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
       {% endif %}
     </form>
-	<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=announcement.pk %}">
-		<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
-	</form>
+    <form class="pull-right" action="{% url 'edit_announcement' announcement_pk=announcement.pk %}">
+        <button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
+    </form>
 {% endif %}
 </div>
 </div>

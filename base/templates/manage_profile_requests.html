@@ -6,34 +6,34 @@
 <h1 class="w_title">Profile Requests</h1>
 <hr class="w_line" />
 <div class="main_table">
-	{% if not profile_requests %}
-		<div class="field_wrapper text-success">No profile requests in database.</div>
-	{% else %}
-	<table class="table table-striped table-bordered table-condensed table-hover members_table" id="requests_table">
-	<thead>
-	<tr>
-		<th>Username</th>
-		<th>First Name</th>
-		<th>Last Name</th>
-		<th>E-mail</th>
-		<th>Request Date</th>
-		<th>Affiliation</th>
-	</tr>
-	</thead>
-	<tbody>
-	{% for r in profile_requests %}
-		<tr>
-			<td><a class="page_link" href="{% url 'modify_profile_request' request_pk=r.pk %}" title="Modify Profile Request"><span class="glyphicon glyphicon-plus"></span> {{ r.username }}</a></td>
-			<td>{{ r.first_name }}</td>
-			<td>{{ r.last_name }}</td>
-			<td><a class="page_link" title="Write E-mail" href="mailto:{{ r.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ r.email }}</a></td>
-			<td>{{ r.request_date }}</td>
-			<td>{% for choice in choices %}{% if r.affiliation == choice.0 %}{{ choice.1 }}{% endif %}{% endfor %}</td>
-		</tr>
-	{% endfor %}
-	</tbody>
-	</table>
-	{% endif %}
+    {% if not profile_requests %}
+        <div class="field_wrapper text-success">No profile requests in database.</div>
+    {% else %}
+    <table class="table table-striped table-bordered table-condensed table-hover members_table" id="requests_table">
+    <thead>
+    <tr>
+        <th>Username</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>E-mail</th>
+        <th>Request Date</th>
+        <th>Affiliation</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for r in profile_requests %}
+        <tr>
+            <td><a class="page_link" href="{% url 'modify_profile_request' request_pk=r.pk %}" title="Modify Profile Request"><span class="glyphicon glyphicon-plus"></span> {{ r.username }}</a></td>
+            <td>{{ r.first_name }}</td>
+            <td>{{ r.last_name }}</td>
+            <td><a class="page_link" title="Write E-mail" href="mailto:{{ r.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ r.email }}</a></td>
+            <td>{{ r.request_date }}</td>
+            <td>{% for choice in choices %}{% if r.affiliation == choice.0 %}{{ choice.1 }}{% endif %}{% endfor %}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    {% endif %}
 </div> <!-- .main_table -->
 <div class="alert alert-info" style="margin-top: 10px;">
 Don't know how profile requests work?  Check out the
@@ -46,18 +46,18 @@ Profile Requests sub-section</a> of the
 {% block endscripts %}
 <script>
 $(document).ready(function() {
-	$('table').tablesorter({
+    $('table').tablesorter({
         headers: {
             4: {
                 sorter: 'farnsworth_datetime'
             }
         },
-		sortList: [[1,0], [2,0]],
+        sortList: [[1,0], [2,0]],
         widgets: ["resizable"],
         widgetOptions: {
             resizable: true
         }
-	});
+    });
 });
 </script>
 {% endblock %}

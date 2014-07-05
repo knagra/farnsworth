@@ -91,9 +91,9 @@
 {% endif %}
 
 <div class="text-center text-info" style="margin-top: 10px;">
-	{{ residents.count }} resident{{ residents|pluralize }}, {{ boarders.count }} boarder{{ boarders|pluralize }},
-	and {{ alumni.count }} alumn{{ alumni|pluralize:"a/alumnus,i" }} in database.
-	{{ residents.count|add:boarders.count|add:alumni.count }} total.
+    {{ residents.count }} resident{{ residents|pluralize }}, {{ boarders.count }} boarder{{ boarders|pluralize }},
+    and {{ alumni.count }} alumn{{ alumni|pluralize:"a/alumnus,i" }} in database.
+    {{ residents.count|add:boarders.count|add:alumni.count }} total.
 </div>
 {% endblock %}
 

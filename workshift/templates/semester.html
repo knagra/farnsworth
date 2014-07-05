@@ -8,79 +8,79 @@
 {% block w_content %}
 <div class="row">
   <div class="col-sm-1 col-xs-2 text-left">
-	{% if prev_day %}
-	<a title="Previous day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ prev_day }}">
-	  <span class="glyphicon glyphicon-chevron-left"></span>
-	</a>
-	{% endif %}
+    {% if prev_day %}
+    <a title="Previous day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ prev_day }}">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+    </a>
+    {% endif %}
   </div> <!-- .col-xs-1 -->
   <h3 id="day_title" class="col-sm-10 col-xs-8 text-center w_subtitle"><span class="hidden-xs w_subtitle">Workshifts
-	  for {{ day|date:"l, F d, Y" }}</span><span class="visible-xs w_subtitle">{{ day|date:"D., N d, Y" }}</span></h3>
+      for {{ day|date:"l, F d, Y" }}</span><span class="visible-xs w_subtitle">{{ day|date:"D., N d, Y" }}</span></h3>
   <div class="col-sm-1 col-xs-2 text-right">
-	{% if next_day %}
-	<a title="Next day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ next_day }}">
-	  <span class="glyphicon glyphicon-chevron-right"></span>
-	</a>
-	{% endif %}
+    {% if next_day %}
+    <a title="Next day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ next_day }}">
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+    {% endif %}
   </div> <!-- .col-sm-1 -->
 </div> <!-- .row -->
 <div class="workshift_table">
   <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
-	<thead>
-	  <tr>
-		<th>Title</th>
-		<th>Starts</th>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Starts</th>
         <th>Ends</th>
-		<th>Hours</th>
-		<th>Workshifter</th>
-		<th>Verifier</th>
-		<th>Action</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for shift, forms in day_shifts %}
-	  <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
-		<td>
-		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
-		</td>
-		<td>{{ shift.start_time }}</td>
+        <th>Hours</th>
+        <th>Workshifter</th>
+        <th>Verifier</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for shift, forms in day_shifts %}
+      <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+        <td>
+          <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
+        </td>
+        <td>{{ shift.start_time }}</td>
         <td>{{ shift.end_time }}</td>
-		<td>
-		  {% if shift.intended_hours == shift.hours %}
-		  {{ shift.hours }}
-		  {% else %}
-		  <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
-		  {% endif %}
-		</td>
-		<td>
-		  {% if shift.workshifter %}
-		  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.workshifter.user.username %}">{{ shift.workshifter.user.get_full_name }}</a>
-		  {% elif shift.liable %}
-		  <del><a title="Workshifter is still liable for this shift" href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
-		  {% endif %}
-		</td>
-		<td>
-		  {% if shift.blown %}
-		  <font color="red">BLOWN</font>
-		  {% elif shift.verifier %}
-		  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
-		  {% endif %}
-		</td>
-		<td>
-		  {% for form in forms %}
-		  <form style="display:inline" method="POST">
-			{% csrf_token %}
-			{{ form }}
-			<button
+        <td>
+          {% if shift.intended_hours == shift.hours %}
+          {{ shift.hours }}
+          {% else %}
+          <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
+          {% endif %}
+        </td>
+        <td>
+          {% if shift.workshifter %}
+          <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.workshifter.user.username %}">{{ shift.workshifter.user.get_full_name }}</a>
+          {% elif shift.liable %}
+          <del><a title="Workshifter is still liable for this shift" href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
+          {% endif %}
+        </td>
+        <td>
+          {% if shift.blown %}
+          <font color="red">BLOWN</font>
+          {% elif shift.verifier %}
+          <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
+          {% endif %}
+        </td>
+        <td>
+          {% for form in forms %}
+          <form style="display:inline" method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <button
                 type="submit" class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
                 name="{{ form.action_name }}">{{ form.title_short|safe }}<span class="hidden-xs">
                     {{ form.title_long }}</span></button>
-		  </form>
-		  {% endfor %}
-		</td>
-	  </tr>
-	  {% endfor %}
-	</tbody>
+          </form>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
 </div> <!-- .workshift_table -->
 {% if week_shifts %}
@@ -88,59 +88,59 @@
 <div class="workshift_week_table">
   <h3 class="w_subtitle">Weeklong Shifts</h3>
   <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
-	<thead>
-	  <tr>
-		<th>Title</th>
-		<th>Hours</th>
-		<th>Workshifter</th>
-		<th>Verifier</th>
-		<th>Action</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for shift, forms in week_shifts %}
-	  <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
-		<td>
-		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
-		</td>
-		<td>
-		  {% if shift.intended_hours == shift.hours %}
-		  {{ shift.hours }}
-		  {% else %}
-		  <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
-		  {% endif %}
-		</td>
-		<td>
-		  {% if shift.workshifter %}
-		  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.workshifter.user.username %}">{{ shift.workshifter.user.get_full_name }}</a>
-		  {% endif %}
-		</td>
-		<td>
-		  {% if shift.blown %}
-		  <font color="red">BLOWN</font>
-		  {% elif shift.auto_verify %}
-		  Auto Verify
-		  {% elif shift.verifier %}
-		  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
-		  {% elif shift.liable %}
-		  <del><a title="Workshifter is still liable for this shift" href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
-		  {% endif %}
-		</td>
-		<td>
-		  {% for form in forms %}
-		  <form style="display:inline" method="POST">
-			{% csrf_token %}
-			{{ form }}
-			<button type="submit"
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Hours</th>
+        <th>Workshifter</th>
+        <th>Verifier</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for shift, forms in week_shifts %}
+      <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+        <td>
+          <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
+        </td>
+        <td>
+          {% if shift.intended_hours == shift.hours %}
+          {{ shift.hours }}
+          {% else %}
+          <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
+          {% endif %}
+        </td>
+        <td>
+          {% if shift.workshifter %}
+          <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.workshifter.user.username %}">{{ shift.workshifter.user.get_full_name }}</a>
+          {% endif %}
+        </td>
+        <td>
+          {% if shift.blown %}
+          <font color="red">BLOWN</font>
+          {% elif shift.auto_verify %}
+          Auto Verify
+          {% elif shift.verifier %}
+          <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
+          {% elif shift.liable %}
+          <del><a title="Workshifter is still liable for this shift" href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
+          {% endif %}
+        </td>
+        <td>
+          {% for form in forms %}
+          <form style="display:inline" method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit"
                 class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
                 name="{{ form.action_name }}">{{ form.title_short|safe }}<span class="hidden-xs">
                     {{ form.title_long }}</span></button>
-		  </form>
-		  {% endfor %}
-		</td>
-	  </tr>
-	  {% endfor %}
-	</tbody>
+          </form>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
 </div> <!-- .workshift_week_table -->
 {% endif %}
@@ -162,8 +162,8 @@
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script>
 $(document).ready(function() {
-	$('table').tablesorter({
-		sortList: [[1, 0], [0,0]]
+    $('table').tablesorter({
+        sortList: [[1, 0], [0,0]]
     });
     $('#jump_day').datetimepicker({pickTime: false, format: 'YYYY-MM-DD'});
 });
