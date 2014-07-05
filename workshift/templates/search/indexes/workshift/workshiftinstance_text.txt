@@ -1,0 +1,6 @@
+{{ object.title }}
+{{ object.description }}
+{{ object.workshifter }}
+{{ object.pool.title }},
+{{ object.semester.get_season_display }}
+{{ object.semester.year }}

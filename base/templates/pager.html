@@ -1,15 +1,15 @@
 <div class="field_wrapper">
     <div class="pager tablesorter-pager" id="{{ id_prefix }}_pager" style="margin-top: 0px; margin-bottom: 0px;">
+        <a class="last pull-right" style="margin-left: 5px;"
+            title="Last page" tabindex="0" aria-disabled="false"><span class="glyphicon glyphicon-fast-forward"></span></a>
+        <a class="next pull-right" title="Next page" tabindex="0" aria-disabled="false"><span class="glyphicon glyphicon-forward"></span></a>
+        <a class="first pull-left" style="margin-right: 5px;"
+            title="First page" tabindex="0" aria-disabled="false"><span class="glyphicon glyphicon-fast-backward"></span></a>
+        <a class="prev pull-left" title="Previous page" tabindex="0" aria-disabled="false"><span class="glyphicon glyphicon-backward"></span></a>
         Page:
         <select id="{{ id_prefix }}_goto" aria-disabled="false" style="width: 50px; height: 25px; padding: 0px; margin: none; display: inline;"></select>
         |
-        <span class="first glyphicon glyphicon-fast-backward" title="First page" tabindex="0" aria-disabled="false"></span>
-        <span class="prev glyphicon glyphicon-backward" title="First page" tabindex="0" aria-disabled="false"></span>
-        |
         <span class="pagedisplay"></span>
-        |
-        <span class="next glyphicon glyphicon-forward" title="First page" tabindex="0" aria-disabled="false"></span>
-        <span class="last glyphicon glyphicon-fast-forward" title="First page" tabindex="0" aria-disabled="false"></span>
         |
         Rows per page:
         <select class="pagesize" aria-disabled="false" style="width: 50px; height: 25px; padding: 0px; margin: none; display: inline;">
@@ -21,5 +21,3 @@
         </select>
     </div> <!-- .pager -->
 </div> <!-- .field_wrapper -->
-
-

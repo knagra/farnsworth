@@ -83,6 +83,9 @@ class Semester(models.Model):
     def __unicode__(self):
         return "{0} {1}".format(self.get_season_display(), self.year)
 
+    def is_semester(self):
+        return True
+
 class WorkshiftPool(models.Model):
     title = models.CharField(
         max_length=100,
@@ -167,6 +170,9 @@ class WorkshiftPool(models.Model):
             self.hours, "s" if self.hours != 1 else "",
             )
 
+    def is_workshift_pool(self):
+        return True
+
 class WorkshiftType(models.Model):
     '''
     A workshift type; for example, a "Pots" workshift type.
@@ -201,6 +207,9 @@ class WorkshiftType(models.Model):
 
     def __unicode__(self):
         return self.title
+
+    def is_workshift_type(self):
+        return True
 
 class TimeBlock(models.Model):
     '''
@@ -369,6 +378,9 @@ class WorkshiftProfile(models.Model):
     class Meta:
         unique_together = ("user", "semester")
 
+    def is_workshift_profile(self):
+        return True
+
 class RegularWorkshift(models.Model):
     '''
     A weekly workshift for a semester.  Used to generate individual instances of
@@ -446,6 +458,9 @@ class RegularWorkshift(models.Model):
             return "{0}:{1}".format(self.title, ", ".join(days))
         else:
             return self.title
+
+    def is_regular_workshift(self):
+        return True
 
 class ShiftLogEntry(models.Model):
     ''' Entries for sign-ins, sign-outs, and verification. '''
@@ -527,7 +542,7 @@ class InstanceInfo(models.Model):
         )
 
 class WorkshiftInstance(models.Model):
-    ''' An instance of a weekly workshift. '''
+    ''' An instance of a workshift. '''
     semester = models.ForeignKey(
         Semester,
         help_text="The semester for this workshift.",
@@ -645,3 +660,6 @@ class WorkshiftInstance(models.Model):
 
     def __unicode__(self):
         return "{0}, {1}".format(self.title, self.date)
+
+    def is_workshift_instance(self):
+        return True
