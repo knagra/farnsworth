@@ -49,6 +49,15 @@ def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
             upcoming_shifts.append((shift, form))
     return upcoming_shifts
 
+def _get_recommended_shifts(semester, workshift_profile):
+    """
+    Return up to 5 recommended vacant workshifts based on the profile's
+    preferences and standing in various workshift pools.
+    First get hours the profile needs (pools in which the profile is down),
+    getting desired shifts first, then get shifts the user might want.
+    """
+    
+
 def add_workshift_context(request):
     """ Add workshift variables to all dictionaries passed to templates. """
     if not request.user.is_authenticated():

@@ -19,7 +19,6 @@
 {% endif %}
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />
-  <div class="main_table">
   {% if not threads %}
   <div class="field_wrapper text-info">No threads found.</div>
   {% else %}
@@ -45,13 +44,16 @@
       {% endfor %}
     </tbody>
   </table>
+  {% if threads.count > 10 %}
+    {% with id_prefix="thread" %}
+        {% include "pager.html" %}
+    {% endwith %}
+  {% elif threads.count %}
+    <div class="text-center text-info" style="margin-top: 10px;">
+        {{ threads.count }} thread{{ threads|pluralize }} in total.
+    </div>
   {% endif %}
-  </div> <!-- .main_table -->
-{% if threads.count %}
-<div class="text-center text-info" style="margin-top: 10px;">
-	{{ threads.count }} thread{{ threads|pluralize }} in total.
-</div>
-{% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block endscripts %}
@@ -83,7 +85,11 @@ $(document).ready(function() {
         widgetOptions: {
             resizable: true
         }
-	});
+	}).tablesorterPager({
+       container: "#thread_pager",
+       fixedHeight: true,
+       cssGoto: '#thread_goto'
+    });
 });
 </script>
 {% endblock %}

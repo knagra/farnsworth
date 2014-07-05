@@ -52,9 +52,15 @@
       {% endfor %}
     </tbody>
   </table>
+  {% if requests.count > 10 %}
+    {% with id_prefix="requests" %}
+        {% include "pager.html" %}
+    {% endwith %}
+  {% elif requests.count %}
     <div class="text-center text-info" style="margin-top: 10px">
         {{ requests.count }} request{{ requests.count|pluralize }} in total.
     </div>
+  {% endif %}
   {% endif %}
 {% endblock %}
 
@@ -79,7 +85,11 @@ $(document).ready(function() {
         widgetOptions: {
             resizable: true
         }
-	});
+	}).tablesorterPager({
+       container: "#requests_pager",
+       fixedHeight: true,
+       cssGoto: '#requests_goto'
+    });
 });
 </script>
 <script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>

@@ -83,6 +83,11 @@
       {% endfor %}
     </tbody>
   </table>
+  {% if shifts.count > 10 %}
+    {% with id_prefix="recurring" %}
+        {% include "pager.html" %}
+    {% endwith %}
+  {% endif %}
   {% endif %}
   {% if upcoming_pool_shifts %}
   {% if shifts %}<hr />{% endif %}
@@ -112,6 +117,11 @@
       {% endfor %}
     </tbody>
   </table>
+  {% if upcoming_pool_shifts|length > 10 %}
+    {% with id_prefix="vacant" %}
+        {% include "pager.html" %}
+    {% endwith %}
+  {% endif %}
   {% endif %}
 </div> <!-- .pool_container -->
 {% endblock %}
@@ -125,7 +135,11 @@ $(document).ready(function() {
        widgetOptions: {
            resizable: true
        }
-   });
+    }).tablesorterPager({
+       container: "#recurring_pager",
+       fixedHeight: true,
+       cssGoto: '#recurring_goto'
+    });
    $('#vacant_shifts').tablesorter({
        headers: {
            1: {
@@ -137,7 +151,11 @@ $(document).ready(function() {
        widgetOptions: {
            resizable: true
        }
-   });
+   }).tablesorterPager({
+       container: "#vacant_pager",
+       fixedHeight: true,
+       cssGoto: '#vacant_goto'
+    });
 });
 </script>
 {% endblock %}
