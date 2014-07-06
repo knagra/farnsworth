@@ -226,7 +226,7 @@ class TestUtils(TestCase):
         shift.save()
         WorkshiftInstance.objects.create(
             weekly_workshift=shift,
-            date=date.today() - timedelta(date.today().weekday())
+            date=date.today() - timedelta(date.today().weekday()),
             )
         instances = utils.make_instances(
             semester=self.semester,
@@ -236,8 +236,9 @@ class TestUtils(TestCase):
         for instance in instances:
             self.assertEqual("Test Shift", instance.title)
             self.assertEqual(shift, instance.weekly_workshift)
-            self.assertEqual(7, instance.hours)
-            self.assertEqual(7, instance.intended_hours)
+            self.assertEqual(shift.hours, instance.hours)
+            self.assertEqual(shift.hours, instance.intended_hours)
+            self.assertEqual(1, instance.logs.count())
 
         self.assertEqual(set(shift.days), set(i.date.weekday() for i in instances))
 
