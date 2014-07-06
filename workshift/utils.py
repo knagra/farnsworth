@@ -45,7 +45,7 @@ def is_available(workshift_profile, regular_workshift):
     start_time = regular_workshift.start_time
     end_time = regular_workshift.end_time
     relevant_blocks = list()
-    for block in workshift_profile.time_blocks:
+    for block in workshift_profile.time_blocks.all():
         if block.day == day and block.preference == TimeBlock.BUSY \
           and block.start_time < end_time \
           and block.end_time > start_time:
