@@ -150,18 +150,13 @@ def make_instances(semester, shifts=None, now=None):
                         )
                     if i < len(assignees):
                         instance.workshifter = assignees[i]
+                        log = ShiftLogEntry.objects.create(
+                            person=instance.workshifter,
+                            entry_type=ShiftLogEntry.ASSIGNED,
+                            )
+                        instance.logs.add(log)
                         instance.save()
                     new_instances.append(instance)
-            if shift.current_assignees:
-                # Update the list of assigned workshifters
-                for instance in WorkshiftInstance.objects \
-                  .filter(weekly_workshift=shift, date__gte=now):
-                    log = ShiftLogEntry.objects.create(
-                        person=instance.workshifter,
-                        entry_type=ShiftLogEntry.ASSIGNED,
-                        )
-                    instance.logs.add(log)
-                    instance.save()
     return new_instances
 
 def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
