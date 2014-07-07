@@ -145,8 +145,6 @@ def make_instances(semester, shifts=None, now=None):
                         date=day,
                         hours=shift.hours,
                         intended_hours=shift.hours,
-                        verify=shift.verify,
-                        week_long=shift.week_long,
                         )
                     if i < len(assignees):
                         instance.workshifter = assignees[i]

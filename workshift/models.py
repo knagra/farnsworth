@@ -544,6 +544,12 @@ class InstanceInfo(models.Model):
         blank=True,
         help_text="The workshift pool for this shift.",
         )
+    verify = models.CharField(
+        default=OTHER_VERIFY,
+        choices=VERIFY_CHOICES,
+        max_length=1,
+        help_text="Who is able to mark this shift as completed.",
+        )
     start_time = models.TimeField(
         help_text="Start time for this workshift.",
         null=True,
@@ -553,6 +559,10 @@ class InstanceInfo(models.Model):
         help_text="End time for this workshift.",
         null=True,
         blank=True,
+        )
+    week_long = models.BooleanField(
+        default=False,
+        help_text="If this shift is for the entire week.",
         )
 
 class WorkshiftInstance(models.Model):
@@ -625,16 +635,6 @@ class WorkshiftInstance(models.Model):
         blank=True,
         help_text="The entries for sign ins, sign outs, and verification.",
         )
-    verify = models.CharField(
-        default=OTHER_VERIFY,
-        choices=VERIFY_CHOICES,
-        max_length=1,
-        help_text="Who is able to mark this shift as completed.",
-        )
-    week_long = models.BooleanField(
-        default=False,
-        help_text="If this shift is for the entire week.",
-        )
 
     def get_info(self):
         return self.weekly_workshift or self.info
@@ -651,16 +651,24 @@ class WorkshiftInstance(models.Model):
             return self.info.description
 
     @property
+    def pool(self):
+        return self.get_info().pool
+
+    @property
+    def verify(self):
+        return self.get_info().verify
+
+    @property
+    def week_long(self):
+        return self.get_info().week_long
+
+    @property
     def start_time(self):
         return self.get_info().start_time
 
     @property
     def end_time(self):
         return self.get_info().end_time
-
-    @property
-    def pool(self):
-        return self.get_info().pool
 
     def __init__(self, *args, **kwargs):
         if "semester" not in kwargs:
