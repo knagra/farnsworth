@@ -13,7 +13,7 @@ from weekday_field.utils import ADVANCED_DAY_CHOICES
 from managers.models import Manager
 from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
      Semester, PoolHours, WorkshiftProfile, WorkshiftPool, \
-     WorkshiftType, RegularWorkshift
+     WorkshiftType, RegularWorkshift, AUTO_VERIFY
 
 def can_manage(user, semester=None):
     """
@@ -145,7 +145,7 @@ def make_instances(semester, shifts=None, now=None):
                         date=day,
                         hours=shift.hours,
                         intended_hours=shift.hours,
-                        auto_verify=shift.auto_verify,
+                        verify=shift.verify,
                         week_long=shift.week_long,
                         )
                     if i < len(assignees):
@@ -215,7 +215,7 @@ def make_manager_workshifts(semester=None, managers=None):
             )
         if new:
             shift.week_long = True
-            shift.auto_verify = True
+            shift.verify = AUTO_VERIFY
         shift.hours = wtype.hours
         if manager.incumbent:
             shift.current_assignee = WorkshiftProfile.objects.get(
@@ -289,7 +289,7 @@ def collect_blown(semester=None, now=None):
             # Update the workshifter's standing
             pool_hours = workshifter.pool_hours.get(pool=instance.pool)
 
-            if not instance.auto_verify or instance.liable:
+            if instance.verify != AUTO_VERIFY or instance.liable:
                 pool_hours.standing -= instance.hours
                 entry_type = ShiftLogEntry.BLOWN
                 instance.blown = True

@@ -19,7 +19,7 @@ from django.template import RequestContext
 from workshift.templatetags.workshift_tags import wurl
 
 from utils.variables import MESSAGES, date_formats
-from base.models import User
+from base.models import User, UserProfile
 from managers.models import Manager
 from workshift.decorators import get_workshift_profile, \
     workshift_manager_required, semester_required
@@ -56,7 +56,7 @@ def _get_recommended_shifts(semester, workshift_profile):
     First get hours the profile needs (pools in which the profile is down),
     getting desired shifts first, then get shifts the user might want.
     """
-    
+
 
 def add_workshift_context(request):
     """ Add workshift variables to all dictionaries passed to templates. """
@@ -275,9 +275,30 @@ def _get_forms(profile, instance):
         if instance.workshifter:
             workshifter = instance.workshifter or instance.liable
             pool = instance.pool
+            user_profile = UserProfile.objects.get(user=profile.user)
+            managers = Manager.objects.filter(incumbent=user_profile)
+            verify = False
+            allowed_statuses = [UserProfile.RESIDENT, UserProfile.BOARDER]
 
-            if pool.self_verify or workshifter != profile and \
-              not instance.auto_verify and not utils.past_verify(instance):
+            # The many ways a person can be eligible to verify a shift...
+            if user_profile.status not in allowed_statuses:
+                pass
+            elif instance.verify == AUTO_VERIFY:
+                pass
+            elif instance.verify == SELF_VERIFY:
+                verify = True
+            elif instance.verify == OTHER_VERIFY and profile != workshifter:
+                verify = True
+            elif instance.verify == ANY_MANAGER_VERIFY and managers:
+                verify = True
+            elif instance.verify == POOL_MANAGER_VERIFY and \
+              set(managers).intersections(pool.managers):
+              verify = True
+            elif instance.verify == WORKSHIFT_MANAGER_VERIFY and \
+              any(i.workshift_manager for i in managers):
+              verify = True
+
+            if verify:
                 verify_form = VerifyShiftForm(initial={
                     "pk": instance.pk,
                     }, profile=profile)

@@ -15,7 +15,8 @@ from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     TimeBlock, WorkshiftRating, WorkshiftProfile, \
     RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance, \
-    PoolHours
+    PoolHours, SELF_VERIFY, AUTO_VERIFY, WORKSHIFT_MANAGER_VERIFY, \
+	POOL_MANAGER_VERIFY, ANY_MANAGER_VERIFY, OTHER_VERIFY
 from workshift import utils
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
@@ -251,13 +252,30 @@ class VerifyShiftForm(InteractShiftForm):
         instance = super(VerifyShiftForm, self).clean_pk()
 
         workshifter = instance.workshifter or instance.liable
+        user_profile = UserProfile.objects.get(user=self.profile.user)
+        managers = Manager.objects.filter(incumbent=user_profile)
 
         if not workshifter:
             raise forms.ValidationError("Workshift is not filled.")
-        if not instance.pool.self_verify and workshifter == self.profile:
-            raise forms.ValidationError("Workshifter cannot verify self.")
-        if instance.auto_verify:
+        if user_profile.status not in \
+          [UserProfile.RESIDENT, UserProfile.BOARDER]:
+			raise forms.ValidationError("Verifier is not a member or boarder.")
+
+        if instance.verify == AUTO_VERIFY:
             raise forms.ValidationError("Workshift is automatically verified.")
+        elif instance.verify == WORKSHIFT_MANAGER_VERIFY:
+            if not any(i.workshift_manager for i in managers):
+                raise forms.ValidationError("Verifier is not a workshift manager.")
+        elif instance.verify == POOL_MANAGER_VERIFY:
+            if not set(managers).intersection(instance.pool.managers):
+                raise forms.ValidationError("Verifier is not in the list of managers for this pool.")
+        elif instance.verify == ANY_MANAGER_VERIFY:
+            if not managers.count():
+                raise forms.ValidationError("Verifier is not a manager.")
+        elif instance.verify == OTHER_VERIFY:
+            if workshifter == self.profile:
+                raise forms.ValidationError("Workshifter cannot verify self.")
+
         if utils.past_verify(instance):
             raise forms.ValidationError("Workshift is past verification period.")
 

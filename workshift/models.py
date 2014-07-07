@@ -13,6 +13,22 @@ from weekday_field.utils import DAY_CHOICES
 from managers.models import Manager
 from workshift.fields import DayField
 
+WORKSHIFT_MANAGER_VERIFY = "W"
+POOL_MANAGER_VERIFY = "P"
+ANY_MANAGER_VERIFY = "M"
+OTHER_VERIFY = "O"
+SELF_VERIFY = "S"
+AUTO_VERIFY = "A"
+
+VERIFY_CHOICES = (
+    (WORKSHIFT_MANAGER_VERIFY, "Workshift Managers only"),
+    (POOL_MANAGER_VERIFY, "Pool Managers only"),
+    (ANY_MANAGER_VERIFY, "Any Manager"),
+    (OTHER_VERIFY, "Another member"),
+    (SELF_VERIFY, "Any member (including self)"),
+    (AUTO_VERIFY, "Automatically verified"),
+    )
+
 class Semester(models.Model):
     '''
     A semester instance, used to hold records, settings, and to separate
@@ -139,10 +155,6 @@ class WorkshiftPool(models.Model):
         null=True,
         blank=True,
         help_text="Third fine date for this semester, optional.",
-        )
-    self_verify = models.BooleanField(
-        default=False,
-        help_text="If members are able to verify themselves for workshifts.",
         )
     any_blown = models.BooleanField(
         default=False,
@@ -436,9 +448,11 @@ class RegularWorkshift(models.Model):
         null=True,
         blank=True,
         )
-    auto_verify = models.BooleanField(
-        default=False,
-        help_text="If this shift will be marked as done automatically.",
+    verify = models.CharField(
+        default=OTHER_VERIFY,
+        choices=VERIFY_CHOICES,
+        max_length=1,
+        help_text="Who is able to mark this shift as completed.",
         )
     week_long = models.BooleanField(
         default=False,
@@ -611,9 +625,11 @@ class WorkshiftInstance(models.Model):
         blank=True,
         help_text="The entries for sign ins, sign outs, and verification.",
         )
-    auto_verify = models.BooleanField(
-        default=False,
-        help_text="If this shift will be marked as done automatically.",
+    verify = models.CharField(
+        default=OTHER_VERIFY,
+        choices=VERIFY_CHOICES,
+        max_length=1,
+        help_text="Who is able to mark this shift as completed.",
         )
     week_long = models.BooleanField(
         default=False,
