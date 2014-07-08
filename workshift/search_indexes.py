@@ -36,7 +36,7 @@ class WorkshiftPoolIndex(indexes.SearchIndex, indexes.Indexable):
     def index_queryset(self, using=None):
         return self.get_model().objects.all()
 
-class WorkshiftType(indexes.SearchIndex, indexes.Indexable):
+class WorkshiftTypeIndex(indexes.SearchIndex, indexes.Indexable):
     """ Index for workshift types. """
     text = indexes.EdgeNgramField(document=True, use_template=True)
     title = indexes.EdgeNgramField(model_attr='title')
