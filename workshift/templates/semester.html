@@ -118,7 +118,7 @@
         <td>
           {% if shift.blown %}
           <font color="red">BLOWN</font>
-          {% elif shift.auto_verify %}
+          {% elif shift.verify == 'A' %}
           Auto Verify
           {% elif shift.verifier %}
           <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
