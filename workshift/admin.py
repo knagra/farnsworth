@@ -76,7 +76,7 @@ class InstanceInfoAdmin(admin.ModelAdmin):
 admin.site.register(InstanceInfo, InstanceInfoAdmin)
 
 class WorkshiftInstanceAdmin(admin.ModelAdmin):
-    list_display = ('semester', 'date', 'workshifter', 'auto_verify')
+    list_display = ('semester', 'date', 'workshifter')
     search_fields = ('semester', 'date', 'workshifter', 'verifier')
     list_filter = ('semester',)
     ordering = ('date', 'workshifter')
