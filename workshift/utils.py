@@ -45,14 +45,28 @@ def is_available(workshift_profile, regular_workshift):
     start_time = regular_workshift.start_time
     end_time = regular_workshift.end_time
     relevant_blocks = list()
-    for block in workshift_profile.time_blocks.all():
+    for block in workshift_profile.time_blocks.all().order_by('start_time'):
         if block.day == day and block.preference == TimeBlock.BUSY \
           and block.start_time < end_time \
           and block.end_time > start_time:
             relevant_blocks.append(block)
+    # Time blocks should be ordered; so go through and see if there is a wide
+    # enough window for the shifter to do the shift.  If there is,
+    # return True.
+    hours = timedelat(hours=regular_workshift.hours)
     if not relevant_blocks:
         return True
-    hours = regular_workshift.hours
+    elif relevant_blocks[0].start_time > start_time \
+      and relevant_blocks[0].start_time - start_time >= hours:
+        return True
+    while len(relevant_blocks) > 0:
+        first_block = relevant_blocks.pop(0)
+        if len(relevant_blocks) == 0 \
+          and end_time - first_block.end_tim >= hours:
+            return True
+        elif relevant_blocks[0].start_time - first_block.end_time >= hours:
+            return True
+    return False
 
 def get_year_season(day=None):
     """
