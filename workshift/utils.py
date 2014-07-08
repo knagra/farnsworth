@@ -53,11 +53,10 @@ def is_available(workshift_profile, regular_workshift):
     # Time blocks should be ordered; so go through and see if there is a wide
     # enough window for the shifter to do the shift.  If there is,
     # return True.
-    hours = timedelat(hours=regular_workshift.hours)
+    hours = timedelta(hours=regular_workshift.hours)
     if not relevant_blocks:
         return True
-    elif relevant_blocks[0].start_time > start_time \
-      and relevant_blocks[0].start_time - start_time >= hours:
+    elif relevant_blocks[0].start_time - start_time >= hours:
         return True
     while len(relevant_blocks) > 0:
         first_block = relevant_blocks.pop(0)
