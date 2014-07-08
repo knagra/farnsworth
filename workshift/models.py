@@ -466,8 +466,9 @@ class RegularWorkshift(models.Model):
 
     def __unicode__(self):
         days = []
-        for day in self.days:
-            days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
+        if self.days:
+            for day in self.days:
+                days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
         if days:
             return "{0}:{1}".format(self.title, ", ".join(days))
         else:
