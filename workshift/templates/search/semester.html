@@ -1,0 +1,17 @@
+<h3 class="result_title"><a href="{% wurl 'workshift:view_semester' sem_url=result.object.sem_url %}">{{ result.object }}</a>
+    <small>{% if result.object.current %}Current{% else %}Past{% endif %}
+Workshift Semester</small></h3>
+<dl class="result_description dl-horizontal">
+    <dt>Policy</dt>
+    <dd>{% if result.object.policy %}<a
+        href="{{ result.object.policy }}">{{ result.object.policy }}</a>{% else %}&nbsp;</dd>
+    <dt>Workshift Managers</dt>
+    <dd>{% for user in result.object.workshift_managers %}<a
+        href="{% url 'member_profile' targetUsername=user.username %}">{{ user.get_full_name }}</a>{% empty %}&nbsp;{% endfor %}</dd>
+    <dt>Workshift Rate</dt>
+    <dd>{{ result.object.display_rate }}</dd>
+    <dt>Start Date</dt>
+    <dd>{{ result.object.start_date }}&nbsp;</dd>
+    <dt>End Date</dt>
+    <dd>{{ result.object.end_date }}&nbsp;%</dd>
+</dl>

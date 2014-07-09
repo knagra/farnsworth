@@ -13,8 +13,8 @@ from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
 class SemesterIndex(indexes.SearchIndex, indexes.Indexable):
     """ Index for semesters. """
     text = indexes.EdgeNgramField(document=True, use_template=True)
-    season = indexes.EdgeNgramField(model_attr='season')
-    year = indexes.EdgeNgramField(model_attr='year')
+    season = indexes.EdgeNgramField(model_attr='season', boost=2)
+    year = indexes.EdgeNgramField(model_attr='year', boost=2)
     start_date = indexes.DateField(model_attr='start_date')
     end_date = indexes.DateField(model_attr='end_date')
 

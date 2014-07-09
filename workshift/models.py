@@ -76,6 +76,10 @@ class Semester(models.Model):
             return ""
         return self.season + str(self.year)
 
+    def display_rate(self):
+        """ Human readable format for rate. """
+        return "${:.2}".format(self.rate)
+
     class Meta:
         unique_together = ("season", "year")
         ordering = ['-start_date']

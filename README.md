@@ -27,7 +27,7 @@ Live versions of the site can be accessed at https://kingmanhall.org/internal/, 
 * Python >= 2.6
 * SQLite3 (for running tests)
 * TinyMCE 4.0.21 (included in static folder)
-* jQuery 1.11.0 (included in static/jquery folder)
+* jQuery 2.1.1 (included in static/jquery folder)
 * tablesorter 2.15.13 (included in static/jquery folder)
 * Nivo Slider 3.2 (included in static/jquery folder)
 * Bootstrap 3.1.1
