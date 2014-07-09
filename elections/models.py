@@ -188,3 +188,6 @@ class PollAnswer(models.Model):
         null=False,
         blank=False,
         help_text="User who posted this answer.")
+
+    def __unicode__(self):
+        return self.owner
