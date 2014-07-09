@@ -63,13 +63,18 @@ def add_workshift_context(request):
     if not request.user.is_authenticated():
         return dict()
     # Semester is for populating the current page
+    to_return = dict()
+    for pos in Manager.objects.filter(workshift_manager=True):
+        if pos.incumbent and pos.incumbent.user == request.user:
+            to_return['WORKSHIFT_MANAGER'] = True
+            break
     try:
         SEMESTER = request.semester
     except AttributeError:
         try:
             SEMESTER = Semester.objects.get(current=True)
         except Semester.DoesNotExist:
-            return {}
+            return to_return
     try:
         workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
     except WorkshiftProfile.DoesNotExist:

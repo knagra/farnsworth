@@ -1,4 +1,5 @@
 {% load thread_tags %}
+{% load workshift_tags %}
 <h3 class="result_title"><a href="{% wurl 'workshift:profile' sem_url=result.object.semester.sem_url targetUsername=result.object.get_user %}">{{ result.object }}</a>
     <small>Workshift Profile</small></h3>
 <dl class="result_description dl-horizontal">

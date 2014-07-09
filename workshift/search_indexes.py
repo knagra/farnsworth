@@ -40,8 +40,8 @@ class WorkshiftTypeIndex(indexes.SearchIndex, indexes.Indexable):
     """ Index for workshift types. """
     text = indexes.EdgeNgramField(document=True, use_template=True)
     title = indexes.EdgeNgramField(model_attr='title')
-    description = indexes.EdgeNgramField(model_attr='description')
-    quick_tips = indexes.EdgeNgramField(model_attr='quick_tips')
+    description = indexes.EdgeNgramField(model_attr='description', null=True)
+    quick_tips = indexes.EdgeNgramField(model_attr='quick_tips', null=True)
 
     def get_model(self):
         return WorkshiftType
@@ -68,7 +68,7 @@ class RegularWorkshiftIndex(indexes.SearchIndex, indexes.Indexable):
     workshift_type = indexes.EdgeNgramField(model_attr='workshift_type')
     pool = indexes.EdgeNgramField(model_attr='pool')
     title = indexes.EdgeNgramField(model_attr='title')
-    addendum = indexes.EdgeNgramField(model_attr='addendum')
+    addendum = indexes.EdgeNgramField(model_attr='addendum', null=True)
 
     def get_model(self):
         return RegularWorkshift

@@ -1,3 +1,4 @@
+{% load workshift_tags %}
 <h3 class="result_title"><a href="{% wurl 'workshift:view_shift' sem_url=result.object.pool.semester.sem_url pk=result.object.pk %}">{{ result.object.title }}</a>
     <small>Regular Workshift</small></h3>
 <dl class="result_description dl-horizontal">
@@ -10,7 +11,7 @@
     <dt>Hours</dt>
     <dd>{{ result.object.hours }}&nbsp;</dd>
     <dt>Assignees</dt>
-    <dd>{% for assignee in result.object.current_assignees %}{% if forloop.counter > 1 %},
+    <dd>{% for assignee in result.object.current_assignees.all %}{% if forloop.counter > 1 %},
         {% endif %}<a
         href="{% wurl 'workshift:profile' sem_url=assignee.semester.sem_url targetUsername=assignee.get_user %}">{{ assignee.get_full_name }}</a>{% empty %}&nbsp;{% endfor %}</dd>
     <dt>Start Time</dt>

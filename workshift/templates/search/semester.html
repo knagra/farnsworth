@@ -1,3 +1,4 @@
+{% load workshift_tags %}
 <h3 class="result_title"><a href="{% wurl 'workshift:view_semester' sem_url=object.sem_url %}">{{ object }}</a>
     <small>{% if object.current %}Current{% else %}Past{% endif %}
 Workshift Semester</small></h3>

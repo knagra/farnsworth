@@ -100,21 +100,25 @@
             <li><a href="https://github.com/knagra/farnsworth" target="_blank" ><span class="glyphicon glyphicon-info-sign"></span> Source</a></li>
           </ul> <!-- .dropdown-menu -->
          </li> <!-- .dropdown -->
-          {% if user.is_superuser %}
+          {% if user.is_superuser or PRESIDENT or WORKSHIFT_MANAGER%}
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> Admin <b class="caret"></b></a>
             <ul class="dropdown-menu">
+            {% if user.is_superuser %}
             <li class="dropdown-header">Users</li>
             <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
             <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
             <li><a href="{% url 'manage_profile_requests' %}"><span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}" class="badge pull-right">{% if NUM_OF_PROFILE_REQUESTS > 0 %}{{ NUM_OF_PROFILE_REQUESTS }}{% endif %}</span>
                 <span class="glyphicon glyphicon-inbox"></span> Profile Requests</a></li>
             <li class="divider"></li>
+            {% endif %}
+            {% if user.is_superuser or PRESIDENT %}
             <li class="dropdown-header">President</li>
             <li><a href="{% url 'meta_manager' %}"><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
             <li><a href="{% url 'manage_request_types' %}"><span class="glyphicon glyphicon-inbox"></span> Manage Request Types</a></li>
-            {% if WORKSHIFT_MANAGER %}
             <li class="divider"></li>
+            {% endif %}
+            {% if user.is_superuser or WORKSHIFT_MANAGER %}
             <li class="dropdown-header">Workshift Manager</li>
             {% if CURRENT_SEMESTER %}
             <li><a href="{% url 'workshift:manage' %}"><span class="glyphicon glyphicon-adjust"></span> Manage</a></li>
@@ -123,20 +127,14 @@
             <li><a href="{% url 'workshift:start_semester' %}"><span class="glyphicon glyphicon-plus"></span> Start Semester</a></li>
             {% endif %}
             {% endif %}
+            {% if user.is_superuser %}
             <li class="divider"></li>
             <li class="dropdown-header">Miscellaneous</li>
             <li><a href="{% url 'utilities' %}"><span class="glyphicon glyphicon-wrench"></span> Site Utilities</a></li>
+            {% endif %}
             </ul> <!-- .dropdown-menu -->
           </li>
-          {% elif PRESIDENT %}
-          <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-star"></span> President <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-              <li><a href="{% url 'meta_manager' %}" ><span class="glyphicon glyphicon-tower"></span> Meta-Manager</a></li>
-              <li><a href="{% url 'manage_request_types' %}"><span class="glyphicon glyphicon-inbox"></span> Manage Request Types</a></li>
-          </ul> <!-- .dropdown-menu -->
-          </li>
-          {% endif %} {% comment %} end if user.is_superuser, elif PRESIDENT {% endcomment %}
+          {% endif %} {% comment %} end if user.is_superuser {% endcomment %}
           </ul> <!-- .navbar-nav -->
             <div style="padding: 0px;" class="col-sm-3 col-md-4 pull-right">
                 <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=" style="padding-left: 5px; padding-right: 5px;">

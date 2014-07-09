@@ -17,13 +17,15 @@
 {% block w_content %}
 <div class="w_container">
   <h1 class="w_title">Start New Semester</h1>
+  <hr class="w_line" />
   <form method="post" action="">
     {% csrf_token %}
     <div class="form-group">
       {{ semester_form|bootstrap }}
     </div> <!-- .form-group -->
     {% if pool_forms %}
-    <h3>Workshift Pool</h3>
+    <hr />
+    <h3 class="w_subtitle">Workshift Pool</h3>
     <table class="table table-striped table-bordered table-condensed">
       <thead>
         <th>Add</th>
@@ -42,7 +44,7 @@
     </table>
     {% endif %}
     <div class="text-center">
-      <button type="submit" class="btn btn-lg btn-success"><span class="glyphicon glyphicon-plus"></span> Start Semester</button>
+      <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Start Semester</button>
     </div>
   </form>
 </div> <!-- .w_container -->

@@ -1,11 +1,13 @@
 {% load thread_tags %}
+{% load workshift_tags %}
 <h3 class="result_title"><a href="{% wurl 'workshift:view_pool' sem_url=result.object.sem_url %}">{{ object }}</a>
     <small>Workshift Pool</small></h3>
 <dl class="result_description dl-horizontal">
     <dt>Managers</dt>
     <dd>{% for pos in object.managers %}<a href="{% url 'view_manager' managerTitle=result.object.url_title %}">{{ result.object.title }}</a>
         ({% if pos.incumbent %}<a
-            href="{% url 'member_profile' targetUsername=pos.incumbent.get_user %}">{{ pos.incumbent|display_user:user }}</a>{% else %}<span class="text-danger">No incumbent</span>{% endif %})<br /></dd>
+            href="{% url 'member_profile' targetUsername=pos.incumbent.get_user %}">{{ pos.incumbent|display_user:user }}</a>{% else %}<span
+                class="text-danger">No incumbent</span>{% endif %})<br />{% empty %}&nbsp;{% endfor %}</dd>
     <dt>Sign out cutoff, in hours</dt>
     <dd>{{ result.object.sign_out_cutoff }}&nbsp;</dd>
     <dt>Verify cutoff, in hours</dt>
