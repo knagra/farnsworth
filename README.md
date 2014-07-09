@@ -21,32 +21,13 @@ Built with Django, Python, and SQLite. Tested and deployed on PostgreSQL.
 
 Live versions of the site can be accessed at https://kingmanhall.org/internal/, https://kingmanhall.org/afro/, and https://kingmanhall.org/hoyt/.
 
-## Dependencies
-
-* Django >= 1.6
-* Python >= 2.6
-* SQLite3 (for running tests)
-* TinyMCE 4.0.21 (included in static folder)
-* jQuery 1.11.0 (included in static/jquery folder)
-* tablesorter 2.15.13 (included in static/jquery folder)
-* Nivo Slider 3.2 (included in static/jquery folder)
-* Bootstrap 3.1.1
-* django-bootstrap-form 3.1
-* moment.js (included in static folder)
-* bootstrap-datetime-picker (included in static/bootstrap/js and static/ui/css)
-* Django-Haystack 2.1.1-dev (from GitHub, read 'Get started' on haystacksearch.org)
-* elasticsearch 1.2.1 (https://www.elasticsearch.org/overview/elkdownloads/)
-* Python elasticsearch
-* Python Social Auth 0.1.23
-* django-cron 0.3.3
-
 ## Installation
 ### CentOS
 
 To install all of the dependencies of CentOS, run the following as root:
 
 ```
-# yum install postgres python python-devel virtualenv gcc mod_wsgi
+# yum install postgres python python-devel virtualenv gcc mod_wsgi mercurial git
 ```
 
 #### SELinux
@@ -63,8 +44,10 @@ CentOS comes pre-packaged with SELinux for increased security. To enable the use
 To install all of the dependencies of Debian, run the following as root:
 
 ```
-# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3
+# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3 mercurial git
 ```
+
+### elasticsearch
 
 See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html on installing elasticsearch on either distribution.
 
@@ -120,14 +103,20 @@ Farnsworth is set up to use SQLite by default. The database will be stored in fa
 
 #### PostgreSQL
 
-To create the PostgreSQL database, enter the following as root:
+To create the PostgreSQL database, run the following commands as root:
 
 ```
 # su - postgres
 $ createdb <house>
 $ createuser -PS <house>_admin
+Enter password for new role:
+Enter it again:
+Shall the new role be able to create databases? (y/n) n
+Shall the new role be allowed to create more new roles? (y/n) n
 $ psql
 postgres=# GRANT ALL PRIVILEGES ON DATABASE <house> TO <house>_admin;
+GRANT
+postgres=# \q
 ```
 
 Make sure to update farnsworth/house_settings.py with the password for the postgres user.
@@ -147,6 +136,25 @@ Alternatively, create the following file:
 ```
 # cat > /etc/cron.d/farnsworth <<< "*/5 * * * * <username> source /path/to/farnsworth/bin/activate && /path/to/farnsworth/manage.py runcrons"
 ```
+
+#### Initialization
+
+To create the tables in the database and an initial user, first start elasticsearch as root:
+
+```
+# service elasticsearch start
+```
+
+Then run the following as a user with write access to the farnsworth directory:
+
+```
+$ cd /path/to/farnsworth
+$ source bin/activate
+$ ./manage.py syncdb
+$ ./manage.py collectstatic
+```
+
+There will be a prompt to create a superuser, if you mistakenly close the prompt before the user is created, you can get back to it with: `./manage.py createsuperuser`
 
 ### Backups
 #### SQLite

@@ -1,15 +1,21 @@
 <h3 class="result_title"><a href="{% url 'member_profile' targetUsername=result.object.user.username %}">{{ result.object.user.get_full_name }}</a> <small>User</small></h3>
-<table class="result_description">
-    <tr><th>Status:</th><td class="field">{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ result.object.get_status_display }}{% endif %}</td></tr>
+<dl class="result_description dl-horizontal">
+    <dt>Status</dt>
+    <dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ result.object.get_status_display }}{% endif %}</dd>
     {% if not result.object.user.username == ANONYMOUS_USERNAME %}
-        <tr><th>Current Room:</th><td class="field">{{ result.object.current_room }}</td></tr>
-        <tr><th>Former Rooms:</th><td class="field">{{ result.object.former_rooms }}</td></tr>
-        <tr><th>Former Houses:</th><td class="field">{{ result.object.former_houses }}</td></tr>
+        <dt>Current Room</dt>
+        <dd>{{ result.object.current_room }}&nbsp;</dd>
+        <dt>Former Rooms</dt>
+        <dd>{{ result.object.former_rooms }}&nbsp;</dd>
+        <dt>Former Houses</dt>
+        <dd>{{ result.object.former_houses }}&nbsp;</dd>
     {% if result.object.email_visible %}
-        <tr><th>E-mail:</th><td class="field"><a href="mailto:{{ result.object.user.email }}">{{ result.object.user.email }}</a></td></tr>
+        <dt>E-mail</dt>
+        <dd><a href="mailto:{{ result.object.user.email }}">{{ result.object.user.email }}</a>&nbsp;</dd>
     {% endif %}
     {% if result.object.phone_visible %}
-        <tr><th>Phone:</th><td class="field">{{ result.object.phone_number }}</td></tr>
+        <dt>Phone</dt>
+        <dd>{{ result.object.phone_number }}&nbsp;</dd>
     {% endif %}
     {% endif %}
-</table>
+</dl>
