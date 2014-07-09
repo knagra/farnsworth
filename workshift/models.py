@@ -397,6 +397,18 @@ class WorkshiftProfile(models.Model):
     def is_workshift_profile(self):
         return True
 
+    def get_first(self):
+        return self.user.first_name
+
+    def get_last(self):
+        return self.user.last_name
+
+    def get_user(self):
+        return self.user.username
+
+    def get_full_name(self):
+        return self.user.get_full_name()
+
 class RegularWorkshift(models.Model):
     '''
     A weekly workshift for a semester.
