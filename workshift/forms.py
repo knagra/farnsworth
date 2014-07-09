@@ -15,7 +15,8 @@ from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     TimeBlock, WorkshiftRating, WorkshiftProfile, \
     RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance, \
-    PoolHours
+    PoolHours, SELF_VERIFY, AUTO_VERIFY, WORKSHIFT_MANAGER_VERIFY, \
+	POOL_MANAGER_VERIFY, ANY_MANAGER_VERIFY, OTHER_VERIFY, VERIFY_CHOICES
 from workshift import utils
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
@@ -136,6 +137,11 @@ class WorkshiftInstanceForm(forms.ModelForm):
         queryset=WorkshiftPool.objects.filter(semester__current=True),
         help_text="The workshift pool for this shift.",
         )
+    verify = forms.ChoiceField(
+        required=False,
+        choices=VERIFY_CHOICES,
+        help_text="Who is able to mark this shift as completed.",
+        )
     start_time = forms.TimeField(
         required=False,
         widget=forms.TimeInput(format='%I:%M %p'),
@@ -148,26 +154,17 @@ class WorkshiftInstanceForm(forms.ModelForm):
         input_formats=valid_time_formats,
         help_text="The latest time this shift should be completed.",
         )
+    week_long = forms.BooleanField(
+        required=False,
+        help_text="If this shift is for the entire week.",
+        )
 
-    info_fields = ("title", "description", "pool", "start_time", "end_time")
+    info_fields = ("title", "description", "pool", "verify",
+                   "start_time", "end_time", "week_long")
 
     def __init__(self, *args, **kwargs):
         self.pools = kwargs.pop('pools', None)
-        instance = kwargs.get('instance', None)
         self.semester = kwargs.pop('semester')
-
-        if instance:
-            initial = kwargs.get("initial", {})
-
-            # Django ModelForms don't play nicely with foreign fields, so we
-            # will just manually pre-fill them if an instance is available.
-            for field in self.info_fields:
-                initial.setdefault(field, getattr(instance, field))
-
-            kwargs["initial"] = initial
-            self.new = False
-        else:
-            self.new = True
 
         super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
 
@@ -179,6 +176,8 @@ class WorkshiftInstanceForm(forms.ModelForm):
         for field in reversed(["weekly_workshift"] + list(self.info_fields)):
             keys.remove(field)
             keys.insert(0, field)
+            if self.instance.pk is not None:
+                self.fields[field].initial = getattr(self.instance, field)
 
     def clean(self):
         cleaned_data = super(WorkshiftInstanceForm, self).clean()
@@ -192,37 +191,37 @@ class WorkshiftInstanceForm(forms.ModelForm):
         return cleaned_data
 
     def save(self):
+        prev_instance = self.instance
+        new = prev_instance.pk is None
         instance = super(WorkshiftInstanceForm, self).save(commit=False)
         instance.semester = self.semester
-        if self.new:
+        instance.weekly_workshift = self.cleaned_data["weekly_workshift"]
+        if instance.weekly_workshift:
+            if instance.info:
+                instance.info.delete()
+        if new:
             instance.intended_hours = instance.hours
-            if instance.workshifter:
-                instance.save()
-                log = ShiftLogEntry(
-                    person=instance.workshifter,
-                    entry_type=ShiftLogEntry.ASSIGNED,
-                    )
-                log.save()
-                instance.logs.add(log)
-            info = InstanceInfo()
-        elif not instance.info:
-            if any(self.cleaned_data[field] != getattr(instance, field)
-                   for field in self.info_fields):
-                info = InstanceInfo()
+        if not self.cleaned_data["weekly_workshift"]:
+            if not instance.info and \
+              (not instance.weekly_workshift or
+               any(self.cleaned_data[field] != getattr(instance, field)
+                   for field in self.info_fields)):
+                instance.info = InstanceInfo.objects.create()
                 instance.weekly_workshift = None
-            else:
-                info = None
-        else:
-            info = instance.info
-        if self.cleaned_data["weekly_workshift"]:
-            instance.weekly_workshift = self.cleaned_data["weekly_workshift"]
-        elif info:
-            for field in self.info_fields:
-                setattr(info, field, self.cleaned_data[field])
-            info.save()
-            instance.info = info
+            if instance.info:
+                for field in self.info_fields:
+                    setattr(instance.info, field, self.cleaned_data[field])
+                instance.info.save()
         instance.save()
         self.save_m2m()
+        if new and instance.workshifter or \
+          prev_instance.workshifter != instance.workshifter:
+            log = ShiftLogEntry.objects.create(
+                person=instance.workshifter,
+                entry_type=ShiftLogEntry.ASSIGNED,
+                )
+            instance.logs.add(log)
+            instance.save()
         return instance
 
 class InteractShiftForm(forms.Form):
@@ -251,13 +250,30 @@ class VerifyShiftForm(InteractShiftForm):
         instance = super(VerifyShiftForm, self).clean_pk()
 
         workshifter = instance.workshifter or instance.liable
+        user_profile = UserProfile.objects.get(user=self.profile.user)
+        managers = Manager.objects.filter(incumbent=user_profile)
 
         if not workshifter:
             raise forms.ValidationError("Workshift is not filled.")
-        if not instance.pool.self_verify and workshifter == self.profile:
-            raise forms.ValidationError("Workshifter cannot verify self.")
-        if instance.auto_verify:
+        if user_profile.status not in \
+          [UserProfile.RESIDENT, UserProfile.BOARDER]:
+			raise forms.ValidationError("Verifier is not a member or boarder.")
+
+        if instance.verify == AUTO_VERIFY:
             raise forms.ValidationError("Workshift is automatically verified.")
+        elif instance.verify == WORKSHIFT_MANAGER_VERIFY:
+            if not any(i.workshift_manager for i in managers):
+                raise forms.ValidationError("Verifier is not a workshift manager.")
+        elif instance.verify == POOL_MANAGER_VERIFY:
+            if not set(managers).intersection(instance.pool.managers):
+                raise forms.ValidationError("Verifier is not in the list of managers for this pool.")
+        elif instance.verify == ANY_MANAGER_VERIFY:
+            if not managers.count():
+                raise forms.ValidationError("Verifier is not a manager.")
+        elif instance.verify == OTHER_VERIFY:
+            if workshifter == self.profile:
+                raise forms.ValidationError("Workshifter cannot verify self.")
+
         if utils.past_verify(instance):
             raise forms.ValidationError("Workshift is past verification period.")
 

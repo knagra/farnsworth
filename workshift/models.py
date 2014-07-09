@@ -13,6 +13,22 @@ from weekday_field.utils import DAY_CHOICES
 from managers.models import Manager
 from workshift.fields import DayField
 
+WORKSHIFT_MANAGER_VERIFY = "W"
+POOL_MANAGER_VERIFY = "P"
+ANY_MANAGER_VERIFY = "M"
+OTHER_VERIFY = "O"
+SELF_VERIFY = "S"
+AUTO_VERIFY = "A"
+
+VERIFY_CHOICES = (
+    (WORKSHIFT_MANAGER_VERIFY, "Workshift Managers only"),
+    (POOL_MANAGER_VERIFY, "Pool Managers only"),
+    (ANY_MANAGER_VERIFY, "Any Manager"),
+    (OTHER_VERIFY, "Another member"),
+    (SELF_VERIFY, "Any member (including self)"),
+    (AUTO_VERIFY, "Automatically verified"),
+    )
+
 class Semester(models.Model):
     '''
     A semester instance, used to hold records, settings, and to separate
@@ -143,10 +159,6 @@ class WorkshiftPool(models.Model):
         null=True,
         blank=True,
         help_text="Third fine date for this semester, optional.",
-        )
-    self_verify = models.BooleanField(
-        default=False,
-        help_text="If members are able to verify themselves for workshifts.",
         )
     any_blown = models.BooleanField(
         default=False,
@@ -440,24 +452,26 @@ class RegularWorkshift(models.Model):
         null=True,
         blank=True,
         )
-    auto_verify = models.BooleanField(
-        default=False,
-        help_text="If this shift will be marked as done automatically.",
+    verify = models.CharField(
+        default=OTHER_VERIFY,
+        choices=VERIFY_CHOICES,
+        max_length=1,
+        help_text="Who is able to mark this shift as completed.",
         )
     week_long = models.BooleanField(
         default=False,
         help_text="If this shift is for the entire week.",
         )
     addendum = models.TextField(
-        null=True,
-        blank=True,
+        default='',
         help_text="Addendum to the description for this workshift.",
         )
 
     def __unicode__(self):
         days = []
-        for day in self.days:
-            days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
+        if self.days:
+            for day in self.days:
+                days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
         if days:
             return "{0}:{1}".format(self.title, ", ".join(days))
         else:
@@ -534,6 +548,12 @@ class InstanceInfo(models.Model):
         blank=True,
         help_text="The workshift pool for this shift.",
         )
+    verify = models.CharField(
+        default=OTHER_VERIFY,
+        choices=VERIFY_CHOICES,
+        max_length=1,
+        help_text="Who is able to mark this shift as completed.",
+        )
     start_time = models.TimeField(
         help_text="Start time for this workshift.",
         null=True,
@@ -543,6 +563,10 @@ class InstanceInfo(models.Model):
         help_text="End time for this workshift.",
         null=True,
         blank=True,
+        )
+    week_long = models.BooleanField(
+        default=False,
+        help_text="If this shift is for the entire week.",
         )
 
 class WorkshiftInstance(models.Model):
@@ -615,14 +639,6 @@ class WorkshiftInstance(models.Model):
         blank=True,
         help_text="The entries for sign ins, sign outs, and verification.",
         )
-    auto_verify = models.BooleanField(
-        default=False,
-        help_text="If this shift will be marked as done automatically.",
-        )
-    week_long = models.BooleanField(
-        default=False,
-        help_text="If this shift is for the entire week.",
-        )
 
     def get_info(self):
         return self.weekly_workshift or self.info
@@ -639,16 +655,24 @@ class WorkshiftInstance(models.Model):
             return self.info.description
 
     @property
+    def pool(self):
+        return self.get_info().pool
+
+    @property
+    def verify(self):
+        return self.get_info().verify
+
+    @property
+    def week_long(self):
+        return self.get_info().week_long
+
+    @property
     def start_time(self):
         return self.get_info().start_time
 
     @property
     def end_time(self):
         return self.get_info().end_time
-
-    @property
-    def pool(self):
-        return self.get_info().pool
 
     def __init__(self, *args, **kwargs):
         if "semester" not in kwargs:

@@ -13,7 +13,7 @@ from weekday_field.utils import ADVANCED_DAY_CHOICES
 from managers.models import Manager
 from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
      Semester, PoolHours, WorkshiftProfile, WorkshiftPool, \
-     WorkshiftType, RegularWorkshift
+     WorkshiftType, RegularWorkshift, AUTO_VERIFY
 
 def can_manage(user, semester=None):
     """
@@ -45,14 +45,27 @@ def is_available(workshift_profile, regular_workshift):
     start_time = regular_workshift.start_time
     end_time = regular_workshift.end_time
     relevant_blocks = list()
-    for block in workshift_profile.time_blocks:
+    for block in workshift_profile.time_blocks.all().order_by('start_time'):
         if block.day == day and block.preference == TimeBlock.BUSY \
           and block.start_time < end_time \
           and block.end_time > start_time:
             relevant_blocks.append(block)
+    # Time blocks should be ordered; so go through and see if there is a wide
+    # enough window for the shifter to do the shift.  If there is,
+    # return True.
+    hours = timedelta(hours=regular_workshift.hours)
     if not relevant_blocks:
         return True
-    hours = regular_workshift.hours
+    elif relevant_blocks[0].start_time - start_time >= hours:
+        return True
+    while len(relevant_blocks) > 0:
+        first_block = relevant_blocks.pop(0)
+        if len(relevant_blocks) == 0 \
+          and end_time - first_block.end_tim >= hours:
+            return True
+        elif relevant_blocks[0].start_time - first_block.end_time >= hours:
+            return True
+    return False
 
 def get_year_season(day=None):
     """
@@ -145,23 +158,16 @@ def make_instances(semester, shifts=None, now=None):
                         date=day,
                         hours=shift.hours,
                         intended_hours=shift.hours,
-                        auto_verify=shift.auto_verify,
-                        week_long=shift.week_long,
                         )
                     if i < len(assignees):
                         instance.workshifter = assignees[i]
+                        log = ShiftLogEntry.objects.create(
+                            person=instance.workshifter,
+                            entry_type=ShiftLogEntry.ASSIGNED,
+                            )
+                        instance.logs.add(log)
                         instance.save()
                     new_instances.append(instance)
-            if shift.current_assignees:
-                # Update the list of assigned workshifters
-                for instance in WorkshiftInstance.objects \
-                  .filter(weekly_workshift=shift, date__gte=now):
-                    log = ShiftLogEntry.objects.create(
-                        person=instance.workshifter,
-                        entry_type=ShiftLogEntry.ASSIGNED,
-                        )
-                    instance.logs.add(log)
-                    instance.save()
     return new_instances
 
 def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
@@ -220,7 +226,7 @@ def make_manager_workshifts(semester=None, managers=None):
             )
         if new:
             shift.week_long = True
-            shift.auto_verify = True
+            shift.verify = AUTO_VERIFY
         shift.hours = wtype.hours
         if manager.incumbent:
             shift.current_assignee = WorkshiftProfile.objects.get(
@@ -294,7 +300,7 @@ def collect_blown(semester=None, now=None):
             # Update the workshifter's standing
             pool_hours = workshifter.pool_hours.get(pool=instance.pool)
 
-            if not instance.auto_verify or instance.liable:
+            if instance.verify != AUTO_VERIFY or instance.liable:
                 pool_hours.standing -= instance.hours
                 entry_type = ShiftLogEntry.BLOWN
                 instance.blown = True

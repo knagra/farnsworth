@@ -358,7 +358,6 @@ def main(args):
             is_primary=True,
             hours=5,
             any_blown=True,
-            self_verify=True,
             )
         pool.managers = Manager.objects.filter(workshift_manager=True)
         pool.save()
@@ -367,7 +366,6 @@ def main(args):
         hi_pool = WorkshiftPool.objects.create(
             title="Home Improvement",
             semester=semester,
-            self_verify=False,
             hours=str(4),
             weeks_per_period=0,
             )
@@ -378,7 +376,6 @@ def main(args):
         social_pool = WorkshiftPool.objects.create(
             title="Social",
             semester=semester,
-            self_verify=False,
             hours=str(1),
             weeks_per_period=6,
             )
@@ -389,7 +386,6 @@ def main(args):
         humor_pool = WorkshiftPool.objects.create(
             title="Humor Shift",
             semester=semester,
-            self_verify=True,
             any_blown=True,
             hours=str(2),
             weeks_per_period=6,
