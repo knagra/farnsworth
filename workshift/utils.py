@@ -299,31 +299,36 @@ def is_available(workshift_profile, regular_workshift):
     """
     if regular_workshift.week_long:
         return True
-    day = regular_workshift.day
-    start_time = regular_workshift.start_time
-    end_time = regular_workshift.end_time
-    relevant_blocks = list()
-    for block in workshift_profile.time_blocks.all().order_by('start_time'):
-        if block.day == day and block.preference == TimeBlock.BUSY \
-          and block.start_time < end_time \
-          and block.end_time > start_time:
-            relevant_blocks.append(block)
-    # Time blocks should be ordered; so go through and see if there is a wide
-    # enough window for the shifter to do the shift.  If there is,
-    # return True.
-    hours = timedelta(hours=regular_workshift.hours)
-    if not relevant_blocks:
-        return True
-    elif relevant_blocks[0].start_time - start_time >= hours:
-        return True
-    while len(relevant_blocks) > 0:
-        first_block = relevant_blocks.pop(0)
-        if len(relevant_blocks) == 0 \
-          and end_time - first_block.end_tim >= hours:
-            return True
-        elif relevant_blocks[0].start_time - first_block.end_time >= hours:
-            return True
-    return False
+    days = []
+    for day in regular_workshift.days:
+        start_time = regular_workshift.start_time
+        end_time = regular_workshift.end_time
+        relevant_blocks = list()
+        for block in workshift_profile.time_blocks.all().order_by('start_time'):
+            if block.day == day and block.preference == TimeBlock.BUSY \
+              and block.start_time < end_time \
+              and block.end_time > start_time:
+                relevant_blocks.append(block)
+        # Time blocks should be ordered; so go through and see if there is a wide
+        # enough window for the shifter to do the shift.  If there is,
+        # return True.
+        hours = timedelta(hours=float(regular_workshift.hours))
+        if not relevant_blocks:
+            days.append(day)
+            continue
+        elif relevant_blocks[0].start_time - start_time >= hours:
+            days.append(day)
+            continue
+        while len(relevant_blocks) > 0:
+            first_block = relevant_blocks.pop(0)
+            if len(relevant_blocks) == 0 \
+              and end_time - first_block.end_tim >= hours:
+              days.append(day)
+              continue
+            elif relevant_blocks[0].start_time - first_block.end_time >= hours:
+              days.append(day)
+              continue
+    return days
 
 def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     if pool is None:
@@ -374,7 +379,6 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
                     # Assign the person to their shift
                     shift.current_assignees.add(profile)
 
-                    print "assigned", shift.title
                     hours_mapping[profile] += shift.hours
 
                     # Remove shift from shifts and update rankings accordingly
