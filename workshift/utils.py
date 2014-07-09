@@ -4,7 +4,9 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
+from collections import defaultdict
 from datetime import date, timedelta, time, datetime
+import random
 
 from django.utils.timezone import utc
 
@@ -13,7 +15,7 @@ from weekday_field.utils import ADVANCED_DAY_CHOICES
 from managers.models import Manager
 from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
      Semester, PoolHours, WorkshiftProfile, WorkshiftPool, \
-     WorkshiftType, RegularWorkshift, AUTO_VERIFY
+     WorkshiftType, RegularWorkshift, AUTO_VERIFY, WorkshiftRating
 
 def can_manage(user, semester=None):
     """
@@ -27,32 +29,6 @@ def can_manage(user, semester=None):
       .filter(workshift_manager=True).count() > 0:
         return True
     return user.is_superuser
-
-def is_available(workshift_profile, regular_workshift):
-    """
-    Check whether a specified user is able to do a specified workshift.
-    Parameters:
-        workshift_profile is the workshift profile for a user
-        regular_workshift is a weekly recurring workshift
-    Returns:
-        True if the user has enough free time between the shift's start time
-            and end time to do the shift's required number of hours.
-        False otherwise.
-    """
-    if regular_workshift.week_long:
-        return True
-    day = regular_workshift.day
-    start_time = regular_workshift.start_time
-    end_time = regular_workshift.end_time
-    relevant_blocks = list()
-    for block in workshift_profile.time_blocks.all():
-        if block.day == day and block.preference == TimeBlock.BUSY \
-          and block.start_time < end_time \
-          and block.end_time > start_time:
-            relevant_blocks.append(block)
-    if not relevant_blocks:
-        return True
-    hours = regular_workshift.hours
 
 def get_year_season(day=None):
     """
@@ -309,3 +285,90 @@ def collect_blown(semester=None, now=None):
         instance.save()
 
     return closed, verified, blown
+
+def is_available(workshift_profile, regular_workshift):
+    """
+    Check whether a specified user is able to do a specified workshift.
+    Parameters:
+        workshift_profile is the workshift profile for a user
+        regular_workshift is a weekly recurring workshift
+    Returns:
+        True if the user has enough free time between the shift's start time
+            and end time to do the shift's required number of hours.
+        False otherwise.
+    """
+    if regular_workshift.week_long:
+        return True
+    day = regular_workshift.day
+    start_time = regular_workshift.start_time
+    end_time = regular_workshift.end_time
+    relevant_blocks = list()
+    for block in workshift_profile.time_blocks.all():
+        if block.day == day and block.preference == TimeBlock.BUSY \
+          and block.start_time < end_time \
+          and block.end_time > start_time:
+            relevant_blocks.append(block)
+    if not relevant_blocks:
+        return True
+    hours = regular_workshift.hours
+
+def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
+    if pool is None:
+        pool = WorkshiftPool.objects.get(semester=semester, is_primary=True)
+    if profiles is None:
+        # .order_by('preference_save_date')
+        profiles = WorkshiftProfile.objects.filter(semester=semester)
+    if shifts is None:
+        shifts = RegularWorkshift.objects.filter(pool=pool)
+
+    shifts = list(shifts)
+    profiles = list(profiles)
+
+    # TODO: Pre-process, rank shifts by their times / preferences
+    hours_mapping = defaultdict(int)
+
+    for i in range(pool.hours):
+        for profile in profiles:
+            pool_hours = profile.pool_hours.get(pool=pool)
+            rankings = defaultdict(list)
+            for shift in shifts:
+                try:
+                    rating = profile.ratings.get(
+                        workshift_type=shift.workshift_type,
+                        ).rating
+                except WorkshiftRating.DoesNotExist:
+                    rating = WorkshiftRating.INDIFFERENT
+                if rating == WorkshiftRating.DISLIKE:
+                    rank = 5
+                elif rating == WorkshiftRating.INDIFFERENT:
+                    rank = 3
+                else:
+                    rank = 1
+
+                # If not preferred time:
+                # rank += 1
+
+                rankings[(profile, rank)].append(shift)
+
+            for rank in range(1, 7):
+                if rankings[(profile, rank)]:
+                    # Select the shift, starting with those that take the most
+                    # hours and fit the best into the workshifter's allotted hours
+                    shift = random.choice(rankings[(profile, rank)])
+
+                    # Assign the person to their shift
+                    shift.current_assignees.add(profile)
+
+                    print "assigned", shift.title
+                    hours_mapping[profile] += shift.hours
+
+                    # Remove shift from shifts and update rankings accordingly
+                    if shift.current_assignees.count() == shift.count:
+                        pass
+
+            # Remove profiles when their hours have all been assigned
+            if pool_hours.hours <= hours_mapping[profile]:
+                profiles.remove(profile)
+
+    # Return profiles that were incompletely assigned shifts
+    return profiles
