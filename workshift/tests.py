@@ -84,6 +84,47 @@ class TestStart(TestCase):
             self.assertIn(profile.pool_hours.all()[0], pool_hours)
             self.assertEqual(1, profile.pool_hours.filter(pool=pool).count())
 
+class TestAssignment(TestCase):
+    def setUp(self):
+        self.u = User.objects.create_user(username="u", password="pwd")
+        self.semester = Semester.objects.create(
+            year=2014,
+            season=Semester.SUMMER,
+            start_date=date(2014, 5, 25),
+            end_date=date(2014, 8, 16),
+            )
+        self.profile = WorkshiftProfile.objects.create(
+            user=self.u,
+            semester=self.semester,
+            )
+        self.p1 = WorkshiftPool.objects.create(
+            title="Regular Workshift",
+            is_primary=True,
+            semester=self.semester,
+            sign_out_cutoff=24,
+            verify_cutoff=2,
+            )
+        self.p2 = WorkshiftPool.objects.create(
+            title="Alternate Workshift",
+            semester=self.semester,
+            )
+        self.wtype = WorkshiftType.objects.create(
+            title="Test Make Instances",
+            )
+        utils.make_workshift_pool_hours(semester=self.semester)
+
+    def test_auto_assign(self):
+        shift1 = RegularWorkshift.objects.create(
+            title="Test Shift",
+            workshift_type=self.wtype,
+            pool=self.p1,
+            days=[0, 1, 2, 3, 4],
+            hours=5,
+            )
+        unfinished = utils.auto_assign_shifts(self.semester)
+        self.assertEqual([], unfinished)
+        self.assertIn(self.profile, shift1.current_assignees.all())
+
 class TestUtils(TestCase):
     def setUp(self):
         self.u = User.objects.create_user(username="u", password="pwd")
