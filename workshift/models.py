@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
 from weekday_field.fields import WeekdayField
-from weekday_field.utils import DAY_CHOICES
+from weekday_field.utils import DAY_CHOICES, ADVANCED_DAY_CHOICES
 
 from managers.models import Manager
 from workshift.fields import DayField
@@ -480,14 +480,34 @@ class RegularWorkshift(models.Model):
         )
 
     def __unicode__(self):
-        days = []
-        if self.days:
-            for day in self.days:
-                days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
+        days = self.get_days_display()
         if days:
-            return "{0}:{1}".format(self.title, ", ".join(days))
+            return "{0}:{1}".format(self.title, days)
         else:
             return self.title
+
+    def get_days_display(self):
+        if not self.days:
+            return ""
+
+        str_days = []
+        days = self.days
+
+        # First extract compressed names like "Weekdays" and "Weekends"
+        for val, name in ADVANCED_DAY_CHOICES:
+            if not isinstance(val, int):
+                val = set([int(i) for i in val.split(",")])
+                if all(i in val for i in days):
+                    str_days.append(name)
+                    for day in val:
+                        days.remove(day)
+
+        # Then append the individual days if they did not fit into the larger
+        # categories
+        for day in days:
+            str_days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
+
+        return ", ".join(str_days)
 
     def is_regular_workshift(self):
         return True
