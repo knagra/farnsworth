@@ -1,6 +1,6 @@
 {% load highlight %}
 {% load thread_tags %}
-<h3 class="result_title"><small>{% if object.filled %}Filled{% elif object.closed %}Closed{% else %}Open {% endif %}</small>
-	<a href="{% url 'view_request' request_pk=object.pk %}">{{ object.request_type.name }} Request</a>
-	<small>by <a href="{% url 'member_profile' targetUsername=object.owner.user.username %}">{{ object.owner|display_user:user }}</a></small></h3>
+<h3 class="result_title"><small>{% if result.object.filled %}Filled{% elif result.object.closed %}Closed{% else %}Open {% endif %}</small>
+	<a href="{% url 'view_request' request_pk=result.object.pk %}">{{ result.object.request_type.name }} Request</a>
+	<small>by <a href="{% url 'member_profile' targetUsername=result.object.owner.user.username %}">{{ result.object.owner|display_user:user }}</a></small></h3>
 <div class="result_highlight">{% highlight result.text with query %}</div>

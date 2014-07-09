@@ -82,42 +82,40 @@
 {% else %}
 <div class="results_container bordered_div">
 {% for result in page.object_list %}
-    {% with object=result.object %}
-        {% if forloop.counter > 1 %}
-            <hr class="main_divider" />
-        {% endif %}
-        <div class="hover_row result_row">
-        {% if object.is_userprofile %}
-            {% include "search/userprofile.html" %}
-        {% elif object.is_thread %}
-            {% include "search/thread.html" %}
-        {% elif object.is_message %}
-            {% include "search/message.html" %}
-        {% elif object.is_manager %}
-            {% include "search/manager.html" %}
-        {% elif object.is_request %}
-            {% include "search/request.html" %}
-        {% elif object.is_response %}
-            {% include "search/response.html" %}
-        {% elif object.is_announcement %}
-            {% include "search/announcement.html" %}
-        {% elif object.is_event %}
-            {% include "search/event.html" %}
-        {% elif object.is_semester %}
-            {% include "search/semester.html" %}
-        {% elif object.is_workshift_pool %}
-            {% include "search/workshift_pool.html" %}
-        {% elif object.is_workshift_type %}
-            {% include "search/workshift_type.html" %}
-        {% elif object.is_workshift_profile %}
-            {% include "search/workshift_profile.html" %}
-        {% elif object.is_regular_workshift %}
-            {% include "search/regular_workshift.html" %}
-        {% elif object.is_workshift_instance %}
-            {% include "search/workshift_instance.html" %}
-        {% endif %}
-        </div> <!-- .hover_row -->
-    {% endwith %}
+    {% if forloop.counter > 1 %}
+        <hr class="main_divider" />
+    {% endif %}
+    <div class="hover_row result_row">
+    {% if result.object.is_userprofile %}
+        {% include "search/userprofile.html" %}
+    {% elif result.object.is_thread %}
+        {% include "search/thread.html" %}
+    {% elif result.object.is_message %}
+        {% include "search/message.html" %}
+    {% elif result.object.is_manager %}
+        {% include "search/manager.html" %}
+    {% elif result.object.is_request %}
+        {% include "search/request.html" %}
+    {% elif result.object.is_response %}
+        {% include "search/response.html" %}
+    {% elif result.object.is_announcement %}
+        {% include "search/announcement.html" %}
+    {% elif result.object.is_event %}
+        {% include "search/event.html" %}
+    {% elif result.is_semester %}
+        {% include "search/semester.html" %}
+    {% elif result.is_workshift_pool %}
+        {% include "search/workshift_pool.html" %}
+    {% elif result.is_workshift_type %}
+        {% include "search/workshift_type.html" %}
+    {% elif result.is_workshift_profile %}
+        {% include "search/workshift_profile.html" %}
+    {% elif result.is_regular_workshift %}
+        {% include "search/regular_workshift.html" %}
+    {% elif result.is_workshift_instance %}
+        {% include "search/workshift_instance.html" %}
+    {% endif %}
+    </div> <!-- .hover_row -->
 {% endfor %}
 
 {% if page.has_previous or page.has_next %}
