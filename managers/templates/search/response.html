@@ -1,9 +1,9 @@
 {% load highlight %}
-<h3 class="result_title"><small>{% if result.object.filled %}Filled{% elif result.object.closed %}Closed{% else %}Open{% endif %}</small>
-	{% if result.object.request.request_type.enabled %}
-		<a href="{% url 'view_request' request_pk=result.object.request.pk %}">{{ result.object.request.request_type.name }} Request</a>
+<h3 class="result_title"><small>{% if object.filled %}Filled{% elif object.closed %}Closed{% else %}Open{% endif %}</small>
+	{% if object.request.request_type.enabled %}
+		<a href="{% url 'view_request' request_pk=object.request.pk %}">{{ object.request.request_type.name }} Request</a>
 	{% else %}
-		{{ result.object.request_type.name }}
+		{{ object.request_type.name }}
 	{% endif %}
 	<small>Response to request</small>
 </h3>

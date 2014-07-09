@@ -1,6 +1,6 @@
 {% load highlight %}
 {% load thread_tags %}
-<h3 class="result_title">{% if not result.object.pinned %}<small>Archived</small> {% endif %}
-	<a href="{% url 'view_announcement' announcement_pk=result.object.pk %}">Announcement</a> <small>by {{ result.object.manager }}
-	(<a href="{% url 'member_profile' targetUsername=result.object.incumbent.user.username %}">{{ result.object.incumbent|display_user:user }}</a>)</small></h3>
+<h3 class="result_title">{% if not object.pinned %}<small>Archived</small> {% endif %}
+	<a href="{% url 'view_announcement' announcement_pk=object.pk %}">Announcement</a> <small>by {{ object.manager }}
+	(<a href="{% url 'member_profile' targetUsername=object.incumbent.user.username %}">{{ object.incumbent|display_user:user }}</a>)</small></h3>
 <div class="result_highlight">{% highlight result.text with query %}</div>

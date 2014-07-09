@@ -1,3 +1,3 @@
 {% load thread_tags %}
-<h3 class="result_title"><a href="{% url 'view_thread' thread_pk=result.object.pk %}">{{ result.object.subject }}</a> <small>Thread</small></h3>
-<div class="result_description"><a href="{% url 'member_profile' targetUsername=result.object.owner.user.username %}">{{ result.object.owner|display_user:user }}</a>, {{ result.object.start_date }}, {{ result.object.number_of_messages }} message{{ result.object.number_of_messages|pluralize }}. Last updated {{ result.object.change_date }}.</div>
+<h3 class="result_title"><a href="{% url 'view_thread' thread_pk=object.pk %}">{{ object.subject }}</a> <small>Thread</small></h3>
+<div class="result_description"><a href="{% url 'member_profile' targetUsername=object.owner.user.username %}">{{ object.owner|display_user:user }}</a>, {{ object.start_date }}, {{ object.number_of_messages }} message{{ object.number_of_messages|pluralize }}. Last updated {{ object.change_date }}.</div>
