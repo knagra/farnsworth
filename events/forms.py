@@ -54,7 +54,7 @@ class EventForm(forms.Form):
 		super(EventForm, self).__init__(*args, **kwargs)
 		if self.manager_positions:
 			self.fields['as_manager'].queryset = self.manager_positions
-			self.fields["as_manager"].empty_label = None
+			self.fields["as_manager"].empty_label = "------"
 			self.fields["as_manager"].initial = self.manager_positions[0].pk
 		else:
 			self.fields["as_manager"].widget = forms.HiddenInput()
