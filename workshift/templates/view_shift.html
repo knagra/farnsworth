@@ -15,18 +15,28 @@
   </form>
   {% endif %}
   <h1 class="w_title">{{ page_name }}</h1>
-  <p>{{ shift.get_day_display }}</p>
-  <p>{{ shift.workshifter.user.get_full_name }}</p>
-  <p>{{ shift.hours }}</p>
-  <p>{{ shift.workshift_type.quick_tips|safe }}</p>
-  <p>{{ shift.workshift_type.description|safe }}</p>
-  <p><a href="{% wurl 'workshift:view_pool' pk=shift.pool.pk sem_url=SEMESTER.sem_url %}">{{ shift.pool.title }}</a></p>
-  {% if shift.current_assignees.count %}
-  <div>
-    {% for assignee in shift.current_assignees.all %}
-    <p>{{ assignee.user.get_full_name }}</p>
+  <hr class="w_line" />
+  <dl class="dl-horizontal">
+    <dt>Day</dt>
+    <dd>{{ shift.get_day_display }}&nbsp;</dd>
+    <dt>Workshifter</dt>
+    <dd>{{ shift.workshifter.user.get_full_name }}&nbsp;</dd>
+    <dt>Hours</dt>
+    <dd>{{ shift.hours }}</dd>
+    <dt>Quick Tips</dt>
+    <dd>{{ shift.workshift_type.quick_tips|safe }}&nbsp;</dd>
+    <dt>Description</dt>
+    <dd>{{ shift.workshift_type.description|safe }}</dd>
+    <dt>Workshift Pool</dt>
+    <dd><a href="{% wurl 'workshift:view_pool' pk=shift.pool.pk sem_url=SEMESTER.sem_url %}">{{ shift.pool.title }}</a></dd>
+    {% if shift.current_assignees %}
+    <dt>Assignees</dt>
+    <dd>{% for assignee in shift.current_assignees.all %}{% if forloop.counter > 1 %},
+    {% endif %}<a
+        href="{% wurl 'workshift:profile' sem_url=assignee.semester.sem_url targetUsername=assignee.get_user %}">{{ assignee.get_full_name }}</a></dd>
     {% endfor %}
-  </div>
+    </dd>
+  </dl>
   {% endif %}
 </div> <!-- .instance_container -->
 {% endblock %}
