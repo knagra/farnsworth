@@ -5,8 +5,8 @@
 <dl class="result_description dl-horizontal">
     <dt>User Profile</dt>
     <dd><a href="{% url 'member_profile' targetUsername=result.object.get_user %}">{{ result.object.get_full_name }}</a></dd>
-    {% for hours in result.object.pool_hours %}
-        <dt>{{ hours.pool }} Standing</dt>
-        <dd>{{ hours.standing }}&nbsp;</dd>
+    {% for hours in result.object.pool_hours.all %}
+        <dt>{{ hours.pool }}&nbsp;</dt>
+        <dd><span class="text-{% if hours.standing >= 0 %}success{% else %}danger{% endif %}">{{ hours.standing }}</span>&nbsp;</dd>
     {% endfor %}
 </dl>
