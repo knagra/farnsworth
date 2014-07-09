@@ -1,0 +1,6 @@
+<h3 class="result_title"><a href="{% wurl 'workshift:view_pool' sem_url=result.object.sem_url %}">{{ object }}</a>
+    <small>Workshift Pool</small></h3>
+<dl class="result_description dl-horizontal">
+    <dt>Managers</dt>
+    <dd>{% for pos in object.managers %}
+</dl>
