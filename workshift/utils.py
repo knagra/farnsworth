@@ -345,6 +345,8 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
             pool_hours = profile.pool_hours.get(pool=pool)
             rankings = defaultdict(list)
             for shift in shifts:
+                if not is_available(profile, shift):
+                    continue
                 try:
                     rating = profile.ratings.get(
                         workshift_type=shift.workshift_type,
