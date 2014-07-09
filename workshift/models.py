@@ -496,10 +496,10 @@ class RegularWorkshift(models.Model):
         # First extract compressed names like "Weekdays" and "Weekends"
         for val, name in ADVANCED_DAY_CHOICES:
             if not isinstance(val, int):
-                val = set([int(i) for i in val.split(",")])
-                if all(i in val for i in days):
+                lst = [int(i) for i in val.split(",")]
+                if all(i in days for i in lst):
                     str_days.append(name)
-                    for day in val:
+                    for day in lst:
                         days.remove(day)
 
         # Then append the individual days if they did not fit into the larger
