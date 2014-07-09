@@ -140,6 +140,13 @@ $ ./manage.py collectstatic
 
 There will be a prompt to create a superuser, if you mistakenly close the prompt before the user is created, you can get back to it with: `./manage.py createsuperuser`
 
+Once you have the site up and running, navigate to /admin/sites/site/ and update the example.com site to have your domain.  Django grabs this domain when sending e-mails, etc. to create links to your site.
+
+If you are using SQLite, you need to install pytz.  You can install pytz by running the command
+```
+$ pip install pytz
+```
+
 ### Backups
 #### SQLite
 
