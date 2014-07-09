@@ -7,7 +7,8 @@
     <dt>Workshift Pool</dt>
     <dd><a href="{% wurl 'workshift:view_pool' sem_url=result.object.pool.semester.sem_url pk=result.object.pool.pk %}">{{ result.object.pool }}</a></dd>
     <dt>Days</dt>
-    <dd>{% for day in result.object.days %}{{ day }}<br />{% empty %}&nbsp;{% endfor%}</dd>
+    <dd>{% for day in result.object.days %}{% if forloop.counter > 1 %},
+        {% endif %}{{ day }}{% empty %}&nbsp;{% endfor%}</dd>
     <dt>Hours</dt>
     <dd>{{ result.object.hours }}&nbsp;</dd>
     <dt>Assignees</dt>
