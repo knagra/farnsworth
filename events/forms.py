@@ -81,15 +81,15 @@ class EventForm(forms.Form):
 				title=self.cleaned_data['title'],
 				description=self.cleaned_data['description'],
 				location=self.cleaned_data['location'],
-				start_time=self.cleaned_data['start_time'].replace(tzinfo=utc),
-				end_time=self.cleaned_data['end_time'].replace(tzinfo=utc),
+				start_time=self.cleaned_data['start_time'],
+				end_time=self.cleaned_data['end_time'],
 				)
 		else:
 			self.instance.title = self.cleaned_data['title']
 			self.instance.description = self.cleaned_data['description']
 			self.instance.location = self.cleaned_data['location']
-			self.instance.start_time = self.cleaned_data['start_time'].replace(tzinfo=utc)
-			self.instance.end_time = self.cleaned_data['end_time'].replace(tzinfo=utc)
+			self.instance.start_time = self.cleaned_data['start_time']
+			self.instance.end_time = self.cleaned_data['end_time']
 			self.instance.cancelled = self.cleaned_data['cancelled']
 			event = self.instance
 		event.save()
@@ -99,7 +99,9 @@ class EventForm(forms.Form):
 		as_manager = self.cleaned_data['as_manager']
 		if as_manager:
 			event.as_manager = as_manager
-			event.save()
+		else:
+			event.as_manager = None
+		event.save()
 		return event
 
 class RsvpForm(forms.Form):
