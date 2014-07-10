@@ -51,7 +51,7 @@ Views:
 * `custom_add_user_view` - View for an admin to add a new user. URL: `/custom_admin/add_user/`
 * `utilities_view` - View of various utilities available in the site. URL: `/custom_admin/utilities/`
 * `reset_pw_view` - View for a user to enter an e-mail address to reset password. URL: `/reset/`
-* `reset_pw_confirm_view` - View for a user to set a new password using a token generated and e-mailed by the `reset_pw_view`. URL: `/reset/<token>/`
+* `reset_pw_confirm_view` - View for a user to set a new password using a token generated and e-mailed by `reset_pw_view`. URL: `/reset/<token>/`
 
 Etc.:
 * `views.add_context` - Adds variables to be sent to templates that are recurring and required by all or most templates.
