@@ -23,6 +23,7 @@ which covers URLs for the base, threads, and managers applications, but does not
 Models:
 * `UserProfile` - A user's profile, contains extra data: phone number, visiblity settings, etc.
 * `ProfileRequest` - Model for a request for a profile on the site.
+
 Forms:
 * `ProfileRequestForm` - Form to request a user profile on the site.
 * `AddUserForm` - Form for an admin (superuser) to add a new user to the site.
@@ -31,6 +32,7 @@ Forms:
 * `ModifyProfileRequestForm` - Form for an admin to approve or delete a request for a profile on the site.
 * `UpdateProfileForm` - Form for a user to update her/his profile on the site.
 * `LoginForm` - Form for a user to login to the site.
+
 Views:
 * `landing_view` - View of the landing to the site. URL: `/`
 * `homepage_view` - View of the homepage, with several key pieces of information. URL: `/`
@@ -41,6 +43,7 @@ Views:
 * `logout_view` - Log the current user out and redirect to `/`. URL: `/logout/`
 * `member_directory_view` - Show tables of residents, boarders, and alumni. URL: `/member_directory/`
 * `member_profile_view` - View to see another member's profile. URL: `/profile/<username>/`
+
 Other functions:
 * `views.add_context` - Adds variables to be sent to templates that are recurring and required by all or most templates.
 * `views._get_oauth_providers` - Grab all OAuth providers that are setup for the given installation of Farnsworth.
