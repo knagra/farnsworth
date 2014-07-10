@@ -20,11 +20,14 @@ This directory contains the settings (`settings.py`) and the main set of URLs fo
 which covers URLs for the base, threads, and managers applications, but does not contain URLs for other applications.
 
 ### Base Application - `/base/`
-Models:
+User profiles and management and the homepage and external view
+Also includes decorators, common css files, and base search template.
+
+#### Models
 * `UserProfile` - A user's profile, contains extra data: phone number, visiblity settings, etc.
 * `ProfileRequest` - Model for a request for a profile on the site.
 
-Forms:
+#### Forms
 * `ProfileRequestForm` - Form to request a user profile on the site.
 * `AddUserForm` - Form for an admin (superuser) to add a new user to the site.
 * `DeleteUserForm` - Form for an admin to delete a user from the site.
@@ -33,7 +36,7 @@ Forms:
 * `UpdateProfileForm` - Form for a user to update her/his profile on the site.
 * `LoginForm` - Form for a user to login to the site.
 
-Views:
+#### Views
 * `landing_view` - View of the landing to the site. URL: `/`
 * `homepage_view` - View of the homepage, with several key pieces of information. URL: `/`
 * `help_view` - View of helpful information about the site and how to use it. URL: `/help/`
@@ -53,6 +56,23 @@ Views:
 * `reset_pw_view` - View for a user to enter an e-mail address to reset password. URL: `/reset/`
 * `reset_pw_confirm_view` - View for a user to set a new password using a token generated and e-mailed by `reset_pw_view`. URL: `/reset/<token>/`
 
-Etc.:
-* `views.add_context` - Adds variables to be sent to templates that are recurring and required by all or most templates.
-* `views._get_oauth_providers` - Grab all OAuth providers that are setup for the given installation of Farnsworth.
+#### CSS
+* `base.css`
+* `bootstrap-datetimepicker.min.css`
+* `content.css`
+* `custom_add_user.css`
+* `custom_manage_users.css`
+* `custom_modify_user.css`
+* `external.css`
+* `homepage.css`
+* `manage_profile_requests.css`
+* `member_directory.css`
+* `my_profile.css`
+* `search.css`
+* `site_map.css`
+* `utilities.css`
+
+#### Etc.
+* `views.add_context` - Function; adds variables to be sent to templates that are recurring and required by all or most templates.
+* `views._get_oauth_providers` - Function; grab all OAuth providers that are setup for the given installation of Farnsworth.
+* `templates/search/search.html` - Template; the base search view, which uses `include`s to include other templates.
