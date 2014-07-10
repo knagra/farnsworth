@@ -22,7 +22,8 @@ Built with Django, Python, and SQLite. Tested and deployed on PostgreSQL.
 Live versions of the site can be accessed at https://kingmanhall.org/internal/, https://kingmanhall.org/afro/, and https://kingmanhall.org/hoyt/.
 
 ## Logical Structure
-Check the `/DOCS/README.md` for complete details on the logical structure of the application, where to begin when
+Check `/DOCS/README.md` (<a href="https://github.com/knagra/farnsworth/blob/master/DOCS/README.md">here</a>)
+for complete details on the logical structure of the application, where to begin when
 first introducing yourself to Farnsworth, and how to develop the site further.
 
 ## Installation
