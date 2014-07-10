@@ -43,7 +43,16 @@ Views:
 * `logout_view` - Log the current user out and redirect to `/`. URL: `/logout/`
 * `member_directory_view` - Show tables of residents, boarders, and alumni. URL: `/member_directory/`
 * `member_profile_view` - View to see another member's profile. URL: `/profile/<username>/`
+* `request_profile_view` - View to request a new user profile on the site. URL: `/request_profile/`
+* `manage_profile_requests_view` - View to see a table of all existing profile requests. URL: `/custom_admin/profile_requests/`
+* `modify_profile_request_view` - View for an admin to approve or delete a request for a profile. URL: `/custom_admin/profile_requests/<request_pk>/`
+* `custom_manage_users_view` - View for an admin to see tables of users and relevant information. URL: `/custom_admin/manage_users/`
+* `custom_modify_user_view` - View for an admin to modify a user's profile. URL: `/custom_admin/manage_users/<username>/`
+* `custom_add_user_view` - View for an admin to add a new user. URL: `/custom_admin/add_user/`
+* `utilities_view` - View of various utilities available in the site. URL: `/custom_admin/utilities/`
+* `reset_pw_view' - View for a user to enter an e-mail address to reset password. URL: `/reset/`
+* `reset_pw_confirm_view` - View for a user to set a new password using a token generated and e-mailed by the `reset_pw_view`. URL: `/reset/<token>/`
 
-Other functions:
+Etc.:
 * `views.add_context` - Adds variables to be sent to templates that are recurring and required by all or most templates.
 * `views._get_oauth_providers` - Grab all OAuth providers that are setup for the given installation of Farnsworth.
