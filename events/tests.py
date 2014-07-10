@@ -136,11 +136,6 @@ class TestEvent(TestCase):
 			self.assertEqual(event.title, "New Event Title")
 			self.assertEqual(event.description, "New Description")
 			self.assertEqual(event.location, "New Location Hall")
-			print self.ev.start_time.strftime(time_formats[0])
-			print self.ev.start_time
-			print self.ev.start_time.tzinfo
-			print event.start_time
-			print event.start_time.tzinfo
 			self.assertEqual(
                 self.ev.start_time,
                 event.start_time,
