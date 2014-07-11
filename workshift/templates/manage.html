@@ -10,8 +10,15 @@
   <h1 class="w_title">Manage Workshifts</h1>
   <hr class="w_line" />
   <ul class="nav nav-pills" style="margin-bottom: 10px;">
-    {% if pools %}<li class="active"><a href="#pools_div" data-toggle="tab">Workshift Pools</a></li>{% endif %}
-    {% if workshifters %}<li{% if not pools %} class="active"{% endif %}><a href="#workshifters_div" data-toggle="tab">Workshifters</a></li>{% endif %}
+    {% if pools %}
+	<li class="active"><a href="#pools_div" data-toggle="tab">Workshift Pools</a></li>
+	{% endif %}
+    {% if workshifters %}
+	<li{% if not pools %} class="active"{% endif %}><a href="#workshifters_div" data-toggle="tab">Workshifters</a></li>
+	{% endif %}
+	{% if semester_form %}
+	<li><a href="#edit_semester_div" data-toggle="tab">Edit Semester Options</a></li>
+	{% endif %}
   </ul>
 
   <div class="tab-content">
@@ -79,6 +86,14 @@
   </div>
   {% endif %}
   </div> <!-- .tab-content -->
+  {% if semester_form %}
+  <div class="tab-pane" id="edit_semester_div">
+	<form>
+	  {% csrf_token %}
+	  {{ semester_form|bootstrap }}
+      <button type="submit" class="btn btn-success" name="edit"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+	</form>
+  </div> <!-- #edit_semester_div -->
 </div> <!-- #manage_container -->
 {% endblock %}
 
