@@ -17,7 +17,7 @@ This directory also contains all the other applications required for Farnsworth.
 
 ### Core Module - `/farnsworth/`
 This directory contains the settings (`settings.py`) and the main set of URLs for the application (`urls.py`),
-which covers URLs for the base, threads, and managers applications, but does not contain URLs for other applications.
+which covers URLs for the base and managers applications, but does not contain URLs for other applications.
 Settings are divided into `settings.py`, `local_settings.py`, and `house_settings.py.example`,
 which should be modified and renamed to `house_settings.py` upon installation.
 
@@ -120,3 +120,26 @@ Also includes decorators, common css files, base template, 404 template, and bas
 * `/base/templates/base.html` - Template; base template that other templates extend for views.
 * `/base/templates/404.html` - Template; displays `404 - Page Not Found` message with a randomly selected blurb.
 
+## Threads Application - /threads/
+Community threads, forums, messages.  Includes URLs for the threads application.
+
+### URLs - `/threads/urls.py`
+* `/threads/` - View: `member_forums_view`, name: `member_forums`
+* `/threads/<thread_pk>/` - View: `thread_view`, name: `view_thread`
+* `/threads/list/` - View: `list_all_threads_view`, name: `list_all_threads`
+* `/profile/<username>/threads/` - View: `list_user_threads_view`, name: `list_user_threads`
+* `/profile/<username/messages/` - View: `list_user_messages_view`, name: `list_user_messages`
+
+### Models - `/threads/models.py`
+* `Thread` - Anchor and grouping as "threads" for messages.
+* `Message` - An individual message in a thread.
+
+### Forms - `/threads/forms.py`
+* `ThreadForm` - Form to create a new thread.
+* `MessageForm` - Form to create a new message in a thread.
+
+### Views - `/threads/views.py`
+* `member_forums_view` - Shows recent threads in semi-expanded view (some recent messages showing).
+* `list_user_threads_view` - Lists threads owned (started) by a given user.
+* `list_all_threads_view` - Lists all threads in the database.
+* `thread_view` - View of an individual thread.
