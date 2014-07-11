@@ -733,7 +733,7 @@ class TestModifyUser(TestCase):
 
 		self.client.login(username="su", password="pwd")
 
-		url = "/custom_admin/modify_user/{0}/" .format(self.ou.username)
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.ou.username})
 		response = self.client.post(url, {
 				"email_visible_to_others": "on",
 				"phone_visible_to_others": "on",
@@ -764,7 +764,7 @@ class TestModifyUser(TestCase):
 		Test modifying profiles to have different user statuses (Resident, Boarder,
 		Alumni).
 		"""
-		url = "/custom_admin/modify_user/{0}/".format(self.ou.username)
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.ou.username})
 
 		for status, title in UserProfile.STATUS_CHOICES:
 			self.client.login(username="su", password="pwd")
@@ -798,7 +798,7 @@ class TestModifyUser(TestCase):
 	def test_change_user_password(self):
 		self.client.login(username="su", password="pwd")
 
-		url = "/custom_admin/modify_user/{0}/".format(self.u.username)
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
 		response = self.client.post(url, {
 			"change_user_password": "",
 			"password1": "Leeroy",
@@ -815,7 +815,7 @@ class TestModifyUser(TestCase):
 	def test_confirm_user_password(self):
 		self.client.login(username="su", password="pwd")
 
-		url = "/custom_admin/modify_user/{0}/".format(self.u.username)
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
 		response = self.client.post(url, {
 			"change_user_password": "",
 			"password1": "Leeroy",
@@ -936,12 +936,13 @@ class TestAdminFunctions(TestCase):
 			User.objects.get(username="nu").delete()
 
 	def test_delete_user(self):
-		response = self.client.post("/custom_admin/modify_user/{0}/".format(self.u.username), {
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
+		response = self.client.post(url, {
 				"username": self.u.username,
 				"password": "pwd",
 				"delete_user": "",
 				 }, follow=True)
-		self.assertRedirects(response, "/custom_admin/manage_users/")
+		self.assertRedirects(response, reverse("custom_manage_users"))
 		self.assertContains(
 			response,
 			MESSAGES['USER_DELETED'].format(username="u"),
@@ -974,8 +975,8 @@ class TestAdminFunctions(TestCase):
 		self.client.logout()
 		self.assertTrue(self.client.login(username="su", password="pwd"))
 
-		response = self.client.post("/custom_admin/modify_user/{0}/"
-									.format(self.u.username), {
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
+		response = self.client.post(url, {
 				"username": self.u.username,
 				"password": "pwd",
 				"delete_user": "",
