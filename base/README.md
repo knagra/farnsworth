@@ -51,6 +51,11 @@ Also includes decorators, common css files, and base search template.
 * `site_map.css`
 * `utilities.css`
 
+#### Decorators - `/base/decorators.py`
+* `profile_required` - Used for views where a user must have a UserProfile to access the view.
+* `admin_required` - Used for views where a user must be an admin (`user.is_superuser == True`) to access the view.
+* `president_admin_required` - Used for views where a user must hold a president position to access the view.
+
 #### Etc.
 * `base.views.add_context` - Function; adds variables to be sent to templates that are recurring and required by all or most templates.
 * `base.views._get_oauth_providers` - Function; grab all OAuth providers that are setup for the given installation of Farnsworth.
