@@ -454,8 +454,8 @@ def manage_view(request, semester, profile=None):
     if semester_form and semester_form.is_valid():
         semester = semester_form.save()
         messages.add_message(request, messages.INFO, "Semester successfully updated.")
-        return HttpResponseRedirct(wurl('workshift:manage',
-                                        sem_url=semester.sem_url))
+        return HttpResponseRedirect(wurl('workshift:manage',
+                                         sem_url=semester.sem_url))
 
     pools = pools.order_by('-is_primary', 'title')
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
