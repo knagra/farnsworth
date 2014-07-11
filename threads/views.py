@@ -59,12 +59,12 @@ def member_forums_view(request):
 
 	if thread_form.is_valid():
 		thread_form.save()
-		return HttpResponseRedirect(reverse('member_forums'))
+		return HttpResponseRedirect(reverse('threads:member_forums'))
 	elif 'submit_thread_form' in request.POST:
 		messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 	if message_form.is_valid():
 		message_form.save()
-		return HttpResponseRedirect(reverse('member_forums'))
+		return HttpResponseRedirect(reverse('threads:member_forums'))
 	elif 'submit_message_form' in request.POST:
 		messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 	threads_dict = _threads_dict(Thread.objects.all(), limited=True)
@@ -91,12 +91,12 @@ def all_threads_view(request):
 
 	if thread_form.is_valid():
 		thread_form.save()
-		return HttpResponseRedirect(reverse('all_threads'))
+		return HttpResponseRedirect(reverse('threads:all_threads'))
 	elif 'submit_thread_form' in request.POST:
 		messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 	if message_form.is_valid():
 		message_form.save()
-		return HttpResponseRedirect(reverse('all_threads'))
+		return HttpResponseRedirect(reverse('threads:all_threads'))
 	elif 'submit_message_form' in request.POST:
 		messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 
@@ -158,7 +158,7 @@ def thread_view(request, thread_pk):
 		)
 	if message_form.is_valid():
 		message_form.save()
-		return HttpResponseRedirect(reverse('view_thread', kwargs={
+		return HttpResponseRedirect(reverse('threads:view_thread', kwargs={
 					'thread_pk': thread_pk,
 					}))
 	elif 'submit_message_form' in request.POST:

@@ -44,7 +44,7 @@
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown"{% if ANONYMOUS_SESSION %} style="color: #ff0000 !important;" title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}><span class="glyphicon glyphicon-user"></span> {{ user.first_name }} <b class="caret"></b></a>
 		<ul class="dropdown-menu">
 	    	<li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
-	    	<li><a href="{% url 'list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
+	    	<li><a href="{% url 'threads:list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
 	    	<li><a href="{% url 'list_user_requests' targetUsername=user.username %}" ><span class="glyphicon glyphicon-inbox"></span> My Requests</a></li>
 			<li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 		</ul>
@@ -65,7 +65,7 @@
 	     <li class="dropdown">
 	      <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-arrow-right"></span> Go<b class="caret"></b></a>
 	      <ul class="dropdown-menu">
-	        <li><a href="{% url 'member_forums' %}" ><span class="glyphicon glyphicon-comment"></span> Forums</a></li>
+	        <li><a href="{% url 'threads:member_forums' %}" ><span class="glyphicon glyphicon-comment"></span> Forums</a></li>
 	        <li><a href="{% url 'member_directory' %}" ><span class="glyphicon glyphicon-book"></span> Member Directory</a></li>
 	        <li><a href="{% url 'list_managers' %}" ><span class="glyphicon glyphicon-tower"></span> Manager Directory</a></li>
 		<li><a href="{% url 'announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Manager Announcements</a></li>
@@ -73,7 +73,7 @@
 	        <li><a href="{% url 'external' %}"><span class="glyphicon glyphicon-plane"></span> Landing</a></li>
 		<li class="divider"></li>
 		<li class="dropdown-header">Archives</li>
-			<li><a href="{% url 'list_all_threads' %}" ><span class="glyphicon glyphicon-comment"></span> All Threads</a></li>
+			<li><a href="{% url 'threads:list_all_threads' %}" ><span class="glyphicon glyphicon-comment"></span> All Threads</a></li>
 			<li><a href="{% url 'all_requests' %}"><span class="glyphicon glyphicon-inbox"></span> All Requests</a></li>
 			<li><a href="{% url 'all_announcements' %}"><span class="glyphicon glyphicon-bullhorn"></span> All Announcements</a></li>
 			<li><a href="{% url 'events:all' %}"><span class="glyphicon glyphicon-calendar"></span> All Events</a></li>

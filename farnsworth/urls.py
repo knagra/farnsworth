@@ -21,6 +21,7 @@ urlpatterns = patterns('',
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^search/$', login_required(FacetedSearchView(form_class=FacetedSearchForm, searchqueryset=sqs)), name='haystack_search'),
 	url(r'', include('social.apps.django_app.urls', namespace='social')),
+	url(r'', include('threads.urls', namespace='threads')),
 	url(r'', include('events.urls', namespace='events')),
 )
 
@@ -44,15 +45,6 @@ urlpatterns += patterns('base.views',
 	url(r'^reset/$', 'reset_pw_view', name='reset_pw'),
 	url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
 		'reset_pw_confirm_view', name='reset_pw_confirm'),
-)
-
-urlpatterns += patterns('threads.views',
-	url(r'^threads/$', 'member_forums_view', name='member_forums'),
-	url(r'^threads/(?P<thread_pk>\d+)/$', 'thread_view', name='view_thread'),
-	url(r'^threads/all/$', 'all_threads_view', name='all_threads'),
-	url(r'^threads/list/$', 'list_all_threads_view', name="list_all_threads"),
-	url(r'^profile/(?P<targetUsername>[-\w]+)/threads/$', 'list_user_threads_view', name="list_user_threads"),
-	url(r'^profile/(?P<targetUsername>[-\w]+)/messages/$', 'list_user_messages_view', name="list_user_messages"),
 )
 
 urlpatterns += patterns('managers.views',

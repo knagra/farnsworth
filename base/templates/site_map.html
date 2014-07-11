@@ -36,7 +36,7 @@
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'homepage' %}" >Home Page</a> - go to your home page.</li>
 		<li><a class="page_link" href="{% url 'member_directory' %}" >Member Directory</a> - see a list of residents, boarders, alumni, and their phone numbers, e-mail addresses, etc.</li>
-		<li><a class="page_link" href="{% url 'member_forums' %}" >Member Forums</a> - see active member conversations.</li>
+		<li><a class="page_link" href="{% url 'threads:member_forums' %}" >Member Forums</a> - see active member conversations.</li>
 		<li><a class="page_link" href="{% url 'announcements' %}" >Manager Announcements</a> - see manager announcements.</li>
 		<li><a class="page_link" href="{% url 'events:list' %}" >Upcoming Events</a> - see a list of upcoming events.</li>
 		{% if REQUEST_TYPES %}
@@ -49,7 +49,7 @@
 	<div class="list_container table_container">
 	<div class="header"><h3 class="table_title">Archives</h3></div>
 	<ul class="pages_list">
-		<li><a class="page_link" href="{% url 'list_all_threads' %}" >All Threads</a> - see all threads on this site.</li>
+		<li><a class="page_link" href="{% url 'threads:list_all_threads' %}" >All Threads</a> - see all threads on this site.</li>
 		<li><a class="page_link" href="{% url 'all_requests' %}">All Requests</a> - see all requests.</li>
 		<li><a class="page_link" href="{% url 'all_announcements' %}" >All Announcements</a> - see all announcements.</li>
 		<li><a class="page_link" href="{% url 'events:all' %}" >All Events</a> - see all events.</li>
