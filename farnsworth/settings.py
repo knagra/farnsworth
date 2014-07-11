@@ -69,7 +69,7 @@ EMAIL_BLACKLIST = ()
 # Max number of threads loaded in member_forums.
 MAX_THREADS = 20
 
-# Max number of messages loaded for each thread.
+# Max number of messages loaded for each thread in member_forums.
 MAX_MESSAGES = 4
 
 # Max number of requests loaded in requests_view.
@@ -78,7 +78,7 @@ MAX_REQUESTS = 30
 # Max number of responses loaded for each request.
 MAX_RESPONSES = 4
 
-# Hold old, in days, an announcement should be before it's automatically excluded
+# How old, in days, an announcement should be before it's automatically excluded
 # from being displayed on the homepage and in the manager announcements page.
 # Pinned announcements will be displayed anyway.
 ANNOUNCEMENT_LIFE = 4

@@ -21,6 +21,11 @@ Built with Django, Python, and SQLite. Tested and deployed on PostgreSQL.
 
 Live versions of the site can be accessed at https://kingmanhall.org/internal/, https://kingmanhall.org/afro/, and https://kingmanhall.org/hoyt/.
 
+## Logical Structure
+Check `/DOCS/README.md` (<a href="https://github.com/knagra/farnsworth/blob/master/DOCS/README.md">here</a>)
+for complete details on the logical structure of the application, where to begin when
+first introducing yourself to Farnsworth, and how to develop the site further.
+
 ## Installation
 ### CentOS
 
@@ -157,11 +162,6 @@ $ ./manage.py collectstatic
 There will be a prompt to create a superuser, if you mistakenly close the prompt before the user is created, you can get back to it with: `./manage.py createsuperuser`
 
 Once you have the site up and running, navigate to /admin/sites/site/ and update the example.com site to have your domain.  Django grabs this domain when sending e-mails, etc. to create links to your site.
-
-If you are using SQLite, you need to install pytz.  You can install pytz by running the command
-```
-$ pip install pytz
-```
 
 ### Backups
 #### SQLite
