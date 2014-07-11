@@ -39,7 +39,7 @@ class Message(models.Model):
 	thread = models.ForeignKey(Thread, help_text="The thread to which this message belongs.")
 
 	def __unicode__(self):
-		return "Message by %s on thread %s, posted %s" % (self.owner, self.thread.subject, self.post_date)
+		return "Message by {0.owner} on thread {1.subject}, posted {0.post_date}".format(self, self.thread)
 
 	class Meta:
 		ordering = ['post_date']

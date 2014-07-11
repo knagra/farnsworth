@@ -358,7 +358,7 @@ def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
 	if targetUsername == request.user.username and targetUsername != ANONYMOUS_USERNAME:
 		return HttpResponseRedirect(reverse('my_profile'))
-	page_name = "%s's Profile" % targetUsername
+	page_name = "{0}'s Profile".format(targetUsername)
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	number_of_threads = Thread.objects.filter(owner=targetProfile).count()
@@ -472,7 +472,7 @@ def modify_profile_request_view(request, request_pk):
 			elif new_user.username == profile_request.username:
 				username_bit = "the username and password you selected"
 			else:
-				username_bit = "the username %s and the password you selected" % new_user.username
+				username_bit = "the username {0} and the password you selected".format(new_user.username)
 			login_url = request.build_absolute_uri(reverse('login'))
 			approval_email = APPROVAL_EMAIL.format(house=settings.HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=settings.ADMINS[0][0],
 				admin_email=settings.ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)

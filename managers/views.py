@@ -187,9 +187,9 @@ def requests_view(request, requestType):
 	'''
 	userProfile = UserProfile.objects.get(user=request.user)
 	request_type = get_object_or_404(RequestType, url_name=requestType)
-	page_name = "%s Requests" % request_type.name.title()
+	page_name = "{0} Requests".format(request_type.name.title())
 	if not request_type.enabled:
-		message = "%s requests have been disabled." % request_type.name.title()
+		message = "{0} requests have been disabled.".format(request_type.name.title())
 		return red_home(request, message)
 	relevant_managers = request_type.managers.filter(active=True)
 	manager = any(i.incumbent == userProfile for i in relevant_managers)
@@ -336,7 +336,7 @@ def list_user_requests_view(request, targetUsername):
 
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
-	page_name = "%s's Requests" % targetUsername
+	page_name = "{0}'s Requests".format(targetUsername)
 	requests = Request.objects.filter(owner=targetProfile)
 	return render_to_response('list_requests.html', {
 			'page_name': page_name,
@@ -365,7 +365,7 @@ def list_all_requests_view(request, requestType):
 	'''
 	request_type = get_object_or_404(RequestType, url_name=requestType)
 	requests = Request.objects.filter(request_type=request_type)
-	page_name = "Archives - All %s Requests" % request_type.name.title()
+	page_name = "Archives - All {0} Requests".format(request_type.name.title())
 	return render_to_response('list_requests.html', {
 			'page_name': page_name,
 			'requests': requests,
