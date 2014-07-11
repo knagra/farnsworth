@@ -4,11 +4,7 @@
 {% load request_tags %}
 
 {% block content %}
-{% if page_name == 'Archives - All Threads' %}
-    <form action="{% url 'all_threads' %}" class="pull-right">
-    <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-fullscreen"></span><span class="hidden-xs"> Expanded View</span></button>
-    </form>
-{% elif page_name == 'My Threads' %}
+{% if page_name == 'My Threads' %}
     <form action="{% url 'my_threads' %}" class="pull-right">
     <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-fullscreen"></span><span class="hidden-xs"> Expanded View</span></button>
     </form>

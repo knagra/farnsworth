@@ -76,39 +76,6 @@ def member_forums_view(request):
             }, context_instance=RequestContext(request))
 
 @profile_required
-def all_threads_view(request):
-    ''' View of all threads. '''
-    page_name = "Archives - All Threads"
-    userProfile = UserProfile.objects.get(user=request.user)
-    thread_form = ThreadForm(
-        request.POST if 'submit_thread_form' in request.POST else None,
-        profile=userProfile,
-        )
-    message_form = MessageForm(
-        request.POST if 'submit_message_form' in request.POST else None,
-        profile=userProfile,
-        )
-
-    if thread_form.is_valid():
-        thread_form.save()
-        return HttpResponseRedirect(reverse('all_threads'))
-    elif 'submit_thread_form' in request.POST:
-        messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
-    if message_form.is_valid():
-        message_form.save()
-        return HttpResponseRedirect(reverse('all_threads'))
-    elif 'submit_message_form' in request.POST:
-        messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
-
-    threads_dict = _threads_dict(Thread.objects.all())
-    return render_to_response('threads.html', {
-            'page_name': page_name,
-            'thread_title': 'Archives - All Threads',
-            'threads_dict': threads_dict,
-            'thread_form': thread_form,
-            }, context_instance=RequestContext(request))
-
-@profile_required
 def list_user_threads_view(request, targetUsername):
     ''' View of threads a user has created. '''
     targetUser = get_object_or_404(User, username=targetUsername)
