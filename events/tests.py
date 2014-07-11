@@ -8,7 +8,7 @@ Replace this with more appropriate tests for your application.
 from datetime import date, time, datetime, timedelta
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.utils.timezone import utc
+from django.utils.timezone import utc, now
 
 from utils.funcs import convert_to_url
 from utils.variables import time_formats, MESSAGES
@@ -26,19 +26,19 @@ class TestEvent(TestCase):
         self.su.save()
 
         self.profile = UserProfile.objects.get(user=self.u)
-        now = datetime.combine(date.today(), time(12, 0)).replace(tzinfo=utc)
+        start = datetime.combine(date.today(), time(12, 0, 0, 0, utc))
         one_day = timedelta(days=1)
 
-        self.ev = Event(
+        self.ev = Event.objects.create(
             owner=self.profile,
             title="Event Title Test",
             location="Development Land",
             description="Event Description Test",
-            start_time=now, end_time=now + one_day,
+            start_time=start,
+            end_time=start + one_day,
             )
-        self.ev.save()
 
-        self.m = Manager(
+        self.m = Manager.objects.create(
             title="Event Manager",
             incumbent=self.profile,
             )
@@ -105,8 +105,14 @@ class TestEvent(TestCase):
         self.assertEqual(event.title, "New Title Test")
         self.assertEqual(event.description, self.ev.description)
         self.assertEqual(event.location, self.ev.location)
-        self.assertEqual(event.start_time, self.ev.start_time)
-        self.assertEqual(event.end_time, self.ev.end_time)
+        self.assertEqual(
+            self.ev.start_time,
+            event.start_time,
+            )
+        self.assertEqual(
+            self.ev.end_time,
+            event.end_time,
+            )
         self.assertEqual(event.cancelled, True)
         self.assertEqual(event.as_manager, self.m)
 
@@ -130,8 +136,14 @@ class TestEvent(TestCase):
             self.assertEqual(event.title, "New Event Title")
             self.assertEqual(event.description, "New Description")
             self.assertEqual(event.location, "New Location Hall")
-            self.assertEqual(event.start_time, self.ev.start_time)
-            self.assertEqual(event.end_time, self.ev.end_time)
+            self.assertEqual(
+                self.ev.start_time,
+                event.start_time,
+                )
+            self.assertEqual(
+                self.ev.end_time,
+                event.end_time,
+                )
             self.assertEqual(event.as_manager, self.m)
 
     def test_bad_time(self):
@@ -146,12 +158,16 @@ class TestEvent(TestCase):
                 "description": "New Description",
                 "location": "New Location Hall",
                 "start_time": self.ev.start_time.strftime(time_formats[0]),
-                "end_time": (self.ev.start_time - timedelta(minutes=1)).strftime(time_formats[0]),
+                "end_time": (self.ev.start_time - timedelta(minutes=1))
+                .strftime(time_formats[0]),
                 "as_manager": self.m.pk,
                 })
             self.assertEqual(response.status_code, 200)
-            self.assertContains(response,
-                                "Start time is later than end time. Unless this event involves time travel, please change the start or end time.")
+            self.assertContains(
+                response,
+                "Start time is later than end time. Unless this event "
+                "involves time travel, please change the start or end time.",
+                )
             self.assertContains(response, MESSAGES['EVENT_ERROR'])
             self.assertEqual(Event.objects.count(), 1)
 
@@ -174,7 +190,7 @@ class TestEvent(TestCase):
             "/events/all/",
             "/events/{0}/".format(self.ev.pk),
             ]
-        self.ev.end_time = (datetime.now() - timedelta(days=1)).replace(tzinfo=utc)
+        self.ev.end_time = now() - timedelta(days=1)
         self.ev.save()
         for url in urls:
             response = self.client.post(url, {
