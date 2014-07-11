@@ -47,7 +47,7 @@
     <div class="field_wrapper text-info">{{ request_type.capitalize }} requests are made to:
         {% for pos in relevant_managers %}
             {% if forloop.counter > 1 %}, {% endif %}
-            <a title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+            <a title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
             {% if pos.incumbent %}
                 (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
             {% else %}

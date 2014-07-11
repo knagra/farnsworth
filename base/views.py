@@ -617,6 +617,31 @@ def reset_pw_confirm_view(request, uidb64=None, token=None):
         template_name="reset_confirmation.html",
         uidb64=uidb64, token=token, post_reset_redirect=reverse('login'))
 
+@admin_required
+def recount_view(request):
+	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
+	requests_changed = 0
+	for req in Request.objects.all():
+		recount = Response.objects.filter(request=req).count()
+		if req.number_of_responses != recount:
+			req.number_of_responses = recount
+			req.save()
+			requests_changed += 1
+	threads_changed = 0
+	for thread in Thread.objects.all():
+		recount = Message.objects.filter(thread=thread).count()
+		if thread.number_of_messages != recount:
+			thread.number_of_messages = recount
+			thread.save()
+			threads_changed += 1
+	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
+			requests_changed=requests_changed,
+			request_count=Request.objects.all().count(),
+			threads_changed=threads_changed,
+			thread_count=Thread.objects.all().count()),
+			)
+	return HttpResponseRedirect(reverse('utilities'))
+
 def archives_view(request):
     """ View of the archives page. """
     resident_count = UserProfile.objects.filter(status=UserProfile.RESIDENT).count()

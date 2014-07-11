@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="requests">
-<form action="{% url 'list_all_requests' requestType=relevant_request.request_type.url_name %}" class="pull-right">
+<<div class="requests">
+<form action="{% url 'managers:list_all_requests' requestType=relevant_request.request_type.url_name %}" class="pull-right">
     <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if relevant_request.request_type.glyphicon %}{{ relevant_request.request_type.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> List All Requests</span></button>
 </form>
 <h1 class="w_title">{{ page_name }}</h1>
@@ -19,7 +19,7 @@
     <div class="field_wrapper text-info">{{ relevant_request.request_type.name.capitalize }} requests are made to:
         {% for pos in relevant_managers %}
             {% if forloop.counter > 1 %}, {% endif %}
-            <a title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+            <a title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
             {% if pos.incumbent %}
                 (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
             {% else %}

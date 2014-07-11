@@ -41,11 +41,11 @@
     <div class="bordered_div">
     <div class="field_wrapper">Please choose from the links below:</div>
         <ul class="list-group link_list">
-            <a href="{% url 'list_all_threads' %}" class="list-group-item"><span class="badge pull-right">{{ thread_count }}</span><span class="glyphicon glyphicon-comment"></span>
+            <a href="{% url 'threads:list_all_threads' %}" class="list-group-item"><span class="badge pull-right">{{ thread_count }}</span><span class="glyphicon glyphicon-comment"></span>
                 All Threads</a>
-            <a href="{% url 'all_requests' %}" class="list-group-item"><span class="badge pull-right">{{ request_count }}</span><span class="glyphicon glyphicon-inbox"></span>
+            <a href="{% url 'managers:all_requests' %}" class="list-group-item"><span class="badge pull-right">{{ request_count }}</span><span class="glyphicon glyphicon-inbox"></span>
                 All Requests</a>
-            <a href="{% url 'all_announcements' %}" class="list-group-item"><span class="badge pull-right">{{ announcement_count }}</span><span class="glyphicon glyphicon-bullhorn"></span>
+            <a href="{% url 'managers:all_announcements' %}" class="list-group-item"><span class="badge pull-right">{{ announcement_count }}</span><span class="glyphicon glyphicon-bullhorn"></span>
                 All Announcements</a>
             <a href="{% url 'events:all' %}" class="list-group-item"><span class="badge pull-right">{{ event_count }}</span><span class="glyphicon glyphicon-calendar"></span>
                 All Events</a>

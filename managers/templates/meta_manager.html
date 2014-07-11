@@ -4,7 +4,7 @@
 {% load thread_tags %}
 
 {% block content %}
-<form class="pull-right" action="{% url 'add_manager' %}">
+<form class="pull-right" action="{% url 'managers:add_manager' %}">
     <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Manager</span></button>
 </form>
 <h1 class="w_title">Manage Managers</h1>
@@ -24,7 +24,7 @@
 </thead>
 <tbody>
     {% for pos in managerset %}
-    <tr><td><a title="Edit Manager" href="{% url 'edit_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-wrench"></span> {{ pos.title }}</a></td>
+    <tr><td><a title="Edit Manager" href="{% url 'managers:edit_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-wrench"></span> {{ pos.title }}</a></td>
         <td>{% if pos.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent.user.get_full_name }}</a>{% endif %}</td>
         <td>{% if pos.email %}<a title="Write E-mail" href="mailto:{{ pos.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ pos.email }}</a>{% endif %}</td>
         <td>{% if pos.active %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>

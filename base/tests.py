@@ -706,289 +706,290 @@ class TestProfilePages(TestCase):
         self.assertEqual(response.status_code, 404)
 
 class TestModifyUser(TestCase):
-    def setUp(self):
-        self.su = User.objects.create_user(username="su", password="pwd")
-        self.u = User.objects.create_user(username="u", password="pwd")
-        self.ou = User.objects.create_user(
-            username="ou", email="ou@email.com",
-            first_name="Test First", last_name="Test Last",
-            )
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
+		self.ou = User.objects.create_user(
+			username="ou", email="ou@email.com",
+			first_name="Test First", last_name="Test Last",
+			)
 
-        self.su.is_staff, self.su.is_superuser = True, True
-        self.su.save()
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
 
-        self.profile = UserProfile.objects.get(user=self.ou)
-        self.profile.phone_number = "(222) 222-2222"
-        self.profile.save()
+		self.profile = UserProfile.objects.get(user=self.ou)
+		self.profile.phone_number = "(222) 222-2222"
+		self.profile.save()
 
-    def test_set_visible(self):
-        self.client.login(username="u", password="pwd")
+	def test_set_visible(self):
+		self.client.login(username="u", password="pwd")
 
-        response = self.client.get("/profile/{0}/".format(self.ou.username))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, self.ou.email)
-        self.assertNotContains(response, self.profile.phone_number)
+		response = self.client.get("/profile/{0}/".format(self.ou.username))
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(response, self.ou.email)
+		self.assertNotContains(response, self.profile.phone_number)
 
-        self.client.logout()
+		self.client.logout()
 
-        self.client.login(username="su", password="pwd")
+		self.client.login(username="su", password="pwd")
 
-        url = "/custom_admin/modify_user/{0}/" .format(self.ou.username)
-        response = self.client.post(url, {
-                "email_visible_to_others": "on",
-                "phone_visible_to_others": "on",
-                "email": self.ou.email,
-                "phone_number": self.profile.phone_number,
-                "first_name": self.ou.first_name,
-                "last_name": self.ou.last_name,
-                "status": self.profile.status,
-                "update_user_profile": "",
-                }, follow=True)
-        self.assertRedirects(response, url)
-        self.assertContains(
-            response,
-            MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
-            )
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.ou.username})
+		response = self.client.post(url, {
+				"email_visible_to_others": "on",
+				"phone_visible_to_others": "on",
+				"email": self.ou.email,
+				"phone_number": self.profile.phone_number,
+				"first_name": self.ou.first_name,
+				"last_name": self.ou.last_name,
+				"status": self.profile.status,
+				"update_user_profile": "",
+				}, follow=True)
+		self.assertRedirects(response, url)
+		self.assertContains(
+			response,
+			MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
+			)
 
-        self.client.logout()
+		self.client.logout()
 
-        self.client.login(username="u", password="pwd")
+		self.client.login(username="u", password="pwd")
 
-        response = self.client.get("/profile/{0}/".format(self.ou.username))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.ou.email)
-        self.assertContains(response, self.profile.phone_number)
+		response = self.client.get("/profile/{0}/".format(self.ou.username))
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, self.ou.email)
+		self.assertContains(response, self.profile.phone_number)
 
-    def test_set_profile_status(self):
-        """
-        Test modifying profiles to have different user statuses (Resident, Boarder,
-        Alumni).
-        """
-        url = "/custom_admin/modify_user/{0}/".format(self.ou.username)
+	def test_set_profile_status(self):
+		"""
+		Test modifying profiles to have different user statuses (Resident, Boarder,
+		Alumni).
+		"""
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.ou.username})
 
-        for status, title in UserProfile.STATUS_CHOICES:
-            self.client.login(username="su", password="pwd")
+		for status, title in UserProfile.STATUS_CHOICES:
+			self.client.login(username="su", password="pwd")
 
-            response = self.client.post(url, {
-                    "email_visible_to_others": "on",
-                    "phone_visible_to_others": "on",
-                    "email": self.ou.email,
-                    "phone_number": self.profile.phone_number,
-                    "first_name": self.ou.first_name,
-                    "last_name": self.ou.last_name,
-                    "status": status,
-                    "update_user_profile": "",
-                    }, follow=True)
-            self.assertRedirects(response, url)
-            self.assertContains(
-                response,
-                MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
-                )
+			response = self.client.post(url, {
+					"email_visible_to_others": "on",
+					"phone_visible_to_others": "on",
+					"email": self.ou.email,
+					"phone_number": self.profile.phone_number,
+					"first_name": self.ou.first_name,
+					"last_name": self.ou.last_name,
+					"status": status,
+					"update_user_profile": "",
+					}, follow=True)
+			self.assertRedirects(response, url)
+			self.assertContains(
+				response,
+				MESSAGES['USER_PROFILE_SAVED'].format(username=self.ou.username),
+				)
 
-            self.client.logout()
+			self.client.logout()
 
-            self.client.login(username="u", password="pwd")
+			self.client.login(username="u", password="pwd")
 
-            response = self.client.get("/profile/{0}/".format(self.ou.username))
-            self.assertEqual(response.status_code, 200)
-            self.assertContains(response, title)
+			response = self.client.get("/profile/{0}/".format(self.ou.username))
+			self.assertEqual(response.status_code, 200)
+			self.assertContains(response, title)
 
-            self.client.logout()
+			self.client.logout()
 
-    def test_change_user_password(self):
-        self.client.login(username="su", password="pwd")
+	def test_change_user_password(self):
+		self.client.login(username="su", password="pwd")
 
-        url = "/custom_admin/modify_user/{0}/".format(self.u.username)
-        response = self.client.post(url, {
-            "change_user_password": "",
-            "password1": "Leeroy",
-            "password2": "Leeroy",
-            }, follow=True)
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
+		response = self.client.post(url, {
+			"change_user_password": "",
+			"password1": "Leeroy",
+			"password2": "Leeroy",
+			}, follow=True)
 
-        self.assertRedirects(response, url)
-        self.assertContains(response,
-                            MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
-        self.client.logout()
-        self.assertEqual(False, self.client.login(username="u", password="pwd"))
-        self.assertEqual(True, self.client.login(username="u", password="Leeroy"))
+		self.assertRedirects(response, url)
+		self.assertContains(response,
+							MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="pwd"))
+		self.assertEqual(True, self.client.login(username="u", password="Leeroy"))
 
-    def test_confirm_user_password(self):
-        self.client.login(username="su", password="pwd")
+	def test_confirm_user_password(self):
+		self.client.login(username="su", password="pwd")
 
-        url = "/custom_admin/modify_user/{0}/".format(self.u.username)
-        response = self.client.post(url, {
-            "change_user_password": "",
-            "password1": "Leeroy",
-            "password2": "Lereoy",
-            })
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
+		response = self.client.post(url, {
+			"change_user_password": "",
+			"password1": "Leeroy",
+			"password2": "Lereoy",
+			})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(
-            response, MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
-        self.assertContains(
-            response, "The two password fields didn't match.".replace("'", "&#39;")
-            )
-        self.client.logout()
-        self.assertEqual(False, self.client.login(username="u", password="Leeroy"))
-        self.assertEqual(True, self.client.login(username="u", password="pwd"))
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(
+			response, MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
+		self.assertContains(
+			response, "The two password fields didn't match.".replace("'", "&#39;")
+			)
+		self.client.logout()
+		self.assertEqual(False, self.client.login(username="u", password="Leeroy"))
+		self.assertEqual(True, self.client.login(username="u", password="pwd"))
 
 class TestAdminFunctions(TestCase):
-    def setUp(self):
-        self.su = User.objects.create_user(username="su", password="pwd")
-        self.u = User.objects.create_user(username="u", password="pwd")
+	def setUp(self):
+		self.su = User.objects.create_user(username="su", password="pwd")
+		self.u = User.objects.create_user(username="u", password="pwd")
 
-        self.su.is_staff, self.su.is_superuser = True, True
-        self.su.save()
+		self.su.is_staff, self.su.is_superuser = True, True
+		self.su.save()
 
-        self.client.login(username="su", password="pwd")
+		self.client.login(username="su", password="pwd")
 
-    def test_add_user(self):
-        response = self.client.post("/custom_admin/add_user/", {
-                "username": "nu",
-                "first_name": "First",
-                "last_name": "Last",
-                "email": "nu@email.com",
-                "phone_number": "(222) 222-2222",
-                "user_password": "newpwd",
-                "confirm_password": "newpwd",
-                "is_active": "true",
-                "status": UserProfile.RESIDENT,
-                 }, follow=True)
-        self.assertRedirects(response, "/custom_admin/add_user/")
-        self.assertContains(
-            response,
-            MESSAGES['USER_ADDED'].format(username="nu"),
-            )
+	def test_add_user(self):
+		response = self.client.post("/custom_admin/add_user/", {
+				"username": "nu",
+				"first_name": "First",
+				"last_name": "Last",
+				"email": "nu@email.com",
+				"phone_number": "(222) 222-2222",
+				"user_password": "newpwd",
+				"confirm_password": "newpwd",
+				"is_active": "true",
+				"status": UserProfile.RESIDENT,
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/add_user/")
+		self.assertContains(
+			response,
+			MESSAGES['USER_ADDED'].format(username="nu"),
+			)
 
-        self.assertEqual(1, User.objects.filter(username="nu").count())
+		self.assertEqual(1, User.objects.filter(username="nu").count())
 
-        response = self.client.get("/profile/{0}/".format("nu"))
+		response = self.client.get("/profile/{0}/".format("nu"))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "nu@email.com")
-        self.assertNotContains(response, "(222) 222-2222")
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(response, "nu@email.com")
+		self.assertNotContains(response, "(222) 222-2222")
 
-        self.client.logout()
+		self.client.logout()
 
-        self.assertFalse(self.client.login(username="nu", password="pwd"))
-        self.assertTrue(self.client.login(username="nu", password="newpwd"))
-        response = self.client.get("/")
-        self.assertEqual(response.status_code, 200)
+		self.assertFalse(self.client.login(username="nu", password="pwd"))
+		self.assertTrue(self.client.login(username="nu", password="newpwd"))
+		response = self.client.get("/")
+		self.assertEqual(response.status_code, 200)
 
-        User.objects.get(username="nu").delete()
-        self.assertFalse(self.client.login(username="nu", password="newpwd"))
+		User.objects.get(username="nu").delete()
+		self.assertFalse(self.client.login(username="nu", password="newpwd"))
 
-    def test_add_visible(self):
-        response = self.client.post("/custom_admin/add_user/", {
-                "username": "nu",
-                "first_name": "First",
-                "last_name": "Last",
-                "email": "nu@email.com",
-                "phone_number": "(222) 222-2222",
-                "user_password": "newpwd",
-                "confirm_password": "newpwd",
-                "is_active": "true",
-                "email_visible_to_others": "on",
-                "phone_visible_to_others": "on",
-                "status": UserProfile.RESIDENT,
-                 }, follow=True)
-        self.assertRedirects(response, "/custom_admin/add_user/")
-        self.assertContains(
-            response,
-            MESSAGES['USER_ADDED'].format(username="nu"),
-            )
-        self.assertEqual(1, User.objects.filter(username="nu").count())
+	def test_add_visible(self):
+		response = self.client.post("/custom_admin/add_user/", {
+				"username": "nu",
+				"first_name": "First",
+				"last_name": "Last",
+				"email": "nu@email.com",
+				"phone_number": "(222) 222-2222",
+				"user_password": "newpwd",
+				"confirm_password": "newpwd",
+				"is_active": "true",
+				"email_visible_to_others": "on",
+				"phone_visible_to_others": "on",
+				"status": UserProfile.RESIDENT,
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/add_user/")
+		self.assertContains(
+			response,
+			MESSAGES['USER_ADDED'].format(username="nu"),
+			)
+		self.assertEqual(1, User.objects.filter(username="nu").count())
 
-        response = self.client.get("/profile/{0}/".format("nu"))
+		response = self.client.get("/profile/{0}/".format("nu"))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "nu@email.com")
-        self.assertContains(response, "(222) 222-2222")
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "nu@email.com")
+		self.assertContains(response, "(222) 222-2222")
 
-    def test_set_add_status(self):
-        """
-        Test adding users with different statuses (Resident, Boarder, Alumni).
-        """
-        url = "/custom_admin/add_user/"
+	def test_set_add_status(self):
+		"""
+		Test adding users with different statuses (Resident, Boarder, Alumni).
+		"""
+		url = "/custom_admin/add_user/"
 
-        for status, title in UserProfile.STATUS_CHOICES:
-            response = self.client.post(url, {
-                    "username": "nu",
-                    "first_name": "First",
-                    "last_name": "Last",
-                    "email": "nu@email.com",
-                    "phone_number": "(222) 222-2222",
-                    "user_password": "newpwd",
-                    "confirm_password": "newpwd",
-                    "is_active": "true",
-                    "status": status,
-                    }, follow=True)
-            self.assertRedirects(response, url)
-            self.assertContains(
-                response,
-                MESSAGES['USER_ADDED'].format(username="nu"),
-                )
+		for status, title in UserProfile.STATUS_CHOICES:
+			response = self.client.post(url, {
+					"username": "nu",
+					"first_name": "First",
+					"last_name": "Last",
+					"email": "nu@email.com",
+					"phone_number": "(222) 222-2222",
+					"user_password": "newpwd",
+					"confirm_password": "newpwd",
+					"is_active": "true",
+					"status": status,
+					}, follow=True)
+			self.assertRedirects(response, url)
+			self.assertContains(
+				response,
+				MESSAGES['USER_ADDED'].format(username="nu"),
+				)
 
-            response = self.client.get("/profile/{0}/".format("nu"))
-            self.assertEqual(response.status_code, 200)
-            self.assertContains(response, title)
+			response = self.client.get("/profile/{0}/".format("nu"))
+			self.assertEqual(response.status_code, 200)
+			self.assertContains(response, title)
 
-            User.objects.get(username="nu").delete()
+			User.objects.get(username="nu").delete()
 
-    def test_delete_user(self):
-        response = self.client.post("/custom_admin/modify_user/{0}/".format(self.u.username), {
-                "username": self.u.username,
-                "password": "pwd",
-                "delete_user": "",
-                 }, follow=True)
-        self.assertRedirects(response, "/custom_admin/manage_users/")
-        self.assertContains(
-            response,
-            MESSAGES['USER_DELETED'].format(username="u"),
-            )
-        self.assertEqual(0, User.objects.filter(username="u").count())
+	def test_delete_user(self):
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
+		response = self.client.post(url, {
+				"username": self.u.username,
+				"password": "pwd",
+				"delete_user": "",
+				 }, follow=True)
+		self.assertRedirects(response, reverse("custom_manage_users"))
+		self.assertContains(
+			response,
+			MESSAGES['USER_DELETED'].format(username="u"),
+			)
+		self.assertEqual(0, User.objects.filter(username="u").count())
 
-        response = self.client.get("/profile/{0}/".format("u"))
-        self.assertEqual(response.status_code, 404)
+		response = self.client.get("/profile/{0}/".format("u"))
+		self.assertEqual(response.status_code, 404)
 
-        self.client.logout()
+		self.client.logout()
 
-        self.assertFalse(self.client.login(username="u", password="pwd"))
+		self.assertFalse(self.client.login(username="u", password="pwd"))
 
-    def test_deleted_content(self):
-        profile = UserProfile.objects.get(user=self.u)
+	def test_deleted_content(self):
+		profile = UserProfile.objects.get(user=self.u)
 
-        self.client.logout()
-        self.assertTrue(self.client.login(username="u", password="pwd"))
+		self.client.logout()
+		self.assertTrue(self.client.login(username="u", password="pwd"))
 
-        response = self.client.post("/threads/", {
-                "submit_thread_form": "",
-                "subject": "Test Subject",
-                "body": "Test Body",
-                }, follow=True)
-        self.assertRedirects(response, "/threads/")
+		response = self.client.post("/threads/", {
+				"submit_thread_form": "",
+				"subject": "Test Subject",
+				"body": "Test Body",
+				}, follow=True)
+		self.assertRedirects(response, "/threads/")
 
-        self.assertEqual(1, Thread.objects.filter(owner=profile).count())
-        self.assertEqual(1, Message.objects.filter(owner=profile).count())
+		self.assertEqual(1, Thread.objects.filter(owner=profile).count())
+		self.assertEqual(1, Message.objects.filter(owner=profile).count())
 
-        self.client.logout()
-        self.assertTrue(self.client.login(username="su", password="pwd"))
+		self.client.logout()
+		self.assertTrue(self.client.login(username="su", password="pwd"))
 
-        response = self.client.post("/custom_admin/modify_user/{0}/"
-                                    .format(self.u.username), {
-                "username": self.u.username,
-                "password": "pwd",
-                "delete_user": "",
-                 }, follow=True)
-        self.assertRedirects(response, "/custom_admin/manage_users/")
-        self.assertContains(
-            response,
-            MESSAGES['USER_DELETED'].format(username="u"),
-            )
-        self.assertEqual(0, User.objects.filter(username="u").count())
+		url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
+		response = self.client.post(url, {
+				"username": self.u.username,
+				"password": "pwd",
+				"delete_user": "",
+				 }, follow=True)
+		self.assertRedirects(response, "/custom_admin/manage_users/")
+		self.assertContains(
+			response,
+			MESSAGES['USER_DELETED'].format(username="u"),
+			)
+		self.assertEqual(0, User.objects.filter(username="u").count())
 
-        self.assertEqual(0, Thread.objects.filter(owner=profile).count())
-        self.assertEqual(0, Message.objects.filter(owner=profile).count())
+		self.assertEqual(0, Thread.objects.filter(owner=profile).count())
+		self.assertEqual(0, Message.objects.filter(owner=profile).count())
 
 class TestMemberDirectory(TestCase):
     def setUp(self):

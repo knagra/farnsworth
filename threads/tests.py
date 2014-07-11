@@ -40,7 +40,6 @@ class VerifyThread(TestCase):
             "/",
             "/threads/",
             "/threads/{0}/".format(self.thread.pk),
-            "/threads/all/",
             "/threads/list/",
             "/profile/{0}/threads/".format(self.u.username),
             "/profile/{0}/messages/".format(self.u.username),
@@ -55,7 +54,6 @@ class VerifyThread(TestCase):
     def test_create_thread(self):
         urls = [
             "/threads/",
-            "/threads/all/",
             ]
         subject = "Thread Subject Test"
         body = "Thread Body Test"
@@ -80,7 +78,6 @@ class VerifyThread(TestCase):
     def test_bad_thread(self):
         urls = [
             "/threads/",
-            "/threads/all/",
             ]
         subject = "Thread Subject Test"
         body = "Thread Body Test"
@@ -104,7 +101,6 @@ class VerifyThread(TestCase):
         urls = [
             "/threads/",
             "/threads/{0}/".format(self.thread.pk),
-            "/threads/all/",
             ]
         body = "Reply Body Test"
         for url in urls:
@@ -131,7 +127,6 @@ class VerifyThread(TestCase):
         urls = [
             "/threads/",
             "/threads/{0}/".format(self.thread.pk),
-            "/threads/all/",
             ]
         body = "Reply Body Test"
         for url in urls:

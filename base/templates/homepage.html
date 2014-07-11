@@ -30,102 +30,102 @@ function hide_form(form_id) {
 {% with x=forloop.counter|stringformat:"s" %}
 {% if type_tuple.1 %}
 <div class="row" style="margin-bottom: 20px;">
-<div class="col-lg-12">
-<div class="requests">
-    <form class="pull-right" action="{% url 'requests' requestType=type_tuple.0.url_name %}">
+  <div class="col-lg-12">
+	<div class="requests">
+      <form class="pull-right" action="{% url 'managers:requests' requestType=type_tuple.0.url_name %}">
         <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> Requests Page</span></button>
-    </form>
-    <h1 class="w_title">{{ type_tuple.0.name }} Requests</h1>
-    <hr class="w_line" />
-    <div class="bordered_div">
-    <div class="field_wrapper text-info">You hold a manager position responsible for addressing these requests.</div>
-    {% for request_tuple in type_tuple.1 %}
-    {% if forloop.counter > 1 %}
-    <hr style="margin-top: 3px; margin-bottom: 3px;"/>
-    {% endif %}
-    <div class="request_row">
-    <div class="request_name bg-warning" title="Open">
-        <div class="request_owner">
-          {% if not request_tuple.0.owner.user = user and user.username != ANONYMOUS_USERNAME %}
-          <form style="display:inline" method="POST" action="">
-            {% csrf_token %}
-            {{ request_tuple.4 }}
-            {% if request_tuple.3 %}
-            <button type="submit" class="btn btn-xs" name="upvote" title="Remove upvote">
-              <span class="glyphicon glyphicon-star"></span>
-            </button>
-            {% else %}
-            <button type="submit" class="btn btn-xs" name="upvote" title="Upvote to express approval">
-              <span class="glyphicon glyphicon-star-empty"></span>
-            </button>
-            {% endif %}
-          </form>
-          {% endif %}
-        {% with vote_count_request=request_tuple.0 %}
-        {% include "vote_list.html" %}
-        {% endwith %}
-        </div> <!-- .request_owner -->
-        <div class="request_body">{{ request_tuple.0.body|safe }}
-            {% if not request_tuple.0.owner.user = user %}
-            <form class="pull-right" method="POST" action="">
+      </form>
+      <h1 class="w_title">{{ type_tuple.0.name }} Requests</h1>
+      <hr class="w_line" />
+      <div class="bordered_div">
+		<div class="field_wrapper text-info">You hold a manager position responsible for addressing these requests.</div>
+		{% for request_tuple in type_tuple.1 %}
+		{% if forloop.counter > 1 %}
+		<hr style="margin-top: 3px; margin-bottom: 3px;"/>
+		{% endif %}
+		<div class="request_row">
+		  <div class="request_name bg-warning" title="Open">
+			<div class="request_owner">
+			  {% if not request_tuple.0.owner.user = user and user.username != ANONYMOUS_USERNAME %}
+			  <form style="display:inline" method="POST" action="">
+				{% csrf_token %}
+				{{ request_tuple.4 }}
+				{% if request_tuple.3 %}
+				<button type="submit" class="btn btn-xs" name="upvote" title="Remove upvote">
+				  <span class="glyphicon glyphicon-star"></span>
+				</button>
+				{% else %}
+				<button type="submit" class="btn btn-xs" name="upvote" title="Upvote to express approval">
+				  <span class="glyphicon glyphicon-star-empty"></span>
+				</button>
+				{% endif %}
+			  </form>
+			  {% endif %}
+			  {% with vote_count_request=request_tuple.0 %}
+			  {% include "vote_list.html" %}
+			  {% endwith %}
+			</div> <!-- .request_owner -->
+			<div class="request_body">{{ request_tuple.0.body|safe }}
+              {% if not request_tuple.0.owner.user = user %}
+              <form class="pull-right" method="POST" action="">
                 {% csrf_token %}
                 {{ request_tuple.4 }}
-            </form>
-            {% endif %}
-        </div>
-    </div> <!-- .request_name -->
-    <div class="request_responses">
-        <div class="response_table">
-            {% for response in request_tuple.1 %}
-            {% if forloop.counter > 1 %}
-            <hr class="main_divider" />
-            {% endif %}
-            <div class="response_row hover_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
+              </form>
+              {% endif %}
+			</div>
+		  </div> <!-- .request_name -->
+		  <div class="request_responses">
+			<div class="response_table">
+              {% for response in request_tuple.1 %}
+              {% if forloop.counter > 1 %}
+              <hr class="main_divider" />
+              {% endif %}
+              <div class="response_row hover_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
                 <div class="response_owner">
-                    <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=response.owner.user.username %}">{{ response.owner|display_user:user }}</a> ({{ response.post_date }}):
+                  <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=response.owner.user.username %}">{{ response.owner|display_user:user }}</a> ({{ response.post_date }}):
                 </div> <!-- .response_owner -->
                 <div class="response_body">
-                    {{ response.body|safe }}
+                  {{ response.body|safe }}
                 </div> <!-- response_body -->
-            </div> <!-- .response_row -->
-            {% endfor %}
-            {% with y=forloop.counter|stringformat:"s" %}
-            {% with response_form_id="response_form_"|add:x|add:"_"|add:y %}
-            {% with button_id="button_"|add:x|add:"_"|add:y %}
-            <div class="text-center">
-            <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
-            </div> <!-- .text-center -->
-            <form class="new_response_form" id="{{ response_form_id }}" method="post" action="">
+              </div> <!-- .response_row -->
+              {% endfor %}
+              {% with y=forloop.counter|stringformat:"s" %}
+              {% with response_form_id="response_form_"|add:x|add:"_"|add:y %}
+              {% with button_id="button_"|add:x|add:"_"|add:y %}
+              <div class="text-center">
+				<button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
+              </div> <!-- .text-center -->
+              <form class="new_response_form" id="{{ response_form_id }}" method="post" action="">
                 {% csrf_token %}
                 {{ request_tuple.2.request_pk }}
                 <div class="form-group">
-                    <label for="id_response_body">Add Response</label>
-                    <textarea class="response" name="body"></textarea>
+                  <label for="id_response_body">Add Response</label>
+                  <textarea class="response" name="body"></textarea>
                 </div> <!-- .form-group -->
                 <hr class="main_divider" style="width: 75%;" />
                 <div class="col-sm-6">
-                    <div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
+                  <div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
                 </div>
                 <div class="col-sm-6">
-                    <div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
+                  <div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
                 </div>
                 <div class="text-center">
-                <div class="btn-group">
+                  <div class="btn-group">
                     <button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-send"></span> Add Response</button>
                     <button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-                </div> <!-- .btn-group -->
+                  </div> <!-- .btn-group -->
                 </div> <!-- .text-center -->
-            </form>
-            {% endwith %}
-            {% endwith %}
-            {% endwith %}
-        </div> <!-- .response_table -->
-    </div> <!-- .request_responses -->
-    </div> <!-- .requests_row -->
-    {% endfor %}
-    </div> <!-- .requests_table -->
-</div> <!-- .requests -->
-</div> <!-- .col-md-12 -->
+              </form>
+              {% endwith %}
+              {% endwith %}
+              {% endwith %}
+			</div> <!-- .response_table -->
+		  </div> <!-- .request_responses -->
+		</div> <!-- .requests_row -->
+		{% endfor %}
+      </div> <!-- .requests_table -->
+	</div> <!-- .requests -->
+  </div> <!-- .col-md-12 -->
 </div> <!-- .row -->
 {% endif %}
 {% endwith %}
@@ -133,187 +133,187 @@ function hide_form(form_id) {
 {% endif %}
 
 <div class="row">
-<div class="col-md-12">
-<div class="announcements">
-    {% if announcement_form %}
-    <button class="btn btn-primary pull-right" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
-    {% endif %}
-    <h1 class="w_title">Recent Announcements</h1>
-    <hr class="w_line" />
-    {% if announcement_form %}
-    <form id="new_announcement_form" class="main_form" method="post" action="">
+  <div class="col-md-12">
+	<div class="announcements">
+      {% if announcement_form %}
+      <button class="btn btn-primary pull-right" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+      {% endif %}
+      <h1 class="w_title">Recent Announcements</h1>
+      <hr class="w_line" />
+      {% if announcement_form %}
+      <form id="new_announcement_form" class="main_form" method="post" action="">
         {% csrf_token %}
         <div class="form-group">
-            <label class="control-label" for="id_as_manager">As Manager</label>
-            {{ announcement_form.manager }}
+          <label class="control-label" for="id_as_manager">As Manager</label>
+          {{ announcement_form.manager }}
         </div>
         <div class="form-group">
-            <label class="control-label" for="id_announcement_body">Body</label>
-            <textarea id="id_announcement_body" name="body"></textarea>
+          <label class="control-label" for="id_announcement_body">Body</label>
+          <textarea id="id_announcement_body" name="body"></textarea>
         </div>
         <div class="text-center">
-        <div class="btn-group">
+          <div class="btn-group">
             <button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
             <button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_form('new_announcement_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-        </div> <!-- .btn-group -->
+          </div> <!-- .btn-group -->
         </div> <!-- .text-center -->
-    </form>
-    {% endif %}
-    {% if not announcements_dict %}
-        <div class="field_wrapper">No recent announcements.</div>
-    {% else %}
-    <div class="bordered_div">
-    {% for tuple in announcements_dict %}
+      </form>
+      {% endif %}
+      {% if not announcements_dict %}
+      <div class="field_wrapper">No recent announcements.</div>
+      {% else %}
+      <div class="bordered_div">
+		{% for tuple in announcements_dict %}
         {% if forloop.counter > 1 %}
-            <hr class="main_divider" />
+        <hr class="main_divider" />
         {% endif %}
         <div class="main_row hover_row">
-        <div class="announcement_owner">
-            <a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
+          <div class="announcement_owner">
+            <a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
             (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">{{ tuple.0.incumbent|display_user:user }}</a>),
             {{ tuple.0.post_date }}:
-        </div> <!-- .announcement_owner -->
-        <div class="announcement_body">{{ tuple.0.body|safe }}
+          </div> <!-- .announcement_owner -->
+          <div class="announcement_body">{{ tuple.0.body|safe }}
             {% if tuple.1 %}
-                <form class="pull-right" method="post" action="">
-                    {% csrf_token %}
-                    {{ tuple.1 }}
-                    {% if tuple.0.pinned %}
-                    <button type="submit" class="main_link warning_link" name="unpin" title="Unpin from homepage">Unpin</button>
-                    {% else %}
-                    <button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
-                    {% endif %}
-                </form>
-                <form class="pull-right" action="{% url 'edit_announcement' announcement_pk=tuple.0.pk %}">
-                    <button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
-                </form>
+            <form class="pull-right" method="post" action="">
+              {% csrf_token %}
+              {{ tuple.1 }}
+              {% if tuple.0.pinned %}
+              <button type="submit" class="main_link warning_link" name="unpin" title="Unpin from homepage">Unpin</button>
+              {% else %}
+              <button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
+              {% endif %}
+            </form>
+            <form class="pull-right" action="{% url 'managers:edit_announcement' announcement_pk=tuple.0.pk %}">
+              <button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
+            </form>
             {% endif %}
-        </div>
+          </div>
         </div> <!-- .announcement_row -->
-    {% endfor %}
-    </div>
-    {% endif %}
-</div> <!-- .announcements -->
-</div> <!-- .col-md-12 -->
+		{% endfor %}
+      </div>
+      {% endif %}
+	</div> <!-- .announcements -->
+  </div> <!-- .col-md-12 -->
 </div> <!-- .row -->
 
 <div class="row">
-<div class="col-lg-7" style="margin-top: 20px;">
-<div class="threads">
-    <button class="btn btn-primary pull-right" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
-    <h1 class="w_title">Recent Threads</h1>
-    <hr class="w_line" />
-    <form id="new_thread_form" method="post" action="">
+  <div class="col-lg-7" style="margin-top: 20px;">
+	<div class="threads">
+      <button class="btn btn-primary pull-right" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
+      <h1 class="w_title">Recent Threads</h1>
+      <hr class="w_line" />
+      <form id="new_thread_form" method="post" action="">
         {% csrf_token %}
         <div class="form-group">
-            {{ thread_form|bootstrap }}
-            <div class="text-center">
+          {{ thread_form|bootstrap }}
+          <div class="text-center">
             <div class="btn-group">
-                <button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Start Thread</button>
-                <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_form('new_thread_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+              <button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Start Thread</button>
+              <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_form('new_thread_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
             </div> <!-- .btn-group -->
-            </div> <!-- .text-center -->
+          </div> <!-- .text-center -->
         </div>
-    </form>
-  {% if not thread_set %}
-  <div class="field_wrapper">No threads found in database.</div>
-  {% else %}
-  <table class="table table-striped table-bordered table-condensed table-hover" id="threads_table">
-    <thead>
-      <tr>
-    <th>Subject</th>
-    <th>Progenitor</th>
-    <th>Replies</th>
-    <th>Last Message</th>
-    <th>Last Poster</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for thread_tuple in thread_set %}
-      <tr>
-    <td><a title="View Thread" class="page_link" href="{% url 'view_thread' thread_pk=thread_tuple.0.pk %}">{{ thread_tuple.0.subject|truncatechars:45 }}</a></td>
-    <td><a class="page_link" href="{% url 'member_profile' targetUsername=thread_tuple.0.owner.user.username %}" title="View Profile">{{ thread_tuple.0.owner.user.get_full_name }}</a></td>
-    <td>{{ thread_tuple.0.number_of_messages|add:"-1" }}</td>
-    <td>{{ thread_tuple.0.change_date|date:"m/d/Y, h:i A" }}</td>
-    <td><a title="page_link" href="{% url 'member_profile' targetUsername=thread_tuple.1.owner.user.username %}">{{ thread_tuple.1.owner.user.get_full_name }}</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <div align="center"><a href="{% url 'list_all_threads' %}">See all threads</a></div>
-  {% endif %}
-</div> <!-- .threads -->
-</div> <!-- .col-lg-7 -->
+      </form>
+	  {% if not thread_set %}
+	  <div class="field_wrapper">No threads found in database.</div>
+	  {% else %}
+	  <table class="table table-striped table-bordered table-condensed table-hover" id="threads_table">
+		<thead>
+		  <tr>
+			<th>Subject</th>
+			<th>Progenitor</th>
+			<th>Replies</th>
+			<th>Last Message</th>
+			<th>Last Poster</th>
+		  </tr>
+		</thead>
+		<tbody>
+		  {% for thread_tuple in thread_set %}
+		  <tr>
+			<td><a title="View Thread" class="page_link" href="{% url 'threads:view_thread' thread_pk=thread_tuple.0.pk %}">{{ thread_tuple.0.subject|truncatechars:45 }}</a></td>
+			<td><a class="page_link" href="{% url 'member_profile' targetUsername=thread_tuple.0.owner.user.username %}" title="View Profile">{{ thread_tuple.0.owner.user.get_full_name }}</a></td>
+			<td>{{ thread_tuple.0.number_of_messages|add:"-1" }}</td>
+			<td>{{ thread_tuple.0.change_date|date:"m/d/Y, h:i A" }}</td>
+			<td><a title="page_link" href="{% url 'member_profile' targetUsername=thread_tuple.1.owner.user.username %}">{{ thread_tuple.1.owner.user.get_full_name }}</a></td>
+		  </tr>
+		  {% endfor %}
+		</tbody>
+	  </table>
+	  <div align="center"><a href="{% url 'threads:list_all_threads' %}">See all threads</a></div>
+	  {% endif %}
+	</div> <!-- .threads -->
+  </div> <!-- .col-lg-7 -->
 
-<div class="col-lg-5" style="margin-top: 20px;">
-<div class="events">
-    <form action="{% url 'events:list' %}" class="pull-right">
+  <div class="col-lg-5" style="margin-top: 20px;">
+	<div class="events">
+      <form action="{% url 'events:list' %}" class="pull-right">
         <button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-calendar"></span><span class="hidden-xs"> Events Page</span></button>
-    </form>
-    <h1 class="w_title">Week's Events</h1>
-    <hr class="w_line" />
-    {% if not events_dict %}
-    <div class="field_wrapper">
+      </form>
+      <h1 class="w_title">Week's Events</h1>
+      <hr class="w_line" />
+      {% if not events_dict %}
+      <div class="field_wrapper">
         No events in next 7 days.
-    </div>
-    {% else %}
-    <div class="bordered_div">
-    {% for tuple in events_dict %}
-    {% if forloop.counter > 1 %}
-    <hr class="main_divider">
-    {% endif %}
-    <div class="main_row hover_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Happening Now{% elif tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
-        <div class="main_owner">
-        {% if tuple.0.as_manager %}
-            <a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.as_manager.url_title %}">{{ tuple.0.as_manager }}</a>
+      </div>
+      {% else %}
+      <div class="bordered_div">
+		{% for tuple in events_dict %}
+		{% if forloop.counter > 1 %}
+		<hr class="main_divider">
+		{% endif %}
+		<div class="main_row hover_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Happening Now{% elif tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
+          <div class="main_owner">
+			{% if tuple.0.as_manager %}
+            <a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=tuple.0.as_manager.url_title %}">{{ tuple.0.as_manager }}</a>
             (<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>):
-        {% else %}
+			{% else %}
             <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>:
-        {% endif %}
-        </div> <!-- .main_owner -->
-        <div class="event_body">
+			{% endif %}
+          </div> <!-- .main_owner -->
+          <div class="event_body">
             <div class="text-center">
-                <h4 class="event_header">{{ tuple.0.title }}{% if tuple.0.cancelled %}
-                    <small class="text-danger">CANCELLED</small>{% endif %}
+              <h4 class="event_header">{{ tuple.0.title }}{% if tuple.0.cancelled %}
+                <small class="text-danger">CANCELLED</small>{% endif %}
                 <br />
                 <small>{{ tuple.0.location }}</small>
                 <br />
                 <small>{{ tuple.0.start_time }} to {{ tuple.0.end_time }}</small></h4>
-                <hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;">
+              <hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;">
             </div> <!-- .text-center -->
             {{ tuple.0.description|safe }}
             <hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;" />
             {% if tuple.0.rsvps.all %}
-                RSVPs: {% for member in tuple.0.rsvps.all %}{% if forloop.counter > 1 %},
-                {% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
+            RSVPs: {% for member in tuple.0.rsvps.all %}{% if forloop.counter > 1 %},
+            {% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
             {% else %}
-                No RSVPs.
+            No RSVPs.
             {% endif %}
             <div class="pull-right">
-            {% if user.username != ANONYMOUS_USERNAME %}
-            <form class="pull-right" method="post" action="">
+              {% if user.username != ANONYMOUS_USERNAME %}
+              <form class="pull-right" method="post" action="">
                 {% csrf_token %}
-                    {{ tuple.3 }}
-                    {% if tuple.2 %}
-                        <button type="submit" class="main_link warning_link" name="rsvp" title="Un-RSVP to this event">Un-RSVP</button>
-                    {% else %}
-                        <button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
-                    {% endif %}
-            </form>
-            {% endif %}
-            {% if tuple.0.owner.user == user or user.is_superuser %}
-                <form class="pull-right" action="{% url 'events:edit' event_pk=tuple.0.pk %}">
-                    <button class="main_link primary_link" title="Edit this event">Edit</button>
-                </form>
-            {% endif %}
+                {{ tuple.3 }}
+                {% if tuple.2 %}
+                <button type="submit" class="main_link warning_link" name="rsvp" title="Un-RSVP to this event">Un-RSVP</button>
+                {% else %}
+                <button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
+                {% endif %}
+              </form>
+              {% endif %}
+              {% if tuple.0.owner.user == user or user.is_superuser %}
+              <form class="pull-right" action="{% url 'events:edit' event_pk=tuple.0.pk %}">
+                <button class="main_link primary_link" title="Edit this event">Edit</button>
+              </form>
+              {% endif %}
             </div> <!-- .pull-right -->
-        </div> <!-- .event_body -->
-    </div> <!-- .main_row -->
-    {% endfor %}
-    </div> <!-- .bordered_div -->
-    {% endif %}
-</div> <!-- .events -->
-</div> <!-- .col-lg-5 -->
+          </div> <!-- .event_body -->
+		</div> <!-- .main_row -->
+		{% endfor %}
+      </div> <!-- .bordered_div -->
+      {% endif %}
+	</div> <!-- .events -->
+  </div> <!-- .col-lg-5 -->
 </div> <!-- .row -->
 {% endblock %}
 
