@@ -172,6 +172,8 @@ class WorkshiftInstanceForm(forms.ModelForm):
 
         if self.pools:
             self.fields['pool'].queryset = self.pools
+            if self.pools.filter(is_primary=True):
+                self.pools.initial = self.pools.filter(is_primary=True)[0]
 
         # Move the forms for title, description, etc to the top
         keys = self.fields.keyOrder
