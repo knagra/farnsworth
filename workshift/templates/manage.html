@@ -88,7 +88,7 @@
 
 	{% if semester_form %}
 	<div class="tab-pane" id="edit_semester_div">
-	  <form>
+	  <form action="post">
 		{% csrf_token %}
 		{{ semester_form|bootstrap }}
 		<div class="text-center">
