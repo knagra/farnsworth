@@ -91,7 +91,11 @@
 	  <form>
 		{% csrf_token %}
 		{{ semester_form|bootstrap }}
-		<button type="submit" class="btn btn-success" name="edit"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+		<div class="text-center">
+		  <div class="btn-group">
+			<button type="submit" class="btn btn-success" name="edit"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+		  </div>
+		</div>
 	  </form>
 	</div> <!-- #edit_semester_div -->
   </div> <!-- .tab-content -->
