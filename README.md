@@ -32,7 +32,7 @@ first introducing yourself to Farnsworth, and how to develop the site further.
 To install all of the dependencies of CentOS, run the following as root:
 
 ```
-# yum install postgres python python-devel virtualenv gcc mod_wsgi mercurial git
+# yum install postgres python python-devel virtualenv gcc mod_wsgi mercurial git libffi-devel
 ```
 
 #### SELinux
@@ -49,7 +49,7 @@ CentOS comes pre-packaged with SELinux for increased security. To enable the use
 To install all of the dependencies of Debian, run the following as root:
 
 ```
-# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3 mercurial git
+# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3 mercurial git libffi-dev
 ```
 
 ### elasticsearch

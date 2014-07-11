@@ -8,3 +8,4 @@ psycopg2==2.5.3
 pypandoc
 django-cron==0.3.3
 django-phonenumber-field==0.5
+bcrypt==1.0.2
