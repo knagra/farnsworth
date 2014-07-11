@@ -1,6 +1,6 @@
 ### Base Application - `/base/`
-User profiles and management and the homepage and external view
-Also includes decorators, common css files, and base search template.
+User profiles and management and the homepage and external view.
+Also includes decorators, common css files, base template, 404 template, and base search template.
 
 #### Models - `/base/models.py`
 * `UserProfile` - A user's profile, contains extra data: phone number, visiblity settings, etc.
@@ -60,3 +60,5 @@ Also includes decorators, common css files, and base search template.
 * `base.views.add_context` - Function; adds variables to be sent to templates that are recurring and required by all or most templates.
 * `base.views._get_oauth_providers` - Function; grab all OAuth providers that are setup for the given installation of Farnsworth.
 * `/base/templates/search/search.html` - Template; the base search view, which uses `include`s to include other templates.
+* `/base/templates/base.html` - Template; base template that other templates extend for views.
+* `/base/templates/404.html` - Template; displays `404 - Page Not Found` message with a randomly selected blurb.
