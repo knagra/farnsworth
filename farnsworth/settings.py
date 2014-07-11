@@ -264,6 +264,7 @@ INSTALLED_APPS = (
     'requests',
     'managers',
     'workshift',
+	'rooms',
     "django_cron",
     # 'elections',
     'bootstrapform',
@@ -372,6 +373,8 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
 
 APPEND_SLASH = True
+
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 if 'test' in sys.argv:
     PASSWORD_HASHERS = (

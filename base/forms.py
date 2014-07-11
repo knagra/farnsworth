@@ -11,6 +11,7 @@ from social.apps.django_app.default.models import UserSocialAuth
 
 from utils.funcs import verify_username
 from utils.variables import MESSAGES
+from rooms.models import Room
 from base.models import UserProfile, ProfileRequest
 from threads.models import Thread, Message
 from managers.models import Request, Response
@@ -82,8 +83,14 @@ class AddUserForm(forms.Form):
     phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
     phone_visible_to_others = forms.BooleanField(required=False)
     status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-    former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+    current_room = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
+    former_rooms = forms.ModelMultipleChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
     former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
         help_text="Other houses where this user has boarded or lived.")
     is_active = forms.BooleanField(required=False)
@@ -208,8 +215,14 @@ class ModifyUserForm(forms.Form):
     phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
     phone_visible_to_others = forms.BooleanField(required=False)
     status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-    former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+    current_room = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
+    former_rooms = forms.ModelMultipleChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
     former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
         help_text="Other houses where this user has boarded or lived.")
     is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
@@ -231,7 +244,7 @@ class ModifyUserForm(forms.Form):
                 'phone_visible_to_others': self.profile.phone_visible,
                 'status': self.profile.status,
                 'current_room': self.profile.current_room,
-                'former_rooms': self.profile.former_rooms,
+                'former_rooms': self.profile.former_rooms.all(),
                 'former_houses': self.profile.former_houses,
                 'is_active': self.user.is_active,
                 'is_staff': self.user.is_staff,
@@ -283,8 +296,14 @@ class ModifyProfileRequestForm(forms.Form):
     phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
     phone_visible_to_others = forms.BooleanField(required=False)
     status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    current_room = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-    former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+    current_room = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
+    former_rooms = forms.ModelMultipleChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
     former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
         help_text="Other houses where this user has boarded or lived.")
     is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
@@ -362,8 +381,14 @@ class ModifyProfileRequestForm(forms.Form):
 
 class UpdateProfileForm(forms.Form):
     ''' Form for a user to update own profile. '''
-    current_room = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
-    former_rooms = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False)
+    current_room = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
+    former_rooms = forms.ModelMultipleChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        )
     former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
         help_text="Other houses where you have boarded or lived.")
     email = forms.EmailField(max_length=255, required=False)

@@ -25,7 +25,7 @@
   <td>{{ member.user.last_name }}</td>
   <td>{% if member.email_visible and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
   <td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
-  <td>{% if member.current_room %}{{ member.current_room }}{% endif %}</td>
+  <td>{% if member.current_room %}<a href="{% url 'rooms:view' room_title=member.current_room.title %}">{{ member.current_room.title }}</a>{% endif %}</td>
 </tr>
 {% endfor %}
   </tbody>
@@ -34,6 +34,7 @@
 {% endif %}
 
 {% if boarders %}
+<<<<<<< HEAD
 <h1 class="w_title">Boarders</h1>
 <hr class="w_line" />
 <table class="table table-striped table-bordered table-condensed table-hover" id="boarders_table">
@@ -59,9 +60,39 @@
   </tbody>
 </table> <!-- #boarders_table -->
 {% if alumni %}<br />{% endif %}
+=======
+<div class="table_container">
+  <div class="header"><h3 class="table_title">Boarders</h3></div>
+  <div class="main_table">
+    <table class="table table-striped table-bordered table-condensed table-hover" id="boarders_table">
+      <thead>
+		<tr>
+		  <th>Username</th>
+		  <th>First Name</th>
+		  <th>Last Name</th>
+		  <th>Email</th>
+		  <th>Phone</th>
+		</tr>
+      </thead>
+      <tbody>
+		{% for member in boarders %}
+		<tr>
+		  <td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}" title="View Profile"><span class="glyphicon glyphicon-user"></span> {{ member.user.username }}</a></td>
+		  <td>{{ member.user.first_name }}</td>
+		  <td>{{ member.user.last_name }}</td>
+		  <td>{% if member.email_visible and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
+		  <td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
+		</tr>
+		{% endfor %}
+      </tbody>
+    </table> <!-- #boarders_table -->
+  </div> <!-- .main_table -->
+</div> <!-- .table_container -->
+>>>>>>> django17
 {% endif %}
 
 {% if alumni %}
+<<<<<<< HEAD
 <h1 class="w_title">Alumni</h1>
 <hr class="w_line" />
 <table class="table table-striped table-bordered table-condensed table-hover" id="alumni_table">
@@ -88,12 +119,54 @@
 {% endfor %}
   </tbody>
 </table> <!-- #alumni_table -->
+=======
+<div class="table_container">
+  <div class="header"><h3 class="table_title">Alumni</h3></div>
+  <div class="main_table">
+    <table class="table table-striped table-bordered table-condensed table-hover" id="alumni_table">
+      <thead>
+		<tr>
+		  <th>Username</th>
+		  <th>First Name</th>
+		  <th>Last Name</th>
+		  <th>Email</th>
+		  <th>Phone</th>
+		  <th>Former Rooms</th>
+		</tr>
+      </thead>
+      <tbody>
+		{% for member in alumni %}
+		<tr>
+		  <td><a class="page_link" href="{% url 'member_profile' targetUsername=member.user.username %}" title="View Profile"><span class="glyphicon glyphicon-user"></span> {{ member.user.username }}</a></td>
+		  <td>{{ member.user.first_name }}</td>
+		  <td>{{ member.user.last_name }}</td>
+		  <td>{% if member.email_visible and member.user.email %}<a class="page_link" title="Write E-mail" href="mailto:{{ member.user.email }}"><span class="glyphicon glyphicon-envelope"></span> {{ member.user.email }}</a>{% endif %}</td>
+		  <td>{% if member.phone_visible %}{{ member.phone_number }}{% endif %}</td>
+		  <td>
+			{% if member.former_rooms %}
+			{% for room in member.former_rooms.all %}
+			{% if not forloop.first %}, {% endif %} <a href="{% url 'rooms:view' room_title=room.title %}">{{ room.title}}</a>{% endfor %}
+			{% endif %}
+		  </td>
+		</tr>
+		{% endfor %}
+      </tbody>
+    </table> <!-- #alumni_table -->
+  </div> <!-- .main_table -->
+</div> <!-- .table_container -->
+>>>>>>> django17
 {% endif %}
 
 <div class="text-center text-info" style="margin-top: 10px;">
+<<<<<<< HEAD
     {{ residents.count }} resident{{ residents|pluralize }}, {{ boarders.count }} boarder{{ boarders|pluralize }},
     and {{ alumni.count }} alumn{{ alumni|pluralize:"a/alumnus,i" }} in database.
     {{ residents.count|add:boarders.count|add:alumni.count }} total.
+=======
+  {{ residents.count }} resident{{ residents|pluralize }}, {{ boarders.count }} boarder{{ boarders|pluralize }},
+  and {{ alumni.count }} alumn{{ alumni|pluralize:"a/alumnus,i" }} in database.
+  {{ residents.count|add:boarders.count|add:alumni.count }} total.
+>>>>>>> django17
 </div>
 {% endblock %}
 
@@ -106,7 +179,7 @@
         widgetOptions: {
             resizable: true
         }
-        }); 
+        });
     });
 </script>
 {% endblock %}

@@ -15,6 +15,7 @@ required = [
     "Django>=1.6",
     "django-bootstrap-form>=3.1",
     "django-haystack",
+	"elasticsearch==1.0.0",
     ]
 
 setup(
@@ -42,11 +43,14 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
+		"Programming Language :: Python :: 3.3",
+		"Programming Language :: Python :: 3.4",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         ],
     dependency_links=[
         "git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master",
+		# "git://github.com/django/django.git#egg=django-1.7c1",
         ],
     extras_require={
         "PostgreSQL": ["psycopg2"],

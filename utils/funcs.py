@@ -8,6 +8,14 @@ A collection of functions used elsewhere in Farnsworth.
 
 import re
 
+from django import forms
+
+def form_add_error(form, field, error):
+    try:
+        form.add_error(field, error)
+    except AttributeError:
+        form._errors[field] = forms.util.ErrorList([error])
+
 def verify_username(username):
     ''' Verify a potential username.
     Parameters:

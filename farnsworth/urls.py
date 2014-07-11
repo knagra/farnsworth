@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
+
 from haystack.forms import FacetedSearchForm
 from haystack.query import SearchQuerySet
 from haystack.views import FacetedSearchView
@@ -23,6 +24,7 @@ urlpatterns = patterns('',
     url(r'', include('social.apps.django_app.urls', namespace='social')),
     url(r'', include('workshift.urls', namespace="workshift")),
 	url(r'', include('threads.urls', namespace='threads')),
+	url(r'', include('rooms.urls', namespace='rooms')),
 	url(r'', include('events.urls', namespace='events')),
 	url(r'', include('managers.urls', namespace='managers')),
 )

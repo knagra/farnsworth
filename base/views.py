@@ -7,10 +7,10 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 Views for base application.
 """
 
+from datetime import datetime, timedelta
 import time
 from smtplib import SMTPException
 
-from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate
@@ -25,8 +25,7 @@ from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import utc
 
-from datetime import datetime, timedelta
-
+from utils.funcs import form_add_error
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
     APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
     SUBMISSION_EMAIL
@@ -233,7 +232,7 @@ def my_profile_view(request):
         user=request.user,
         initial={
             'current_room': userProfile.current_room,
-            'former_rooms': userProfile.former_rooms,
+            'former_rooms': userProfile.former_rooms.all(),
             'former_houses': userProfile.former_houses,
             'email': user.email,
             'email_visible_to_others': userProfile.email_visible,
@@ -395,14 +394,20 @@ def request_profile_view(request):
         email = form.cleaned_data['email']
         if User.objects.filter(username=username).count():
             reset_url = request.build_absolute_uri(reverse('reset_pw'))
-            form._errors['username'] = forms.util.ErrorList([MESSAGES["USERNAME_TAKEN"].format(username=username)])
-            messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
+            form_add_error(form, 'username',
+                           MESSAGES["USERNAME_TAKEN"].format(username=username))
+            messages.add_message(request, messages.INFO,
+                                 MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
         elif User.objects.filter(email=email).count():
             reset_url = request.build_absolute_uri(reverse('reset_pw'))
-            messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
-            form._errors['email'] = forms.util.ErrorList([MESSAGES["EMAIL_TAKEN"]])
+            messages.add_message(request, messages.INFO,
+                                 MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
+            form_add_error(form, "email", MESSAGES["EMAIL_TAKEN"])
         elif ProfileRequest.objects.filter(first_name=first_name, last_name=last_name).count():
-            form.errors['__all__'] = form.error_class([MESSAGES["PROFILE_TAKEN"].format(first_name=first_name, last_name=last_name)])
+            form_add_error(
+                form, '__all__',
+                MESSAGES["PROFILE_TAKEN"].format(first_name=first_name,
+                                                 last_name=last_name))
         elif User.objects.filter(first_name=first_name, last_name=last_name).count():
             reset_url = request.build_absolute_uri(reverse('reset_pw'))
             messages.add_message(request, messages.INFO, MESSAGES['PROFILE_REQUEST_RESET'].format(reset_url=reset_url))
@@ -453,7 +458,8 @@ def modify_profile_request_view(request, request_pk):
             'last_name': profile_request.last_name,
             'email': profile_request.email,
             'is_active': True,
-            })
+            },
+        )
     addendum = ""
     if 'delete_request' in request.POST:
         if settings.SEND_EMAILS and (profile_request.email not in settings.EMAIL_BLACKLIST):
