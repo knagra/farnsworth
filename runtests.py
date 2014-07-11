@@ -8,7 +8,6 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 if this_dir not in sys.path:
     sys.path.insert(0, this_dir)
 
-import django
 from django.test.utils import get_runner
 from django.conf import settings
 
@@ -22,7 +21,7 @@ def runtests():
         "managers",
         "workshift",
         "elections",
-		"rooms",
+        "rooms",
         ])
     sys.exit(bool(failures))
 
