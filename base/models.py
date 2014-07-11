@@ -38,7 +38,7 @@ class UserProfile(models.Model):
     former_houses = models.CharField(blank=True, null=True, max_length=100, help_text="List of user's former BSC houses")
     phone_number = PhoneNumberField(
         blank=True,
-        null=True,
+        default='',
         )
     email_visible = models.BooleanField(default=False, help_text="Whether the email is visible in the directory")
     phone_visible = models.BooleanField(default=False, help_text="Whether the phone number is visible in the directory")
