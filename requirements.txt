@@ -1,6 +1,6 @@
 Django==1.6.5
 django-bootstrap-form==3.1
--e hg+https://bitbucket.org/schinckel/django-weekday-field@6cb823c5e94aad1aa5dd1caad4dd7a5be7391b28#egg=django_weekday_field-dev
+-e hg+https://bitbucket.org/NaderM/django-weekday-field@6cb823c5e94aad1aa5dd1caad4dd7a5be7391b28#egg=django_weekday_field-dev
 elasticsearch==1.0.0
 python-social-auth==0.1.26
 psycopg2==2.5.3
