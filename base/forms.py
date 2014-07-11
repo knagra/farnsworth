@@ -7,9 +7,11 @@ from django import forms
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import hashers
 
+from phonenumber_field.formfields import PhoneNumberField
+
 from social.apps.django_app.default.models import UserSocialAuth
 
-from utils.funcs import verify_username
+from utils.funcs import verify_username, form_add_error
 from utils.variables import MESSAGES
 from rooms.models import Room
 from base.models import UserProfile, ProfileRequest
@@ -55,8 +57,8 @@ class ProfileRequestForm(forms.Form):
             return False
         validity = True
         if self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
-            self._errors['password'] = forms.util.ErrorList([u"Passwords don't match."])
-            self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+            form_add_error(self, 'password', "Passwords don't match.")
+            form_add_error(self, 'confirm_password', "Passwords don't match.")
             validity = False
         return validity
 
@@ -80,7 +82,7 @@ class AddUserForm(forms.Form):
     last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
     email = forms.EmailField(max_length=100, required=False)
     email_visible_to_others = forms.BooleanField(required=False)
-    phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
+    phone_number = PhoneNumberField(required=False)
     phone_visible_to_others = forms.BooleanField(required=False)
     status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
     current_room = forms.ModelChoiceField(
@@ -127,10 +129,10 @@ class AddUserForm(forms.Form):
             non_field_error = "A profile for {0} {1} already exists with username {2}." \
               .format(first_name, last_name,
                       User.objects.get(first_name=first_name, last_name=last_name).username)
-            self._errors['__all__'] = forms.util.ErrorList([non_field_error])
+            form_add_error(self, '__all__', non_field_error)
         if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
-            self._errors['user_password'] = forms.util.ErrorList([u"Passwords don't match."])
-            self._errors['confirm_password'] = forms.util.ErrorList([u"Passwords don't match."])
+            form_add_error(self, 'user_password', "Passwords don't match.")
+            form_add_error(self, 'confirm_password', "Passwords don't match.")
             return False
         return True
 
@@ -212,7 +214,7 @@ class ModifyUserForm(forms.Form):
     last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
     email = forms.EmailField(max_length=100, required=False)
     email_visible_to_others = forms.BooleanField(required=False)
-    phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
+    phone_number = PhoneNumberField(required=False)
     phone_visible_to_others = forms.BooleanField(required=False)
     status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
     current_room = forms.ModelChoiceField(
@@ -293,7 +295,7 @@ class ModifyProfileRequestForm(forms.Form):
     last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
     email = forms.EmailField(max_length=100, required=False)
     email_visible_to_others = forms.BooleanField(required=False)
-    phone_number = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'size':'50'}))
+    phone_number = PhoneNumberField(required=False)
     phone_visible_to_others = forms.BooleanField(required=False)
     status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
     current_room = forms.ModelChoiceField(
@@ -325,7 +327,7 @@ class ModifyProfileRequestForm(forms.Form):
               .format(first_name, last_name,
                       User.objects.get(first_name=first_name,
                                        last_name=last_name).username)
-            self._errors['__all__'] = forms.util.ErrorList([non_field_error])
+            form_add_error(self, '__all__', non_field_error)
         return True
 
     def clean_username(self):
@@ -394,8 +396,7 @@ class UpdateProfileForm(forms.Form):
     email = forms.EmailField(max_length=255, required=False)
     email_visible_to_others = forms.BooleanField(required=False,
         help_text="Make your e-mail address visible to other members in member directory, your profile, and elsewhere.")
-    phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'size':'50'}), required=False,
-        help_text="In format #-###-###-####, for best sortability.")
+    phone_number = PhoneNumberField(required=False)
     phone_visible_to_others = forms.BooleanField(required=False,
         help_text="Make your phone number visible to other members in member directory, your profile, and elsewhere.")
     enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))

@@ -610,7 +610,7 @@ class TestProfilePages(TestCase):
         self.profile = UserProfile.objects.get(user=self.u)
         self.profile.current_room = self.r
         self.profile.former_houses = "Test House, Test Houser, Test Housest"
-        self.profile.phone_number = "(111) 111-1111"
+        self.profile.phone_number = "+15101111111"
         self.profile.email_visible = False
         self.profile.phone_visible = False
         self.profile.status = UserProfile.RESIDENT
@@ -621,7 +621,7 @@ class TestProfilePages(TestCase):
         self.oprofile = UserProfile.objects.get(user=self.ou)
         self.oprofile.current_room = self.r
         self.oprofile.former_houses = "Other Test House, Test Houser, Test Housest"
-        self.oprofile.phone_number = "(222) 222-2222"
+        self.oprofile.phone_number = "+15102222222"
         self.oprofile.email_visible = False
         self.oprofile.phone_visible = False
         self.oprofile.status = UserProfile.RESIDENT
@@ -726,7 +726,7 @@ class TestModifyUser(TestCase):
         self.su.save()
 
         self.profile = UserProfile.objects.get(user=self.ou)
-        self.profile.phone_number = "(222) 222-2222"
+        self.profile.phone_number = "+15102222222"
         self.profile.save()
 
     def test_set_visible(self):
@@ -856,7 +856,7 @@ class TestAdminFunctions(TestCase):
                 "first_name": "First",
                 "last_name": "Last",
                 "email": "nu@email.com",
-                "phone_number": "(222) 222-2222",
+                "phone_number": "+15102222222",
                 "user_password": "newpwd",
                 "confirm_password": "newpwd",
                 "is_active": "true",
@@ -874,7 +874,7 @@ class TestAdminFunctions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "nu@email.com")
-        self.assertNotContains(response, "(222) 222-2222")
+        self.assertNotContains(response, "+12222222222")
 
         self.client.logout()
 
@@ -892,7 +892,7 @@ class TestAdminFunctions(TestCase):
                 "first_name": "First",
                 "last_name": "Last",
                 "email": "nu@email.com",
-                "phone_number": "(222) 222-2222",
+                "phone_number": "+15102222222",
                 "user_password": "newpwd",
                 "confirm_password": "newpwd",
                 "is_active": True,
@@ -911,7 +911,7 @@ class TestAdminFunctions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "nu@email.com")
-        self.assertContains(response, "(222) 222-2222")
+        self.assertContains(response, "+15102222222")
 
     def test_set_add_status(self):
         """
@@ -925,7 +925,7 @@ class TestAdminFunctions(TestCase):
                     "first_name": "First",
                     "last_name": "Last",
                     "email": "nu@email.com",
-                    "phone_number": "(222) 222-2222",
+                    "phone_number": "+15102222222",
                     "user_password": "newpwd",
                     "confirm_password": "newpwd",
                     "is_active": "true",
@@ -1010,14 +1010,14 @@ class TestMemberDirectory(TestCase):
         self.buprofile = UserProfile.objects.get(user=self.bu)
         self.auprofile = UserProfile.objects.get(user=self.au)
 
-        self.ruprofile.phone_number = "(000) 000-0000"
+        self.ruprofile.phone_number = "+15100000000"
 
         self.buprofile.status = UserProfile.BOARDER
-        self.buprofile.phone_number = "(111) 111-1111"
+        self.buprofile.phone_number = "+15101111111"
         self.buprofile.email_visible = True
 
         self.auprofile.status = UserProfile.ALUMNUS
-        self.auprofile.phone_number = "(222) 222-2222"
+        self.auprofile.phone_number = "+15102222222"
         self.auprofile.phone_visible = True
 
         self.ruprofile.save()
@@ -1062,7 +1062,7 @@ class TestSearch(TestCase):
         self.u.save()
 
         self.profile = UserProfile.objects.get(user=self.u)
-        self.profile.phone_number = "(111) 111-1111"
+        self.profile.phone_number = "+15101111111"
         self.profile.save()
 
         self.sqs = SearchQuerySet()
