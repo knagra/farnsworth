@@ -359,7 +359,7 @@ p {
 	</div> <!-- #admin_misc -->
 	</div> <!-- .row -->
 	{% endif %}
-	
+
 	{% if user.is_superuser or PRESIDENT %}
 	<div class="row">
 	<div id="meta_manager" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
@@ -371,10 +371,10 @@ p {
 		<div id="meta_manager_body" class="toggleable">
 		<hr style="width: 75%;" />
 		<h2 class="sub_subtitle"><a name="adding_managers" title="A link to this sub-section" href="#adding_managers">&sect;</a> Adding Managers</h2>
-			<p>Managers are managed from the <a href="{% url 'meta_manager' %}">meta-manager</a> page.
+			<p>Managers are managed from the <a href="{% url 'managers:meta_manager' %}">meta-manager</a> page.
 			</p>
 			<p>You can add a new manager by clicking the top right button on the meta-manager page or by going directly to
-			the <a href="{% url 'add_manager' %}">add manager</a> page.  A manager position can have only one incumbent.  Keep this in mind.
+			the <a href="{% url 'managers:add_manager' %}">add manager</a> page.  A manager position can have only one incumbent.  Keep this in mind.
 			</p>
 			<p>Since houses allow multiple members to hold the same position, an "active" status is available for these scenarios.
 			The recommended way to have multiple members hold the same position is to create multiple types of a singular position.
@@ -398,7 +398,7 @@ p {
 			</p>
 			<p>The "workshift manager" status is currently not used but is included in case a workshift package is rolled out in the future.
 			</p>
-			<p>The "active" status indicates whether the manager is visible in the directory to the general membership 
+			<p>The "active" status indicates whether the manager is visible in the directory to the general membership
 			</p>
 			<p>The e-mail form should be for official e-mails for that manager, not personal e-mails.  Personal e-mails are under individual users' control.
 			This field is optional as not all manager positions have dedicated e-mail addresses.
@@ -423,7 +423,7 @@ p {
 			<p>For this maintenance work, you will need to modify manager instances.
 			</p>
 			<p>You can see a list of managers and links to their modification pages, incumbent user profile pages, and manager e-mails from
-			the <a href="{% url 'meta_manager' %}">meta-manager</a> (a manager of managers) page.
+			the <a href="{% url 'managers:meta_manager' %}">meta-manager</a> (a manager of managers) page.
 			This list will tell you most of the handy information about each manager, as well.
 			Unlike the manager directory, this list does not show incumbents' personal e-mails.
 			The meta-manager table is sortable, just like any other table in Farnsworth.
@@ -438,7 +438,7 @@ p {
 		</div> <!-- #meta_manager_body -->
 	</div> <!-- #meta_manager -->
 	</div> <!-- .row -->
-	
+
 	<div class="row">
 	<div id="request_types" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 		<h1 class="sub_title text-center">
@@ -464,11 +464,11 @@ p {
 			When request types are enabled, they will automatically be added to the list in the dropdown menu.
 			When request types are disabled, they will automatically be removed from the list.
 			</p>
-			<p>You can see a list of request types from the <a href="{% url 'manage_request_types' %}">manage request types</a> page.
+			<p>You can see a list of request types from the <a href="{% url 'managers:manage_request_types' %}">manage request types</a> page.
 			</p>
 		<h2 class="sub_subtitle"><a name="adding_request_types" title="A link to this sub-section" href="#adding_request_types">&sect;</a> Adding Request Types</h2>
-			<p>The Add Request Type button on the <a href="{% url 'manage_request_types' %}">manage request types</a> page will take you to the
-			<a href="{% url 'add_request_type' %}">add request type</a> page.  Filling out and submitting this form will add a new request type.
+			<p>The Add Request Type button on the <a href="{% url 'managers:manage_request_types' %}">manage request types</a> page will take you to the
+			<a href="{% url 'managers:add_request_type' %}">add request type</a> page.  Filling out and submitting this form will add a new request type.
 			</p>
 			<p>It is recommended, for presentability, that request types be treated as titles (first letter of each word capitalized, unless an acronym).
 			Request type names are converted to URLs in the same manner as the manager titles; so the same rules apply to request type names as manager titles.
@@ -510,7 +510,7 @@ p {
 			</p>
 		<h2 class="sub_subtitle"><a name="managing_request_types" title="A link to this sub-section" href="#managing_request_types">&sect;</a> Managing Request Types</h2>
 			<p>You can see a list of all the request types with links to modify them, relevant managers, and whether they are enabled from the
-			<a href="{% url 'manage_request_types' %}">manage request types</a> page.
+			<a href="{% url 'managers:manage_request_types' %}">manage request types</a> page.
 			From here, you can also see links to view relevant managers or their incumbents.
 			When you click on the name of a request type, you will be taken to the modify request type page.
 			</p>
@@ -520,7 +520,7 @@ p {
 	</div> <!-- #request_types -->
 	</div> <!-- .row -->
 	{% endif %}
-	
+
 	<div class="row">
 	<div id="navigation" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 		<h1 class="sub_title text-center">
@@ -668,7 +668,7 @@ p {
 		</div> <!-- #profile_body -->
 	</div> <!-- #profile -->
 	</div> <!-- .row -->
-	
+
 	<div class="row">
 	<div id="threads" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 		<h1 class="sub_title text-center">
@@ -711,7 +711,7 @@ p {
 		</div> <!-- #threads_body -->
 	</div> <!-- #threads -->
 	</div> <!-- .row -->
-	
+
 	<div class="row">
 	<div id="requests" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 		<h1 class="sub_title text-center">
@@ -755,7 +755,7 @@ p {
 		</div> <!-- #requests_body -->
 	</div> <!-- #requests -->
 	</div> <!-- .row -->
-	
+
 	<div class="row">
 	<div id="announcements" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 		<h1 class="sub_title text-center">
@@ -768,7 +768,7 @@ p {
 			<p>If you are a manager, you can make an announcement that will be pinned to the home page
 			and the manager announcements page until you unpin it.
 			If you unpin an announcement and want it to be repinned, you can visit the
-			<a href="{% url 'all_announcements' %}">all announcements</a> page to repin it to the home page and
+			<a href="{% url 'managers:all_announcements' %}">all announcements</a> page to repin it to the home page and
 			the manager announcement page.
 			</p>
 			<p>Announcements are meant to be high priority addresses to the entire house.
@@ -780,7 +780,7 @@ p {
 			Doing so will move your announcement to the archives, where it can still be seen.
 			</p>
 			<p>If you accidentally unpin an announcement and want to repin it, you can go to the
-			<a href="{% url 'all_announcements' %}">all announcements</a> page and repin it from there.
+			<a href="{% url 'managers:all_announcements' %}">all announcements</a> page and repin it from there.
 			</p>
 			<p>You can edit an announcement by clicking the edit link at the bottom right side of the announcement.
 			Once you edit an announcement and save it, you will be taken to a page that shows you the modified
@@ -795,7 +795,7 @@ p {
 		</div> <!-- #announcements_body -->
 	</div> <!-- #announcements -->
 	</div> <!-- .row -->
-	
+
 	<div class="row">
 	<div id="events" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 		<h1 class="sub_title text-center">
@@ -826,7 +826,7 @@ p {
 		</div> <!-- #events_body -->
 	</div> <!-- #events -->
 	</div> <!-- .row -->
-	
+
 	<div class="row">
 	<div id="misc" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 		<h1 class="sub_title text-center">

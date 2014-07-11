@@ -228,7 +228,8 @@ class TestAnonymousUser(TestCase):
             "Logged in as anonymous user Anonymous Coward",
             )
 
-        response = self.client.get("/custom_admin/anonymous_login/", follow=True)
+        url = reverse("managers:anonymous_login")
+        response = self.client.get(url, follow=True)
         self.assertRedirects(response, "/")
         self.assertContains(
             response,
@@ -236,11 +237,11 @@ class TestAnonymousUser(TestCase):
             )
 
     def test_anonymous_end(self):
-        url = reverse("anonymous_login")
+        url = reverse("managers:anonymous_login")
         self.client.get(url)
         self.client.login(username="su", password="pwd")
 
-        url = reverse("end_anonymous_session")
+        url = reverse("managers:end_anonymous_session")
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, reverse("utilities"))
         self.assertContains(response, MESSAGES["ANONYMOUS_SESSION_ENDED"])
@@ -251,16 +252,20 @@ class TestAnonymousUser(TestCase):
 
     def test_anonymous_profile(self):
         # Failing before anonymous user is first logged in
-        response = self.client.get("/profile/{0}/".format(ANONYMOUS_USERNAME))
+        url = reverse("member_profile", kwargs={"targetUsername": ANONYMOUS_USERNAME})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-        self.client.get("/custom_admin/anonymous_login/")
+        url = reverse("managers:anonymous_login")
+        self.client.get(url)
 
-        response = self.client.get("/profile/{0}/".format(ANONYMOUS_USERNAME))
+        url = reverse("member_profile", kwargs={"targetUsername": ANONYMOUS_USERNAME})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Anonymous Coward")
 
-        response = self.client.get("/profile/", follow=True)
+        url = reverse("my_profile")
+        response = self.client.get(url, follow=True)
         self.assertRedirects(response, "/")
         self.assertContains(response, MESSAGES['SPINELESS'])
 
@@ -270,11 +275,15 @@ class TestAnonymousUser(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-        self.client.get("/custom_admin/anonymous_login/")
-        self.client.get("/logout/", follow=True)
+        url = reverse("managers:anonymous_login")
+        self.client.get(url)
+
+        url = reverse("logout")
+        self.client.get(url, follow=True)
 
         self.client.login(username="su", password="pwd")
 
+        url = reverse("custom_modify_user", kwargs={"targetUsername": ANONYMOUS_USERNAME})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Anonymous")
@@ -282,20 +291,22 @@ class TestAnonymousUser(TestCase):
         self.assertContains(response, MESSAGES['ANONYMOUS_EDIT'])
 
     def test_anonymous_logout(self):
-        url = reverse("anonymous_login")
+        url = reverse("managers:anonymous_login")
         self.client.get(url)
 
-        response = self.client.get("/logout/", follow=True)
+        url = reverse("logout")
+        response = self.client.get(url, follow=True)
         self.assertRedirects(response, "/")
         self.assertContains(response, MESSAGES['ANONYMOUS_DENIED'])
 
     def test_anonymous_user_login_logout(self):
-        url = reverse("anonymous_login")
+        url = reverse("managers:anonymous_login")
         self.client.get(url)
 
         # Need to be careful here, client.login and client.logout clear the
         # session cookies, causing this test to break
-        response = self.client.post("/login/", {
+        url = reverse("login")
+        response = self.client.post(url, {
                 "username_or_email": "u",
                 "password": "pwd",
                 }, follow=True)
@@ -306,7 +317,8 @@ class TestAnonymousUser(TestCase):
             "Logged in as anonymous user Anonymous Coward",
             )
 
-        response = self.client.get("/logout/", follow=True)
+        url = reverse("logout")
+        response = self.client.get(url, follow=True)
         self.assertRedirects(response, "/")
 
         response = self.client.get("/")
@@ -392,7 +404,7 @@ class TestManager(TestCase):
         self.client.login(username="su", password="pwd")
 
     def test_add_manager(self):
-        url = reverse("add_manager")
+        url = reverse("managers:add_manager")
         response = self.client.post(url, {
                 "title": "Test Manager",
                 "incumbent": "1",
@@ -413,7 +425,7 @@ class TestManager(TestCase):
         self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url("Test Manager")).count())
 
     def test_duplicate_title(self):
-        url = reverse("add_manager")
+        url = reverse("managers:add_manager")
         response = self.client.post(url, {
                 "title": self.m1.title,
                 "incumbent": "1",
@@ -429,7 +441,7 @@ class TestManager(TestCase):
         self.assertContains(response, "A manager with this title already exists.")
 
     def test_duplicate_url_title(self):
-        url = reverse("add_manager")
+        url = reverse("managers:add_manager")
         response = self.client.post(url, {
                 "title": "SETUP MANAGER",
                 "incumbent": "1",
@@ -446,8 +458,8 @@ class TestManager(TestCase):
 
     def test_edit_manager(self):
         new_title = "New setUp Manager"
-        response = self.client.post("/custom_admin/managers/{0}/"
-                                    .format(self.m1.url_title), {
+        url = reverse("managers:edit_manager", kwargs={"managerTitle": self.m1.url_title})
+        response = self.client.post(url, {
                 "title": new_title,
                 "incumbent": self.m1.incumbent.pk,
                 "compensation": "Test % Compensation",
@@ -467,8 +479,8 @@ class TestManager(TestCase):
         self.assertEqual(1, Manager.objects.filter(url_title=convert_to_url(new_title)).count())
 
     def test_edit_title(self):
-        response = self.client.post("/custom_admin/managers/{0}/"
-                                    .format(self.m1.url_title), {
+        url = reverse("managers:edit_manager", kwargs={"managerTitle": self.m1.url_title})
+        response = self.client.post(url, {
                 "title": self.m2.title,
                 "incumbent": self.m2.incumbent.pk,
                 "compensation": "Test % Compensation",
@@ -483,8 +495,8 @@ class TestManager(TestCase):
         self.assertContains(response, "A manager with this title already exists.")
 
     def test_edit_url_title(self):
-        response = self.client.post("/custom_admin/managers/{0}/"
-                                    .format(self.m1.url_title), {
+        url = reverse("managers:edit_manager", kwargs={"managerTitle": self.m1.url_title})
+        response = self.client.post(url, {
                 "title": self.m2.url_title.upper(),
                 "incumbent": self.m2.incumbent.pk,
                 "compensation": "Test % Compensation",

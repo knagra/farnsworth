@@ -72,7 +72,7 @@ def manager_view(request, managerTitle):
 
 	if not targetManager.active:
 		messages.add_message(request, messages.ERROR, MESSAGES['INACTIVE_MANAGER'].format(managerTitle=targetManager.title))
-		return HttpResponseRedirect(reverse('list_managers'))
+		return HttpResponseRedirect(reverse('managers:list_managers'))
 	else:
 		return render_to_response('view_manager.html', {
 				'page_name': "View Manager",
@@ -99,7 +99,7 @@ def add_manager_view(request):
 		manager = form.save()
 		messages.add_message(request, messages.SUCCESS,
 					 MESSAGES['MANAGER_ADDED'].format(managerTitle=manager.title))
-		return HttpResponseRedirect(reverse('add_manager'))
+		return HttpResponseRedirect(reverse('managers:add_manager'))
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Add Manager",
 			'form': form,
@@ -121,7 +121,7 @@ def edit_manager_view(request, managerTitle):
 		manager = form.save()
 		messages.add_message(request, messages.SUCCESS,
 							 MESSAGES['MANAGER_SAVED'].format(managerTitle=manager.title))
-		return HttpResponseRedirect(reverse('meta_manager'))
+		return HttpResponseRedirect(reverse('managers:meta_manager'))
 	return render_to_response('edit_manager.html', {
 			'page_name': "Admin - Edit Manager",
 			'form': form,
@@ -148,7 +148,7 @@ def add_request_type_view(request):
 		rtype = form.save()
 		messages.add_message(request, messages.SUCCESS,
 							 MESSAGES['REQUEST_TYPE_ADDED'].format(typeName=rtype.name))
-		return HttpResponseRedirect(reverse('manage_request_types'))
+		return HttpResponseRedirect(reverse('managers:manage_request_types'))
 	return render_to_response('edit_request_type.html', {
 			'page_name': "Admin - Add Request Type",
 			'form': form,
@@ -170,7 +170,7 @@ def edit_request_type_view(request, typeName):
 		rtype = form.save()
 		messages.add_message(request, messages.SUCCESS,
 							 MESSAGES['REQUEST_TYPE_SAVED'].format(typeName=rtype.name))
-		return HttpResponseRedirect(reverse('manage_request_types'))
+		return HttpResponseRedirect(reverse('managers:manage_request_types'))
 	return render_to_response('edit_request_type.html', {
 			'page_name': "Admin - Edit Request Type",
 			'form': form,
@@ -212,13 +212,13 @@ def requests_view(request, requestType):
 		)
 	if request_form.is_valid():
 		request_form.save()
-		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
+		return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
 	if response_form.is_valid():
 		response_form.save()
-		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
+		return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
 	if vote_form.is_valid():
 		vote_form.save()
-		return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
+		return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
 	x = 0 # number of requests loaded
 	requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, vote_form)
 	for req in Request.objects.filter(request_type=request_type):
@@ -272,10 +272,10 @@ def my_requests_view(request):
 		)
 	if request_form.is_valid():
 		request_form.save()
-		return HttpResponseRedirect(reverse('my_requests'))
+		return HttpResponseRedirect(reverse('managers:my_requests'))
 	if response_form.is_valid():
 		response_form.save()
-		return HttpResponseRedirect(reverse('my_requests'))
+		return HttpResponseRedirect(reverse('managers:my_requests'))
 	my_requests = Request.objects.filter(owner=userProfile)
 	request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...], relevant_managers)
 	for request_type in RequestType.objects.all():
@@ -407,11 +407,11 @@ def request_view(request, request_pk):
 		)
 	if response_form.is_valid():
 		response_form.save()
-		return HttpResponseRedirect(reverse('view_request',
+		return HttpResponseRedirect(reverse('managers:view_request',
 						kwargs={'request_pk': relevant_request.pk}))
 	if vote_form.is_valid():
 		vote_form.save(pk=request_pk)
-		return HttpResponseRedirect(reverse('view_request',
+		return HttpResponseRedirect(reverse('managers:view_request',
 						kwargs={'request_pk': relevant_request.pk}))
 	upvote = userProfile in relevant_request.upvotes.all()
 	return render_to_response('view_request.html', {
@@ -440,7 +440,7 @@ def announcement_view(request, announcement_pk):
 	if unpin_form.is_valid():
 		unpin_form.save()
 		return HttpResponseRedirect(
-			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
+			reverse('managers:view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
 	return render_to_response('view_announcement.html', {
 			'page_name': page_name,
@@ -456,7 +456,7 @@ def edit_announcement_view(request, announcement_pk):
 	profile = UserProfile.objects.get(user=request.user)
 	if not (announce.incumbent == profile or request.user.is_superuser):
 		return HttpResponseRedirect(
-			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
+			reverse('managers:view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
 	page_name = "Edit Announcement"
 
@@ -468,7 +468,7 @@ def edit_announcement_view(request, announcement_pk):
 	if announcement_form.is_valid():
 		announcement_form.save()
 		return HttpResponseRedirect(
-			reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
+			reverse('managers:view_announcement', kwargs={"announcement_pk": announcement_pk}),
 			)
 
 	return render_to_response('edit_announcement.html', {
@@ -493,10 +493,10 @@ def announcements_view(request):
 			)
 	if unpin_form.is_valid():
 		unpin_form.save()
-		return HttpResponseRedirect(reverse('announcements'))
+		return HttpResponseRedirect(reverse('managers:announcements'))
 	if announcement_form and announcement_form.is_valid():
 		announcement_form.save()
-		return HttpResponseRedirect(reverse('announcements'))
+		return HttpResponseRedirect(reverse('managers:announcements'))
 	# A pseudo-dictionary, actually a list with items of form:
 	# (announcement, announcement_unpin_form)
 	announcements_dict = list()
@@ -539,10 +539,10 @@ def all_announcements_view(request):
 		)
 	if unpin_form.is_valid():
 		unpin_form.save()
-		return HttpResponseRedirect(reverse('all_announcements'))
+		return HttpResponseRedirect(reverse('managers:all_announcements'))
 	if announcement_form and announcement_form.is_valid():
 		announcement_form.save()
-		return HttpResponseRedirect(reverse('all_announcements'))
+		return HttpResponseRedirect(reverse('managers:all_announcements'))
 
 	announcements = Announcement.objects.all()
 	announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_pin_form)
@@ -559,28 +559,3 @@ def all_announcements_view(request):
 			'announcements_dict': announcements_dict,
 			'announcement_form': announcement_form,
 			}, context_instance=RequestContext(request))
-
-@admin_required
-def recount_view(request):
-	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
-	requests_changed = 0
-	for req in Request.objects.all():
-		recount = Response.objects.filter(request=req).count()
-		if req.number_of_responses != recount:
-			req.number_of_responses = recount
-			req.save()
-			requests_changed += 1
-	threads_changed = 0
-	for thread in Thread.objects.all():
-		recount = Message.objects.filter(thread=thread).count()
-		if thread.number_of_messages != recount:
-			thread.number_of_messages = recount
-			thread.save()
-			threads_changed += 1
-	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
-			requests_changed=requests_changed,
-			request_count=Request.objects.all().count(),
-			threads_changed=threads_changed,
-			thread_count=Thread.objects.all().count()),
-			)
-	return HttpResponseRedirect(reverse('utilities'))

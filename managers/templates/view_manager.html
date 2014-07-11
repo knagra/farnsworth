@@ -12,7 +12,7 @@
 <div id="user_profile" class="table_container">
 	<div class="header">
 		{% if user.is_superuser or PRESIDENT %}
-			<form class="header_form" action="{% url 'edit_manager' managerTitle=targetManager.url_title %}">
+			<form class="header_form" action="{% url 'managers:edit_manager' managerTitle=targetManager.url_title %}">
 				<button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs"> Edit</span></button>
 			</form>
 		{% endif %}
@@ -42,7 +42,7 @@
 	</dl>
 	<hr>
 	<div class="text-center">
-		<form action="{% url 'list_managers' %}">
+		<form action="{% url 'managers:list_managers' %}">
 			<button id="member_directory" type="submit" class="btn btn-lg btn-info"><span class="glyphicon glyphicon-tower"></span> Manager Directory</button>
 		</form>
 	</div>

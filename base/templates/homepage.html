@@ -36,7 +36,7 @@ function hide_form(form_id) {
 <div class="col-lg-12">
 <div class="requests table_container">
 	<div class="header">
-		<form style="display: inline-block; position: relative; top: -3px; float: right; margin-right: 3px;" action="{% url 'requests' requestType=type_tuple.0.url_name %}">
+		<form style="display: inline-block; position: relative; top: -3px; float: right; margin-right: 3px;" action="{% url 'managers:requests' requestType=type_tuple.0.url_name %}">
 			<button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> Requests Page</span></button>
 		</form>
 		<h3 class="table_title{% if type_tuple.0.name|longer_than:'1234567890123456789012' %} large_title{% elif type_tuple.0.name|longer_than:'123456789012345' %} medium_title{% elif type_tuple.0.name|longer_than:'1234567' %} small_title{% endif %}">
@@ -178,7 +178,7 @@ function hide_form(form_id) {
 			{% endif %}
 			<div class="main_row hover_row">
 			<div class="announcement_owner">
-				<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
+				<a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
 				(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">{{ tuple.0.incumbent|display_user:user }}</a>),
 				{{ tuple.0.post_date }}:
 			</div> <!-- .announcement_owner -->
@@ -193,7 +193,7 @@ function hide_form(form_id) {
 						<button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
 						{% endif %}
 					</form>
-					<form class="pull-right" action="{% url 'edit_announcement' announcement_pk=tuple.0.pk %}">
+					<form class="pull-right" action="{% url 'managers:edit_announcement' announcement_pk=tuple.0.pk %}">
 						<button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
 					</form>
 				{% endif %}
@@ -282,8 +282,8 @@ function hide_form(form_id) {
 	<div class="main_row hover_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Happening Now{% elif tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
 		<div class="main_owner">
 		{% if tuple.0.as_manager %}
-			<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=tuple.0.as_manager.url_title %}">{{ tuple.0.as_manager }}</a>
-			(<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>):
+			<a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=tuple.0.as_manager.url_title %}">{{ tuple.0.as_manager }}</a>
+			(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>):
 		{% else %}
 			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>:
 		{% endif %}
