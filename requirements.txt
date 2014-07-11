@@ -7,3 +7,4 @@ psycopg2==2.5.3
 -e git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master
 pypandoc
 django-cron==0.3.3
+django-phonenumber-field==0.5

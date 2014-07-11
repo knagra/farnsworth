@@ -8,6 +8,8 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User, Group, Permission
 
+from phonenumber_field.modelfields import PhoneNumberField
+
 from social.utils import setting_name
 
 from rooms.models import Room
@@ -34,7 +36,10 @@ class UserProfile(models.Model):
         related_name="former_rooms",
         )
     former_houses = models.CharField(blank=True, null=True, max_length=100, help_text="List of user's former BSC houses")
-    phone_number = models.CharField(blank=True, null=True, max_length=20, help_text="User's phone number")
+    phone_number = PhoneNumberField(
+        blank=True,
+        null=True,
+        )
     email_visible = models.BooleanField(default=False, help_text="Whether the email is visible in the directory")
     phone_visible = models.BooleanField(default=False, help_text="Whether the phone number is visible in the directory")
     RESIDENT = 'R'
