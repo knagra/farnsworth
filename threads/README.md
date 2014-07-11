@@ -21,3 +21,11 @@ Community threads, forums, messages.  Includes URLs for the threads application.
 * `list_user_threads_view` - Lists threads owned (started) by a given user.
 * `list_all_threads_view` - Lists all threads in the database.
 * `thread_view` - View of an individual thread.
+
+### CSS - `/threads/static/ui/css/`
+* `list_threads.css`
+* `threads.css`
+
+### Template tags - `/threads/templatetags/thread_tags.py`
+* `display_user` - Convenience function for displaying 'You' or the username of a user given the logged in user.
+* `show_404_subtext` - Returns randomly picked choice from `utils.variables.SUBTEXTS_404`
