@@ -1,7 +1,8 @@
 ### Core Module - `/farnsworth/`
 This directory contains the settings (`settings.py`) and the main set of URLs for the application (`urls.py`),
 which covers URLs for the base, threads, and managers applications, but does not contain URLs for other applications.
-Settings are divided into `settings.py`, `local_settings.py`, and `house_settings.py.example`.
+Settings are divided into `settings.py`, `local_settings.py`, and `house_settings.py.example`,
+which should be modified and renamed to `house_settings.py` upon installation.
 
 #### Settings
 ##### `/farnsworth/settings.py`
