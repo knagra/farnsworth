@@ -63,3 +63,13 @@ class MessageForm(forms.Form):
 		thread.number_of_messages += 1
 		thread.change_date = datetime.utcnow().replace(tzinfo=utc)
 		thread.save()
+
+class EditThreadForm(forms.ModelForm):
+    class Meta:
+        model = Thread
+        fields = ("subject",)
+
+class EditMessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ("body",)
