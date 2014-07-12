@@ -124,6 +124,7 @@ class AddUserForm(forms.Form):
               .format(first_name, last_name,
                       User.objects.get(first_name=first_name, last_name=last_name).username)
             form_add_error(self, '__all__', non_field_error)
+            return False
         if self.cleaned_data['user_password'] != self.cleaned_data['confirm_password']:
             form_add_error(self, 'user_password', "Passwords don't match.")
             form_add_error(self, 'confirm_password', "Passwords don't match.")
@@ -300,6 +301,7 @@ class ModifyProfileRequestForm(forms.Form):
                       User.objects.get(first_name=first_name,
                                        last_name=last_name).username)
             form_add_error(self, '__all__', non_field_error)
+            return False
         return True
 
     def clean_username(self):

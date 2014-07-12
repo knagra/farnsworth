@@ -11,18 +11,16 @@ from rooms.forms import RoomForm, RoomForm
 
 @profile_required
 def list_rooms(request):
-    rooms = Room.objects.all()
-    page_name = "Room List"
+    """ Display a list of rooms. """
     return render_to_response('list_rooms.html', {
-        'page_name': page_name,
-        'rooms': rooms,
+        'page_name': "Room List",
+        'rooms': Room.objects.all(),
     }, context_instance=RequestContext(request))
 
 @admin_required
 def add_room(request):
     page_name = "Add Room"
     form = RoomForm(request.POST or None)
-    form["current_residents"].queryset = UserProfile.objects.filter(status=UserProfile.RESIDENT)
 
     if form.is_valid():
         form.save()
@@ -53,9 +51,8 @@ def edit_room(request, room_title):
     if room.unofficial_name:
         page_name += " ({0})".format(room.unofficial_name)
     form = RoomForm(request.POST or None, instance=room)
-    form["current_residents"].queryset = UserProfile.objects.filter(status=UserProfile.RESIDENT)
 
-    if form.is_valid():
+    if form.is_valid(instance=room):
         room = form.save()
         return HttpResponseRedirect(reverse('rooms:view', kwargs={'room_title': room.title}))
 
