@@ -7,6 +7,8 @@
 migrations/
 static/admin/
 static/ui/css/
+static/jquery/
+static/ui/js/
 *.swp
 *.tmp
 .svn/
