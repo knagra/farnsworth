@@ -81,6 +81,7 @@ def thread_view(request, thread_pk):
                 )
             delete_message_form = DeleteMessageForm(
                 request.POST or None,
+                instance=message,
                 prefix="delete-{0}".format(message.pk),
                 )
             if edit_message_form.is_valid():

@@ -17,12 +17,16 @@ class VerifyThread(TestCase):
 
         self.profile = UserProfile.objects.get(user=self.u)
 
-        self.thread = Thread(owner=self.profile, subject="Default Thread Test")
-        self.thread.save()
+        self.thread = Thread.objects.create(
+            owner=self.profile,
+            subject="Default Thread Test",
+            )
 
-        self.message = Message(owner=self.profile, body="Default Reply Test",
-                               thread=self.thread)
-        self.message.save()
+        self.message = Message.objects.create(
+            owner=self.profile,
+            body="Default Reply Test",
+            thread=self.thread,
+            )
 
         self.client.login(username="u", password="pwd")
 
@@ -136,3 +140,29 @@ class VerifyThread(TestCase):
                 pass
             else:
                 self.assertEqual(message, None)
+
+    def test_delete_message(self):
+        url = reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk})
+        response = self.client.post(url, {
+            "delete-{0}-delete".format(self.message.pk): "d",
+            }, follow=True)
+        self.assertRedirects(response, reverse("threads:list_all_threads"))
+        self.assertEqual(
+            0,
+            Message.objects.filter(pk=self.message.pk).count(),
+            )
+
+    def test_edit_message(self):
+        url = reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk})
+        response = self.client.post(url, {
+            "edit-{0}-body".format(self.message.pk): "New message body",
+            }, follow=True)
+        self.assertRedirects(response, url)
+        self.assertEqual(
+            1,
+            Message.objects.filter(pk=self.message.pk).count(),
+            )
+        self.assertEqual(
+            "New message body",
+            Message.objects.get(pk=self.message.pk).body
+            )
