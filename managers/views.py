@@ -6,7 +6,7 @@ Author: Karandeep Singh Nagra
 
 from datetime import datetime, timedelta
 
-from django.shortcuts import render_to_response, render, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout, login
@@ -20,10 +20,9 @@ from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from base.decorators import admin_required, profile_required, president_admin_required
 from base.models import UserProfile
 from base.redirects import red_home
-from threads.models import Thread, Message
 from managers.models import Manager, RequestType, Request, Response, Announcement
 from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseForm, \
-    ManagerResponseForm, VoteForm, AnnouncementForm, UnpinForm
+     ManagerResponseForm, VoteForm, AnnouncementForm, UnpinForm
 
 @admin_required
 def anonymous_login_view(request):

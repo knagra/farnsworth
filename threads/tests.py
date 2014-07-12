@@ -3,16 +3,12 @@ This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
 """
 
-from datetime import datetime, timedelta
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.utils.timezone import utc
 
 from utils.variables import MESSAGES
 from base.models import UserProfile
 from threads.models import Thread, Message
-from managers.models import Manager, Announcement, RequestType, Request
-from events.models import Event
 
 class VerifyThread(TestCase):
     def setUp(self):

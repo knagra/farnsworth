@@ -4,11 +4,9 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from django.conf import settings
 from django.db import models
 
 from base.models import UserProfile
-from utils.funcs import convert_to_url
 
 class Manager(models.Model):
     '''
@@ -23,29 +21,12 @@ class Manager(models.Model):
     president = models.BooleanField(default=False, help_text="Whether this manager has president privileges (edit managers, bylaws, etc.).")
     workshift_manager = models.BooleanField(default=False, help_text="Whether this manager has workshift manager privileges (assign workshifts, etc.).")
     active = models.BooleanField(default=True, help_text="Whether this is an active manager position (visible in directory, etc.).")
-    semester_hours = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        default=settings.DEFAULT_WORKSHIFT_HOURS,
-        help_text="Number of workshift hours this position is worth during spring and fall.",
-        )
-    summer_hours = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        default=settings.DEFAULT_WORKSHIFT_HOURS,
-        help_text="Number of workshift hours this position is worth during summer.",
-        )
 
     def __unicode__(self):
         return self.title
 
     def is_manager(self):
         return True
-
-    def __init__(self, *args, **kwargs):
-        if "url_title" not in kwargs and "title" in kwargs:
-            kwargs["url_title"] = convert_to_url(kwargs["title"])
-        super(Manager, self).__init__(*args, **kwargs)
 
 class RequestType(models.Model):
     '''
@@ -58,7 +39,7 @@ class RequestType(models.Model):
     glyphicon = models.CharField(max_length=100, blank=True, null=True, help_text="Glyphicon for this request type (e.g., cutlery).  Check Bootstrap documentation for more info.")
 
     def __unicode__(self):
-        return self.name
+        return "{0.name} RequestType".format(self)
 
     class Meta:
         ordering = ['name']
@@ -76,22 +57,13 @@ class Request(models.Model):
     post_date = models.DateTimeField(auto_now_add=True, help_text="The date this request was posted.")
     change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
     request_type = models.ForeignKey(RequestType, blank=False, null=False, help_text="The type of request this is.")
-    OPEN = 'O'
-    CLOSED = 'C'
-    FILLED = 'F'
-    STATUS_CHOICES = (
-        (OPEN, "Open"),
-        (CLOSED, "Closed"),
-        (FILLED, "Filled")
-    )
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=OPEN, help_text="Status of this request.")
     filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
     closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
     number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
     upvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Up votes for this request.", related_name="up_votes")
 
     def __unicode__(self):
-        return "{0} request by {1} on {2}".format(self.request_type.name, self.owner, self.post_date)
+        return "{0.name} request by {1.owner} on {1.post_date}".format(self.request_type, self)
 
     class Meta:
         ordering = ['-post_date']
@@ -108,20 +80,9 @@ class Response(models.Model):
     post_date = models.DateTimeField(auto_now_add=True, help_text="The date this response was posted.")
     request = models.ForeignKey(Request, blank=False, null=False, help_text="The request to which this is a response.")
     manager = models.BooleanField(default=False, help_text="Whether this is a relevant manager response.")
-    CLOSED = 'C'
-    REOPENED = 'R'
-    FILLED = 'F'
-    NONE = 'N'
-    EVENT_CHOICES = (
-        (CLOSED, "Marked closed"),
-        (REOPENED, "Marked reopened"),
-        (FILLED, "Marked filled"),
-        (NONE, "No event")
-    )
-    event = models.CharField(max_length=1, choices=EVENT_CHOICES, help_text="A mark event(e.g., 'marked closed'), if any.")
 
     def __unicode__(self):
-        return "Response by {0} to: {1}".format(self.owner, self.request)
+        return "Response by {0.owner} to: {0.request}".format(self)
 
     class Meta:
         ordering = ['post_date']
@@ -141,7 +102,7 @@ class Announcement(models.Model):
     change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
 
     def __unicode__(self):
-        return "Announcement by {0} as {1} on {2}".format(self.incumbent, self.manager, self.post_date)
+        return "Announcement by {0.incumbent} as {0.manager} on {0.post_date}".format(self)
 
     class Meta:
         ordering = ['-post_date']

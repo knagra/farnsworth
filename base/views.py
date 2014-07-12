@@ -365,20 +365,20 @@ def member_profile_view(request, targetUsername):
     ''' View a member's Profile. '''
     if targetUsername == request.user.username and targetUsername != ANONYMOUS_USERNAME:
         return HttpResponseRedirect(reverse('my_profile'))
-    page_name = "%s's Profile" % targetUsername
+    page_name = "{0}'s Profile".format(targetUsername)
     targetUser = get_object_or_404(User, username=targetUsername)
     targetProfile = get_object_or_404(UserProfile, user=targetUser)
     number_of_threads = Thread.objects.filter(owner=targetProfile).count()
     number_of_messages = Message.objects.filter(owner=targetProfile).count()
     number_of_requests = Request.objects.filter(owner=targetProfile).count()
     return render_to_response('member_profile.html', {
-            'page_name': page_name,
-            'targetUser': targetUser,
-            'targetProfile': targetProfile,
-            'number_of_threads': number_of_threads,
-            'number_of_messages': number_of_messages,
-            'number_of_requests': number_of_requests,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'targetUser': targetUser,
+        'targetProfile': targetProfile,
+        'number_of_threads': number_of_threads,
+        'number_of_messages': number_of_messages,
+        'number_of_requests': number_of_requests,
+        }, context_instance=RequestContext(request))
 
 def request_profile_view(request):
     ''' The page to request a user profile on the site. '''
@@ -458,8 +458,7 @@ def modify_profile_request_view(request, request_pk):
             'last_name': profile_request.last_name,
             'email': profile_request.email,
             'is_active': True,
-            },
-        )
+            })
     addendum = ""
     if 'delete_request' in request.POST:
         if settings.SEND_EMAILS and (profile_request.email not in settings.EMAIL_BLACKLIST):
@@ -486,7 +485,7 @@ def modify_profile_request_view(request, request_pk):
             elif new_user.username == profile_request.username:
                 username_bit = "the username and password you selected"
             else:
-                username_bit = "the username %s and the password you selected" % new_user.username
+                username_bit = "the username {0} and the password you selected".format(new_user.username)
             login_url = request.build_absolute_uri(reverse('login'))
             approval_email = APPROVAL_EMAIL.format(house=settings.HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=settings.ADMINS[0][0],
                 admin_email=settings.ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)

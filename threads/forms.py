@@ -9,12 +9,11 @@ from datetime import datetime
 from django import forms
 from django.utils.timezone import utc
 
-from base.models import UserProfile
 from threads.models import Thread, Message
 
 class ThreadForm(forms.Form):
     ''' Form to post a new thread. '''
-    subject = forms.CharField(widget=forms.TextInput(), required=True)
+    subject = forms.CharField(max_length=300, widget=forms.TextInput(attrs={'size':'100'}), required=True)
     body = forms.CharField(widget=forms.Textarea())
 
     def __init__(self, *args, **kwargs):
@@ -63,3 +62,8 @@ class MessageForm(forms.Form):
         thread.number_of_messages += 1
         thread.change_date = datetime.utcnow().replace(tzinfo=utc)
         thread.save()
+
+    def update(message, self):
+        thread = self.cleaned_data["thread_pk"]
+        message.body = self.cleaned_data["body"]
+        message.save()

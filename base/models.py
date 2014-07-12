@@ -59,7 +59,7 @@ class ProfileRequest(models.Model):
     message = models.CharField(blank=True, max_length=255, help_text="Details on how you're affiliated with us.  Optional.")
 
     def __unicode__(self):
-        return "Profile request for account '%s %s (%s)' on %s" % (self.first_name, self.last_name, self.username, self.request_date)
+        return "Profile request for account '{0.first_name} {0.last_name} ({0.username})' on {0.request_date}".format(self)
 
     def is_profilerequest(self):
         return True
