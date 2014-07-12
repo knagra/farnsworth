@@ -63,7 +63,7 @@ class EditThreadForm(forms.ModelForm):
         fields = ("subject",)
 
 class DeleteMessageForm(forms.ModelForm):
-    delete = forms.CharField(widget=forms.HiddenInput())
+    delete = forms.CharField(widget=forms.HiddenInput(), initial="d")
 
     class Meta:
         model = Message
