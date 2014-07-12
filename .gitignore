@@ -25,3 +25,4 @@ src/
 dist/
 *.egg-info
 flycheck_*
+static/

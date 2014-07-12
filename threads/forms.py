@@ -68,3 +68,13 @@ class MessageForm(forms.Form):
         thread = self.cleaned_data["thread_pk"]
         message.body = self.cleaned_data["body"]
         message.save()
+
+class EditThreadForm(forms.ModelForm):
+    class Meta:
+        model = Thread
+        fields = ("subject",)
+
+class EditMessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ("body",)

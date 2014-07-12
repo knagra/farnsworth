@@ -358,7 +358,7 @@ def member_profile_view(request, targetUsername):
 	''' View a member's Profile. '''
 	if targetUsername == request.user.username and targetUsername != ANONYMOUS_USERNAME:
 		return HttpResponseRedirect(reverse('my_profile'))
-	page_name = "%s's Profile" % targetUsername
+	page_name = "{0}'s Profile".format(targetUsername)
 	targetUser = get_object_or_404(User, username=targetUsername)
 	targetProfile = get_object_or_404(UserProfile, user=targetUser)
 	number_of_threads = Thread.objects.filter(owner=targetProfile).count()
@@ -472,7 +472,7 @@ def modify_profile_request_view(request, request_pk):
 			elif new_user.username == profile_request.username:
 				username_bit = "the username and password you selected"
 			else:
-				username_bit = "the username %s and the password you selected" % new_user.username
+				username_bit = "the username {0} and the password you selected".format(new_user.username)
 			login_url = request.build_absolute_uri(reverse('login'))
 			approval_email = APPROVAL_EMAIL.format(house=settings.HOUSE_NAME, full_name=new_user.get_full_name(), admin_name=settings.ADMINS[0][0],
 				admin_email=settings.ADMINS[0][1], login_url=login_url, username_bit=username_bit, request_date=profile_request.request_date)
@@ -607,3 +607,28 @@ def reset_pw_confirm_view(request, uidb64=None, token=None):
 	return password_reset_confirm(request,
 		template_name="reset_confirmation.html",
 		uidb64=uidb64, token=token, post_reset_redirect=reverse('login'))
+
+@admin_required
+def recount_view(request):
+	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
+	requests_changed = 0
+	for req in Request.objects.all():
+		recount = Response.objects.filter(request=req).count()
+		if req.number_of_responses != recount:
+			req.number_of_responses = recount
+			req.save()
+			requests_changed += 1
+	threads_changed = 0
+	for thread in Thread.objects.all():
+		recount = Message.objects.filter(thread=thread).count()
+		if thread.number_of_messages != recount:
+			thread.number_of_messages = recount
+			thread.save()
+			threads_changed += 1
+	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
+			requests_changed=requests_changed,
+			request_count=Request.objects.all().count(),
+			threads_changed=threads_changed,
+			thread_count=Thread.objects.all().count()),
+			)
+	return HttpResponseRedirect(reverse('utilities'))

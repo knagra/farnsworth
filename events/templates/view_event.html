@@ -29,7 +29,7 @@
   <div class="main_body hover_row{% if event.cancelled %} bg-danger" title="Cancelled{% elif ongoing %} bg-success" title="Happening Now{% elif event.as_manager %} bg-info" title="Official House Event{% endif %}">
   <div class="event_owner" style="padding-left: 5px;">
 	{% if event.as_manager %}
-	<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=event.as_manager.url_title %}">{{ event.as_manager }}</a>
+	<a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=event.as_manager.url_title %}">{{ event.as_manager }}</a>
 	(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">
 	  {{ event.owner|display_user:user }}</a>), {{ event.post_date }} (updated {{ event.change_date }}):
 	{% else %}

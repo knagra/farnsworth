@@ -47,7 +47,7 @@
 		<div class="event_row hover_row{% if event_tuple.0.cancelled %} bg-danger" title="Cancelled{% elif event_tuple.1 %} bg-success" title="Happening Now{% elif event_tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
 		<div class="event_owner">
 		{% if event_tuple.0.as_manager %}
-			<a class="page_link" title="View Details" href="{% url 'view_manager' managerTitle=event_tuple.0.as_manager.url_title %}">{{ event_tuple.0.as_manager }}</a>
+			<a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=event_tuple.0.as_manager.url_title %}">{{ event_tuple.0.as_manager }}</a>
 			(<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>), {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):
 		{% else %}
 			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event_tuple.0.owner.user.username %}">{{ event_tuple.0.owner|display_user:user }}</a>, {{ event_tuple.0.post_date }} (updated {{ event_tuple.0.change_date }}):

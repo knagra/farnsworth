@@ -33,10 +33,10 @@ class UserProfile(models.Model):
 		(ALUMNUS, 'Alumna/Alumnus'),
 	)
 	status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=RESIDENT, help_text="Member status (resident, boarder, alumnus)")
-	
+
 	def __unicode__(self):
 		return self.user.get_full_name()
-	
+
 	def is_userprofile(self):
 		return True
 
@@ -55,7 +55,7 @@ class ProfileRequest(models.Model):
 	uid = models.CharField(blank=True, max_length=UID_LENGTH)
 
 	def __unicode__(self):
-		return "Profile request for account '%s %s (%s)' on %s" % (self.first_name, self.last_name, self.username, self.request_date)
+		return "Profile request for account '{0.first_name} {0.last_name} ({0.username})' on {0.request_date}".format(self)
 
 	def is_profilerequest(self):
 		return True

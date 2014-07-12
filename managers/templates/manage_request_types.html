@@ -10,7 +10,7 @@
 {% block content %}
 <div class="table_container">
 	<div class="header">
-		<form class="header_form" action="{% url 'add_request_type' %}">
+		<form class="header_form" action="{% url 'managers:add_request_type' %}">
 			<button id="add_request_type" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Request Type</span></button>
 		</form>
 		<h3 class="table_title small_title">Request Types</h3>
@@ -28,11 +28,11 @@
 	</thead>
 	<tbody>
 		{% for type in request_types %}
-		<tr><td><a title="Modify Request Type" href="{% url 'edit_request_type' typeName=type.url_name %}"><span class="glyphicon glyphicon-{% if type.glyphicon %}{{ type.glyphicon }}{% else %}cog{% endif %}"></span> {{ type.name }}</a></td>
+		<tr><td><a title="Modify Request Type" href="{% url 'managers:edit_request_type' typeName=type.url_name %}"><span class="glyphicon glyphicon-{% if type.glyphicon %}{{ type.glyphicon }}{% else %}cog{% endif %}"></span> {{ type.name }}</a></td>
 			<td>{% if type.enabled %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>
 			<td>{% for pos in type.managers.all %}
 				{% if forloop.counter > 1 %}, {% endif %}
-				<a {% if pos.active %}title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{% url 'edit_manager' managerTitle=pos.url_title %}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+				<a {% if pos.active %}title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{% url 'managers:edit_manager' managerTitle=pos.url_title %}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
 					{% if pos.incumbent %}
 					(<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
 					{% else %}

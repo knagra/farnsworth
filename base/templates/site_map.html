@@ -25,7 +25,7 @@
 	<div class="header"><h3 class="table_title">Profile Pages</h3></div>
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'my_profile' %}" >My Profile</a> - see and update your profile or change your password.</li>
-		<li><a class="page_link" href="{% url 'my_requests' %}" >My Requests</a> - see all your requests.</li>
+		<li><a class="page_link" href="{% url 'managers:my_requests' %}" >My Requests</a> - see all your requests.</li>
 		<li><a class="page_link" href="{% url 'logout' %}" >Logout</a> - logout of your account.</li>
 	</ul>
 	</div>
@@ -36,8 +36,8 @@
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'homepage' %}" >Home Page</a> - go to your home page.</li>
 		<li><a class="page_link" href="{% url 'member_directory' %}" >Member Directory</a> - see a list of residents, boarders, alumni, and their phone numbers, e-mail addresses, etc.</li>
-		<li><a class="page_link" href="{% url 'member_forums' %}" >Member Forums</a> - see active member conversations.</li>
-		<li><a class="page_link" href="{% url 'announcements' %}" >Manager Announcements</a> - see manager announcements.</li>
+		<li><a class="page_link" href="{% url 'threads:member_forums' %}" >Member Forums</a> - see active member conversations.</li>
+		<li><a class="page_link" href="{% url 'managers:announcements' %}" >Manager Announcements</a> - see manager announcements.</li>
 		<li><a class="page_link" href="{% url 'events:list' %}" >Upcoming Events</a> - see a list of upcoming events.</li>
 		{% if REQUEST_TYPES %}
 			{% for type_tuple in REQUEST_TYPES %}
@@ -49,9 +49,9 @@
 	<div class="list_container table_container">
 	<div class="header"><h3 class="table_title">Archives</h3></div>
 	<ul class="pages_list">
-		<li><a class="page_link" href="{% url 'list_all_threads' %}" >All Threads</a> - see all threads on this site.</li>
-		<li><a class="page_link" href="{% url 'all_requests' %}">All Requests</a> - see all requests.</li>
-		<li><a class="page_link" href="{% url 'all_announcements' %}" >All Announcements</a> - see all announcements.</li>
+		<li><a class="page_link" href="{% url 'threads:list_all_threads' %}" >All Threads</a> - see all threads on this site.</li>
+		<li><a class="page_link" href="{% url 'managers:all_requests' %}">All Requests</a> - see all requests.</li>
+		<li><a class="page_link" href="{% url 'managers:all_announcements' %}" >All Announcements</a> - see all announcements.</li>
 		<li><a class="page_link" href="{% url 'events:all' %}" >All Events</a> - see all events.</li>
 	</ul>
 	</div>
@@ -71,10 +71,10 @@
 	<div class="list_container table_container">
 	<div class="header"><h3 class="table_title">President</h3></div>
 	<ul class="pages_list">
-		<li><a class="page_link" href="{% url 'meta_manager' %}">Meta-Manager</a> - manage managers.</li>
-		<li><a class="page_link" href="{% url 'add_manager' %}">Add Manager</a> - add a new manager to the site.</li>
-		<li><a class="page_link" href="{% url 'manage_request_types' %}">Manage Request Types</a> - manage request types.</li>
-		<li><a class="page_link" href="{% url 'add_request_type' %}">Add Request Type</a> - add a new request type to the site.</li>
+		<li><a class="page_link" href="{% url 'managers:meta_manager' %}">Meta-Manager</a> - manage managers.</li>
+		<li><a class="page_link" href="{% url 'managers:add_manager' %}">Add Manager</a> - add a new manager to the site.</li>
+		<li><a class="page_link" href="{% url 'managers:manage_request_types' %}">Manage Request Types</a> - manage request types.</li>
+		<li><a class="page_link" href="{% url 'managers:add_request_type' %}">Add Request Type</a> - add a new request type to the site.</li>
 	</ul>
 	</div>
 {% endif %}

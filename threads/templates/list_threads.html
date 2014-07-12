@@ -11,11 +11,11 @@
 <div class="table_container">
 	<div class="header">
 		{% if page_name == 'Archives - All Threads' %}
-			<form action="{% url 'all_threads' %}">
+			<form action="{% url 'threads:all_threads' %}">
 			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span><span class="hidden-xs"> Expanded View</span></button>
 			</form>
 		{% elif page_name == 'My Threads' %}
-			<form action="{% url 'my_threads' %}">
+			<form action="{% url 'threads:my_threads' %}">
 			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span><span class="hidden-xs"> Expanded View</span></button>
 			</form>
 		{% elif targetUsername %}
@@ -44,7 +44,7 @@
     <tbody>
       {% for thread in threads %}
       <tr>
-	<td><a title="View Thread" class="page_link" href="{% url 'view_thread' thread_pk=thread.pk %}">{% if page_name == 'Archives - All Threads' %}{{ thread.subject|truncatechars:40 }}{% else %}{{ thread.subject|truncatechars:60 }}{% endif %}</a></td>
+	<td><a title="View Thread" class="page_link" href="{% url 'threads:view_thread' thread_pk=thread.pk %}">{% if page_name == 'Archives - All Threads' %}{{ thread.subject|truncatechars:40 }}{% else %}{{ thread.subject|truncatechars:60 }}{% endif %}</a></td>
 	{% if page_name == 'Archives - All Threads' %}<td><a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">{{ thread.owner.user.first_name }} {{ thread.owner.user.last_name }}</a></td>{% endif %}
 	<td>{{ thread.number_of_messages|add:"-1" }}</td>
 	<td>{{ thread.start_date|date:"m/d/Y, h:i A" }}</td>
