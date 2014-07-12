@@ -52,7 +52,7 @@ def view_room(request, room_title):
 		'residents': residents,
 	}, context_instance=RequestContext(request))
 
-@admin_required
+@profile_required
 def edit_room(request, room_title):
 	room = get_object_or_404(Room, title=room_title)
 	page_name = "Edit {0}".format(room_title)
