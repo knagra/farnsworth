@@ -8,9 +8,9 @@ from django.contrib import admin
 from base.models import UserProfile
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'get_info', 'status', 'get_email', 'phone_number', 'current_room')
-    search_fields = ('get_last', 'get_first', 'get_user', 'get_email', 'phone_number', 'current_room')
-    list_filter = ('status', 'current_room')
+    list_display = ('user', 'get_info', 'status', 'get_email', 'phone_number')
+    search_fields = ('get_last', 'get_first', 'get_user', 'get_email', 'phone_number')
+    list_filter = ('status', )
     ordering = ('-status', )
     
     def get_email(self, obj):

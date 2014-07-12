@@ -3,6 +3,7 @@ Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 '''
+
 from django import forms
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import hashers
@@ -13,7 +14,6 @@ from social.apps.django_app.default.models import UserSocialAuth
 
 from utils.funcs import verify_username, form_add_error
 from utils.variables import MESSAGES
-from rooms.models import Room
 from base.models import UserProfile, ProfileRequest
 from threads.models import Thread, Message
 from managers.models import Request, Response
@@ -27,6 +27,7 @@ class ProfileRequestForm(forms.Form):
     affiliation_with_the_house = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
     password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
     confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+    message = forms.CharField(max_length=255, help_text="Details on how you're affiliated with us. Optional.")
 
     def clean_username(self):
         username = self.cleaned_data["username"]
@@ -71,6 +72,7 @@ class ProfileRequestForm(forms.Form):
             email=self.cleaned_data['email'],
             affiliation=self.cleaned_data['affiliation_with_the_house'],
             password=hashed_password,
+            message=self.cleaned_data['message'],
             )
         profile_request.save()
         return profile_request
@@ -85,14 +87,6 @@ class AddUserForm(forms.Form):
     phone_number = PhoneNumberField(required=False)
     phone_visible_to_others = forms.BooleanField(required=False)
     status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    current_room = forms.ModelChoiceField(
-        queryset=Room.objects.all(),
-        required=False,
-        )
-    former_rooms = forms.ModelMultipleChoiceField(
-        queryset=Room.objects.all(),
-        required=False,
-        )
     former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
         help_text="Other houses where this user has boarded or lived.")
     is_active = forms.BooleanField(required=False)
@@ -155,8 +149,6 @@ class AddUserForm(forms.Form):
         new_user_profile.phone_visible = self.cleaned_data['phone_visible_to_others']
         new_user_profile.status = self.cleaned_data['status']
         new_user_profile.save()
-        new_user_profile.current_room = self.cleaned_data['current_room']
-        new_user_profile.former_rooms = self.cleaned_data['former_rooms']
         new_user_profile.former_houses = self.cleaned_data['former_houses']
         new_user_profile.save()
 
@@ -217,14 +209,6 @@ class ModifyUserForm(forms.Form):
     phone_number = PhoneNumberField(required=False)
     phone_visible_to_others = forms.BooleanField(required=False)
     status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    current_room = forms.ModelChoiceField(
-        queryset=Room.objects.all(),
-        required=False,
-        )
-    former_rooms = forms.ModelMultipleChoiceField(
-        queryset=Room.objects.all(),
-        required=False,
-        )
     former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
         help_text="Other houses where this user has boarded or lived.")
     is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
@@ -245,8 +229,6 @@ class ModifyUserForm(forms.Form):
                 'phone_number': self.profile.phone_number,
                 'phone_visible_to_others': self.profile.phone_visible,
                 'status': self.profile.status,
-                'current_room': self.profile.current_room,
-                'former_rooms': self.profile.former_rooms.all(),
                 'former_houses': self.profile.former_houses,
                 'is_active': self.user.is_active,
                 'is_staff': self.user.is_staff,
@@ -283,8 +265,6 @@ class ModifyUserForm(forms.Form):
         self.profile.phone_number = self.cleaned_data['phone_number']
         self.profile.phone_visible = self.cleaned_data['phone_visible_to_others']
         self.profile.status = self.cleaned_data['status']
-        self.profile.current_room = self.cleaned_data['current_room']
-        self.profile.former_rooms = self.cleaned_data['former_rooms']
         self.profile.former_houses = self.cleaned_data['former_houses']
         self.profile.save()
 
@@ -298,14 +278,6 @@ class ModifyProfileRequestForm(forms.Form):
     phone_number = PhoneNumberField(required=False)
     phone_visible_to_others = forms.BooleanField(required=False)
     status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    current_room = forms.ModelChoiceField(
-        queryset=Room.objects.all(),
-        required=False,
-        )
-    former_rooms = forms.ModelMultipleChoiceField(
-        queryset=Room.objects.all(),
-        required=False,
-        )
     former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
         help_text="Other houses where this user has boarded or lived.")
     is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
@@ -374,8 +346,6 @@ class ModifyProfileRequestForm(forms.Form):
         user_profile.phone_visible = self.cleaned_data['phone_visible_to_others']
         user_profile.status = self.cleaned_data['status']
         user_profile.save()
-        user_profile.current_room = self.cleaned_data['current_room']
-        user_profile.former_rooms = self.cleaned_data['former_rooms']
         user_profile.former_houses = self.cleaned_data['former_houses']
         user_profile.save()
 
@@ -383,14 +353,6 @@ class ModifyProfileRequestForm(forms.Form):
 
 class UpdateProfileForm(forms.Form):
     ''' Form for a user to update own profile. '''
-    current_room = forms.ModelChoiceField(
-        queryset=Room.objects.all(),
-        required=False,
-        )
-    former_rooms = forms.ModelMultipleChoiceField(
-        queryset=Room.objects.all(),
-        required=False,
-        )
     former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
         help_text="Other houses where you have boarded or lived.")
     email = forms.EmailField(max_length=255, required=False)
@@ -424,8 +386,6 @@ class UpdateProfileForm(forms.Form):
 
     def save(self):
         profile = UserProfile.objects.get(user=self.user)
-        profile.current_room = self.cleaned_data["current_room"]
-        profile.former_rooms = self.cleaned_data["former_rooms"]
         profile.former_houses = self.cleaned_data["former_houses"]
         profile.email_visible = self.cleaned_data["email_visible_to_others"]
         profile.phone_number = self.cleaned_data["phone_number"]

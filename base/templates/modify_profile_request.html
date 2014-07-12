@@ -16,6 +16,9 @@
         This is an OAuth request from provider {{ provider }} with UID {{ uid }}.
         </div>
         {% endif %}
+        {% if affiliation_message %}
+        <div class="text-info field_wrapper">Affiliation message: {{ affiliation_message }}</div>
+        {% endif %}
         <form method="post" action="">
             {% csrf_token %}
             <div class="form-group">

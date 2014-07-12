@@ -8,6 +8,8 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 
+from base.models import UserProfile
+
 alphanumeric = RegexValidator(r'^[0-9A-Za-z]+$', 'Only alphanumeric characters are allowed.')
 
 class Room(models.Model):
@@ -18,13 +20,13 @@ class Room(models.Model):
         null=False,
         max_length=100,
         validators=[alphanumeric],
-        help_text="The title of the room (i.e. '2E'). Characters A-Z, 0-9.",
+        help_text="The title of the room (e.g., '2E'). Characters A-Z, 0-9.",
         )
     unofficial_name = models.CharField(
         blank=True,
         null=True,
         max_length=100,
-        help_text="The unofficial name of the room (i.e. 'Starry Night')",
+        help_text="The unofficial name of the room (e.g., 'Starry Night')",
         )
     description = models.TextField(
         blank=True,
@@ -68,14 +70,14 @@ class PreviousResidence(models.Model):
         blank=False,
         auto_now_add=False,
         auto_now=False,
-        help-text="Start date of this person's residence in this room."
+        help_text="Start date of this person's residence in this room."
         )
     end_date = models.DateField(
         null=False,
         blank=False,
         auto_now_add=False,
         auto_now=False,
-        help-text="End date of this person's residence in this room."
+        help_text="End date of this person's residence in this room."
         )
 
     def __unicode__(self):
