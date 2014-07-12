@@ -13,10 +13,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
 from utils.variables import MESSAGES
-from base.models import UserProfile
 from base.decorators import profile_required
 from threads.models import Thread, Message
-from threads.forms import ThreadForm, MessageForm, EditMessageForm
 
 def _threads_dict(threads, limited=False):
     # A pseudo-dictionary, actually a list with items of form
