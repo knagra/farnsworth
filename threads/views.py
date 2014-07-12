@@ -14,6 +14,7 @@ from django.template import RequestContext
 
 from utils.variables import MESSAGES
 from base.decorators import profile_required
+from base.models import UserProfile
 from threads.models import Thread, Message
 
 def _threads_dict(threads, limited=False):
@@ -119,7 +120,7 @@ def thread_view(request, thread_pk):
     elif 'submit_message_form' in request.POST:
         messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
     return render_to_response('view_thread.html', {
-            'thread': thread,
-            'page_name': thread.subject,
-            'messages_list': zip(messages_list, forms),
-            }, context_instance=RequestContext(request))
+        'thread': thread,
+        'page_name': thread.subject,
+        'messages_list': zip(messages_list, forms),
+        }, context_instance=RequestContext(request))
