@@ -12,7 +12,7 @@ alphanumeric = RegexValidator(r'^[0-9A-Za-z]+$', 'Only alphanumeric characters a
 
 class Room(models.Model):
     """ Model for a resident room in the house. """
-	title = models.CharField(
+    title = models.CharField(
         unique=True,
         blank=False,
         null=False,
@@ -20,18 +20,18 @@ class Room(models.Model):
         validators=[alphanumeric],
         help_text="The title of the room (i.e. '2E'). Characters A-Z, 0-9.",
         )
-	unofficial_name = models.CharField(
+    unofficial_name = models.CharField(
         blank=True,
         null=True,
         max_length=100,
         help_text="The unofficial name of the room (i.e. 'Starry Night')",
         )
-	description = models.TextField(
+    description = models.TextField(
         blank=True,
         null=True,
         help_text="The description of this room.",
         )
-	occupancy = models.IntegerField(
+    occupancy = models.IntegerField(
         default=1,
         validators=[MinValueValidator(0)],
         help_text="The total number of people that this room should house.",
@@ -43,11 +43,11 @@ class Room(models.Model):
         help_text="The current residents of this room."
         )
 
-	def __unicode__(self):
-		return self.title
+    def __unicode__(self):
+        return self.title
 
-	def __str__(self):
-		return self.__unicode__()
+    def __str__(self):
+        return self.__unicode__()
 
 class PreviousResidence(models.Model):
     """ Model to represent a previous residence in a room. """
@@ -77,3 +77,9 @@ class PreviousResidence(models.Model):
         auto_now=False,
         help-text="End date of this person's residence in this room."
         )
+
+    def __unicode__(self):
+        return self.room.title
+
+    def __str__(self):
+        return self.__unicode__()
