@@ -86,7 +86,7 @@ def thread_view(request, thread_pk):
     messages_list = Message.objects.filter(thread=thread)
 
     new_message_form = MessageForm(
-        request.POST or None,
+        request.POST if "add_message" in request.POST else None,
         profile=userProfile,
         initial={'thread_pk': thread_pk},
         )
