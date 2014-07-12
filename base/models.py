@@ -12,8 +12,6 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from social.utils import setting_name
 
-from rooms.models import Room
-
 UID_LENGTH = getattr(settings, setting_name('UID_LENGTH'), 255)
 
 class UserProfile(models.Model):
@@ -22,19 +20,6 @@ class UserProfile(models.Model):
     room numbers, and phone number.
     '''
     user = models.OneToOneField(User)
-    current_room = models.ForeignKey(
-        Room,
-        blank=True,
-        null=True,
-        help_text="User's current room number",
-        )
-    former_rooms = models.ManyToManyField(
-        Room,
-        blank=True,
-        null=True,
-        help_text="List of user's former room numbers",
-        related_name="former_rooms",
-        )
     former_houses = models.CharField(blank=True, null=True, max_length=100, help_text="List of user's former BSC houses")
     phone_number = PhoneNumberField(
         blank=True,
@@ -71,6 +56,7 @@ class ProfileRequest(models.Model):
     password = models.CharField(blank=True, max_length=255, help_text="User's password.  Stored as hash")
     provider = models.CharField(blank=True, max_length=32)
     uid = models.CharField(blank=True, max_length=UID_LENGTH)
+    message = models.CharField(blank=True, max_length=255, help_text="Details on how you're affiliated with us.  Optional.")
 
     def __unicode__(self):
         return "Profile request for account '%s %s (%s)' on %s" % (self.first_name, self.last_name, self.username, self.request_date)
