@@ -23,6 +23,7 @@ from base.redirects import red_home
 from managers.models import Manager, RequestType, Request, Response, Announcement
 from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseForm, \
      ManagerResponseForm, VoteForm, AnnouncementForm, UnpinForm
+from threads.models import Thread, Message
 
 @admin_required
 def anonymous_login_view(request):
@@ -56,9 +57,9 @@ def list_managers_view(request):
     ''' Show a list of manager positions with links to view in detail. '''
     managerset = Manager.objects.filter(active=True)
     return render_to_response('list_managers.html', {
-            'page_name': "Managers",
-            'managerset': managerset,
-            }, context_instance=RequestContext(request))
+        'page_name': "Managers",
+        'managerset': managerset,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def manager_view(request, managerTitle):
@@ -71,12 +72,12 @@ def manager_view(request, managerTitle):
 
     if not targetManager.active:
         messages.add_message(request, messages.ERROR, MESSAGES['INACTIVE_MANAGER'].format(managerTitle=targetManager.title))
-        return HttpResponseRedirect(reverse('list_managers'))
+        return HttpResponseRedirect(reverse('managers:list_managers'))
     else:
         return render_to_response('view_manager.html', {
-                'page_name': "View Manager",
-                'targetManager': targetManager,
-                }, context_instance=RequestContext(request))
+            'page_name': "View Manager",
+            'targetManager': targetManager,
+            }, context_instance=RequestContext(request))
 
 @president_admin_required
 def meta_manager_view(request):
@@ -86,9 +87,9 @@ def meta_manager_view(request):
     '''
     managers = Manager.objects.all()
     return render_to_response('meta_manager.html', {
-            'page_name': "Admin - Meta-Manager",
-            'managerset': managers,
-            }, context_instance=RequestContext(request))
+        'page_name': "Admin - Meta-Manager",
+        'managerset': managers,
+        }, context_instance=RequestContext(request))
 
 @president_admin_required
 def add_manager_view(request):
@@ -97,12 +98,12 @@ def add_manager_view(request):
     if form.is_valid():
         manager = form.save()
         messages.add_message(request, messages.SUCCESS,
-                     MESSAGES['MANAGER_ADDED'].format(managerTitle=manager.title))
-        return HttpResponseRedirect(reverse('add_manager'))
+                             MESSAGES['MANAGER_ADDED'].format(managerTitle=manager.title))
+        return HttpResponseRedirect(reverse('managers:add_manager'))
     return render_to_response('edit_manager.html', {
-            'page_name': "Admin - Add Manager",
-            'form': form,
-            }, context_instance=RequestContext(request))
+        'page_name': "Admin - Add Manager",
+        'form': form,
+        }, context_instance=RequestContext(request))
 
 @president_admin_required
 def edit_manager_view(request, managerTitle):
@@ -120,12 +121,12 @@ def edit_manager_view(request, managerTitle):
         manager = form.save()
         messages.add_message(request, messages.SUCCESS,
                              MESSAGES['MANAGER_SAVED'].format(managerTitle=manager.title))
-        return HttpResponseRedirect(reverse('meta_manager'))
+        return HttpResponseRedirect(reverse('managers:meta_manager'))
     return render_to_response('edit_manager.html', {
-            'page_name': "Admin - Edit Manager",
-            'form': form,
-            'manager_title': targetManager.title,
-            }, context_instance=RequestContext(request))
+        'page_name': "Admin - Edit Manager",
+        'form': form,
+        'manager_title': targetManager.title,
+        }, context_instance=RequestContext(request))
 
 @president_admin_required
 def manage_request_types_view(request):
@@ -134,24 +135,23 @@ def manage_request_types_view(request):
     '''
     request_types = RequestType.objects.all()
     return render_to_response('manage_request_types.html', {
-            'page_name': "Admin - Manage Request Types",
-            'request_types': request_types},
-            context_instance=RequestContext(request))
+        'page_name': "Admin - Manage Request Types",
+        'request_types': request_types
+        }, context_instance=RequestContext(request))
 
 @president_admin_required
 def add_request_type_view(request):
     ''' View to add a new request type.  Restricted to presidents and superadmins. '''
-    userProfile = UserProfile.objects.get(user=request.user)
     form = RequestTypeForm(request.POST or None)
     if form.is_valid():
         rtype = form.save()
         messages.add_message(request, messages.SUCCESS,
                              MESSAGES['REQUEST_TYPE_ADDED'].format(typeName=rtype.name))
-        return HttpResponseRedirect(reverse('manage_request_types'))
+        return HttpResponseRedirect(reverse('managers:manage_request_types'))
     return render_to_response('edit_request_type.html', {
-            'page_name': "Admin - Add Request Type",
-            'form': form,
-            }, context_instance=RequestContext(request))
+        'page_name': "Admin - Add Request Type",
+        'form': form,
+        }, context_instance=RequestContext(request))
 
 @president_admin_required
 def edit_request_type_view(request, typeName):
@@ -169,12 +169,12 @@ def edit_request_type_view(request, typeName):
         rtype = form.save()
         messages.add_message(request, messages.SUCCESS,
                              MESSAGES['REQUEST_TYPE_SAVED'].format(typeName=rtype.name))
-        return HttpResponseRedirect(reverse('manage_request_types'))
+        return HttpResponseRedirect(reverse('managers:manage_request_types'))
     return render_to_response('edit_request_type.html', {
-            'page_name': "Admin - Edit Request Type",
-            'form': form,
-            'requestType': requestType,
-            }, context_instance=RequestContext(request))
+        'page_name': "Admin - Edit Request Type",
+        'form': form,
+        'requestType': requestType,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def requests_view(request, requestType):
@@ -211,13 +211,13 @@ def requests_view(request, requestType):
         )
     if request_form.is_valid():
         request_form.save()
-        return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
+        return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
     if response_form.is_valid():
         response_form.save()
-        return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
+        return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
     if vote_form.is_valid():
         vote_form.save()
-        return HttpResponseRedirect(reverse('requests', kwargs={'requestType': requestType}))
+        return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
     x = 0 # number of requests loaded
     requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, vote_form)
     for req in Request.objects.filter(request_type=request_type):
@@ -246,13 +246,13 @@ def requests_view(request, requestType):
         if x >= settings.MAX_REQUESTS:
             break
     return render_to_response('requests.html', {
-            'manager': manager,
-            'request_type': request_type.name.title(),
-            'page_name': page_name,
-            'request_form': request_form,
-            'requests_dict': requests_dict,
-            'relevant_managers': relevant_managers,
-            }, context_instance=RequestContext(request))
+        'manager': manager,
+        'request_type': request_type.name.title(),
+        'page_name': page_name,
+        'request_form': request_form,
+        'requests_dict': requests_dict,
+        'relevant_managers': relevant_managers,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def my_requests_view(request):
@@ -271,10 +271,10 @@ def my_requests_view(request):
         )
     if request_form.is_valid():
         request_form.save()
-        return HttpResponseRedirect(reverse('my_requests'))
+        return HttpResponseRedirect(reverse('managers:my_requests'))
     if response_form.is_valid():
         response_form.save()
-        return HttpResponseRedirect(reverse('my_requests'))
+        return HttpResponseRedirect(reverse('managers:my_requests'))
     my_requests = Request.objects.filter(owner=userProfile)
     request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...], relevant_managers)
     for request_type in RequestType.objects.all():
@@ -285,13 +285,14 @@ def my_requests_view(request):
         for req in type_requests:
             responses_list = Response.objects.filter(request=req)
             if type_manager:
-                form = ManagerResponseForm(initial={
+                form = ManagerResponseForm(
+                    initial={
                         'request_pk': req.pk,
                         'mark_filled': req.filled,
                         'mark_closed': req.closed,
                         },
-                        profile=userProfile,
-                        )
+                    profile=userProfile,
+                    )
             else:
                 form = ResponseForm(
                     initial={'request_pk': req.pk},
@@ -309,9 +310,9 @@ def my_requests_view(request):
             )
         request_dict.append((request_type, request_form, type_manager, requests_list, relevant_managers))
     return render_to_response('my_requests.html', {
-            'page_name': page_name,
-            'request_dict': request_dict,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'request_dict': request_dict,
+        }, context_instance=RequestContext(request))
 
 
 @profile_required
@@ -322,9 +323,9 @@ def list_my_requests_view(request):
     userProfile = UserProfile.objects.get(user=request.user)
     requests = Request.objects.filter(owner=userProfile)
     return render_to_response('list_requests.html', {
-            'page_name': "My Requests",
-            'requests': requests,
-            }, context_instance=RequestContext(request))
+        'page_name': "My Requests",
+        'requests': requests,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def list_user_requests_view(request, targetUsername):
@@ -336,13 +337,13 @@ def list_user_requests_view(request, targetUsername):
 
     targetUser = get_object_or_404(User, username=targetUsername)
     targetProfile = get_object_or_404(UserProfile, user=targetUser)
-    page_name = "%s's Requests" % targetUsername
+    page_name = "{0}'s Requests".format(targetUsername)
     requests = Request.objects.filter(owner=targetProfile)
     return render_to_response('list_requests.html', {
-            'page_name': page_name,
-            'requests': requests,
-            'targetUsername': targetUsername,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'requests': requests,
+        'targetUsername': targetUsername,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def all_requests_view(request):
@@ -354,9 +355,9 @@ def all_requests_view(request):
         number_of_requests = Request.objects.filter(request_type=request_type).count()
         types_dict.append((request_type.name.title(), number_of_requests, request_type.url_name, request_type.enabled, request_type.glyphicon))
     return render_to_response('all_requests.html', {
-            'page_name': "Archives - All Requests",
-            'types_dict': types_dict,
-            }, context_instance=RequestContext(request))
+        'page_name': "Archives - All Requests",
+        'types_dict': types_dict,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def list_all_requests_view(request, requestType):
@@ -365,12 +366,12 @@ def list_all_requests_view(request, requestType):
     '''
     request_type = get_object_or_404(RequestType, url_name=requestType)
     requests = Request.objects.filter(request_type=request_type)
-    page_name = "Archives - All %s Requests" % request_type.name.title()
+    page_name = "Archives - All {0} Requests".format(request_type.name.title())
     return render_to_response('list_requests.html', {
-            'page_name': page_name,
-            'requests': requests,
-            'request_type': request_type,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'requests': requests,
+        'request_type': request_type,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def request_view(request, request_pk):
@@ -407,22 +408,24 @@ def request_view(request, request_pk):
         )
     if response_form.is_valid():
         response_form.save()
-        return HttpResponseRedirect(reverse('view_request',
-                        kwargs={'request_pk': relevant_request.pk}))
+        return HttpResponseRedirect(reverse('managers:view_request', kwargs={
+            'request_pk': relevant_request.pk,
+            }))
     if vote_form.is_valid():
         vote_form.save(pk=request_pk)
-        return HttpResponseRedirect(reverse('view_request',
-                        kwargs={'request_pk': relevant_request.pk}))
+        return HttpResponseRedirect(reverse('managers:view_request', kwargs={
+            'request_pk': relevant_request.pk,
+            }))
     upvote = userProfile in relevant_request.upvotes.all()
     return render_to_response('view_request.html', {
-            'page_name': "View Request",
-            'relevant_request': relevant_request,
-            'request_responses': request_responses,
-            'upvote': upvote,
-            'vote_form': vote_form,
-            'response_form': response_form,
-            'relevant_managers': relevant_managers,
-            }, context_instance=RequestContext(request))
+        'page_name': "View Request",
+        'relevant_request': relevant_request,
+        'request_responses': request_responses,
+        'upvote': upvote,
+        'vote_form': vote_form,
+        'response_form': response_form,
+        'relevant_managers': relevant_managers,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def announcement_view(request, announcement_pk):
@@ -440,14 +443,14 @@ def announcement_view(request, announcement_pk):
     if unpin_form.is_valid():
         unpin_form.save()
         return HttpResponseRedirect(
-            reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
+            reverse('managers:view_announcement', kwargs={"announcement_pk": announcement_pk}),
             )
     return render_to_response('view_announcement.html', {
-            'page_name': page_name,
-            'unpin_form': unpin_form,
-            'can_edit': can_edit,
-            'announcement': announce,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'unpin_form': unpin_form,
+        'can_edit': can_edit,
+        'announcement': announce,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def edit_announcement_view(request, announcement_pk):
@@ -456,7 +459,7 @@ def edit_announcement_view(request, announcement_pk):
     profile = UserProfile.objects.get(user=request.user)
     if not (announce.incumbent == profile or request.user.is_superuser):
         return HttpResponseRedirect(
-            reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
+            reverse('managers:view_announcement', kwargs={"announcement_pk": announcement_pk}),
             )
     page_name = "Edit Announcement"
 
@@ -468,13 +471,13 @@ def edit_announcement_view(request, announcement_pk):
     if announcement_form.is_valid():
         announcement_form.save()
         return HttpResponseRedirect(
-            reverse('view_announcement', kwargs={"announcement_pk": announcement_pk}),
+            reverse('managers:view_announcement', kwargs={"announcement_pk": announcement_pk}),
             )
 
     return render_to_response('edit_announcement.html', {
-            'page_name': page_name,
-            'announcement_form': announcement_form,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'announcement_form': announcement_form,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def announcements_view(request):
@@ -493,10 +496,10 @@ def announcements_view(request):
             )
     if unpin_form.is_valid():
         unpin_form.save()
-        return HttpResponseRedirect(reverse('announcements'))
+        return HttpResponseRedirect(reverse('managers:announcements'))
     if announcement_form and announcement_form.is_valid():
         announcement_form.save()
-        return HttpResponseRedirect(reverse('announcements'))
+        return HttpResponseRedirect(reverse('managers:announcements'))
     # A pseudo-dictionary, actually a list with items of form:
     # (announcement, announcement_unpin_form)
     announcements_dict = list()
@@ -504,8 +507,8 @@ def announcements_view(request):
         unpin_form = None
         if (a.manager.incumbent == userProfile) or request.user.is_superuser:
             unpin_form = UnpinForm(initial={
-                    'announcement_pk': a.pk,
-                    })
+                'announcement_pk': a.pk,
+                })
         announcements_dict.append((a, unpin_form))
     now = datetime.utcnow().replace(tzinfo=utc)
     # Oldest genesis of an unpinned announcement to be displayed.
@@ -516,11 +519,11 @@ def announcements_view(request):
             unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
         announcements_dict.append((a, unpin_form))
     return render_to_response('announcements.html', {
-            'page_name': page_name,
-            'manager_positions': manager_positions,
-            'announcements_dict': announcements_dict,
-            'announcement_form': announcement_form,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'manager_positions': manager_positions,
+        'announcements_dict': announcements_dict,
+        'announcement_form': announcement_form,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def all_announcements_view(request):
@@ -539,10 +542,10 @@ def all_announcements_view(request):
         )
     if unpin_form.is_valid():
         unpin_form.save()
-        return HttpResponseRedirect(reverse('all_announcements'))
+        return HttpResponseRedirect(reverse('managers:all_announcements'))
     if announcement_form and announcement_form.is_valid():
         announcement_form.save()
-        return HttpResponseRedirect(reverse('all_announcements'))
+        return HttpResponseRedirect(reverse('managers:all_announcements'))
 
     announcements = Announcement.objects.all()
     announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_pin_form)
@@ -554,11 +557,11 @@ def all_announcements_view(request):
             form = UnpinForm(initial={'announcement_pk': a.pk})
         announcements_dict.append((a, form))
     return render_to_response('announcements.html', {
-            'page_name': page_name,
-            'manager_positions': manager_positions,
-            'announcements_dict': announcements_dict,
-            'announcement_form': announcement_form,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'manager_positions': manager_positions,
+        'announcements_dict': announcements_dict,
+        'announcement_form': announcement_form,
+        }, context_instance=RequestContext(request))
 
 @admin_required
 def recount_view(request):
@@ -578,9 +581,9 @@ def recount_view(request):
             thread.save()
             threads_changed += 1
     messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
-            requests_changed=requests_changed,
-            request_count=Request.objects.all().count(),
-            threads_changed=threads_changed,
-            thread_count=Thread.objects.all().count()),
-            )
+        requests_changed=requests_changed,
+        request_count=Request.objects.all().count(),
+        threads_changed=threads_changed,
+        thread_count=Thread.objects.all().count()),
+        )
     return HttpResponseRedirect(reverse('utilities'))

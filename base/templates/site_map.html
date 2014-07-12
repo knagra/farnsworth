@@ -36,7 +36,7 @@
 	<ul class="pages_list">
 		<li><a class="page_link" href="{% url 'homepage' %}" >Home Page</a> - go to your home page.</li>
 		<li><a class="page_link" href="{% url 'member_directory' %}" >Member Directory</a> - see a list of residents, boarders, alumni, and their phone numbers, e-mail addresses, etc.</li>
-		<li><a class="page_link" href="{% url 'threads:member_forums' %}" >Member Forums</a> - see active member conversations.</li>
+		<li><a class="page_link" href="{% url 'threads:list_all_threads' %}">All Threads</a> - see active member conversations.</li>
 		<li><a class="page_link" href="{% url 'managers:announcements' %}" >Manager Announcements</a> - see manager announcements.</li>
 		<li><a class="page_link" href="{% url 'events:list' %}" >Upcoming Events</a> - see a list of upcoming events.</li>
 		{% if REQUEST_TYPES %}
