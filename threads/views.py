@@ -85,29 +85,43 @@ def thread_view(request, thread_pk):
     thread = get_object_or_404(Thread, pk=thread_pk)
     messages_list = Message.objects.filter(thread=thread)
 
-    message_form = MessageForm(
+    new_message_form = MessageForm(
         request.POST or None,
         profile=userProfile,
         initial={'thread_pk': thread_pk},
         )
-    # message_form = EditMessageForm(
-    #     request.POST if "edit" in request.POST else None,
-    #     instance=message,
-    #     )
-    # thread_form = EditThreadForm(
-    #     request.POST if "edit" in request.POST else None,
-    #     instance=thread,
-    #     )
 
-    if message_form.is_valid():
-        message_form.save()
+    forms = []
+
+    for message in messages_list:
+        edit_message_form = None
+        if message.owner == userProfile or userProfile.user.is_superuser:
+            edit_message_form = EditMessageForm(
+                request.POST if "edit" in request.POST else None,
+                instance=message,
+                prefix="{0}-".format(message.pk),
+                )
+        forms.append(edit_message_form)
+
+    if any(i.is_valid() for i in forms):
+        for i in forms:
+            if i.is_valid:
+                i.save()
+            messages.add_message(request, messages.INFO, "Message updated.")
+            return HttpResponseRedirect(reverse("view_thread", kwargs={
+                "thread_pk": thread.pk,
+                }))
+
+    if new_message_form.is_valid():
+        new_message_form.save()
         return HttpResponseRedirect(reverse('threads:view_thread', kwargs={
             'thread_pk': thread_pk,
             }))
+
     elif 'submit_message_form' in request.POST:
         messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
     return render_to_response('view_thread.html', {
             'thread': thread,
             'page_name': thread.subject,
-            'messages_list': messages_list,
+            'messages_list': zip(messages_list, forms),
             }, context_instance=RequestContext(request))
