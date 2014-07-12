@@ -17,7 +17,7 @@ from utils.variables import MESSAGES
 from base.decorators import profile_required
 from threads.models import Thread, Message
 from threads.forms import ThreadForm, MessageForm, EditMessageForm, \
-     EditThreadForm
+     EditThreadForm, DeleteMessageForm
 
 def _threads_dict(threads, limited=False):
     # A pseudo-dictionary, actually a list with items of form
@@ -72,42 +72,65 @@ def thread_view(request, thread_pk):
     forms = []
 
     for message in messages_list:
-        edit_message_form = None
+        edit_message_form, delete_message_form = None, None
         if message.owner == userProfile or userProfile.user.is_superuser:
             edit_message_form = EditMessageForm(
-                request.POST if "edit" in request.POST else None,
+                request.POST or None,
                 instance=message,
-                prefix="{0}-".format(message.pk),
+                prefix="edit-{0}".format(message.pk),
                 )
-        forms.append(edit_message_form)
+            delete_message_form = DeleteMessageForm(
+                request.POST or None,
+                prefix="delete-{0}".format(message.pk),
+                )
+            if edit_message_form.is_valid():
+                edit_message_form.save()
+                messages.add_message(request, messages.INFO, "Message updated.")
+                return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
+                    "thread_pk": thread_pk,
+                    }))
+            if delete_message_form.is_valid():
+                delete_message_form.save()
+                messages.add_message(request, messages.INFO, "Message deleted.")
+                return HttpResponseRedirect(reverse("threads:list_all_threads"))
 
-    if any(i.is_valid() for i in forms):
-        for i in forms:
-            if i.is_valid:
-                i.save()
-            messages.add_message(request, messages.INFO, "Message updated.")
-            return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
-                "thread_pk": thread_pk,
-                }))
+        forms.append((edit_message_form, delete_message_form))
 
-    new_message_form = MessageForm(
-        request.POST if "add_message" in request.POST else None,
+    edit_thread_form = None
+    if thread.owner == userProfile or request.user.is_superuser:
+        edit_thread_form = EditThreadForm(
+            request.POST or None,
+            instance=thread,
+            prefix="edit-thread",
+            )
+
+    add_message_form = MessageForm(
+        request.POST or None,
         profile=userProfile,
-        initial={'thread_pk': thread_pk},
+        thread=thread,
+        prefix="add-message",
         )
 
-    if new_message_form.is_valid():
-        new_message_form.save()
+    if add_message_form.is_valid():
+        add_message_form.save()
         return HttpResponseRedirect(reverse('threads:view_thread', kwargs={
             'thread_pk': thread_pk,
             }))
     elif request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 
+    if edit_thread_form and edit_thread_form.is_valid():
+        thread = edit_thread_form.save()
+        return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
+            "thread_pk": thread.pk,
+            }))
+
     return render_to_response('view_thread.html', {
         'thread': thread,
         'page_name': thread.subject,
         'messages_list': zip(messages_list, forms),
+        "add_message_form": add_message_form,
+        "edit_thread_form": edit_thread_form,
         }, context_instance=RequestContext(request))
 
 @profile_required

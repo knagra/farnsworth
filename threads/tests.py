@@ -97,9 +97,7 @@ class VerifyThread(TestCase):
         body = "Reply Body Test"
         for url in urls:
             response = self.client.post(url, {
-                "add_message": "",
-                "thread_pk": self.thread.pk,
-                "body": body,
+                "add-message-body": body,
                 }, follow=True)
             self.assertRedirects(response, url)
             self.assertContains(response, body)
@@ -122,9 +120,7 @@ class VerifyThread(TestCase):
         body = "Reply Body Test"
         for url in urls:
             response = self.client.post(url, {
-                "add_message": "",
-                "thread_pk": "a{0}".format(self.thread.pk),
-                "body": body,
+                "add-message-body": "",
                 })
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, MESSAGES['MESSAGE_ERROR'])
