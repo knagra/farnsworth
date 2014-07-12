@@ -12,9 +12,12 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
+from base.models import UserProfile
 from utils.variables import MESSAGES
 from base.decorators import profile_required
 from threads.models import Thread, Message
+from threads.forms import ThreadForm, MessageForm, EditMessageForm, \
+     EditThreadForm
 
 def _threads_dict(threads, limited=False):
     # A pseudo-dictionary, actually a list with items of form
@@ -38,6 +41,74 @@ def _threads_dict(threads, limited=False):
         if x >= settings.MAX_THREADS and limited:
             break
     return threads_dict
+
+@profile_required
+def list_all_threads_view(request):
+    ''' View of all threads. '''
+    threads = Thread.objects.all()
+    form = ThreadForm(
+        request.POST if "submit_thread_form" in request.POST else None,
+        profile=UserProfile.objects.get(user=request.user),
+        )
+
+    if form.is_valid():
+        thread = form.save()
+        return HttpResponseRedirect(reverse("threads:list_all_threads"))
+    elif request.method == "POST":
+        messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
+
+    return render_to_response('list_threads.html', {
+        'page_name': "All Threads",
+        'threads': threads,
+        }, context_instance=RequestContext(request))
+
+@profile_required
+def thread_view(request, thread_pk):
+    ''' View an individual thread. '''
+    userProfile = UserProfile.objects.get(user=request.user)
+    thread = get_object_or_404(Thread, pk=thread_pk)
+    messages_list = Message.objects.filter(thread=thread)
+
+    forms = []
+
+    for message in messages_list:
+        edit_message_form = None
+        if message.owner == userProfile or userProfile.user.is_superuser:
+            edit_message_form = EditMessageForm(
+                request.POST if "edit" in request.POST else None,
+                instance=message,
+                prefix="{0}-".format(message.pk),
+                )
+        forms.append(edit_message_form)
+
+    if any(i.is_valid() for i in forms):
+        for i in forms:
+            if i.is_valid:
+                i.save()
+            messages.add_message(request, messages.INFO, "Message updated.")
+            return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
+                "thread_pk": thread_pk,
+                }))
+
+    new_message_form = MessageForm(
+        request.POST if "add_message" in request.POST else None,
+        profile=userProfile,
+        initial={'thread_pk': thread_pk},
+        )
+
+    if new_message_form.is_valid():
+        new_message_form.save()
+        return HttpResponseRedirect(reverse('threads:view_thread', kwargs={
+            'thread_pk': thread_pk,
+            }))
+    elif request.method == "POST":
+        messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
+
+    return render_to_response('view_thread.html', {
+        'thread': thread,
+        'page_name': thread.subject,
+        'messages_list': zip(messages_list, forms),
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def list_user_threads_view(request, targetUsername):
@@ -66,60 +137,3 @@ def list_user_messages_view(request, targetUsername):
         'threads': threads,
         'targetUsername': targetUsername,
         }, context_instance=RequestContext(request))
-
-@profile_required
-def list_all_threads_view(request):
-    ''' View of all threads. '''
-    threads = Thread.objects.all()
-    return render_to_response('list_threads.html', {
-        'page_name': "Archives - All Threads",
-        'threads': threads,
-        }, context_instance=RequestContext(request))
-
-@profile_required
-def thread_view(request, thread_pk):
-    ''' View an individual thread. '''
-    userProfile = UserProfile.objects.get(user=request.user)
-    thread = get_object_or_404(Thread, pk=thread_pk)
-    messages_list = Message.objects.filter(thread=thread)
-
-    new_message_form = MessageForm(
-        request.POST if "add_message" in request.POST else None,
-        profile=userProfile,
-        initial={'thread_pk': thread_pk},
-        )
-
-    forms = []
-
-    for message in messages_list:
-        edit_message_form = None
-        if message.owner == userProfile or userProfile.user.is_superuser:
-            edit_message_form = EditMessageForm(
-                request.POST if "edit" in request.POST else None,
-                instance=message,
-                prefix="{0}-".format(message.pk),
-                )
-        forms.append(edit_message_form)
-
-    if any(i.is_valid() for i in forms):
-        for i in forms:
-            if i.is_valid:
-                i.save()
-            messages.add_message(request, messages.INFO, "Message updated.")
-            return HttpResponseRedirect(reverse("view_thread", kwargs={
-                "thread_pk": thread.pk,
-                }))
-
-    if new_message_form.is_valid():
-        new_message_form.save()
-        return HttpResponseRedirect(reverse('threads:view_thread', kwargs={
-            'thread_pk': thread_pk,
-            }))
-
-    elif 'submit_message_form' in request.POST:
-        messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
-    return render_to_response('view_thread.html', {
-            'thread': thread,
-            'page_name': thread.subject,
-            'messages_list': zip(messages_list, forms),
-            }, context_instance=RequestContext(request))

@@ -9,7 +9,6 @@ from datetime import datetime
 from django import forms
 from django.utils.timezone import utc
 
-from base.models import UserProfile
 from threads.models import Thread, Message
 
 class ThreadForm(forms.Form):
