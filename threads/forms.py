@@ -78,6 +78,7 @@ class DeleteMessageForm(forms.ModelForm):
             thread.delete()
         else:
             thread.save()
+            return thread
 
 class EditMessageForm(forms.ModelForm):
     class Meta:

@@ -90,9 +90,13 @@ def thread_view(request, thread_pk):
                     "thread_pk": thread_pk,
                     }))
             if delete_message_form.is_valid():
-                delete_message_form.save()
+                thread = delete_message_form.save()
                 messages.add_message(request, messages.INFO, "Message deleted.")
-                return HttpResponseRedirect(reverse("threads:list_all_threads"))
+                if thread is None:
+                    return HttpResponseRedirect(reverse("threads:list_all_threads"))
+                return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
+                    "thread_pk": thread.pk,
+                    }))
 
         forms.append((edit_message_form, delete_message_form))
 
