@@ -51,8 +51,8 @@ class Room(models.Model):
     def __str__(self):
         return self.__unicode__()
 
-class PreviousResidence(models.Model):
-    """ Model to represent a previous residence in a room. """
+class PreviousResident(models.Model):
+    """ Model to represent a previous resident in a room. """
     room = models.ForeignKey(
         Room,
         null=False,

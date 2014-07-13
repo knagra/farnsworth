@@ -3,6 +3,23 @@
 {% load static from staticfiles %}
 {% load bootstrap %}
 
+{% block headers %}
+<style>
+    .resident_formset_row td {
+        padding-right: 5px;
+        padding-bottom: 5px;
+        border-top: none !important;
+        border-bottom: 1px solid #e4e4e4;
+    }
+    .resident_formset_row td div {
+        margin: 0px;
+    }
+    .resident_formset_row td div label {
+        display: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />

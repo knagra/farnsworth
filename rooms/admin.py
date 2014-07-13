@@ -6,7 +6,7 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 
 from django.contrib import admin
 
-from rooms.models import Room, PreviousResidence
+from rooms.models import Room, PreviousResident
 
 class RoomProfileAdmin(admin.ModelAdmin):
     list_display = ('title', 'unofficial_name', 'occupancy')
@@ -16,9 +16,9 @@ class RoomProfileAdmin(admin.ModelAdmin):
 
 admin.site.register(Room, RoomProfileAdmin)
 
-class PreviousResidenceAdmin(admin.ModelAdmin):
+class PreviousResidentAdmin(admin.ModelAdmin):
     list_display = ('room', 'resident', 'start_date', 'end_date')
     search_fields = list_display
     ordergin = ('room',)
 
-admin.site.register(PreviousResidence, PreviousResidenceAdmin)
+admin.site.register(PreviousResident, PreviousResidentAdmin)

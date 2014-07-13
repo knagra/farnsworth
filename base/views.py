@@ -504,6 +504,7 @@ def modify_profile_request_view(request, request_pk):
             'provider': profile_request.provider,
             'uid': profile_request.uid,
             'affiliation_message': profile_request.message,
+            'members': User.objects.all().exclude(username=ANONYMOUS_USERNAME),
             }, context_instance=RequestContext(request))
 
 @admin_required

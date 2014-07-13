@@ -6,7 +6,7 @@ from django.template import RequestContext
 
 from base.decorators import profile_required, admin_required
 from base.models import UserProfile
-from rooms.models import Room
+from rooms.models import Room, PreviousResident
 from rooms.forms import RoomForm, RoomForm
 
 @profile_required
@@ -51,6 +51,7 @@ def edit_room(request, room_title):
     if room.unofficial_name:
         page_name += " ({0})".format(room.unofficial_name)
     form = RoomForm(request.POST or None, instance=room)
+    previous_residents = PreviousResident.objects.filter(room=room)
 
     if form.is_valid(instance=room):
         room = form.save()
