@@ -21,32 +21,37 @@
   <div class="thread_table main_table bordered_div">
     <div class="thread_messages">
       <div class="message_table">
-        <h3 class="thread_name">{{ thread.subject }}</h3>
-        {% for message, form in messages_list %}
-        {% if forloop.counter > 1 %}
-        <hr class="main_divider" />
-        {% endif %}
-        <div class="message_row">
-          <div class="message_owner">
-            <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >{{ message.owner|display_user:user }}</a> ({{ message.post_date }}):
-          </div>
-          <div class="message_body">{{ message.body|safe }}</div>
-        </div> <!-- message_row -->
-        <form class="edit_message_form" id="edit_message_form_{{ message.pk }}" method="post">
-          {% csrf_token %}
-          {{ form|bootstrap }}
-          <div class="text_center">
-            <div class="btn-group">
-              <button type="submit" class="btn btn-success" name="edit_message"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
-              <button type="button" class="btn btn-default" name="cancel_edit_message" onclick="hide_new_message_form('edit_message_form_{{ message.pk }}', 'show_edit_{{ message.pk }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-            </div>
-          </div>
-        </form>
-        {% endfor %}
-        <div class="text-center">
-          <button class="btn btn-primary" type="button" id="show_form" onclick="show_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-paperclip"></span> Add Message</button>
-        </div>
-        <form class="new_message_form" id="add_message_form" method="post">
+<		<h3 class="thread_name">{{ thread.subject }}</h3>
+		{% for message, forms in messages_list %}
+		{% if forloop.counter > 1 %}
+		<hr class="main_divider" />
+		{% endif %}
+		<div class="message_row">
+		  <div class="message_owner">
+			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >{{ message.owner|display_user:user }}</a> ({{ message.post_date }}):
+		  </div>
+		  <div class="message_body">{{ message.body|safe }}</div>
+		</div> <!-- message_row -->
+		{% for form in forms %}
+		{% if form %}
+		<form class="{{ form.label }}_message_form" id="{{ form.label }}_message_form_{{ message.pk }}" method="post">
+		  {% csrf_token %}
+		  {{ form|bootstrap }}
+		  <div class="text_center">
+			<div class="btn-group">
+              <button type="submit" class="btn btn-{{ form.button }}" name="{{ form.label }}_message"><span class="glyphicon glyphicon-{{ form.glyph }}"></span> {{ form.display }}</button>
+              <button type="button" class="btn btn-default" name="cancel_message" onclick="hide_new_message_form('{{ form.label }}_message_form_{{ message.pk }}', 'show_{{ form.label }}_{{ message.pk }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+			</div>
+		  </div>
+		</form>
+		{% endif %}
+		{% endfor %}
+		{% endfor %}
+		<div class="text-center">
+		  <button class="btn btn-primary" type="button" id="show_form" onclick="show_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-paperclip"></span> Add Message</button>
+		</div>
+		{% if add_mesage_form %}
+		<form class="new_message_form" id="add_message_form" method="post">
           {% csrf_token %}
           {{ add_mesage_form|bootstrap }}
           <div class="text-center">
