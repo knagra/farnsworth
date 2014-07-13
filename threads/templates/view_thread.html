@@ -38,13 +38,13 @@
 		</div> <!-- message_row -->
 		{% for form in forms %}
 		{% if form %}
-		<form class="edit_message_form" id="edit_message_form_{{ message.pk }}" method="post">
+		<form class="{{ form.label }}_message_form" id="{{ form.label }}_message_form_{{ message.pk }}" method="post">
 		  {% csrf_token %}
 		  {{ form|bootstrap }}
 		  <div class="text_center">
 			<div class="btn-group">
-              <button type="submit" class="btn btn-success" name="edit_message"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
-              <button type="button" class="btn btn-default" name="cancel_edit_message" onclick="hide_new_message_form('edit_message_form_{{ message.pk }}', 'show_edit_{{ message.pk }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+              <button type="submit" class="btn btn-{{ form.button }}" name="{{ form.label }}_message"><span class="glyphicon glyphicon-{{ form.glyph }}"></span> {{ form.display }}</button>
+              <button type="button" class="btn btn-default" name="cancel_message" onclick="hide_new_message_form('{{ form.label }}_message_form_{{ message.pk }}', 'show_{{ form.label }}_{{ message.pk }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
 			</div>
 		  </div>
 		</form>

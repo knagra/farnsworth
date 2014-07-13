@@ -58,11 +58,19 @@ class MessageForm(forms.ModelForm):
         return message
 
 class EditThreadForm(forms.ModelForm):
+    label = "edit"
+    display = "Edit"
+    button = "success"
+    glyph = "comment"
     class Meta:
         model = Thread
         fields = ("subject",)
 
 class DeleteMessageForm(forms.ModelForm):
+    label = "delete"
+    display = "Delete"
+    button = "danger"
+    glyph = "fire"
     delete = forms.CharField(widget=forms.HiddenInput(), initial="d")
 
     class Meta:
