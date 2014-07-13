@@ -231,8 +231,6 @@ def my_profile_view(request):
         request.POST if 'submit_profile_form' in request.POST else None,
         user=request.user,
         initial={
-            'current_room': userProfile.current_room,
-            'former_rooms': userProfile.former_rooms.all(),
             'former_houses': userProfile.former_houses,
             'email': user.email,
             'email_visible_to_others': userProfile.email_visible,
@@ -505,6 +503,8 @@ def modify_profile_request_view(request, request_pk):
             'add_user_form': mod_form,
             'provider': profile_request.provider,
             'uid': profile_request.uid,
+            'affiliation_message': profile_request.message,
+            'members': User.objects.all().exclude(username=ANONYMOUS_USERNAME),
             }, context_instance=RequestContext(request))
 
 @admin_required
@@ -624,28 +624,28 @@ def reset_pw_confirm_view(request, uidb64=None, token=None):
 
 @admin_required
 def recount_view(request):
-	''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
-	requests_changed = 0
-	for req in Request.objects.all():
-		recount = Response.objects.filter(request=req).count()
-		if req.number_of_responses != recount:
-			req.number_of_responses = recount
-			req.save()
-			requests_changed += 1
-	threads_changed = 0
-	for thread in Thread.objects.all():
-		recount = Message.objects.filter(thread=thread).count()
-		if thread.number_of_messages != recount:
-			thread.number_of_messages = recount
-			thread.save()
-			threads_changed += 1
-	messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
-			requests_changed=requests_changed,
-			request_count=Request.objects.all().count(),
-			threads_changed=threads_changed,
-			thread_count=Thread.objects.all().count()),
-			)
-	return HttpResponseRedirect(reverse('utilities'))
+    ''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
+    requests_changed = 0
+    for req in Request.objects.all():
+        recount = Response.objects.filter(request=req).count()
+        if req.number_of_responses != recount:
+            req.number_of_responses = recount
+            req.save()
+            requests_changed += 1
+    threads_changed = 0
+    for thread in Thread.objects.all():
+        recount = Message.objects.filter(thread=thread).count()
+        if thread.number_of_messages != recount:
+            thread.number_of_messages = recount
+            thread.save()
+            threads_changed += 1
+    messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
+            requests_changed=requests_changed,
+            request_count=Request.objects.all().count(),
+            threads_changed=threads_changed,
+            thread_count=Thread.objects.all().count()),
+            )
+    return HttpResponseRedirect(reverse('utilities'))
 
 def archives_view(request):
     """ View of the archives page. """

@@ -8,30 +8,32 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 
+from base.models import UserProfile
+
 alphanumeric = RegexValidator(r'^[0-9A-Za-z]+$', 'Only alphanumeric characters are allowed.')
 
 class Room(models.Model):
     """ Model for a resident room in the house. """
-	title = models.CharField(
+    title = models.CharField(
         unique=True,
         blank=False,
         null=False,
         max_length=100,
         validators=[alphanumeric],
-        help_text="The title of the room (i.e. '2E'). Characters A-Z, 0-9.",
+        help_text="The title of the room (e.g., '2E'). Characters A-Z, 0-9.",
         )
-	unofficial_name = models.CharField(
+    unofficial_name = models.CharField(
         blank=True,
         null=True,
         max_length=100,
-        help_text="The unofficial name of the room (i.e. 'Starry Night')",
+        help_text="The unofficial name of the room (e.g., 'Starry Night')",
         )
-	description = models.TextField(
+    description = models.TextField(
         blank=True,
         null=True,
         help_text="The description of this room.",
         )
-	occupancy = models.IntegerField(
+    occupancy = models.IntegerField(
         default=1,
         validators=[MinValueValidator(0)],
         help_text="The total number of people that this room should house.",
@@ -43,14 +45,14 @@ class Room(models.Model):
         help_text="The current residents of this room."
         )
 
-	def __unicode__(self):
-		return self.title
+    def __unicode__(self):
+        return self.title
 
-	def __str__(self):
-		return self.__unicode__()
+    def __str__(self):
+        return self.__unicode__()
 
-class PreviousResidence(models.Model):
-    """ Model to represent a previous residence in a room. """
+class PreviousResident(models.Model):
+    """ Model to represent a previous resident in a room. """
     room = models.ForeignKey(
         Room,
         null=False,
@@ -68,12 +70,18 @@ class PreviousResidence(models.Model):
         blank=False,
         auto_now_add=False,
         auto_now=False,
-        help-text="Start date of this person's residence in this room."
+        help_text="Start date of this person's residence in this room."
         )
     end_date = models.DateField(
         null=False,
         blank=False,
         auto_now_add=False,
         auto_now=False,
-        help-text="End date of this person's residence in this room."
+        help_text="End date of this person's residence in this room."
         )
+
+    def __unicode__(self):
+        return self.room.title
+
+    def __str__(self):
+        return self.__unicode__()

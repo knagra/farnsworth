@@ -16,17 +16,29 @@ UID_LENGTH = getattr(settings, setting_name('UID_LENGTH'), 255)
 
 class UserProfile(models.Model):
     '''
-    The UserProfile model.  Tied to a unique User.  Contains current room number, former
-    room numbers, and phone number.
+    The UserProfile model.  Tied to a unique User.  Contains e-mail settings
+    and phone number.
     '''
     user = models.OneToOneField(User)
-    former_houses = models.CharField(blank=True, null=True, max_length=100, help_text="List of user's former BSC houses")
+    former_houses = models.CharField(
+        blank=True,
+        null=True,
+        max_length=100,
+        help_text="List of user's former BSC houses",
+        )
     phone_number = PhoneNumberField(
+        null=True,
         blank=True,
         default='',
         )
-    email_visible = models.BooleanField(default=False, help_text="Whether the email is visible in the directory")
-    phone_visible = models.BooleanField(default=False, help_text="Whether the phone number is visible in the directory")
+    email_visible = models.BooleanField(
+        default=False,
+        help_text="Whether the email is visible in the directory",
+        )
+    phone_visible = models.BooleanField(
+        default=False,
+        help_text="Whether the phone number is visible in the directory",
+        )
     RESIDENT = 'R'
     BOARDER = 'B'
     ALUMNUS = 'A'
@@ -35,10 +47,45 @@ class UserProfile(models.Model):
         (BOARDER, 'Current Boarder'),
         (ALUMNUS, 'Alumna/Alumnus'),
     )
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=RESIDENT, help_text="Member status (resident, boarder, alumnus)")
+    status = models.CharField(
+        max_length=1,
+        choices=STATUS_CHOICES,
+        default=RESIDENT,
+        help_text="Member status (resident, boarder, alumnus)",
+        )
+    email_request_notifications = models.BooleanField(
+        default=False,
+        help_text="Whether notifications are e-mailed to you about request updates.",
+        )
+    email_thread_notifications = models.BooleanField(
+        default=False,
+        help_text="Whether notifications are e-mailed to you about thread updates.",
+        )
+    email_workshift_notifications = models.BooleanField(
+        default=False,
+        help_text="Whether notifications are e-mailed to you about workshift updates.",
+        )
 
     def __unicode__(self):
         return self.user.get_full_name()
+
+    def get_email(self):
+        return self.user.email
+
+    def get_info(self):
+        return "{0.first_name} {0.last_name}".format(self.user)
+
+    def get_first(self):
+        return self.user.first_name
+
+    def get_last(self):
+        return self.user.last_name
+
+    def get_user(self):
+        return self.user.username
+    
+    def get_full(self):
+        return self.get_info()
 
     def is_userprofile(self):
         return True

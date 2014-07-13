@@ -5,6 +5,7 @@ when you run "manage.py test".
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from utils.variables import MESSAGES
 from base.models import UserProfile
@@ -16,12 +17,16 @@ class VerifyThread(TestCase):
 
         self.profile = UserProfile.objects.get(user=self.u)
 
-        self.thread = Thread(owner=self.profile, subject="Default Thread Test")
-        self.thread.save()
+        self.thread = Thread.objects.create(
+            owner=self.profile,
+            subject="Default Thread Test",
+            )
 
-        self.message = Message(owner=self.profile, body="Default Reply Test",
-                               thread=self.thread)
-        self.message.save()
+        self.message = Message.objects.create(
+            owner=self.profile,
+            body="Default Reply Test",
+            thread=self.thread,
+            )
 
         self.client.login(username="u", password="pwd")
 
@@ -36,7 +41,6 @@ class VerifyThread(TestCase):
             "/",
             "/threads/",
             "/threads/{0}/".format(self.thread.pk),
-            "/threads/list/",
             "/profile/{0}/threads/".format(self.u.username),
             "/profile/{0}/messages/".format(self.u.username),
             ]
@@ -48,28 +52,25 @@ class VerifyThread(TestCase):
             self.assertNotContains(response, MESSAGES['MESSAGE_ERROR'])
 
     def test_create_thread(self):
-        urls = [
-            "/threads/",
-            ]
         subject = "Thread Subject Test"
         body = "Thread Body Test"
-        for url in urls:
-            response = self.client.post(url, {
-                    "submit_thread_form": "",
-                    "subject": subject,
-                    "body": body,
-                    }, follow=True)
-            self.assertRedirects(response, url)
-            self.assertContains(response, subject)
-            self.assertContains(response, body)
 
-            thread = Thread.objects.get(subject=subject)
+        url = reverse("threads:list_all_threads")
+        response = self.client.post(url, {
+            "submit_thread_form": "",
+            "subject": subject,
+            "body": body,
+            }, follow=True)
 
-            self.assertNotEqual(thread, None)
-            self.assertEqual(Message.objects.filter(thread=thread).count(), 1)
-            self.assertEqual(Message.objects.get(thread=thread).body, body)
+        self.assertRedirects(response, url)
+        self.assertContains(response, subject)
+        self.assertNotContains(response, body)
 
-            thread.delete()
+        thread = Thread.objects.get(subject=subject)
+
+        self.assertNotEqual(thread, None)
+        self.assertEqual(Message.objects.filter(thread=thread).count(), 1)
+        self.assertEqual(Message.objects.get(thread=thread).body, body)
 
     def test_bad_thread(self):
         urls = [
@@ -95,16 +96,13 @@ class VerifyThread(TestCase):
 
     def test_post_reply(self):
         urls = [
-            "/threads/",
             "/threads/{0}/".format(self.thread.pk),
             ]
         body = "Reply Body Test"
         for url in urls:
             response = self.client.post(url, {
-                    "submit_message_form": "",
-                    "thread_pk": self.thread.pk,
-                    "body": body,
-                    }, follow=True)
+                "add-message-body": body,
+                }, follow=True)
             self.assertRedirects(response, url)
             self.assertContains(response, body)
 
@@ -121,16 +119,13 @@ class VerifyThread(TestCase):
 
     def test_bad_reply(self):
         urls = [
-            "/threads/",
             "/threads/{0}/".format(self.thread.pk),
             ]
         body = "Reply Body Test"
         for url in urls:
             response = self.client.post(url, {
-                    "submit_message_form": "",
-                    "thread_pk": "a{0}".format(self.thread.pk),
-                    "body": body,
-                    })
+                "add-message-body": "",
+                })
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, MESSAGES['MESSAGE_ERROR'])
 
@@ -145,3 +140,29 @@ class VerifyThread(TestCase):
                 pass
             else:
                 self.assertEqual(message, None)
+
+    def test_delete_message(self):
+        url = reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk})
+        response = self.client.post(url, {
+            "delete-{0}-delete".format(self.message.pk): "d",
+            }, follow=True)
+        self.assertRedirects(response, reverse("threads:list_all_threads"))
+        self.assertEqual(
+            0,
+            Message.objects.filter(pk=self.message.pk).count(),
+            )
+
+    def test_edit_message(self):
+        url = reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk})
+        response = self.client.post(url, {
+            "edit-{0}-body".format(self.message.pk): "New message body",
+            }, follow=True)
+        self.assertRedirects(response, url)
+        self.assertEqual(
+            1,
+            Message.objects.filter(pk=self.message.pk).count(),
+            )
+        self.assertEqual(
+            "New message body",
+            Message.objects.get(pk=self.message.pk).body
+            )

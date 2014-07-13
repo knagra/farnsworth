@@ -4,27 +4,34 @@
 {% load bootstrap %}
 
 {% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/add_room.css' %}" />
+<style>
+    .resident_formset_row td {
+        padding-right: 5px;
+        padding-bottom: 5px;
+        border-top: none !important;
+        border-bottom: 1px solid #e4e4e4;
+    }
+    .resident_formset_row td div {
+        margin: 0px;
+    }
+    .resident_formset_row td div label {
+        display: none;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="table_container">
-  <div class="header">
-    <h3 class="table_title medium_title">{{ page_name }}</h3>
-  </div> <!-- .header -->
-  <div class="room_table main_table">
-	<form id="new_room_form" method="post" action="">
-	  {% csrf_token %}
-	  <div class="form-group">
-		{{ add_form|bootstrap }}
-		<div class="text-center">
-		  <button type="submit" class="btn btn-success" name="add_room"><span class="glyphicon glyphicon-bullhorn"></span> Add Room</button>
-		</div> <!-- .text-center -->
-	  </div> <!-- .form-group -->
-	</form>
-  </div> <!-- .room_table -->
-</div>
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+<form id="new_room_form" method="post" action="">
+  {% csrf_token %}
+  <div class="form-group">
+    {{ form|bootstrap }}
+    <div class="text-center">
+      <button type="submit" class="btn btn-success" name="add_room"><span
+        class="glyphicon glyphicon-{% if editing %}floppy-disk{% else %}plus{% endif %}"></span>
+                {% if editing %}Save{% else %}Add{% endif %} Room</button>
+    </div> <!-- .text-center -->
+  </div> <!-- .form-group -->
+</form>
 {% endblock %}

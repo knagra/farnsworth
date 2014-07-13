@@ -2,14 +2,11 @@
 
 {% load static from staticfiles %}
 {% load bootstrap %}
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-{% endblock %}
 
 {% block content %}
 <div class="row">
 <div class="col-md-7">
-    <h1 class="w_title">Modify {{ targetUser.username }}'s Profile</h3>
+    <h1 class="w_title">Modify {{ targetUser.username }}'s Profile</h1>
     <hr class="w_line" />
     <form method="post" action="">
       {% csrf_token %}

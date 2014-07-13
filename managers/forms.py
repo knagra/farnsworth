@@ -195,7 +195,7 @@ class AnnouncementForm(forms.ModelForm):
         if not super(AnnouncementForm, self).is_valid():
             return False
         if not self.manager_positions and not self.profile.user.is_superuser:
-            raise forms.ValidationError("You do not have permission to post an announcement.")
+            self._errors['__all__'] = forms.util.ErrorList([u"You do not have permission to post an announcement."])
         return True
 
     def save(self, *args, **kwargs):
