@@ -55,7 +55,7 @@
                 (<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
             {% endif %}
         {% endfor %}
-    </div>
+    </div> <!-- .field_wrapper -->
     {% else %}
     <div class="field_wrapper text-danger">No active managers are currently responsible for addressing {{ request_type.lower }} requests.</div>
     {% endif %}
@@ -140,11 +140,10 @@
         {% endwith %}
       </div> <!-- response_row -->
     </div> <!-- response_table -->
-      </div> <!-- request_name -->
+      </div> <!-- requests_row -->
     {% endfor %}
-    </div>
+    </div> <!-- .bordered_div -->
     {% endif %}
   </div> <!-- .requests_table -->
-  </div> <!-- .main_table -->
-</div>
+</div> <!-- .requests -->
 {% endblock %}
