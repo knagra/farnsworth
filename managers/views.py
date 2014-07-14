@@ -125,7 +125,7 @@ def edit_manager_view(request, managerTitle):
     return render_to_response('edit_manager.html', {
         'page_name': "Admin - Edit Manager",
         'form': form,
-        "managerset": Managers.objects.all(),
+        "managerset": Manager.objects.all(),
         'manager_title': targetManager.title,
         }, context_instance=RequestContext(request))
 

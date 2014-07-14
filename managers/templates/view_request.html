@@ -30,7 +30,7 @@
     {% else %}
     <div class="field_wrapper text-danger">No managers are currently responsible for addressing {{ relevant_request.request_type.name.lower }} requests.</div>
     {% endif %}
-    <div class="request_name{% if relevant_request.filled %} bg-success" title="Filled"{% elif relevant_request.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
+    <div class="request_name bg-{% if relevant_request.filled %}success{% elif relevant_request.closed %}danger{% elif relevant_request.expired %}expired{% else %}warning{% endif %}" title="{{ relevant_request.get_status_display }}">
         <div class="request_owner">
         {% if not relevant_request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
         <form style="display:inline" method="POST" action="">
@@ -67,10 +67,7 @@
       </div>
       <div class="response_body">
         {{ response.body|safe }}
-        {% if response.manager %}
-            <hr style="width: 75%;" class="text-center" />
-            <div class="field_wrapper text-info">Action: {{ response.get_action_display }}</div>
-        {% endif %}
+        {{ response.display_action|safe }}
       </div>
     </div> <!-- message_row -->
     {% endfor %}

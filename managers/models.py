@@ -131,14 +131,14 @@ class Response(models.Model):
         help_text="Whether this is a relevant manager response."
         )
     CLOSED = 'C'
-    REOPENED = 'R'
+    REOPENED = 'O'
     FILLED = 'F'
     EXPIRED = 'E'
     NONE = 'N'
     ACTION_CHOICES = (
         (NONE, "None"),
         (CLOSED, "Mark closed"),
-        (REOPENED, "Mark reopened"),
+        (REOPENED, "Mark open"),
         (FILLED, "Mark filled"),
         (EXPIRED, "Mark expired"),
     )

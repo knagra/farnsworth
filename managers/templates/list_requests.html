@@ -37,12 +37,12 @@
     </thead>
     <tbody>
       {% for req in requests %}
-      <tr class="{% if req.filled %}success{% elif req.closed %}danger{% else %}warning{% endif %}">
+      <tr class="{% if req.filled %}success{% elif req.closed %}danger{% elif req.expired %}expired{% else %}warning{% endif %}">
         <td><a title="View Request" class="page_link" href="{% url 'managers:view_request' request_pk=req.pk %}">{{ req.body|safe }}</a></td>
         {% if request_type %}<td><a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=req.owner.user.username %}" title="View Profile">{{ req.owner.user.first_name }} {{ req.owner.user.last_name }}</a></td>{% endif %}
         {% if not request_type %}<td>{{ req.request_type.name|title }}</td>{% endif %}
         <td>{{ req.number_of_responses }}</td>
-        <td>{% if req.filled %}Filled{% elif req.closed %}Closed{% else %}Pending{% endif %}</td>
+        <td>{{ req.get_status_display }}</td>
         {% with vote_count=req|count_votes %}
         <td>{% if vote_count > 0 %}+{{ vote_count }}{% elif vote_count = 0 %}+0{% else %}{{ vote_count }}{% endif %}</td>
         {% endwith %}

@@ -236,6 +236,14 @@ form > .form-group {
     background-color: #e9e9e9;
 }
 
+.expired > td{
+    background-color: #e9e9e9 !important;
+}
+
+.expired:hover > td {
+    background-color: #d9d9d9 !important;
+}
+
 .main_divider {
     margin-top: 0px;
     margin-bottom: 0px;

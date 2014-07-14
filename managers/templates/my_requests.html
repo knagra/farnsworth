@@ -82,7 +82,7 @@
     {% endif %}
 
     <div class="requests_row">
-      <div class="request_name{% if request_tuple.0.filled %} bg-success" title="Filled"{% elif request_tuple.0.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
+      <div class="request_name bg-{% if request_tuple.0.filled %}success{% elif request_tuple.0.closed %}danger{% elif request_tuple.0.expired %}expired{% else %}warning{% endif %}" title="{{ request_tuple.0.get_status_display }}">
     <div class="request_owner">
       <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=request_tuple.0.owner.user.username %}" >{{ request_tuple.0.owner|display_user:user }}</a>
       ({{ request_tuple.0.post_date }}):
