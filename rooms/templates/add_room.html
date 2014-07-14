@@ -30,25 +30,25 @@
 	{% if resident_formset %}
     <hr />
     <table class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
-        <tbody>
+      <tbody>
         {% for form in resident_formset.forms %}
         {{ form.id }}
         <tr class="resident_formset_row">
-            <td>{{ form.resident|bootstrap }}</td>
-            <td>{{ form.start_date|bootstrap }}</td>
-            <td>{{ form.end_date|bootstrap }}</td>
-            <td style="vertical-align: middle;"></td>
+          <td>{{ form.resident|bootstrap }}</td>
+          <td>{{ form.start_date|bootstrap }}</td>
+          <td>{{ form.end_date|bootstrap }}</td>
+          <td style="vertical-align: middle;"></td>
         </tr>
         {% endfor %}
-        </tbody>
+      </tbody>
     </table>
 	{{ resident_formset.management_form }}
 	{% endif %}
     <hr />
     <div class="text-center">
       <button type="submit" class="btn btn-success" name="add_room"><span
-        class="glyphicon glyphicon-{% if editing %}floppy-disk{% else %}plus{% endif %}"></span>
-                {% if editing %}Save{% else %}Add{% endif %} Room</button>
+																	   class="glyphicon glyphicon-{% if editing %}floppy-disk{% else %}plus{% endif %}"></span>
+        {% if editing %}Save{% else %}Add{% endif %} Room</button>
     </div> <!-- .text-center -->
   </div> <!-- .form-group -->
 </form>
