@@ -14,7 +14,6 @@
     </div>
   <h1 class="w_title">Request a User Profile</h1>
   <hr class="w_line" />
-      <div class="main_table">
     <form method="post" action="">
       {% csrf_token %}
       <div class="form-group">
@@ -24,7 +23,6 @@
         </div>
       </div> <!-- .form-group -->
     </form>
-      </div> <!-- .main_table -->
   </div> <!-- .col-sm-8 -->
   <br class="visible-xs" />
   {% if oauth_providers %}
