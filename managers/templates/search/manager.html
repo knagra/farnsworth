@@ -1,6 +1,6 @@
 {% load highlight %}
 {% load thread_tags %}
-<h3 class="result_title"><a href="{% url 'view_manager' managerTitle=result.object.url_title %}">{{ result.object.title }}</a>
+<h3 class="result_title"><a href="{% url 'managers:view_manager' managerTitle=result.object.url_title %}">{{ result.object.title }}</a>
 	<small>Incumbent: {% if result.object.incumbent %}
 		<a href="{% url 'member_profile' targetUsername=result.object.incumbent.user.username %}">{{ result.object.incumbent|display_user:user }}</a>
 		{% else %}none{% endif %}
