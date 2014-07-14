@@ -8,7 +8,6 @@
 <div class="col-md-7">
 <h1 class="w_title">Update Your Profile</h1>
 <hr class="w_line" />
-<div class="main_table">
 <form method="post" action="">
     {% csrf_token %}
     <div class="form-group">
@@ -16,7 +15,6 @@
         <div class="text-center"><button type="submit" class="btn btn-success" name="submit_profile_form"><span class="glyphicon glyphicon-floppy-disk"></span> Update Profile</button></div>
     </div>
 </form>
-</div> <!-- main_table -->
 </div> <!-- .col-md-7 -->
 
 <br class="visible-xs visible-sm" />
@@ -25,7 +23,6 @@
 <div class="col-md-5">
 <h1 class="w_title">Change Password</h1>
 <hr class="w_line" />
-<div class="main_table">
 <form method="post" action="">
     {% csrf_token %}
     <div class="form-group">
@@ -33,7 +30,6 @@
         <div class="text-center"><button type="submit" class="btn btn-danger" name="submit_password_form"><span class="glyphicon glyphicon-warning-sign"></span> Change Password</button></div>
     </div>
 </form>
-</div> <!-- .main_table -->
 </div> <!-- .col-md-5 -->
 </div> <!-- .row -->
 {% endblock %}
