@@ -3,14 +3,11 @@
 {% load static from staticfiles %}
 
 {% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'jquery/nivo/nivo-slider.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'jquery/nivo/themes/default/default.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/external.css' %}" />
 {% endblock %}
 
 {% block jumbotron %}
-<div id="jumbotron" class="jumbotron">
+<div id="jumbotron" class="jumbotron text-center">
 	<div class="container">
 	<h1 id="page_title" class="hidden-xs hidden-sm hidden-md">We are Afro.</h1>
 	<h1 id="large_page_title" class="visible-md">We are Afro.</h1>
