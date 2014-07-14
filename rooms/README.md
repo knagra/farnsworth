@@ -3,7 +3,7 @@ Room profiles.
 
 #### Models - `/rooms/models.py`
 * `Room` - Model for a room.
-* `PreviousResidence` - Model for an occupancy history event for a room.
+* `PreviousResident` - Model for an occupancy history event for a room.
 
 #### Views - `/rooms/views.py`
 * `list_rooms` - View to list all rooms.
