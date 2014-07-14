@@ -22,7 +22,6 @@
 {% block content %}
 <<h1 class="w_title">Site Utilities</h1>
 <hr class="w_line" />
-<div class="main_table">
 <ul class="utilities_list">
 {% if ANONYMOUS_SESSION %}
     <li>You are currently temporarily logged in.  When you log out, the anonymous user "{{ ANONYMOUS_USERNAME }}"  will be logged in.
@@ -47,5 +46,4 @@
     <ul><li>Django admin: <a class="page_link" href="{% url 'admin:index' %}"><span class="glyphicon glyphicon-wrench"></span> Django Admin</a></li></ul>
     </li>
 </ul>
-</div> <!-- .main_table -->
 {% endblock %}
