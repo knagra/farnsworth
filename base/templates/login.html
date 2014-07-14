@@ -13,7 +13,6 @@
     <div id="login_form">
       <h1 class="w_title">Login</h1>
       <hr class="w_line" />
-      <div class="main_table">
     <form method="post" action="">
       {% csrf_token %}
       <div class="form-group">
@@ -23,7 +22,6 @@
         </div> <!-- .text-center -->
       </div> <!-- .form-group -->
     </form>
-      </div> <!-- .main_table -->
     </div> <!-- #login_form -->
     <div class="alert alert-info" style="margin-top: 10px;">Forgot your password?
     You can reset your password from <a class="alert-link" href="{% url 'reset_pw' %}">this page</a>.</div>
