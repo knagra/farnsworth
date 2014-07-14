@@ -39,7 +39,7 @@ class RequestType(models.Model):
     glyphicon = models.CharField(max_length=100, blank=True, null=True, help_text="Glyphicon for this request type (e.g., cutlery).  Check Bootstrap documentation for more info.")
 
     def __unicode__(self):
-        return "{0.name} RequestType".format(self)
+        return self.name
 
     class Meta:
         ordering = ['name']
@@ -57,13 +57,43 @@ class Request(models.Model):
     post_date = models.DateTimeField(auto_now_add=True, help_text="The date this request was posted.")
     change_date = models.DateTimeField(auto_now_add=True, help_text="The last time this request was modified.")
     request_type = models.ForeignKey(RequestType, blank=False, null=False, help_text="The type of request this is.")
-    filled = models.BooleanField(default=False, help_text="Whether the manager deems this request filled.")
-    closed = models.BooleanField(default=False, help_text="Whether the manager has closed this request.")
+    OPEN = 'O'
+    CLOSED = 'C'
+    FILLED = 'F'
+    EXPIRED = 'E'
+    STATUS_CHOICES = (
+        (OPEN, "Open"),
+        (CLOSED, "Closed"),
+        (FILLED, "Filled"),
+        (EXPIRED, "Expired"),
+        )
+    status = models.CharField(
+        max_length=1,
+        choices=STATUS_CHOICES,
+        default=OPEN,
+        help_text="Status of this request."
+        )
     number_of_responses = models.PositiveSmallIntegerField(default=0, help_text="The number of responses to this request.")
     upvotes = models.ManyToManyField(UserProfile, null=True, blank=True, help_text="Up votes for this request.", related_name="up_votes")
 
     def __unicode__(self):
-        return "{0.name} request by {1.owner} on {1.post_date}".format(self.request_type, self)
+        return "{0.name} request by {1.owner}".format(self.request_type, self)
+
+    @property
+    def filled(self):
+        return self.status == self.FILLED
+
+    @property
+    def open(self):
+        return self.status == self.OPEN
+
+    @property
+    def closed(self):
+        return self.status == self.CLOSED
+
+    @property
+    def expired(self):
+        return self.status == self.EXPIRED
 
     class Meta:
         ordering = ['-post_date']
@@ -75,14 +105,59 @@ class Response(models.Model):
     '''
     The Response model.  A response to a request.  Very similar to Request.
     '''
-    owner = models.ForeignKey(UserProfile, blank=False, null=False, help_text="The user who posted this response.")
-    body = models.TextField(blank=False, null=False, help_text="The body of this response.")
-    post_date = models.DateTimeField(auto_now_add=True, help_text="The date this response was posted.")
-    request = models.ForeignKey(Request, blank=False, null=False, help_text="The request to which this is a response.")
-    manager = models.BooleanField(default=False, help_text="Whether this is a relevant manager response.")
+    owner = models.ForeignKey(
+        UserProfile,
+        blank=False,
+        null=False,
+        help_text="The user who posted this response."
+        )
+    body = models.TextField(
+        blank=False,
+        null=False,
+        help_text="The body of this response."
+        )
+    post_date = models.DateTimeField(
+        auto_now_add=True,
+        help_text="The date this response was posted."
+        )
+    request = models.ForeignKey(
+        Request,
+        blank=False,
+        null=False,
+        help_text="The request to which this is a response."
+        )
+    manager = models.BooleanField(
+        default=False,
+        help_text="Whether this is a relevant manager response."
+        )
+    CLOSED = 'C'
+    REOPENED = 'R'
+    FILLED = 'F'
+    EXPIRED = 'E'
+    NONE = 'N'
+    ACTION_CHOICES = (
+        (NONE, "None"),
+        (CLOSED, "Mark closed"),
+        (REOPENED, "Mark reopened"),
+        (FILLED, "Mark filled"),
+        (EXPIRED, "Mark expired"),
+    )
+    action = models.CharField(
+        max_length=1,
+        choices=ACTION_CHOICES,
+        default=NONE,
+        help_text="A mark action (e.g., 'Marked closed'), if any."
+        )
 
     def __unicode__(self):
         return "Response by {0.owner} to: {0.request}".format(self)
+
+    def display_action(self):
+        if not self.action == self.NONE:
+            return '<hr style="width: 75%;" class="text-center" /><div class="field_wrapper text-info">Action: {0}</div>'.format(
+                self.get_action_display()
+                )
+        return ""
 
     class Meta:
         ordering = ['post_date']

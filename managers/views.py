@@ -230,8 +230,7 @@ def requests_view(request, requestType):
             resp_form = ManagerResponseForm(
                 initial={
                     'request_pk': req.pk,
-                    'mark_filled': req.filled,
-                    'mark_closed': req.closed,
+                    'action': Response.NONE,
                     },
                 profile=userProfile,
                 )
@@ -292,8 +291,7 @@ def my_requests_view(request):
                 form = ManagerResponseForm(
                     initial={
                         'request_pk': req.pk,
-                        'mark_filled': req.filled,
-                        'mark_closed': req.closed,
+                        'action': Response.NONE,
                         },
                     profile=userProfile,
                     )
@@ -391,8 +389,7 @@ def request_view(request, request_pk):
             request.POST if 'add_response' in request.POST else None,
             initial={
                 'request_pk': relevant_request.pk,
-                'mark_filled': relevant_request.filled,
-                'mark_closed': relevant_request.closed,
+                'action': Response.NONE,
                 },
             profile=userProfile,
             )

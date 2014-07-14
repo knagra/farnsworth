@@ -3,6 +3,7 @@
 {% load static from staticfiles %}
 {% load thread_tags %}
 {% load request_tags %}
+{% load bootstrap %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/my_requests.css' %}" />
 <script>
@@ -101,6 +102,7 @@
         </div> <!-- response_owner -->
         <div class="response_body">
           {{ response.body|safe }}
+          {{ response.display_action|safe }}
         </div> <!-- response_body -->
       </div> <!-- response_row -->
       {% endfor %}
@@ -119,13 +121,7 @@
             <textarea class="response" name="body"></textarea>
           </div> <!-- form-group -->
           {% if type_tuple.2 %}
-            <hr class="main_divider" style="width: 75%;" />
-            <div class="col-sm-6">
-              <div class="checkbox">{{ request_tuple.2.mark_filled }}<label for="id_mark_filled">Filled</label></div>
-            </div>
-            <div class="col-sm-6">
-              <div class="checkbox">{{ request_tuple.2.mark_closed }}<label for="id_mark_closed">Closed</label></div>
-            </div>
+            {{ request_tuple.2.action|bootstrap }}
           {% endif %}
           <div class="text-center">
           <div class="btn-group">

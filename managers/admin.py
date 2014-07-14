@@ -19,17 +19,17 @@ class RequestTypeAdmin(admin.ModelAdmin):
     list_filter = ('name', 'managers')
 
 class RequestAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'post_date', 'filled')
-    search_fields = ('owner', 'body', 'post_date', 'change_date')
-    list_filter = ('post_date', 'change_date', 'filled', 'owner')
+    list_display = ('owner', 'post_date', 'status')
+    search_fields = ('owner', 'body', 'post_date', 'change_date', 'status')
+    list_filter = ('post_date', 'change_date', 'status', 'owner')
     date_hierarchy = 'post_date'
     ordering = ('-post_date',)
     readonly_fields = ('post_date',)
 
 class ResponseAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'post_date', 'request')
-    search_fields = ('owner', 'body', 'request')
-    list_filter = ('post_date', 'request', 'owner')
+    list_display = ('owner', 'post_date', 'request', 'action')
+    search_fields = ('owner', 'body', 'request', 'action')
+    list_filter = ('post_date', 'request', 'owner', 'action')
     date_hierarchy = 'post_date'
     ordering = ('-post_date',)
     readonly_fields = ('post_date',)

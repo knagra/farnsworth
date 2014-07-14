@@ -84,4 +84,3 @@ class EditMessageForm(forms.ModelForm):
     class Meta:
         model = Message
         fields = ("body",)
->>>>>>> origin/master

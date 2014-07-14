@@ -59,7 +59,7 @@ def add_context(request):
     ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
     request_types = list() # A list with items of form (RequestType, number_of_open_requests)
     for request_type in RequestType.objects.filter(enabled=True):
-        request_types.append((request_type, Request.objects.filter(request_type=request_type, filled=False, closed=False).count()))
+        request_types.append((request_type, Request.objects.filter(request_type=request_type, status=Request.OPEN).count()))
     return {
         'REQUEST_TYPES': request_types,
         'HOUSE': settings.HOUSE_NAME,
@@ -89,16 +89,19 @@ def homepage_view(request, message=None):
                 manager_request_types.append(request_type)
                 break
     requests_dict = list() # Pseudo-dictionary, list with items of form (request_type, (request, [list_of_request_responses], response_form))
-    # Generate a dict of unfilled, unclosed requests for each request_type for which the user is a relevant manager:
+    # Generate a dict of open requests for each request_type for which the user is a relevant manager:
     if manager_request_types:
         for request_type in manager_request_types:
             requests_list = list() # Items of form (request, [list_of_request_responses], response_form, upvote, vote_form)
-            # Select only unclosed, unfilled requests of type request_type:
-            type_requests = Request.objects.filter(request_type=request_type, filled=False, closed=False)
+            # Select only open requests of type request_type:
+            type_requests = Request.objects.filter(request_type=request_type, status=Request.OPEN)
             for req in type_requests:
                 response_list = Response.objects.filter(request=req)
                 form = ManagerResponseForm(
-                    initial={'request_pk': req.pk},
+                    initial={
+                        'request_pk': req.pk,
+                        'action': Response.NONE,
+                        },
                     profile=userProfile,
                     )
                 upvote = userProfile in req.upvotes.all()

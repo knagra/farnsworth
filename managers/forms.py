@@ -144,16 +144,22 @@ class ResponseForm(forms.Form):
 
 class ManagerResponseForm(ResponseForm):
     ''' Form for a manager to create a new Response. '''
-    mark_filled = forms.BooleanField(required=False)
-    mark_closed = forms.BooleanField(required=False)
+    action = forms.ChoiceField(choices=Response.ACTION_CHOICES)
 
     def save(self):
         response = super(ManagerResponseForm, self).save()
         response.manager = True
+        response.action = self.cleaned_data['action']
         response.save()
         request = self.cleaned_data['request_pk']
-        request.closed = self.cleaned_data['mark_closed']
-        request.filled = self.cleaned_data['mark_filled']
+        actions = {
+            Response.CLOSED: Request.CLOSED,
+            Response.REOPENED: Request.OPEN,
+            Response.FILLED: Request.FILLED,
+            Response.EXPIRED: Request.EXPIRED,
+            Response.NONE: request.status,
+            }
+        request.status = actions[response.action]
         request.save()
         return response
 
