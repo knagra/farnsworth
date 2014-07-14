@@ -10,7 +10,6 @@
 <div class="col-md-8 col-md-offset-2">
     <h1 class="w_title">Password Reset Confirmation</h1>
     <hr class="w_line" />
-    <div class="main_table">
     <form method="post">
         {% csrf_token %}
         <div class="form-group">
@@ -20,7 +19,6 @@
         </div> <!-- .text-center -->
         </div> <!-- .form-group -->
     </form>
-    </div> <!-- .main_table -->
 </div> <!-- .col-md-8 -->
 {% else %}
 <div class="text-center alert alert-danger">This password reset token is no longer valid.
