@@ -145,6 +145,17 @@ def list_user_threads_view(request, targetUsername):
     targetProfile = get_object_or_404(UserProfile, user=targetUser)
     threads = Thread.objects.filter(owner=targetProfile)
     page_name = "{0}'s Threads".format(targetUser.get_full_name())
+    form = ThreadForm(
+        request.POST if "submit_thread_form" in request.POST else None,
+        profile=UserProfile.objects.get(user=request.user),
+        )
+
+    if form.is_valid():
+        thread = form.save()
+        return HttpResponseRedirect(reverse("threads:list_all_threads"))
+    elif request.method == "POST":
+        messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
+
     return render_to_response('list_threads.html', {
         'page_name': page_name,
         'threads': threads,
