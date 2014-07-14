@@ -35,10 +35,17 @@ class ResidentForm(forms.ModelForm):
         fields = "__all__"
 
 class BaseResidentFormSet(BaseModelFormSet):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.room = kwargs.pop('room')
         super(BaseResidentFormSet, self).__init__(*args, **kwargs)
         self.queryset = PreviousResident.objects.filter(room=self.room)
+
+    def save(self):
+        prev_residents = super(BaseResidentFormSet, self).save()
+        for prev in prev_residents:
+            prev.room = self.room
+            prev.save()
+        return prev_residents
 
 ResidentFormSet = modelformset_factory(
     PreviousResident, form=ResidentForm, formset=BaseResidentFormSet,
