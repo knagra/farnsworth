@@ -23,13 +23,12 @@
   {% endif %}
   <h1 class="w_title">{{ targetUser.username }}'s Profile</h1>
   <hr class="w_line" />
-  <div class="main_table">
-    <dl id="profile_table" class="dl-horizontal">
-      <dt>Name</dt>
-      <dd>{{ targetUser.get_full_name }}</dd>
-      <dt>Status</dt>
-      <dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ targetProfile.get_status_display }}{% endif %}</dd>
-      {% if not targetUser.username == ANONYMOUS_USERNAME %}
+  <dl id="profile_table" class="dl-horizontal">
+    <dt>Name</dt>
+    <dd>{{ targetUser.get_full_name }}</dd>
+    <dt>Status</dt>
+    <dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ targetProfile.get_status_display }}{% endif %}</dd>
+    {% if not targetUser.username == ANONYMOUS_USERNAME %}
 	  <dt>Current Room</dt>
 	  <dd>
 		{% if targetProfile.current_room %}
@@ -44,30 +43,29 @@
 		{% endfor %}
 		{% else %}&nbsp;{% endif %}
 	  </dd>
-      <dt>Other Houses</dt>
-      <dd>{% if targetProfile.former_houses %}{{ targetProfile.former_houses }}{% else %}&nbsp;{% endif %}</dd>
-      {% if targetProfile.email_visible %}
-      <dt>E-mail</dt>
-      <dd><a class="page_link" title="Write E-mail" href="mailto:{{ targetUser.email }}">{{ targetUser.email }}</a></dd>
-      {% endif %}
-      {% if targetProfile.phone_visible %}
-      <dt>Phone</dt>
-      <dd>{{ targetProfile.phone_number }}</dd>
-      {% endif %}
-      <dt>Threads Started</dt>
-      <dd>{% if number_of_threads > 0 %}<a class="page_link" title="See Threads" href="{% url 'threads:list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a>{% else %}{{ number_of_threads }}{% endif %}</dd>
-      <dt>Messages Posted</dt>
-      <dd>{% if number_of_messages > 0 %}<a class="page_link" title="See Messages" href="{% url 'threads:list_user_messages' targetUsername=targetUser.username %}">{{ number_of_messages }}</a>{% else %}{{ number_of_messages }}{% endif %}</dd>
-      <dt>Requests Posted</dt>
-      <dd>{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'managers:list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}</dd>
-      {% endif %}
-    </dl>
-    <hr>
-    <div class="text-center">
-      <form action="{% url 'member_directory' %}">
-        <button id="member_directory" type="submit" class="btn btn-info"><span class="glyphicon glyphicon-book"></span> Member Directory</button>
-      </form>
-    </div>
-  </div> <!-- .main_table -->
-</div>
+    <dt>Other Houses</dt>
+    <dd>{% if targetProfile.former_houses %}{{ targetProfile.former_houses }}{% else %}&nbsp;{% endif %}</dd>
+    {% if targetProfile.email_visible %}
+    <dt>E-mail</dt>
+    <dd><a class="page_link" title="Write E-mail" href="mailto:{{ targetUser.email }}">{{ targetUser.email }}</a></dd>
+    {% endif %}
+    {% if targetProfile.phone_visible %}
+    <dt>Phone</dt>
+    <dd>{{ targetProfile.phone_number }}</dd>
+    {% endif %}
+    <dt>Threads Started</dt>
+    <dd>{% if number_of_threads > 0 %}<a class="page_link" title="See Threads" href="{% url 'threads:list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a>{% else %}{{ number_of_threads }}{% endif %}</dd>
+    <dt>Messages Posted</dt>
+    <dd>{% if number_of_messages > 0 %}<a class="page_link" title="See Messages" href="{% url 'threads:list_user_messages' targetUsername=targetUser.username %}">{{ number_of_messages }}</a>{% else %}{{ number_of_messages }}{% endif %}</dd>
+    <dt>Requests Posted</dt>
+    <dd>{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'managers:list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}</dd>
+    {% endif %}
+  </dl>
+  <hr>
+  <div class="text-center">
+    <form action="{% url 'member_directory' %}">
+      <button id="member_directory" type="submit" class="btn btn-info"><span class="glyphicon glyphicon-book"></span> Member Directory</button>
+    </form>
+  </div> <!-- .text-center -->
+</div> <!-- .table_60 -->
 {% endblock %}
