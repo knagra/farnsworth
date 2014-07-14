@@ -5,20 +5,20 @@ Author: Karandeep Singh Nagra
 */
 
 .thread_link {
-	text-decoration: none;
-	color: black;
+    text-decoration: none;
+    color: black;
 }
 
 .thread_link:hover {
-	color: #7e7e7e;
+    color: #7e7e7e;
 }
 
 label {
-	padding-left: 5px;
+    padding-left: 5px;
 }
 
 .btn-group {
-	padding-bottom: 10px;
+    padding-bottom: 10px;
 }
 
 .add_thread {
@@ -67,7 +67,7 @@ label {
 
 /*
   Remove confusion about table layout in case user enters a horizontal line.
-  */	
+  */
 .message_table hr:not(.main_divider) {
     margin-left: 10px;
 }
