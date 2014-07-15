@@ -6,14 +6,18 @@ Replace this with more appropriate tests for your application.
 """
 
 from datetime import date, time, datetime, timedelta
-from django.test import TestCase
+
+from django import forms
 from django.contrib.auth.models import User
+from django.http import QueryDict
+from django.test import TestCase
 from django.utils.timezone import utc, now
 
 from utils.funcs import convert_to_url
 from utils.variables import time_formats, MESSAGES
 from base.models import UserProfile
 from events.models import Event
+from events.forms import RsvpForm
 from managers.models import Manager
 
 class TestEvent(TestCase):
@@ -67,38 +71,42 @@ class TestEvent(TestCase):
             ]
         for url in urls:
             response = self.client.post(url, {
-                    "rsvp": "",
-                    "event_pk": "{0}".format(self.ev.pk),
-                    }, follow=True)
+                "rsvp": "",
+                "rsvp-{0}".format(self.ev.pk): "",
+                }, follow=True)
             self.assertRedirects(response, url)
             self.assertContains(response, 'Un-RSVP')
-            self.assertContains(response,
-                                MESSAGES['RSVP_ADD'].format(event=self.ev.title))
+            self.assertContains(
+                response,
+                MESSAGES['RSVP_ADD'].format(event=self.ev.title),
+                )
 
             self.assertEqual(1, self.ev.rsvps.count())
             self.assertEqual(self.profile, self.ev.rsvps.all()[0])
 
             response = self.client.post(url, {
-                    "rsvp": "",
-                    "event_pk": "{0}".format(self.ev.pk),
-                    }, follow=True)
+                "rsvp": "",
+                "rsvp-{0}".format(self.ev.pk): "",
+                }, follow=True)
             self.assertRedirects(response, url)
             self.assertContains(response, 'RSVP')
-            self.assertContains(response,
-                                MESSAGES['RSVP_REMOVE'].format(event=self.ev.title))
+            self.assertContains(
+                response,
+                MESSAGES['RSVP_REMOVE'].format(event=self.ev.title),
+                )
 
             self.assertEqual(0, self.ev.rsvps.count())
 
     def test_edit(self):
         response = self.client.post("/events/{0}/edit/".format(self.ev.pk), {
-                "title": "New Title Test",
-                "description": self.ev.description,
-                "location": self.ev.location,
-                "start_time": (self.ev.start_time).strftime(time_formats[0]),
-                "end_time": self.ev.end_time.strftime(time_formats[0]),
-                "as_manager": self.m.pk,
-                "cancelled": "on",
-                }, follow=True)
+            "title": "New Title Test",
+            "description": self.ev.description,
+            "location": self.ev.location,
+            "start_time": (self.ev.start_time).strftime(time_formats[0]),
+            "end_time": self.ev.end_time.strftime(time_formats[0]),
+            "as_manager": self.m.pk,
+            "cancelled": "on",
+            }, follow=True)
         self.assertContains(response, "New Title Test")
         self.assertRedirects(response, "/events/{0}/".format(self.ev.pk))
         event = Event.objects.get(pk=self.ev.pk)
@@ -158,8 +166,7 @@ class TestEvent(TestCase):
                 "description": "New Description",
                 "location": "New Location Hall",
                 "start_time": self.ev.start_time.strftime(time_formats[0]),
-                "end_time": (self.ev.start_time - timedelta(minutes=1))
-                .strftime(time_formats[0]),
+                "end_time": (self.ev.start_time - timedelta(minutes=1)) .strftime(time_formats[0]),
                 "as_manager": self.m.pk,
                 })
             self.assertEqual(response.status_code, 200)
@@ -171,35 +178,19 @@ class TestEvent(TestCase):
             self.assertContains(response, MESSAGES['EVENT_ERROR'])
             self.assertEqual(Event.objects.count(), 1)
 
-    def test_rsvp_no_exist(self):
-        urls = [
-            "/events/",
-            "/events/all/",
-            ]
-        for url in urls:
-            response = self.client.post(url, {
-                "rsvp": "",
-                "event_pk": self.ev.pk + 1,
-                })
-            self.assertEqual(response.status_code, 200)
-            self.assertContains(response, "Event does not exist.")
-
     def test_rsvp_already_past(self):
-        urls = [
-            "/events/",
-            "/events/all/",
-            "/events/{0}/".format(self.ev.pk),
-            ]
         self.ev.end_time = now() - timedelta(days=1)
         self.ev.save()
-        for url in urls:
-            response = self.client.post(url, {
-                "rsvp": "",
-                "event_pk": self.ev.pk,
-                })
-            self.assertEqual(response.status_code, 200)
-            self.assertContains(response, MESSAGES['ALREADY_PAST'])
-            self.assertEqual(self.ev.rsvps.count(), 0)
+
+        form = RsvpForm(
+            QueryDict(""),
+            profile=self.profile,
+            instance=self.ev,
+            )
+        self.assertRaises(
+            forms.ValidationError,
+            form.clean,
+            )
 
     def test_no_edit(self):
         self.client.logout()
