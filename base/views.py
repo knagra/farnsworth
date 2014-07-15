@@ -148,7 +148,7 @@ def homepage_view(request, message=None):
       list(Announcement.objects.filter(pinned=True)) + \
       list(Announcement.objects.filter(pinned=False, post_date__gte=within_life))
     for a in announcements:
-        unpin_form = None
+        pin_form = None
         if request.user.is_superuser or a.manager.incumbent == userProfile:
             pin_form = PinForm(
                 request.POST if "pin-{0}".format(a.pk) in request.POST else None,
