@@ -27,7 +27,11 @@ class ProfileRequestForm(forms.Form):
     affiliation_with_the_house = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
     password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
     confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-    message = forms.CharField(max_length=255, help_text="Details on how you're affiliated with us. Optional.")
+    message = forms.CharField(
+        required=False,
+        max_length=255,
+        help_text="Details on how you're affiliated with us. Optional.",
+        )
 
     def clean_username(self):
         username = self.cleaned_data["username"]
@@ -200,7 +204,6 @@ class DeleteUserForm(forms.Form):
                 thread.number_of_messages = recount
                 thread.save()
 
-
 class ModifyUserForm(forms.Form):
     ''' Form to modify an existing user and profile. '''
     first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
@@ -248,9 +251,10 @@ class ModifyUserForm(forms.Form):
 
     def clean_email(self):
         email = self.cleaned_data["email"]
-        if User.objects.filter(email=email).count() > 0 and \
-          User.objects.get(email=email) != self.user:
-            raise forms.ValidationError(MESSAGES['EMAIL_TAKEN'])
+        count = User.objects.filter(email=email).count()
+        if count > 0:
+            if count > 1 or User.objects.get(email=email) != self.user:
+                raise forms.ValidationError(MESSAGES['EMAIL_TAKEN'])
         return email
 
     def save(self):
