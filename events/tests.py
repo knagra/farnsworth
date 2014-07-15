@@ -13,7 +13,6 @@ from django.http import QueryDict
 from django.test import TestCase
 from django.utils.timezone import utc, now
 
-from utils.funcs import convert_to_url
 from utils.variables import time_formats, MESSAGES
 from base.models import UserProfile
 from events.models import Event
@@ -46,8 +45,6 @@ class TestEvent(TestCase):
             title="Event Manager",
             incumbent=self.profile,
             )
-        self.m.url_title = convert_to_url(self.m.title)
-        self.m.save()
 
         self.client.login(username="u", password="pwd")
 

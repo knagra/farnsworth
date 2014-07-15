@@ -98,13 +98,11 @@ class TestHomepage(TestCase):
 
         self.manager = Manager.objects.create(
             title="Super Manager",
-            url_title="super",
             incumbent=self.profile,
             )
 
         self.rt = RequestType.objects.create(
             name="Super",
-            url_name="super",
             )
         self.rt.managers = [self.manager]
         self.rt.save()

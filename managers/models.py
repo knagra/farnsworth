@@ -7,6 +7,7 @@ Author: Karandeep Singh Nagra
 from django.conf import settings
 from django.db import models
 
+from utils.funcs import convert_to_url
 from base.models import UserProfile
 
 class Manager(models.Model):
@@ -80,6 +81,11 @@ class Manager(models.Model):
     def is_manager(self):
         return True
 
+    def __init__(self, *args, **kwargs):
+        if "title" in kwargs:
+            kwargs.setdefault("url_title", convert_to_url(kwargs["title"]))
+        super(Manager, self).__init__(*args, **kwargs)
+
 class RequestType(models.Model):
     '''
     A request type to specify relevant managers and name.
@@ -121,6 +127,11 @@ class RequestType(models.Model):
 
     def is_requesttype(self):
         return True
+
+    def __init__(self, *args, **kwargs):
+        if "name" in kwargs:
+            kwargs.setdefault("url_name", convert_to_url(kwargs["name"]))
+        super(RequestType, self).__init__(*args, **kwargs)
 
 class Request(models.Model):
     '''

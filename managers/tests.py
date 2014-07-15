@@ -34,32 +34,36 @@ class TestPermissions(TestCase):
         self.su.save()
         self.np.save()
 
-        self.m = Manager(title="House President", url_title="president",
-                         president=True)
-        self.m.incumbent = UserProfile.objects.get(user=self.pu)
-        self.m.save()
+        self.m = Manager.objects.create(
+            title="House President",
+            incumbent=UserProfile.objects.get(user=self.pu),
+            president=True,
+            )
 
-        self.rt = RequestType(name="Food", url_name="food", enabled=True)
-        self.rt.save()
+        self.rt = RequestType.objects.create(
+            name="Food",
+            )
         self.rt.managers = [self.m]
         self.rt.save()
 
-        self.a = Announcement(
+        self.a = Announcement.objects.create(
             manager=self.m,
             incumbent=self.m.incumbent,
             body="Test Announcement Body",
             post_date=datetime.now(),
             )
-        self.a.save()
 
-        self.request = Request(owner=UserProfile.objects.get(user=self.u),
-                               body="request body", request_type=self.rt)
-        self.request.save()
+        self.request = Request.objects.create(
+            owner=UserProfile.objects.get(user=self.u),
+            body="request body", request_type=self.rt,
+            )
 
         UserProfile.objects.get(user=self.np).delete()
-        self.pr = ProfileRequest(username="pr", email="pr@email.com",
-                     affiliation=UserProfile.STATUS_CHOICES[0][0])
-        self.pr.save()
+        self.pr = ProfileRequest.objects.create(
+            username="pr",
+            email="pr@email.com",
+            affiliation=UserProfile.STATUS_CHOICES[0][0],
+            )
 
     def _admin_required(self, url, success_target=None):
         response = self.client.get(url)
@@ -184,7 +188,7 @@ class TestPermissions(TestCase):
     def test_president_admin_required(self):
         pages = [
             "managers",
-            "managers/president",
+            "managers/{0}".format(self.m.url_title),
             "add_manager",
             "request_types",
             "request_types/{0}".format(self.rt.url_name),
@@ -196,7 +200,7 @@ class TestPermissions(TestCase):
     def test_profile_required(self):
         pages = [
             "manager_directory",
-            "manager_directory/president",
+            "manager_directory/{0}".format(self.m.url_title),
             "profile/{0}/requests".format(self.u.username),
             "requests/{0}".format(self.rt.url_name),
             "archives/all_requests",
@@ -337,15 +341,13 @@ class TestRequestPages(TestCase):
         self.pu.save()
 
         self.m = Manager.objects.create(
-            title="House President", url_title="president",
+            title="House President",
             president=True,
             incumbent=UserProfile.objects.get(user=self.pu)
             )
 
         self.rt = RequestType.objects.create(
             name="Food",
-            url_name="food",
-            enabled=True,
             )
         self.rt.managers = [self.m]
         self.rt.save()
@@ -395,19 +397,15 @@ class TestManager(TestCase):
         self.su.is_staff, self.su.is_superuser = True, True
         self.su.save()
 
-        self.m1 = Manager(
+        self.m1 = Manager.objects.create(
             title="setUp Manager",
             incumbent=UserProfile.objects.get(user=self.su),
             )
-        self.m1.url_title = convert_to_url(self.m1.title)
-        self.m1.save()
 
-        self.m2 = Manager(
+        self.m2 = Manager.objects.create(
             title="Testing Manager",
             incumbent=UserProfile.objects.get(user=self.su),
             )
-        self.m2.url_title = convert_to_url(self.m2.title)
-        self.m2.save()
 
         self.client.login(username="su", password="pwd")
 
@@ -532,24 +530,20 @@ class TestRequestTypes(TestCase):
             title="setUp Manager",
             incumbent=UserProfile.objects.get(user=self.su),
             )
-        self.m1.url_title = convert_to_url(self.m1.title)
-        self.m1.save()
 
         self.m2 = Manager.objects.create(
             title="Testing Manager",
             incumbent=UserProfile.objects.get(user=self.su),
             )
-        self.m2.url_title = convert_to_url(self.m2.title)
-        self.m2.save()
 
         self.rt = RequestType.objects.create(
-            name="Super", url_name="super",
+            name="Super",
             )
         self.rt.managers = [self.m1, self.m2]
         self.rt.save()
 
         self.rt2 = RequestType.objects.create(
-            name="Duper", url_name="duper",
+            name="Duper",
             )
 
         self.client.login(username="su", password="pwd")
@@ -642,8 +636,6 @@ class TestAnnouncements(TestCase):
             title="setUp Manager",
             incumbent=UserProfile.objects.get(user=self.u),
             )
-        self.m.url_title = convert_to_url(self.m.title)
-        self.m.save()
 
         self.a = Announcement.objects.create(
             manager=self.m,
