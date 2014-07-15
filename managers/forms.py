@@ -150,8 +150,6 @@ class ManagerResponseForm(ResponseForm):
 
 class VoteForm(forms.Form):
     ''' Form to cast an up or down vote for a request. '''
-    vote = forms.CharField(widget=forms.HiddenInput(), initial="v")
-
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
         self.request = kwargs.pop("request")
@@ -198,8 +196,6 @@ class AnnouncementForm(forms.ModelForm):
 
 class PinForm(forms.ModelForm):
     ''' Form to repin or unpin an announcement. '''
-    pin = forms.CharField(widget=forms.HiddenInput(), initial="p")
-
     class Meta:
         model = Announcement
         fields = ("pinned",)
