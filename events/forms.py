@@ -15,17 +15,38 @@ from events.models import Event
 
 class EventForm(forms.Form):
     ''' A form to post an event. '''
-    title = forms.CharField(max_length=100, widget=forms.TextInput())
-    description = forms.CharField(widget=forms.Textarea())
-    location = forms.CharField(max_length=100, widget=forms.TextInput())
-    rsvp = forms.BooleanField(required=False, label="RSVP")
-    start_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]),
-                     input_formats=time_formats)
-    end_time = forms.DateTimeField(widget=forms.DateTimeInput(format=time_formats[0]),
-                                   input_formats=time_formats)
-    as_manager = forms.ModelChoiceField(required=False, queryset=Manager.objects.none(),
-                                        label="As manager (if manager event)")
-    cancelled = forms.BooleanField(required=False, label="Mark Cancelled")
+    title = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(),
+        )
+    description = forms.CharField(
+        widget=forms.Textarea(),
+        )
+    location = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(),
+        )
+    rsvp = forms.BooleanField(
+        required=False,
+        label="RSVP",
+        )
+    start_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(format=time_formats[0]),
+        input_formats=time_formats,
+        )
+    end_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(format=time_formats[0]),
+        input_formats=time_formats,
+        )
+    as_manager = forms.ModelChoiceField(
+        required=False,
+        queryset=Manager.objects.none(),
+        label="As manager (if manager event)",
+        )
+    cancelled = forms.BooleanField(
+        required=False,
+        label="Mark Cancelled",
+        )
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
@@ -106,26 +127,28 @@ class EventForm(forms.Form):
 
 class RsvpForm(forms.Form):
     ''' Form to RSVP or un-RSVP from an event. '''
-    event_pk = forms.IntegerField(widget=forms.HiddenInput())
+    rsvp = forms.CharField(
+        widget=forms.HiddenInput(),
+        default="r",
+        )
 
     def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance', None)
+        self.instance = kwargs.pop('instance')
+        self.profile = kwargs.pop("profile")
         super(RsvpForm, self).__init__(*args, **kwargs)
-        if self.instance:
-            self.fields.pop('event_pk')
-
-    def clean_event_pk(self):
-        event_pk = self.cleaned_data['event_pk']
-        try:
-            event = Event.objects.get(pk=event_pk)
-        except Event.DoesNotExist:
-            raise forms.ValidationError("Event does not exist.")
-        return event
 
     def clean(self):
-        event = self.instance or self.cleaned_data.get('event_pk', None)
-        if event:
-            now = datetime.utcnow().replace(tzinfo=utc)
-            if event.end_time <= now:
-                raise forms.ValidationError(MESSAGES['ALREADY_PAST'])
+        now = datetime.utcnow().replace(tzinfo=utc)
+        if self.instance.end_time <= now:
+            raise forms.ValidationError(MESSAGES['ALREADY_PAST'])
         return self.cleaned_data
+
+    def save(self):
+        if self.profile in self.instance.rsvps.all():
+            self.instance.rsvps.remove(self.profile)
+            rsvpd = False
+        else:
+            self.instance.rsvps.add(self.profile)
+            rsvpd = True
+        self.instance.save()
+        return rsvpd
