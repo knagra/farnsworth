@@ -4,7 +4,6 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
