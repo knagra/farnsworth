@@ -83,7 +83,7 @@ class UserProfile(models.Model):
 
     def get_user(self):
         return self.user.username
-    
+
     def get_full(self):
         return self.get_info()
 
@@ -103,7 +103,11 @@ class ProfileRequest(models.Model):
     password = models.CharField(blank=True, max_length=255, help_text="User's password.  Stored as hash")
     provider = models.CharField(blank=True, max_length=32)
     uid = models.CharField(blank=True, max_length=UID_LENGTH)
-    message = models.CharField(blank=True, max_length=255, help_text="Details on how you're affiliated with us.  Optional.")
+    message = models.CharField(
+        blank=True,
+        max_length=255,
+        help_text="Details on how you're affiliated with us.  Optional.",
+        )
 
     def __unicode__(self):
         return "Profile request for account '{0.first_name} {0.last_name} ({0.username})' on {0.request_date}".format(self)
