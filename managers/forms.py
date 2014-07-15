@@ -47,7 +47,9 @@ class ManagerForm(forms.ModelForm):
         return cleaned_data
 
     def save(self):
-        manager = super(ManagerForm, self).save()
+        manager = super(ManagerForm, self).save(commit=False)
+        manager.url_title = convert_to_url(manager.title)
+        manager.save()
         if make_manager_workshifts:
             make_manager_workshifts(managers=[manager])
         return manager
@@ -75,6 +77,12 @@ class RequestTypeForm(forms.ModelForm):
           RequestType.objects.get(url_name=url_name) != self.instance:
             raise forms.ValidationError('This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.')
         return name
+
+    def save(self):
+        rt = super(RequestTypeForm, self).save()
+        rt.url_name = convert_to_url(rt.name)
+        rt.save()
+        return rt
 
 class RequestForm(forms.ModelForm):
     ''' Form to create a new Request. '''
