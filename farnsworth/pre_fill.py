@@ -14,7 +14,6 @@ this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if this_dir not in sys.path:
     sys.path.insert(0, this_dir)
 
-from utils.funcs import convert_to_url
 from base.models import UserProfile
 from managers.models import Manager, RequestType
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
