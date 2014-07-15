@@ -84,102 +84,87 @@ class RequestTypeForm(forms.ModelForm):
         rtype.save()
         return rtype
 
-class RequestForm(forms.Form):
+class RequestForm(forms.ModelForm):
     ''' Form to create a new Request. '''
-    type_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-    body = forms.CharField(widget=forms.Textarea())
+    class Meta:
+        model = Request
+        fields = ("body",)
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         self.request_type = kwargs.pop('request_type', None)
         super(RequestForm, self).__init__(*args, **kwargs)
 
-    def clean_type_pk(self):
-        if self.request_type:
-            return self.request_type
-        type_pk = self.cleaned_data['type_pk']
-        try:
-            request_type = RequestType.objects.get(pk=type_pk)
-        except RequestType.DoesNotExist:
-            raise forms.ValidationError("The request type was not recognized.  Please contact an admin for support.")
-        return request_type
-
     def save(self):
-        request = Request(
-            owner=self.profile,
-            body=self.cleaned_data['body'],
-            request_type=self.cleaned_data['type_pk'],
-            )
+        request = super(RequestForm, self).save(commit=False)
+        request.owner = self.profile
+        request.request_type = self.request_type
         request.save()
         return request
 
-class ResponseForm(forms.Form):
+class ResponseForm(forms.ModelForm):
     '''' Form for a regular user to create a new Response. '''
-    request_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-    body = forms.CharField(widget=forms.Textarea())
+    class Meta:
+        model = Response
+        fields = ("body",)
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
+        self.request = kwargs.pop("request")
         super(ResponseForm, self).__init__(*args, **kwargs)
 
-    def clean_request_pk(self):
-        request_pk = self.cleaned_data['request_pk']
-        try:
-            request = Request.objects.get(pk=request_pk)
-        except Request.DoesNotExist:
-            raise forms.ValidationError("Request does not exist.")
-        return request
-
     def save(self):
-        response = Response(
-            owner=self.profile,
-            body=self.cleaned_data['body'],
-            request=self.cleaned_data['request_pk'],
-            )
+        response = super(ResponseForm, self).save(commit=False)
+        response.owner = self.profile
+        response.request = self.request
+        response.save()
+
         response.request.change_date = datetime.utcnow().replace(tzinfo=utc)
         response.request.number_of_responses += 1
         response.request.save()
-        response.save()
+
         return response
 
 class ManagerResponseForm(ResponseForm):
     ''' Form for a manager to create a new Response. '''
-    action = forms.ChoiceField(choices=Response.ACTION_CHOICES)
+    class Meta:
+        model = Response
+        fields = ("body", "action")
 
     def save(self):
         response = super(ManagerResponseForm, self).save()
         response.manager = True
-        response.action = self.cleaned_data['action']
         response.save()
-        request = self.cleaned_data['request_pk']
+
         actions = {
             Response.CLOSED: Request.CLOSED,
             Response.REOPENED: Request.OPEN,
             Response.FILLED: Request.FILLED,
             Response.EXPIRED: Request.EXPIRED,
-            Response.NONE: request.status,
+            Response.NONE: response.request.status,
             }
-        request.status = actions[response.action]
-        request.save()
+        response.request.status = actions[response.action]
+        response.request.save()
+
         return response
 
 class VoteForm(forms.Form):
     ''' Form to cast an up or down vote for a request. '''
-    request_pk = forms.IntegerField(widget=forms.HiddenInput())
+    vote = forms.CharField(widget=forms.HiddenInput(), initial="v")
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
+        self.request = kwargs.pop("request")
+
         super(VoteForm, self).__init__(*args, **kwargs)
 
-    def save(self, pk=None):
-        if pk is None:
-            pk = self.cleaned_data['request_pk']
-        relevant_request = Request.objects.get(pk=pk)
-        if self.profile in relevant_request.upvotes.all():
-            relevant_request.upvotes.remove(self.profile)
+    def save(self):
+        if self.profile in self.request.upvotes.all():
+            self.request.upvotes.remove(self.profile)
         else:
-            relevant_request.upvotes.add(self.profile)
-        relevant_request.save()
+            self.request.upvotes.add(self.profile)
+        self.request.save()
+        return self.request
 
 class AnnouncementForm(forms.ModelForm):
     class Meta:
@@ -204,31 +189,22 @@ class AnnouncementForm(forms.ModelForm):
             self._errors['__all__'] = forms.util.ErrorList([u"You do not have permission to post an announcement."])
         return True
 
-    def save(self, *args, **kwargs):
+    def save(self):
         announcement = super(AnnouncementForm, self).save(commit=False)
         if announcement.pk is None:
             announcement.incumbent = self.profile
         announcement.save()
+        return announcement
 
-class UnpinForm(forms.Form):
+class PinForm(forms.ModelForm):
     ''' Form to repin or unpin an announcement. '''
-    announcement_pk = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    pin = forms.CharField(widget=forms.HiddenInput(), initial="p")
+
+    class Meta:
+        model = Announcement
+        fields = ("pinned",)
 
     def __init__(self, *args, **kwargs):
-        self.announce = kwargs.pop('announce', None)
-        super(UnpinForm, self).__init__(*args, **kwargs)
-
-    def clean_announcement_pk(self):
-        if self.announce:
-            return self.announce
-        announcement_pk = self.cleaned_data['announcement_pk']
-        try:
-            announce = Announcement.objects.get(pk=announcement_pk)
-        except Announcement.DoesNotExist:
-            raise forms.ValidationError("Announcement does not exist.")
-        return announce
-
-    def save(self):
-        announce = self.cleaned_data['announcement_pk']
-        announce.pinned = not announce.pinned
-        announce.save()
+        if "instance" in kwargs:
+            kwargs.setdefault("initial", {"pinned": not kwargs["instance"].pinned})
+        super(PinForm, self).__init__(*args, **kwargs)
