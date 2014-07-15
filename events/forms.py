@@ -126,11 +126,6 @@ class EventForm(forms.Form):
 
 class RsvpForm(forms.Form):
     ''' Form to RSVP or un-RSVP from an event. '''
-    rsvp = forms.CharField(
-        widget=forms.HiddenInput(),
-        default="r",
-        )
-
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
         self.profile = kwargs.pop("profile")
