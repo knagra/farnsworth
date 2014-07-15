@@ -46,14 +46,15 @@ def _threads_dict(threads, limited=False):
 def list_all_threads_view(request):
     ''' View of all threads. '''
     threads = Thread.objects.all()
-    form = ThreadForm(
+
+    create_form = ThreadForm(
         request.POST if "submit_thread_form" in request.POST else None,
         profile=UserProfile.objects.get(user=request.user),
         )
 
-    if form.is_valid():
-        thread = form.save()
-        return HttpResponseRedirect(reverse("threads:list_all_threads"))
+    if create_form.is_valid():
+        thread = create_form.save()
+        return HttpResponseRedirect(reverse("threads:view_thread", kwargs={"thread_pk": thread.pk}))
     elif request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 
@@ -75,14 +76,12 @@ def thread_view(request, thread_pk):
         edit_message_form, delete_message_form = None, None
         if message.owner == userProfile or userProfile.user.is_superuser:
             edit_message_form = EditMessageForm(
-                request.POST or None,
+                request.POST if "edit_message-{0}".format(message.pk) in request.POST else None,
                 instance=message,
-                prefix="edit-{0}".format(message.pk),
                 )
             delete_message_form = DeleteMessageForm(
-                request.POST or None,
+                request.POST if "delete_message-{0}".format(message.pk) in request.POST else None,
                 instance=message,
-                prefix="delete-{0}".format(message.pk),
                 )
             if edit_message_form.is_valid():
                 edit_message_form.save()
@@ -104,16 +103,14 @@ def thread_view(request, thread_pk):
     edit_thread_form = None
     if thread.owner == userProfile or request.user.is_superuser:
         edit_thread_form = EditThreadForm(
-            request.POST or None,
+            request.POST if "edit_thread" in request.POST else None,
             instance=thread,
-            prefix="edit-thread",
             )
 
     add_message_form = MessageForm(
-        request.POST or None,
+        request.POST if "add_message" in request.POST else None,
         profile=userProfile,
         thread=thread,
-        prefix="add-message",
         )
 
     if add_message_form.is_valid():
@@ -145,14 +142,15 @@ def list_user_threads_view(request, targetUsername):
     targetProfile = get_object_or_404(UserProfile, user=targetUser)
     threads = Thread.objects.filter(owner=targetProfile)
     page_name = "{0}'s Threads".format(targetUser.get_full_name())
-    form = ThreadForm(
+    create_form = ThreadForm(
         request.POST if "submit_thread_form" in request.POST else None,
         profile=UserProfile.objects.get(user=request.user),
+        prefix="create",
         )
 
-    if form.is_valid():
-        thread = form.save()
-        return HttpResponseRedirect(reverse("threads:list_all_threads"))
+    if create_form.is_valid():
+        thread = create_form.save()
+        return HttpResponseRedirect(reverse("threads:view_thread", kwargs={"thread_pk": thread.pk}))
     elif request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 

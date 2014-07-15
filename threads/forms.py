@@ -71,7 +71,6 @@ class DeleteMessageForm(forms.ModelForm):
     display = "Delete"
     button = "danger"
     glyph = "fire"
-    delete = forms.CharField(widget=forms.HiddenInput(), initial="d")
 
     class Meta:
         model = Message
