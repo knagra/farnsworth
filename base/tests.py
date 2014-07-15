@@ -17,7 +17,7 @@ from haystack.query import SearchQuerySet
 from utils.variables import MESSAGES
 from base.models import UserProfile, ProfileRequest
 from threads.models import Thread, Message
-from managers.models import Manager, Announcement, RequestType, Request
+from managers.models import Manager, Announcement, RequestType, Request, Response
 from events.models import Event
 from rooms.models import Room
 
@@ -39,10 +39,10 @@ class TestLogin(TestCase):
         self.assertEqual(None, self.client.logout())
 
         response = self.client.post("/login/", {
-                "username_or_email": self.u.username,
-                "password": "pwd",
-                }, follow=True)
-        self.assertRedirects(response, "/")
+            "username_or_email": self.u.username,
+            "password": "pwd",
+            }, follow=True)
+        self.assertRedirects(response, reverse("homepage"))
 
         response = self.client.get("/logout/", follow=True)
         self.assertRedirects(response, reverse('external'))
@@ -52,16 +52,16 @@ class TestLogin(TestCase):
         self.assertFalse(self.client.login(username="baduser", password="pwd"))
 
         response = self.client.post("/login/", {
-                "username_or_email": self.u.username,
-                "password": "bad pwd",
-                })
+            "username_or_email": self.u.username,
+            "password": "bad pwd",
+            })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, MESSAGES["INVALID_LOGIN"])
 
         response = self.client.post("/login/", {
-                "username_or_email": "baduser",
-                "password": "pwd",
-                })
+            "username_or_email": "baduser",
+            "password": "pwd",
+            })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, MESSAGES["INVALID_LOGIN"])
 
@@ -69,25 +69,25 @@ class TestLogin(TestCase):
         self.assertFalse(self.client.login(username=self.iu.username, password="pwd"))
 
         response = self.client.post("/login/", {
-                "username_or_email": self.iu.username,
-                "password": "pwd",
-                })
+            "username_or_email": self.iu.username,
+            "password": "pwd",
+            })
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             "Your account is not active. Please contact the site administrator to activate your account.")
 
-        response = self.client.get("/", follow=True)
+        response = self.client.get(reverse("homepage"), follow=True)
         self.assertRedirects(response, reverse('external'))
 
     def test_homepage(self):
-        response = self.client.get("/", follow=True)
+        response = self.client.get(reverse("homepage"), follow=True)
         self.assertRedirects(response, reverse('external'))
         self.client.login(username="u", password="pwd")
-        response = self.client.get("/")
+        response = self.client.get(reverse("homepage"))
         self.assertEqual(response.status_code, 200)
         self.client.logout()
-        response = self.client.get("/", follow=True)
+        response = self.client.get(reverse("homepage"), follow=True)
         self.assertRedirects(response, reverse('external'))
 
 class TestHomepage(TestCase):
@@ -96,35 +96,44 @@ class TestHomepage(TestCase):
 
         self.profile = UserProfile.objects.get(user=self.u)
 
-        self.manager = Manager(title="Super Manager", url_title="super")
-        self.manager.incumbent = self.profile
-        self.manager.save()
+        self.manager = Manager.objects.create(
+            title="Super Manager",
+            url_title="super",
+            incumbent=self.profile,
+            )
 
-        self.rt = RequestType(name="Super", url_name="super", enabled=True)
-        self.rt.save()
+        self.rt = RequestType.objects.create(
+            name="Super",
+            url_name="super",
+            )
         self.rt.managers = [self.manager]
         self.rt.save()
 
-        self.req = Request(owner=self.profile, request_type=self.rt)
-        self.req.save()
+        self.req = Request.objects.create(
+            owner=self.profile,
+            request_type=self.rt,
+            )
 
         now = datetime.utcnow().replace(tzinfo=utc)
         one_day = timedelta(days=1)
-        self.ev = Event(owner=self.profile, title="Event Title Test",
-                start_time=now, end_time=now + one_day)
-        self.ev.save()
+        self.ev = Event.objects.create(
+            owner=self.profile,
+            title="Event Title Test",
+            start_time=now,
+            end_time=now + one_day,
+            )
 
-        self.announce = Announcement(
+        self.announce = Announcement.objects.create(
             manager=self.manager,
             incumbent=self.profile,
             body="Test Announcement Body",
             )
-        self.announce.save()
 
         self.client.login(username="u", password="pwd")
 
     def test_homepage_view(self):
-        response = self.client.get("/")
+        url = reverse("homepage")
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Recent Threads")
@@ -135,73 +144,75 @@ class TestHomepage(TestCase):
 
     def test_homepage_no_requests(self):
         self.req.delete()
-        response = self.client.get("/")
+        response = self.client.get(reverse("homepage"))
         self.assertNotContains(response, "{0} Requests".format(self.rt.name))
 
     def test_homepage_requests_filled(self):
-        self.req.filled = True
+        self.req.status = Request.FILLED
         self.req.save()
-        response = self.client.get("/")
+        response = self.client.get(reverse("homepage"))
         self.assertNotContains(response, "{0} Requests".format(self.rt.name))
 
     def test_thread_post(self):
-        response = self.client.post("/", {
-                "submit_thread_form": "",
-                "subject": "Thread Subject Test",
-                "body": "Thread Body Text Test",
-                 }, follow=True)
-        self.assertRedirects(response, "/")
+        url = reverse("homepage")
+        response = self.client.post(url, {
+            "submit_thread_form": "",
+            "subject": "Thread Subject Test",
+            "body": "Thread Body Text Test",
+            }, follow=True)
+        self.assertRedirects(response, url)
         self.assertContains(response, "Thread Subject Test")
 
         thread = Thread.objects.get(subject="Thread Subject Test")
         self.assertEqual(thread.owner, self.profile)
 
     def test_announcment_post(self):
-        response = self.client.post("/", {
-                "post_announcement": "",
-                "manager": "1",
-                "body": "Announcement Body Text Test",
-                }, follow=True)
-        self.assertRedirects(response, "/")
+        url = reverse("homepage")
+        response = self.client.post(url, {
+            "manager": self.manager.pk,
+            "body": "Announcement Body Text Test",
+            "post_announcement": "",
+            }, follow=True)
+        self.assertRedirects(response, url)
         self.assertContains(response, "Announcement Body Text Test")
 
         announcement = Announcement.objects.get(body="Announcement Body Text Test")
         self.assertEqual(announcement.incumbent, self.profile)
 
     def test_rsvp_post(self):
-        response = self.client.post("/", {
-                "rsvp": "",
-                "event_pk": "{0}".format(self.ev.pk),
-                }, follow=True)
-        self.assertRedirects(response, "/")
+        url = reverse("homepage")
+        response = self.client.post(url, {
+            "rsvp-{0}".format(self.ev.pk): "",
+            }, follow=True)
+        self.assertRedirects(response, url)
         self.assertContains(response, 'Un-RSVP')
 
-        response = self.client.post("/", {
-                "rsvp": "",
-                "event_pk": "{0}".format(self.ev.pk),
-                }, follow=True)
-        self.assertRedirects(response, "/")
+        response = self.client.post(url, {
+            "rsvp-{0}".format(self.ev.pk): "",
+            }, follow=True)
+        self.assertRedirects(response, url)
         self.assertContains(response, 'RSVP')
 
     def test_response(self):
-        response = self.client.post("/", {
-            "add_response": "",
-            "request_pk": self.req.pk,
+        url = reverse("homepage")
+        response = self.client.post(url, {
+            "add_response-{0}".format(self.req.pk): "",
             "body": "You betcha",
+            "action": Response.NONE,
             }, follow=True)
-        self.assertRedirects(response, "/")
+        self.assertRedirects(response, url)
         self.assertContains(response, "You betcha")
         self.assertNotContains(response, MESSAGES['REQ_CLOSED'])
         self.assertNotContains(response, MESSAGES['REQ_FILLED'])
 
     def test_response_closed(self):
-        response = self.client.post("/", {
-            "add_response": "",
-            "request_pk": self.req.pk,
+        url = reverse("homepage")
+        response = self.client.post(url, {
+            "add_response-{0}".format(self.req.pk): "",
             "body": "You betcha",
-            "mark_closed": True,
+            "action": Response.CLOSED,
             }, follow=True)
-        self.assertRedirects(response, "/")
+        self.assertRedirects(response, url)
         # We shouldn't see the request body on the homepage any more when it is
         # filled
         self.assertNotContains(response, "You betcha")
@@ -209,13 +220,13 @@ class TestHomepage(TestCase):
         self.assertNotContains(response, MESSAGES['REQ_FILLED'])
 
     def test_response_filled(self):
-        response = self.client.post("/", {
-            "add_response": "",
-            "request_pk": self.req.pk,
+        url = reverse("homepage")
+        response = self.client.post(url, {
+            "add_response-{0}".format(self.req.pk): "",
             "body": "You betcha",
-            "mark_filled": True,
+            "action": Response.FILLED,
             }, follow=True)
-        self.assertRedirects(response, "/")
+        self.assertRedirects(response, url)
         # We shouldn't see the request body on the homepage any more when it is
         # filled
         self.assertNotContains(response, "You betcha")
@@ -225,32 +236,39 @@ class TestHomepage(TestCase):
     def test_unpin(self):
         self.announce.pinned = True
         self.announce.save()
-        response = self.client.post("/", {
-            "unpin": "",
-            "announcement_pk": self.announce.pk,
+
+        url = reverse("homepage")
+        response = self.client.post(url, {
+            "pin-{0}".format(self.announce.pk): "",
+            "pinned": False,
             }, follow=True)
-        self.assertRedirects(response, "/")
-        self.assertEqual(Announcement.objects.get(pk=self.announce.pk).pinned,
-                         False)
+        self.assertRedirects(response, url)
+        self.assertEqual(
+            False,
+            Announcement.objects.get(pk=self.announce.pk).pinned,
+            )
 
     def test_upvote(self):
         # Upvote
-        response = self.client.post("/", {
-            "upvote": "",
-            "request_pk": self.req.pk,
+        url = reverse("homepage")
+        response = self.client.post(url, {
+            "vote-{0}".format(self.req.pk): "",
             }, follow=True)
-        self.assertRedirects(response, "/")
-        self.assertIn(self.profile,
-                      Request.objects.get(pk=self.req.pk).upvotes.all())
+        self.assertRedirects(response, url)
+        self.assertIn(
+            self.profile,
+            Request.objects.get(pk=self.req.pk).upvotes.all(),
+            )
 
         # Remove upvote
-        response = self.client.post("/", {
-            "upvote": "",
-            "request_pk": self.req.pk,
+        response = self.client.post(url, {
+            "vote-{0}".format(self.req.pk): "",
             }, follow=True)
-        self.assertRedirects(response, "/")
-        self.assertNotIn(self.profile,
-                         Request.objects.get(pk=self.req.pk).upvotes.all())
+        self.assertRedirects(response, url)
+        self.assertNotIn(
+            self.profile,
+            Request.objects.get(pk=self.req.pk).upvotes.all(),
+            )
 
     def test_bad_page(self):
         response = self.client.get("/bad_page/")
@@ -264,14 +282,14 @@ class TestHomepage(TestCase):
 class TestRequestProfile(TestCase):
     def test_request_profile(self):
         response = self.client.post("/request_profile/", {
-                "username": "request",
-                "first_name": "first",
-                "last_name": "last",
-                "email": "request@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
-                "password": "pwd",
-                "confirm_password": "pwd",
-                }, follow=True)
+            "username": "request",
+            "first_name": "first",
+            "last_name": "last",
+            "email": "request@email.com",
+            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "password": "pwd",
+            "confirm_password": "pwd",
+            }, follow=True)
         self.assertRedirects(response, reverse("external"))
         self.assertEqual(1, ProfileRequest.objects.filter(username="request").count())
 
@@ -293,14 +311,14 @@ class TestRequestProfile(TestCase):
 
         for username in usernames:
             response = self.client.post("/request_profile/", {
-                    "username": username,
-                    "first_name": "first",
-                    "last_name": "last",
-                    "email": "request@email.com",
-                    "affiliation_with_the_house": UserProfile.RESIDENT,
-                    "password": "pwd",
-                    "confirm_password": "pwd",
-                    })
+                "username": username,
+                "first_name": "first",
+                "last_name": "last",
+                "email": "request@email.com",
+                "affiliation_with_the_house": UserProfile.RESIDENT,
+                "password": "pwd",
+                "confirm_password": "pwd",
+                })
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, MESSAGES["INVALID_USERNAME"])
             self.assertEqual(0, ProfileRequest.objects.filter(username=username).count())
@@ -319,14 +337,14 @@ class TestRequestProfile(TestCase):
 
         for username in usernames:
             response = self.client.post("/request_profile/", {
-                    "username": username,
-                    "first_name": "first",
-                    "last_name": "last",
-                    "email": "request@email.com",
-                    "affiliation_with_the_house": UserProfile.RESIDENT,
-                    "password": "pwd",
-                    "confirm_password": "pwd",
-                    }, follow=True)
+                "username": username,
+                "first_name": "first",
+                "last_name": "last",
+                "email": "request@email.com",
+                "affiliation_with_the_house": UserProfile.RESIDENT,
+                "password": "pwd",
+                "confirm_password": "pwd",
+                }, follow=True)
             self.assertRedirects(response, reverse("external"))
             self.assertEqual(1, ProfileRequest.objects.filter(username=username).count())
             ProfileRequest.objects.get(username=username).delete()
@@ -335,14 +353,14 @@ class TestRequestProfile(TestCase):
         u = User.objects.create_user(username="request")
 
         response = self.client.post("/request_profile/", {
-                "username": u.username,
-                "first_name": "first",
-                "last_name": "last",
-                "email": "request@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
-                "password": "pwd",
-                "confirm_password": "pwd",
-                }, follow=True)
+            "username": u.username,
+            "first_name": "first",
+            "last_name": "last",
+            "email": "request@email.com",
+            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "password": "pwd",
+            "confirm_password": "pwd",
+            }, follow=True)
         self.assertContains(
             response, MESSAGES["USERNAME_TAKEN"].format(username=u.username)
             )
@@ -358,14 +376,14 @@ class TestRequestProfile(TestCase):
         pr.save()
 
         response = self.client.post("/request_profile/", {
-                "username": "request2",
-                "first_name": pr.first_name,
-                "last_name": pr.last_name,
-                "email": "request2@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
-                "password": "pwd",
-                "confirm_password": "pwd",
-                }, follow=True)
+            "username": "request2",
+            "first_name": pr.first_name,
+            "last_name": pr.last_name,
+            "email": "request2@email.com",
+            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "password": "pwd",
+            "confirm_password": "pwd",
+            }, follow=True)
         self.assertContains(
             response,
             MESSAGES["PROFILE_TAKEN"].format(first_name=pr.first_name,
@@ -376,52 +394,52 @@ class TestRequestProfile(TestCase):
 
     def test_bad_profile_requests(self):
         response = self.client.post("/request_profile/", {
-                "username": "request",
-                "first_name": "first",
-                "last_name": "last",
-                "email": "request@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
-                "password": "pwd",
-                "confirm_password": "pwd2",
-                }, follow=True)
+            "username": "request",
+            "first_name": "first",
+            "last_name": "last",
+            "email": "request@email.com",
+            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "password": "pwd",
+            "confirm_password": "pwd2",
+            }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Passwords don&#39;t match.")
         self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
         response = self.client.post("/request_profile/", {
-                "username": "request",
-                "last_name": "last",
-                "email": "request@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
-                "password": "pwd",
-                "confirm_password": "pwd2",
-                }, follow=True)
+            "username": "request",
+            "last_name": "last",
+            "email": "request@email.com",
+            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "password": "pwd",
+            "confirm_password": "pwd2",
+            }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This field is required.")
         self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
         response = self.client.post("/request_profile/", {
-                "username": "*******", # hunter2
-                "first_name": "first",
-                "last_name": "last",
-                "email": "request@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
-                "password": "pwd",
-                "confirm_password": "pwd2",
-                }, follow=True)
+            "username": "*******", # hunter2
+            "first_name": "first",
+            "last_name": "last",
+            "email": "request@email.com",
+            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "password": "pwd",
+            "confirm_password": "pwd2",
+            }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, MESSAGES["INVALID_USERNAME"])
         self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
         response = self.client.post("/request_profile/", {
-                "username": "request",
-                "first_name": "first",
-                "last_name": "last",
-                "email": "request@email.com",
-                "affiliation_with_the_house": "123",
-                "password": "pwd",
-                "confirm_password": "pwd",
-                }, follow=True)
+            "username": "request",
+            "first_name": "first",
+            "last_name": "last",
+            "email": "request@email.com",
+            "affiliation_with_the_house": "123",
+            "password": "pwd",
+            "confirm_password": "pwd",
+            }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
@@ -437,30 +455,30 @@ class TestUtilities(TestCase):
         self.su.save()
 
     def test_site_map(self):
-        response = self.client.get("/site_map/")
+        response = self.client.get(reverse("site_map"))
         self.assertEqual(response.status_code, 200)
 
         self.client.login(username="u", password="pwd")
-        response = self.client.get("/site_map/")
+        response = self.client.get(reverse("site_map"))
         self.assertEqual(response.status_code, 200)
         self.client.logout()
 
         self.client.login(username="su", password="pwd")
-        response = self.client.get("/site_map/")
+        response = self.client.get(reverse("site_map"))
         self.assertEqual(response.status_code, 200)
         self.client.logout()
 
     def test_help_page(self):
-        response = self.client.get("/help/")
+        response = self.client.get(reverse("helppage"))
         self.assertEqual(response.status_code, 200)
 
         self.client.login(username="u", password="pwd")
-        response = self.client.get("/help/")
+        response = self.client.get(reverse("helppage"))
         self.assertEqual(response.status_code, 200)
         self.client.logout()
 
         self.client.login(username="su", password="pwd")
-        response = self.client.get("/help/")
+        response = self.client.get(reverse("helppage"))
         self.assertEqual(response.status_code, 200)
         self.client.logout()
 
@@ -470,34 +488,37 @@ class TestSocialRequest(TestCase):
         self.su.is_staff, self.su.is_superuser = True, True
         self.su.save()
 
-        self.pr = ProfileRequest(username="pr", email="pr@email.com",
-                     affiliation=UserProfile.RESIDENT,
-                     provider="github", uid="1234567890")
-        self.pr.save()
+        self.pr = ProfileRequest.objects.create(
+            username="pr",
+            email="pr@email.com",
+            affiliation=UserProfile.RESIDENT,
+            provider="github",
+            uid="1234567890",
+            )
 
         self.client.login(username="su", password="pwd")
 
     def test_profile_request_view(self):
-        response = self.client.get("/custom_admin/profile_requests/{0}/"
-                       .format(self.pr.pk))
+        url = reverse("modify_profile_request", kwargs={"request_pk": self.pr.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.pr.email)
 
     def test_approve_profile_request(self):
-        response = self.client.post("/custom_admin/profile_requests/{0}/"
-                                    .format(self.pr.pk), {
-                "username": self.pr.username,
-                "first_name": "first",
-                "last_name": "last",
-                "email": self.pr.email,
-                "phone_number": "",
-                "status": self.pr.affiliation,
-                "current_room": "",
-                "former_rooms": [],
-                "former_houses": "",
-                "is_active": True,
-                "add_user": "",
-                }, follow=True)
+        url = reverse("modify_profile_request", kwargs={"request_pk": self.pr.pk})
+        response = self.client.post(url, {
+            "username": self.pr.username,
+            "first_name": "first",
+            "last_name": "last",
+            "email": self.pr.email,
+            "phone_number": "",
+            "status": self.pr.affiliation,
+            "current_room": "",
+            "former_rooms": [],
+            "former_houses": "",
+            "is_active": True,
+            "add_user": "",
+            }, follow=True)
 
         self.assertRedirects(response, "/custom_admin/profile_requests/")
         self.assertContains(
@@ -529,35 +550,34 @@ class TestProfileRequestAdmin(TestCase):
         self.su.is_staff, self.su.is_superuser = True, True
         self.su.save()
 
-        self.pr = ProfileRequest(username="pr", email="pr@email.com",
-                     first_name="Test First Name",
-                     last_name="Test Last Name",
-                     affiliation=UserProfile.RESIDENT)
-        self.pr.save()
+        self.pr = ProfileRequest.objects.create(
+            username="pr", email="pr@email.com",
+            first_name="Test First Name",
+            last_name="Test Last Name",
+            affiliation=UserProfile.RESIDENT,
+            )
 
         self.client.login(username="su", password="pwd")
 
     def test_view(self):
-        response = self.client.get("/custom_admin/profile_requests/{0}/"
-                       .format(self.pr.pk))
+        url = reverse("modify_profile_request", kwargs={"request_pk": self.pr.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.pr.email)
 
     def test_approve(self):
-        response = self.client.post("/custom_admin/profile_requests/{0}/"
-                                    .format(self.pr.pk), {
-                "username": self.pr.username,
-                "first_name": self.pr.first_name,
-                "last_name": self.pr.last_name,
-                "email": self.pr.email,
-                "phone_number": "",
-                "status": self.pr.affiliation,
-                "current_room": "",
-                "former_rooms": [],
-                "former_houses": "",
-                "is_active": True,
-                "add_user": "",
-                }, follow=True)
+        url = reverse("modify_profile_request", kwargs={"request_pk": self.pr.pk})
+        response = self.client.post(url, {
+            "username": self.pr.username,
+            "first_name": self.pr.first_name,
+            "last_name": self.pr.last_name,
+            "email": self.pr.email,
+            "phone_number": "",
+            "status": self.pr.affiliation,
+            "former_houses": "",
+            "is_active": True,
+            "add_user": "",
+            }, follow=True)
 
         self.assertRedirects(response, "/custom_admin/profile_requests/")
         self.assertContains(
@@ -569,27 +589,25 @@ class TestProfileRequestAdmin(TestCase):
         self.assertEqual(u.email, self.pr.email)
 
     def test_missing(self):
-        response = self.client.post("/custom_admin/profile_requests/{0}/"
-                                    .format(self.pr.pk + 1), {
-                "username": self.pr.username,
-                "first_name": self.pr.first_name,
-                "last_name": self.pr.last_name,
-                "email": self.pr.email,
-                "phone_number": "",
-                "status": self.pr.affiliation,
-                "current_room": "",
-                "former_rooms": [],
-                "former_houses": "",
-                "is_active": True,
-                "add_user": "",
-                })
+        url = reverse("modify_profile_request", kwargs={"request_pk": self.pr.pk + 1})
+        response = self.client.post(url, {
+            "username": self.pr.username,
+            "first_name": self.pr.first_name,
+            "last_name": self.pr.last_name,
+            "email": self.pr.email,
+            "phone_number": "",
+            "status": self.pr.affiliation,
+            "former_houses": "",
+            "is_active": True,
+            "add_user": "",
+            })
         self.assertEqual(response.status_code, 404)
 
     def test_delete(self):
-        response = self.client.post("/custom_admin/profile_requests/{0}/"
-                                    .format(self.pr.pk), {
-                "delete_request": "",
-                }, follow=True)
+        url = reverse("modify_profile_request", kwargs={"request_pk": self.pr.pk})
+        response = self.client.post(url, {
+            "delete_request": "",
+            }, follow=True)
         self.assertRedirects(response, reverse('manage_profile_requests'))
         self.assertContains(
             response,
@@ -632,7 +650,8 @@ class TestProfilePages(TestCase):
         self.client.login(username="u", password="pwd")
 
     def test_profile_page(self):
-        response = self.client.get("/profile/")
+        url = reverse("my_profile")
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Update Your Profile")
@@ -643,19 +662,17 @@ class TestProfilePages(TestCase):
         self.assertContains(response, self.profile.former_houses)
         self.assertContains(response, self.profile.phone_number)
 
-        response = self.client.get("/profile/{0}/".format(self.u.username),
-                       follow=True)
-        self.assertRedirects(response, "/profile/")
+        url = reverse("member_profile_view", kwargs={"targetUsername": self.u.username})
+        response = self.client.get(url, follow=True)
+
+        self.assertRedirects(response, reverse("my_profile"))
 
     def test_other_profile_page(self):
         response = self.client.get("/profile/{0}/".format(self.ou.username))
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.ou.email)
-        self.assertContains(
-            response,
-            "{0} {1}".format(self.ou.first_name, self.ou.last_name),
-            )
+        self.assertContains(response, self.ou.get_full_name())
         self.assertContains(response, UserProfile.STATUS_CHOICES[0][1])
         self.assertContains(response, self.oprofile.current_room.title)
         for room in self.oprofile.former_rooms.all():
@@ -666,7 +683,7 @@ class TestProfilePages(TestCase):
         self.assertContains(response, "Requests Posted")
 
     def test_change_password(self):
-        url = "/profile/"
+        url = reverse("my_profile")
         response = self.client.post(url, {
             "submit_password_form": "",
             "old_password": "pwd",
@@ -676,12 +693,13 @@ class TestProfilePages(TestCase):
 
         self.assertRedirects(response, url)
         self.assertContains(response, "Your password was successfully changed.")
+
         self.client.logout()
         self.assertEqual(False, self.client.login(username="u", password="pwd"))
         self.assertEqual(True, self.client.login(username="u", password="Jenkins"))
 
     def test_confirm_password(self):
-        url = "/profile/"
+        url = reverse("my_profile")
         response = self.client.post(url, {
             "submit_password_form": "",
             "old_password": "pwd",
@@ -718,8 +736,10 @@ class TestModifyUser(TestCase):
         self.su = User.objects.create_user(username="su", password="pwd")
         self.u = User.objects.create_user(username="u", password="pwd")
         self.ou = User.objects.create_user(
-            username="ou", email="ou@email.com",
-            first_name="Test First", last_name="Test Last",
+            username="ou",
+            email="ou@email.com",
+            first_name="Test First",
+            last_name="Test Last",
             )
 
         self.su.is_staff, self.su.is_superuser = True, True
@@ -743,15 +763,15 @@ class TestModifyUser(TestCase):
 
         url = reverse("custom_modify_user", kwargs={"targetUsername": self.ou.username})
         response = self.client.post(url, {
-                "email_visible_to_others": True,
-                "phone_visible_to_others": True,
-                "email": self.ou.email,
-                "phone_number": self.profile.phone_number,
-                "first_name": self.ou.first_name,
-                "last_name": self.ou.last_name,
-                "status": self.profile.status,
-                "update_user_profile": "",
-                }, follow=True)
+            "email_visible_to_others": True,
+            "phone_visible_to_others": True,
+            "email": self.ou.email,
+            "phone_number": self.profile.phone_number,
+            "first_name": self.ou.first_name,
+            "last_name": self.ou.last_name,
+            "status": self.profile.status,
+            "update_user_profile": "",
+            }, follow=True)
         self.assertRedirects(response, url)
         self.assertContains(
             response,
@@ -778,15 +798,15 @@ class TestModifyUser(TestCase):
             self.client.login(username="su", password="pwd")
 
             response = self.client.post(url, {
-                    "email_visible_to_others": True,
-                    "phone_visible_to_others": True,
-                    "email": self.ou.email,
-                    "phone_number": self.profile.phone_number,
-                    "first_name": self.ou.first_name,
-                    "last_name": self.ou.last_name,
-                    "status": status,
-                    "update_user_profile": "",
-                    }, follow=True)
+                "email_visible_to_others": True,
+                "phone_visible_to_others": True,
+                "email": self.ou.email,
+                "phone_number": self.profile.phone_number,
+                "first_name": self.ou.first_name,
+                "last_name": self.ou.last_name,
+                "status": status,
+                "update_user_profile": "",
+                }, follow=True)
             self.assertRedirects(response, url)
             self.assertContains(
                 response,
@@ -852,16 +872,16 @@ class TestAdminFunctions(TestCase):
 
     def test_add_user(self):
         response = self.client.post("/custom_admin/add_user/", {
-                "username": "nu",
-                "first_name": "First",
-                "last_name": "Last",
-                "email": "nu@email.com",
-                "phone_number": "+15102222222",
-                "user_password": "newpwd",
-                "confirm_password": "newpwd",
-                "is_active": "true",
-                "status": UserProfile.RESIDENT,
-                 }, follow=True)
+            "username": "nu",
+            "first_name": "First",
+            "last_name": "Last",
+            "email": "nu@email.com",
+            "phone_number": "+15102222222",
+            "user_password": "newpwd",
+            "confirm_password": "newpwd",
+            "is_active": "true",
+            "status": UserProfile.RESIDENT,
+             }, follow=True)
         self.assertRedirects(response, "/custom_admin/add_user/")
         self.assertContains(
             response,
@@ -880,7 +900,7 @@ class TestAdminFunctions(TestCase):
 
         self.assertFalse(self.client.login(username="nu", password="pwd"))
         self.assertTrue(self.client.login(username="nu", password="newpwd"))
-        response = self.client.get("/")
+        response = self.client.get(reverse("homepage"))
         self.assertEqual(response.status_code, 200)
 
         User.objects.get(username="nu").delete()
@@ -888,18 +908,18 @@ class TestAdminFunctions(TestCase):
 
     def test_add_visible(self):
         response = self.client.post("/custom_admin/add_user/", {
-                "username": "nu",
-                "first_name": "First",
-                "last_name": "Last",
-                "email": "nu@email.com",
-                "phone_number": "+15102222222",
-                "user_password": "newpwd",
-                "confirm_password": "newpwd",
-                "is_active": True,
-                "email_visible_to_others": True,
-                "phone_visible_to_others": True,
-                "status": UserProfile.RESIDENT,
-                 }, follow=True)
+            "username": "nu",
+            "first_name": "First",
+            "last_name": "Last",
+            "email": "nu@email.com",
+            "phone_number": "+15102222222",
+            "user_password": "newpwd",
+            "confirm_password": "newpwd",
+            "is_active": True,
+            "email_visible_to_others": True,
+            "phone_visible_to_others": True,
+            "status": UserProfile.RESIDENT,
+             }, follow=True)
         self.assertRedirects(response, "/custom_admin/add_user/")
         self.assertContains(
             response,
@@ -921,16 +941,16 @@ class TestAdminFunctions(TestCase):
 
         for status, title in UserProfile.STATUS_CHOICES:
             response = self.client.post(url, {
-                    "username": "nu",
-                    "first_name": "First",
-                    "last_name": "Last",
-                    "email": "nu@email.com",
-                    "phone_number": "+15102222222",
-                    "user_password": "newpwd",
-                    "confirm_password": "newpwd",
-                    "is_active": "true",
-                    "status": status,
-                    }, follow=True)
+                "username": "nu",
+                "first_name": "First",
+                "last_name": "Last",
+                "email": "nu@email.com",
+                "phone_number": "+15102222222",
+                "user_password": "newpwd",
+                "confirm_password": "newpwd",
+                "is_active": "true",
+                "status": status,
+                }, follow=True)
             self.assertRedirects(response, url)
             self.assertContains(
                 response,
@@ -946,10 +966,10 @@ class TestAdminFunctions(TestCase):
     def test_delete_user(self):
         url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
         response = self.client.post(url, {
-                "username": self.u.username,
-                "password": "pwd",
-                "delete_user": "",
-                 }, follow=True)
+            "delete_user": "",
+            "username": self.u.username,
+            "password": "pwd",
+            }, follow=True)
         self.assertRedirects(response, reverse("custom_manage_users"))
         self.assertContains(
             response,
@@ -957,7 +977,8 @@ class TestAdminFunctions(TestCase):
             )
         self.assertEqual(0, User.objects.filter(username="u").count())
 
-        response = self.client.get("/profile/{0}/".format("u"))
+        url = reverse("member_profile", kwargs={"targetUsername": self.u.username})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
         self.client.logout()
@@ -970,12 +991,21 @@ class TestAdminFunctions(TestCase):
         self.client.logout()
         self.assertTrue(self.client.login(username="u", password="pwd"))
 
-        response = self.client.post("/threads/", {
-                "submit_thread_form": "",
-                "subject": "Test Subject",
-                "body": "Test Body",
-                }, follow=True)
-        self.assertRedirects(response, "/threads/")
+        url = reverse("threads:list_all_threads")
+        response = self.client.post(url, {
+            "submit_thread_form": "",
+            "subject": "Test Subject",
+            "body": "Test Body",
+            }, follow=True)
+        self.assertEqual(
+            1,
+            Thread.objects.filter(subject="Test Subject").count(),
+            )
+        thread = Thread.objects.get(subject="Test Subject")
+        self.assertRedirects(
+            response,
+            reverse("threads:view_thread", kwargs={"thread_pk": thread.pk}),
+            )
 
         self.assertEqual(1, Thread.objects.filter(owner=profile).count())
         self.assertEqual(1, Message.objects.filter(owner=profile).count())
@@ -985,11 +1015,12 @@ class TestAdminFunctions(TestCase):
 
         url = reverse("custom_modify_user", kwargs={"targetUsername": self.u.username})
         response = self.client.post(url, {
-                "username": self.u.username,
-                "password": "pwd",
-                "delete_user": "",
-                 }, follow=True)
-        self.assertRedirects(response, "/custom_admin/manage_users/")
+            "delete_user": "",
+            "username": self.u.username,
+            "password": "pwd",
+            }, follow=True)
+
+        self.assertRedirects(response, reverse("custom_manage_users"))
         self.assertContains(
             response,
             MESSAGES['USER_DELETED'].format(username="u"),
@@ -1001,8 +1032,9 @@ class TestAdminFunctions(TestCase):
 
 class TestMemberDirectory(TestCase):
     def setUp(self):
-        self.ru = User.objects.create_user(username="ru", password="pwd",
-                           email="ru@email.com")
+        self.ru = User.objects.create_user(
+            username="ru", password="pwd", email="ru@email.com",
+            )
         self.bu = User.objects.create_user(username="bu", email="bu@email.com")
         self.au = User.objects.create_user(username="au", email="au@email.com")
 
@@ -1027,7 +1059,8 @@ class TestMemberDirectory(TestCase):
         self.client.login(username="ru", password="pwd")
 
     def test_member_directory_view(self):
-        response = self.client.get("/member_directory/")
+        url = reverse("member_directory")
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 

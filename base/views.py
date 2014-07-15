@@ -38,7 +38,7 @@ from base.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, \
 from threads.models import Thread, Message
 from threads.forms import ThreadForm
 from managers.models import RequestType, Manager, Request, Response, Announcement
-from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, UnpinForm
+from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, PinForm
 from events.models import Event
 from events.forms import RsvpForm
 
@@ -74,149 +74,170 @@ def add_context(request):
 def landing_view(request):
     ''' The external landing.'''
     return render_to_response('external.html', {
-            'page_name': "Landing",
-            }, context_instance=RequestContext(request))
+        'page_name': "Landing",
+        }, context_instance=RequestContext(request))
 
 @profile_required(redirect_no_user='external', redirect_profile=red_ext)
 def homepage_view(request, message=None):
     ''' The view of the homepage. '''
     userProfile = UserProfile.objects.get(user=request.user)
     request_types = RequestType.objects.filter(enabled=True)
-    manager_request_types = list() # List of request types for which the user is a relevant manager
+    # List of request types for which the user is a relevant manager
+    manager_request_types = list()
     for request_type in request_types:
         for position in request_type.managers.filter(active=True):
             if userProfile == position.incumbent:
                 manager_request_types.append(request_type)
                 break
-    requests_dict = list() # Pseudo-dictionary, list with items of form (request_type, (request, [list_of_request_responses], response_form))
-    # Generate a dict of open requests for each request_type for which the user is a relevant manager:
+    # Pseudo-dictionary, list with items of form (request_type, (request,
+    # [list_of_request_responses], response_form))
+    requests_dict = list()
+    # Generate a dict of open requests for each request_type for which the user
+    # is a relevant manager:
     if manager_request_types:
         for request_type in manager_request_types:
-            requests_list = list() # Items of form (request, [list_of_request_responses], response_form, upvote, vote_form)
+            # Items of form (request, [list_of_request_responses],
+            # response_form, upvote, vote_form)
+            requests_list = list()
             # Select only open requests of type request_type:
-            type_requests = Request.objects.filter(request_type=request_type, status=Request.OPEN)
-            for req in type_requests:
-                response_list = Response.objects.filter(request=req)
-                form = ManagerResponseForm(
-                    initial={
-                        'request_pk': req.pk,
-                        'action': Response.NONE,
-                        },
+            requests = Request.objects.filter(
+                request_type=request_type, status=Request.OPEN,
+                )
+            for req in requests:
+                response_form = ManagerResponseForm(
+                    request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
+                    initial={'action': Response.NONE},
                     profile=userProfile,
+                    request=req,
                     )
-                upvote = userProfile in req.upvotes.all()
                 vote_form = VoteForm(
-                    initial={'request_pk': req.pk},
+                    request.POST if "vote-{0}".format(req.pk) in request.POST else None,
                     profile=userProfile,
+                    request=req,
                     )
-                requests_list.append((req, response_list, form, upvote, vote_form))
+
+                if response_form.is_valid():
+                    response = response_form.save()
+                    if response.request.closed:
+                        messages.add_message(request, messages.SUCCESS,
+                                             MESSAGES['REQ_CLOSED'])
+                    if response.request.filled:
+                        messages.add_message(request, messages.SUCCESS,
+                                             MESSAGES['REQ_FILLED'])
+                    return HttpResponseRedirect(reverse('homepage'))
+                if vote_form.is_valid():
+                    vote_form.save()
+                    return HttpResponseRedirect(reverse('homepage'))
+
+                response_list = Response.objects.filter(request=req)
+                upvote = userProfile in req.upvotes.all()
+                requests_list.append(
+                    (req, response_list, response_form, upvote, vote_form)
+                    )
             requests_dict.append((request_type, requests_list))
-    announcement_form = None
-    announcements_dict = list() # Pseudo-dictionary, list with items of form (announcement, announcement_unpin_form)
-    for a in Announcement.objects.filter(pinned=True):
-        unpin_form = None
-        if request.user.is_superuser or (a.manager.incumbent == userProfile):
-            unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
-        announcements_dict.append((a, unpin_form))
-    now = datetime.utcnow().replace(tzinfo=utc)
+
+    ### Announcements
+    # Pseudo-dictionary, list with items of form (announcement,
+    # announcement_unpin_form)
+    announcements_dict = list()
+
     # Oldest genesis of an unpinned announcement to be displayed.
+    now = datetime.utcnow().replace(tzinfo=utc)
     within_life = now - timedelta(days=settings.ANNOUNCEMENT_LIFE)
-    for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
+    announcements = \
+      list(Announcement.objects.filter(pinned=True)) + \
+      list(Announcement.objects.filter(pinned=False, post_date__gte=within_life))
+    for a in announcements:
         unpin_form = None
-        if request.user.is_superuser or (a.manager.incumbent == userProfile):
-            unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
-        announcements_dict.append((a, unpin_form))
+        if request.user.is_superuser or a.manager.incumbent == userProfile:
+            pin_form = PinForm(
+                request.POST if "pin-{0}".format(a.pk) in request.POST else None,
+                instance=a,
+                )
+            if pin_form.is_valid():
+                pin_form.save()
+                return HttpResponseRedirect(reverse('homepage'))
+        announcements_dict.append((a, pin_form))
+
+    announcement_form = AnnouncementForm(
+        request.POST if "post_announcement" in request.POST else None,
+        profile=userProfile,
+        )
+
+    if announcement_form.is_valid():
+        announcement_form.save()
+        return HttpResponseRedirect(reverse('homepage'))
+
+    ### Events
     week_from_now = now + timedelta(days=7)
     # Get only next 7 days of events:
-    events_list = Event.objects.all().exclude(start_time__gte=week_from_now).exclude(end_time__lte=now)
-    events_dict = list() # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
+    events_list = Event.objects.exclude(
+        start_time__gte=week_from_now, end_time__lte=now,
+        )
+    # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
+    events_dict = list()
     for event in events_list:
-        form = RsvpForm(initial={'event_pk': event.pk})
         ongoing = ((event.start_time <= now) and (event.end_time >= now))
         rsvpd = (userProfile in event.rsvps.all())
-        events_dict.append((event, ongoing, rsvpd, form))
-    response_form = ManagerResponseForm(
-        request.POST if 'add_response' in request.POST else None,
-        profile=userProfile,
-        )
-    announcement_form = AnnouncementForm(
-        request.POST if 'post_announcement' in request.POST else None,
-        profile=userProfile,
-        )
-    unpin_form = UnpinForm(
-        request.POST if 'unpin' in request.POST else None,
-        )
-    rsvp_form = RsvpForm(
-        request.POST if 'rsvp' in request.POST else None,
-        )
+
+        rsvp_form = RsvpForm(
+            request.POST if "rsvp-{0}".format(event.pk) in request.POST else None,
+            profile=userProfile,
+            instance=event,
+            )
+
+        if rsvp_form.is_valid():
+            rsvpd = rsvp_form.save()
+            if rsvpd:
+                message = MESSAGES['RSVP_REMOVE'].format(event=event.title)
+                messages.add_message(request, messages.SUCCESS, message)
+            else:
+                message = MESSAGES['RSVP_ADD'].format(event=event.title)
+                messages.add_message(request, messages.SUCCESS, message)
+            return HttpResponseRedirect(reverse('homepage'))
+
+        events_dict.append((event, ongoing, rsvpd, rsvp_form))
+
+    ### Threads
     thread_form = ThreadForm(
-        request.POST if 'submit_thread_form' in request.POST else None,
+        request.POST if "submit_thread_form" in request.POST else None,
         profile=userProfile,
         )
-    vote_form = VoteForm(
-        request.POST if 'upvote' in request.POST else None,
-        profile=userProfile,
-        )
-    thread_set = [] # List of with items of form (thread, most_recent_message_in_thread)
+    if thread_form.is_valid():
+        thread_form.save()
+        return HttpResponseRedirect(reverse('homepage'))
+
+    # List of with items of form (thread, most_recent_message_in_thread)
+    thread_set = []
     for thread in Thread.objects.all()[:settings.HOME_MAX_THREADS]:
         try:
             latest_message = Message.objects.filter(thread=thread).latest('post_date')
         except Message.DoesNotExist:
             latest_message = None
         thread_set.append((thread, latest_message))
-    if response_form.is_valid():
-        response = response_form.save()
-        if response.request.closed:
-            messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_CLOSED'])
-        if response.request.filled:
-            messages.add_message(request, messages.SUCCESS, MESSAGES['REQ_FILLED'])
-        return HttpResponseRedirect(reverse('homepage'))
-    if announcement_form.is_valid():
-        announcement_form.save()
-        return HttpResponseRedirect(reverse('homepage'))
-    if unpin_form.is_valid():
-        unpin_form.save()
-        return HttpResponseRedirect(reverse('homepage'))
-    if rsvp_form.is_valid():
-        relevant_event = rsvp_form.cleaned_data['event_pk']
-        if userProfile in relevant_event.rsvps.all():
-            relevant_event.rsvps.remove(userProfile)
-            message = MESSAGES['RSVP_REMOVE'].format(event=relevant_event.title)
-            messages.add_message(request, messages.SUCCESS, message)
-        else:
-            relevant_event.rsvps.add(userProfile)
-            message = MESSAGES['RSVP_ADD'].format(event=relevant_event.title)
-            messages.add_message(request, messages.SUCCESS, message)
-        relevant_event.save()
-        return HttpResponseRedirect(reverse('homepage'))
-    if thread_form.is_valid():
-        thread_form.save()
-        return HttpResponseRedirect(reverse('homepage'))
-    if vote_form.is_valid():
-        vote_form.save()
-        return HttpResponseRedirect(reverse('homepage'))
+
     return render_to_response('homepage.html', {
-            'page_name': "Home",
-            'requests_dict': requests_dict,
-            'announcements_dict': announcements_dict,
-            'announcement_form': announcement_form,
-            'events_dict': events_dict,
-            'thread_set': thread_set,
-            'thread_form': thread_form,
-            }, context_instance=RequestContext(request))
+        'page_name': "Home",
+        'requests_dict': requests_dict,
+        'announcements_dict': announcements_dict,
+        'announcement_form': announcement_form,
+        'events_dict': events_dict,
+        'thread_set': thread_set,
+        'thread_form': thread_form,
+        }, context_instance=RequestContext(request))
 
 def help_view(request):
     ''' The view of the helppage. '''
     return render_to_response('helppage.html', {
-            'page_name': "Help Page",
-            },  context_instance=RequestContext(request))
+        'page_name': "Help Page",
+        }, context_instance=RequestContext(request))
 
 def site_map_view(request):
     ''' The view of the site map. '''
     page_name = "Site Map"
     return render_to_response('site_map.html', {
-            'page_name': page_name,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def my_profile_view(request):
@@ -228,10 +249,10 @@ def my_profile_view(request):
     userProfile = UserProfile.objects.get(user=request.user)
     change_password_form = PasswordChangeForm(
         request.user,
-        request.POST if 'submit_password_form' in request.POST else None,
+        request.POST if "submit_password_form" in request.POST else None,
         )
     update_profile_form = UpdateProfileForm(
-        request.POST if 'submit_profile_form' in request.POST else None,
+        request.POST if "submit_profile_form" in request.POST else None,
         user=request.user,
         initial={
             'former_houses': userProfile.former_houses,
@@ -239,7 +260,8 @@ def my_profile_view(request):
             'email_visible_to_others': userProfile.email_visible,
             'phone_number': userProfile.phone_number,
             'phone_visible_to_others': userProfile.phone_visible,
-            })
+            },
+        )
     if change_password_form.is_valid():
         change_password_form.save()
         messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
@@ -249,10 +271,10 @@ def my_profile_view(request):
         messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
         return HttpResponseRedirect(reverse('my_profile'))
     return render_to_response('my_profile.html', {
-            'page_name': page_name,
-            'update_profile_form': update_profile_form,
-            'change_password_form': change_password_form,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'update_profile_form': update_profile_form,
+        'change_password_form': change_password_form,
+        }, context_instance=RequestContext(request))
 
 def login_view(request):
     ''' The view of the login page. '''
@@ -295,11 +317,11 @@ def login_view(request):
                 form.errors['__all__'] = form.error_class(["Your account is not active. Please contact the site administrator to activate your account."])
 
     return render_to_response('login.html', {
-            'page_name': page_name,
-            'form': form,
-            'oauth_providers': _get_oauth_providers(),
-            'redirect_to': redirect_to,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'form': form,
+        'oauth_providers': _get_oauth_providers(),
+        'redirect_to': redirect_to,
+        }, context_instance=RequestContext(request))
 
 def _get_oauth_providers():
     matches = {
@@ -355,11 +377,11 @@ def member_directory_view(request):
     alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS) \
       .exclude(user__username=ANONYMOUS_USERNAME)
     return render_to_response('member_directory.html', {
-            'page_name': page_name,
-            'residents': residents,
-            'boarders': boarders,
-            'alumni': alumni,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'residents': residents,
+        'boarders': boarders,
+        'alumni': alumni,
+        }, context_instance=RequestContext(request))
 
 @profile_required
 def member_profile_view(request, targetUsername):
@@ -372,6 +394,7 @@ def member_profile_view(request, targetUsername):
     number_of_threads = Thread.objects.filter(owner=targetProfile).count()
     number_of_messages = Message.objects.filter(owner=targetProfile).count()
     number_of_requests = Request.objects.filter(owner=targetProfile).count()
+    # TODO: House room
     return render_to_response('member_profile.html', {
         'page_name': page_name,
         'targetUser': targetUser,
@@ -387,7 +410,9 @@ def request_profile_view(request):
     redirect_to = request.REQUEST.get('next', reverse('homepage'))
     if request.user.is_authenticated() and request.user.username != ANONYMOUS_USERNAME:
         return HttpResponseRedirect(redirect_to)
-    form = ProfileRequestForm(request.POST or None)
+    form = ProfileRequestForm(
+        request.POST or None,
+        )
     if form.is_valid():
         username = form.cleaned_data['username']
         first_name = form.cleaned_data['first_name']
@@ -426,24 +451,22 @@ def request_profile_view(request):
                     pass # Add logging here
             return HttpResponseRedirect(redirect_to)
     return render(request, 'request_profile.html', {
-            'form': form,
-            'page_name': page_name,
-            'oauth_providers': _get_oauth_providers(),
-            'redirect_to': redirect_to,
-            })
+        'form': form,
+        'page_name': page_name,
+        'oauth_providers': _get_oauth_providers(),
+        'redirect_to': redirect_to,
+        })
 
 @admin_required
 def manage_profile_requests_view(request):
     ''' The page to manage user profile requests. '''
     page_name = "Admin - Manage Profile Requests"
     profile_requests = ProfileRequest.objects.all()
-    return render_to_response(
-        'manage_profile_requests.html', {
-            'page_name': page_name,
-            'choices': UserProfile.STATUS_CHOICES,
-            'profile_requests': profile_requests
-            },
-        context_instance=RequestContext(request))
+    return render_to_response('manage_profile_requests.html', {
+        'page_name': page_name,
+        'choices': UserProfile.STATUS_CHOICES,
+        'profile_requests': profile_requests
+        }, context_instance=RequestContext(request))
 
 @admin_required
 def modify_profile_request_view(request, request_pk):
@@ -451,7 +474,7 @@ def modify_profile_request_view(request, request_pk):
     page_name = "Admin - Profile Request"
     profile_request = get_object_or_404(ProfileRequest, pk=request_pk)
     mod_form = ModifyProfileRequestForm(
-        request.POST if 'add_user' in request.POST else None,
+        request.POST if "add_user" in request.POST else None,
         initial={
             'status': profile_request.affiliation,
             'username': profile_request.username,
@@ -459,7 +482,8 @@ def modify_profile_request_view(request, request_pk):
             'last_name': profile_request.last_name,
             'email': profile_request.email,
             'is_active': True,
-            })
+            },
+        )
     addendum = ""
     if 'delete_request' in request.POST:
         if settings.SEND_EMAILS and (profile_request.email not in settings.EMAIL_BLACKLIST):
@@ -502,13 +526,13 @@ def modify_profile_request_view(request, request_pk):
         messages.add_message(request, messages.SUCCESS, message + addendum)
         return HttpResponseRedirect(reverse('manage_profile_requests'))
     return render_to_response('modify_profile_request.html', {
-            'page_name': page_name,
-            'add_user_form': mod_form,
-            'provider': profile_request.provider,
-            'uid': profile_request.uid,
-            'affiliation_message': profile_request.message,
-            'members': User.objects.all().exclude(username=ANONYMOUS_USERNAME),
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'add_user_form': mod_form,
+        'provider': profile_request.provider,
+        'uid': profile_request.uid,
+        'affiliation_message': profile_request.message,
+        'members': User.objects.all().exclude(username=ANONYMOUS_USERNAME),
+        }, context_instance=RequestContext(request))
 
 @admin_required
 def custom_manage_users_view(request):
@@ -517,11 +541,11 @@ def custom_manage_users_view(request):
     boarders = UserProfile.objects.filter(status=UserProfile.BOARDER)
     alumni = UserProfile.objects.filter(status=UserProfile.ALUMNUS).exclude(user__username=ANONYMOUS_USERNAME)
     return render_to_response('custom_manage_users.html', {
-            'page_name': page_name,
-            'residents': residents,
-            'boarders': boarders,
-            'alumni': alumni,
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'residents': residents,
+        'boarders': boarders,
+        'alumni': alumni,
+        }, context_instance=RequestContext(request))
 
 @admin_required
 def custom_modify_user_view(request, targetUsername):
@@ -539,10 +563,10 @@ def custom_modify_user_view(request, targetUsername):
         )
     change_user_password_form = AdminPasswordChangeForm(
         targetUser,
-        request.POST if 'change_user_password' in request.POST else None,
+        request.POST if "change_user_password" in request.POST else None,
         )
     delete_user_form = DeleteUserForm(
-        request.POST if 'delete_user' in request.POST else None,
+        request.POST if "delete_user" in request.POST else None,
         user=targetUser,
         request=request,
         )
@@ -552,16 +576,18 @@ def custom_modify_user_view(request, targetUsername):
             request, messages.SUCCESS,
             MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username),
             )
-        return HttpResponseRedirect(reverse('custom_modify_user',
-                                            kwargs={'targetUsername': targetUsername}))
+        return HttpResponseRedirect(reverse(
+            'custom_modify_user', kwargs={'targetUsername': targetUsername}
+            ))
     if change_user_password_form.is_valid():
         change_user_password_form.save()
         messages.add_message(
             request, messages.SUCCESS,
             MESSAGES['USER_PW_CHANGED'].format(username=targetUser.username),
             )
-        return HttpResponseRedirect(reverse('custom_modify_user',
-                                            kwargs={'targetUsername': targetUsername}))
+        return HttpResponseRedirect(reverse(
+            'custom_modify_user', kwargs={'targetUsername': targetUsername})
+            )
     if delete_user_form.is_valid():
         delete_user_form.save()
         messages.add_message(
@@ -571,19 +597,19 @@ def custom_modify_user_view(request, targetUsername):
         return HttpResponseRedirect(reverse("custom_manage_users"))
 
     return render_to_response('custom_modify_user.html', {
-            'targetUser': targetUser,
-            'targetProfile': targetProfile,
-            'page_name': page_name,
-            'modify_user_form': modify_user_form,
-            'change_user_password_form': change_user_password_form,
-            'delete_user_form': delete_user_form,
-            'thread_count': Thread.objects.filter(owner=targetProfile).count(),
-            'message_count': Message.objects.filter(owner=targetProfile).count(),
-            'request_count': Request.objects.filter(owner=targetProfile).count(),
-            'response_count': Response.objects.filter(owner=targetProfile).count(),
-            'announcement_count': Announcement.objects.filter(incumbent=targetProfile).count(),
-            'event_count': Event.objects.filter(owner=targetProfile).count(),
-            }, context_instance=RequestContext(request))
+        'targetUser': targetUser,
+        'targetProfile': targetProfile,
+        'page_name': page_name,
+        'modify_user_form': modify_user_form,
+        'change_user_password_form': change_user_password_form,
+        'delete_user_form': delete_user_form,
+        'thread_count': Thread.objects.filter(owner=targetProfile).count(),
+        'message_count': Message.objects.filter(owner=targetProfile).count(),
+        'request_count': Request.objects.filter(owner=targetProfile).count(),
+        'response_count': Response.objects.filter(owner=targetProfile).count(),
+        'announcement_count': Announcement.objects.filter(incumbent=targetProfile).count(),
+        'event_count': Event.objects.filter(owner=targetProfile).count(),
+        }, context_instance=RequestContext(request))
 
 @admin_required
 def custom_add_user_view(request):
@@ -599,17 +625,17 @@ def custom_add_user_view(request):
         messages.add_message(request, messages.SUCCESS, message)
         return HttpResponseRedirect(reverse('custom_add_user'))
     return render_to_response('custom_add_user.html', {
-            'page_name': page_name,
-            'add_user_form': add_user_form,
-            'members': User.objects.all().exclude(username=ANONYMOUS_USERNAME),
-            }, context_instance=RequestContext(request))
+        'page_name': page_name,
+        'add_user_form': add_user_form,
+        'members': User.objects.all().exclude(username=ANONYMOUS_USERNAME),
+        }, context_instance=RequestContext(request))
 
 @admin_required
 def utilities_view(request):
     ''' View for an admin to do maintenance tasks on the site. '''
     return render_to_response('utilities.html', {
-            'page_name': "Admin - Site Utilities",
-            }, context_instance=RequestContext(request))
+        'page_name': "Admin - Site Utilities",
+        }, context_instance=RequestContext(request))
 
 def reset_pw_view(request):
     """ View to send an e-mail to reset password. """
@@ -643,11 +669,11 @@ def recount_view(request):
             thread.save()
             threads_changed += 1
     messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
-            requests_changed=requests_changed,
-            request_count=Request.objects.all().count(),
-            threads_changed=threads_changed,
-            thread_count=Thread.objects.all().count()),
-            )
+        requests_changed=requests_changed,
+        request_count=Request.objects.all().count(),
+        threads_changed=threads_changed,
+        thread_count=Thread.objects.all().count()),
+        )
     return HttpResponseRedirect(reverse('utilities'))
 
 def archives_view(request):
@@ -663,15 +689,15 @@ def archives_view(request):
     announcement_count = Announcement.objects.all().count()
     event_count = Event.objects.all().count()
     return render_to_response('archives.html', {
-            'page_name': "Archives",
-            'resident_count': resident_count,
-            'boarder_count': boarder_count,
-            'alumni_count': alumni_count,
-            'member_count': member_count,
-            'thread_count': thread_count,
-            'message_count': message_count,
-            'request_count': request_count,
-            'response_count': response_count,
-            'announcement_count': announcement_count,
-            'event_count': event_count,
-            }, context_instance=RequestContext(request))
+        'page_name': "Archives",
+        'resident_count': resident_count,
+        'boarder_count': boarder_count,
+        'alumni_count': alumni_count,
+        'member_count': member_count,
+        'thread_count': thread_count,
+        'message_count': message_count,
+        'request_count': request_count,
+        'response_count': response_count,
+        'announcement_count': announcement_count,
+        'event_count': event_count,
+        }, context_instance=RequestContext(request))
