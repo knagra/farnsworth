@@ -329,7 +329,6 @@ def main(args):
     for name, managers, glyphicon in REQUESTS:
         r = RequestType.objects.create(
             name=name,
-            url_name=convert_to_url(name),
             glyphicon=glyphicon,
             )
         r.managers = [Manager.objects.get(title=i) for i in managers]
