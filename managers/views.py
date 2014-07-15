@@ -22,7 +22,7 @@ from base.models import UserProfile
 from base.redirects import red_home
 from managers.models import Manager, RequestType, Request, Response, Announcement
 from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseForm, \
-     ManagerResponseForm, VoteForm, AnnouncementForm, UnpinForm
+     ManagerResponseForm, VoteForm, AnnouncementForm, PinForm
 from threads.models import Thread, Message
 
 @admin_required
@@ -190,61 +190,52 @@ def requests_view(request, requestType):
     '''
     userProfile = UserProfile.objects.get(user=request.user)
     request_type = get_object_or_404(RequestType, url_name=requestType)
-    page_name = "%s Requests" % request_type.name.title()
+    page_name = "{0} Requests".format(request_type.name.title())
     if not request_type.enabled:
-        message = "%s requests have been disabled." % request_type.name.title()
+        message = "{0} requests have been disabled.".format(request_type.name.title())
         return red_home(request, message)
     relevant_managers = request_type.managers.filter(active=True)
     manager = any(i.incumbent == userProfile for i in relevant_managers)
     request_form = RequestForm(
-        request.POST if 'submit_request' in request.POST else None,
+        request.POST if "submit_request" in request.POST else None,
         profile=userProfile,
         request_type=request_type,
-        )
-    if manager:
-        form_class = ManagerResponseForm
-    else:
-        form_class = ResponseForm
-    response_form = form_class(
-        request.POST if 'add_response' in request.POST else None,
-        profile=userProfile,
-        )
-    vote_form = VoteForm(
-        request.POST if 'upvote' in request.POST else None,
-        profile=userProfile,
         )
     if request_form.is_valid():
         request_form.save()
         return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
-    if response_form.is_valid():
-        response_form.save()
-        return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
-    if vote_form.is_valid():
-        vote_form.save()
-        return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
     x = 0 # number of requests loaded
-    requests_dict = list() # A pseudo-dictionary, actually a list with items of form (request, [request_responses_list], response_form, upvote, vote_form)
+    # A pseudo-dictionary, actually a list with items of form (request,
+    # [request_responses_list], response_form, upvote, vote_form)
+    requests_dict = list()
     for req in Request.objects.filter(request_type=request_type):
         request_responses = Response.objects.filter(request=req)
         if manager:
-            resp_form = ManagerResponseForm(
-                initial={
-                    'request_pk': req.pk,
-                    'action': Response.NONE,
-                    },
+            response_form = ManagerResponseForm(
+                request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
+                initial={'action': Response.NONE},
                 profile=userProfile,
+                request=req,
                 )
         else:
-            resp_form = ResponseForm(
-                initial={'request_pk': req.pk},
+            response_form = ResponseForm(
+                request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
                 profile=userProfile,
+                request=req,
                 )
         upvote = userProfile in req.upvotes.all()
         vote_form = VoteForm(
-            initial={'request_pk': req.pk},
+            request.POST if "vote-{0}".format(req.pk) in request.POST else None,
             profile=userProfile,
+            request=req,
             )
-        requests_dict.append((req, request_responses, resp_form, upvote, vote_form))
+        if response_form.is_valid():
+            response_form.save()
+            return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
+        if vote_form.is_valid():
+            vote_form.save()
+            return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
+        requests_dict.append((req, request_responses, response_form, upvote, vote_form))
         x += 1
         if x >= settings.MAX_REQUESTS:
             break
@@ -264,53 +255,62 @@ def my_requests_view(request):
     '''
     page_name = "My Requests"
     userProfile = UserProfile.objects.get(user=request.user)
-    request_form = RequestForm(
-        request.POST if 'submit_request' in request.POST else None,
-        profile=userProfile,
-        )
-    response_form = ManagerResponseForm(
-        request.POST if 'add_response' in request.POST else None,
-        profile=userProfile,
-        )
-    if request_form.is_valid():
-        request_form.save()
-        return HttpResponseRedirect(reverse('managers:my_requests'))
-    if response_form.is_valid():
-        response_form.save()
-        return HttpResponseRedirect(reverse('managers:my_requests'))
     my_requests = Request.objects.filter(owner=userProfile)
-    request_dict = list() # A pseudo dictionary, actually a list with items of form (request_type.name.title(), request_form, type_manager, [(request, [list_of_request_responses], response_form, upvote, vote_form),...], relevant_managers)
+    # A pseudo dictionary, actually a list with items of form
+    # (request_type.name.title(), request_form, type_manager, [(request,
+    # [list_of_request_responses], response_form, upvote, vote_form),...],
+    # relevant_managers)
+    request_dict = list()
     for request_type in RequestType.objects.all():
         relevant_managers = request_type.managers.filter(active=True)
-        type_manager = any(i.incumbent == userProfile for i in relevant_managers)
-        requests_list = list() # Items are of form (request, [list_of_request_responses], response_form),...])
+        type_manager = any(i.incumbent == userProfile for i in
+                           relevant_managers)
+        # Items are of form (request, [list_of_request_responses],
+        # response_form),...])
+        requests_list = list()
         type_requests = my_requests.filter(request_type=request_type)
         for req in type_requests:
             responses_list = Response.objects.filter(request=req)
             if type_manager:
-                form = ManagerResponseForm(
-                    initial={
-                        'request_pk': req.pk,
-                        'action': Response.NONE,
-                        },
+                response_form = ManagerResponseForm(
+                    request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
+                    initial={'action': Response.NONE},
                     profile=userProfile,
+                    request=req,
                     )
             else:
-                form = ResponseForm(
-                    initial={'request_pk': req.pk},
+                response_form = ResponseForm(
+                    request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
                     profile=userProfile,
+                    request=req,
                     )
+
             upvote = userProfile in req.upvotes.all()
             vote_form = VoteForm(
-                initial={'request_pk': req.pk},
+                request.POST if "vote-{0}".format(req.pk) in request.POST else None,
+                request.POST or None,
                 profile=userProfile,
+                request=req,
                 )
-            requests_list.append((req, responses_list, form, upvote, vote_form))
+
+            if response_form.is_valid():
+                response_form.save()
+                return HttpResponseRedirect(reverse('managers:my_requests'))
+            if vote_form.is_valid():
+                vote_form.save()
+                return HttpResponseRedirect(reverse('managers:my_requests'))
+
+            requests_list.append((req, responses_list, response_form, upvote, vote_form))
         request_form = RequestForm(
-            initial={'type_pk': request_type.pk},
+            request.POST if "submit_request" in request.POST else None,
             profile=userProfile,
+            request_type=request_type,
             )
-        request_dict.append((request_type, request_form, type_manager, requests_list, relevant_managers))
+        if request_form.is_valid():
+            request_form.save()
+            return HttpResponseRedirect(reverse('managers:my_requests'))
+        request_dict.append((request_type, request_form, type_manager,
+                             requests_list, relevant_managers))
     return render_to_response('my_requests.html', {
         'page_name': page_name,
         'request_dict': request_dict,
@@ -386,25 +386,23 @@ def request_view(request, request_pk):
     manager = any(i.incumbent == userProfile for i in relevant_managers)
     if manager:
         response_form = ManagerResponseForm(
-            request.POST if 'add_response' in request.POST else None,
-            initial={
-                'request_pk': relevant_request.pk,
-                'action': Response.NONE,
-                },
+            request.POST if "add_response" in request.POST else None,
+            initial={'action': Response.NONE},
             profile=userProfile,
+            request=relevant_request,
             )
     else:
         response_form = ResponseForm(
-            request.POST if 'add_response' in request.POST else None,
-            initial={
-                'request_pk': relevant_request.pk,
-                },
+            request.POST if "add_response" in request.POST else None,
             profile=userProfile,
+            request=relevant_request,
+            prefix="response",
             )
     upvote = userProfile in relevant_request.upvotes.all()
     vote_form = VoteForm(
-        request.POST if 'upvote' in request.POST else None,
+        request.POST if "vote" in request.POST else None,
         profile=UserProfile,
+        request=relevant_request,
         )
     if response_form.is_valid():
         response_form.save()
@@ -433,21 +431,19 @@ def announcement_view(request, announcement_pk):
     announce = get_object_or_404(Announcement, pk=announcement_pk)
     page_name = "View Announcement"
     profile = UserProfile.objects.get(user=request.user)
-    unpin_form = UnpinForm(
-        request.POST if 'unpin' in request.POST else None,
-        announce=announce,
-        initial={
-            'announcement_pk': announcement_pk,
-            })
+    pin_form = PinForm(
+        request.POST if "pin" in request.POST else None,
+        instance=announce,
+        )
     can_edit = announce.incumbent == profile or request.user.is_superuser
-    if unpin_form.is_valid():
-        unpin_form.save()
+    if pin_form.is_valid():
+        pin_form.save()
         return HttpResponseRedirect(
             reverse('managers:view_announcement', kwargs={"announcement_pk": announcement_pk}),
             )
     return render_to_response('view_announcement.html', {
         'page_name': page_name,
-        'unpin_form': unpin_form,
+        'pin_form': pin_form,
         'can_edit': can_edit,
         'announcement': announce,
         }, context_instance=RequestContext(request))
@@ -486,38 +482,40 @@ def announcements_view(request):
     userProfile = UserProfile.objects.get(user=request.user)
     announcement_form = None
     manager_positions = Manager.objects.filter(incumbent=userProfile)
-    unpin_form = UnpinForm(
-        request.POST if 'unpin' in request.POST else None,
-        )
     if manager_positions:
         announcement_form = AnnouncementForm(
-            request.POST if 'post_announcement' in request.POST else None,
+            request.POST if "post_announcement"in request.POST else None,
             profile=userProfile,
             )
-    if unpin_form.is_valid():
-        unpin_form.save()
-        return HttpResponseRedirect(reverse('managers:announcements'))
     if announcement_form and announcement_form.is_valid():
         announcement_form.save()
         return HttpResponseRedirect(reverse('managers:announcements'))
+
     # A pseudo-dictionary, actually a list with items of form:
-    # (announcement, announcement_unpin_form)
+    # (announcement, announcement_pin_form)
     announcements_dict = list()
     for a in Announcement.objects.filter(pinned=True):
-        unpin_form = None
+        pin_form = None
         if (a.manager.incumbent == userProfile) or request.user.is_superuser:
-            unpin_form = UnpinForm(initial={
-                'announcement_pk': a.pk,
-                })
-        announcements_dict.append((a, unpin_form))
+            pin_form = PinForm(
+                request.POST if "pin-{0}".format(a.pk) else None,
+                instance=a,
+                )
+            if pin_form.is_valid():
+                pin_form.save()
+                return HttpResponseRedirect(reverse('managers:announcements'))
+        announcements_dict.append((a, pin_form))
     now = datetime.utcnow().replace(tzinfo=utc)
-    # Oldest genesis of an unpinned announcement to be displayed.
+    # Oldest genesis of an pinned announcement to be displayed.
     within_life = now - timedelta(days=settings.ANNOUNCEMENT_LIFE)
     for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
-        unpin_form = None
+        pin_form = None
         if request.user.is_superuser or (a.manager.incumbent == userProfile):
-            unpin_form = UnpinForm(initial={'announcement_pk': a.pk})
-        announcements_dict.append((a, unpin_form))
+            pin_form = PinForm(
+                request.POST if "pin-{0}".format(a.pk) else None,
+                instance=a,
+                )
+        announcements_dict.append((a, pin_form))
     return render_to_response('announcements.html', {
         'page_name': page_name,
         'manager_positions': manager_positions,
@@ -534,28 +532,27 @@ def all_announcements_view(request):
     manager_positions = Manager.objects.filter(incumbent=userProfile)
     if manager_positions:
         announcement_form = AnnouncementForm(
-            request.POST if 'post_announcement' in request.POST else None,
+            request.POST if "post_announcement" in request.POST else None,
             profile=userProfile,
             )
-    unpin_form = UnpinForm(
-        request.POST if 'unpin' in request.POST else None,
-        )
-    if unpin_form.is_valid():
-        unpin_form.save()
-        return HttpResponseRedirect(reverse('managers:all_announcements'))
-    if announcement_form and announcement_form.is_valid():
-        announcement_form.save()
-        return HttpResponseRedirect(reverse('managers:all_announcements'))
+        if announcement_form.is_valid():
+            announcement_form.save()
+            return HttpResponseRedirect(reverse('managers:all_announcements'))
 
-    announcements = Announcement.objects.all()
-    announcements_dict = list() # A pseudo-dictionary, actually a list with items of form (announcement, announcement_pin_form)
-    for a in announcements:
-        form = None
-        if ((a.manager.incumbent == userProfile) or request.user.is_superuser) and not a.pinned:
-            form = UnpinForm(initial={'announcement_pk': a.pk})
-        elif ((a.manager.incumbent == userProfile) or request.user.is_superuser) and a.pinned:
-            form = UnpinForm(initial={'announcement_pk': a.pk})
-        announcements_dict.append((a, form))
+    # A pseudo-dictionary, actually a list with items of form (announcement,
+    # announcement_pin_form)
+    announcements_dict = list()
+    for a in Announcement.objects.all():
+        pin_form = None
+        if a.manager.incumbent == userProfile or request.user.is_superuser:
+            pin_form = PinForm(
+                request.POST if "pin-{0}".format(a.pk) in request.POST else None,
+                instance=a,
+                )
+            if pin_form.is_valid():
+                pin_form.save()
+                return HttpResponseRedirect(reverse('managers:all_announcements'))
+        announcements_dict.append((a, pin_form))
     return render_to_response('announcements.html', {
         'page_name': page_name,
         'manager_positions': manager_positions,
