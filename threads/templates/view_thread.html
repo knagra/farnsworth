@@ -16,7 +16,9 @@
   <h1 class="w_title">View Thread</h1>
   <hr class="w_line" />
   {% if not thread %}
-  <div class="field_wrapper text-warning">Thread not found.</div>
+  <div class="field_wrapper text-warning">
+	Thread not found.
+  </div>
   {% else %}
   <div class="thread_table bordered_div">
     <div class="thread_messages">
@@ -61,10 +63,11 @@
             </div> <!-- .btn-group -->
           </div> <!-- .text-center -->
         </form>
+		{% endif %}
       </div> <!-- message_table -->
     </div> <!-- thread_messages -->
-    {% endif %}
   </div> <!-- thread_table -->
+  {% endif %}
 </div>
 <div class="text-center text-info" style="margin-top: 10px;">
   Showing {{ messages_list|length }} message{{ messages_list|length|pluralize }}.
