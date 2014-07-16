@@ -334,7 +334,11 @@ def profile_view(request, semester, targetUsername, profile=None):
     upcoming shifts.
     """
     # TODO: Permissions? Should this be open for anyone on the site to view?
-    wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
+    wprofile = get_object_or_404(
+        WorkshiftProfile,
+        user__username=targetUsername,
+        semester=semester
+        )
     if wprofile == profile:
         page_name = "My Workshift Profile"
     else:
