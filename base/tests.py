@@ -833,10 +833,10 @@ class TestModifyUser(TestCase):
         Test modifying profiles to have different user statuses (Resident, Boarder,
         Alumni).
         """
-        url = reverse("custom_modify_user", kwargs={"targetUsername": self.ou.username})
-
         for status, title in UserProfile.STATUS_CHOICES:
             self.client.login(username="su", password="pwd")
+
+            url = reverse("custom_modify_user", kwargs={"targetUsername": self.ou.username})
 
             response = self.client.post(url, {
                 "email_visible_to_others": True,
@@ -983,9 +983,8 @@ class TestAdminFunctions(TestCase):
         """
         Test adding users with different statuses (Resident, Boarder, Alumni).
         """
-        url = reverse("custom_add_user")
-
         for status, title in UserProfile.STATUS_CHOICES:
+            url = reverse("custom_add_user")
             response = self.client.post(url, {
                 "username": "nu",
                 "first_name": "First",
@@ -997,6 +996,7 @@ class TestAdminFunctions(TestCase):
                 "is_active": "true",
                 "status": status,
                 }, follow=True)
+
             self.assertRedirects(response, url)
             self.assertContains(
                 response,

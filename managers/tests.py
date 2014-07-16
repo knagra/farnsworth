@@ -194,7 +194,7 @@ class TestPermissions(TestCase):
             reverse("managers:edit_manager", kwargs={"managerTitle": self.m.url_title}),
             reverse("managers:add_manager"),
             reverse("managers:manage_request_types"),
-            reverse("managers:edit_request_type", kwargs={"requestType": self.rt.url_name}),
+            reverse("managers:edit_request_type", kwargs={"typeName": self.rt.url_name}),
             reverse("managers:add_request_type"),
             ]
         for page in pages:
@@ -202,7 +202,7 @@ class TestPermissions(TestCase):
 
     def test_profile_required(self):
         pages = [
-            reverse("managers:list_manager"),
+            reverse("managers:list_managers"),
             reverse("managers:view_manager", kwargs={"managerTitle": self.m.url_title}),
             reverse("managers:list_user_requests", kwargs={"targetUsername": self.u.username}),
             reverse("managers:requests", kwargs={"requestType": self.rt.url_name}),
