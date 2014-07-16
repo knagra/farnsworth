@@ -67,7 +67,8 @@ class TestPermissions(TestCase):
 
     def _admin_required(self, url, success_target=None):
         response = self.client.get(url)
-        self.assertRedirects(response, "/login/?next=" + url)
+        login = reverse("login")
+        self.assertRedirects(response, login + "?next=" + url)
 
         self.client.login(username="np", password="pwd")
         response = self.client.get(url, follow=True)
@@ -97,7 +98,8 @@ class TestPermissions(TestCase):
 
     def _president_admin_required(self, url, success_target=None):
         response = self.client.get(url)
-        self.assertRedirects(response, "/login/?next=" + url)
+        login = reverse("login")
+        self.assertRedirects(response, login + "?next=" + url)
 
         self.client.login(username="np", password="pwd")
         response = self.client.get(url, follow=True)
@@ -135,7 +137,8 @@ class TestPermissions(TestCase):
 
     def _profile_required(self, url, success_target=None):
         response = self.client.get(url)
-        self.assertRedirects(response, "/login/?next=" + url)
+        login = reverse("login")
+        self.assertRedirects(response, login + "?next=" + url)
 
         self.client.login(username="np", password="pwd")
         response = self.client.get(url, follow=True)
@@ -169,51 +172,51 @@ class TestPermissions(TestCase):
 
     def test_admin_required(self):
         pages = [
-            "profile_requests",
-            "profile_requests/{0}".format(self.pr.pk),
-            "manage_users",
-            "manage_user/{0}".format(self.u.username),
-            "add_user",
-            "utilities",
+            reverse("manage_profile_requests"),
+            reverse("modify_profile_request", kwargs={"request_pk": self.pr.pk}),
+            reverse("custom_manage_users"),
+            reverse("custom_modify_user", kwargs={"targetUsername": self.u.username}),
+            reverse("custom_add_user"),
+            reverse("utilities"),
             ]
         for page in pages:
-            self._admin_required("/custom_admin/" + page + "/")
+            self._admin_required(page)
+        self._admin_required(reverse("managers:anonymous_login"),
+                             success_target=reverse("homepage"))
         utilities = reverse("utilities")
         self._admin_required(reverse("recount"), success_target=utilities)
-        self._admin_required(reverse("managers:anonymous_login"),
-                             success_target="/")
         self._admin_required(reverse("managers:end_anonymous_session"),
                              success_target=utilities)
 
     def test_president_admin_required(self):
         pages = [
-            "managers",
-            "managers/{0}".format(self.m.url_title),
-            "add_manager",
-            "request_types",
-            "request_types/{0}".format(self.rt.url_name),
-            "add_request_type",
+            reverse("managers:meta_manager"),
+            reverse("managers:edit_manager", kwargs={"managerTitle": self.m.url_title}),
+            reverse("managers:add_manager"),
+            reverse("managers:manage_request_types"),
+            reverse("managers:edit_request_type", kwargs={"requestType": self.rt.url_name}),
+            reverse("managers:add_request_type"),
             ]
         for page in pages:
-            self._president_admin_required("/custom_admin/" + page + "/")
+            self._president_admin_required(page)
 
     def test_profile_required(self):
         pages = [
-            "manager_directory",
-            "manager_directory/{0}".format(self.m.url_title),
-            "profile/{0}/requests".format(self.u.username),
-            "requests/{0}".format(self.rt.url_name),
-            "archives/all_requests",
-            "requests/{0}/all".format(self.rt.url_name),
-            "my_requests",
-            "request/{0}".format(self.request.pk),
-            "announcements",
-            "announcements/{0}".format(self.a.pk),
-            "announcements/{0}/edit".format(self.a.pk),
-            "announcements/all",
+            reverse("managers:list_manager"),
+            reverse("managers:view_manager", kwargs={"managerTitle": self.m.url_title}),
+            reverse("managers:list_user_requests", kwargs={"targetUsername": self.u.username}),
+            reverse("managers:requests", kwargs={"requestType": self.rt.url_name}),
+            reverse("managers:all_requests"),
+            reverse("managers:list_all_requests", kwargs={"requestType": self.rt.url_name}),
+            reverse("managers:my_requests"),
+            reverse("managers:view_request", kwargs={"request_pk": self.request.pk}),
+            reverse("managers:announcements"),
+            reverse("managers:view_announcement", kwargs={"announcement_pk": self.a.pk}),
+            reverse("managers:edit_announcement", kwargs={"announcement_pk": self.a.pk}),
+            reverse("managers:all_announcements"),
             ]
         for page in pages:
-            self._profile_required("/" + page + "/")
+            self._profile_required(page)
 
 class TestAnonymousUser(TestCase):
     def setUp(self):
@@ -234,7 +237,7 @@ class TestAnonymousUser(TestCase):
 
         url = reverse("managers:anonymous_login")
         response = self.client.get(url, follow=True)
-        self.assertRedirects(response, "/")
+        self.assertRedirects(response, reverse("homepage"))
         self.assertContains(
             response,
             "Logged in as anonymous user Anonymous Coward",

@@ -4,6 +4,7 @@ when you run "manage.py test".
 """
 
 from datetime import datetime, timedelta
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -38,27 +39,30 @@ class TestLogin(TestCase):
         self.assertTrue(self.client.login(username="u", password="pwd"))
         self.assertEqual(None, self.client.logout())
 
-        response = self.client.post("/login/", {
+        url = reverse("login")
+        response = self.client.post(url, {
             "username_or_email": self.u.username,
             "password": "pwd",
             }, follow=True)
         self.assertRedirects(response, reverse("homepage"))
 
-        response = self.client.get("/logout/", follow=True)
+        url = reverse("logout")
+        response = self.client.get(url, follow=True)
         self.assertRedirects(response, reverse('external'))
 
     def test_bad_login(self):
         self.assertFalse(self.client.login(username=self.iu.username, password="bad pwd"))
         self.assertFalse(self.client.login(username="baduser", password="pwd"))
 
-        response = self.client.post("/login/", {
+        url = reverse("login")
+        response = self.client.post(url, {
             "username_or_email": self.u.username,
             "password": "bad pwd",
             })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, MESSAGES["INVALID_LOGIN"])
 
-        response = self.client.post("/login/", {
+        response = self.client.post(url, {
             "username_or_email": "baduser",
             "password": "pwd",
             })
@@ -68,7 +72,8 @@ class TestLogin(TestCase):
     def test_inactive_login(self):
         self.assertFalse(self.client.login(username=self.iu.username, password="pwd"))
 
-        response = self.client.post("/login/", {
+        url = reverse("login")
+        response = self.client.post(url, {
             "username_or_email": self.iu.username,
             "password": "pwd",
             })
@@ -279,7 +284,8 @@ class TestHomepage(TestCase):
 
 class TestRequestProfile(TestCase):
     def test_request_profile(self):
-        response = self.client.post("/request_profile/", {
+        url = reverse("request_profile")
+        response = self.client.post(url, {
             "username": "request",
             "first_name": "first",
             "last_name": "last",
@@ -307,8 +313,9 @@ class TestRequestProfile(TestCase):
             "\'username",
             ]
 
+        url = reverse("request_profile")
         for username in usernames:
-            response = self.client.post("/request_profile/", {
+            response = self.client.post(url, {
                 "username": username,
                 "first_name": "first",
                 "last_name": "last",
@@ -333,8 +340,9 @@ class TestRequestProfile(TestCase):
             "9_Fg",
             ]
 
+        url = reverse("request_profile")
         for username in usernames:
-            response = self.client.post("/request_profile/", {
+            response = self.client.post(url, {
                 "username": username,
                 "first_name": "first",
                 "last_name": "last",
@@ -350,7 +358,8 @@ class TestRequestProfile(TestCase):
     def test_duplicate_user(self):
         u = User.objects.create_user(username="request")
 
-        response = self.client.post("/request_profile/", {
+        url = reverse("request_profile")
+        response = self.client.post(url, {
             "username": u.username,
             "first_name": "first",
             "last_name": "last",
@@ -359,21 +368,21 @@ class TestRequestProfile(TestCase):
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(
             response, MESSAGES["USERNAME_TAKEN"].format(username=u.username)
             )
-        self.assertEqual(response.status_code, 200)
         self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
     def test_duplicate_request(self):
-        pr = ProfileRequest(
+        pr = ProfileRequest.objects.create(
             username="request",
             first_name="Tester",
             last_name="Tested",
             )
-        pr.save()
 
-        response = self.client.post("/request_profile/", {
+        url = reverse("request_profile")
+        response = self.client.post(url, {
             "username": "request2",
             "first_name": pr.first_name,
             "last_name": pr.last_name,
@@ -382,16 +391,18 @@ class TestRequestProfile(TestCase):
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
+
+        self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             MESSAGES["PROFILE_TAKEN"].format(first_name=pr.first_name,
                                              last_name=pr.last_name),
             )
-        self.assertEqual(response.status_code, 200)
         self.assertEqual(0, ProfileRequest.objects.filter(username="request2").count())
 
     def test_bad_profile_requests(self):
-        response = self.client.post("/request_profile/", {
+        url = reverse("request_profile")
+        response = self.client.post(url, {
             "username": "request",
             "first_name": "first",
             "last_name": "last",
@@ -400,11 +411,12 @@ class TestRequestProfile(TestCase):
             "password": "pwd",
             "confirm_password": "pwd2",
             }, follow=True)
+
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Passwords don&#39;t match.")
+        self.assertContains(response, "Passwords don't match.".replace("'", "&#39;"))
         self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
-        response = self.client.post("/request_profile/", {
+        response = self.client.post(url, {
             "username": "request",
             "last_name": "last",
             "email": "request@email.com",
@@ -412,11 +424,12 @@ class TestRequestProfile(TestCase):
             "password": "pwd",
             "confirm_password": "pwd2",
             }, follow=True)
+
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This field is required.")
         self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
-        response = self.client.post("/request_profile/", {
+        response = self.client.post(url, {
             "username": "*******", # hunter2
             "first_name": "first",
             "last_name": "last",
@@ -425,11 +438,12 @@ class TestRequestProfile(TestCase):
             "password": "pwd",
             "confirm_password": "pwd2",
             }, follow=True)
+
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, MESSAGES["INVALID_USERNAME"])
         self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
 
-        response = self.client.post("/request_profile/", {
+        response = self.client.post(url, {
             "username": "request",
             "first_name": "first",
             "last_name": "last",
@@ -438,12 +452,16 @@ class TestRequestProfile(TestCase):
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
+
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             "Select a valid choice. 123 is not one of the available choices.",
             )
-        self.assertEqual(0, ProfileRequest.objects.filter(username="request").count())
+        self.assertEqual(
+            0,
+            ProfileRequest.objects.filter(username="request").count(),
+            )
 
 class TestUtilities(TestCase):
     def setUp(self):
@@ -518,7 +536,7 @@ class TestSocialRequest(TestCase):
             "add_user": "",
             }, follow=True)
 
-        self.assertRedirects(response, "/custom_admin/profile_requests/")
+        self.assertRedirects(response, reverse("manage_profile_requests"))
         self.assertContains(
             response,
             "User {0} was successfully added".format(self.pr.username),
@@ -528,18 +546,30 @@ class TestSocialRequest(TestCase):
         for lib in settings.SOCIAL_AUTH_PIPELINE:
             module, func = lib.rsplit(".", 1)
             self.assertNotEqual(None, __import__(module, fromlist=[func]))
-        self.assertIn("social.pipeline.social_auth.social_details",
-                      settings.SOCIAL_AUTH_PIPELINE)
-        self.assertIn("social.pipeline.social_auth.social_uid",
-                      settings.SOCIAL_AUTH_PIPELINE)
-        self.assertIn("social.pipeline.social_auth.auth_allowed",
-                      settings.SOCIAL_AUTH_PIPELINE)
-        self.assertIn("social.pipeline.social_auth.social_user",
-                      settings.SOCIAL_AUTH_PIPELINE)
-        self.assertIn("social.pipeline.user.get_username",
-                      settings.SOCIAL_AUTH_PIPELINE)
-        self.assertIn("base.pipeline.request_user",
-                      settings.SOCIAL_AUTH_PIPELINE)
+        self.assertIn(
+            "social.pipeline.social_auth.social_details",
+            settings.SOCIAL_AUTH_PIPELINE,
+            )
+        self.assertIn(
+            "social.pipeline.social_auth.social_uid",
+            settings.SOCIAL_AUTH_PIPELINE,
+            )
+        self.assertIn(
+            "social.pipeline.social_auth.auth_allowed",
+            settings.SOCIAL_AUTH_PIPELINE,
+            )
+        self.assertIn(
+            "social.pipeline.social_auth.social_user",
+            settings.SOCIAL_AUTH_PIPELINE,
+            )
+        self.assertIn(
+            "social.pipeline.user.get_username",
+            settings.SOCIAL_AUTH_PIPELINE,
+            )
+        self.assertIn(
+            "base.pipeline.request_user",
+            settings.SOCIAL_AUTH_PIPELINE,
+            )
 
 class TestProfileRequestAdmin(TestCase):
     def setUp(self):
@@ -577,7 +607,7 @@ class TestProfileRequestAdmin(TestCase):
             "add_user": "",
             }, follow=True)
 
-        self.assertRedirects(response, "/custom_admin/profile_requests/")
+        self.assertRedirects(response, reverse("manage_profile_requests"))
         self.assertContains(
             response,
             "User {0} was successfully added".format(self.pr.username),
@@ -660,13 +690,14 @@ class TestProfilePages(TestCase):
         self.assertContains(response, self.profile.former_houses)
         self.assertContains(response, self.profile.phone_number)
 
-        url = reverse("member_profile_view", kwargs={"targetUsername": self.u.username})
+        url = reverse("member_profile", kwargs={"targetUsername": self.u.username})
         response = self.client.get(url, follow=True)
 
         self.assertRedirects(response, reverse("my_profile"))
 
     def test_other_profile_page(self):
-        response = self.client.get("/profile/{0}/".format(self.ou.username))
+        url = reverse("member_profile", kwargs={"targetUsername": self.ou.username})
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.ou.email)
@@ -720,13 +751,15 @@ class TestProfilePages(TestCase):
         self.oprofile.phone_visible = True
         self.oprofile.save()
 
-        response = self.client.get("/profile/{0}/".format(self.ou.username))
+        url = reverse("member_profile", kwargs={"targetUsername": self.ou.username})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.ou.email)
         self.assertContains(response, self.oprofile.phone_number)
 
     def test_bad_profile(self):
-        response = self.client.get("/profile/404/")
+        url = reverse("member_profile", kwargs={"targetUsername": "404"})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
 class TestModifyUser(TestCase):
@@ -750,7 +783,8 @@ class TestModifyUser(TestCase):
     def test_set_visible(self):
         self.client.login(username="u", password="pwd")
 
-        response = self.client.get("/profile/{0}/".format(self.ou.username))
+        url = reverse("member_profile", kwargs={"targetUsername": self.ou.username})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.ou.email)
         self.assertNotContains(response, self.profile.phone_number)
@@ -780,7 +814,8 @@ class TestModifyUser(TestCase):
 
         self.client.login(username="u", password="pwd")
 
-        response = self.client.get("/profile/{0}/".format(self.ou.username))
+        url = reverse("member_profile", kwargs={"targetUsername": self.ou.username})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.ou.email)
         self.assertContains(response, self.profile.phone_number)
@@ -815,7 +850,8 @@ class TestModifyUser(TestCase):
 
             self.client.login(username="u", password="pwd")
 
-            response = self.client.get("/profile/{0}/".format(self.ou.username))
+            url = reverse("member_profile", kwargs={"targetUsername": self.ou.username})
+            response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, title)
 
@@ -869,7 +905,8 @@ class TestAdminFunctions(TestCase):
         self.client.login(username="su", password="pwd")
 
     def test_add_user(self):
-        response = self.client.post("/custom_admin/add_user/", {
+        url = reverse("custom_add_user")
+        response = self.client.post(url, {
             "username": "nu",
             "first_name": "First",
             "last_name": "Last",
@@ -880,7 +917,7 @@ class TestAdminFunctions(TestCase):
             "is_active": "true",
             "status": UserProfile.RESIDENT,
              }, follow=True)
-        self.assertRedirects(response, "/custom_admin/add_user/")
+        self.assertRedirects(response, url)
         self.assertContains(
             response,
             MESSAGES['USER_ADDED'].format(username="nu"),
@@ -888,7 +925,8 @@ class TestAdminFunctions(TestCase):
 
         self.assertEqual(1, User.objects.filter(username="nu").count())
 
-        response = self.client.get("/profile/{0}/".format("nu"))
+        url = reverse("member_profile", kwargs={"targetUsername": "nu"})
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "nu@email.com")
@@ -905,7 +943,8 @@ class TestAdminFunctions(TestCase):
         self.assertFalse(self.client.login(username="nu", password="newpwd"))
 
     def test_add_visible(self):
-        response = self.client.post("/custom_admin/add_user/", {
+        url = reverse("custom_add_user")
+        response = self.client.post(url, {
             "username": "nu",
             "first_name": "First",
             "last_name": "Last",
@@ -918,14 +957,15 @@ class TestAdminFunctions(TestCase):
             "phone_visible_to_others": True,
             "status": UserProfile.RESIDENT,
              }, follow=True)
-        self.assertRedirects(response, "/custom_admin/add_user/")
+        self.assertRedirects(response, url)
         self.assertContains(
             response,
             MESSAGES['USER_ADDED'].format(username="nu"),
             )
         self.assertEqual(1, User.objects.filter(username="nu").count())
 
-        response = self.client.get("/profile/{0}/".format("nu"))
+        url = reverse("member_profile", kwargs={"targetUsername": "nu"})
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "nu@email.com")
@@ -935,7 +975,7 @@ class TestAdminFunctions(TestCase):
         """
         Test adding users with different statuses (Resident, Boarder, Alumni).
         """
-        url = "/custom_admin/add_user/"
+        url = reverse("custom_add_user")
 
         for status, title in UserProfile.STATUS_CHOICES:
             response = self.client.post(url, {
@@ -955,7 +995,8 @@ class TestAdminFunctions(TestCase):
                 MESSAGES['USER_ADDED'].format(username="nu"),
                 )
 
-            response = self.client.get("/profile/{0}/".format("nu"))
+            url = reverse("member_profile", kwargs={"targetUsername": "nu"})
+            response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, title)
 
@@ -1101,7 +1142,8 @@ class TestSearch(TestCase):
         self.client.login(username="u", password="pwd")
 
     def test_search_view(self):
-        response = self.client.get("/search/")
+        url = reverse("haystack_search")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Search")
 

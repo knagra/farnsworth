@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.timezone import utc
 
@@ -33,29 +34,33 @@ class TestStart(TestCase):
 
     def test_unauthenticated(self):
         self.client.logout()
-        response = self.client.get("/workshift/", follow=True)
-        self.assertRedirects(response, "/login/?next=/workshift/")
+        url = reverse("workshift:view_semester")
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, reverse("login") + "?next=" + url)
 
     def test_before(self):
-        response = self.client.get("/workshift/", follow=True)
-        self.assertRedirects(response, "/workshift/start/")
+        url = reverse("workshift:view_semester")
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, reverse("workshift:start_semester"))
 
         self.client.logout()
         self.assertTrue(self.client.login(username="u", password="pwd"))
 
-        response = self.client.get("/workshift/", follow=True)
-        self.assertRedirects(response, "/")
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, reverse("homepage"))
 
     def test_start(self):
-        response = self.client.post("/workshift/start/", {
+        url = reverse("workshift:start_semester")
+        response = self.client.post(url, {
             "season": Semester.SUMMER,
             "year": 2014,
             "rate": 13.30,
             "policy": "http://bsc.coop",
-            "start_date": "05/22/2014",
-            "end_date": "08/15/2014",
+            "start_date": date(2014, 5, 22),
+            "end_date": date(2014, 8, 15),
         }, follow=True)
-        self.assertRedirects(response, "/workshift/manage/")
+
+        self.assertRedirects(response, reverse("workshift:manage"))
 
         self.assertEqual(
             1,
@@ -156,7 +161,7 @@ class TestUtils(TestCase):
         self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
 
     def test_starting_month(self):
-        # Starting in Summer / Fall / Spring
+        # Starting in Summer, Fall, and Spring
         self.assertEqual(
             (2015, Semester.SPRING),
             utils.get_year_season(day=date(2014, 12, 20)),
@@ -487,54 +492,57 @@ class TestViews(TestCase):
         self.client.login(username='u', password='pwd')
 
         urls = [
-            "/types/",
-            "/type/{0}/".format(self.wtype.pk),
-            "/",
-            "/profile/{0}/".format(self.wprofile.user.username),
-            "/shift/{0}/".format(self.shift.pk),
-            "/instance/{0}/".format(self.instance.pk),
-            "/instance/{0}/".format(self.once.pk),
+            reverse("workshift:list_types"),
+            reverse("workshift:view_type", kwargs={"pk": self.wtype.pk}),
+            reverse("workshift:view_semester"),
+            reverse("workshift:profile", kwargs={"targetUsername": self.wprofile.user.username}),
+            reverse("workshift:view_shift", kwargs={"pk": self.shift.pk}),
+            reverse("workshift:view_instance", kwargs={"pk": self.instance.pk}),
+            reverse("workshift:view_instance", kwargs={"pk": self.once.pk}),
             ]
         for url in urls:
-            response = self.client.get("/workshift" + url)
+            response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
     def test_views_load(self):
         urls = [
-            "/start/",
-            "/types/",
-            "/type/{0}/".format(self.wtype.pk),
-            "/type/{0}/edit/".format(self.wtype.pk),
+            reverse("workshift:start_semester"),
+            reverse("workshift:list_types"),
+            reverse("workshift:view_type", kwargs={"pk": self.wtype.pk}),
+            reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk}),
             ]
         for url in urls:
-            response = self.client.get("/workshift" + url)
+            response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
         urls = [
-            "/",
-            "/profile/{0}/".format(self.wprofile.user.username),
-            "/profile/{0}/preferences/".format(self.wprofile.user.username),
-            "/manage/",
-            "/manage/assign_shifts/",
-            "/manage/add_shift/",
-            "/manage/add_workshifter/",
-            "/shift/{0}/".format(self.shift.pk),
-            "/shift/{0}/edit/".format(self.shift.pk),
-            "/instance/{0}/".format(self.instance.pk),
-            "/instance/{0}/edit/".format(self.instance.pk),
-            "/instance/{0}/".format(self.once.pk),
-            "/instance/{0}/edit/".format(self.once.pk),
+            ("workshift:view_semester", {}),
+            ("workshift:profile", {"targetUsername": self.wprofile.user.username}),
+            ("workshift:preferences", {"targetUsername": self.wprofile.user.username}),
+            ("workshift:manage", {}),
+            ("workshift:assign_shifts", {}),
+            ("workshift:add_shift", {}),
+            ("workshift:add_workshifter", {}),
+            ("workshift:view_shift", {"pk": self.shift.pk}),
+            ("workshift:edit_shift", {"pk": self.shift.pk}),
+            ("workshift:view_instance", {"pk": self.instance.pk}),
+            ("workshift:edit_instance", {"pk": self.instance.pk}),
+            ("workshift:view_instance", {"pk": self.once.pk}),
+            ("workshift:edit_instance", {"pk": self.once.pk}),
             ]
-        for url in urls:
-            response = self.client.get("/workshift" + url)
+        for name, kwargs in urls:
+            url = reverse(name, kwargs=kwargs)
+            response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
-            prefix = "/workshift/{0}{1}".format(self.sem.season, self.sem.year)
-            response = self.client.get(prefix + url)
+            kwargs["sem_url"] = "{0}{1}".format(self.sem.season, self.sem.year)
+            url = reverse(name, kwargs=kwargs)
+            response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
     def test_type_list(self):
-        response = self.client.get("/workshift/types/")
+        url = reverse("workshift:list_types")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
         self.assertContains(response, str(self.wtype.hours))
@@ -542,7 +550,8 @@ class TestViews(TestCase):
         self.assertNotContains(response, self.wtype.description)
 
     def test_type(self):
-        response = self.client.get("/workshift/type/{0}/".format(self.wtype.pk))
+        url = reverse("workshift:view_type", kwargs={"pk": self.wtype.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
         self.assertContains(response, str(self.wtype.hours))
@@ -550,7 +559,8 @@ class TestViews(TestCase):
         self.assertContains(response, self.wtype.description)
 
     def test_type_edit(self):
-        response = self.client.get("/workshift/type/{0}/edit/".format(self.wtype.pk))
+        url = reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
         self.assertContains(response, str(self.wtype.hours))
@@ -558,7 +568,8 @@ class TestViews(TestCase):
         self.assertContains(response, self.wtype.description)
 
     def test_shift(self):
-        response = self.client.get("/workshift/shift/{0}/".format(self.shift.pk))
+        url = reverse("workshift:view_shift", kwargs={"pk": self.shift.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.shift.title)
         self.assertContains(response, str(self.shift.hours))
@@ -568,7 +579,8 @@ class TestViews(TestCase):
             self.assertContains(response, assignee.user.get_full_name())
 
     def test_edit_shift(self):
-        response = self.client.get("/workshift/shift/{0}/edit/".format(self.shift.pk))
+        url = reverse("workshift:edit_shift", kwargs={"pk": self.shift.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.shift.title)
         self.assertContains(response, str(self.shift.hours))
@@ -576,8 +588,8 @@ class TestViews(TestCase):
             self.assertContains(response, assignee.user.get_full_name())
 
     def test_instance(self):
-        response = self.client.get("/workshift/instance/{0}/"
-                                   .format(self.instance.pk))
+        url = reverse("workshift:view_instance", kwargs={"pk": self.instance.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.instance.weekly_workshift.title)
         self.assertContains(response, self.instance.weekly_workshift.pool.title)
@@ -590,8 +602,8 @@ class TestViews(TestCase):
         self.assertContains(response, self.sle4.note)
 
     def test_edit_instance(self):
-        response = self.client.get("/workshift/instance/{0}/edit/"
-                                   .format(self.instance.pk))
+        url = reverse("workshift:edit_instance", kwargs={"pk": self.instance.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.instance.weekly_workshift.title)
         self.assertContains(response, self.instance.weekly_workshift.pool.title)
@@ -600,7 +612,8 @@ class TestViews(TestCase):
         self.assertContains(response, str(self.instance.hours))
 
     def test_one_time(self):
-        response = self.client.get("/workshift/instance/{0}/".format(self.once.pk))
+        url = reverse("workshift:view_instance", kwargs={"pk": self.once.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.once.title)
         self.assertContains(response, self.once.pool.title)
@@ -614,7 +627,8 @@ class TestViews(TestCase):
         self.assertContains(response, self.sle4.note)
 
     def test_edit_one_time(self):
-        response = self.client.get("/workshift/instance/{0}/edit/".format(self.once.pk))
+        url = reverse("workshift:edit_instance", kwargs={"pk": self.once.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.once.title)
         self.assertContains(response, self.once.pool.title)
@@ -626,14 +640,16 @@ class TestViews(TestCase):
             )
 
     def test_semester_view(self):
-        response = self.client.get("/workshift/")
+        url = reverse("workshift:view_semester")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_semester_no_prev(self):
         today = self.sem.start_date
         yesterday = today - timedelta(days=1)
         tomorrow = today + timedelta(days=1)
-        response = self.client.get("/workshift/?day=" + today.strftime("%F"))
+        url = reverse("workshift:view_semester")
+        response = self.client.get(url + "?day=" + today.strftime("%F"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, today.strftime("%A, %B"))
         self.assertContains(response, today.strftime("%d, %Y"))
@@ -644,7 +660,8 @@ class TestViews(TestCase):
         today = self.sem.end_date
         yesterday = today - timedelta(days=1)
         tomorrow = today + timedelta(days=1)
-        response = self.client.get("/workshift/?day=" + today.strftime("%F"))
+        url = reverse("workshift:view_semester")
+        response = self.client.get(url + "?day=" + today.strftime("%F"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, today.strftime("%A, %B"))
         self.assertContains(response, today.strftime("%d, %Y"))
@@ -702,12 +719,10 @@ class TestPreferences(TestCase):
             )
 
         self.assertTrue(self.client.login(username="wu", password="pwd"))
-        self.url = "/workshift/profile/{0}/preferences/" \
-          .format(self.wprofile.user.username)
+        self.url = reverse("workshift:preferences", kwargs={"targetUsername": self.wprofile.user.username})
 
     def test_preferences_get(self):
-        response = self.client.get("/workshift/profile/{0}/preferences/"
-                                   .format(self.wprofile.user.username))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.w1.title)
         self.assertContains(response, self.w2.title)
@@ -774,8 +789,10 @@ class TestPreferences(TestCase):
             self.assertEqual(block.start_time, start)
             self.assertEqual(block.end_time, end)
 
-        self.assertEqual(WorkshiftProfile.objects.get(user=self.wu).note,
-                         "Dishes are fun, pots are cathartic.")
+        self.assertEqual(
+            "Dishes are fun, pots are cathartic.",
+            WorkshiftProfile.objects.get(user=self.wu).note,
+            )
 
     def test_no_note(self):
         response = self.client.post(self.url, {
@@ -1166,107 +1183,107 @@ class TestPermissions(TestCase):
         self.assertTrue(self.client.login(username="wu", password="pwd"))
 
         urls = [
-            "/start/",
-            "/",
-            "/profile/{0}/".format(self.up.user.username),
-            "/profile/{0}/preferences/".format(self.up.user.username),
-            "/manage/",
-            "/manage/assign_shifts/",
-            "/manage/add_workshifter/",
-            "/manage/add_shift/",
-            "/shift/{0}/edit/".format(self.wshift.pk),
-            "/instance/{0}/edit/".format(self.winstance.pk),
-            "/type/{0}/edit/".format(self.wtype.pk),
-            "/shift/{0}/edit/".format(self.mshift.pk),
-            "/instance/{0}/edit/".format(self.minstance.pk),
-            "/type/{0}/edit/".format(self.mtype.pk),
-        ]
+            reverse("workshift:start_semester"),
+            reverse("workshift:view_semester"),
+            reverse("workshift:profile", kwargs={"targetUsername": self.up.user.username}),
+            reverse("workshift:preferences", kwargs={"targetUsername": self.up.user.username}),
+            reverse("workshift:manage"),
+            reverse("workshift:assign_shifts"),
+            reverse("workshift:add_workshifter"),
+            reverse("workshift:add_shift"),
+            reverse("workshift:edit_shift", kwargs={"pk": self.wshift.pk}),
+            reverse("workshift:edit_instance", kwargs={"pk": self.winstance.pk}),
+            reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk}),
+            reverse("workshift:edit_shift", kwargs={"pk": self.mshift.pk}),
+            reverse("workshift:edit_instance", kwargs={"pk": self.minstance.pk}),
+            reverse("workshift:edit_type", kwargs={"pk": self.mtype.pk}),
+            ]
 
         for url in urls:
-            response = self.client.get("/workshift" + url, follow=True)
+            response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
 
     def test_maintenance_manager(self):
         self.assertTrue(self.client.login(username="mu", password="pwd"))
 
         urls = [
-            (False, "/start/"),
-            (True, "/"),
-            (True, "/profile/{0}/".format(self.up.user.username)),
-            (False, "/profile/{0}/preferences/".format(self.up.user.username)),
-            (True, "/manage/"),
-            (True, "/manage/assign_shifts/"),
-            (False, "/manage/add_workshifter/"),
-            (True, "/manage/add_shift/"),
-            (False, "/shift/{0}/edit/".format(self.wshift.pk)),
-            (False, "/instance/{0}/edit/".format(self.winstance.pk)),
-            (False, "/type/{0}/edit/".format(self.wtype.pk)),
-            (True, "/shift/{0}/edit/".format(self.mshift.pk)),
-            (True, "/instance/{0}/edit/".format(self.minstance.pk)),
-            (True, "/type/{0}/edit/".format(self.mtype.pk)),
-        ]
+            (False, reverse("workshift:start_semester")),
+            (True, reverse("workshift:view_semester")),
+            (True, reverse("workshift:profile", kwargs={"targetUsername": self.up.user.username})),
+            (False, reverse("workshift:preferences", kwargs={"targetUsername": self.up.user.username})),
+            (True, reverse("workshift:manage")),
+            (True, reverse("workshift:assign_shifts")),
+            (False, reverse("workshift:add_workshifter")),
+            (True, reverse("workshift:add_shift")),
+            (False, reverse("workshift:edit_shift", kwargs={"pk": self.wshift.pk})),
+            (False, reverse("workshift:edit_instance", kwargs={"pk": self.winstance.pk})),
+            (False, reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk})),
+            (True, reverse("workshift:edit_shift", kwargs={"pk": self.mshift.pk})),
+            (True, reverse("workshift:edit_instance", kwargs={"pk": self.minstance.pk})),
+            (True, reverse("workshift:edit_type", kwargs={"pk": self.mtype.pk})),
+            ]
         for okay, url in urls:
-            response = self.client.get("/workshift" + url, follow=True)
+            response = self.client.get(url, follow=True)
             if okay:
                 self.assertEqual(response.status_code, 200)
             else:
-                self.assertRedirects(response, "/workshift/")
+                self.assertRedirects(response, reverse("workshift:view_semester"))
                 self.assertContains(response, MESSAGES["ADMINS_ONLY"])
 
     def test_user(self):
         self.assertTrue(self.client.login(username="u", password="pwd"))
 
         urls = [
-            (False, "/start/"),
-            (True, "/"),
-            (True, "/profile/{0}/".format(self.up.user.username)),
-            (True, "/profile/{0}/preferences/".format(self.up.user.username)),
-            (False, "/manage/"),
-            (False, "/manage/assign_shifts/"),
-            (False, "/manage/add_workshifter/"),
-            (False, "/manage/add_shift/"),
-            (False, "/shift/{0}/edit/".format(self.wshift.pk)),
-            (False, "/instance/{0}/edit/".format(self.winstance.pk)),
-            (False, "/type/{0}/edit/".format(self.wtype.pk)),
-            (False, "/shift/{0}/edit/".format(self.mshift.pk)),
-            (False, "/instance/{0}/edit/".format(self.minstance.pk)),
-            (False, "/type/{0}/edit/".format(self.mtype.pk)),
-        ]
+            (False, reverse("workshift:start_semester")),
+            (True, reverse("workshift:view_semester")),
+            (True, reverse("workshift:profile", kwargs={"targetUsername": self.up.user.username})),
+            (True, reverse("workshift:preferences", kwargs={"targetUsername": self.up.user.username})),
+            (False, reverse("workshift:manage")),
+            (False, reverse("workshift:assign_shifts")),
+            (False, reverse("workshift:add_workshifter")),
+            (False, reverse("workshift:add_shift")),
+            (False, reverse("workshift:edit_shift", kwargs={"pk": self.wshift.pk})),
+            (False, reverse("workshift:edit_instance", kwargs={"pk": self.winstance.pk})),
+            (False, reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk})),
+            (False, reverse("workshift:edit_shift", kwargs={"pk": self.mshift.pk})),
+            (False, reverse("workshift:edit_instance", kwargs={"pk": self.minstance.pk})),
+            (False, reverse("workshift:edit_type", kwargs={"pk": self.mtype.pk})),
+            ]
 
         for okay, url in urls:
-            response = self.client.get("/workshift" + url, follow=True)
+            response = self.client.get(url, follow=True)
             if okay:
                 self.assertEqual(response.status_code, 200)
             else:
-                self.assertRedirects(response, "/workshift/")
+                self.assertRedirects(response, reverse("workshift:view_semester"))
                 self.assertContains(response, MESSAGES["ADMINS_ONLY"])
 
     def test_other_user(self):
         self.assertTrue(self.client.login(username="ou", password="pwd"))
 
         urls = [
-            (False, "/start/"),
-            (True, "/"),
-            (True, "/profile/{0}/".format(self.up.user.username)),
-            (False, "/profile/{0}/preferences/".format(self.up.user.username)),
-            (False, "/manage/"),
-            (False, "/manage/assign_shifts/"),
-            (False, "/manage/add_workshifter/"),
-            (False, "/manage/add_shift/"),
-            (False, "/shift/{0}/edit/".format(self.wshift.pk)),
-            (False, "/instance/{0}/edit/".format(self.winstance.pk)),
-            (False, "/type/{0}/edit/".format(self.wtype.pk)),
-            (False, "/shift/{0}/edit/".format(self.mshift.pk)),
-            (False, "/instance/{0}/edit/".format(self.minstance.pk)),
-            (False, "/type/{0}/edit/".format(self.mtype.pk)),
+            (False, reverse("workshift:start_semester")),
+            (True, reverse("workshift:view_semester")),
+            (True, reverse("workshift:profile", kwargs={"targetUsername": self.up.user.username})),
+            (False, reverse("workshift:preferences", kwargs={"targetUsername": self.up.user.username})),
+            (False, reverse("workshift:manage")),
+            (False, reverse("workshift:assign_shifts")),
+            (False, reverse("workshift:add_workshifter")),
+            (False, reverse("workshift:add_shift")),
+            (False, reverse("workshift:edit_shift", kwargs={"pk": self.wshift.pk})),
+            (False, reverse("workshift:edit_instance", kwargs={"pk": self.winstance.pk})),
+            (False, reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk})),
+            (False, reverse("workshift:edit_shift", kwargs={"pk": self.mshift.pk})),
+            (False, reverse("workshift:edit_instance", kwargs={"pk": self.minstance.pk})),
+            (False, reverse("workshift:edit_type", kwargs={"pk": self.mtype.pk})),
         ]
 
         for okay, url in urls:
-            response = self.client.get("/workshift" + url, follow=True)
+            response = self.client.get(url, follow=True)
             if okay:
                 self.assertEqual(response.status_code, 200)
             else:
-                self.assertRedirects(response, "/workshift/")
+                self.assertRedirects(response, reverse("workshift:view_semester"))
                 self.assertContains(response, MESSAGES["ADMINS_ONLY"])
 
 class TestWorkshifters(TestCase):
@@ -1341,16 +1358,17 @@ class TestWorkshifts(TestCase):
         self.client.login(username="wu", password="pwd")
 
     def test_add_instance(self):
-        url = "/workshift/manage/add_shift/"
+        url = reverse("workshift:add_shift")
         response = self.client.post(url, {
             "add_instance": "",
             "weekly_workshift": self.shift.pk,
-            "date": "05/27/2014",
+            "date": date(2014, 5, 27),
             "workshifter": self.wp.pk,
             "closed": False,
             "hours": 2,
             }, follow=True)
-        self.assertRedirects(response, "/workshift/manage/")
+
+        self.assertRedirects(response, reverse("workshift:manage"))
         instance = WorkshiftInstance.objects.get(pk=self.once.pk + 1)
         self.assertEqual(self.shift, instance.weekly_workshift)
         self.assertEqual(None, instance.info)
@@ -1362,7 +1380,7 @@ class TestWorkshifts(TestCase):
         self.assertEqual(False, instance.week_long)
 
     def test_edit_instance(self):
-        url = "/workshift/instance/{0}/edit/".format(self.instance.pk)
+        url = reverse("workshift:edit_instance", kwargs={"pk": self.instance.pk})
         response = self.client.post(url, {
             "edit": "",
             "weekly_workshift": self.instance.weekly_workshift.pk,
@@ -1371,14 +1389,16 @@ class TestWorkshifts(TestCase):
             "pool": self.instance.pool.pk,
             "start_time": self.instance.start_time.strftime("%I:%M %p"),
             "end_time": self.instance.end_time.strftime("%I:%M %p"),
-            "date": "05/27/2014",
+            "date": date(2014, 5, 27),
             "workshifter": self.wp.pk,
             "closed": False,
             "hours": 2,
             "verify": self.instance.verify,
             "week_long": self.instance.week_long,
             }, follow=True)
-        self.assertRedirects(response, "/workshift/instance/{0}/".format(self.instance.pk))
+
+        url = reverse("workshift:view_instance", kwargs={"pk": self.instance.pk})
+        self.assertRedirects(response, url)
         self.assertEqual(1, InstanceInfo.objects.count())
         instance = WorkshiftInstance.objects.get(pk=self.instance.pk)
         self.assertEqual(self.instance.weekly_workshift, instance.weekly_workshift)
@@ -1395,7 +1415,7 @@ class TestWorkshifts(TestCase):
         self.assertEqual(self.instance.week_long, instance.week_long)
 
     def test_edit_instance_full(self):
-        url = "/workshift/instance/{0}/edit/".format(self.instance.pk)
+        url = reverse("workshift:edit_instance", kwargs={"pk": self.instance.pk})
         response = self.client.post(url, {
             "edit": "",
             "title": "Edit Instance Title",
@@ -1403,19 +1423,24 @@ class TestWorkshifts(TestCase):
             "pool": self.instance.pool.pk,
             "start_time": "2:00 PM",
             "end_time": "4:00 PM",
-            "date": "05/27/2014",
+            "date": date(2014, 5, 27),
             "workshifter": self.wp.pk,
             "closed": False,
             "hours": 2,
             "verify": SELF_VERIFY,
             "week_long": False,
             }, follow=True)
-        self.assertRedirects(response, "/workshift/instance/{0}/".format(self.instance.pk))
+
+        url = reverse("workshift:view_instance", kwargs={"pk": self.instance.pk})
+        self.assertRedirects(response, url)
         self.assertEqual(InstanceInfo.objects.count(), 2)
         instance = WorkshiftInstance.objects.get(pk=self.instance.pk)
         self.assertEqual(instance.weekly_workshift, None)
         self.assertEqual(instance.title, "Edit Instance Title")
-        self.assertEqual(instance.description, "I once was from a long line of workshifts")
+        self.assertEqual(
+            "I once was from a long line of workshifts",
+            instance.description,
+            )
         self.assertEqual(instance.pool, self.pool)
         self.assertEqual(instance.start_time, time(14, 0, 0))
         self.assertEqual(instance.end_time, time(16, 0, 0))
@@ -1427,11 +1452,12 @@ class TestWorkshifts(TestCase):
         self.assertEqual(instance.week_long, False)
 
     def test_delete_instance(self):
-        url = "/workshift/instance/{0}/edit/".format(self.instance.pk)
+        url = reverse("workshift:edit_instance", kwargs={"pk": self.instance.pk})
         response = self.client.post(url, {
             "delete": "",
             }, follow=True)
-        self.assertRedirects(response, "/workshift/manage/")
+
+        self.assertRedirects(response, reverse("workshift:manage"))
         self.assertEqual(
             1,
             WorkshiftType.objects.filter(pk=self.type.pk).count(),
@@ -1450,7 +1476,7 @@ class TestWorkshifts(TestCase):
             )
 
     def test_add_once(self):
-        url = "/workshift/manage/add_shift/"
+        url = reverse("workshift:add_shift")
         response = self.client.post(url, {
             "add_instance": "",
             "title": "Add Instance Title",
@@ -1458,14 +1484,15 @@ class TestWorkshifts(TestCase):
             "pool": self.pool.pk,
             "start_time": "6:00 PM",
             "end_time": "8:00 PM",
-            "date": "05/27/2014",
+            "date": date(2014, 5, 27),
             "workshifter": self.wp.pk,
             "closed": False,
             "hours": 2,
             "verify": WORKSHIFT_MANAGER_VERIFY,
             "week_long": False,
             }, follow=True)
-        self.assertRedirects(response, "/workshift/manage/")
+
+        self.assertRedirects(response, reverse("workshift:manage"))
         instance = WorkshiftInstance.objects.get(pk=self.once.pk + 1)
         self.assertEqual("Add Instance Title", instance.title)
         self.assertEqual("Add Instance Description", instance.description)
@@ -1480,7 +1507,7 @@ class TestWorkshifts(TestCase):
         self.assertEqual(False, instance.week_long)
 
     def test_edit_once(self):
-        url = "/workshift/instance/{0}/edit/".format(self.once.pk)
+        url = reverse("workshift:edit_instance", kwargs={"pk": self.once.pk})
         response = self.client.post(url, {
             "edit": "",
             "title": "Edit Instance Title",
@@ -1488,14 +1515,16 @@ class TestWorkshifts(TestCase):
             "pool": self.instance.pool.pk,
             "start_time": "2:00 PM",
             "end_time": "4:00 PM",
-            "date": "05/27/2014",
+            "date": date(2014, 5, 27),
             "workshifter": self.wp.pk,
             "closed": False,
             "hours": 2,
             "verify": OTHER_VERIFY,
             "week_long": False,
             }, follow=True)
-        self.assertRedirects(response, "/workshift/instance/{0}/".format(self.once.pk))
+
+        url = reverse("workshift:view_instance", kwargs={"pk": self.once.pk})
+        self.assertRedirects(response, url)
         self.assertEqual(1, InstanceInfo.objects.count())
         instance = WorkshiftInstance.objects.get(pk=self.once.pk)
         self.assertEqual(None, instance.weekly_workshift)
@@ -1515,11 +1544,12 @@ class TestWorkshifts(TestCase):
         self.assertEqual(False, instance.week_long)
 
     def test_delete_once(self):
-        url = "/workshift/instance/{0}/edit/".format(self.once.pk)
+        url = reverse("workshift:edit_instance", kwargs={"pk": self.once.pk})
         response = self.client.post(url, {
             "delete": "",
             }, follow=True)
-        self.assertRedirects(response, "/workshift/manage/")
+
+        self.assertRedirects(response, reverse("workshift:manage"))
         self.assertEqual(
             1,
             WorkshiftType.objects.filter(pk=self.type.pk).count(),
@@ -1538,7 +1568,7 @@ class TestWorkshifts(TestCase):
             )
 
     def test_add_shift(self):
-        url = "/workshift/manage/add_shift/"
+        url = reverse("workshift:add_shift")
         response = self.client.post(url, {
             "add_shift": "",
             "workshift_type": self.type.pk,
@@ -1555,7 +1585,8 @@ class TestWorkshifts(TestCase):
             "week_long": False,
             "addendum": "IKC needs no addendum.",
             }, follow=True)
-        self.assertRedirects(response, "/workshift/manage/")
+
+        self.assertRedirects(response, reverse("workshift:manage"))
         shift = RegularWorkshift.objects.get(pk=self.shift.pk + 1)
         self.assertEqual(shift.workshift_type, self.type)
         self.assertEqual(shift.pool, self.pool)
@@ -1575,7 +1606,7 @@ class TestWorkshifts(TestCase):
         self.assertEqual(shift.addendum, "IKC needs no addendum.")
 
     def test_edit_shift(self):
-        url = "/workshift/shift/{0}/edit/".format(self.shift.pk)
+        url = reverse("workshift:edit_shift", kwargs={"pk": self.shift.pk})
         response = self.client.post(url, {
             "edit": "",
             "workshift_type": self.type.pk,
@@ -1592,7 +1623,10 @@ class TestWorkshifts(TestCase):
             "week_long": True,
             "addendum": "Edited addendum",
             }, follow=True)
-        self.assertRedirects(response, "/workshift/shift/{0}/".format(self.shift.pk))
+
+        url = reverse("workshift:view_shift", kwargs={"pk": self.shift.pk})
+        self.assertRedirects(response, url)
+
         shift = RegularWorkshift.objects.get(pk=self.shift.pk)
         self.assertEqual(self.type, shift.workshift_type)
         self.assertEqual(self.pool, shift.pool)
@@ -1612,19 +1646,29 @@ class TestWorkshifts(TestCase):
         self.assertEqual("Edited addendum", shift.addendum)
 
     def test_delete_shift(self):
-        url = "/workshift/shift/{0}/edit/".format(self.shift.pk)
+        url = reverse("workshift:edit_shift", kwargs={"pk": self.shift.pk})
         response = self.client.post(url, {
             "delete": "",
             }, follow=True)
-        self.assertRedirects(response, "/workshift/manage/")
-        self.assertEqual(WorkshiftType.objects.filter(pk=self.type.pk).count(),
-                         1)
-        self.assertEqual(RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
-                         0)
-        self.assertEqual(WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
-                         1)
-        self.assertEqual(WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
-                         1)
+
+        self.assertRedirects(response, reverse("workshift:manage"))
+        self.assertEqual(
+            1,
+            WorkshiftType.objects.filter(pk=self.type.pk).count(),
+            )
+        self.assertEqual(
+            0,
+            RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
+            )
+        self.assertEqual(
+            1,
+            WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
+            )
+        self.assertEqual(
+            1,
+            WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
+            )
+
         instance = WorkshiftInstance.objects.get(pk=self.instance.pk)
         self.assertEqual(instance.closed, True)
         self.assertEqual(instance.weekly_workshift, None)
@@ -1635,7 +1679,7 @@ class TestWorkshifts(TestCase):
         self.assertEqual(instance.end_time, self.shift.end_time)
 
     def test_add_type(self):
-        url = "/workshift/manage/add_shift/"
+        url = reverse("workshift:add_shift")
         response = self.client.post(url, {
             "add_type": "",
             "title": "Added Title",
@@ -1644,7 +1688,7 @@ class TestWorkshifts(TestCase):
             "hours": 42,
             "rateable": True,
             }, follow=True)
-        self.assertRedirects(response, "/workshift/manage/")
+        self.assertRedirects(response, reverse("workshift:manage"))
         shift_type = WorkshiftType.objects.get(title="Added Title")
         self.assertEqual(shift_type.title, "Added Title")
         self.assertEqual(shift_type.description, "Added Description")
@@ -1653,7 +1697,7 @@ class TestWorkshifts(TestCase):
         self.assertEqual(shift_type.rateable, True)
 
     def test_edit_type(self):
-        url = "/workshift/type/{0}/edit/".format(self.type.pk)
+        url = reverse("workshift:edit_type", kwargs={"pk": self.type.pk})
         response = self.client.post(url, {
             "title": "Edited Title",
             "description": "Edited Description",
@@ -1661,7 +1705,9 @@ class TestWorkshifts(TestCase):
             "hours": 42,
             "rateable": False,
             }, follow=True)
-        self.assertRedirects(response, "/workshift/type/{0}/".format(self.type.pk))
+
+        url = reverse("workshift:view_type", kwargs={"pk": self.type.pk})
+        self.assertRedirects(response, url)
         shift_type = WorkshiftType.objects.get(pk=self.type.pk)
         self.assertEqual(shift_type.title, "Edited Title")
         self.assertEqual(shift_type.description, "Edited Description")
@@ -1700,8 +1746,9 @@ class TestSemester(TestCase):
         self.s1.current = False
         self.s1.save()
 
-        response = self.client.get("/workshift/", follow=True)
-        self.assertRedirects(response, "/workshift/start/")
+        url = reverse("workshift:view_semester")
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, reverse("workshift:start_semester"))
 
     def test_multiple_current(self):
         self.s2.current = True
@@ -1709,7 +1756,10 @@ class TestSemester(TestCase):
 
         workshift_emails_str = ""
 
-        response = self.client.get("/workshift/")
+        url = reverse("workshift:view_semester")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(
@@ -1725,7 +1775,10 @@ class TestSemester(TestCase):
 
         workshift_emails_str = ' (<a href="mailto:{0}">{0}</a>)'.format(self.wm.email)
 
-        response = self.client.get("/workshift/")
+        url = reverse("workshift:view_semester")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(
@@ -1743,7 +1796,10 @@ class TestSemester(TestCase):
 
         workshift_emails_str = ' (<a href="mailto:{0}">{0}</a>)'.format(self.wu.email)
 
-        response = self.client.get("/workshift/")
+        url = reverse("workshift:view_semester")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(

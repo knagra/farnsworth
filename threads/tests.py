@@ -38,11 +38,11 @@ class VerifyThread(TestCase):
 
     def test_thread_created(self):
         urls = [
-            "/",
-            "/threads/",
-            "/threads/{0}/".format(self.thread.pk),
-            "/profile/{0}/threads/".format(self.u.username),
-            "/profile/{0}/messages/".format(self.u.username),
+            reverse("homepage"),
+            reverse("threads:list_all_threads"),
+            reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk}),
+            reverse("threads:list_user_threads", kwargs={"targetUsername": self.u.username}),
+            reverse("threads:list_user_messages", kwargs={"targetUsername": self.u.username}),
             ]
 
         for url in urls:
@@ -75,7 +75,7 @@ class VerifyThread(TestCase):
 
     def test_bad_thread(self):
         urls = [
-            "/threads/",
+            reverse("threads:list_all_threads"),
             ]
         subject = "Thread Subject Test"
         body = "Thread Body Test"
@@ -97,7 +97,7 @@ class VerifyThread(TestCase):
 
     def test_post_reply(self):
         urls = [
-            "/threads/{0}/".format(self.thread.pk),
+            reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk}),
             ]
         body = "Reply Body Test"
         for url in urls:
@@ -123,12 +123,13 @@ class VerifyThread(TestCase):
 
     def test_bad_reply(self):
         urls = [
-            "/threads/{0}/".format(self.thread.pk),
+            reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk}),
             ]
         body = "Reply Body Test"
         for url in urls:
             response = self.client.post(url, {
-                "add-message-body": "",
+                "add_message": "",
+                "body": "",
                 })
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, MESSAGES['MESSAGE_ERROR'])
