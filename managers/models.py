@@ -154,7 +154,7 @@ class Request(models.Model):
         help_text="The date this request was posted.",
         )
     change_date = models.DateTimeField(
-        auto_now_add=True,
+        auto_now=True,
         help_text="The last time this request was modified.",
         )
     request_type = models.ForeignKey(

@@ -4,10 +4,7 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from datetime import datetime
-
 from django import forms
-from django.utils.timezone import utc
 
 from threads.models import Thread, Message
 
@@ -52,7 +49,6 @@ class MessageForm(forms.ModelForm):
         message.save()
 
         self.thread.number_of_messages += 1
-        self.thread.change_date = datetime.utcnow().replace(tzinfo=utc)
         self.thread.save()
 
         return message

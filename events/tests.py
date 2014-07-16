@@ -1,17 +1,18 @@
 """
 This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
 """
 
-from datetime import date, time, datetime, timedelta
+from datetime import timedelta
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import QueryDict
 from django.test import TestCase
-from django.utils.timezone import utc, now
+from django.utils.timezone import now, utc
+
+import pytz
 
 from utils.variables import time_formats, MESSAGES
 from base.models import UserProfile
@@ -29,7 +30,7 @@ class TestEvent(TestCase):
         self.su.save()
 
         self.profile = UserProfile.objects.get(user=self.u)
-        start = datetime.combine(date.today(), time(12, 0, 0, 0, utc))
+        start = now().replace(second=0, microsecond=0)
         one_day = timedelta(days=1)
 
         self.ev = Event.objects.create(
@@ -95,12 +96,19 @@ class TestEvent(TestCase):
             self.assertEqual(0, self.ev.rsvps.count())
 
     def test_edit(self):
+        if settings.USE_TZ:
+            tz = pytz.timezone(settings.TIME_ZONE)
+            start = tz.normalize(self.ev.start_time)
+            end = tz.normalize(self.ev.end_time)
+        else:
+            start = self.ev.start_time
+            end = self.ev.end_time
         response = self.client.post("/events/{0}/edit/".format(self.ev.pk), {
             "title": "New Title Test",
             "description": self.ev.description,
             "location": self.ev.location,
-            "start_time": (self.ev.start_time).strftime(time_formats[0]),
-            "end_time": self.ev.end_time.strftime(time_formats[0]),
+            "start_time": start.strftime(time_formats[0]),
+            "end_time": end.strftime(time_formats[0]),
             "as_manager": self.m.pk,
             "cancelled": "on",
             }, follow=True)
@@ -122,18 +130,27 @@ class TestEvent(TestCase):
         self.assertEqual(event.as_manager, self.m)
 
     def test_add_event(self):
+        if settings.USE_TZ:
+            tz = pytz.timezone(settings.TIME_ZONE)
+            start = tz.normalize(self.ev.start_time)
+            end = tz.normalize(self.ev.end_time)
+        else:
+            start = self.ev.start_time
+            end = self.ev.end_time
+
         urls = [
             "/events/",
             "/events/all/",
             ]
+
         for url in urls:
             response = self.client.post(url, {
                 "post_event": "",
                 "title": "New Event Title",
                 "description": "New Description",
                 "location": "New Location Hall",
-                "start_time": self.ev.start_time.strftime(time_formats[0]),
-                "end_time": self.ev.end_time.strftime(time_formats[0]),
+                "start_time": start.strftime(time_formats[0]),
+                "end_time": end.strftime(time_formats[0]),
                 "as_manager": self.m.pk,
                 }, follow=True)
             self.assertRedirects(response, url)

@@ -3,11 +3,10 @@ Project: Farnsworth
 
 Author: Karandeep Singh Nagra
 '''
-from datetime import datetime
 
 from django import forms
 from django.conf import settings
-from django.utils.timezone import utc
+from django.utils.timezone import now
 
 from utils.variables import time_formats, ANONYMOUS_USERNAME, MESSAGES
 from managers.models import Manager
@@ -132,8 +131,7 @@ class RsvpForm(forms.Form):
         super(RsvpForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        now = datetime.utcnow().replace(tzinfo=utc)
-        if self.instance.end_time <= now:
+        if self.instance.end_time <= now():
             raise forms.ValidationError(MESSAGES['ALREADY_PAST'])
         return self.cleaned_data
 

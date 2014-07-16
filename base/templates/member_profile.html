@@ -28,23 +28,28 @@
     <dd>{{ targetUser.get_full_name }}</dd>
     <dt>Status</dt>
     <dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ targetProfile.get_status_display }}{% endif %}</dd>
-    {% if not targetUser.username == ANONYMOUS_USERNAME %}
-	  <dt>Current Room</dt>
-	  <dd>
-		{% if targetProfile.current_room %}
-		<a href="{% url 'rooms:view' room_title=targetProfile.current_room.title %}">{{ targetProfile.current_room.title }}</a>
-		{% else %}&nbsp;{% endif %}
-	  </dd>
-	  <dt>Former Rooms</dt>
-	  <dd>
-		{% if targetProfile.former_rooms.all %}
-		{% for room in targetProfile.former_rooms.all %}
-		<a href="{% url 'rooms:view' room_title=room.title %}">{{ room.title }}</a>
-		{% endfor %}
-		{% else %}&nbsp;{% endif %}
-	  </dd>
+	{% if not targetUser.username == ANONYMOUS_USERNAME %}
+	<dt>Current Room</dt>
+	<dd>
+      {% if room %}
+	  <a href="{% url 'rooms:view' room_title=room.title %}">{{ room.title }}</a>
+	  {% else %}
+	  &nbsp;
+	  {% endif %}
+	</dd>
+	<dt>Former Rooms</dt>
+	<dd>
+	  {% if prev_rooms %}
+	  {% for prev_res in prev_rooms %}
+	  {% if not forloop.first %}, {% endif %}<a href="{% url 'rooms:view' room_title=prev_res.room.title %}">{{ room.title }}</a>{% endfor %}
+	  {% else %}
+	  &nbps;
+	  {% endif %}
+	</dd>
+	{% if targetProfile.former_houses %}
     <dt>Other Houses</dt>
-    <dd>{% if targetProfile.former_houses %}{{ targetProfile.former_houses }}{% else %}&nbsp;{% endif %}</dd>
+    <dd>{{ targetProfile.former_houses }}</dd>
+	{% endif %}
     {% if targetProfile.email_visible %}
     <dt>E-mail</dt>
     <dd><a class="page_link" title="Write E-mail" href="mailto:{{ targetUser.email }}">{{ targetUser.email }}</a></dd>
@@ -58,7 +63,9 @@
     <dt>Messages Posted</dt>
     <dd>{% if number_of_messages > 0 %}<a class="page_link" title="See Messages" href="{% url 'threads:list_user_messages' targetUsername=targetUser.username %}">{{ number_of_messages }}</a>{% else %}{{ number_of_messages }}{% endif %}</dd>
     <dt>Requests Posted</dt>
-    <dd>{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'managers:list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}</dd>
+    <dd>
+	  {% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'managers:list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}
+	</dd>
     {% endif %}
   </dl>
   <hr>

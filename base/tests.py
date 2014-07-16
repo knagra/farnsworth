@@ -3,13 +3,13 @@ This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
 """
 
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.utils.timezone import utc
+from django.utils.timezone import now
 
 from django.core.management import call_command
 import haystack
@@ -20,7 +20,7 @@ from base.models import UserProfile, ProfileRequest
 from threads.models import Thread, Message
 from managers.models import Manager, Announcement, RequestType, Request, Response
 from events.models import Event
-from rooms.models import Room
+from rooms.models import Room, PreviousResident
 
 class TestLogin(TestCase):
     def setUp(self):
@@ -117,13 +117,13 @@ class TestHomepage(TestCase):
             request_type=self.rt,
             )
 
-        now = datetime.utcnow().replace(tzinfo=utc)
+        start = now().replace(second=0, microsecond=0)
         one_day = timedelta(days=1)
         self.ev = Event.objects.create(
             owner=self.profile,
             title="Event Title Test",
-            start_time=now,
-            end_time=now + one_day,
+            start_time=start,
+            end_time=start + one_day,
             )
 
         self.announce = Announcement.objects.create(
@@ -650,30 +650,41 @@ class TestProfilePages(TestCase):
         self.u = User.objects.create_user(username="u", email="u@email.com", password="pwd")
         self.ou = User.objects.create_user(username="ou", email="ou@email.com")
 
-        self.r = Room.objects.create(title="2E")
-        self.fr = Room.objects.create(title="1A")
-
         self.profile = UserProfile.objects.get(user=self.u)
-        self.profile.current_room = self.r
         self.profile.former_houses = "Test House, Test Houser, Test Housest"
         self.profile.phone_number = "+15101111111"
         self.profile.email_visible = False
         self.profile.phone_visible = False
         self.profile.status = UserProfile.RESIDENT
         self.profile.save()
-        self.profile.former_rooms = [self.fr]
-        self.profile.save()
 
         self.oprofile = UserProfile.objects.get(user=self.ou)
-        self.oprofile.current_room = self.r
         self.oprofile.former_houses = "Other Test House, Test Houser, Test Housest"
         self.oprofile.phone_number = "+15102222222"
         self.oprofile.email_visible = False
         self.oprofile.phone_visible = False
         self.oprofile.status = UserProfile.RESIDENT
         self.oprofile.save()
-        self.oprofile.former_rooms = [self.fr]
-        self.oprofile.save()
+
+        self.r = Room.objects.create(title="2E",)
+        self.r.current_residents = [self.profile, self.oprofile]
+        self.r.save()
+
+        self.fr = Room.objects.create(title="1A")
+
+        PreviousResident.objects.create(
+            room=self.fr,
+            resident=self.profile,
+            start_date=date.today(),
+            end_date=date.today(),
+            )
+
+        PreviousResident.objects.create(
+            room=self.fr,
+            resident=self.oprofile,
+            start_date=date.today(),
+            end_date=date.today(),
+            )
 
         self.client.login(username="u", password="pwd")
 
@@ -684,9 +695,6 @@ class TestProfilePages(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Update Your Profile")
         self.assertContains(response, self.u.email)
-        self.assertContains(response, self.profile.current_room.title)
-        for room in self.profile.former_rooms.all():
-            self.assertContains(response, room.title)
         self.assertContains(response, self.profile.former_houses)
         self.assertContains(response, self.profile.phone_number)
 
@@ -703,9 +711,9 @@ class TestProfilePages(TestCase):
         self.assertNotContains(response, self.ou.email)
         self.assertContains(response, self.ou.get_full_name())
         self.assertContains(response, UserProfile.STATUS_CHOICES[0][1])
-        self.assertContains(response, self.oprofile.current_room.title)
-        for room in self.oprofile.former_rooms.all():
-            self.assertContains(response, room.title)
+        self.assertContains(response, self.r.title)
+        for prev_res in PreviousResident.objects.all():
+            self.assertContains(response, prev_res.room.title)
         self.assertContains(response, self.oprofile.former_houses)
         self.assertNotContains(response, self.oprofile.phone_number)
         self.assertContains(response, "Threads Started")

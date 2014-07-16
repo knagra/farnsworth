@@ -4,11 +4,8 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from datetime import datetime
-
 from django import forms
 from django.conf import settings
-from django.utils.timezone import utc
 
 from utils.funcs import convert_to_url, verify_url
 from managers.models import Manager, Announcement, RequestType, Request, Response
@@ -119,7 +116,6 @@ class ResponseForm(forms.ModelForm):
         response.request = self.request
         response.save()
 
-        response.request.change_date = datetime.utcnow().replace(tzinfo=utc)
         response.request.number_of_responses += 1
         response.request.save()
 

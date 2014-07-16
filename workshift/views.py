@@ -6,9 +6,9 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 
 from __future__ import division, absolute_import
 
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
-from django.utils.timezone import utc
+from django.utils.timezone import now
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -36,13 +36,14 @@ def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
     """ Given a workshift pool and a workshift profile,
     return all upcoming, vacant shifts along with sign-in forms
     for the profile in that pool. """
-    now = datetime.utcnow().replace(tzinfo=utc)
     upcoming_shifts = list()
-    for shift in WorkshiftInstance.objects.filter(date__gte=now.date(),
-                                                    closed=False,
-                                                    blown=False,
-                                                    workshifter=None,
-                                                    liable=None):
+    for shift in WorkshiftInstance.objects.filter(
+            date__gte=now().date(),
+            closed=False,
+            blown=False,
+            workshifter=None,
+            liable=None,
+            ):
         if shift.pool == workshift_pool:
             form = SignInForm(initial={"pk": shift.pk,},
                                 profile=workshift_profile)
@@ -105,7 +106,6 @@ def add_workshift_context(request):
                 workshift_emails=workshift_email_str,
                 ))
     workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
-    now = datetime.utcnow().replace(tzinfo=utc)
     days_passed = (date.today() - SEMESTER.start_date).days # number of days passed in this semester
     total_days = (SEMESTER.end_date - SEMESTER.start_date).days # total number of days in this semester
     semester_percent = round((days_passed / total_days) * 100, 2)
@@ -125,7 +125,7 @@ def add_workshift_context(request):
         (shift.date == date.today() and
          not shift.start_time or
          not shift.end_time or
-         (now.time() > shift.start_time and now.time() < shift.end_time))
+         (now().time() > shift.start_time and now().time() < shift.end_time))
         for shift in upcoming_shifts
         ]
     return {
@@ -193,7 +193,7 @@ def start_semester_view(request):
         "page_name": page_name,
         "semester_form": semester_form,
         "pool_forms": pool_forms,
-    }, context_instance=RequestContext(request))
+        }, context_instance=RequestContext(request))
 
 @get_workshift_profile
 def view_semester(request, semester, profile=None):
@@ -267,7 +267,7 @@ def view_semester(request, semester, profile=None):
                                     for shift in week_shifts]
 
     return render_to_response("semester.html", template_dict,
-                               context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
 
 def _get_forms(profile, instance):
     """

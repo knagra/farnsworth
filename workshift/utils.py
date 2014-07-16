@@ -8,7 +8,8 @@ from collections import defaultdict
 from datetime import date, timedelta, time, datetime
 import random
 
-from django.utils.timezone import utc
+from django.conf import settings
+from django.utils.timezone import now, utc
 
 from weekday_field.utils import ADVANCED_DAY_CHOICES
 
@@ -92,13 +93,13 @@ def _date_range(start, end, step):
         yield day
         day += step
 
-def make_instances(semester, shifts=None, now=None):
+def make_instances(semester, shifts=None, start=None):
     if semester is None:
         semester = Semester.objects.get(current=True)
     if shifts is None:
         shifts = RegularWorkshift.objects.filter(pool__semester=semester)
-    if now is None:
-        now = date.today()
+    if start is None:
+        start = now().date()
     new_instances = []
     for shift in shifts:
         if shift.week_long:
@@ -107,7 +108,7 @@ def make_instances(semester, shifts=None, now=None):
         else:
             days = shift.days
         for weekday in days:
-            next_day = now + timedelta(days=int(weekday) - now.weekday())
+            next_day = start + timedelta(days=int(weekday) - start.weekday())
             for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
                 # Create new instances for the entire semester
                 prev_instances = WorkshiftInstance.objects.filter(
@@ -200,48 +201,45 @@ def make_manager_workshifts(semester=None, managers=None):
     make_instances(semester=semester, shifts=shifts)
     return shifts
 
-def past_verify(instance, now=None):
-    if now is None:
-        now = datetime.now().replace(tzinfo=utc)
+def past_verify(instance, moment=None):
+    if moment is None:
+        moment = now()
 
-    if instance.end_time is not None:
-        end_time = timedelta(
-            hours=instance.end_time.hour,
-            minutes=instance.end_time.minute,
-            )
-    else:
-        end_time = timedelta(hours=24)
+    end_datetime = datetime.combine(
+        instance.date,
+        instance.end_time or time(0),
+        )
 
-    end_datetime = (
-        datetime.combine(instance.date, time(0)) +
-        timedelta(hours=instance.pool.verify_cutoff) + end_time
-        ).replace(tzinfo=utc)
+    if instance.end_time is None:
+        end_datetime += timedelta(days=1)
 
-    return now > end_datetime
+    if settings.USE_TZ:
+        end_datetime = end_datetime.replace(tzinfo=utc)
 
-def past_sign_out(instance, now=None):
-    if now is None:
-        now = datetime.now().replace(tzinfo=utc)
+    return moment > end_datetime + timedelta(hours=instance.pool.verify_cutoff)
 
-    if instance.start_time is not None:
-        start_time = instance.start_time
-    else:
-        start_time = time(0)
-    start_datetime = (
-        datetime.combine(instance.date, start_time) -
-         timedelta(hours=instance.pool.sign_out_cutoff)
-        ).replace(tzinfo=utc)
+def past_sign_out(instance, moment=None):
+    if moment is None:
+        moment = now()
 
-    return now > start_datetime
+    start_datetime = datetime.combine(
+        instance.date,
+        instance.start_time or time(0),
+        )
 
-def collect_blown(semester=None, now=None):
+    if settings.USE_TZ:
+        start_datetime = start_datetime.replace(tzinfo=utc)
+
+    return moment > start_datetime - timedelta(hours=instance.pool.sign_out_cutoff)
+
+def collect_blown(semester=None, moment=None):
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
         except Semester.DoesNotExist:
             return []
-    if now is None:
-        now = datetime.now().replace(tzinfo=utc)
+    if moment is None:
+        moment = now()
     closed, verified, blown = [], [], []
     today = date.today()
     instances = WorkshiftInstance.objects.filter(
@@ -249,7 +247,7 @@ def collect_blown(semester=None, now=None):
         )
     for instance in instances:
         # Skip shifts not yet ended
-        if not past_verify(instance, now=now):
+        if not past_verify(instance, moment=moment):
             continue
 
         instance.closed = True

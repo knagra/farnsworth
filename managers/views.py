@@ -4,7 +4,7 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect
@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.contrib import messages
 from django.conf import settings
-from django.utils.timezone import utc
+from django.utils.timezone import now
 
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from base.decorators import admin_required, profile_required, president_admin_required
@@ -505,9 +505,8 @@ def announcements_view(request):
                 pin_form.save()
                 return HttpResponseRedirect(reverse('managers:announcements'))
         announcements_dict.append((a, pin_form))
-    now = datetime.utcnow().replace(tzinfo=utc)
     # Oldest genesis of an pinned announcement to be displayed.
-    within_life = now - timedelta(days=settings.ANNOUNCEMENT_LIFE)
+    within_life = now() - timedelta(days=settings.ANNOUNCEMENT_LIFE)
     for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
         pin_form = None
         if request.user.is_superuser or (a.manager.incumbent == userProfile):

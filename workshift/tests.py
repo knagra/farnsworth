@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.utils.timezone import utc
+from django.utils.timezone import now
 
 from datetime import date, timedelta, datetime, time
 from weekday_field.utils import DAY_CHOICES
@@ -300,8 +300,9 @@ class TestUtils(TestCase):
             utils.collect_blown(semester=self.semester),
             )
 
-        now = datetime(2014, 6, 1, 20, 0, 0).replace(tzinfo=utc)
-        past = datetime(2014, 5, 31, 20, 0, 0).replace(tzinfo=utc)
+        moment = now().replace(hour=20, minute=0, second=0, microsecond=0)
+        past = moment - timedelta(days=1)
+
         WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Closed",
@@ -324,7 +325,7 @@ class TestUtils(TestCase):
                 title="Not Blown",
                 pool=self.p1,
                 ),
-            date=now.date(),
+            date=moment.date(),
             semester=self.semester,
             )
         blown = WorkshiftInstance.objects.create(
@@ -339,19 +340,19 @@ class TestUtils(TestCase):
         WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Edge Case 1: Not Closed",
-                end_time=now.time(),
+                end_time=moment.time(),
                 pool=self.p1,
                 ),
-            date=now.date(),
+            date=moment.date(),
             semester=self.semester,
             )
         edge_case_2 = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Edge Case 2: Closed",
-                end_time=time(17, 59),
+                end_time=(moment - timedelta(hours=2, minutes=1)).time(),
                 pool=self.p1,
                 ),
-            date=now.date(),
+            date=moment.date(),
             )
         signed_out_1 = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
@@ -372,7 +373,7 @@ class TestUtils(TestCase):
             )
         self.assertEqual(
             ([to_close, edge_case_2, signed_out_1], [], [blown, signed_out_2]),
-            utils.collect_blown(now=now),
+            utils.collect_blown(moment=moment),
             )
 
 class TestViews(TestCase):

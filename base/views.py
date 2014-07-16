@@ -7,7 +7,7 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 Views for base application.
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 import time
 from smtplib import SMTPException
 
@@ -23,7 +23,7 @@ from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
-from django.utils.timezone import utc
+from django.utils.timezone import now
 
 from utils.funcs import form_add_error
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
@@ -41,6 +41,7 @@ from managers.models import RequestType, Manager, Request, Response, Announcemen
 from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, PinForm
 from events.models import Event
 from events.forms import RsvpForm
+from rooms.models import Room, PreviousResident
 
 def add_context(request):
     ''' Add variables to all dictionaries passed to templates. '''
@@ -142,8 +143,7 @@ def homepage_view(request, message=None):
     announcements_dict = list()
 
     # Oldest genesis of an unpinned announcement to be displayed.
-    now = datetime.utcnow().replace(tzinfo=utc)
-    within_life = now - timedelta(days=settings.ANNOUNCEMENT_LIFE)
+    within_life = now() - timedelta(days=settings.ANNOUNCEMENT_LIFE)
     announcements = \
       list(Announcement.objects.filter(pinned=True)) + \
       list(Announcement.objects.filter(pinned=False, post_date__gte=within_life))
@@ -169,15 +169,15 @@ def homepage_view(request, message=None):
         return HttpResponseRedirect(reverse('homepage'))
 
     ### Events
-    week_from_now = now + timedelta(days=7)
+    week_from_now = now() + timedelta(days=7)
     # Get only next 7 days of events:
     events_list = Event.objects.exclude(
-        start_time__gte=week_from_now, end_time__lte=now,
+        start_time__gte=week_from_now, end_time__lte=now(),
         )
     # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
     events_dict = list()
     for event in events_list:
-        ongoing = ((event.start_time <= now) and (event.end_time >= now))
+        ongoing = ((event.start_time <= now()) and (event.end_time >= now()))
         rsvpd = (userProfile in event.rsvps.all())
 
         rsvp_form = RsvpForm(
@@ -395,6 +395,11 @@ def member_profile_view(request, targetUsername):
     number_of_messages = Message.objects.filter(owner=targetProfile).count()
     number_of_requests = Request.objects.filter(owner=targetProfile).count()
     # TODO: House room
+    try:
+        room = Room.objects.get(current_residents__in=[targetProfile])
+    except Room.DoesNotExist:
+        room = None
+    prev_rooms = PreviousResident.objects.filter(resident=targetProfile)
     return render_to_response('member_profile.html', {
         'page_name': page_name,
         'targetUser': targetUser,
@@ -402,6 +407,8 @@ def member_profile_view(request, targetUsername):
         'number_of_threads': number_of_threads,
         'number_of_messages': number_of_messages,
         'number_of_requests': number_of_requests,
+        "room": room,
+        "prev_rooms": prev_rooms,
         }, context_instance=RequestContext(request))
 
 def request_profile_view(request):
