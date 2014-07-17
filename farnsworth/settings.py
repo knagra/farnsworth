@@ -386,6 +386,11 @@ APPEND_SLASH = True
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
+try:
+    from farnsworth.local_settings import *
+except ImportError:
+    pass
+
 if 'test' in sys.argv:
     PASSWORD_HASHERS = (
         'django.contrib.auth.hashers.MD5PasswordHasher',
@@ -397,7 +402,3 @@ if 'test' in sys.argv:
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
         }
 
-try:
-    from farnsworth.local_settings import *
-except ImportError:
-    pass
