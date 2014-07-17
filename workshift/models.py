@@ -550,6 +550,9 @@ class ShiftLogEntry(models.Model):
         default=VERIFY,
         )
 
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return "<{0}, {1}>".format(
             self.person,
@@ -717,6 +720,9 @@ class WorkshiftInstance(models.Model):
 
         if self.weekly_workshift is not None and self.info is not None:
             raise ValueError("Only one of [weekly_workshift, info] can be set")
+
+    def __str__(self):
+        return self.__unicode__()
 
     def __unicode__(self):
         return "{0}, {1}".format(self.title, self.date)

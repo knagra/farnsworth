@@ -348,13 +348,14 @@ class TestUtils(TestCase):
             date=moment.date(),
             semester=self.semester,
             )
+        edge_datetime = moment - timedelta(hours=self.p1.verify_cutoff, minutes=1)
         edge_case_2 = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Edge Case 2: Closed",
-                end_time=(moment - timedelta(hours=2, minutes=1)).time(),
+                end_time=edge_datetime.time(),
                 pool=self.p1,
                 ),
-            date=moment.date(),
+            date=edge_datetime.date(),
             )
         signed_out_1 = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
