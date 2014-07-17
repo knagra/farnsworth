@@ -1,7 +1,7 @@
 
 from __future__ import absolute_import
 
-from datetime import timedelta
+from datetime import timedelta, time, date
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -158,7 +158,7 @@ class TestUtils(TestCase):
 
     def test_get_year_season(self):
         year, season = utils.get_year_season()
-        self.assertLess(abs(year - now.date().year), 2)
+        self.assertLess(abs(year - now().date().year), 2)
         self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
 
     def test_starting_month(self):
@@ -395,7 +395,7 @@ class TestViews(TestCase):
             workshift_manager=True,
             )
 
-        today = now.date()
+        today = now().date()
         self.sem = Semester.objects.create(
             year=2014, start_date=today,
             end_date=today + timedelta(days=7),
@@ -1008,7 +1008,6 @@ class TestInteractForms(TestCase):
 
         form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.op)
         form.is_valid()
-        print(form.errors)
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
         log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
