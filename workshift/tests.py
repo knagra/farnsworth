@@ -1,12 +1,13 @@
 
 from __future__ import absolute_import
 
+from datetime import timedelta
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.timezone import now
 
-from datetime import timedelta, datetime, time
 from weekday_field.utils import DAY_CHOICES
 
 from utils.variables import MESSAGES
