@@ -264,7 +264,7 @@ INSTALLED_APPS = (
     'requests',
     'managers',
     'workshift',
-	'rooms',
+    'rooms',
     "django_cron",
     # 'elections',
     'bootstrapform',
@@ -401,4 +401,3 @@ if 'test' in sys.argv:
     HAYSTACK_CONNECTIONS['default'] = {
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
         }
-

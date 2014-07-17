@@ -240,7 +240,7 @@ def collect_blown(semester=None, moment=None):
     if moment is None:
         moment = now()
     closed, verified, blown = [], [], []
-    today = date.today()
+    today = moment.date()
     instances = WorkshiftInstance.objects.filter(
         semester=semester, closed=False, date__lte=today,
         )
