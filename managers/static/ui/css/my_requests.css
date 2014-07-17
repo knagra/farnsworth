@@ -9,15 +9,15 @@ Author: Karandeep Singh Nagra
 }
 
 label {
-	padding-left: 5px;
+    padding-left: 5px;
 }
 
 .checkbox {
-	margin-left: 10px;
+    margin-left: 10px;
 }
 
 .btn-group {
-	padding-bottom: 5px;
+    padding-bottom: 5px;
 }
 
 .add_request {
@@ -73,7 +73,7 @@ label {
 
 /*
   Remove confusion about table layout in case user enters a horizontal line.
-  */	
+  */    
 .response_table hr:not(.main_divider) {
     margin-left: 10px;
 }

@@ -5,15 +5,15 @@ Author: Karandeep Singh Nagra
 */
 
 label {
-	padding-left: 5px;
+    padding-left: 5px;
 }
 
 .btn-group {
-	max-width: 100%;
+    max-width: 100%;
 }
 
 .btn-group .btn {
-	min-width: 50%;
+    min-width: 50%;
 }
 
 .add_event {
@@ -26,7 +26,7 @@ label {
     margin: 0px;
     height: 1px;
     background: #888;
-	margin-top: 3px;
+    margin-top: 3px;
 }
 
 .event_row {
@@ -44,7 +44,7 @@ label {
 
 /*
   Remove confusion about table layout in case user enters a horizontal line.
-  */	
+  */    
 .message_table hr:not(.event_divider) {
     margin-left: 10px;
 }
@@ -61,11 +61,11 @@ label {
 }
 
 .rsvp_form {
-	display: inline-block;
-	float: right;
-	position: relative;
-	top: -1px;
-	right: -3px;
+    display: inline-block;
+    float: right;
+    position: relative;
+    top: -1px;
+    right: -3px;
 }
 
 #new_event_form {
