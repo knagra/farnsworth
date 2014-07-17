@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.timezone import now
 
-from datetime import date, timedelta, datetime, time
+from datetime import timedelta, datetime, time
 from weekday_field.utils import DAY_CHOICES
 
 from utils.variables import MESSAGES
@@ -157,7 +157,7 @@ class TestUtils(TestCase):
 
     def test_get_year_season(self):
         year, season = utils.get_year_season()
-        self.assertLess(abs(year - date.today().year), 2)
+        self.assertLess(abs(year - now.date().year), 2)
         self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
 
     def test_starting_month(self):
@@ -270,9 +270,10 @@ class TestUtils(TestCase):
             )
         shift.current_assignees = [self.profile]
         shift.save()
+        today = now().date()
         WorkshiftInstance.objects.create(
             weekly_workshift=shift,
-            date=date.today() - timedelta(date.today().weekday()),
+            date=today - timedelta(today.weekday()),
             )
         instances = utils.make_instances(
             semester=self.semester,
@@ -393,9 +394,10 @@ class TestViews(TestCase):
             workshift_manager=True,
             )
 
+        today = now.date()
         self.sem = Semester.objects.create(
-            year=2014, start_date=date.today(),
-            end_date=date.today() + timedelta(days=7),
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
             current=True,
             )
 
@@ -420,8 +422,8 @@ class TestViews(TestCase):
             workshift_type=self.wtype,
             pool=self.pool,
             title="Test Regular Shift",
-            start_time=datetime.now(),
-            end_time=datetime.now() + timedelta(hours=2),
+            start_time=now(),
+            end_time=now() + timedelta(hours=2),
             )
         self.shift.current_assignees = [self.wprofile]
         self.shift.days = [DAY_CHOICES[0][0]]
@@ -429,13 +431,13 @@ class TestViews(TestCase):
 
         self.instance = WorkshiftInstance.objects.create(
             weekly_workshift=self.shift,
-            date=date.today(),
+            date=today,
             workshifter=self.wprofile,
             )
 
         self.open_instance = WorkshiftInstance.objects.create(
             weekly_workshift=self.shift,
-            date=date.today(),
+            date=today,
             )
 
         info = InstanceInfo.objects.create(
@@ -684,9 +686,10 @@ class TestPreferences(TestCase):
             workshift_manager=True,
             )
 
+        today = now().date()
         self.sem = Semester.objects.create(
-            year=2014, start_date=date.today(),
-            end_date=date.today() + timedelta(days=7),
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
             current=True,
             )
 
@@ -902,9 +905,10 @@ class TestInteractForms(TestCase):
             workshift_manager=True,
             )
 
+        today = now().date()
         self.sem = Semester.objects.create(
-            year=2014, start_date=date.today(),
-            end_date=date.today() + timedelta(days=7),
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
             current=True,
             )
 
@@ -942,15 +946,15 @@ class TestInteractForms(TestCase):
             workshift_type=self.wtype,
             pool=self.pool,
             title="Test Regular Shift",
-            start_time=datetime.now(),
-            end_time=datetime.now() + timedelta(hours=2),
+            start_time=now(),
+            end_time=now() + timedelta(hours=2),
             )
         self.shift.days = [DAY_CHOICES[0][0]]
         self.shift.save()
 
         self.instance = WorkshiftInstance.objects.create(
             weekly_workshift=self.shift,
-            date=date.today(),
+            date=today,
             workshifter=self.up,
             verify=OTHER_VERIFY,
             )
@@ -962,7 +966,7 @@ class TestInteractForms(TestCase):
 
         self.once = WorkshiftInstance.objects.create(
             info=info,
-            date=date.today(),
+            date=today,
             )
 
         self.sle0 = ShiftLogEntry.objects.create(
@@ -1002,6 +1006,8 @@ class TestInteractForms(TestCase):
         self.assertTrue(self.client.login(username="ou", password="pwd"))
 
         form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.op)
+        form.is_valid()
+        print(form.errors)
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
         log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
@@ -1099,9 +1105,10 @@ class TestPermissions(TestCase):
             incumbent=UserProfile.objects.get(user=self.mu),
             )
 
+        today = now().date()
         self.sem = Semester.objects.create(
-            year=2014, start_date=date.today(),
-            end_date=date.today() + timedelta(days=7),
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
             current=True,
             )
 
@@ -1128,8 +1135,8 @@ class TestPermissions(TestCase):
             workshift_type=self.wtype,
             pool=self.pool,
             title="Clean the floors",
-            start_time=datetime.now(),
-            end_time=datetime.now() + timedelta(hours=2),
+            start_time=now(),
+            end_time=now() + timedelta(hours=2),
             )
         self.wshift.days = [DAY_CHOICES[0][0]]
         self.wshift.save()
@@ -1138,21 +1145,21 @@ class TestPermissions(TestCase):
             workshift_type=self.mtype,
             pool=self.hi_pool,
             title="Paint the walls",
-            start_time=datetime.now(),
-            end_time=datetime.now() + timedelta(hours=2),
+            start_time=now(),
+            end_time=now() + timedelta(hours=2),
             )
         self.mshift.days = [DAY_CHOICES[0][0]]
         self.mshift.save()
 
         self.winstance = WorkshiftInstance.objects.create(
             weekly_workshift=self.wshift,
-            date=date.today(),
+            date=today,
             workshifter=self.up,
             )
 
         self.minstance = WorkshiftInstance.objects.create(
             weekly_workshift=self.mshift,
-            date=date.today(),
+            date=today,
             workshifter=self.up,
             )
 
@@ -1164,7 +1171,7 @@ class TestPermissions(TestCase):
 
         self.wonce = WorkshiftInstance.objects.create(
             info=info,
-            date=date.today(),
+            date=today,
             workshifter=self.up,
             )
 
@@ -1176,7 +1183,7 @@ class TestPermissions(TestCase):
 
         self.monce = WorkshiftInstance.objects.create(
             info=info,
-            date=date.today(),
+            date=today,
             workshifter=self.up,
             )
 
@@ -1308,9 +1315,10 @@ class TestWorkshifts(TestCase):
             workshift_manager=True,
             )
 
+        today = now().date()
         self.sem = Semester.objects.create(
-            year=2014, start_date=date.today(),
-            end_date=date.today() + timedelta(days=7),
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
             current=True,
             )
 
@@ -1340,7 +1348,7 @@ class TestWorkshifts(TestCase):
 
         self.instance = WorkshiftInstance.objects.create(
             weekly_workshift=self.shift,
-            date=date.today(),
+            date=today,
             workshifter=self.wp,
             )
 
@@ -1352,7 +1360,7 @@ class TestWorkshifts(TestCase):
 
         self.once = WorkshiftInstance.objects.create(
             info=info,
-            date=date.today(),
+            date=today,
             workshifter=self.wp,
             )
 
@@ -1727,15 +1735,16 @@ class TestSemester(TestCase):
             workshift_manager=True,
             )
 
+        today = now().date()
         self.s1 = Semester.objects.create(
-            year=2014, start_date=date.today(),
-            end_date=date.today() + timedelta(days=7),
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
             current=True,
             )
 
         self.s2 = Semester.objects.create(
-            year=2013, start_date=date.today(),
-            end_date=date.today() + timedelta(days=7),
+            year=2013, start_date=today,
+            end_date=today + timedelta(days=7),
             current=False,
             )
 
