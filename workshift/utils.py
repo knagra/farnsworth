@@ -88,10 +88,9 @@ def _date_range(start, end, step):
     """
     'range' for datetime.date
     """
-    day = start
-    while day <= end:
-        yield day
-        day += step
+    while start <= end:
+        yield start
+        start += step
 
 def make_instances(semester, shifts=None, start=None):
     if semester is None:
@@ -328,6 +327,14 @@ def is_available(workshift_profile, regular_workshift):
               continue
     return days
 
+def _frange(start, end, step):
+    while start <= end:
+        yield start
+        start += step
+    if start - step != end:
+        yield end
+
+
 def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     if pool is None:
         pool = WorkshiftPool.objects.get(semester=semester, is_primary=True)
@@ -343,7 +350,7 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     # TODO: Pre-process, rank shifts by their times / preferences
     hours_mapping = defaultdict(int)
 
-    for i in range(pool.hours):
+    for i in _frange(0, pool.hours, 1):
         for profile in profiles:
             pool_hours = profile.pool_hours.get(pool=pool)
             rankings = defaultdict(list)

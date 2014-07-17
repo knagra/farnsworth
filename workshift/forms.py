@@ -4,6 +4,7 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
+from collections import OrderedDict
 
 from django import forms
 from django.conf import settings
@@ -18,7 +19,7 @@ from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     TimeBlock, WorkshiftRating, WorkshiftProfile, \
     RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance, \
     PoolHours, SELF_VERIFY, AUTO_VERIFY, WORKSHIFT_MANAGER_VERIFY, \
-	POOL_MANAGER_VERIFY, ANY_MANAGER_VERIFY, OTHER_VERIFY, VERIFY_CHOICES
+    POOL_MANAGER_VERIFY, ANY_MANAGER_VERIFY, OTHER_VERIFY, VERIFY_CHOICES
 from workshift import utils
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
@@ -176,10 +177,13 @@ class WorkshiftInstanceForm(forms.ModelForm):
                 self.pools.initial = self.pools.filter(is_primary=True)[0]
 
         # Move the forms for title, description, etc to the top
-        keys = self.fields.keyOrder
-        for field in reversed(["weekly_workshift"] + list(self.info_fields)):
-            keys.remove(field)
-            keys.insert(0, field)
+        keys = ["weekly_workshift"] + list(self.info_fields)
+        keys += [i for i in self.fields if i not in keys]
+        new_fields = OrderedDict((i, self.fields[i]) for i in keys)
+        self.fields = new_fields
+
+        # Fill in the default values
+        for field in ["weekly_workshift"] + list(self.info_fields):
             if self.instance.pk is not None:
                 self.fields[field].initial = getattr(self.instance, field)
 
@@ -261,7 +265,7 @@ class VerifyShiftForm(InteractShiftForm):
             raise forms.ValidationError("Workshift is not filled.")
         if user_profile.status not in \
           [UserProfile.RESIDENT, UserProfile.BOARDER]:
-			raise forms.ValidationError("Verifier is not a member or boarder.")
+            raise forms.ValidationError("Verifier is not a member or boarder.")
 
         if instance.verify == AUTO_VERIFY:
             raise forms.ValidationError("Workshift is automatically verified.")
