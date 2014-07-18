@@ -356,7 +356,7 @@ def main(args):
             )
 
         if created:
-            print "Started a new workshift semester"
+            print("Started a new workshift semester")
 
         for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
             profile, created = WorkshiftProfile.objects.get_or_create(
