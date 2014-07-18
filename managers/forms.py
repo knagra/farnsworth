@@ -161,6 +161,15 @@ class VoteForm(forms.Form):
         return self.request
 
 class AnnouncementForm(forms.ModelForm):
+    email_members = forms.BooleanField(
+        required=False,
+        help_text="Send an e-mail to residents and boarders in database."
+        )
+    email_alumni = forms.BooleanField(
+        required=False,
+        help_text="Send an e-mail to alumni addresses in database."
+        )
+
     class Meta:
         model = Announcement
         fields = ("manager", "body")
