@@ -7,16 +7,16 @@
 
 {% block w_content %}
 <div class="row">
-  <div class="col-xs-1 text-left">
+  <div class="col-sm-1 col-xs-2 text-left">
     {% if prev_day %}
     <a title="Previous day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ prev_day }}">
       <span class="glyphicon glyphicon-chevron-left"></span>
     </a>
     {% endif %}
   </div> <!-- .col-xs-1 -->
-  <h3 id="day_title" class="col-xs-10 text-center w_subtitle"><span class="hidden-xs w_subtitle">Workshifts
+  <h3 id="day_title" class="col-sm-10 col-xs-8 text-center w_subtitle"><span class="hidden-xs w_subtitle">Workshifts
       for {{ day|date:"l, F d, Y" }}</span><span class="visible-xs w_subtitle">{{ day|date:"D., N d, Y" }}</span></h3>
-  <div class="col-xs-1 text-right">
+  <div class="col-sm-1 col-xs-2 text-right">
     {% if next_day %}
     <a title="Next day" class="day_control" href="{% wurl 'workshift:view_semester' sem_url=SEMESTER.sem_url %}?day={{ next_day }}">
       <span class="glyphicon glyphicon-chevron-right"></span>
