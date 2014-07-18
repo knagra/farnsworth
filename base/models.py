@@ -53,6 +53,10 @@ class UserProfile(models.Model):
         default=RESIDENT,
         help_text="Member status (resident, boarder, alumnus)",
         )
+    email_confirmed = models.BooleanField(
+        default=False,
+        help_text="Whether this user's e-mail address is confirmed.",
+        )
     email_request_notifications = models.BooleanField(
         default=False,
         help_text="Whether notifications are e-mailed to you about request updates.",
