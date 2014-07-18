@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import sys
@@ -312,8 +312,9 @@ HUMOR_WORKSHIFTS = [
 
 def main(args):
     # Add Managers
+    managers = 0
     for title, compensation, hours, email, duties in MANAGERS:
-        Manager.objects.create(
+        created = Manager.objects.get_or_create(
             title=title,
             compensation=compensation,
             semester_hours=str(hours),
@@ -322,80 +323,97 @@ def main(args):
             email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
             president="president" in title.lower(),
             workshift_manager="workshift" in title.lower(),
-            )
+            )[1]
+        if created:
+            managers += 1
+
+    print("Created {0} managers".format(managers))
 
     # Add Requests
+    requests = 0
     for name, managers, glyphicon in REQUESTS:
-        r = RequestType.objects.create(
+        r, created = RequestType.objects.get_or_create(
             name=name,
             glyphicon=glyphicon,
             )
-        r.managers = [Manager.objects.get(title=i) for i in managers]
-        r.save()
+
+        if created:
+            r.managers = [Manager.objects.get(title=i) for i in managers]
+            r.save()
+            requests += 1
+
+    print("Created {0} request types".format(requests))
 
     if "workshift" in settings.INSTALLED_APPS:
         # Start the Workshift Semester
         year, season = get_year_season()
         start_date, end_date = get_semester_start_end(year, season)
-        semester = Semester.objects.create(
+        semester, created = Semester.objects.get_or_create(
             year=year,
             season=season,
             start_date=start_date,
             end_date=end_date,
             )
 
+        if created:
+            print "Started a new workshift semester"
+
         for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
-            profile = WorkshiftProfile.objects.create(
+            profile, created = WorkshiftProfile.objects.get_or_create(
                 user=uprofile.user,
                 semester=semester,
                 )
 
         # Regular Weekly Workshift Hours
-        pool = WorkshiftPool.objects.create(
+        pool, created = WorkshiftPool.objects.get_or_create(
             semester=semester,
             is_primary=True,
             hours=5,
             any_blown=True,
             )
-        pool.managers = Manager.objects.filter(workshift_manager=True)
-        pool.save()
+        if created:
+            pool.managers = Manager.objects.filter(workshift_manager=True)
+            pool.save()
 
         # HI Hours
-        hi_pool = WorkshiftPool.objects.create(
+        hi_pool, created = WorkshiftPool.objects.get_or_create(
             title="Home Improvement",
             semester=semester,
             hours=str(4),
             weeks_per_period=0,
             )
-        hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
-        hi_pool.save()
+        if created:
+            hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
+            hi_pool.save()
 
         # Social Hours
-        social_pool = WorkshiftPool.objects.create(
+        social_pool, created = WorkshiftPool.objects.get_or_create(
             title="Social",
             semester=semester,
             hours=str(1),
             weeks_per_period=6,
             )
-        social_pool.managers = Manager.objects.filter(title="Social Manager")
-        social_pool.save()
+        if created:
+            social_pool.managers = Manager.objects.filter(title="Social Manager")
+            social_pool.save()
 
         # Humor Shift
-        humor_pool = WorkshiftPool.objects.create(
+        humor_pool, created = WorkshiftPool.objects.get_or_create(
             title="Humor Shift",
             semester=semester,
             any_blown=True,
             hours=str(2),
             weeks_per_period=6,
             )
-        humor_pool.managers = Manager.objects.filter(workshift_manager=True)
-        humor_pool.save()
+        if created:
+            humor_pool.managers = Manager.objects.filter(workshift_manager=True)
+            humor_pool.save()
 
         make_workshift_pool_hours(semester)
 
         # Workshift Types
         for title, description, quick_tips, hours, rateable in WORKSHIFT_TYPES:
-            WorkshiftType.objects.create(
+            WorkshiftType.objects.get_or_create(
                 title=title,
                 description=description,
                 quick_tips=quick_tips,
@@ -406,7 +424,7 @@ def main(args):
         # Regular Workshifts
         for title, type_title, days, count, start, end in REGULAR_WORKSHIFTS:
             wtype = WorkshiftType.objects.get(title=type_title)
-            shift = RegularWorkshift.objects.create(
+            shift, created = RegularWorkshift.objects.get_or_create(
                 workshift_type=wtype,
                 title=title,
                 pool=pool,
@@ -415,12 +433,13 @@ def main(args):
                 end_time=end,
                 hours=wtype.hours,
                 )
-            shift.days = get_int_days(days)
-            shift.save()
+            if created:
+                shift.days = get_int_days(days)
+                shift.save()
 
         for title, type_title, count in WEEK_LONG:
             wtype = WorkshiftType.objects.get(title=type_title)
-            shift = RegularWorkshift.objects.create(
+            RegularWorkshift.objects.get_or_create(
                 workshift_type=wtype,
                 title=title,
                 pool=pool,
@@ -434,7 +453,7 @@ def main(args):
         # Humor Workshifts
         for title, type_title, days, start, end in HUMOR_WORKSHIFTS:
             wtype = WorkshiftType.objects.get(title=type_title)
-            shift = RegularWorkshift.objects.create(
+            shift, created = RegularWorkshift.objects.get_or_create(
                 workshift_type=wtype,
                 title=title,
                 pool=humor_pool,
@@ -442,8 +461,10 @@ def main(args):
                 end_time=end,
                 hours=wtype.hours,
                 )
-            shift.days = get_int_days(days)
-            shift.save()
+
+            if created:
+                shift.days = get_int_days(days)
+                shift.save()
 
         make_instances(semester=semester)
         make_manager_workshifts(semester)
