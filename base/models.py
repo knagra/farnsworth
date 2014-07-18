@@ -53,6 +53,10 @@ class UserProfile(models.Model):
         default=RESIDENT,
         help_text="Member status (resident, boarder, alumnus)",
         )
+    email_announcement_notifications = models.BooleanField(
+        default=True,
+        help_text="Whether important manager announcements are e-mailed to you.",
+        )
     email_request_notifications = models.BooleanField(
         default=False,
         help_text="Whether notifications are e-mailed to you about request updates.",
