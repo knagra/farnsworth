@@ -66,7 +66,7 @@ class UserProfile(models.Model):
         help_text="Whether notifications are e-mailed to you about thread updates.",
         )
     email_workshift_notifications = models.BooleanField(
-        default=False,
+        default=True,
         help_text="Whether notifications are e-mailed to you about workshift updates.",
         )
 
