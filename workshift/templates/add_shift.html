@@ -9,37 +9,44 @@
 <h1 class="w_title">{{ page_name }}</h1>
 <ul class="nav nav-pills" style="margin-bottom: 10px;">
   {% if add_instance_form %}<li class="active"><a href="#workshift_instance" data-toggle="tab">Workshift Instance</a></li>{% endif %}
-  {% if add_shift_form %}<li><a href="#regular_workshift" data-toggle="tab">Regular Workshift</a></li>{% endif %}
   {% if add_type_form %}<li><a href="#workshift_type" data-toggle="tab">Workshift Type</a></li>{% endif %}
 </ul>
 <div class="tab-content">
-{% if add_instance_form %}
-<form class="tab-pane active" id="workshift_instance" method="post" action="">
-  {% csrf_token %}
-  {{ add_instance_form|bootstrap }}
-  <div class="text-center">
-    <button type="submit" class="btn btn-success" name="add_instance">Create Single Workshift</button>
-  </div>
-</form>
-{% endif %}
-{% if add_shift_form %}
-<form class="tab-pane" id="regular_workshift" method="post" action="">
-  {% csrf_token %}
-  {{ add_shift_form|bootstrap }}
-  <div class="text-center">
-    <button type="submit" class="btn btn-success" name="add_shift">Create Regular Workshift</button>
-  </div>
-</form>
-{% endif %}
-{% if add_type_form %}
-<form class="tab-pane" id="workshift_type" method="post" action="">
-  {% csrf_token %}
-  {{ add_type_form|bootstrap }}
-  <div class="text-center">
-    <button type="submit" class="btn btn-success" name="add_type">Create Workshift Type</button>
-  </div>
-</form>
-{% endif %}
+  {% if add_instance_form %}
+  <form class="tab-pane active" id="workshift_instance" method="post">
+	{% csrf_token %}
+	{{ add_instance_form|bootstrap }}
+	<div class="text-center">
+      <button type="submit" class="btn btn-success" name="add_instance">Create Single Workshift</button>
+	</div>
+  </form>
+  {% endif %}
+  {% if add_type_form and shifts_formset %}
+  <form class="tab-pane" id="workshift_type" method="post">
+	{% csrf_token %}
+	{{ add_type_form|bootstrap }}
+	<table id="shifts" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
+	  <tbody>
+		{% for form in shifts_formset.forms %}
+		{{ form.id }}
+		<tr class="shifts_formset_row">
+		  <td>{{ form.pool|bootstrap }}</td>
+		  <td>{{ form.day|bootstrap }}</td>
+		  <td>{{ form.count|bootstrap }}</td>
+		  <td>{{ form.hours|bootstrap }}</td>
+		  <td>{{ form.start_time|bootstrap }}</td>
+		  <td>{{ form.end_time|bootstrap }}</td>
+          <td style="vertical-align: middle;"></td>
+		</tr>
+		{% endfor %}
+	  </tbody>
+	</table>
+	{{ shifts_formset.management_form }}
+	<div class="text-center">
+      <button type="submit" class="btn btn-success" name="add_type">Create Workshift Type</button>
+	</div>
+  </form>
+  {% endif %}
 </div>
 {% endblock %}
 
@@ -48,10 +55,12 @@
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
-  $("[id$=_time]").datetimepicker({
-    pickDate: false,
-    pick12HourFormat: true,
-  });
+  function renewDatePickers(row) {
+    $("[id$=time]", row || null).datetimepicker({
+      pickDate: false,
+      pick12HourFormat: true,
+    });
+  };
   $("[id$=date]").datetimepicker({
     pickTime: false,
   });
@@ -71,7 +80,16 @@
       $("#id_end_time").parent().parent().show()
     }
   }
-  $(document).ready(show_hide_details)
   $("#id_weekly_workshift").change(show_hide_details)
+  $(document).ready(function() {
+    $(function() {
+      $(".shifts_formset_row").formset({
+        prefix: "{{ shifts_formset.prefix }}",
+        added: renewDatePickers,
+      });
+      renewDatePickers();
+      show_hide_details();
+    });
+  });
 </script>
 {% endblock %}

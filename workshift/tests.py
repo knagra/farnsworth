@@ -8,13 +8,12 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.timezone import now
 
-from weekday_field.utils import DAY_CHOICES
-
 from utils.variables import MESSAGES
 from base.models import User, UserProfile
 from managers.models import Manager
 from workshift.models import *
 from workshift.forms import *
+from workshift.fields import DAY_CHOICES
 from workshift import utils
 
 class TestStart(TestCase):
@@ -121,10 +120,9 @@ class TestAssignment(TestCase):
 
     def test_auto_assign(self):
         shift1 = RegularWorkshift.objects.create(
-            title="Test Shift",
             workshift_type=self.wtype,
             pool=self.p1,
-            days=[0, 1, 2, 3, 4],
+            day=0,
             hours=5,
             )
         unfinished = utils.auto_assign_shifts(self.semester)
@@ -145,7 +143,6 @@ class TestUtils(TestCase):
             semester=self.semester,
             )
         self.p1 = WorkshiftPool.objects.create(
-            title="Regular Workshift",
             is_primary=True,
             semester=self.semester,
             sign_out_cutoff=24,
@@ -245,13 +242,6 @@ class TestUtils(TestCase):
         self.assertEqual(6, PoolHours.objects.get(pool=self.p1).hours)
         self.assertEqual(self.p2.hours, PoolHours.objects.get(pool=self.p2).hours)
 
-    def test_int_days(self):
-        self.assertEqual([0], utils.get_int_days("Monday"))
-        self.assertEqual([1], utils.get_int_days(["Tuesday"]))
-        self.assertEqual([0, 1, 2, 3, 4, 5, 6], utils.get_int_days(["Any day"]))
-        self.assertEqual([0, 1, 2, 3, 4], utils.get_int_days(["Weekdays"]))
-        self.assertEqual([5, 6], utils.get_int_days(["Weekends"]))
-
     def test_can_manage(self):
         pass
 
@@ -263,10 +253,9 @@ class TestUtils(TestCase):
             title="Test Make Instances",
             )
         shift = RegularWorkshift.objects.create(
-            title="Test Shift",
             workshift_type=wtype,
             pool=self.p1,
-            days=[0, 1, 2, 3, 4],
+            day=4,
             hours=7,
             )
         shift.current_assignees = [self.profile]
@@ -282,13 +271,16 @@ class TestUtils(TestCase):
             )
 
         for instance in instances:
-            self.assertEqual("Test Shift", instance.title)
+            self.assertEqual(wtype.title, instance.title)
             self.assertEqual(shift, instance.weekly_workshift)
             self.assertEqual(shift.hours, instance.hours)
             self.assertEqual(shift.hours, instance.intended_hours)
             self.assertEqual(1, instance.logs.count())
 
-        self.assertEqual(set(shift.days), set(i.date.weekday() for i in instances))
+        self.assertEqual(
+            set([shift.day]),
+            set(i.date.weekday() for i in instances),
+            )
 
     def test_collect_blown(self):
         utils.make_workshift_pool_hours()
@@ -423,7 +415,6 @@ class TestViews(TestCase):
         self.shift = RegularWorkshift.objects.create(
             workshift_type=self.wtype,
             pool=self.pool,
-            title="Test Regular Shift",
             start_time=now(),
             end_time=now() + timedelta(hours=2),
             )
@@ -576,7 +567,7 @@ class TestViews(TestCase):
         url = reverse("workshift:view_shift", kwargs={"pk": self.shift.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.shift.title)
+        self.assertContains(response, self.wtype.title)
         self.assertContains(response, str(self.shift.hours))
         self.assertContains(response, self.shift.workshift_type.quick_tips)
         self.assertContains(response, self.shift.workshift_type.description)
@@ -587,7 +578,7 @@ class TestViews(TestCase):
         url = reverse("workshift:edit_shift", kwargs={"pk": self.shift.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.shift.title)
+        self.assertContains(response, self.wtype.title)
         self.assertContains(response, str(self.shift.hours))
         for assignee in self.shift.current_assignees.all():
             self.assertContains(response, assignee.user.get_full_name())
@@ -596,8 +587,14 @@ class TestViews(TestCase):
         url = reverse("workshift:view_instance", kwargs={"pk": self.instance.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.instance.weekly_workshift.title)
-        self.assertContains(response, self.instance.weekly_workshift.pool.title)
+        self.assertContains(
+            response,
+            self.instance.weekly_workshift.workshift_type.title,
+            )
+        self.assertContains(
+            response,
+            self.instance.weekly_workshift.pool.title,
+            )
         self.assertContains(response, self.instance.workshifter.user.get_full_name())
         self.assertContains(response, str(self.instance.hours))
         self.assertContains(response, self.sle0.note)
@@ -610,11 +607,26 @@ class TestViews(TestCase):
         url = reverse("workshift:edit_instance", kwargs={"pk": self.instance.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.instance.weekly_workshift.title)
-        self.assertContains(response, self.instance.weekly_workshift.pool.title)
-        self.assertContains(response, str(self.instance.date))
-        self.assertContains(response, self.instance.workshifter.user.get_full_name())
-        self.assertContains(response, str(self.instance.hours))
+        self.assertContains(
+            response,
+            self.instance.weekly_workshift.workshift_type.title,
+            )
+        self.assertContains(
+            response,
+            self.instance.weekly_workshift.pool.title,
+            )
+        self.assertContains(
+            response,
+            str(self.instance.date),
+            )
+        self.assertContains(
+            response,
+            self.instance.workshifter.user.get_full_name(),
+            )
+        self.assertContains(
+            response,
+            str(self.instance.hours),
+            )
 
     def test_one_time(self):
         url = reverse("workshift:view_instance", kwargs={"pk": self.once.pk})
@@ -767,7 +779,7 @@ class TestPreferences(TestCase):
             "time-TOTAL_FORMS": 3,
             "time-INITIAL_FORMS": 0,
             "time-MAX_NUM_FORMS": 50,
-            "note": "Dishes are fun, pots are cathartic.",
+            "note-note": "Dishes are fun, pots are cathartic.",
             }, follow=True)
 
         self.assertRedirects(response, self.url)
@@ -947,7 +959,6 @@ class TestInteractForms(TestCase):
         self.shift = RegularWorkshift.objects.create(
             workshift_type=self.wtype,
             pool=self.pool,
-            title="Test Regular Shift",
             start_time=now(),
             end_time=now() + timedelta(hours=2),
             )
@@ -1129,23 +1140,25 @@ class TestPermissions(TestCase):
         self.up = WorkshiftProfile.objects.create(user=self.u, semester=self.sem)
         self.op = WorkshiftProfile.objects.create(user=self.ou, semester=self.sem)
 
-        self.wtype = WorkshiftType.objects.create(title="Test Posts")
-        self.mtype = WorkshiftType.objects.create(title="Maintenance Cleaning")
+        self.wtype = WorkshiftType.objects.create(
+            title="Test Posts",
+            )
+        self.mtype = WorkshiftType.objects.create(
+            title="Maintenance Cleaning",
+            )
 
         self.wshift = RegularWorkshift.objects.create(
             workshift_type=self.wtype,
             pool=self.pool,
-            title="Clean the floors",
             start_time=now(),
             end_time=now() + timedelta(hours=2),
             )
-        self.wshift.days = [DAY_CHOICES[0][0]]
+        self.wshift.day = DAY_CHOICES[0][0]
         self.wshift.save()
 
         self.mshift = RegularWorkshift.objects.create(
             workshift_type=self.mtype,
             pool=self.hi_pool,
-            title="Paint the walls",
             start_time=now(),
             end_time=now() + timedelta(hours=2),
             )
@@ -1340,7 +1353,6 @@ class TestWorkshifts(TestCase):
         self.shift = RegularWorkshift.objects.create(
             workshift_type=self.type,
             pool=self.pool,
-            title="Clean the floors",
             start_time=time(16, 0, 0),
             end_time=time(18, 0, 0)
             )
@@ -1577,58 +1589,19 @@ class TestWorkshifts(TestCase):
             WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
             )
 
-    def test_add_shift(self):
-        url = reverse("workshift:add_shift")
-        response = self.client.post(url, {
-            "add_shift": "",
-            "workshift_type": self.type.pk,
-            "pool": self.pool.pk,
-            "title": "IKC",
-            "days": [0, 3],
-            "hours": 3,
-            "count": 2,
-            "active": True,
-            "current_assignees": [self.wp.pk],
-            "start_time": "8:00 PM",
-            "end_time": "11:00 PM",
-            "verify": OTHER_VERIFY,
-            "week_long": False,
-            "addendum": "IKC needs no addendum.",
-            }, follow=True)
-
-        self.assertRedirects(response, reverse("workshift:manage"))
-        shift = RegularWorkshift.objects.get(pk=self.shift.pk + 1)
-        self.assertEqual(shift.workshift_type, self.type)
-        self.assertEqual(shift.pool, self.pool)
-        self.assertEqual(shift.title, "IKC")
-        self.assertEqual(shift.days, [0, 3])
-        self.assertEqual(shift.hours, 3)
-        self.assertEqual(shift.count, 2)
-        self.assertEqual(shift.active, True)
-        self.assertEqual(
-            [self.wp],
-            list(shift.current_assignees.all()),
-            )
-        self.assertEqual(shift.start_time, time(20, 0, 0))
-        self.assertEqual(shift.end_time, time(23, 0, 0))
-        self.assertEqual(OTHER_VERIFY, shift.verify)
-        self.assertEqual(shift.week_long, False)
-        self.assertEqual(shift.addendum, "IKC needs no addendum.")
-
     def test_edit_shift(self):
         url = reverse("workshift:edit_shift", kwargs={"pk": self.shift.pk})
         response = self.client.post(url, {
             "edit": "",
             "workshift_type": self.type.pk,
             "pool": self.pool.pk,
-            "title": "Edited Title",
-            "days": [1, 5],
+            "day": 6,
             "hours": 42,
             "count": 4,
             "active": False,
             "current_assignees": [self.up.pk],
-            "start_time": "04:00 PM",
-            "end_time": "06:00 PM",
+            "start_time": "4:00 PM",
+            "end_time": "6:00 PM",
             "verify": AUTO_VERIFY,
             "week_long": True,
             "addendum": "Edited addendum",
@@ -1640,8 +1613,7 @@ class TestWorkshifts(TestCase):
         shift = RegularWorkshift.objects.get(pk=self.shift.pk)
         self.assertEqual(self.type, shift.workshift_type)
         self.assertEqual(self.pool, shift.pool)
-        self.assertEqual("Edited Title", shift.title)
-        self.assertEqual([], shift.days)
+        self.assertEqual(6, shift.day)
         self.assertEqual(shift.hours, 42)
         self.assertEqual(4, shift.count)
         self.assertEqual(False, shift.active)
@@ -1671,7 +1643,7 @@ class TestWorkshifts(TestCase):
             RegularWorkshift.objects.filter(pk=self.shift.pk).count(),
             )
         self.assertEqual(
-            1,
+            0,
             WorkshiftInstance.objects.filter(pk=self.instance.pk).count(),
             )
         self.assertEqual(
@@ -1679,24 +1651,18 @@ class TestWorkshifts(TestCase):
             WorkshiftInstance.objects.filter(pk=self.once.pk).count(),
             )
 
-        instance = WorkshiftInstance.objects.get(pk=self.instance.pk)
-        self.assertEqual(instance.closed, True)
-        self.assertEqual(instance.weekly_workshift, None)
-        self.assertEqual(instance.title, self.shift.title)
-        self.assertEqual(instance.description, self.type.description)
-        self.assertEqual(instance.pool, self.shift.pool)
-        self.assertEqual(instance.start_time, self.shift.start_time)
-        self.assertEqual(instance.end_time, self.shift.end_time)
-
     def test_add_type(self):
         url = reverse("workshift:add_shift")
         response = self.client.post(url, {
             "add_type": "",
-            "title": "Added Title",
-            "description": "Added Description",
-            "quick_tips": "Added Quick Tips",
-            "hours": 42,
-            "rateable": True,
+            "type-title": "Added Title",
+            "type-description": "Added Description",
+            "type-quick_tips": "Added Quick Tips",
+            "type-hours": 42,
+            "type-rateable": True,
+            "shifts-TOTAL_FORMS": 0,
+            "shifts-INITIAL_FORMS": 0,
+            "shifts-MAX_NUM_FORMS": 50,
             }, follow=True)
         self.assertRedirects(response, reverse("workshift:manage"))
         shift_type = WorkshiftType.objects.get(title="Added Title")
@@ -1709,11 +1675,15 @@ class TestWorkshifts(TestCase):
     def test_edit_type(self):
         url = reverse("workshift:edit_type", kwargs={"pk": self.type.pk})
         response = self.client.post(url, {
-            "title": "Edited Title",
-            "description": "Edited Description",
-            "quick_tips": "Edited Quick Tips",
-            "hours": 42,
-            "rateable": False,
+            "edit": "",
+            "edit-title": "Edited Title",
+            "edit-description": "Edited Description",
+            "edit-quick_tips": "Edited Quick Tips",
+            "edit-hours": 42,
+            "edit-rateable": False,
+            "shifts-TOTAL_FORMS": 0,
+            "shifts-INITIAL_FORMS": 0,
+            "shifts-MAX_NUM_FORMS": 50,
             }, follow=True)
 
         url = reverse("workshift:view_type", kwargs={"pk": self.type.pk})

@@ -453,7 +453,7 @@ class AssignShiftForm(forms.ModelForm):
                     Q(start_time__lt=start, end_time__gt=start) |
                     Q(start_time__lt=end, end_time__gt=end) |
                     Q(start_time__gt=start, end_time__lt=end),
-                    preference=TimeBlock.BUSY, day__in=self.instance.days,
+                    preference=TimeBlock.BUSY, day=self.instance.day,
                     )
                 if not time_blocks:
                     query.append(profile.pk)
@@ -462,7 +462,6 @@ class AssignShiftForm(forms.ModelForm):
               WorkshiftProfile.objects.filter(pk__in=query)
 
 class RegularWorkshiftForm(forms.ModelForm):
-    days = AdvancedWeekdayFormField()
     start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
                                  input_formats=valid_time_formats)
     end_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
@@ -480,8 +479,6 @@ class RegularWorkshiftForm(forms.ModelForm):
 
     def clean(self):
         data = super(RegularWorkshiftForm, self).clean()
-        if data['week_long']:
-            data["days"] = []
         if data['count'] < len(data['current_assignees']):
             raise forms.ValidationError(
                 "Not enough shifts to cover the workshifters you selected."
@@ -573,6 +570,38 @@ TimeBlockFormSet = modelformset_factory(
     TimeBlock, form=TimeBlockForm, formset=BaseTimeBlockFormSet,
     can_delete=True, extra=1, max_num=50,
     help_texts=dict(preference="", day="", start_time="", end_time=""),
+    )
+
+class AddRegularWorkshiftForm(forms.ModelForm):
+    start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
+                                 input_formats=valid_time_formats)
+    end_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
+                               input_formats=valid_time_formats)
+    class Meta:
+        model = RegularWorkshift
+        fields = ("pool", "day", "count", "hours", "start_time", "end_time")
+
+    def clean(self):
+        cleaned_data = super(TimeBlockForm, self).clean()
+        if 'start_time' in cleaned_data and \
+          'end_time' in cleaned_data and \
+          cleaned_data['start_time'] > cleaned_data['end_time']:
+            self.add_error('start_time', u"Start time later than end time.")
+            self.add_error('end_time', u"Start time later than end time.")
+        return cleaned_data
+
+class BaseRegularWorkshiftFormSet(BaseModelFormSet):
+    def save(self, workshift_type):
+        shifts = super(BaseRegularWorkshiftFormSet, self).save(commit=False)
+        for shift in shifts:
+            shift.workshift_type = workshift_type
+            shift.save()
+        return shifts
+
+RegularWorkshiftFormSet = modelformset_factory(
+    RegularWorkshift, form=AddRegularWorkshiftForm,
+    formset=BaseRegularWorkshiftFormSet,
+    can_delete=True, extra=1, max_num=50,
     )
 
 class ProfileNoteForm(forms.ModelForm):

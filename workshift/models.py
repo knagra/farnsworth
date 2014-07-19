@@ -7,8 +7,6 @@ Author: Karandeep Singh Nagra
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
-from weekday_field.fields import WeekdayField
-from weekday_field.utils import DAY_CHOICES, ADVANCED_DAY_CHOICES
 
 from managers.models import Manager
 from workshift.fields import DayField
@@ -137,13 +135,14 @@ class WorkshiftPool(models.Model):
         decimal_places=2,
         default=settings.DEFAULT_WORKSHIFT_HOURS,
         help_text="Default hours required per member per period "
-        "(e.g., 2 weeks per period and 2 hours required per period means 2 hours required every two weeks).",
+        "(e.g., 2 weeks per period and 2 hours required per period means 2 "
+        "hours required every two weeks).",
         )
     weeks_per_period = models.PositiveSmallIntegerField(
         default=1,
         help_text="Number of weeks for requirement period "
-        "(e.g., 2 weeks per period and 2 hours required per period means 2 hours required every two weeks). "
-        "0 makes this a semesterly requirement",
+        "(e.g., 2 weeks per period and 2 hours required per period means 2 "
+        "hours required every two weeks). 0 makes this a semesterly requirement",
         )
     first_fine_date = models.DateField(
         null=True,
@@ -198,7 +197,8 @@ class WorkshiftType(models.Model):
         null=False,
         unique=True,
         max_length=255,
-        help_text='The title of this workshift type (e.g., "Pots"), must be unique.')
+        help_text='The title of this workshift type (e.g., "Pots"), must be unique.',
+        )
     description = models.TextField(
         blank=True,
         null=True,
@@ -422,14 +422,10 @@ class RegularWorkshift(models.Model):
         WorkshiftPool,
         help_text="The workshift pool for this shift.",
         )
-    title = models.CharField(
-        max_length=255,
-        help_text="The title for this weekly workshift (i.e. Monday morning dishes).",
-        )
-    days = WeekdayField(
+    day = DayField(
         null=True,
         blank=True,
-        help_text="The days of the week when this workshift takes place.",
+        help_text="The day of the week when this workshift takes place.",
         )
     count = models.PositiveSmallIntegerField(
         max_length=4,
@@ -480,34 +476,13 @@ class RegularWorkshift(models.Model):
         )
 
     def __unicode__(self):
-        days = self.get_days_display()
-        if days:
-            return "{0}:{1}".format(self.title, days)
+        if self.day:
+            return "{0}:{1}".format(
+                self.workshift_type.title,
+                self.get_day_display(),
+                )
         else:
-            return self.title
-
-    def get_days_display(self):
-        if not self.days:
-            return ""
-
-        str_days = []
-        days = self.days
-
-        # First extract compressed names like "Weekdays" and "Weekends"
-        for val, name in ADVANCED_DAY_CHOICES:
-            if not isinstance(val, int):
-                lst = [int(i) for i in val.split(",")]
-                if all(i in days for i in lst):
-                    str_days.append(name)
-                    for day in lst:
-                        days.remove(day)
-
-        # Then append the individual days if they did not fit into the larger
-        # categories
-        for day in days:
-            str_days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
-
-        return ", ".join(str_days)
+            return self.workshift_type.title
 
     def is_regular_workshift(self):
         return True
@@ -680,7 +655,10 @@ class WorkshiftInstance(models.Model):
 
     @property
     def title(self):
-        return self.get_info().title
+        if self.weekly_workshift:
+            return self.weekly_workshift.workshift_type.title
+        else:
+            return self.info.title
 
     @property
     def description(self):
