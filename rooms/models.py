@@ -40,7 +40,6 @@ class Room(models.Model):
         )
     current_residents = models.ManyToManyField(
         UserProfile,
-        null=True,
         blank=True,
         help_text="The current residents of this room."
         )

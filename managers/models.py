@@ -185,7 +185,6 @@ class Request(models.Model):
         )
     upvotes = models.ManyToManyField(
         UserProfile,
-        null=True,
         blank=True,
         help_text="Up votes for this request.",
         related_name="up_votes",

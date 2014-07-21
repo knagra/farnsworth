@@ -52,7 +52,6 @@ class Semester(models.Model):
         )
     workshift_managers = models.ManyToManyField(
         User,
-        null=True,
         blank=True,
         help_text="The users who were/are Workshift Managers for this semester.",
         )
@@ -117,7 +116,6 @@ class WorkshiftPool(models.Model):
     managers = models.ManyToManyField(
         Manager,
         blank=True,
-        null=True,
         help_text="Managers who are able to control this workshift category."
         )
     sign_out_cutoff = models.PositiveSmallIntegerField(
@@ -371,19 +369,16 @@ class WorkshiftProfile(models.Model):
         )
     time_blocks = models.ManyToManyField(
         TimeBlock,
-        null=True,
         blank=True,
         help_text="The time blocks for this workshift profile.",
         )
     ratings = models.ManyToManyField(
         WorkshiftRating,
-        null=True,
         blank=True,
         help_text="The workshift ratings for this workshift profile.",
         )
     pool_hours = models.ManyToManyField(
         PoolHours,
-        null=True,
         blank=True,
         help_text="Hours required for each workshift pool for this profile.",
         )
@@ -445,7 +440,6 @@ class RegularWorkshift(models.Model):
         )
     current_assignees = models.ManyToManyField(
         WorkshiftProfile,
-        null=True,
         blank=True,
         help_text="The workshifter currently assigned to this weekly "
         "workshift.",
@@ -645,7 +639,6 @@ class WorkshiftInstance(models.Model):
         )
     logs = models.ManyToManyField(
         ShiftLogEntry,
-        null=True,
         blank=True,
         help_text="The entries for sign ins, sign outs, and verification.",
         )
