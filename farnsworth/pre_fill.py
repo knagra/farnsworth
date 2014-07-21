@@ -310,7 +310,7 @@ HUMOR_WORKSHIFTS = [
     ("Sweep & Mop", "Sweep & Mop", ["Friday", "Saturday"], time(20), time(0)),
     ]
 
-def main(args):
+def main(args, verbose=True):
     # Add Managers
     managers = 0
     for title, compensation, hours, email, duties in MANAGERS:
@@ -327,7 +327,8 @@ def main(args):
         if created:
             managers += 1
 
-    print("Created {0} managers".format(managers))
+    if verbose:
+        print("Created {0} managers".format(managers))
 
     # Add Requests
     requests = 0
@@ -342,7 +343,8 @@ def main(args):
             r.save()
             requests += 1
 
-    print("Created {0} request types".format(requests))
+    if verbose:
+        print("Created {0} request types".format(requests))
 
     if "workshift" in settings.INSTALLED_APPS:
         # Start the Workshift Semester
@@ -355,7 +357,7 @@ def main(args):
             end_date=end_date,
             )
 
-        if created:
+        if created and verbose:
             print("Started a new workshift semester")
 
         for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
