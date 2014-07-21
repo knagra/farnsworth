@@ -97,6 +97,9 @@ class Semester(models.Model):
         unique_together = ("season", "year")
         ordering = ['-start_date']
 
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return "{0} {1}".format(self.get_season_display(), self.year)
 
@@ -169,6 +172,9 @@ class WorkshiftPool(models.Model):
     class Meta:
         unique_together = ("semester", "title")
 
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return self.title
 
@@ -218,6 +224,9 @@ class WorkshiftType(models.Model):
         default=True,
         help_text="Whether this workshift type is shown in preferences.",
         )
+
+    def __str__(self):
+        return self.__unicode__()
 
     def __unicode__(self):
         return self.title
@@ -383,6 +392,9 @@ class WorkshiftProfile(models.Model):
         help_text="Hours required for each workshift pool for this profile.",
         )
 
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return self.user.get_full_name()
 
@@ -468,6 +480,9 @@ class RegularWorkshift(models.Model):
         default='',
         help_text="Addendum to the description for this workshift.",
         )
+
+    def __str__(self):
+        return self.__unicode__()
 
     def __unicode__(self):
         if self.day:
