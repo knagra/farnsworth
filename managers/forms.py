@@ -145,7 +145,7 @@ class ManagerResponseForm(ResponseForm):
         return response
 
 class VoteForm(forms.Form):
-    ''' Form to cast an up or down vote for a request. '''
+    ''' Form to cast an up vote for a request. '''
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
         self.request = kwargs.pop("request")
