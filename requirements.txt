@@ -3,9 +3,9 @@ django-bootstrap-form
 elasticsearch==1.0.0
 python-social-auth
 psycopg2
--e git://github.com/acdha/django-haystack.git#egg=django_haystack-981_model_ct_cleanup
+git+git://github.com/acdha/django-haystack.git@981-model-ct-cleanup
 pypandoc
 django-cron
--e git://github.com/stefanfoulis/django-phonenumber-field.git#egg=django_phonenumber_field-develop
+git+git://github.com/stefanfoulis/django-phonenumber-field.git@develop
 bcrypt
 pytz
