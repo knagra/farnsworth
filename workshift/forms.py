@@ -11,8 +11,6 @@ from django.conf import settings
 from django.db.models import Q
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
-from weekday_field.forms import AdvancedWeekdayFormField
-
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
