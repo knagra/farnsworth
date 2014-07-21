@@ -163,7 +163,6 @@ def make_manager_workshifts(semester=None, managers=None):
         wtype.save()
         shift, new = RegularWorkshift.objects.get_or_create(
             workshift_type=wtype,
-            title=manager.title,
             pool=WorkshiftPool.objects.get(semester=semester, is_primary=True),
             )
         if new:
