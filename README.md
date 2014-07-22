@@ -19,7 +19,7 @@ respective companies.
 
 Built with Django, Python, and SQLite. Tested and deployed on PostgreSQL.
 
-Live versions of the site can be accessed at https://kingmanhall.org/internal/, https://kingmanhall.org/afro/, and https://kingmanhall.org/hoyt/.
+A live version of the site can be accessed at https://kingmanhall.org/.
 
 ## Logical Structure
 Check `/DOCS/README.md` (<a href="https://github.com/knagra/farnsworth/blob/master/DOCS/README.md">here</a>)
