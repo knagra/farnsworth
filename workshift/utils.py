@@ -289,8 +289,7 @@ def is_available(workshift_profile, shift):
     if not relevant_blocks:
         return True
     elif relevant_blocks[0].start_time - start_time >= hours:
-        days.append(shift.day)
-        return False
+        return True
     while len(relevant_blocks) > 0:
         first_block = relevant_blocks.pop(0)
         if len(relevant_blocks) == 0 \
@@ -298,7 +297,7 @@ def is_available(workshift_profile, shift):
              return True
         elif relevant_blocks[0].start_time - first_block.end_time >= hours:
             return True
-    return True
+    return False
 
 def _frange(start, end, step):
     while start <= end:
