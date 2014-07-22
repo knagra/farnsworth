@@ -14,7 +14,7 @@ from utils.variables import ANONYMOUS_USERNAME
 class UserProfileIndex(indexes.SearchIndex, indexes.Indexable):
     ''' Index for UserProfiles. '''
     text = indexes.EdgeNgramField(document=True, use_template=True)
-    user = indexes.EdgeNgramField(model_attr='user', boost=2)
+    user = indexes.EdgeNgramField(model_attr='user', boost=2.5)
     exact_user = indexes.CharField(model_attr='user', faceted=True)
     former_houses = indexes.EdgeNgramField(model_attr='former_houses', null=True)
     status = indexes.EdgeNgramField(model_attr='status')
