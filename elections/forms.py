@@ -5,6 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 
 from django import forms
+from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from elections.models import Petition, PetitionComment, \
     Poll, PollSettings, PollQuestion, PollChoice, \
@@ -67,8 +68,24 @@ class PollForm(form.ModelForm):
         poll.save()
 
 class PollQuestionForm(models.Model):
-    
+    choice_text = forms.CharField(
+        widget=forms.Textarea,
+        required=False,
+        help_text="One line per option.",
+        )
 
     class Meta:
         model = PollQuestion
         fields = ("body", "question_type", "write_ins_allowed")
+
+    def is_valid(self):
+        if not super(PollQuestionForm, self).is_valid():
+            return False
+        if self.cleaned_data['question_type'] == PollQuestion.CHOICE \
+            or self.cleaned_data['question_type'] == PollQuestion.RANK \
+            and not self.cleaned_data['choice_text']:
+                
+
+class BasePollQuestionForm(BaseModelFormSet):
+    def __init__(self, *args, **kwargs):
+        
