@@ -14,6 +14,7 @@ from managers.models import Manager
 from workshift.models import *
 from workshift.forms import *
 from workshift.fields import DAY_CHOICES
+from workshift.cron import CollectBlownCronJob
 from workshift import utils
 
 class TestStart(TestCase):
@@ -152,6 +153,9 @@ class TestUtils(TestCase):
             title="Alternate Workshift",
             semester=self.semester,
             )
+
+    def test_cron(self):
+        CollectBlownCronJob().do()
 
     def test_get_year_season(self):
         year, season = utils.get_year_season()
