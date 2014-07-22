@@ -326,15 +326,19 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
         for profile in profiles:
             pool_hours = profile.pool_hours.get(pool=pool)
             rankings = defaultdict(list)
+
+            # Rate each shift by its availability
             for shift in shifts:
                 if not is_available(profile, shift):
                     continue
+
                 try:
                     rating = profile.ratings.get(
                         workshift_type=shift.workshift_type,
                         ).rating
                 except WorkshiftRating.DoesNotExist:
                     rating = WorkshiftRating.INDIFFERENT
+
                 if rating == WorkshiftRating.DISLIKE:
                     rank = 5
                 elif rating == WorkshiftRating.INDIFFERENT:
@@ -345,13 +349,14 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
                 # If not preferred time:
                 # rank += 1
 
-                rankings[(profile, rank)].append(shift)
+                rankings[profile, rank].append(shift)
 
+            # Assign a shift, picking from the most preferable groups first
             for rank in range(1, 7):
-                if rankings[(profile, rank)]:
+                if rankings[profile, rank]:
                     # Select the shift, starting with those that take the most
                     # hours and fit the best into the workshifter's allotted hours
-                    shift = random.choice(rankings[(profile, rank)])
+                    shift = random.choice(rankings[profile, rank])
 
                     # Assign the person to their shift
                     shift.current_assignees.add(profile)
@@ -360,7 +365,9 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
                     # Remove shift from shifts and update rankings accordingly
                     if shift.current_assignees.count() == shift.count:
-                        pass
+                        shifts.remove(shift)
+
+                    break
 
             # Remove profiles when their hours have all been assigned
             if pool_hours.hours <= hours_mapping[profile]:
