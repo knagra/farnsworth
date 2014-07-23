@@ -1,12 +1,11 @@
 Django==1.6.5
 django-bootstrap-form
--e hg+https://bitbucket.org/NaderM/django-weekday-field#egg=django_weekday_field-dev
 elasticsearch==1.0.0
 python-social-auth
 psycopg2
--e git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master
+git+git://github.com/acdha/django-haystack.git@981-model-ct-cleanup
 pypandoc
 django-cron
-django-phonenumber-field
+git+git://github.com/stefanfoulis/django-phonenumber-field.git@develop
 bcrypt
 pytz

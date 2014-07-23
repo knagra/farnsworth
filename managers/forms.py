@@ -145,7 +145,7 @@ class ManagerResponseForm(ResponseForm):
         return response
 
 class VoteForm(forms.Form):
-    ''' Form to cast an up or down vote for a request. '''
+    ''' Form to cast an up vote for a request. '''
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
         self.request = kwargs.pop("request")
@@ -161,6 +161,15 @@ class VoteForm(forms.Form):
         return self.request
 
 class AnnouncementForm(forms.ModelForm):
+    email_members = forms.BooleanField(
+        required=False,
+        help_text="Send an e-mail to residents and boarders in database."
+        )
+    email_alumni = forms.BooleanField(
+        required=False,
+        help_text="Send an e-mail to alumni addresses in database."
+        )
+
     class Meta:
         model = Announcement
         fields = ("manager", "body")

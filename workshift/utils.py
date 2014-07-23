@@ -11,12 +11,11 @@ import random
 from django.conf import settings
 from django.utils.timezone import now, utc
 
-from weekday_field.utils import ADVANCED_DAY_CHOICES
-
 from managers.models import Manager
 from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
      Semester, PoolHours, WorkshiftProfile, WorkshiftPool, \
      WorkshiftType, RegularWorkshift, AUTO_VERIFY, WorkshiftRating
+from workshift.fields import DAY_CHOICES
 
 def can_manage(user, semester=None):
     """
@@ -65,25 +64,6 @@ def get_semester_start_end(year, season):
 
     return date(year, start_month, start_day), date(year, end_month, end_day)
 
-def get_int_days(days):
-    """
-    Converts a string, or list of strings into integers for their respective
-    days of the week.
-    """
-    if not isinstance(days, list) and not isinstance(days, tuple):
-        days = [days]
-    ret = []
-    for day in days:
-        day = [i[0] for i in ADVANCED_DAY_CHOICES if i[1] == day][0]
-        if isinstance(day, int):
-            ret.append(day)
-        else:
-            for value in day.strip("[]").split(","):
-                value = int(value)
-                if value not in ret:
-                    ret.append(value)
-    return ret
-
 def _date_range(start, end, step):
     """
     'range' for datetime.date
@@ -101,36 +81,35 @@ def make_instances(semester, shifts=None, start=None):
         start = now().date()
     new_instances = []
     for shift in shifts:
-        if shift.week_long:
+        if shift.day is None or shift.week_long:
             # Workshifts have until Sunday to complete their shift
-            days = [6]
+            day = 6
         else:
-            days = shift.days
-        for weekday in days:
-            next_day = start + timedelta(days=int(weekday) - start.weekday())
-            for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
-                # Create new instances for the entire semester
-                prev_instances = WorkshiftInstance.objects.filter(
-                    weekly_workshift=shift, date=day, closed=False)
-                for instance in prev_instances[shift.count:]:
-                    instance.delete()
-                assignees = shift.current_assignees.all()
-                for i in range(prev_instances.count(), shift.count):
-                    instance = WorkshiftInstance.objects.create(
-                        weekly_workshift=shift,
-                        date=day,
-                        hours=shift.hours,
-                        intended_hours=shift.hours,
+            day = shift.day
+        next_day = start + timedelta(days=int(day) - start.weekday())
+        for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
+            # Create new instances for the entire semester
+            prev_instances = WorkshiftInstance.objects.filter(
+                weekly_workshift=shift, date=day, closed=False)
+            for instance in prev_instances[shift.count:]:
+                instance.delete()
+            assignees = shift.current_assignees.all()
+            for i in range(prev_instances.count(), shift.count):
+                instance = WorkshiftInstance.objects.create(
+                    weekly_workshift=shift,
+                    date=day,
+                    hours=shift.hours,
+                    intended_hours=shift.hours,
+                    )
+                if i < len(assignees):
+                    instance.workshifter = assignees[i]
+                    log = ShiftLogEntry.objects.create(
+                        person=instance.workshifter,
+                        entry_type=ShiftLogEntry.ASSIGNED,
                         )
-                    if i < len(assignees):
-                        instance.workshifter = assignees[i]
-                        log = ShiftLogEntry.objects.create(
-                            person=instance.workshifter,
-                            entry_type=ShiftLogEntry.ASSIGNED,
-                            )
-                        instance.logs.add(log)
-                        instance.save()
-                    new_instances.append(instance)
+                    instance.logs.add(log)
+                    instance.save()
+                new_instances.append(instance)
     return new_instances
 
 def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
@@ -179,12 +158,12 @@ def make_manager_workshifts(semester=None, managers=None):
         wtype, new = WorkshiftType.objects.get_or_create(title=manager.title)
         if new:
             wtype.rateable = False
+            wtype.auto_assign = False
         wtype.description = manager.duties
         wtype.hours = hours
         wtype.save()
         shift, new = RegularWorkshift.objects.get_or_create(
             workshift_type=wtype,
-            title=manager.title,
             pool=WorkshiftPool.objects.get(semester=semester, is_primary=True),
             )
         if new:
@@ -283,116 +262,153 @@ def collect_blown(semester=None, moment=None):
 
     return closed, verified, blown
 
-def is_available(workshift_profile, regular_workshift):
+def is_available(workshift_profile, shift):
     """
     Check whether a specified user is able to do a specified workshift.
     Parameters:
         workshift_profile is the workshift profile for a user
-        regular_workshift is a weekly recurring workshift
+        shift is a weekly recurring workshift
     Returns:
         True if the user has enough free time between the shift's start time
             and end time to do the shift's required number of hours.
         False otherwise.
     """
-    if regular_workshift.week_long:
+    if shift.week_long:
         return True
-    days = []
-    for day in regular_workshift.days:
-        start_time = regular_workshift.start_time
-        end_time = regular_workshift.end_time
-        relevant_blocks = list()
-        for block in workshift_profile.time_blocks.all().order_by('start_time'):
-            if block.day == day and block.preference == TimeBlock.BUSY \
-              and block.start_time < end_time \
-              and block.end_time > start_time:
-                relevant_blocks.append(block)
-        # Time blocks should be ordered; so go through and see if there is a wide
-        # enough window for the shifter to do the shift.  If there is,
-        # return True.
-        hours = timedelta(hours=float(regular_workshift.hours))
-        if not relevant_blocks:
-            days.append(day)
-            continue
-        elif relevant_blocks[0].start_time - start_time >= hours:
-            days.append(day)
-            continue
-        while len(relevant_blocks) > 0:
-            first_block = relevant_blocks.pop(0)
-            if len(relevant_blocks) == 0 \
-              and end_time - first_block.end_tim >= hours:
-              days.append(day)
-              continue
-            elif relevant_blocks[0].start_time - first_block.end_time >= hours:
-              days.append(day)
-              continue
-    return days
-
-def _frange(start, end, step):
-    while start <= end:
-        yield start
-        start += step
-    if start - step != end:
-        yield end
-
+    start_time = shift.start_time
+    end_time = shift.end_time
+    relevant_blocks = list()
+    for block in workshift_profile.time_blocks.all().order_by('start_time'):
+        if block.day == shift.day and block.preference == TimeBlock.BUSY \
+          and block.start_time < end_time \
+          and block.end_time > start_time:
+            relevant_blocks.append(block)
+    # Time blocks should be ordered; so go through and see if there is a wide
+    # enough window for the shifter to do the shift.  If there is,
+    # return True.
+    hours = timedelta(hours=float(shift.hours))
+    if not relevant_blocks:
+        return True
+    elif relevant_blocks[0].start_time - start_time >= hours:
+        return True
+    while len(relevant_blocks) > 0:
+        first_block = relevant_blocks.pop(0)
+        if len(relevant_blocks) == 0 \
+          and end_time - first_block.end_tim >= hours:
+             return True
+        elif relevant_blocks[0].start_time - first_block.end_time >= hours:
+            return True
+    return False
 
 def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     if pool is None:
         pool = WorkshiftPool.objects.get(semester=semester, is_primary=True)
     if profiles is None:
-        # .order_by('preference_save_date')
-        profiles = WorkshiftProfile.objects.filter(semester=semester)
+        profiles = WorkshiftProfile.objects.filter(
+            semester=semester,
+            ).order_by('preference_save_time')
     if shifts is None:
-        shifts = RegularWorkshift.objects.filter(pool=pool)
+        shifts = RegularWorkshift.objects.filter(
+            pool=pool, workshift_type__auto_assign=True,
+            )
 
-    shifts = list(shifts)
+    shifts = set(shifts)
     profiles = list(profiles)
 
-    # TODO: Pre-process, rank shifts by their times / preferences
-    hours_mapping = defaultdict(int)
+    # List of hours assigned to each profile
+    hours_mapping = defaultdict(float)
 
-    for i in _frange(0, pool.hours, 1):
-        for profile in profiles:
+    # Initialize with already-assigned shifts
+    for profile in profiles:
+        for shift in profile.regularworkshift_set.filter(current_assignees=profile):
+            hours_mapping[profile] += float(shift.hours)
+
+    # Pre-process, rank shifts by their times / preferences
+    rankings = defaultdict(set)
+    for profile in profiles:
+        pool_hours = profile.pool_hours.get(pool=pool)
+        for shift in shifts:
+            # Skip shifts that put a member over their hour requirement
+            if float(shift.hours) + hours_mapping[profile] > float(pool_hours.hours):
+                continue
+
+            # Check how well this shift fits the member's schedule
+            status = is_available(profile, shift)
+            if not status or status == TimeBlock.BUSY:
+                continue
+
+            try:
+                rating = profile.ratings.get(
+                    workshift_type=shift.workshift_type,
+                    ).rating
+            except WorkshiftRating.DoesNotExist:
+                rating = WorkshiftRating.INDIFFERENT
+
+            if rating == WorkshiftRating.DISLIKE:
+                rank = 5
+            elif rating == WorkshiftRating.INDIFFERENT:
+                rank = 3
+            else:
+                rank = 1
+
+            if status != TimeBlock.PREFERRED:
+                rank += 1
+
+            rankings[profile, rank].add(shift)
+
+    # Assign shifts in a round-robin manner, run until we can't assign anyone
+    # any more shifts
+    while any(rankings.values()):
+        print 1
+        for profile in profiles[:]:
             pool_hours = profile.pool_hours.get(pool=pool)
-            rankings = defaultdict(list)
-            for shift in shifts:
-                if not is_available(profile, shift):
-                    continue
-                try:
-                    rating = profile.ratings.get(
-                        workshift_type=shift.workshift_type,
-                        ).rating
-                except WorkshiftRating.DoesNotExist:
-                    rating = WorkshiftRating.INDIFFERENT
-                if rating == WorkshiftRating.DISLIKE:
-                    rank = 5
-                elif rating == WorkshiftRating.INDIFFERENT:
-                    rank = 3
-                else:
-                    rank = 1
 
-                # If not preferred time:
-                # rank += 1
-
-                rankings[(profile, rank)].append(shift)
-
+            # Assign a shift, picking from the most preferable groups first
             for rank in range(1, 7):
-                if rankings[(profile, rank)]:
+                # Update the rankings with the list of available shifts
+                rankings[profile, rank] = shifts.intersection(rankings[profile, rank])
+                if rankings[profile, rank]:
                     # Select the shift, starting with those that take the most
-                    # hours and fit the best into the workshifter's allotted hours
-                    shift = random.choice(rankings[(profile, rank)])
+                    # hours and fit the best into the workshifter's allotted
+                    # hours
+                    weighted = [
+                        val
+                        for val in rankings[profile, rank]
+                        for i in range(val.count)
+                        ]
+                    shift = random.choice(weighted)
 
                     # Assign the person to their shift
                     shift.current_assignees.add(profile)
+                    hours_mapping[profile] += float(shift.hours)
 
-                    hours_mapping[profile] += shift.hours
-
-                    # Remove shift from shifts and update rankings accordingly
+                    # Remove shift from shifts if it has been completely filled
                     if shift.current_assignees.count() == shift.count:
-                        pass
+                        shifts.remove(shift)
+
+                    break
 
             # Remove profiles when their hours have all been assigned
             if pool_hours.hours <= hours_mapping[profile]:
                 profiles.remove(profile)
+                for rank in range(1, 7):
+                    if (profile, rank) in rankings:
+                        del rankings[profile, rank]
+                continue
+
+            # Otherwise, Remove shifts that put people above their weekly
+            # allocation
+            for rank in range(1, 7):
+                rankings[profile, rank] = set(
+                    shift
+                    for shift in rankings[profile, rank]
+                    if float(shift.hours) + hours_mapping[profile] <=
+                    float(pool_hours.hours)
+                    )
+
 
     # Return profiles that were incompletely assigned shifts
+    for profile in profiles:
+        print profile.user.username, hours_mapping[profile]
+    print len(shifts), [float(i.hours) for i in shifts]
     return profiles

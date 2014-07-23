@@ -30,8 +30,8 @@
 <p id="descriptions_information" class="text-info text-center">Please select a workshift type from Workshift Preferences below.</p>
 <hr class="text-center" style="width: 75%;" />
 <div class="tab-content">
-{% for form in rating_forms %}
-    <div class="tab-pane{% if forloop.counter == 1 %} active{% endif %}" id="description_{{ form.instance.workshift_type.pk }}">
+  {% for form in rating_forms %}
+  <div class="tab-pane{% if forloop.counter == 1 %} active{% endif %}" id="description_{{ form.instance.workshift_type.pk }}">
     <dl class="dl-horizontal">
       <dt>Title</dt>
       <dd>{{ form.instance.workshift_type.title }}</dd>
@@ -40,8 +40,8 @@
       <dt>Tips</dt>
       <dd>{{ form.instance.workshift_type.quick_tips|safe }}&nbsp;</dd>
     </dl>
-    </div> <!-- .tab-pane -->
-{% endfor %}
+  </div> <!-- .tab-pane -->
+  {% endfor %}
 </div> <!-- .tab-content -->
 {% endif %}
 
@@ -65,11 +65,11 @@
   {% endif %}
   {% if time_formset %}
   {% if rating_forms %}
-    <hr />
+  <hr />
   {% endif %}
   <h3 class="w_subtitle">Your Schedule</h3>
   <table id="time_blocks" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
-      <tbody>
+    <tbody>
       {% for form in time_formset.forms %}
       {{ form.id }}
       <tr class="time_formset_row">
@@ -80,13 +80,13 @@
         <td style="vertical-align: middle;"></td>
       </tr>
       {% endfor %}
-      </tbody>
+    </tbody>
   </table>
   {{ time_formset.management_form }}
 
   {% endif %}
   {% if rating_forms or time_formset %}
-    <hr />
+  <hr />
   {% endif %}
   <h3 class="w_subtitle">Note to Workshift Manager(s)</h3>
   {{ note_form|bootstrap }}

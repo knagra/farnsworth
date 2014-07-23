@@ -41,6 +41,20 @@ class PetitionCommentForm(forms.ModelForm):
         comment.petition = self.petition
         comment.save()
 
+class PetitionSignatureForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile')
+        self.petition = kwargs.pop('petition')
+        super(PetitionSignatureForm, self).save(*args, **kwargs)
+
+    def save(self):
+        if self.profile in self.petition.signatures.all():
+            self.petition.signatures.remove(self.profile)
+        else:
+            self.petition.signatures.add(self.profile)
+        self.petition.save()
+        return self.petition
+
 class PollForm(form.ModelForm):
     class Meta:
         model = Poll

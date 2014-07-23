@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import sys
@@ -19,7 +19,7 @@ from managers.models import Manager, RequestType
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     RegularWorkshift, WorkshiftProfile
 from workshift.utils import get_year_season, make_instances, \
-    get_semester_start_end, get_int_days, make_workshift_pool_hours, \
+    get_semester_start_end, make_workshift_pool_hours, \
     make_manager_workshifts
 
 MANAGERS = [
@@ -267,53 +267,54 @@ WORKSHIFT_TYPES = [
     ]
 
 REGULAR_WORKSHIFTS = [
-    ("Morning Clean", "Clean", "Any day", 1, None, time(11)),
-    ("Morning Dishes", "Dishes", "Any day", 1, None, time(11)),
-    ("Morning Pots", "Pots", "Any day", 1, time(10), time(11)),
-    ("Early Afternoon Dishes", "Dishes", "Any day", 1, time(12), time(16)),
-    ("Afternoon Clean", "Clean", "Any day", 1, time(13), time(15)),
-    ("Afternoon Pots", "Pots", "Any day", 2, time(13), time(15)),
-    ("Before Dinner Clean", "Clean", ["Weekdays", "Sunday"], 1, time(18), time(19)),
-    ("Before Dinner Dishes", "Dishes", ["Weekdays", "Sunday"], 1, time(17), time(19)),
-    ("Evening Dishes", "Dishes", ["Tuesday", "Wednesday", "Sunday"], 1, time(20), time(0)),
-    ("Evening Pots", "Pots", ["Tuesday", "Wednesday", "Sunday"], 2, time(20), time(0)),
-    ("Evening Sweep & Mop", "Sweep & Mop", ["Tuesday", "Wednesday", "Thursday"], 1, time(21), time(0)),
-    ("Main Entrance / Front Walk Clean", "Main Entrance / Front Walk Clean", ["Tuesday", "Thursday"], 1, None, None),
-    ("Basement / Laundry Room Clean", "Basement / Laundry Room Clean", ["Tuesday", "Friday"], 1, None, time(19)),
-    ("Bike / Living / Study Room Clean", "Bike / Living / Study Room Clean", ["Tuesday", "Friday"], 1, None, time(19)),
-    ("Roofdeck Clean & Top Two Floors", "Roofdeck Clean & Top Two Floors", ["Tuesday", "Friday"], 1, None, time(19)),
-    ("Ramp and Amphitheater Clean", "Ramp and Amphitheater Clean", "Wednesday", 1, None, None),
-    ("Ramp and Gazebo Clean", "Ramp and Gazebo Clean", "Wednesday", 1, None, None),
-    ("Pantry / Fridge Clean", "Pantry / Fridge Clean", "Wednesday", 1, None, time(20)),
-    ("Free Pile Clean", "Free Pile Clean", "Wednesday", 1, None, None),
-    ("Laundry", "Laundry", "Wednesday", 1, None, None),
-    ("Vacuum", "Vacuum", ["Tuesday", "Friday"], 1, None, None),
-    ("Food Put Away", "Food Put Away", ["Monday", "Thursday"], 1, None, None),
-    ("Bread Run", "Bread Run", "Thursday", 1, None, None),
-    ("Dairy / Non-perishables Run", "Dairy / Non-perishables Run", "Thursday", 2, None, None),
-    ("Afternoon Food Put Away", "Food Put Away", ["Thursday"], 1, time(15), time(19)),
-    ("Co-Cook", "Cook", ["Weekdays", "Sunday"], 3, time(16), time(19)),
-    ("IKC", "IKC", ["Monday"], 8, time(20), time(23)),
-    ("IKC", "IKC", ["Thursday"], 7, time(20), time(23)),
+    ("Clean", [0, 1, 2, 3, 4, 5, 6], 1, None, time(11)),
+    ("Dishes", [0, 1, 2, 3, 4, 5, 6], 1, None, time(11)),
+    ("Pots", [0, 1, 2, 3, 4, 5, 6], 1, time(10), time(11)),
+    ("Dishes", [0, 1, 2, 3, 4, 5, 6], 1, time(12), time(16)),
+    ("Clean", [0, 1, 2, 3, 4, 5, 6], 1, time(13), time(15)),
+    ("Pots", [0, 1, 2, 3, 4, 5, 6], 2, time(13), time(15)),
+    ("Clean", [0, 1, 2, 3, 4, 6], 1, time(18), time(19)),
+    ("Dishes", [0, 1, 2, 3, 4, 6], 1, time(17), time(19)),
+    ("Dishes", [1, 2, 0], 1, time(20), time(0)),
+    ("Pots", [1, 2, 0], 2, time(20), time(0)),
+    ("Sweep & Mop", [1, 2, 3], 1, time(21), time(0)),
+    ("Main Entrance / Front Walk Clean", [1, 3], 1, None, None),
+    ("Basement / Laundry Room Clean", [1, 4], 1, None, time(19)),
+    ("Bike / Living / Study Room Clean", [1, 4], 1, None, time(19)),
+    ("Roofdeck Clean & Top Two Floors", [1, 4], 1, None, time(19)),
+    ("Ramp and Amphitheater Clean", [2], 1, None, None),
+    ("Ramp and Gazebo Clean", [2], 1, None, None),
+    ("Pantry / Fridge Clean", [2], 1, None, time(20)),
+    ("Free Pile Clean", [2], 1, None, None),
+    ("Laundry", [2], 1, None, None),
+    ("Vacuum", [1, 4], 1, None, None),
+    ("Food Put Away", [0, 3], 1, None, None),
+    ("Bread Run", [3], 1, None, None),
+    ("Dairy / Non-perishables Run", [3], 2, None, None),
+    ("Food Put Away", [3], 1, time(15), time(19)),
+    ("Cook", [0, 1, 2, 3, 4, 6], 3, time(16), time(19)),
+    ("IKC", [0], 8, time(20), time(23)),
+    ("IKC", [3], 7, time(20), time(23)),
     ]
 
 WEEK_LONG = (
-    ("Extra bagels", "Extra bagels", 1),
-    ("Farmer's Market Run", "Farmer's Market Run", 1),
-    ("Granola", "Granola", 1),
-    ("Hummus", "Hummus", 1),
-    ("Mail Sort / Forward", "Mail Sort / Forward", 1),
+    ("Extra bagels", 1),
+    ("Farmer's Market Run", 1),
+    ("Granola", 1),
+    ("Hummus", 1),
+    ("Mail Sort / Forward", 1),
     )
 
 HUMOR_WORKSHIFTS = [
-    ("Pots", "Pots", ["Friday", "Saturday"], time(20), time(0)),
-    ("Sweep & Mop", "Sweep & Mop", ["Friday", "Saturday"], time(20), time(0)),
+    ("Pots", ["Friday", "Saturday"], time(20), time(0)),
+    ("Sweep & Mop", ["Friday", "Saturday"], time(20), time(0)),
     ]
 
-def main(args):
+def main(args, verbose=True):
     # Add Managers
+    managers = 0
     for title, compensation, hours, email, duties in MANAGERS:
-        Manager.objects.create(
+        created = Manager.objects.get_or_create(
             title=title,
             compensation=compensation,
             semester_hours=str(hours),
@@ -322,107 +323,124 @@ def main(args):
             email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
             president="president" in title.lower(),
             workshift_manager="workshift" in title.lower(),
-            )
+            )[1]
+        if created:
+            managers += 1
+
+    if verbose:
+        print("Created {0} managers".format(managers))
 
     # Add Requests
+    requests = 0
     for name, managers, glyphicon in REQUESTS:
-        r = RequestType.objects.create(
+        r, created = RequestType.objects.get_or_create(
             name=name,
             glyphicon=glyphicon,
             )
-        r.managers = [Manager.objects.get(title=i) for i in managers]
-        r.save()
+
+        if created:
+            r.managers = [Manager.objects.get(title=i) for i in managers]
+            r.save()
+            requests += 1
+
+    if verbose:
+        print("Created {0} request types".format(requests))
 
     if "workshift" in settings.INSTALLED_APPS:
         # Start the Workshift Semester
         year, season = get_year_season()
         start_date, end_date = get_semester_start_end(year, season)
-        semester = Semester.objects.create(
+        semester, created = Semester.objects.get_or_create(
             year=year,
             season=season,
-            start_date=start_date,
-            end_date=end_date,
+            defaults=dict(start_date=start_date, end_date=end_date),
             )
 
+        if created and verbose:
+            print("Started a new workshift semester")
+
+        wprofiles = 0
         for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
-            profile = WorkshiftProfile.objects.create(
+            created = WorkshiftProfile.objects.get_or_create(
                 user=uprofile.user,
                 semester=semester,
-                )
+                )[1]
+            if created:
+                wprofiles += 1
+
+        if verbose:
+            print("Created {} workshift profiles".format(wprofiles))
 
         # Regular Weekly Workshift Hours
-        pool = WorkshiftPool.objects.create(
+        pool, created = WorkshiftPool.objects.get_or_create(
             semester=semester,
             is_primary=True,
-            hours=5,
-            any_blown=True,
+            defaults=dict(hours=5, any_blown=True),
             )
-        pool.managers = Manager.objects.filter(workshift_manager=True)
-        pool.save()
+        if created:
+            pool.managers = Manager.objects.filter(workshift_manager=True)
+            pool.save()
 
         # HI Hours
-        hi_pool = WorkshiftPool.objects.create(
+        hi_pool, created = WorkshiftPool.objects.get_or_create(
             title="Home Improvement",
             semester=semester,
-            hours=str(4),
-            weeks_per_period=0,
+            defaults=dict(hours=4, weeks_per_period=0),
             )
-        hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
-        hi_pool.save()
+        if created:
+            hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
+            hi_pool.save()
 
         # Social Hours
-        social_pool = WorkshiftPool.objects.create(
+        social_pool, created = WorkshiftPool.objects.get_or_create(
             title="Social",
             semester=semester,
-            hours=str(1),
-            weeks_per_period=6,
+            defaults=dict(hours=1, weeks_per_period=0),
             )
-        social_pool.managers = Manager.objects.filter(title="Social Manager")
-        social_pool.save()
+        if created:
+            social_pool.managers = Manager.objects.filter(title="Social Manager")
+            social_pool.save()
 
         # Humor Shift
-        humor_pool = WorkshiftPool.objects.create(
+        humor_pool, created = WorkshiftPool.objects.get_or_create(
             title="Humor Shift",
             semester=semester,
-            any_blown=True,
-            hours=str(2),
-            weeks_per_period=6,
+            defaults=dict(any_blown=True, hours=2, weeks_per_period=6),
             )
-        humor_pool.managers = Manager.objects.filter(workshift_manager=True)
-        humor_pool.save()
+        if created:
+            humor_pool.managers = Manager.objects.filter(workshift_manager=True)
+            humor_pool.save()
 
         make_workshift_pool_hours(semester)
 
         # Workshift Types
         for title, description, quick_tips, hours, rateable in WORKSHIFT_TYPES:
-            WorkshiftType.objects.create(
+            WorkshiftType.objects.get_or_create(
                 title=title,
                 description=description,
                 quick_tips=quick_tips,
-                hours=str(hours),
+                hours=hours,
                 rateable=rateable,
                 )
 
         # Regular Workshifts
-        for title, type_title, days, count, start, end in REGULAR_WORKSHIFTS:
+        for type_title, days, count, start, end in REGULAR_WORKSHIFTS:
             wtype = WorkshiftType.objects.get(title=type_title)
-            shift = RegularWorkshift.objects.create(
-                workshift_type=wtype,
-                title=title,
-                pool=pool,
-                count=count,
-                start_time=start,
-                end_time=end,
-                hours=wtype.hours,
-                )
-            shift.days = get_int_days(days)
-            shift.save()
+            for day in days:
+                RegularWorkshift.objects.get_or_create(
+                    workshift_type=wtype,
+                    pool=pool,
+                    count=count,
+                    day=day,
+                    start_time=start,
+                    end_time=end,
+                    hours=wtype.hours,
+                    )
 
-        for title, type_title, count in WEEK_LONG:
+        for type_title, count in WEEK_LONG:
             wtype = WorkshiftType.objects.get(title=type_title)
-            shift = RegularWorkshift.objects.create(
+            RegularWorkshift.objects.get_or_create(
                 workshift_type=wtype,
-                title=title,
                 pool=pool,
                 count=count,
                 week_long=True,
@@ -432,18 +450,15 @@ def main(args):
                 )
 
         # Humor Workshifts
-        for title, type_title, days, start, end in HUMOR_WORKSHIFTS:
+        for type_title, days, start, end in HUMOR_WORKSHIFTS:
             wtype = WorkshiftType.objects.get(title=type_title)
-            shift = RegularWorkshift.objects.create(
+            RegularWorkshift.objects.get_or_create(
                 workshift_type=wtype,
-                title=title,
                 pool=humor_pool,
                 start_time=start,
                 end_time=end,
                 hours=wtype.hours,
                 )
-            shift.days = get_int_days(days)
-            shift.save()
 
         make_instances(semester=semester)
         make_manager_workshifts(semester)

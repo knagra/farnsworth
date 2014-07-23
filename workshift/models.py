@@ -7,8 +7,6 @@ Author: Karandeep Singh Nagra
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
-from weekday_field.fields import WeekdayField
-from weekday_field.utils import DAY_CHOICES, ADVANCED_DAY_CHOICES
 
 from managers.models import Manager
 from workshift.fields import DayField
@@ -54,7 +52,6 @@ class Semester(models.Model):
         )
     workshift_managers = models.ManyToManyField(
         User,
-        null=True,
         blank=True,
         help_text="The users who were/are Workshift Managers for this semester.",
         )
@@ -100,6 +97,9 @@ class Semester(models.Model):
         unique_together = ("season", "year")
         ordering = ['-start_date']
 
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return "{0} {1}".format(self.get_season_display(), self.year)
 
@@ -119,7 +119,6 @@ class WorkshiftPool(models.Model):
     managers = models.ManyToManyField(
         Manager,
         blank=True,
-        null=True,
         help_text="Managers who are able to control this workshift category."
         )
     sign_out_cutoff = models.PositiveSmallIntegerField(
@@ -137,13 +136,14 @@ class WorkshiftPool(models.Model):
         decimal_places=2,
         default=settings.DEFAULT_WORKSHIFT_HOURS,
         help_text="Default hours required per member per period "
-        "(e.g., 2 weeks per period and 2 hours required per period means 2 hours required every two weeks).",
+        "(e.g., 2 weeks per period and 2 hours required per period means 2 "
+        "hours required every two weeks).",
         )
     weeks_per_period = models.PositiveSmallIntegerField(
         default=1,
         help_text="Number of weeks for requirement period "
-        "(e.g., 2 weeks per period and 2 hours required per period means 2 hours required every two weeks). "
-        "0 makes this a semesterly requirement",
+        "(e.g., 2 weeks per period and 2 hours required per period means 2 "
+        "hours required every two weeks). 0 makes this a semesterly requirement",
         )
     first_fine_date = models.DateField(
         null=True,
@@ -172,6 +172,9 @@ class WorkshiftPool(models.Model):
     class Meta:
         unique_together = ("semester", "title")
 
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return self.title
 
@@ -198,7 +201,8 @@ class WorkshiftType(models.Model):
         null=False,
         unique=True,
         max_length=255,
-        help_text='The title of this workshift type (e.g., "Pots"), must be unique.')
+        help_text='The title of this workshift type (e.g., "Pots"), must be unique.',
+        )
     description = models.TextField(
         blank=True,
         null=True,
@@ -220,6 +224,13 @@ class WorkshiftType(models.Model):
         default=True,
         help_text="Whether this workshift type is shown in preferences.",
         )
+    auto_assign = models.BooleanField(
+        default=True,
+        help_text="Whether this workshift type is included in auto-assignment.",
+        )
+
+    def __str__(self):
+        return self.__unicode__()
 
     def __unicode__(self):
         return self.title
@@ -369,24 +380,29 @@ class WorkshiftProfile(models.Model):
         help_text="Note for this profile. For communication between the "
         "workshifter and the workshift manager(s).",
         )
+    preference_save_time = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="The time this member first saved their preferences.",
+        )
     time_blocks = models.ManyToManyField(
         TimeBlock,
-        null=True,
         blank=True,
         help_text="The time blocks for this workshift profile.",
         )
     ratings = models.ManyToManyField(
         WorkshiftRating,
-        null=True,
         blank=True,
         help_text="The workshift ratings for this workshift profile.",
         )
     pool_hours = models.ManyToManyField(
         PoolHours,
-        null=True,
         blank=True,
         help_text="Hours required for each workshift pool for this profile.",
         )
+
+    def __str__(self):
+        return self.__unicode__()
 
     def __unicode__(self):
         return self.user.get_full_name()
@@ -422,14 +438,10 @@ class RegularWorkshift(models.Model):
         WorkshiftPool,
         help_text="The workshift pool for this shift.",
         )
-    title = models.CharField(
-        max_length=255,
-        help_text="The title for this weekly workshift (i.e. Monday morning dishes).",
-        )
-    days = WeekdayField(
+    day = DayField(
         null=True,
         blank=True,
-        help_text="The days of the week when this workshift takes place.",
+        help_text="The day of the week when this workshift takes place.",
         )
     count = models.PositiveSmallIntegerField(
         max_length=4,
@@ -449,7 +461,6 @@ class RegularWorkshift(models.Model):
         )
     current_assignees = models.ManyToManyField(
         WorkshiftProfile,
-        null=True,
         blank=True,
         help_text="The workshifter currently assigned to this weekly "
         "workshift.",
@@ -479,35 +490,17 @@ class RegularWorkshift(models.Model):
         help_text="Addendum to the description for this workshift.",
         )
 
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
-        days = self.get_days_display()
-        if days:
-            return "{0}:{1}".format(self.title, days)
+        if self.day:
+            return "{0}:{1}".format(
+                self.workshift_type.title,
+                self.get_day_display(),
+                )
         else:
-            return self.title
-
-    def get_days_display(self):
-        if not self.days:
-            return ""
-
-        str_days = []
-        days = self.days
-
-        # First extract compressed names like "Weekdays" and "Weekends"
-        for val, name in ADVANCED_DAY_CHOICES:
-            if not isinstance(val, int):
-                lst = [int(i) for i in val.split(",")]
-                if all(i in days for i in lst):
-                    str_days.append(name)
-                    for day in lst:
-                        days.remove(day)
-
-        # Then append the individual days if they did not fit into the larger
-        # categories
-        for day in days:
-            str_days.append([i[1] for i in DAY_CHOICES if i[0] == day][0])
-
-        return ", ".join(str_days)
+            return self.workshift_type.title
 
     def is_regular_workshift(self):
         return True
@@ -670,7 +663,6 @@ class WorkshiftInstance(models.Model):
         )
     logs = models.ManyToManyField(
         ShiftLogEntry,
-        null=True,
         blank=True,
         help_text="The entries for sign ins, sign outs, and verification.",
         )
@@ -680,7 +672,10 @@ class WorkshiftInstance(models.Model):
 
     @property
     def title(self):
-        return self.get_info().title
+        if self.weekly_workshift:
+            return self.weekly_workshift.workshift_type.title
+        else:
+            return self.info.title
 
     @property
     def description(self):

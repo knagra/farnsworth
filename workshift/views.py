@@ -28,8 +28,8 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     PoolForm, WorkshiftInstanceForm, VerifyShiftForm, \
     BlownShiftForm, SignInForm, SignOutForm, AddWorkshifterForm, \
     AssignShiftForm, RegularWorkshiftForm, WorkshiftTypeForm, \
-    WorkshiftRatingForm, TimeBlockForm, BaseTimeBlockFormSet, \
-    TimeBlockFormSet, ProfileNoteForm
+    WorkshiftRatingForm, TimeBlockFormSet, ProfileNoteForm, \
+    RegularWorkshiftFormSet
 from workshift import utils
 
 def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
@@ -37,16 +37,19 @@ def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
     return all upcoming, vacant shifts along with sign-in forms
     for the profile in that pool. """
     upcoming_shifts = list()
+    today = now().today()
     for shift in WorkshiftInstance.objects.filter(
-            date__gte=now().date(),
+            date__gte=today,
             closed=False,
             blown=False,
             workshifter=None,
             liable=None,
-            ):
+        ):
         if shift.pool == workshift_pool:
-            form = SignInForm(initial={"pk": shift.pk,},
-                                profile=workshift_profile)
+            form = SignInForm(
+                initial={"pk": shift.pk},
+                profile=workshift_profile,
+                )
             upcoming_shifts.append((shift, form))
     return upcoming_shifts
 
@@ -57,7 +60,7 @@ def _get_recommended_shifts(semester, workshift_profile):
     First get hours the profile needs (pools in which the profile is down),
     getting desired shifts first, then get shifts the user might want.
     """
-
+    pass
 
 def add_workshift_context(request):
     """ Add workshift variables to all dictionaries passed to templates. """
@@ -106,26 +109,29 @@ def add_workshift_context(request):
                 workshift_emails=workshift_email_str,
                 ))
     workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
-    days_passed = (date.today() - SEMESTER.start_date).days # number of days passed in this semester
-    total_days = (SEMESTER.end_date - SEMESTER.start_date).days # total number of days in this semester
+    today = now().date()
+    # number of days passed in this semester
+    days_passed = (today - SEMESTER.start_date).days
+    # total number of days in this semester
+    total_days = (SEMESTER.end_date - SEMESTER.start_date).days
     semester_percent = round((days_passed / total_days) * 100, 2)
     pool_standings = list() # with items of form (workshift_pool, standing_in_pool)
     # TODO figure out how to get pool standing out to the template
     upcoming_shifts = WorkshiftInstance.objects.filter(
         workshifter=workshift_profile,
         closed=False,
-        date__gte=date.today(),
-        date__lte=date.today() + timedelta(days=2),
+        date__gte=today,
+        date__lte=today + timedelta(days=2),
         )
     # TODO: Add a fudge factor of an hour to this?
-    # TODO: Do we want now.time() or now.timetz()
     # TODO: Pass a STANDING variable that contains regular workshift up/down hours
+    time = now().time()
     happening_now = [
         shift.week_long or
-        (shift.date == date.today() and
+        (shift.date == today and
          not shift.start_time or
          not shift.end_time or
-         (now().time() > shift.start_time and now().time() < shift.end_time))
+         (time > shift.start_time and time < shift.end_time))
         for shift in upcoming_shifts
         ]
     return {
@@ -207,8 +213,9 @@ def view_semester(request, semester, profile=None):
     template_dict["page_name"] = \
       "Workshift for {0} {1}".format(season_name, semester.year)
 
+    today = now().date()
     template_dict["semester_percentage"] = int(
-        (date.today() - semester.start_date).days /
+        (today - semester.start_date).days /
         (semester.end_date - semester.start_date).days * 100
         )
 
@@ -223,7 +230,7 @@ def view_semester(request, semester, profile=None):
     # switching days should use AJAX to appear more seemless to users.
 
     # Recent History
-    day = date.today()
+    day = today
     if "day" in request.GET:
         try:
             day = date(*map(int, request.GET["day"].split("-")))
@@ -393,7 +400,11 @@ def preferences_view(request, semester, targetUsername, profile=None):
         prefix="time",
         profile=wprofile,
         )
-    note_form = ProfileNoteForm(request.POST or None, instance=wprofile)
+    note_form = ProfileNoteForm(
+        request.POST or None,
+        instance=wprofile,
+        prefix="note",
+        )
 
     if all(i.is_valid() for i in rating_forms) and time_formset.is_valid() and \
       note_form.is_valid():
@@ -401,6 +412,9 @@ def preferences_view(request, semester, targetUsername, profile=None):
             form.save()
         time_formset.save()
         instance = note_form.save()
+        if wprofile.preference_save_time is None:
+            wprofile.preference_save_time = now()
+            wprofile.save()
         messages.add_message(request, messages.INFO, "Preferences saved.")
         return HttpResponseRedirect(wurl('workshift:preferences',
                                          sem_url=semester.sem_url,
@@ -587,41 +601,36 @@ def add_shift_view(request, semester):
     if full_management:
         add_type_form = WorkshiftTypeForm(
             request.POST if "add_type" in request.POST else None,
+            prefix="type",
             )
+        shifts_formset = RegularWorkshiftFormSet(
+            request.POST if "add_type" in request.POST else None,
+            prefix="shifts",
+            )
+
+        if add_type_form.is_valid() and shifts_formset.is_valid():
+            wtype = add_type_form.save()
+            shifts_formset.save(workshift_type=wtype)
+            return HttpResponseRedirect(wurl("workshift:manage",
+                                             sem_url=semester.sem_url))
     else:
         add_type_form = None
+        shifts_formset = None
 
     add_instance_form = WorkshiftInstanceForm(
         request.POST if "add_instance" in request.POST else None,
         pools=pools,
         semester=semester,
         )
-    if WorkshiftType.objects.count():
-        add_shift_form = RegularWorkshiftForm(
-            request.POST if "add_shift" in request.POST else None,
-            pools=pools,
-            semester=semester,
-            )
-    else:
-        add_shift_form = None
-
-    if add_type_form and add_type_form.is_valid():
-        add_type_form.save()
-        return HttpResponseRedirect(wurl("workshift:manage",
-                                         sem_url=semester.sem_url))
-    elif add_instance_form and add_instance_form.is_valid():
+    if add_instance_form.is_valid():
         add_instance_form.save()
-        return HttpResponseRedirect(wurl("workshift:manage",
-                                         sem_url=semester.sem_url))
-    elif add_shift_form and add_shift_form.is_valid():
-        add_shift_form.save()
         return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
     return render_to_response("add_shift.html", {
         "page_name": page_name,
         "add_type_form": add_type_form,
+        "shifts_formset": shifts_formset,
         "add_instance_form": add_instance_form,
-        "add_shift_form": add_shift_form,
     }, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -692,7 +701,7 @@ def shift_view(request, semester, pk, profile=None):
     View the details of a particular RegularWorkshift.
     """
     shift = get_object_or_404(RegularWorkshift, pk=pk)
-    page_name = shift.title
+    page_name = shift.workshift_type.title
 
     return render_to_response("view_shift.html", {
         "page_name": page_name,
@@ -720,20 +729,24 @@ def edit_shift_view(request, semester, pk, profile=None):
         )
 
     if "delete" in request.POST:
-        instances = WorkshiftInstance.objects.filter(weekly_workshift=shift)
-        info = InstanceInfo(
-            title=shift.title,
+        instances = WorkshiftInstance.objects.filter(
+            weekly_workshift=shift,
+            )
+        info = InstanceInfo.objects.create(
+            title=shift.workshift_type.title,
             description=shift.workshift_type.description,
             pool=shift.pool,
             start_time=shift.start_time,
             end_time=shift.end_time,
             )
-        info.save()
         for instance in instances:
-            instance.weekly_workshift = None
-            instance.info = info
-            instance.closed = True
-            instance.save()
+            if instance.closed:
+                instance.weekly_workshift = None
+                instance.info = info
+                instance.closed = True
+                instance.save()
+            else:
+                instance.delete()
         shift.delete()
         return HttpResponseRedirect(wurl('workshift:manage',
                                          sem_url=semester.sem_url))
@@ -743,7 +756,7 @@ def edit_shift_view(request, semester, pk, profile=None):
                                          sem_url=semester.sem_url,
                                          pk=shift.pk))
 
-    page_name = "Edit " + shift.title
+    page_name = "Edit {0}".format(shift)
 
     return render_to_response("edit_shift.html", {
         "page_name": page_name,
@@ -847,20 +860,35 @@ def edit_type_view(request, pk):
     """
     View for a manager to edit the details of a particular WorkshiftType.
     """
-    shift = get_object_or_404(WorkshiftType, pk=pk)
+    wtype = get_object_or_404(WorkshiftType, pk=pk)
+
+    if "delete" in request.POST:
+        pass
+
     edit_form = WorkshiftTypeForm(
-        request.POST or None,
-        instance=shift,
+        request.POST if "edit" in request.POST else None,
+        instance=wtype,
+        prefix="edit",
         )
 
-    if edit_form.is_valid():
-        shift = edit_form.save()
+    shifts_formset = RegularWorkshiftFormSet(
+        request.POST if "edit" in request.POST else None,
+        prefix="shifts",
+        queryset=RegularWorkshift.objects.filter(
+            workshift_type=wtype,
+            ),
+        )
+
+    if edit_form.is_valid() and shifts_formset.is_valid():
+        wtype = edit_form.save()
+        shifts_formset.save(wtype)
         return HttpResponseRedirect(wurl('workshift:view_type', pk=pk))
 
-    page_name = "Edit " + shift.title
+    page_name = "Edit {0}".format(wtype.title)
 
     return render_to_response("edit_type.html", {
         "page_name": page_name,
-        "shift": shift,
+        "shift": wtype,
         "edit_form": edit_form,
+        "shifts_formset": shifts_formset,
     }, context_instance=RequestContext(request))

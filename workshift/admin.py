@@ -62,10 +62,10 @@ class WorkshiftProfileAdmin(admin.ModelAdmin):
 admin.site.register(WorkshiftProfile, WorkshiftProfileAdmin)
 
 class RegularWorkshiftAdmin(admin.ModelAdmin):
-    list_display = ('workshift_type', 'pool', 'title', 'active',)
-    search_fields = ('workshift_type', 'pool', 'title', 'hours', 'start_time', 'end_time', 'addendum')
-    list_filter = ('workshift_type', 'title')
-    ordering = ('workshift_type', 'title')
+    list_display = ('workshift_type', 'pool', 'active',)
+    search_fields = ('workshift_type', 'pool', 'hours', 'start_time', 'end_time', 'addendum')
+    list_filter = ('workshift_type',)
+    ordering = ('workshift_type',)
 admin.site.register(RegularWorkshift, RegularWorkshiftAdmin)
 
 class InstanceInfoAdmin(admin.ModelAdmin):

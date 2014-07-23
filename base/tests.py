@@ -1163,7 +1163,7 @@ class TestSearch(TestCase):
         self.assertEqual(self.profile,
                  self.sqs.facet(self.u.last_name)[0].object)
         self.assertEqual(self.profile,
-                 self.sqs.facet(self.profile.phone_number)[0].object)
+                 self.sqs.facet(self.profile.phone_number.as_national)[0].object)
 
     # def test_search_results(self):
     #     response = self.client.get("/search/?q={0}".format(self.u.username))
