@@ -264,7 +264,7 @@ class Response(models.Model):
         )
 
     def __unicode__(self):
-        return "Response by {0.owner} to: {0.request}".format(self)
+        return self.owner.user.get_full_name()
 
     def display_action(self):
         if not self.action == self.NONE:
@@ -314,7 +314,7 @@ class Announcement(models.Model):
         )
 
     def __unicode__(self):
-        return "Announcement by {0.incumbent} as {0.manager} on {0.post_date}".format(self)
+        return self.incumbent.user.get_full_name()
 
     class Meta:
         ordering = ['-post_date']
