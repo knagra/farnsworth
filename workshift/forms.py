@@ -40,6 +40,8 @@ class SemesterForm(forms.ModelForm):
             semester.current = False
             semester.save()
 
+        semester.workshift_managers = \
+          [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
         semester.current = True
         semester.preferences_open = True
         semester.save()
@@ -54,7 +56,7 @@ class SemesterForm(forms.ModelForm):
 
         # Create this semester's workshift profiles
         for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
-            profile = WorkshiftProfile.objects.create(
+            WorkshiftProfile.objects.create(
                 user=uprofile.user,
                 semester=semester,
                 )
@@ -398,7 +400,7 @@ class SignOutForm(InteractShiftForm):
         return instance
 
 class AddWorkshifterForm(forms.Form):
-    add_profile = forms.BooleanField(initial=True)
+    add_profile = forms.BooleanField(initial=True, required=False)
     hours = forms.DecimalField(min_value=0, max_digits=7, decimal_places=2,
                                initial=settings.DEFAULT_WORKSHIFT_HOURS)
 
