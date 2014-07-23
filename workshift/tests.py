@@ -1323,10 +1323,22 @@ class TestInteractForms(TestCase):
         self.assertEqual(["Not signed into workshift."], form.errors["pk"])
 
     def test_missing_shift(self):
-        pass
+        self.assertTrue(self.client.login(username="u", password="pwd"))
+
+        form = SignOutForm({"pk": -1}, profile=self.up)
+        self.assertFalse(form.is_valid())
+
+        form = SignOutForm({"pk": 100}, profile=self.up)
+        self.assertFalse(form.is_valid())
+
+        form = SignOutForm({"pk": "a"}, profile=self.up)
+        self.assertFalse(form.is_valid())
 
     def test_closed_shift(self):
-        pass
+        self.once.closed = True
+        self.once.save()
+        form = SignOutForm({"pk": self.once.pk}, profile=self.up)
+        self.assertFalse(form.is_valid())
 
 class TestPermissions(TestCase):
     """
