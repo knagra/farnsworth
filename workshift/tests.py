@@ -900,7 +900,19 @@ class TestViews(TestCase):
         self.assertNotContains(response, "?day=" + tomorrow.strftime("%F"))
 
     def test_semester_bad_day(self):
-        pass
+        url = reverse("workshift:view_semester")
+
+        response = self.client.get(url + "?day=2014")
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(url + "?day=abcd")
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(url + "?day=2014-20")
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(url + "?day=2014-100-100")
+        self.assertEqual(response.status_code, 200)
 
 class TestPreferences(TestCase):
     """
