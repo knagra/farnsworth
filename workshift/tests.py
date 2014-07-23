@@ -328,12 +328,10 @@ class TestAssignment(TestCase):
         pre_fill.main([], verbose=False)
         utils.make_workshift_pool_hours(semester=self.semester)
         # Assign manager shifts beforehand
-        for profile, shift in zip(
-                profiles,
-                RegularWorkshift.objects.filter(
-                    pool=self.p1, workshift_type__auto_assign=False
-                    ),
-            ):
+        manager_shifts = RegularWorkshift.objects.filter(
+            pool=self.p1, workshift_type__auto_assign=False,
+            )
+        for profile, shift in zip(profiles, manager_shifts):
             shift.current_assignees.add(profile)
             shift.save()
         unfinished = utils.auto_assign_shifts(self.semester)
