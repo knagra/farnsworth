@@ -224,6 +224,10 @@ class WorkshiftType(models.Model):
         default=True,
         help_text="Whether this workshift type is shown in preferences.",
         )
+    auto_assign = models.BooleanField(
+        default=True,
+        help_text="Whether this workshift type is included in auto-assignment.",
+        )
 
     def __str__(self):
         return self.__unicode__()

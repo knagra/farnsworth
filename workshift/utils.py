@@ -158,6 +158,7 @@ def make_manager_workshifts(semester=None, managers=None):
         wtype, new = WorkshiftType.objects.get_or_create(title=manager.title)
         if new:
             wtype.rateable = False
+            wtype.auto_assign = False
         wtype.description = manager.duties
         wtype.hours = hours
         wtype.save()
@@ -300,70 +301,88 @@ def is_available(workshift_profile, shift):
             return True
     return True
 
-def _frange(start, end, step):
-    while start <= end:
-        yield start
-        start += step
-    if start - step != end:
-        yield end
-
 def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     if pool is None:
         pool = WorkshiftPool.objects.get(semester=semester, is_primary=True)
     if profiles is None:
-        # .order_by('preference_save_date')
+        # TODO: .order_by('preference_save_date')
         profiles = WorkshiftProfile.objects.filter(semester=semester)
     if shifts is None:
-        shifts = RegularWorkshift.objects.filter(pool=pool)
+        shifts = RegularWorkshift.objects.filter(
+            pool=pool, workshift_type__auto_assign=True,
+            )
 
-    shifts = list(shifts)
+    shifts = set(shifts)
     profiles = list(profiles)
 
-    # TODO: Pre-process, rank shifts by their times / preferences
-    hours_mapping = defaultdict(int)
+    # List of hours assigned to each profile
+    hours_mapping = defaultdict(float)
 
-    for i in _frange(0, pool.hours, 1):
-        for profile in profiles:
+    # Initialize with already-assigned shifts
+    for profile in profiles:
+        for shift in profile.regularworkshift_set.filter(current_assignees=profile):
+            hours_mapping[profile] += float(shift.hours)
+
+    # Pre-process, rank shifts by their times / preferences
+    rankings = defaultdict(set)
+    for profile in profiles:
+        pool_hours = profile.pool_hours.get(pool=pool)
+        for shift in shifts:
+            # Skip shifts that put a member over their hour requirement
+            if float(shift.hours) + hours_mapping[profile] > float(pool_hours.hours):
+                continue
+
+            # Check how well this shift fits the member's schedule
+            status = is_available(profile, shift)
+            if not status or status == TimeBlock.BUSY:
+                continue
+
+            try:
+                rating = profile.ratings.get(
+                    workshift_type=shift.workshift_type,
+                    ).rating
+            except WorkshiftRating.DoesNotExist:
+                rating = WorkshiftRating.INDIFFERENT
+
+            if rating == WorkshiftRating.DISLIKE:
+                rank = 5
+            elif rating == WorkshiftRating.INDIFFERENT:
+                rank = 3
+            else:
+                rank = 1
+
+            if status != TimeBlock.PREFERRED:
+                rank += 1
+
+            rankings[profile, rank].add(shift)
+
+    # Assign shifts in a round-robin manner, run until we can't assign anyone
+    # any more shifts
+    while any(rankings.values()):
+        print 1
+        for profile in profiles[:]:
             pool_hours = profile.pool_hours.get(pool=pool)
-            rankings = defaultdict(list)
-
-            # Rate each shift by its availability
-            for shift in shifts:
-                if not is_available(profile, shift):
-                    continue
-
-                try:
-                    rating = profile.ratings.get(
-                        workshift_type=shift.workshift_type,
-                        ).rating
-                except WorkshiftRating.DoesNotExist:
-                    rating = WorkshiftRating.INDIFFERENT
-
-                if rating == WorkshiftRating.DISLIKE:
-                    rank = 5
-                elif rating == WorkshiftRating.INDIFFERENT:
-                    rank = 3
-                else:
-                    rank = 1
-
-                # If not preferred time:
-                # rank += 1
-
-                rankings[profile, rank].append(shift)
 
             # Assign a shift, picking from the most preferable groups first
             for rank in range(1, 7):
+                # Update the rankings with the list of available shifts
+                rankings[profile, rank] = shifts.intersection(rankings[profile, rank])
                 if rankings[profile, rank]:
                     # Select the shift, starting with those that take the most
-                    # hours and fit the best into the workshifter's allotted hours
-                    shift = random.choice(rankings[profile, rank])
+                    # hours and fit the best into the workshifter's allotted
+                    # hours
+                    weighted = [
+                        val
+                        for val in rankings[profile, rank]
+                        for i in range(val.count)
+                        ]
+                    shift = random.choice(weighted)
 
                     # Assign the person to their shift
                     shift.current_assignees.add(profile)
+                    hours_mapping[profile] += float(shift.hours)
 
-                    hours_mapping[profile] += shift.hours
-
-                    # Remove shift from shifts and update rankings accordingly
+                    # Remove shift from shifts if it has been completely filled
                     if shift.current_assignees.count() == shift.count:
                         shifts.remove(shift)
 
@@ -372,6 +391,24 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
             # Remove profiles when their hours have all been assigned
             if pool_hours.hours <= hours_mapping[profile]:
                 profiles.remove(profile)
+                for rank in range(1, 7):
+                    if (profile, rank) in rankings:
+                        del rankings[profile, rank]
+                continue
+
+            # Otherwise, Remove shifts that put people above their weekly
+            # allocation
+            for rank in range(1, 7):
+                rankings[profile, rank] = set(
+                    shift
+                    for shift in rankings[profile, rank]
+                    if float(shift.hours) + hours_mapping[profile] <=
+                    float(pool_hours.hours)
+                    )
+
 
     # Return profiles that were incompletely assigned shifts
+    for profile in profiles:
+        print profile.user.username, hours_mapping[profile]
+    print len(shifts), [float(i.hours) for i in shifts]
     return profiles

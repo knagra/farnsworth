@@ -2,15 +2,17 @@
 from __future__ import absolute_import
 
 from datetime import timedelta, time, date
+import random
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.timezone import now
 
-from utils.variables import MESSAGES
 from base.models import User, UserProfile
+from farnsworth import pre_fill
 from managers.models import Manager
+from utils.variables import MESSAGES
 from workshift.models import *
 from workshift.forms import *
 from workshift.fields import DAY_CHOICES
@@ -18,6 +20,10 @@ from workshift.cron import CollectBlownCronJob
 from workshift import utils
 
 class TestStart(TestCase):
+    """
+    Tests the behavior of the workshift website before any semester has been
+    initialized. Also tests that initializing a semester works correctly.
+    """
     def setUp(self):
         self.u = User.objects.create_user(username="u", password="pwd")
         self.wu = User.objects.create_user(username="wu", password="pwd")
@@ -91,8 +97,13 @@ class TestStart(TestCase):
             self.assertEqual(1, profile.pool_hours.filter(pool=pool).count())
 
 class TestAssignment(TestCase):
+    """
+    Test the functionality of workshift.utils.auto_assign_shifts. This should
+    include respecting member's shift preferences and schedules.
+    """
     def setUp(self):
-        self.u = User.objects.create_user(username="u", password="pwd")
+        random.seed(0)
+        self.u = User.objects.create_user(username="u0")
         self.semester = Semester.objects.create(
             year=2014,
             season=Semester.SUMMER,
@@ -104,35 +115,238 @@ class TestAssignment(TestCase):
             semester=self.semester,
             )
         self.p1 = WorkshiftPool.objects.create(
-            title="Regular Workshift",
             is_primary=True,
             semester=self.semester,
-            sign_out_cutoff=24,
-            verify_cutoff=2,
             )
         self.p2 = WorkshiftPool.objects.create(
             title="Alternate Workshift",
             semester=self.semester,
             )
-        self.wtype = WorkshiftType.objects.create(
-            title="Test Make Instances",
+        self.wtype1 = WorkshiftType.objects.create(
+            title="Like Type",
             )
+        self.wtype2 = WorkshiftType.objects.create(
+            title="Indifferent Type",
+            )
+        self.wtype3 = WorkshiftType.objects.create(
+            title="Dislike Type",
+            )
+        preference1 = WorkshiftRating.objects.create(
+            rating=WorkshiftRating.LIKE,
+            workshift_type=self.wtype1,
+            )
+        preference2 = WorkshiftRating.objects.create(
+            rating=WorkshiftRating.INDIFFERENT,
+            workshift_type=self.wtype2,
+            )
+        preference3 = WorkshiftRating.objects.create(
+            rating=WorkshiftRating.DISLIKE,
+            workshift_type=self.wtype3,
+            )
+        self.profile.ratings = [preference1, preference2, preference3]
+        self.profile.save()
         utils.make_workshift_pool_hours(semester=self.semester)
 
-    def test_auto_assign(self):
+    def test_auto_assign_one(self):
+        """
+        Assign one shift to a member.
+        """
         shift1 = RegularWorkshift.objects.create(
-            workshift_type=self.wtype,
+            workshift_type=self.wtype1,
             pool=self.p1,
-            day=0,
             hours=5,
             )
         unfinished = utils.auto_assign_shifts(self.semester)
         self.assertEqual([], unfinished)
         self.assertIn(self.profile, shift1.current_assignees.all())
 
+    def test_pre_assigned(self):
+        """
+        Test that assignment behaves correctly when members are already assigned
+        to other workshifts.
+        """
+        shift1 = RegularWorkshift.objects.create(
+            workshift_type=self.wtype1,
+            pool=self.p1,
+            hours=5,
+            )
+        shift2 = RegularWorkshift.objects.create(
+            workshift_type=self.wtype3,
+            pool=self.p1,
+            hours=1,
+            )
+        shift2.current_assignees = [self.profile]
+        shift2.save()
+        unfinished = utils.auto_assign_shifts(self.semester)
+        self.assertEqual([self.profile], unfinished)
+        self.assertNotIn(self.profile, shift1.current_assignees.all())
+
+    def test_auto_assign_one_overflow(self):
+        """
+        Don't assign one shift to a member because it pushes them over their
+        weekly requirement.
+        """
+        shift1 = RegularWorkshift.objects.create(
+            workshift_type=self.wtype1,
+            pool=self.p1,
+            hours=6,
+            )
+        unfinished = utils.auto_assign_shifts(self.semester)
+        self.assertEqual([self.profile], unfinished)
+        self.assertNotIn(self.profile, shift1.current_assignees.all())
+
+    def test_auto_assign_two(self):
+        """
+        Assign two shifts to a member.
+        """
+        shift1 = RegularWorkshift.objects.create(
+            workshift_type=self.wtype1,
+            pool=self.p1,
+            hours=2,
+            )
+        shift2 = RegularWorkshift.objects.create(
+            workshift_type=self.wtype1,
+            pool=self.p1,
+            hours=3,
+            )
+        unfinished = utils.auto_assign_shifts(self.semester)
+        self.assertEqual([], unfinished)
+        self.assertIn(self.profile, shift1.current_assignees.all())
+        self.assertIn(self.profile, shift2.current_assignees.all())
+
+    def test_auto_assign_two_preferred(self):
+        """
+        Assign two shifts to a member.
+        """
+        shift1 = RegularWorkshift.objects.create(
+            workshift_type=self.wtype1,
+            pool=self.p1,
+            hours=5,
+            )
+        shift2 = RegularWorkshift.objects.create(
+            workshift_type=self.wtype2,
+            pool=self.p1,
+            hours=5,
+            )
+        unfinished = utils.auto_assign_shifts(self.semester)
+        self.assertEqual([], unfinished)
+        self.assertIn(self.profile, shift1.current_assignees.all())
+        self.assertNotIn(self.profile, shift2.current_assignees.all())
+
+    def test_auto_assign_two_overflow(self):
+        """
+        Assign a preferred shift to a member, but don't assign the other because
+        it pushes them over their weekly requirement.
+        """
+        shift1 = RegularWorkshift.objects.create(
+            workshift_type=self.wtype1,
+            pool=self.p1,
+            hours=3,
+            )
+        shift2 = RegularWorkshift.objects.create(
+            workshift_type=self.wtype2,
+            pool=self.p1,
+            hours=3,
+            )
+        unfinished = utils.auto_assign_shifts(self.semester)
+        self.assertEqual([self.profile], unfinished)
+        self.assertIn(self.profile, shift1.current_assignees.all())
+        self.assertNotIn(self.profile, shift2.current_assignees.all())
+
+    def _test_auto_assign_fifty(self):
+        """
+        Assign fifty members to fifty shifts, with each shift providing 5 hours
+        of workshift. Ensures that the assignments don't mysteriously break or
+        run for an extremely long time for medium-sized houses.
+        """
+        shifts, profiles = [], [self.profile]
+        for i in range(50):
+            shifts.append(
+                RegularWorkshift.objects.create(
+                    workshift_type=self.wtype1,
+                    pool=self.p1,
+                    hours=5,
+                    )
+                )
+        for i in range(1, 50):
+            user = User.objects.create_user(username="u{0}".format(i))
+            profile = WorkshiftProfile.objects.create(
+                user=user,
+                semester=self.semester
+                )
+            profiles.append(profile)
+
+        utils.make_workshift_pool_hours(semester=self.semester)
+        unfinished = utils.auto_assign_shifts(self.semester)
+        self.assertEqual([], unfinished)
+        for shift in shifts:
+            self.assertEqual(1, shift.current_assignees.count())
+
+    def _test_auto_assign_one_hundred_and_fifty(self):
+        """
+        Assign 150 members to 150 shifts, with each shift providing 5 hours
+        of workshift. Ensures that the assignments don't mysteriously break or
+        run for an extremely long time for large houses.
+        """
+        shifts, profiles = [], [self.profile]
+        for i in range(150):
+            shifts.append(
+                RegularWorkshift.objects.create(
+                    workshift_type=self.wtype1,
+                    pool=self.p1,
+                    hours=5,
+                    )
+                )
+        for i in range(1, 150):
+            user = User.objects.create_user(username="u{0}".format(i))
+            profile = WorkshiftProfile.objects.create(
+                user=user,
+                semester=self.semester
+                )
+            profiles.append(profile)
+
+        utils.make_workshift_pool_hours(semester=self.semester)
+        unfinished = utils.auto_assign_shifts(self.semester)
+        self.assertEqual([], unfinished)
+        for shift in shifts:
+            self.assertEqual(1, shift.current_assignees.count())
+
+    def test_pre_fill_and_assign(self):
+        """
+        Tests that shifts can be correctly assigned after farnsworth/pre_fill.py
+        is run. This is a good test of how the assignment code functions "in the
+        wild," rather than with many duplicates of the same shift.
+        """
+        profiles = []
+        for i in range(1, 50):
+            user = User.objects.create_user(username="u{0}".format(i))
+            profile = WorkshiftProfile.objects.create(
+                user=user,
+                semester=self.semester
+                )
+            profiles.append(profile)
+        pre_fill.main([], verbose=False)
+        utils.make_workshift_pool_hours(semester=self.semester)
+        # Assign manager shifts beforehand
+        for profile, shift in zip(
+                profiles,
+                RegularWorkshift.objects.filter(
+                    pool=self.p1, workshift_type__auto_assign=False
+                    ),
+            ):
+            shift.current_assignees.add(profile)
+            shift.save()
+        unfinished = utils.auto_assign_shifts(self.semester)
+        print sum(i.hours * i.count for i in RegularWorkshift.objects.all())
+        print sum(i.hours * i.current_assignees.count() for i in RegularWorkshift.objects.all())
+        self.assertEqual([], unfinished)
+
 class TestUtils(TestCase):
+    """
+    Tests most of the various functions within workshift.utils.
+    """
     def setUp(self):
-        self.u = User.objects.create_user(username="u", password="pwd")
+        self.u = User.objects.create_user(username="u")
         self.semester = Semester.objects.create(
             year=2014,
             season=Semester.SUMMER,
@@ -693,6 +907,9 @@ class TestViews(TestCase):
         pass
 
 class TestPreferences(TestCase):
+    """
+    Tests the various elements of the workshift preferences page.
+    """
     def setUp(self):
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.wu.first_name, self.wu.last_name = "Cooperative", "User"
@@ -912,6 +1129,10 @@ class TestPreferences(TestCase):
         self.assertEqual(self.wprofile.ratings.count(), 2)
 
 class TestInteractForms(TestCase):
+    """
+    Tests the functionality of the buttons for marking shifts as blown,
+    verifying shifts, signing in and out of shifts at appropriate times, etc.
+    """
     def setUp(self):
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.u = User.objects.create_user(username="u", password="pwd")
@@ -1101,8 +1322,8 @@ class TestInteractForms(TestCase):
 
 class TestPermissions(TestCase):
     """
-    Tests a few basic things about the application: That all the pages can load
-    correctly, and that they contain the content that is expected.
+    Tests that different levels of users and management are only able to access
+    the pages they are expected to have permission to.
     """
     def setUp(self):
         self.wu = User.objects.create_user(username="wu", password="pwd")
@@ -1313,16 +1534,27 @@ class TestPermissions(TestCase):
                 self.assertContains(response, MESSAGES["ADMINS_ONLY"])
 
 class TestWorkshifters(TestCase):
+    """
+    Tests that workshift profiles are created correctly for different types of
+    members.
+    """
     def setUp(self):
         pass
 
     def test_no_alumni(self):
+        """
+        Tests that WorkshiftProfiles are not created for alumni.
+        """
         pass
 
     def test_add_workshifter(self):
         pass
 
 class TestWorkshifts(TestCase):
+    """
+    Tests the pages for adding and modifying workshift types, regular shifts,
+    and instances of shifts.
+    """
     def setUp(self):
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.u = User.objects.create_user(username="u", password="pwd")
@@ -1700,6 +1932,10 @@ class TestWorkshifts(TestCase):
         self.assertEqual(shift_type.rateable, False)
 
 class TestSemester(TestCase):
+    """
+    Tests for correct behavior when multiple semesters exist, including when
+    there exist multiple "current" semesters.
+    """
     def setUp(self):
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.wp = UserProfile.objects.get(user=self.wu)
