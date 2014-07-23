@@ -100,6 +100,6 @@ class PollQuestionForm(models.Model):
             and not self.cleaned_data['choice_text']:
                 
 
-class BasePollQuestionForm(BaseModelFormSet):
+class BasePollQuestionFormSet(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
         
