@@ -359,7 +359,6 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     # Assign shifts in a round-robin manner, run until we can't assign anyone
     # any more shifts
     while any(rankings.values()):
-        print 1
         for profile in profiles[:]:
             pool_hours = profile.pool_hours.get(pool=pool)
 
@@ -406,9 +405,5 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
                     float(pool_hours.hours)
                     )
 
-
     # Return profiles that were incompletely assigned shifts
-    for profile in profiles:
-        print profile.user.username, hours_mapping[profile]
-    print len(shifts), [float(i.hours) for i in shifts]
     return profiles

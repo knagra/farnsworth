@@ -185,9 +185,6 @@ def start_semester_view(request):
     if semester_form.is_valid() and all(i.is_valid() for i in pool_forms):
         # And save this semester
         semester = semester_form.save()
-        semester.workshift_managers = \
-          [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
-        semester.save()
         for pool_form in pool_forms:
             pool_form.save(semester=semester)
         return HttpResponseRedirect(wurl("workshift:manage",
@@ -252,7 +249,8 @@ def view_semester(request, semester, profile=None):
                     f.save()
                     return HttpResponseRedirect(
                         wurl("workshift:view_semester", sem_url=semester.sem_url) +
-                        "?day={0}".format(day) if "day" in request.GET else "")
+                        "?day={0}".format(day) if "day" in request.GET else ""
+                        )
                 else:
                     for error in f.errors.values():
                         messages.add_message(request, messages.ERROR, error)
