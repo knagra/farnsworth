@@ -304,8 +304,9 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     if pool is None:
         pool = WorkshiftPool.objects.get(semester=semester, is_primary=True)
     if profiles is None:
-        # TODO: .order_by('preference_save_date')
-        profiles = WorkshiftProfile.objects.filter(semester=semester)
+        profiles = WorkshiftProfile.objects.filter(
+            semester=semester,
+            ).order_by('preference_save_time')
     if shifts is None:
         shifts = RegularWorkshift.objects.filter(
             pool=pool, workshift_type__auto_assign=True,

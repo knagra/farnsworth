@@ -412,6 +412,9 @@ def preferences_view(request, semester, targetUsername, profile=None):
             form.save()
         time_formset.save()
         instance = note_form.save()
+        if wprofile.preference_save_time is None:
+            wprofile.preference_save_time = now()
+            wprofile.save()
         messages.add_message(request, messages.INFO, "Preferences saved.")
         return HttpResponseRedirect(wurl('workshift:preferences',
                                          sem_url=semester.sem_url,
