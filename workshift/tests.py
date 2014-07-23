@@ -1559,16 +1559,83 @@ class TestWorkshifters(TestCase):
     members.
     """
     def setUp(self):
-        pass
+        self.ru = User.objects.create_user(username="ru", password="pwd")
+        self.bu = User.objects.create_user(username="bu", password="pwd")
+        self.au = User.objects.create_user(username="au", password="pwd")
+
+        self.rp = UserProfile.objects.get(user=self.ru)
+        self.bp = UserProfile.objects.get(user=self.bu)
+        self.ap = UserProfile.objects.get(user=self.au)
+
+        self.rp.status = UserProfile.RESIDENT
+        self.bp.status = UserProfile.BOARDER
+        self.ap.status = UserProfile.ALUMNUS
+
+        self.rp.save()
+        self.bp.save()
+        self.ap.save()
+
+        Manager.objects.create(
+            title="Workshift Manager",
+            incumbent=UserProfile.objects.get(user=self.ru),
+            workshift_manager=True,
+            )
+
+        self.assertTrue(self.client.login(username="ru", password="pwd"))
+
+        url = reverse("workshift:start_semester")
+        response = self.client.post(url, {
+            "season": Semester.SUMMER,
+            "year": 2014,
+            "rate": 13.30,
+            "policy": "http://bsc.coop",
+            "start_date": date(2014, 5, 22),
+            "end_date": date(2014, 8, 15),
+        }, follow=True)
+
+        self.assertRedirects(response, reverse("workshift:manage"))
 
     def test_no_alumni(self):
         """
         Tests that WorkshiftProfiles are not created for alumni.
         """
-        pass
+        self.assertEqual(
+            1,
+            WorkshiftProfile.objects.filter(user=self.ru).count(),
+            )
+        self.assertEqual(
+            0,
+            WorkshiftProfile.objects.filter(user=self.bu).count(),
+            )
+        self.assertEqual(
+            0,
+            WorkshiftProfile.objects.filter(user=self.au).count(),
+            )
 
     def test_add_workshifter(self):
-        pass
+        url = reverse("workshift:add_workshifter")
+        response = self.client.post(url, {
+            "user-{0}-add_profile".format(self.bu.pk): True,
+            "user-{0}-hours".format(self.bu.pk): 3,
+            "user-{0}-hours".format(self.au.pk): 3,
+            })
+
+        self.assertRedirects(response, reverse("workshift:manage"))
+        self.assertEqual(
+            1,
+            WorkshiftProfile.objects.filter(user=self.bu).count()
+            )
+        self.assertEqual(
+            0,
+            WorkshiftProfile.objects.filter(user=self.au).count()
+            )
+        profile = WorkshiftProfile.objects.get(user=self.bu)
+        self.assertEqual(
+            profile.pool_hours.get(
+                pool=WorkshiftPool.objects.get(is_primary=True),
+                ).hours,
+            3,
+            )
 
 class TestWorkshifts(TestCase):
     """
