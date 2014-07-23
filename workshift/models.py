@@ -380,6 +380,11 @@ class WorkshiftProfile(models.Model):
         help_text="Note for this profile. For communication between the "
         "workshifter and the workshift manager(s).",
         )
+    preference_save_time = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="The time this member first saved their preferences.",
+        )
     time_blocks = models.ManyToManyField(
         TimeBlock,
         blank=True,
