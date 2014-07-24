@@ -221,12 +221,14 @@ def requests_view(request, requestType):
             response_form = ManagerResponseForm(
                 request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
                 initial={'action': Response.NONE},
+                prefix="{0}".format(req.pk),
                 profile=userProfile,
                 request=req,
                 )
         else:
             response_form = ResponseForm(
                 request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
+                prefix="{0}".format(req.pk),
                 profile=userProfile,
                 request=req,
                 )
