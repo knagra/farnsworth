@@ -604,7 +604,6 @@ def add_shift_view(request, semester):
         shifts_formset = RegularWorkshiftFormSet(
             request.POST if "add_type" in request.POST else None,
             prefix="shifts",
-            pools=pools,
             queryset=RegularWorkshift.objects.none(),
             )
 
