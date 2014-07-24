@@ -86,7 +86,7 @@ class RequestForm(forms.ModelForm):
     class Meta:
         model = Request
         fields = ("body", "private")
-        help_text = {
+        help_texts = {
             "body": "",
             }
 
