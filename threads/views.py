@@ -104,8 +104,8 @@ def thread_view(request, thread_pk):
             "thread_pk": thread.pk,
             }))
 
-     thread.views += 1
-     thread.save()
+    thread.views += 1
+    thread.save()
 
     return render_to_response('view_thread.html', {
         'thread': thread,
