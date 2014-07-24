@@ -40,6 +40,7 @@ class Thread(models.Model):
         help_text="Whether this thread is still active.",
         )
     views = models.PositiveIntegerField(
+        default=0,
         help_text="The number times this thread has been viewed.",
         )
 
