@@ -63,3 +63,26 @@
   </form>
 </div> <!-- .type_container -->
 {% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+  function renewDatePickers(row) {
+    $("[id$=time]", row || null).datetimepicker({
+      pickDate: false,
+      pick12HourFormat: true,
+    });
+  };
+  $(document).ready(function() {
+    $(function() {
+      $(".shift_formset_row").formset({
+        prefix: "{{ shift_formset.prefix }}",
+        added: renewDatePickers,
+      });
+      renewDatePickers();
+    });
+  });
+</script>
+{% endblock %}
