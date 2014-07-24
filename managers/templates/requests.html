@@ -80,9 +80,9 @@
 		<div class="request_name bg-{% if request.filled %}success{% elif request.closed %}danger{% elif request.expired %}expired{% else %}warning{% endif %}" title="{{ request.get_status_display }}">
 		  <div class="request_owner">
 			{% if not request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
-			<form style="display:inline" method="POST" action="">
+			<form style="display:inline" method="POST">
 			  {% csrf_token %}
-			  {{ request_form }}
+			  {{ vote_form|bootstrap }}
 			  {% if upvote %}
               <button type="submit" class="btn btn-xs" name="upvote" title="Remove upvote">
 				<span class="glyphicon glyphicon-star"></span>
@@ -124,15 +124,21 @@
 			  {% with y=forloop.counter|stringformat:"s" %}
 			  {% with response_form_id="response_form_"|add:y %}
 			  {% with button_id="button_"|add:y %}
-			  <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
+			  <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')">
+				<span class="glyphicon glyphicon-paperclip"></span> Add Response
+			  </button>
 			</div> <!-- text-center -->
-			<form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
+			<form class="new_response_form add_response" id="{{ response_form_id }}" method="post">
 			  {% csrf_token %}
 			  {{ response_form|bootstrap }}
               <div class="text-center">
 				<div class="btn-group">
-				  <button type="submit" class="btn btn-success" name="add_response-{{ request.pk }}"><span class="glyphicon glyphicon-send"></span> Post Message</button>
-				  <button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+				  <button type="submit" class="btn btn-success" name="add_response-{{ request.pk }}">
+					<span class="glyphicon glyphicon-send"></span> Post Message
+				  </button>
+				  <button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')">
+					<span class="glyphicon glyphicon-collapse-up"></span> Hide
+				  </button>
 				</div> <!-- .btn-group -->
               </div> <!-- .text-center -->
 			</form>
