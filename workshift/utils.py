@@ -370,12 +370,8 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
                     # Select the shift, starting with those that take the most
                     # hours and fit the best into the workshifter's allotted
                     # hours
-                    weighted = [
-                        val
-                        for val in rankings[profile, rank]
-                        for i in range(val.count)
-                        ]
-                    shift = random.choice(weighted)
+                    shift = sorted(rankings[profile, rank],
+                                   key=lambda x: x.hours, reverse=True)[0]
 
                     # Assign the person to their shift
                     shift.current_assignees.add(profile)

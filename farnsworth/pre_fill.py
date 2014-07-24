@@ -425,10 +425,10 @@ def main(args, verbose=True):
                     workshift_type=wtype,
                     pool=pool,
                     day=day,
+                    start_time=start,
+                    end_time=end,
                     defaults=dict(
                         count=count,
-                        start_time=start,
-                        end_time=end,
                         hours=wtype.hours,
                         ),
                     )
