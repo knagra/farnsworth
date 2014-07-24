@@ -20,6 +20,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
@@ -60,7 +61,12 @@ def add_context(request):
     ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
     request_types = list() # A list with items of form (RequestType, number_of_open_requests)
     for request_type in RequestType.objects.filter(enabled=True):
-        request_types.append((request_type, Request.objects.filter(request_type=request_type, status=Request.OPEN).count()))
+        requests = Request.objects.filter(request_type=request_type, status=Request.OPEN)
+        if not request_type.managers.filter(incumbent__user=request.user):
+            request.exclude(
+                ~Q(owner__user=request.user), private=True,
+                )
+        request_types.append((request_type, requests.count()))
     return {
         'REQUEST_TYPES': request_types,
         'HOUSE': settings.HOUSE_NAME,
