@@ -7,6 +7,11 @@
 
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/requests.css' %}" />
+<style>
+  .form-group label {
+    display: none;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -32,10 +37,8 @@
 <hr class="w_line" />
   <form id="new_request_form" method="post" action="">
     {% csrf_token %}
-    <div class="form-group">
-      <label for="id_body">New Request</label>
-      {{ request_form|bootstrap }}
-    </div>
+    <label for="id_body">New Request</label>
+    {{ request_form|bootstrap }}
     <div class="text-center">
       <div class="btn-group">
 	<button type="submit" class="btn btn-success" name="submit_request"><span class="glyphicon glyphicon-inbox"></span> Submit Request</button>
