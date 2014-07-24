@@ -189,6 +189,10 @@ class Request(models.Model):
         help_text="Up votes for this request.",
         related_name="up_votes",
         )
+    private = models.BooleanField(
+        default=False,
+        help_text="Only show this request to the manager, other members cannot view it.",
+        )
 
     def __unicode__(self):
         return "{0.name} request by {1.owner}".format(self.request_type, self)

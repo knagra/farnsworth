@@ -85,7 +85,7 @@ class RequestForm(forms.ModelForm):
     ''' Form to create a new Request. '''
     class Meta:
         model = Request
-        fields = ("body",)
+        fields = ("body", "private")
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
