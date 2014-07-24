@@ -4,6 +4,7 @@
 {% load thread_tags %}
 {% load request_tags %}
 {% load bootstrap %}
+
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/requests.css' %}" />
 {% endblock %}
@@ -31,16 +32,16 @@
 <hr class="w_line" />
   <form id="new_request_form" method="post" action="">
     {% csrf_token %}
-      <div class="form-group">
-        <label for="id_body">New Request</label>
-        <textarea id="id_body" name="body"></textarea>
-      </div>
-      <div class="text-center">
+    <div class="form-group">
+      <label for="id_body">New Request</label>
+      {{ request_form|bootstrap }}
+    </div>
+    <div class="text-center">
       <div class="btn-group">
-      <button type="submit" class="btn btn-success" name="submit_request"><span class="glyphicon glyphicon-inbox"></span> Submit Request</button>
-      <button type="button" class="btn btn-default" name="cancel_request_form" onclick="hide_new_request_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+	<button type="submit" class="btn btn-success" name="submit_request"><span class="glyphicon glyphicon-inbox"></span> Submit Request</button>
+	<button type="button" class="btn btn-default" name="cancel_request_form" onclick="hide_new_request_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
       </div> <!-- btn-group -->
-      </div> <!-- .text-center -->
+    </div> <!-- .text-center -->
   </form>
 
   <div class="requests_table">
