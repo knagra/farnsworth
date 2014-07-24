@@ -316,13 +316,15 @@ def main(args, verbose=True):
     for title, compensation, hours, email, duties in MANAGERS:
         created = Manager.objects.get_or_create(
             title=title,
-            compensation=compensation,
-            semester_hours=str(hours),
-            summer_hours=str(hours),
-            duties=duties,
-            email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
-            president="president" in title.lower(),
-            workshift_manager="workshift" in title.lower(),
+            defaults=dict(
+                compensation=compensation,
+                semester_hours=hours,
+                summer_hours=hours,
+                duties=duties,
+                email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
+                president="president" in title.lower(),
+                workshift_manager="workshift" in title.lower(),
+                ),
             )[1]
         if created:
             managers += 1
@@ -358,18 +360,6 @@ def main(args, verbose=True):
 
         if created and verbose:
             print("Started a new workshift semester")
-
-        wprofiles = 0
-        for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
-            created = WorkshiftProfile.objects.get_or_create(
-                user=uprofile.user,
-                semester=semester,
-                )[1]
-            if created:
-                wprofiles += 1
-
-        if verbose:
-            print("Created {} workshift profiles".format(wprofiles))
 
         # Regular Weekly Workshift Hours
         pool, created = WorkshiftPool.objects.get_or_create(

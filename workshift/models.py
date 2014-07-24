@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
 
+from base.models import UserProfile
 from managers.models import Manager
 from workshift.fields import DayField
 
@@ -724,3 +725,21 @@ class WorkshiftInstance(models.Model):
 
     def is_workshift_instance(self):
         return True
+
+def create_workshift_profile(sender, instance, created, **kwargs):
+    '''
+    Function to add a workshift profile for every User that is created.
+    Parameters:
+        instance is an of UserProfile that was just saved.
+    '''
+    if created and instance.status == UserProfile.RESIDENT:
+        try:
+            semester = Semester.objects.get(current=True)
+        except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+            pass
+        else:
+            WorkshiftProfile.objects.create(user=instance.user, semester=semester)
+
+# Connect signals with their respective functions from above.
+# When a user is created, create a user profile associated with that user.
+models.signals.post_save.connect(create_workshift_profile, sender=UserProfile)
