@@ -86,6 +86,9 @@ class RequestForm(forms.ModelForm):
     class Meta:
         model = Request
         fields = ("body", "private")
+        help_text = {
+            "body": "",
+            }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
