@@ -572,6 +572,7 @@ TimeBlockFormSet = modelformset_factory(
     help_texts=dict(preference="", day="", start_time="", end_time=""),
     )
 
+# TODO: Set week_long = True if day is unset
 class AddRegularWorkshiftForm(forms.ModelForm):
     start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
                                  input_formats=valid_time_formats)
@@ -580,6 +581,14 @@ class AddRegularWorkshiftForm(forms.ModelForm):
     class Meta:
         model = RegularWorkshift
         fields = ("pool", "day", "count", "hours", "start_time", "end_time")
+        help_texts = {
+            "pool": "",
+            "day": "",
+            "count": "",
+            "hours": "",
+            "start_time": "",
+            "end_time": "",
+            }
 
     def clean(self):
         cleaned_data = super(TimeBlockForm, self).clean()
