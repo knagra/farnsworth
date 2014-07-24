@@ -39,6 +39,9 @@ class Thread(models.Model):
         default=True,
         help_text="Whether this thread is still active.",
         )
+    views = models.PositiveIntegerField(
+        help_text="The number times this thread has been viewed.",
+        )
 
     def __unicode__(self):
         return self.subject

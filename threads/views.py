@@ -19,29 +19,6 @@ from threads.models import Thread, Message
 from threads.forms import ThreadForm, MessageForm, EditMessageForm, \
      EditThreadForm, DeleteMessageForm
 
-def _threads_dict(threads, limited=False):
-    # A pseudo-dictionary, actually a list with items of form
-    # (thread.subject, [thread_messages_list], thread.pk, number_of_more_messages)
-    threads_dict = list()
-    x = 0
-    for thread in threads:
-        y = 0 # number of messages loaded
-        thread_messages = list()
-        for message in Message.objects.filter(thread=thread).reverse():
-            thread_messages.append(message)
-            y += 1
-            if y >= settings.MAX_MESSAGES:
-                break
-        more_messages = thread.number_of_messages - settings.MAX_MESSAGES
-        if more_messages < 0:
-            more_messages = 0
-        thread_messages.reverse()
-        threads_dict.append((thread.subject, thread_messages, thread.pk, more_messages))
-        x += 1
-        if x >= settings.MAX_THREADS and limited:
-            break
-    return threads_dict
-
 @profile_required
 def list_all_threads_view(request):
     ''' View of all threads. '''
@@ -126,6 +103,9 @@ def thread_view(request, thread_pk):
         return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
             "thread_pk": thread.pk,
             }))
+
+     thread.views += 1
+     thread.save()
 
     return render_to_response('view_thread.html', {
         'thread': thread,
