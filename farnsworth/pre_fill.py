@@ -306,8 +306,8 @@ WEEK_LONG = (
     )
 
 HUMOR_WORKSHIFTS = [
-    ("Pots", ["Friday", "Saturday"], time(20), time(0)),
-    ("Sweep & Mop", ["Friday", "Saturday"], time(20), time(0)),
+    ("Pots", [4, 5], time(20), time(0)),
+    ("Sweep & Mop", [4, 5], time(20), time(0)),
     ]
 
 def main(args, verbose=True):
@@ -337,7 +337,9 @@ def main(args, verbose=True):
     for name, managers, glyphicon in REQUESTS:
         r, created = RequestType.objects.get_or_create(
             name=name,
-            glyphicon=glyphicon,
+            defaults=dict(
+                glyphicon=glyphicon,
+                ),
             )
 
         if created:
@@ -407,10 +409,12 @@ def main(args, verbose=True):
         for title, description, quick_tips, hours, rateable in WORKSHIFT_TYPES:
             WorkshiftType.objects.get_or_create(
                 title=title,
-                description=description,
-                quick_tips=quick_tips,
-                hours=hours,
-                rateable=rateable,
+                defaults=dict(
+                    description=description,
+                    quick_tips=quick_tips,
+                    hours=hours,
+                    rateable=rateable,
+                    ),
                 )
 
         # Regular Workshifts
@@ -420,11 +424,13 @@ def main(args, verbose=True):
                 RegularWorkshift.objects.get_or_create(
                     workshift_type=wtype,
                     pool=pool,
-                    count=count,
                     day=day,
-                    start_time=start,
-                    end_time=end,
-                    hours=wtype.hours,
+                    defaults=dict(
+                        count=count,
+                        start_time=start,
+                        end_time=end,
+                        hours=wtype.hours,
+                        ),
                     )
 
         for type_title, count in WEEK_LONG:
@@ -434,21 +440,27 @@ def main(args, verbose=True):
                 pool=pool,
                 count=count,
                 week_long=True,
-                start_time=None,
-                end_time=None,
-                hours=wtype.hours,
+                defaults=dict(
+                    start_time=None,
+                    end_time=None,
+                    hours=wtype.hours,
+                    ),
                 )
 
         # Humor Workshifts
         for type_title, days, start, end in HUMOR_WORKSHIFTS:
             wtype = WorkshiftType.objects.get(title=type_title)
-            RegularWorkshift.objects.get_or_create(
-                workshift_type=wtype,
-                pool=humor_pool,
-                start_time=start,
-                end_time=end,
-                hours=wtype.hours,
-                )
+            for day in days:
+                RegularWorkshift.objects.get_or_create(
+                    workshift_type=wtype,
+                    pool=humor_pool,
+                    day=day,
+                    defaults=dict(
+                        start_time=start,
+                        end_time=end,
+                        hours=wtype.hours,
+                        ),
+                    )
 
         make_instances(semester=semester)
         make_manager_workshifts(semester)

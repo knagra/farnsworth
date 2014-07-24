@@ -462,10 +462,17 @@ class AssignShiftForm(forms.ModelForm):
               WorkshiftProfile.objects.filter(pk__in=query)
 
 class RegularWorkshiftForm(forms.ModelForm):
-    start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
-                                 input_formats=valid_time_formats)
-    end_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
-                               input_formats=valid_time_formats)
+    start_time = forms.TimeField(
+        widget=forms.TimeInput(format='%I:%M %p'),
+        input_formats=valid_time_formats,
+        required=False,
+        )
+    end_time = forms.TimeField(
+        widget=forms.TimeInput(format='%I:%M %p'),
+        input_formats=valid_time_formats,
+        required=False,
+        )
+
     class Meta:
         model = RegularWorkshift
         fields = "__all__"
@@ -572,14 +579,30 @@ TimeBlockFormSet = modelformset_factory(
     help_texts=dict(preference="", day="", start_time="", end_time=""),
     )
 
+# TODO: Set week_long = True if day is unset
 class AddRegularWorkshiftForm(forms.ModelForm):
-    start_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
-                                 input_formats=valid_time_formats)
-    end_time = forms.TimeField(widget=forms.TimeInput(format='%I:%M %p'),
-                               input_formats=valid_time_formats)
+    start_time = forms.TimeField(
+        widget=forms.TimeInput(format='%I:%M %p'),
+        input_formats=valid_time_formats,
+        required=False,
+        )
+    end_time = forms.TimeField(
+        widget=forms.TimeInput(format='%I:%M %p'),
+        input_formats=valid_time_formats,
+        required=False,
+        )
+
     class Meta:
         model = RegularWorkshift
         fields = ("pool", "day", "count", "hours", "start_time", "end_time")
+        help_texts = {
+            "pool": "",
+            "day": "",
+            "count": "",
+            "hours": "",
+            "start_time": "",
+            "end_time": "",
+            }
 
     def clean(self):
         cleaned_data = super(TimeBlockForm, self).clean()
@@ -591,6 +614,13 @@ class AddRegularWorkshiftForm(forms.ModelForm):
         return cleaned_data
 
 class BaseRegularWorkshiftFormSet(BaseModelFormSet):
+    def __init__(self, *args, **kwargs):
+        self.pools = kwargs.pop("pools", None)
+        super(BaseRegularWorkshiftFormSet, self).__init__(*args, **kwargs)
+        if self.pools:
+            for form in self.forms:
+                form.fields["pool"].queryset = self.pools
+
     def save(self, workshift_type):
         shifts = super(BaseRegularWorkshiftFormSet, self).save(commit=False)
         for shift in shifts:

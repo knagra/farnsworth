@@ -5,6 +5,23 @@
 {% load bootstrap %}
 {% load workshift_tags %}
 
+{% block w_headers %}
+<style>
+    .shifts_formset_row td {
+        padding-right: 5px;
+        padding-bottom: 5px;
+        border-top: none !important;
+        border-bottom: 1px solid #e4e4e4;
+    }
+    .shifts_formset_row td div {
+        margin: 0px;
+    }
+    .shifts_formset_row td div label {
+        display: none;
+    }
+</style>
+{% endblock %}
+
 {% block w_content %}
 <h1 class="w_title">{{ page_name }}</h1>
 <ul class="nav nav-pills" style="margin-bottom: 10px;">
@@ -14,37 +31,47 @@
 <div class="tab-content">
   {% if add_instance_form %}
   <form class="tab-pane active" id="workshift_instance" method="post">
-	{% csrf_token %}
-	{{ add_instance_form|bootstrap }}
-	<div class="text-center">
+    {% csrf_token %}
+    {{ add_instance_form|bootstrap }}
+    <div class="text-center">
       <button type="submit" class="btn btn-success" name="add_instance">Create Single Workshift</button>
-	</div>
+    </div>
   </form>
   {% endif %}
   {% if add_type_form and shifts_formset %}
   <form class="tab-pane" id="workshift_type" method="post">
-	{% csrf_token %}
-	{{ add_type_form|bootstrap }}
-	<table id="shifts" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
-	  <tbody>
-		{% for form in shifts_formset.forms %}
-		{{ form.id }}
-		<tr class="shifts_formset_row">
-		  <td>{{ form.pool|bootstrap }}</td>
-		  <td>{{ form.day|bootstrap }}</td>
-		  <td>{{ form.count|bootstrap }}</td>
-		  <td>{{ form.hours|bootstrap }}</td>
-		  <td>{{ form.start_time|bootstrap }}</td>
-		  <td>{{ form.end_time|bootstrap }}</td>
+    {% csrf_token %}
+    {{ add_type_form|bootstrap }}
+    <table id="shifts" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
+      <thead>
+	<tr>
+	  <th>Pool</th>
+	  <th>Day</th>
+	  <th>Count</th>
+	  <th>Hours</th>
+	  <th>Start Time</th>
+	  <th>End Time</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for form in shifts_formset.forms %}
+	{{ form.id }}
+	<tr class="shifts_formset_row">
+	  <td>{{ form.pool|bootstrap }}</td>
+	  <td>{{ form.day|bootstrap }}</td>
+	  <td>{{ form.count|bootstrap }}</td>
+	  <td>{{ form.hours|bootstrap }}</td>
+	  <td>{{ form.start_time|bootstrap }}</td>
+	  <td>{{ form.end_time|bootstrap }}</td>
           <td style="vertical-align: middle;"></td>
-		</tr>
-		{% endfor %}
-	  </tbody>
-	</table>
-	{{ shifts_formset.management_form }}
-	<div class="text-center">
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+    {{ shifts_formset.management_form }}
+    <div class="text-center">
       <button type="submit" class="btn btn-success" name="add_type">Create Workshift Type</button>
-	</div>
+    </div>
   </form>
   {% endif %}
 </div>
