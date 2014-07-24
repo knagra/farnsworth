@@ -77,8 +77,8 @@
   };
   $(document).ready(function() {
     $(function() {
-      $(".shift_formset_row").formset({
-        prefix: "{{ shift_formset.prefix }}",
+      $(".shifts_formset_row").formset({
+        prefix: "{{ shifts_formset.prefix }}",
         added: renewDatePickers,
       });
       renewDatePickers();
