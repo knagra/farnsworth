@@ -107,6 +107,9 @@ class ResponseForm(forms.ModelForm):
     class Meta:
         model = Response
         fields = ("body",)
+        help_texts = {
+            "body": "",
+            }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
