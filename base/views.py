@@ -63,7 +63,7 @@ def add_context(request):
     for request_type in RequestType.objects.filter(enabled=True):
         requests = Request.objects.filter(request_type=request_type, status=Request.OPEN)
         if not request_type.managers.filter(incumbent__user=request.user):
-            request.exclude(
+            requests.exclude(
                 ~Q(owner__user=request.user), private=True,
                 )
         request_types.append((request_type, requests.count()))
