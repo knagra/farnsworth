@@ -214,13 +214,6 @@ class WorkshiftType(models.Model):
         null=True,
         help_text="Quick tips to the workshifter.",
         )
-    hours = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        default=1,
-        help_text="Default hours for these types of shifts, helpful for "
-        "pre-filling workshifts.",
-        )
     rateable = models.BooleanField(
         default=True,
         help_text="Whether this workshift type is shown in preferences.",
