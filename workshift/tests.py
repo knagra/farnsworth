@@ -732,7 +732,6 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
-        self.assertContains(response, str(self.wtype.hours))
         self.assertNotContains(response, self.wtype.quick_tips)
         self.assertNotContains(response, self.wtype.description)
 
@@ -741,7 +740,6 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
-        self.assertContains(response, str(self.wtype.hours))
         self.assertContains(response, self.wtype.quick_tips)
         self.assertContains(response, self.wtype.description)
 
@@ -750,7 +748,6 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
-        self.assertContains(response, str(self.wtype.hours))
         self.assertContains(response, self.wtype.quick_tips)
         self.assertContains(response, self.wtype.description)
 
@@ -1943,7 +1940,6 @@ class TestWorkshifts(TestCase):
             "type-title": "Added Title",
             "type-description": "Added Description",
             "type-quick_tips": "Added Quick Tips",
-            "type-hours": 42,
             "type-rateable": True,
             "shifts-TOTAL_FORMS": 0,
             "shifts-INITIAL_FORMS": 0,
@@ -1954,7 +1950,6 @@ class TestWorkshifts(TestCase):
         self.assertEqual(shift_type.title, "Added Title")
         self.assertEqual(shift_type.description, "Added Description")
         self.assertEqual(shift_type.quick_tips, "Added Quick Tips")
-        self.assertEqual(shift_type.hours, 42)
         self.assertEqual(shift_type.rateable, True)
 
     def test_edit_type(self):
@@ -1964,7 +1959,6 @@ class TestWorkshifts(TestCase):
             "edit-title": "Edited Title",
             "edit-description": "Edited Description",
             "edit-quick_tips": "Edited Quick Tips",
-            "edit-hours": 42,
             "edit-rateable": False,
             "shifts-TOTAL_FORMS": 0,
             "shifts-INITIAL_FORMS": 0,
@@ -1977,7 +1971,6 @@ class TestWorkshifts(TestCase):
         self.assertEqual(shift_type.title, "Edited Title")
         self.assertEqual(shift_type.description, "Edited Description")
         self.assertEqual(shift_type.quick_tips, "Edited Quick Tips")
-        self.assertEqual(shift_type.hours, 42)
         self.assertEqual(shift_type.rateable, False)
 
 class TestSemester(TestCase):

@@ -737,3 +737,10 @@ class TestPreFill(TestCase):
             self.assertEqual(1, Manager.objects.filter(title=title).count())
         for name in [i[0] for i in REQUESTS]:
             self.assertEqual(1, RequestType.objects.filter(name=name).count())
+
+    def test_double_pre_fill(self):
+        """
+        Tests that running pre-fill twice does not crash
+        """
+        self.test_pre_fill()
+        self.test_pre_fill()
