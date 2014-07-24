@@ -62,7 +62,8 @@ class PollForm(form.ModelForm):
             "title",
             "description",
             "close_date",
-            "anonymity_allowed"
+            "anonymity_allowed",
+            "alumni_allowed",
             )
 
     def __init__(self, *args, **kwargs):
@@ -70,6 +71,7 @@ class PollForm(form.ModelForm):
         if 'election' in kwargs:
             self.election = True
             self.fields.pop('anonymity_allowed')
+            self.fields.pop('alumni_allowed')
         else:
             self.election = False
         self.profile = kwargs.pop('profile')
