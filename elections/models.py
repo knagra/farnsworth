@@ -116,6 +116,10 @@ class Poll(models.Model):
         default=False,
         help_text="Whether anonymity is allowed."
         )
+    alumni_allowed = models.BooleanField(
+        default=False,
+        help_text="Whether alumni are allowed to participate."
+        )
     election = models.BooleanField(
         default=False,
         help_text="Treat this poll as a formal election."
