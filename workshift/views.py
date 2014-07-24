@@ -605,6 +605,7 @@ def add_shift_view(request, semester):
             request.POST if "add_type" in request.POST else None,
             prefix="shifts",
             queryset=RegularWorkshift.objects.none(),
+            pools=pools,
             )
 
         if add_type_form.is_valid() and shifts_formset.is_valid():
