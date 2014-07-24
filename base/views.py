@@ -59,14 +59,16 @@ def add_context(request):
     if request.user.username == ANONYMOUS_USERNAME:
         request.session['ANONYMOUS_SESSION'] = True
     ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
-    request_types = list() # A list with items of form (RequestType, number_of_open_requests)
-    for request_type in RequestType.objects.filter(enabled=True):
-        requests = Request.objects.filter(request_type=request_type, status=Request.OPEN)
-        if not request_type.managers.filter(incumbent__user=request.user):
-            requests.exclude(
-                ~Q(owner__user=request.user), private=True,
-                )
-        request_types.append((request_type, requests.count()))
+    # A list with items of form (RequestType, number_of_open_requests)
+    request_types = list()
+    if request.user.is_authenticated():
+        for request_type in RequestType.objects.filter(enabled=True):
+            requests = Request.objects.filter(request_type=request_type, status=Request.OPEN)
+            if not request_type.managers.filter(incumbent__user=request.user):
+                requests.exclude(
+                    ~Q(owner__user=request.user), private=True,
+                    )
+            request_types.append((request_type, requests.count()))
     return {
         'REQUEST_TYPES': request_types,
         'HOUSE': settings.HOUSE_NAME,
