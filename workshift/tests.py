@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 from datetime import timedelta, time, date
-import random
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -306,7 +305,6 @@ class TestAssignment(TestCase):
         is run. This is a good test of how the assignment code functions "in the
         wild," rather than with many duplicates of the same shift.
         """
-        random.seed(0)
         for i in range(1, 50):
             user = User.objects.create_user(username="u{0}".format(i))
         pre_fill.main([], verbose=False)
@@ -320,7 +318,7 @@ class TestAssignment(TestCase):
             shift.current_assignees.add(profile)
             shift.save()
         unfinished = utils.auto_assign_shifts(self.semester)
-        self.assertLessEqual(len(unfinished), 3)
+        self.assertEqual([], unfinished)
 
 class TestUtils(TestCase):
     """
