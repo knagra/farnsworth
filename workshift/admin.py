@@ -27,9 +27,9 @@ class WorkshiftPoolAdmin(admin.ModelAdmin):
 admin.site.register(WorkshiftPool, WorkshiftPoolAdmin)
 
 class WorkshiftTypeAdmin(admin.ModelAdmin):
-    list_display = ('title', 'hours', 'rateable')
-    search_fields = ('title', 'hours',)
-    list_filter = ('title', 'hours', 'rateable')
+    list_display = ('title', 'rateable')
+    search_fields = ('title',)
+    list_filter = ('title', 'rateable')
     ordering = ('title',)
 admin.site.register(WorkshiftType, WorkshiftTypeAdmin)
 
