@@ -58,22 +58,20 @@
 		  {% if edit_form or delete_form %}
 		  <div class="pull-right">
 			{% if edit_form %}
-			<form method="POST">
-			  <button class="btn btn-default" type="button" id="show_edit_form-{{ message.pk }}"
-					  onclick="show_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">
-				<span class="glyphicon glyphicon-paperclip"></span>
-				<span class="hidden-xs">Edit</span>
-			  </button>
-			</form>
+			<button class="btn btn-default" type="button" id="show_edit_form-{{ message.pk }}"
+					style="display:inline"
+					onclick="show_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">
+			  <span class="glyphicon glyphicon-paperclip"></span>
+			  <span class="hidden-xs">Edit</span>
+			</button>
 			{% endif %}
 			{% if delete_form %}
-			<form method="POST">
-			  <button class="btn btn-warning" type="button" id="show_delete_form-{{ message.pk }}"
-					  onclick="show_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">
-				<span class="glyphicon glyphicon-fire"></span>
-				<span class="hidden-xs">Delete</span>
-			  </button>
-			</form>
+			<button class="btn btn-warning" type="button" id="show_delete_form-{{ message.pk }}"
+					style="display:inline"
+					onclick="show_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">
+			  <span class="glyphicon glyphicon-fire"></span>
+			  <span class="hidden-xs">Delete</span>
+			</button>
 			{% endif %}
 		  </div>
 		  {% endif %}
