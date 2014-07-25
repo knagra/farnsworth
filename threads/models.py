@@ -44,7 +44,7 @@ class Thread(models.Model):
         help_text="The number times this thread has been viewed.",
         )
     followers = models.ManyToManyField(
-        UserProfile,
+        User,
         blank=True,
         null=True,
         related_name="following",

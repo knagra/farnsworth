@@ -189,6 +189,12 @@ class Request(models.Model):
         help_text="Up votes for this request.",
         related_name="up_votes",
         )
+    followers = models.ManyToManyField(
+        User,
+        blank=True,
+        help_text="Users following this request.",
+        related_name="request_followers",
+        )
 
     def __unicode__(self):
         return "{0.name} request by {1.owner}".format(self.request_type, self)

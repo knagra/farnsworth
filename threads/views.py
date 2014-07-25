@@ -125,7 +125,7 @@ def thread_view(request, pk):
     thread.views += 1
     thread.save()
 
-    following = userProfile in thread.followers.all()
+    following = request.user in thread.followers.all()
 
     return render_to_response('view_thread.html', {
         'thread': thread,

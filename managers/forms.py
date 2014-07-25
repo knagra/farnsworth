@@ -7,6 +7,8 @@ Author: Karandeep Singh Nagra
 from django import forms
 from django.conf import settings
 
+from notifications import notify
+
 from utils.funcs import convert_to_url, verify_url
 from managers.models import Manager, Announcement, RequestType, Request, Response
 
@@ -116,8 +118,12 @@ class ResponseForm(forms.ModelForm):
         response.request = self.request
         response.save()
 
-        response.request.number_of_responses += 1
-        response.request.save()
+        for follower in self.request.followers.all():
+            notify.send(self.profile.user, verb="replied to", action_object=self.request,
+                        recipient=follower.user)
+
+        self.request.number_of_responses += 1
+        self.request.save()
 
         return response
 

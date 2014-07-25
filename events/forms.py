@@ -8,6 +8,8 @@ from django import forms
 from django.conf import settings
 from django.utils.timezone import now
 
+from notifications import notify
+
 from utils.variables import time_formats, ANONYMOUS_USERNAME, MESSAGES
 from managers.models import Manager
 from events.models import Event
@@ -121,6 +123,12 @@ class EventForm(forms.Form):
         else:
             event.as_manager = None
         event.save()
+
+        for profile in event.rsvps.all():
+            if profile.user == self.profile.user:
+                continue
+            notify.send(self.profile.user, verb="updated", action=event,
+                        recipient=profile.user)
         return event
 
 class RsvpForm(forms.Form):

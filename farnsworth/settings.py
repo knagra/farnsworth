@@ -267,6 +267,7 @@ INSTALLED_APPS = (
     'rooms',
     "django_cron",
     # 'elections',
+    "notifications",
     'bootstrapform',
     'haystack',
     'django.contrib.admin',

@@ -8,6 +8,8 @@
    The HTML for {{ page_name }}.
   -->
 
+{% load notifications_tags %}
+
 <html>
 <head>
     <title>{{ SHORT_HOUSE }}{% if page_name %} - {{ page_name }}{% else %}{% block template_page_name %}{% endblock %}{% endif %}</title>
@@ -55,6 +57,20 @@
                     {% endif %}<span class="glyphicon glyphicon-dashboard"></span> Workshift Dashboard</a></li>
                 {% endif %}
                 <li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
+                <li>
+		  <a href="{% url 'notifications:all' %}" >
+		    {% notifications_unread as unread_count %}
+		    {% if unread_count %}
+		    <span class="glyphicon glyphicon-star"></span>
+		    {% else %}
+		    <span class="glyphicon glyphicon-star-empty"></span>
+		    {% endif %}
+		    Notifications
+		    {% if unread_count %}
+		    <span class="badge pull-right">{{ unread_count }}</span>
+		    {% endif %}
+		  </a>
+		</li>
                 <li class="divider"></li>
                 <li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
             </ul> <!-- .dropdown-menu -->

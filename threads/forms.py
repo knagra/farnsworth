@@ -6,6 +6,8 @@ Author: Karandeep Singh Nagra
 
 from django import forms
 
+from notifications import notify
+
 from threads.models import Thread, Message
 
 class ThreadForm(forms.ModelForm):
@@ -54,6 +56,10 @@ class MessageForm(forms.ModelForm):
         message.thread = self.thread
         message.save()
 
+        for follower in self.thread.followers.all():
+            notify.send(self.profile.user, verb="replied to", action_object=self.thread,
+                        recipient=follower.user)
+
         self.thread.number_of_messages += 1
         self.thread.save()
 
@@ -66,11 +72,11 @@ class FollowThreadForm(forms.Form):
         super(FollowThreadForm, self).__init__(*args, **kwargs)
 
     def save(self):
-        if self.profile in self.instance.followers.all():
-            self.instance.followers.remove(self.profile)
+        if self.profile.user in self.instance.followers.all():
+            self.instance.followers.remove(self.profile.user)
             following = False
         else:
-            self.instance.followers.add(self.profile)
+            self.instance.followers.add(self.profile.user)
             following = True
         self.instance.save()
         return following

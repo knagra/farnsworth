@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     url(r'', include('rooms.urls', namespace='rooms')),
     url(r'', include('events.urls', namespace='events')),
     url(r'', include('managers.urls', namespace='managers')),
+    url('^inbox/notifications/', include(notifications.urls)),
 )
 
 urlpatterns += patterns('base.views',
