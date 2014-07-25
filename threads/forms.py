@@ -15,6 +15,9 @@ class ThreadForm(forms.ModelForm):
     class Meta:
         model = Thread
         fields = ("subject",)
+        help_texts = {
+            "subject": "",
+            }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
@@ -76,6 +79,9 @@ class EditThreadForm(forms.ModelForm):
     class Meta:
         model = Thread
         fields = ("subject",)
+        help_texts = {
+            "subject": "",
+            }
 
 class DeleteMessageForm(forms.ModelForm):
     class Meta:
@@ -97,3 +103,6 @@ class EditMessageForm(forms.ModelForm):
     class Meta:
         model = Message
         fields = ("body",)
+        help_texts = {
+            "body": "",
+            }
