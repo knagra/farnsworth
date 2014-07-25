@@ -15,7 +15,9 @@
 	<form method="POST">
 	  {% csrf_token %}
 	  {{ follow_form|bootstrap }}
-	  <button class="btn header_button" name="follow_thread" type="submit">
+	  <button class="btn header_button" name="follow_thread"
+			  style="display:inline"
+			  type="submit">
 		{% if following %}
 		<span class="glyphicon glyphicon-minus-sign"></span>
 		<span class="hidden-xs"> Unfollow</span>
@@ -27,7 +29,9 @@
 	</form>
 	{% endif %}
 	<form action="{% url 'threads:list_all_threads' %}">
-      <button class="btn btn-info header_button" type="submit">
+      <button class="btn btn-info header_button"
+			  style="display:inline"
+			  type="submit">
 		<span class="glyphicon glyphicon-comment"></span>
 		<span class="hidden-xs"> Member Forums</span>
 	  </button>
