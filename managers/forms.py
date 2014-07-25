@@ -133,6 +133,17 @@ class ManagerResponseForm(ResponseForm):
         model = Response
         fields = ("body", "action")
 
+    def __init__(self, *args, **kwargs):
+        super(ManagerResponseForm, self).__init__(*args, **kwargs)
+        if self.request.closed:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.CLOSED)
+        if self.request.open:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.REOPENED)
+        if self.request.filled:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.FILLED)
+        if self.request.expired:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.EXPIRED)
+
     def save(self):
         response = super(ManagerResponseForm, self).save()
         response.manager = True
