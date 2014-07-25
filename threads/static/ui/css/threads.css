@@ -31,6 +31,14 @@ label {
     display: none;
 }
 
+.edit_message_form {
+    display: none;
+}
+
+.delete_message_form {
+    display: none;
+}
+
 .threads_table {
     padding: 0px;
 }
