@@ -130,8 +130,8 @@
 		{% endfor %}
 
 		<div class="text-center">
-		  <button class="btn btn-primary" type="button" id="show_form"
-				  onclick="show_form('add_message_form', 'show_form')">
+		  <button class="btn btn-primary" type="button" id="show_add_form"
+				  onclick="show_form('add_message_form', 'show_add_form')">
 			<span class="glyphicon glyphicon-paperclip"></span> Add Message
 		  </button>
 		</div>
@@ -145,7 +145,8 @@
               <button type="submit" class="btn btn-success" name="add_message">
 				<span class="glyphicon glyphicon-comment"></span> Post
 			  </button>
-              <button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_form('add_message_form', 'show_form')">
+              <button type="button" class="btn btn-default" name="cancel_message_form"
+					  onclick="hide_form('add_message_form', 'show_add_form')">
 				<span class="glyphicon glyphicon-collapse-up"></span> Hide
 			  </button>
             </div> <!-- .btn-group -->
