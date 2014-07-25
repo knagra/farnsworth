@@ -17,7 +17,7 @@ from utils.variables import MESSAGES
 from base.decorators import profile_required
 from threads.models import Thread, Message
 from threads.forms import ThreadForm, MessageForm, EditMessageForm, \
-     EditThreadForm, DeleteMessageForm
+     EditThreadForm, DeleteMessageForm, FollowThreadForm
 
 @profile_required
 def list_all_threads_view(request):
@@ -31,7 +31,8 @@ def list_all_threads_view(request):
 
     if create_form.is_valid():
         thread = create_form.save()
-        return HttpResponseRedirect(reverse("threads:view_thread", kwargs={"thread_pk": thread.pk}))
+        return HttpResponseRedirect(reverse("threads:view_thread",
+                                            kwargs={"thread_pk": thread.pk}))
     elif request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 
@@ -41,12 +42,27 @@ def list_all_threads_view(request):
         }, context_instance=RequestContext(request))
 
 @profile_required
-def thread_view(request, thread_pk):
+def thread_view(request, pk):
     ''' View an individual thread. '''
     userProfile = UserProfile.objects.get(user=request.user)
-    thread = get_object_or_404(Thread, pk=thread_pk)
+    thread = get_object_or_404(Thread, pk=pk)
     messages_list = Message.objects.filter(thread=thread)
 
+    follow_form = FollowThreadForm(
+        request.POST if "follow_thread" in request.POST else None,
+        instance=thread,
+        profile=userProfile,
+        )
+
+    if follow_form.is_valid():
+        following = follow_form.save()
+        if following:
+            message = "You are now following this thread."
+        else:
+            message = "You are no longer following this thread."
+        messages.add_message(request, messages.INFO, message)
+        return HttpResponseRedirect(reverse("threads:view_thread",
+                                            kwargs={"pk": pk}))
     forms = []
 
     for message in messages_list:
@@ -64,7 +80,7 @@ def thread_view(request, thread_pk):
                 edit_message_form.save()
                 messages.add_message(request, messages.INFO, "Message updated.")
                 return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
-                    "thread_pk": thread_pk,
+                    "pk": pk,
                     }))
             if delete_message_form.is_valid():
                 thread = delete_message_form.save()
@@ -72,7 +88,7 @@ def thread_view(request, thread_pk):
                 if thread is None:
                     return HttpResponseRedirect(reverse("threads:list_all_threads"))
                 return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
-                    "thread_pk": thread.pk,
+                    "pk": thread.pk,
                     }))
 
         forms.append((edit_message_form, delete_message_form))
@@ -93,7 +109,7 @@ def thread_view(request, thread_pk):
     if add_message_form.is_valid():
         add_message_form.save()
         return HttpResponseRedirect(reverse('threads:view_thread', kwargs={
-            'thread_pk': thread_pk,
+            'pk': pk,
             }))
     elif request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
@@ -101,11 +117,13 @@ def thread_view(request, thread_pk):
     if edit_thread_form and edit_thread_form.is_valid():
         thread = edit_thread_form.save()
         return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
-            "thread_pk": thread.pk,
+            "pk": thread.pk,
             }))
 
     thread.views += 1
     thread.save()
+
+    following = userProfile in thread.followers.all()
 
     return render_to_response('view_thread.html', {
         'thread': thread,
@@ -113,6 +131,8 @@ def thread_view(request, thread_pk):
         'messages_list': zip(messages_list, forms),
         "add_message_form": add_message_form,
         "edit_thread_form": edit_thread_form,
+        "following": following,
+        "follow_thread": follow_thread,
         }, context_instance=RequestContext(request))
 
 @profile_required
@@ -130,7 +150,7 @@ def list_user_threads_view(request, targetUsername):
 
     if create_form.is_valid():
         thread = create_form.save()
-        return HttpResponseRedirect(reverse("threads:view_thread", kwargs={"thread_pk": thread.pk}))
+        return HttpResponseRedirect(reverse("threads:view_thread", kwargs={"pk": thread.pk}))
     elif request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 

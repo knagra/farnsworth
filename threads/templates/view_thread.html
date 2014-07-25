@@ -10,9 +10,27 @@
 
 {% block content %}
 <div class="">
-  <form action="{% url 'threads:list_all_threads' %}" class="pull-right">
-    <button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-comment"></span><span class="hidden-xs"> Member Forums</span></button>
-  </form>
+  <div class="pull-right">
+	<form method="POST">
+	  [% csrf_token %]
+	  {{ follow_thread|bootstrap }}
+	  <button class="btn header_button" name="follow_thread" type="submit">
+		{% if following %}
+		<span class="glyphicon glyphicon-minus-sign"></span>
+		<span class="hidden-xs"> Unfollow</span>
+		{% else %}
+		<span class="glyphicon glyphicon-plus-sign"></span>
+		<span class="hidden-xs"> Follow</span>
+		{% endif %}
+	  </button>
+	</form>
+	<form action="{% url 'threads:list_all_threads' %}">
+      <button class="btn btn-info header_button" type="submit">
+		<span class="glyphicon glyphicon-comment"></span>
+		<span class="hidden-xs"> Member Forums</span>
+	  </button>
+	</form>
+  </div>
   <h1 class="w_title">View Thread</h1>
   <hr class="w_line" />
   {% if not thread %}
@@ -41,8 +59,12 @@
 		  {{ form|bootstrap }}
 		  <div class="text_center">
 			<div class="btn-group">
-              <button type="submit" class="btn btn-{{ form.button }}" name="{{ form.label }}_message"><span class="glyphicon glyphicon-{{ form.glyph }}"></span> {{ form.display }}</button>
-              <button type="button" class="btn btn-default" name="cancel_message" onclick="hide_new_message_form('{{ form.label }}_message_form_{{ message.pk }}', 'show_{{ form.label }}_{{ message.pk }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+              <button type="submit" class="btn btn-{{ form.button }}" name="{{ form.label }}_message">
+				<span class="glyphicon glyphicon-{{ form.glyph }}"></span> {{ form.display }}
+			  </button>
+              <button type="button" class="btn btn-default" name="cancel_message" onclick="hide_new_message_form('{{ form.label }}_message_form_{{ message.pk }}', 'show_{{ form.label }}_{{ message.pk }}')">
+				<span class="glyphicon glyphicon-collapse-up"></span> Hide
+			  </button>
 			</div>
 		  </div>
 		</form>
