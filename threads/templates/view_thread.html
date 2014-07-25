@@ -61,7 +61,7 @@
 		  {% endif %}
 		</h3>
 		{% if edit_thread_form %}
-		<form id="edit_thread_form" method="post">
+		<form class="edit_thread_form" id="edit_thread_form" method="post">
 		  {% csrf_token %}
 		  {{ edit_thread_form|bootstrap }}
           <div class="text-center">
