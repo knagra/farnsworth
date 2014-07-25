@@ -36,6 +36,9 @@ class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
         fields = ("body",)
+        help_texts = {
+            "body": "",
+            }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
