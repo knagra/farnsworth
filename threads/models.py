@@ -47,6 +47,7 @@ class Thread(models.Model):
         UserProfile,
         blank=True,
         null=True,
+        related_name="following",
         help_text="Users following this thread",
         )
 

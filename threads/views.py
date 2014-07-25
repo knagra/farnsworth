@@ -4,7 +4,6 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -32,12 +31,13 @@ def list_all_threads_view(request):
     if create_form.is_valid():
         thread = create_form.save()
         return HttpResponseRedirect(reverse("threads:view_thread",
-                                            kwargs={"thread_pk": thread.pk}))
+                                            kwargs={"pk": thread.pk}))
     elif request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES['THREAD_ERROR'])
 
     return render_to_response('list_threads.html', {
         'page_name': "All Threads",
+        "create_form": create_form,
         'threads': threads,
         }, context_instance=RequestContext(request))
 
@@ -132,7 +132,7 @@ def thread_view(request, pk):
         "add_message_form": add_message_form,
         "edit_thread_form": edit_thread_form,
         "following": following,
-        "follow_thread": follow_thread,
+        "follow_form": follow_form,
         }, context_instance=RequestContext(request))
 
 @profile_required
@@ -157,6 +157,7 @@ def list_user_threads_view(request, targetUsername):
     return render_to_response('list_threads.html', {
         'page_name': page_name,
         'threads': threads,
+        "create_form": create_form,
         'targetUsername': targetUsername,
         }, context_instance=RequestContext(request))
 

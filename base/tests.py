@@ -1051,7 +1051,7 @@ class TestAdminFunctions(TestCase):
         thread = Thread.objects.get(subject="Test Subject")
         self.assertRedirects(
             response,
-            reverse("threads:view_thread", kwargs={"thread_pk": thread.pk}),
+            reverse("threads:view_thread", kwargs={"pk": thread.pk}),
             )
 
         self.assertEqual(1, Thread.objects.filter(owner=profile).count())

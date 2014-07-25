@@ -40,7 +40,7 @@ class VerifyThread(TestCase):
         urls = [
             reverse("homepage"),
             reverse("threads:list_all_threads"),
-            reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk}),
+            reverse("threads:view_thread", kwargs={"pk": self.thread.pk}),
             reverse("threads:list_user_threads", kwargs={"targetUsername": self.u.username}),
             reverse("threads:list_user_messages", kwargs={"targetUsername": self.u.username}),
             ]
@@ -68,7 +68,7 @@ class VerifyThread(TestCase):
         self.assertEqual(Message.objects.filter(thread=thread).count(), 1)
         self.assertEqual(Message.objects.get(thread=thread).body, body)
 
-        url = reverse("threads:view_thread", kwargs={"thread_pk": thread.pk})
+        url = reverse("threads:view_thread", kwargs={"pk": thread.pk})
         self.assertRedirects(response, url)
         self.assertContains(response, subject)
         self.assertContains(response, body)
@@ -97,7 +97,7 @@ class VerifyThread(TestCase):
 
     def test_post_reply(self):
         urls = [
-            reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk}),
+            reverse("threads:view_thread", kwargs={"pk": self.thread.pk}),
             ]
         body = "Reply Body Test"
         for url in urls:
@@ -111,7 +111,7 @@ class VerifyThread(TestCase):
             self.assertNotEqual(thread, None)
             self.assertEqual(Message.objects.filter(thread=thread).count(), 2)
 
-            url = reverse("threads:view_thread", kwargs={"thread_pk": thread.pk})
+            url = reverse("threads:view_thread", kwargs={"pk": thread.pk})
             self.assertRedirects(response, url)
             self.assertContains(response, body)
 
@@ -123,7 +123,7 @@ class VerifyThread(TestCase):
 
     def test_bad_reply(self):
         urls = [
-            reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk}),
+            reverse("threads:view_thread", kwargs={"pk": self.thread.pk}),
             ]
         body = "Reply Body Test"
         for url in urls:
@@ -147,7 +147,7 @@ class VerifyThread(TestCase):
                 self.assertEqual(message, None)
 
     def test_delete_message(self):
-        url = reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk})
+        url = reverse("threads:view_thread", kwargs={"pk": self.thread.pk})
         response = self.client.post(url, {
             "delete_message-{0}".format(self.message.pk): "",
             }, follow=True)
@@ -158,7 +158,7 @@ class VerifyThread(TestCase):
             )
 
     def test_edit_message(self):
-        url = reverse("threads:view_thread", kwargs={"thread_pk": self.thread.pk})
+        url = reverse("threads:view_thread", kwargs={"pk": self.thread.pk})
         response = self.client.post(url, {
             "edit_message-{0}".format(self.message.pk): "",
             "body": "New message body",
