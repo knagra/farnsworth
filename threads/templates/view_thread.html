@@ -60,7 +60,7 @@
 			{% if edit_form %}
 			<form method="POST">
 			  <button class="btn btn-default" type="button" id="show_edit_form-{{ message.pk }}"
-					  onclick="show_new_message_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">
+					  onclick="show_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">
 				<span class="glyphicon glyphicon-paperclip"></span>
 				<span class="hidden-xs">Edit</span>
 			  </button>
@@ -69,7 +69,7 @@
 			{% if delete_form %}
 			<form method="POST">
 			  <button class="btn btn-warning" type="button" id="show_delete_form-{{ message.pk }}"
-					  onclick="show_new_message_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">
+					  onclick="show_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">
 				<span class="glyphicon glyphicon-fire"></span>
 				<span class="hidden-xs">Delete</span>
 			  </button>
@@ -90,7 +90,7 @@
 				  <span class="glyphicon glyphicon-comment"></span> Edit
 				</button>
 				<button type="button" class="btn btn-default" name="cancel_edit"
-						onclick="hide_new_message_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">
+						onclick="hide_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">
 				  <span class="glyphicon glyphicon-collapse-up"></span> Hide
 				</button>
 			  </div>
@@ -107,7 +107,7 @@
 				  <span class="glyphicon glyphicon-fire"></span> Yes, delete this message!
 				</button>
 				<button type="button" class="btn btn-default" name="cancel_delete"
-						onclick="hide_new_message_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">
+						onclick="hide_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">
 				  <span class="glyphicon glyphicon-collapse-up"></span> Hide
 				</button>
 			  </div>
@@ -118,7 +118,8 @@
 		{% endfor %}
 
 		<div class="text-center">
-		  <button class="btn btn-primary" type="button" id="show_form" onclick="show_new_message_form('add_message_form', 'show_form')">
+		  <button class="btn btn-primary" type="button" id="show_form"
+				  onclick="show_form('add_message_form', 'show_form')">
 			<span class="glyphicon glyphicon-paperclip"></span> Add Message
 		  </button>
 		</div>
@@ -132,7 +133,7 @@
               <button type="submit" class="btn btn-success" name="add_message">
 				<span class="glyphicon glyphicon-comment"></span> Post
 			  </button>
-              <button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_new_message_form('add_message_form', 'show_form')">
+              <button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_form('add_message_form', 'show_form')">
 				<span class="glyphicon glyphicon-collapse-up"></span> Hide
 			  </button>
             </div> <!-- .btn-group -->
@@ -152,11 +153,11 @@
 
 {% block endscripts %}
 <script>
-  function show_new_message_form(message_form_id, button_id) {
+  function show_form(message_form_id, button_id) {
     document.getElementById(message_form_id).style.display="inline";
     document.getElementById(button_id).style.display="none";
   }
-  function hide_new_message_form(message_form_id, button_id) {
+  function hide_form(message_form_id, button_id) {
     document.getElementById(message_form_id).style.display="none";
     document.getElementById(button_id).style.display="inline";
   }
