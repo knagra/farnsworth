@@ -44,7 +44,8 @@
     <div class="thread_messages">
       <div class="message_table">
 		<h3 class="thread_name">{{ thread.subject }}</h3>
-		{% for message, forms in messages_list %}
+
+		{% for message, edit_form, delete_form in messages_list %}
 		{% if forloop.counter > 1 %}
 		<hr class="main_divider" />
 		{% endif %}
@@ -54,32 +55,74 @@
 			  {{ message.owner|display_user:user }}
 			</a> ({{ message.post_date }}):
 		  </div>
-		  <div class="message_body">{{ message.body|safe }}</div>
-		</div> <!-- message_row -->
-		{% for form in forms %}
-		{% if form %}
-		<form class="{{ form.label }}_message_form" id="{{ form.label }}_message_form_{{ message.pk }}" method="post">
-		  {% csrf_token %}
-		  {{ form|bootstrap }}
-		  <div class="text_center">
-			<div class="btn-group">
-              <button type="submit" class="btn btn-{{ form.button }}" name="{{ form.label }}_message">
-				<span class="glyphicon glyphicon-{{ form.glyph }}"></span> {{ form.display }}
+		  {% if edit_form or delete_form %}
+		  <div class="pull-right">
+			{% if edit_form %}
+			<form method="POST">
+			  <button class="btn btn-default" type="button" id="show_edit_form-{{ message.pk }}"
+					  onclick="show_new_message_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">
+				<span class="glyphicon glyphicon-paperclip"></span>
+				<span class="hidden-xs">Edit</span>
 			  </button>
-              <button type="button" class="btn btn-default" name="cancel_message" onclick="hide_new_message_form('{{ form.label }}_message_form_{{ message.pk }}', 'show_{{ form.label }}_{{ message.pk }}')">
-				<span class="glyphicon glyphicon-collapse-up"></span> Hide
+			</form>
+			{% endif %}
+			{% if delete_form %}
+			<form method="POST">
+			  <button class="btn btn-warning" type="button" id="show_delete_form-{{ message.pk }}"
+					  onclick="show_new_message_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">
+				<span class="glyphicon glyphicon-fire"></span>
+				<span class="hidden-xs">Delete</span>
 			  </button>
-			</div>
+			</form>
+			{% endif %}
 		  </div>
-		</form>
-		{% endif %}
+		  {% endif %}
+
+		  <div class="message_body">{{ message.body|safe }}</div>
+
+		  {% if edit_form %}
+		  <form class="edit_message_form" id="edit_message_form-{{ message.pk }}" method="post">
+			{% csrf_token %}
+			{{ edit_form|bootstrap }}
+			<div class="text_center">
+			  <div class="btn-group">
+				<button type="submit" class="btn btn-success" name="edit_message-{{ mesage.pk }}">
+				  <span class="glyphicon glyphicon-comment"></span> Edit
+				</button>
+				<button type="button" class="btn btn-default" name="cancel_edit"
+						onclick="hide_new_message_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">
+				  <span class="glyphicon glyphicon-collapse-up"></span> Hide
+				</button>
+			  </div>
+			</div>
+		  </form>
+		  {% endif %}
+		  {% if delete_form %}
+		  <form class="delete_message_form" id="delete_message_form-{{ message.pk }}" method="post">
+			{% csrf_token %}
+			{{ delete_form|bootstrap }}
+			<div class="text_center">
+			  <div class="btn-group">
+				<button type="submit" class="btn btn-danger" name="delete_message-{{ mesage.pk }}">
+				  <span class="glyphicon glyphicon-fire"></span> Yes, delete this message!
+				</button>
+				<button type="button" class="btn btn-default" name="cancel_delete"
+						onclick="hide_new_message_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">
+				  <span class="glyphicon glyphicon-collapse-up"></span> Hide
+				</button>
+			  </div>
+			</div>
+		  </form>
+		  {% endif %}
+		</div> <!-- message_row -->
 		{% endfor %}
-		{% endfor %}
+
 		<div class="text-center">
 		  <button class="btn btn-primary" type="button" id="show_form" onclick="show_new_message_form('add_message_form', 'show_form')">
 			<span class="glyphicon glyphicon-paperclip"></span> Add Message
 		  </button>
 		</div>
+
 		{% if add_mesage_form %}
 		<form class="new_message_form" id="add_message_form" method="post">
           {% csrf_token %}

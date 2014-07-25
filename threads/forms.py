@@ -73,20 +73,11 @@ class FollowThreadForm(forms.Form):
         return following
 
 class EditThreadForm(forms.ModelForm):
-    label = "edit"
-    display = "Edit"
-    button = "success"
-    glyph = "comment"
     class Meta:
         model = Thread
         fields = ("subject",)
 
 class DeleteMessageForm(forms.ModelForm):
-    label = "delete"
-    display = "Delete"
-    button = "danger"
-    glyph = "fire"
-
     class Meta:
         model = Message
         fields = ()

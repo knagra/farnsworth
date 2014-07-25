@@ -63,7 +63,8 @@ def thread_view(request, pk):
         messages.add_message(request, messages.INFO, message)
         return HttpResponseRedirect(reverse("threads:view_thread",
                                             kwargs={"pk": pk}))
-    forms = []
+
+    edit_forms, delete_forms = [], []
 
     for message in messages_list:
         edit_message_form, delete_message_form = None, None
@@ -91,7 +92,8 @@ def thread_view(request, pk):
                     "pk": thread.pk,
                     }))
 
-        forms.append((edit_message_form, delete_message_form))
+        edit_forms.append(edit_message_form)
+        delete_forms.append(delete_message_form)
 
     edit_thread_form = None
     if thread.owner == userProfile or request.user.is_superuser:
@@ -128,7 +130,7 @@ def thread_view(request, pk):
     return render_to_response('view_thread.html', {
         'thread': thread,
         'page_name': thread.subject,
-        'messages_list': zip(messages_list, forms),
+        'messages_list': zip(messages_list, edit_forms, delete_forms),
         "add_message_form": add_message_form,
         "edit_thread_form": edit_thread_form,
         "following": following,
