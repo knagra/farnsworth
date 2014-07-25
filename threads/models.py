@@ -43,6 +43,12 @@ class Thread(models.Model):
         default=0,
         help_text="The number times this thread has been viewed.",
         )
+    followers = models.ManyToManyField(
+        UserProfile,
+        blank=True,
+        null=True,
+        help_text="Users following this thread",
+        )
 
     def __unicode__(self):
         return self.subject
