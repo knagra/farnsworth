@@ -50,7 +50,9 @@
 		{% endif %}
 		<div class="message_row">
 		  <div class="message_owner">
-			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >{{ message.owner|display_user:user }}</a> ({{ message.post_date }}):
+			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >
+			  {{ message.owner|display_user:user }}
+			</a> ({{ message.post_date }}):
 		  </div>
 		  <div class="message_body">{{ message.body|safe }}</div>
 		</div> <!-- message_row -->
@@ -74,7 +76,9 @@
 		{% endfor %}
 		{% endfor %}
 		<div class="text-center">
-		  <button class="btn btn-primary" type="button" id="show_form" onclick="show_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-paperclip"></span> Add Message</button>
+		  <button class="btn btn-primary" type="button" id="show_form" onclick="show_new_message_form('add_message_form', 'show_form')">
+			<span class="glyphicon glyphicon-paperclip"></span> Add Message
+		  </button>
 		</div>
 		{% if add_mesage_form %}
 		<form class="new_message_form" id="add_message_form" method="post">
