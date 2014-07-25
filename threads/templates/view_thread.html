@@ -88,7 +88,6 @@
 			  {{ message.owner|display_user:user }}
 			</a>
 			{% if edit_form %}(<a onclick="show_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">edit</a>{% endif %}{% if delete_form %}{% if edit_form %}, {% else %}({% endif %}<a onclick="show_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">delete</a>){% else %}){% endif %}
-			{% endif %}
 			({{ message.post_date }}):
 		  </div>
 		  <div class="message_body">{{ message.body|safe }}</div>
