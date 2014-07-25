@@ -129,6 +129,7 @@
 		{% endif %}
 		{% endfor %}
 
+		{% if add_message_form %}
 		<div class="text-center">
 		  <button class="btn btn-primary" type="button" id="show_add_form"
 				  onclick="show_form('add_message_form', 'show_add_form')">
@@ -136,7 +137,6 @@
 		  </button>
 		</div>
 
-		{% if add_mesage_form %}
 		<form class="new_message_form" id="add_message_form" method="post">
           {% csrf_token %}
           {{ add_mesage_form|bootstrap }}
