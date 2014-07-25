@@ -31,6 +31,10 @@ label {
     display: none;
 }
 
+.edit_thread_form {
+    display: none;
+}
+
 .edit_message_form {
     display: none;
 }
