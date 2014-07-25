@@ -13,7 +13,7 @@
   <div class="pull-right">
 	{% if follow_form %}
 	<form method="POST">
-	  [% csrf_token %]
+	  [% csrf_token %}
 	  {{ follow_form|bootstrap }}
 	  <button class="btn header_button" name="follow_thread" type="submit">
 		{% if following %}
