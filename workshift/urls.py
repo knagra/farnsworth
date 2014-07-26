@@ -6,6 +6,7 @@ from workshift import views
 urlpatterns = [
     url(r"^workshift/start/$", views.start_semester_view, name="start_semester"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/$", views.view_semester, name="view_semester"),
+    url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/open/$", views.view_open_shifts, name="view_open"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/profile/(?P<targetUsername>[-\w]+)/$", views.profile_view, name="profile"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/profile/(?P<targetUsername>[-\w]+)/preferences/$", views.preferences_view, name="preferences"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/profiles/$", views.profiles_view, name="profiles"),

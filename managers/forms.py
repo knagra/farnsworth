@@ -85,7 +85,10 @@ class RequestForm(forms.ModelForm):
     ''' Form to create a new Request. '''
     class Meta:
         model = Request
-        fields = ("body",)
+        fields = ("body", "private")
+        help_texts = {
+            "body": "",
+            }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
@@ -104,6 +107,9 @@ class ResponseForm(forms.ModelForm):
     class Meta:
         model = Response
         fields = ("body",)
+        help_texts = {
+            "body": "",
+            }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
@@ -126,6 +132,17 @@ class ManagerResponseForm(ResponseForm):
     class Meta:
         model = Response
         fields = ("body", "action")
+
+    def __init__(self, *args, **kwargs):
+        super(ManagerResponseForm, self).__init__(*args, **kwargs)
+        if self.request.closed:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.CLOSED)
+        if self.request.open:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.REOPENED)
+        if self.request.filled:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.FILLED)
+        if self.request.expired:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.EXPIRED)
 
     def save(self):
         response = super(ManagerResponseForm, self).save()

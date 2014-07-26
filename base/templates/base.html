@@ -26,7 +26,7 @@
     {% block headers %} {% endblock %}
 </head>
 <body id="html_body">
-    <div class="navbar navbar-inverse navbar_custom navbar-static-top" role="navigation" style="margin-bottom: 10px;">
+    <div class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 10px;">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -121,7 +121,6 @@
             <li class="dropdown-header">Workshift Manager</li>
             {% if CURRENT_SEMESTER %}
             <li><a href="{% url 'workshift:manage' %}"><span class="glyphicon glyphicon-adjust"></span> Manage</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-list"></span> Manage Profiles</a></li>
             {% else %}
             <li><a href="{% url 'workshift:start_semester' %}"><span class="glyphicon glyphicon-plus"></span> Start Semester</a></li>
             {% endif %}

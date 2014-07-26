@@ -2,6 +2,7 @@
 
 {% load static from staticfiles %}
 {% load request_tags %}
+{% load bootstrap %}
 
 {% block headers %}
 <style>
@@ -20,30 +21,35 @@
 {% block content %}
 {% if targetUsername and targetUsername != user.username %}
 <form action="{% url 'member_profile' targetUsername=targetUsername %}" class="pull-right">
-  <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-user"></span><span class="hidden-xs"> {{ targetUsername }}'s Profile</span></button>
+  <button class="btn btn-info" type="submit">
+	<span class="glyphicon glyphicon-user"></span>
+	<span class="hidden-xs"> {{ targetUsername }}'s Profile</span>
+  </button>
 </form>
 {% else %}
-<button class="btn btn-primary pull-right" type="button" onclick="show_new_thread_form()"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
+<button class="btn btn-primary pull-right" type="button" onclick="show_new_thread_form()">
+  <span class="glyphicon glyphicon-pencil"></span>
+  <span class="hidden-xs"> New Thread</span>
+</button>
 {% endif %}
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />
-<form id="new_thread_form" method="post" action="">
-    {% csrf_token %}
-    <div class="form-group">
-      <label class="control-label" for="id_subject">Subject</label>
-      <input id="id_subject" class="form-control" maxlength="300" name="subject" size="100" type="text">
-    </div> <!-- .form-group -->
-    <div class="form-group">
-      <label class="control-label" for="id_body">Body</label>
-      <textarea class="thread" id="id_body" name="body"></textarea>
-    </div>
-    <div class="text-center">
-      <div class="btn-group">
-        <button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Start Thread</button>
-        <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_new_thread_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-      </div> <!-- .btn-group -->
-    </div> <!-- .text-center" -->
+{% if create_form %}
+<form id="new_thread_form" method="post">
+  {% csrf_token %}
+  {{ create_form|bootstrap }}
+  <div class="text-center">
+    <div class="btn-group">
+      <button type="submit" class="btn btn-success" name="submit_thread_form">
+		<span class="glyphicon glyphicon-comment"></span> Start Thread
+	  </button>
+      <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_new_thread_form()">
+		<span class="glyphicon glyphicon-collapse-up"></span> Hide
+	  </button>
+    </div> <!-- .btn-group -->
+  </div> <!-- .text-center" -->
 </form>
+{% endif %}
 {% if not threads %}
   <div class="field_wrapper text-info">No threads found.</div>
 {% else %}
@@ -60,8 +66,22 @@
     <tbody>
       {% for thread in threads %}
       <tr>
-        <td><a title="View Thread" class="page_link" href="{% url 'threads:view_thread' thread_pk=thread.pk %}">{% if page_name == 'Archives - All Threads' %}{{ thread.subject|truncatechars:40 }}{% else %}{{ thread.subject|truncatechars:60 }}{% endif %}</a></td>
-        {% if page_name == 'Archives - All Threads' %}<td><a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">{{ thread.owner.user.first_name }} {{ thread.owner.user.last_name }}</a></td>{% endif %}
+        <td>
+		  <a title="View Thread" class="page_link" href="{% url 'threads:view_thread' pk=thread.pk %}">
+			{% if page_name == 'Archives - All Threads' %}
+			{{ thread.subject|truncatechars:40 }}
+			{% else %}
+			{{ thread.subject|truncatechars:60 }}
+			{% endif %}
+		  </a>
+		</td>
+        {% if page_name == 'Archives - All Threads' %}
+		<td>
+		  <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">
+			{{ thread.owner.user.first_name }} {{ thread.owner.user.last_name }}
+		  </a>
+		</td>
+		{% endif %}
         <td>{{ thread.number_of_messages|add:"-1" }}</td>
         <td>{{ thread.start_date|date:"m/d/Y, h:i A" }}</td>
         <td>{{ thread.change_date|date:"m/d/Y, h:i A" }}</td>

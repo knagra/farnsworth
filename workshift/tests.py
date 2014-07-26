@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 from datetime import timedelta, time, date
-import random
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -258,7 +257,7 @@ class TestAssignment(TestCase):
         of workshift. Ensures that the assignments don't mysteriously break or
         run for an extremely long time for medium-sized houses.
         """
-        shifts, profiles = [], [self.profile]
+        shifts = []
         for i in range(50):
             shifts.append(
                 RegularWorkshift.objects.create(
@@ -269,11 +268,6 @@ class TestAssignment(TestCase):
                 )
         for i in range(1, 50):
             user = User.objects.create_user(username="u{0}".format(i))
-            profile = WorkshiftProfile.objects.create(
-                user=user,
-                semester=self.semester
-                )
-            profiles.append(profile)
 
         utils.make_workshift_pool_hours(semester=self.semester)
         unfinished = utils.auto_assign_shifts(self.semester)
@@ -287,7 +281,7 @@ class TestAssignment(TestCase):
         of workshift. Ensures that the assignments don't mysteriously break or
         run for an extremely long time for large houses.
         """
-        shifts, profiles = [], [self.profile]
+        shifts = []
         for i in range(150):
             shifts.append(
                 RegularWorkshift.objects.create(
@@ -298,11 +292,6 @@ class TestAssignment(TestCase):
                 )
         for i in range(1, 150):
             user = User.objects.create_user(username="u{0}".format(i))
-            profile = WorkshiftProfile.objects.create(
-                user=user,
-                semester=self.semester
-                )
-            profiles.append(profile)
 
         utils.make_workshift_pool_hours(semester=self.semester)
         unfinished = utils.auto_assign_shifts(self.semester)
@@ -316,43 +305,34 @@ class TestAssignment(TestCase):
         is run. This is a good test of how the assignment code functions "in the
         wild," rather than with many duplicates of the same shift.
         """
-        random.seed(0)
-        profiles = []
         for i in range(1, 50):
             user = User.objects.create_user(username="u{0}".format(i))
-            profile = WorkshiftProfile.objects.create(
-                user=user,
-                semester=self.semester
-                )
-            profiles.append(profile)
         pre_fill.main([], verbose=False)
         utils.make_workshift_pool_hours(semester=self.semester)
         # Assign manager shifts beforehand
         manager_shifts = RegularWorkshift.objects.filter(
             pool=self.p1, workshift_type__auto_assign=False,
             )
+        profiles = WorkshiftProfile.objects.all()
         for profile, shift in zip(profiles, manager_shifts):
             shift.current_assignees.add(profile)
             shift.save()
         unfinished = utils.auto_assign_shifts(self.semester)
-        self.assertLessEqual(len(unfinished), 3)
+        self.assertEqual([], unfinished)
 
 class TestUtils(TestCase):
     """
     Tests most of the various functions within workshift.utils.
     """
     def setUp(self):
-        self.u = User.objects.create_user(username="u")
         self.semester = Semester.objects.create(
             year=2014,
             season=Semester.SUMMER,
             start_date=date(2014, 5, 25),
             end_date=date(2014, 8, 16),
             )
-        self.profile = WorkshiftProfile.objects.create(
-            user=self.u,
-            semester=self.semester,
-            )
+        self.u = User.objects.create_user(username="u")
+        self.profile = WorkshiftProfile.objects.get(user=self.u)
         self.p1 = WorkshiftPool.objects.create(
             is_primary=True,
             semester=self.semester,
@@ -591,6 +571,13 @@ class TestViews(TestCase):
     correctly, and that they contain the content that is expected.
     """
     def setUp(self):
+        today = now().date()
+        self.sem = Semester.objects.create(
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
+            current=True,
+            )
+
         self.u = User.objects.create_user(username="u", password="pwd")
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.wu.first_name, self.wu.last_name = "Cooperative", "User"
@@ -602,23 +589,13 @@ class TestViews(TestCase):
             workshift_manager=True,
             )
 
-        today = now().date()
-        self.sem = Semester.objects.create(
-            year=2014, start_date=today,
-            end_date=today + timedelta(days=7),
-            current=True,
-            )
-
         self.pool = WorkshiftPool.objects.create(
             semester=self.sem,
             )
         self.pool.managers = [self.wm]
         self.pool.save()
 
-        self.wprofile = WorkshiftProfile.objects.create(
-            user=self.wu,
-            semester=self.sem,
-            )
+        self.wprofile = WorkshiftProfile.objects.get(user=self.wu)
 
         self.wtype = WorkshiftType.objects.create(
             title="Test Posts",
@@ -755,7 +732,6 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
-        self.assertContains(response, str(self.wtype.hours))
         self.assertNotContains(response, self.wtype.quick_tips)
         self.assertNotContains(response, self.wtype.description)
 
@@ -764,7 +740,6 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
-        self.assertContains(response, str(self.wtype.hours))
         self.assertContains(response, self.wtype.quick_tips)
         self.assertContains(response, self.wtype.description)
 
@@ -773,7 +748,6 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
-        self.assertContains(response, str(self.wtype.hours))
         self.assertContains(response, self.wtype.quick_tips)
         self.assertContains(response, self.wtype.description)
 
@@ -919,6 +893,13 @@ class TestPreferences(TestCase):
     Tests the various elements of the workshift preferences page.
     """
     def setUp(self):
+        today = now().date()
+        self.sem = Semester.objects.create(
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
+            current=True,
+            )
+
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.wu.first_name, self.wu.last_name = "Cooperative", "User"
         self.wu.save()
@@ -929,23 +910,13 @@ class TestPreferences(TestCase):
             workshift_manager=True,
             )
 
-        today = now().date()
-        self.sem = Semester.objects.create(
-            year=2014, start_date=today,
-            end_date=today + timedelta(days=7),
-            current=True,
-            )
-
         self.pool = WorkshiftPool.objects.create(
             semester=self.sem,
             )
         self.pool.managers = [self.wm]
         self.pool.save()
 
-        self.wprofile = WorkshiftProfile.objects.create(
-            user=self.wu,
-            semester=self.sem,
-            )
+        self.wprofile = WorkshiftProfile.objects.get(user=self.wu)
 
         self.w1 = WorkshiftType.objects.create(
             title="Clean Pots",
@@ -1142,6 +1113,13 @@ class TestInteractForms(TestCase):
     verifying shifts, signing in and out of shifts at appropriate times, etc.
     """
     def setUp(self):
+        today = now().date()
+        self.sem = Semester.objects.create(
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
+            current=True,
+            )
+
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.u = User.objects.create_user(username="u", password="pwd")
         self.ou = User.objects.create_user(username="ou", password="pwd")
@@ -1152,36 +1130,17 @@ class TestInteractForms(TestCase):
             workshift_manager=True,
             )
 
-        today = now().date()
-        self.sem = Semester.objects.create(
-            year=2014, start_date=today,
-            end_date=today + timedelta(days=7),
-            current=True,
-            )
-
         self.pool = WorkshiftPool.objects.create(
             semester=self.sem,
             any_blown=True,
             )
         self.pool.managers = [self.wm]
 
-        self.wp = WorkshiftProfile.objects.create(
-            user=self.wu,
-            semester=self.sem,
-            )
-        self.up = WorkshiftProfile.objects.create(
-            user=self.u,
-            semester=self.sem,
-            )
-        self.op = WorkshiftProfile.objects.create(
-            user=self.ou,
-            semester=self.sem,
-            )
+        self.wp = WorkshiftProfile.objects.get(user=self.wu)
+        self.up = WorkshiftProfile.objects.get(user=self.u)
+        self.op = WorkshiftProfile.objects.get(user=self.ou)
 
-        ph = PoolHours.objects.create(pool=self.pool)
-
-        self.up.pool_hours = [ph]
-        self.up.save()
+        utils.make_workshift_pool_hours(semester=self.sem, profiles=[self.up])
 
         self.wtype = WorkshiftType.objects.create(
             title="Test Posts",
@@ -1346,6 +1305,13 @@ class TestPermissions(TestCase):
     the pages they are expected to have permission to.
     """
     def setUp(self):
+        today = now().date()
+        self.sem = Semester.objects.create(
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
+            current=True,
+            )
+
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.mu = User.objects.create_user(username="mu", password="pwd")
         self.u = User.objects.create_user(username="u", password="pwd")
@@ -1362,13 +1328,6 @@ class TestPermissions(TestCase):
             incumbent=UserProfile.objects.get(user=self.mu),
             )
 
-        today = now().date()
-        self.sem = Semester.objects.create(
-            year=2014, start_date=today,
-            end_date=today + timedelta(days=7),
-            current=True,
-            )
-
         self.pool = WorkshiftPool.objects.create(
             semester=self.sem,
             )
@@ -1380,10 +1339,10 @@ class TestPermissions(TestCase):
             weeks_per_period=0,
             )
 
-        self.wp = WorkshiftProfile.objects.create(user=self.wu, semester=self.sem)
-        self.mp = WorkshiftProfile.objects.create(user=self.mu, semester=self.sem)
-        self.up = WorkshiftProfile.objects.create(user=self.u, semester=self.sem)
-        self.op = WorkshiftProfile.objects.create(user=self.ou, semester=self.sem)
+        self.wp = WorkshiftProfile.objects.get(user=self.wu)
+        self.mp = WorkshiftProfile.objects.get(user=self.mu)
+        self.up = WorkshiftProfile.objects.get(user=self.u)
+        self.op = WorkshiftProfile.objects.get(user=self.ou)
 
         self.wtype = WorkshiftType.objects.create(
             title="Test Posts",
@@ -1643,6 +1602,13 @@ class TestWorkshifts(TestCase):
     and instances of shifts.
     """
     def setUp(self):
+        today = now().date()
+        self.sem = Semester.objects.create(
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
+            current=True,
+            )
+
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.u = User.objects.create_user(username="u", password="pwd")
 
@@ -1652,21 +1618,14 @@ class TestWorkshifts(TestCase):
             workshift_manager=True,
             )
 
-        today = now().date()
-        self.sem = Semester.objects.create(
-            year=2014, start_date=today,
-            end_date=today + timedelta(days=7),
-            current=True,
-            )
-
         self.pool = WorkshiftPool.objects.create(
             semester=self.sem,
             )
         self.pool.managers = [self.wm]
         self.pool.save()
 
-        self.wp = WorkshiftProfile.objects.create(user=self.wu, semester=self.sem)
-        self.up = WorkshiftProfile.objects.create(user=self.u, semester=self.sem)
+        self.wp = WorkshiftProfile.objects.get(user=self.wu)
+        self.up = WorkshiftProfile.objects.get(user=self.u)
 
         self.type = WorkshiftType.objects.create(
             title="Test Posts",
@@ -1981,7 +1940,6 @@ class TestWorkshifts(TestCase):
             "type-title": "Added Title",
             "type-description": "Added Description",
             "type-quick_tips": "Added Quick Tips",
-            "type-hours": 42,
             "type-rateable": True,
             "shifts-TOTAL_FORMS": 0,
             "shifts-INITIAL_FORMS": 0,
@@ -1992,7 +1950,6 @@ class TestWorkshifts(TestCase):
         self.assertEqual(shift_type.title, "Added Title")
         self.assertEqual(shift_type.description, "Added Description")
         self.assertEqual(shift_type.quick_tips, "Added Quick Tips")
-        self.assertEqual(shift_type.hours, 42)
         self.assertEqual(shift_type.rateable, True)
 
     def test_edit_type(self):
@@ -2002,7 +1959,6 @@ class TestWorkshifts(TestCase):
             "edit-title": "Edited Title",
             "edit-description": "Edited Description",
             "edit-quick_tips": "Edited Quick Tips",
-            "edit-hours": 42,
             "edit-rateable": False,
             "shifts-TOTAL_FORMS": 0,
             "shifts-INITIAL_FORMS": 0,
@@ -2015,7 +1971,6 @@ class TestWorkshifts(TestCase):
         self.assertEqual(shift_type.title, "Edited Title")
         self.assertEqual(shift_type.description, "Edited Description")
         self.assertEqual(shift_type.quick_tips, "Edited Quick Tips")
-        self.assertEqual(shift_type.hours, 42)
         self.assertEqual(shift_type.rateable, False)
 
 class TestSemester(TestCase):
@@ -2024,6 +1979,13 @@ class TestSemester(TestCase):
     there exist multiple "current" semesters.
     """
     def setUp(self):
+        today = now().date()
+        self.s1 = Semester.objects.create(
+            year=2014, start_date=today,
+            end_date=today + timedelta(days=7),
+            current=True,
+            )
+
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.wp = UserProfile.objects.get(user=self.wu)
 
@@ -2033,20 +1995,13 @@ class TestSemester(TestCase):
             workshift_manager=True,
             )
 
-        today = now().date()
-        self.s1 = Semester.objects.create(
-            year=2014, start_date=today,
-            end_date=today + timedelta(days=7),
-            current=True,
-            )
-
         self.s2 = Semester.objects.create(
             year=2013, start_date=today,
             end_date=today + timedelta(days=7),
             current=False,
             )
 
-        self.wprofile = WorkshiftProfile.objects.create(user=self.wu, semester=self.s1)
+        self.wprofile = WorkshiftProfile.objects.get(user=self.wu, semester=self.s1)
 
         self.client.login(username="wu", password="pwd")
 

@@ -67,7 +67,6 @@ class RegularWorkshiftIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.EdgeNgramField(document=True, use_template=True)
     workshift_type = indexes.EdgeNgramField(model_attr='workshift_type')
     pool = indexes.EdgeNgramField(model_attr='pool')
-    title = indexes.EdgeNgramField(model_attr='title')
     addendum = indexes.EdgeNgramField(model_attr='addendum', null=True)
 
     def get_model(self):

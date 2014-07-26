@@ -39,6 +39,17 @@ class Thread(models.Model):
         default=True,
         help_text="Whether this thread is still active.",
         )
+    views = models.PositiveIntegerField(
+        default=0,
+        help_text="The number times this thread has been viewed.",
+        )
+    followers = models.ManyToManyField(
+        UserProfile,
+        blank=True,
+        null=True,
+        related_name="following",
+        help_text="Users following this thread",
+        )
 
     def __unicode__(self):
         return self.subject

@@ -47,6 +47,10 @@ class Petition(models.Model):
         default=False,
         help_text="Whether this petition is closed to signatures."
         )
+    number_or_comments = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of comments on this petition."
+        )
     
     def __unicode__(self):
         return self.title
@@ -115,6 +119,10 @@ class Poll(models.Model):
     anonymity_allowed = models.BooleanField(
         default=False,
         help_text="Whether anonymity is allowed."
+        )
+    alumni_allowed = models.BooleanField(
+        default=False,
+        help_text="Whether alumni are allowed to participate."
         )
     election = models.BooleanField(
         default=False,

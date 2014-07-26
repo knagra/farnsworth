@@ -40,6 +40,8 @@ class PetitionCommentForm(forms.ModelForm):
         comment.user = self.profile
         comment.petition = self.petition
         comment.save()
+        comment.petition.number_of_comments += 1
+        comment.petition.save()
 
 class PetitionSignatureForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -62,7 +64,8 @@ class PollForm(form.ModelForm):
             "title",
             "description",
             "close_date",
-            "anonymity_allowed"
+            "anonymity_allowed",
+            "alumni_allowed",
             )
 
     def __init__(self, *args, **kwargs):
@@ -70,6 +73,7 @@ class PollForm(form.ModelForm):
         if 'election' in kwargs:
             self.election = True
             self.fields.pop('anonymity_allowed')
+            self.fields.pop('alumni_allowed')
         else:
             self.election = False
         self.profile = kwargs.pop('profile')

@@ -10,7 +10,8 @@
   {% if WORKSHIFT_MANAGER %}
   <form action="{% wurl 'workshift:edit_type' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
     <button class="btn btn-warning" type="submit">
-      <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span>
+      <span class="glyphicon glyphicon-edit"></span>
+      <span class="hidden-xs">Edit</span>
     </button>
   </form>
   {% endif %}

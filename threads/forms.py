@@ -15,6 +15,9 @@ class ThreadForm(forms.ModelForm):
     class Meta:
         model = Thread
         fields = ("subject",)
+        help_texts = {
+            "subject": "",
+            }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
@@ -36,6 +39,9 @@ class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
         fields = ("body",)
+        help_texts = {
+            "body": "",
+            }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
@@ -53,21 +59,31 @@ class MessageForm(forms.ModelForm):
 
         return message
 
+class FollowThreadForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.pop("instance")
+        self.profile = kwargs.pop("profile")
+        super(FollowThreadForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        if self.profile in self.instance.followers.all():
+            self.instance.followers.remove(self.profile)
+            following = False
+        else:
+            self.instance.followers.add(self.profile)
+            following = True
+        self.instance.save()
+        return following
+
 class EditThreadForm(forms.ModelForm):
-    label = "edit"
-    display = "Edit"
-    button = "success"
-    glyph = "comment"
     class Meta:
         model = Thread
         fields = ("subject",)
+        help_texts = {
+            "subject": "",
+            }
 
 class DeleteMessageForm(forms.ModelForm):
-    label = "delete"
-    display = "Delete"
-    button = "danger"
-    glyph = "fire"
-
     class Meta:
         model = Message
         fields = ()
@@ -87,3 +103,6 @@ class EditMessageForm(forms.ModelForm):
     class Meta:
         model = Message
         fields = ("body",)
+        help_texts = {
+            "body": "",
+            }
