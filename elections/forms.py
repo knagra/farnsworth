@@ -40,6 +40,8 @@ class PetitionCommentForm(forms.ModelForm):
         comment.user = self.profile
         comment.petition = self.petition
         comment.save()
+        comment.petition.number_of_comments += 1
+        comment.petition.save()
 
 class PetitionSignatureForm(forms.Form):
     def __init__(self, *args, **kwargs):
