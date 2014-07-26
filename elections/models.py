@@ -47,6 +47,10 @@ class Petition(models.Model):
         default=False,
         help_text="Whether this petition is closed to signatures."
         )
+    number_or_comments = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of comments on this petition."
+        )
     
     def __unicode__(self):
         return self.title
