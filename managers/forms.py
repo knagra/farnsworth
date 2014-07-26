@@ -99,6 +99,10 @@ class RequestForm(forms.ModelForm):
         request.owner = self.profile
         request.request_type = self.request_type
         request.save()
+        for manager in request.request_type.managers.all():
+            if manager.incumbent:
+                notify.send(self.profile.user, verb="posted", action_object=self.request,
+                            recipient=manager.incumbent.user)
         return request
 
 class ResponseForm(forms.ModelForm):

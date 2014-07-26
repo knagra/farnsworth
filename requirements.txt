@@ -9,3 +9,4 @@ django-cron
 git+git://github.com/stefanfoulis/django-phonenumber-field.git@develop
 bcrypt
 pytz
+django-notifications-hq

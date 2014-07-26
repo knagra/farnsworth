@@ -11,12 +11,14 @@ from django.conf import settings
 from django.db.models import Q
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
+from notifications import notify
+
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     TimeBlock, WorkshiftRating, WorkshiftProfile, \
     RegularWorkshift, ShiftLogEntry, InstanceInfo, WorkshiftInstance, \
-    PoolHours, SELF_VERIFY, AUTO_VERIFY, WORKSHIFT_MANAGER_VERIFY, \
+    PoolHours, AUTO_VERIFY, WORKSHIFT_MANAGER_VERIFY, \
     POOL_MANAGER_VERIFY, ANY_MANAGER_VERIFY, OTHER_VERIFY, VERIFY_CHOICES
 from workshift import utils
 
@@ -306,6 +308,10 @@ class VerifyShiftForm(InteractShiftForm):
         pool_hours.standing += instance.hours
         pool_hours.save()
 
+        if self.profile != workshifter:
+            notify.send(self.profile.user, verb="verified", action_object=instance,
+                        recipient=workshifter.user)
+
         return instance
 
 class BlownShiftForm(InteractShiftForm):
@@ -331,16 +337,33 @@ class BlownShiftForm(InteractShiftForm):
             entry_type=ShiftLogEntry.BLOWN,
             )
 
+        # Close the shift
         instance = self.cleaned_data["pk"]
         instance.blown = True
         instance.closed = True
         instance.logs.add(entry)
         instance.save()
 
+        # Update the workshifter's hours
         pool_hours = instance.workshifter.pool_hours \
           .get(pool=instance.get_info().pool)
         pool_hours.standing -= instance.hours
         pool_hours.save()
+
+        # Notify the workshifter as well as the workshift manager
+        targets = []
+        if self.profile != instance.workshifter:
+            targets.append(instance.workshifter.user)
+        for manager in instance.pool.managers.all():
+            if manager.incumbent.user != self.profile.user:
+                targets.append(manager.incubment.user)
+        for target in targets:
+            notify.send(
+                self.profile.user,
+                verb="marked as blown",
+                action_object=instance,
+                recipient=target,
+                )
 
         return instance
 
