@@ -137,7 +137,6 @@
             <li class="dropdown-header">Workshift Manager</li>
             {% if CURRENT_SEMESTER %}
             <li><a href="{% url 'workshift:manage' %}"><span class="glyphicon glyphicon-adjust"></span> Manage</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-list"></span> Manage Profiles</a></li>
             {% else %}
             <li><a href="{% url 'workshift:start_semester' %}"><span class="glyphicon glyphicon-plus"></span> Start Semester</a></li>
             {% endif %}

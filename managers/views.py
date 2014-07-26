@@ -6,14 +6,15 @@ Author: Karandeep Singh Nagra
 
 from datetime import timedelta
 
-from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.contrib import messages
-from django.conf import settings
 from django.utils.timezone import now
 
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
@@ -204,22 +205,30 @@ def requests_view(request, requestType):
     if request_form.is_valid():
         request_form.save()
         return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
-    x = 0 # number of requests loaded
+    # number of requests loaded
+    x = 0
     # A pseudo-dictionary, actually a list with items of form (request,
     # [request_responses_list], response_form, upvote, vote_form)
     requests_dict = list()
-    for req in Request.objects.filter(request_type=request_type):
+    requests = Request.objects.filter(request_type=request_type)
+    if not request_type.managers.filter(incumbent__user=request.user):
+        requests = requests.exclude(
+            ~Q(owner__user=request.user), private=True,
+            )
+    for req in requests:
         request_responses = Response.objects.filter(request=req)
         if manager:
             response_form = ManagerResponseForm(
                 request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
                 initial={'action': Response.NONE},
+                prefix="{0}".format(req.pk),
                 profile=userProfile,
                 request=req,
                 )
         else:
             response_form = ResponseForm(
                 request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
+                prefix="{0}".format(req.pk),
                 profile=userProfile,
                 request=req,
                 )
@@ -231,10 +240,12 @@ def requests_view(request, requestType):
             )
         if response_form.is_valid():
             response_form.save()
-            return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
+            return HttpResponseRedirect(reverse('managers:requests',
+                                                kwargs={'requestType': requestType}))
         if vote_form.is_valid():
             vote_form.save()
-            return HttpResponseRedirect(reverse('managers:requests', kwargs={'requestType': requestType}))
+            return HttpResponseRedirect(reverse('managers:requests',
+                                                kwargs={'requestType': requestType}))
         requests_dict.append((req, request_responses, response_form, upvote, vote_form))
         x += 1
         if x >= settings.MAX_REQUESTS:
@@ -339,7 +350,9 @@ def list_user_requests_view(request, targetUsername):
     targetUser = get_object_or_404(User, username=targetUsername)
     targetProfile = get_object_or_404(UserProfile, user=targetUser)
     page_name = "{0}'s Requests".format(targetUsername)
-    requests = Request.objects.filter(owner=targetProfile)
+    requests = Request.objects.filter(owner=targetProfile).exclude(
+        ~Q(owner__user=request.user), private=True,
+        )
     return render_to_response('list_requests.html', {
         'page_name': page_name,
         'requests': requests,
@@ -349,12 +362,27 @@ def list_user_requests_view(request, targetUsername):
 @profile_required
 def all_requests_view(request):
     '''
-    Show user a list of enabled request types, the number of requests of each type and a link to see them all.
+    Show user a list of enabled request types, the number of requests of each
+    type and a link to see them all.
     '''
-    types_dict = list() # Pseudo-dictionary, actually a list with items of form (request_type.name.title(), number_of_type_requests, name, enabled, glyphicon)
+    # Pseudo-dictionary, actually a list with items of form
+    # (request_type.name.title(), number_of_type_requests, name, enabled,
+    # glyphicon)
+    types_dict = list()
     for request_type in RequestType.objects.all():
-        number_of_requests = Request.objects.filter(request_type=request_type).count()
-        types_dict.append((request_type.name.title(), number_of_requests, request_type.url_name, request_type.enabled, request_type.glyphicon))
+        requests = Request.objects.filter(request_type=request_type)
+        # Hide the count for private requests
+        if not request_type.managers.filter(incumbent__user=request.user):
+            requests = requests.exclude(
+                ~Q(owner__user=request.user), private=True,
+                )
+
+        number_of_requests = requests.count()
+        types_dict.append((
+            request_type.name.title(), number_of_requests,
+            request_type.url_name, request_type.enabled,
+            request_type.glyphicon,
+            ))
     return render_to_response('all_requests.html', {
         'page_name': "Archives - All Requests",
         'types_dict': types_dict,
@@ -363,10 +391,16 @@ def all_requests_view(request):
 @profile_required
 def list_all_requests_view(request, requestType):
     '''
-    Show user his/her requests in list form.
+    Show all the requests for a given type in list form.
     '''
     request_type = get_object_or_404(RequestType, url_name=requestType)
     requests = Request.objects.filter(request_type=request_type)
+    # Hide the count for private requests
+    if not request_type.managers.filter(incumbent__user=request.user):
+        requests = requests.exclude(
+            ~Q(owner__user=request.user), private=True,
+            )
+
     page_name = "Archives - All {0} Requests".format(request_type.name.title())
     return render_to_response('list_requests.html', {
         'page_name': page_name,
@@ -380,6 +414,14 @@ def request_view(request, request_pk):
     The view of a single request.
     '''
     relevant_request = get_object_or_404(Request, pk=request_pk)
+
+    if relevant_request.private:
+        if relevant_request.owner.user != request.user or \
+          relevant_request.request_type.managers.filter(incumbent__user=request.user):
+          return HttpResponseRedirect(
+              reverse("managers:requests",
+                      kwargs={"requestType": relevant_request.request_type.url_name}))
+
     userProfile = UserProfile.objects.get(user=request.user)
     request_responses = Response.objects.filter(request=relevant_request)
     relevant_managers = relevant_request.request_type.managers.filter(active=True)
@@ -561,7 +603,10 @@ def all_announcements_view(request):
 
 @admin_required
 def recount_view(request):
-    ''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
+    '''
+    Recount number_of_messages for all threads and number_of_responses for all
+    requests.
+    '''
     requests_changed = 0
     for req in Request.objects.all():
         recount = Response.objects.filter(request=req).count()
@@ -576,10 +621,13 @@ def recount_view(request):
             thread.number_of_messages = recount
             thread.save()
             threads_changed += 1
-    messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
-        requests_changed=requests_changed,
-        request_count=Request.objects.all().count(),
-        threads_changed=threads_changed,
-        thread_count=Thread.objects.all().count()),
+    messages.add_message(
+        request, messages.SUCCESS,
+        MESSAGES['RECOUNTED'].format(
+            requests_changed=requests_changed,
+            request_count=Request.objects.all().count(),
+            threads_changed=threads_changed,
+            thread_count=Thread.objects.all().count(),
+            ),
         )
     return HttpResponseRedirect(reverse('utilities'))
