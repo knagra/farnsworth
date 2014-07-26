@@ -40,6 +40,8 @@ class PetitionCommentForm(forms.ModelForm):
         comment.user = self.profile
         comment.petition = self.petition
         comment.save()
+        comment.petition.number_of_comments += 1
+        comment.petition.save()
 
 class PetitionSignatureForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -84,7 +86,7 @@ class PollForm(form.ModelForm):
         poll.save()
 
 class PollQuestionForm(models.Model):
-    choice_text = forms.CharField(
+    choices = forms.CharField(
         widget=forms.Textarea,
         required=False,
         help_text="One line per option.",
@@ -100,8 +102,24 @@ class PollQuestionForm(models.Model):
         if self.cleaned_data['question_type'] == PollQuestion.CHOICE \
             or self.cleaned_data['question_type'] == PollQuestion.RANK \
             and not self.cleaned_data['choice_text']:
-                
+                self._errors['choices'] = self.error_class([u"No choices entered for a choice or rank question."])
+                return False
+        if self.cleaned_data['choice_text'].count('\n') < 2:
+            self._errors['choices'] = self.error_class([u"Only one choice entered. Maybe this should be a yes/no question?"])
+        return True
+
+    def save(self):
+        question = super(PollQuestionForm, self).save(commit=False)
+        if self.cleaned_data['question_type'] in [PollQuestion.CHOICE, PollQuestion.RANK]:
+            for choice_string in self.cleaned_data['choices'].split('\n'):
+                choice = Choice(question=question, body=choice_string)
+                choice.save()
+        return question
 
 class BasePollQuestionFormSet(BaseModelFormSet):
-    def __init__(self, *args, **kwargs):
+    def save(self, poll):
+        questions = super(BasePollQuestionFormSet, self).save(commit=False):
+        for question in questions:
+            question.poll = poll
+            question.save()
         
