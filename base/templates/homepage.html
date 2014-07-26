@@ -55,6 +55,7 @@ function hide_form(form_id) {
           <div class="request_name bg-warning" title="Open">
             <div class="request_owner">
               {% if not request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
+			  {% if vote_form %}
               <form style="display:inline" method="POST">
                 {% csrf_token %}
                 {{ vote_form|bootstrap }}
@@ -68,6 +69,7 @@ function hide_form(form_id) {
                 </button>
                 {% endif %}
               </form>
+			  {% endif %}
               {% endif %}
               {% with vote_count_request=request %}
               {% include "vote_list.html" %}
@@ -75,10 +77,12 @@ function hide_form(form_id) {
             </div> <!-- .request_owner -->
             <div class="request_body">{{ request.body|safe }}
               {% if not request.owner.user = user %}
+			  {% if vote_form %}
               <form class="pull-right" method="POST">
                 {% csrf_token %}
                 {{ vote_form|bootstrap }}
               </form>
+              {% endif %}
               {% endif %}
             </div>
           </div> <!-- .request_name -->
@@ -207,21 +211,30 @@ function hide_form(form_id) {
 <div class="row">
   <div class="col-lg-7" style="margin-top: 20px;">
     <div class="threads">
-      <button class="btn btn-primary pull-right" onclick="show_form('new_thread_form')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Thread</span></button>
+      <button class="btn btn-primary pull-right" onclick="show_form('new_thread_form')" type="button">
+		<span class="glyphicon glyphicon-pencil"></span>
+		<span class="hidden-xs"> New Thread</span>
+	  </button>
       <h1 class="w_title">Recent Threads</h1>
       <hr class="w_line" />
-      <form id="new_thread_form" method="post" action="">
+	  {% if thread_form %}
+      <form id="new_thread_form" method="post">
         {% csrf_token %}
         <div class="form-group">
           {{ thread_form|bootstrap }}
           <div class="text-center">
             <div class="btn-group">
-              <button type="submit" class="btn btn-success" name="submit_thread_form"><span class="glyphicon glyphicon-comment"></span> Start Thread</button>
-              <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_form('new_thread_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+              <button type="submit" class="btn btn-success" name="submit_thread_form">
+				<span class="glyphicon glyphicon-comment"></span> Start Thread
+			  </button>
+              <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_form('new_thread_form')">
+				<span class="glyphicon glyphicon-collapse-up"></span> Hide
+			  </button>
             </div> <!-- .btn-group -->
           </div> <!-- .text-center -->
         </div>
       </form>
+	  {% endif %}
       {% if not thread_set %}
       <div class="field_wrapper">No threads found in database.</div>
       {% else %}

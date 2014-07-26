@@ -12,6 +12,7 @@ from django.utils.timezone import now
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -331,6 +332,30 @@ def _get_forms(profile, instance):
                 }, profile=profile)
             ret.append(sign_in_form)
     return ret
+
+@get_workshift_profile
+def view_open_shifts(request, semester, profile=None):
+    page_name = "Upcoming Open Shifts"
+    shifts = WorkshiftInstance.objects.filter(closed=False)
+
+    paginator = Paginator(shifts, 100)
+    page = request.GET.get("page")
+    try:
+        shifts = paginator.page(page)
+    except PageNotAnInteger:
+        shifts = paginator.page(1)
+    except EmptyPage:
+        shifts = paginator.page(paginator.num_pages)
+
+    shifts_and_forms = [(shift, _get_forms(profile, instance)) for shift in shifts]
+
+    return render_to_response("open_shifts.html", {
+        "page_name": page_name,
+        "shifts": shifts_and_forms,
+        "page": page,
+        "paginator": shifts,
+        }, context_instance=RequestContext(request))
+
 
 @get_workshift_profile
 def profile_view(request, semester, targetUsername, profile=None):
