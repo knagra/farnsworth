@@ -44,8 +44,9 @@
             {{ form }}
             <button
                 type="submit" class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
-                name="{{ form.action_name }}">{{ form.title_short|safe }}<span class="hidden-xs">
-                    {{ form.title_long }}</span></button>
+                name="{{ form.action_name }}">
+	      {{ form.title_short|safe }}<span class="hidden-xs">{{ form.title_long }}</span>
+	    </button>
           </form>
           {% endfor %}
         </td>
