@@ -523,6 +523,7 @@ def assign_shifts_view(request, semester):
     page_name = "Assign Shifts"
     if "auto_assign" in request.POST:
         unfinished = utils.auto_assign_shifts(semester)
+        # TODO: Update workshift instances
         messages.add_message(request, messages.INFO,
                              "Assigned all but {0} workshifts their shifts"
                              .format(len(unfinished)))
