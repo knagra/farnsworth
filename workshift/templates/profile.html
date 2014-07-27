@@ -22,7 +22,7 @@
     <tbody>
       {% for shift in regular_shifts %}
       <tr>
-        <td><a href="{% wurl 'workshift:view_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.title }}</a></td>
+        <td><a href="{% wurl 'workshift:view_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}">{{ shift.workshift_type.title }}</a></td>
         <td>
           {% if shift.week_long %}
           Week long
