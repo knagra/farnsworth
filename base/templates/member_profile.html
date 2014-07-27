@@ -43,7 +43,7 @@
 	  {% for prev_res in prev_rooms %}
 	  {% if not forloop.first %}, {% endif %}<a href="{% url 'rooms:view' room_title=prev_res.room.title %}">{{ room.title }}</a>{% endfor %}
 	  {% else %}
-	  &nbps;
+	  &nbsp;
 	  {% endif %}
 	</dd>
 	{% if targetProfile.former_houses %}
