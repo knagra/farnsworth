@@ -45,7 +45,7 @@
     <hr class="visible-sm visible-xs" />
     <div id="sidebar" class="col-md-3">
       {% block sidebartop %}{% endblock %}
-      <h4><a href="{% 'workshift:view_open' sem_url=SEMESTER.sem_url %}">Open Shifts</a></h4>
+      <h4><a href="{% wurl 'workshift:view_open' sem_url=SEMESTER.sem_url %}">Open Shifts</a></h4>
       {% if upcoming_shifts %}
       <h4 id="shifts_title">Upcoming &amp; Recent Shifts</h4>
       <div id="upcoming_shifts" class="list-group">
