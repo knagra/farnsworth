@@ -15,8 +15,6 @@
       <tr>
 	<th>Date</th>
         <th>Title</th>
-        <th>Starts</th>
-        <th>Ends</th>
         <th>Hours</th>
         <th>Action</th>
       </tr>
@@ -24,12 +22,10 @@
     <tbody>
       {% for shift, forms in shifts %}
       <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
-	<td>{{ shift.date }}</td>
+	<td>{{ shift.display_time }}</td>
         <td>
           <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
         </td>
-        <td>{{ shift.start_time }}</td>
-        <td>{{ shift.end_time }}</td>
         <td>
           {% if shift.intended_hours == shift.hours %}
           {{ shift.hours }}

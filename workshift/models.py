@@ -496,6 +496,14 @@ class RegularWorkshift(models.Model):
         else:
             return self.workshift_type.title
 
+    def display_time(self):
+        ret = self.get_day_display()
+        if self.start_time is not None:
+            ret += " {0}".format(self.start_time)
+        if self.end_time is not None:
+            ret += " - {0}".format(self.end_time)
+        return ret
+
     def is_regular_workshift(self):
         return True
 
@@ -715,6 +723,14 @@ class WorkshiftInstance(models.Model):
 
     def __unicode__(self):
         return "{0}, {1}".format(self.title, self.date)
+
+    def display_time(self):
+        ret = str(self.date)
+        if self.start_time is not None:
+            ret += " {0}".format(self.start_time)
+        if self.end_time is not None:
+            ret += " - {0}".format(self.end_time)
+        return ret
 
     def is_workshift_instance(self):
         return True
