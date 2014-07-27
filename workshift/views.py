@@ -336,7 +336,7 @@ def _get_forms(profile, instance):
 @get_workshift_profile
 def view_open_shifts(request, semester, profile=None):
     page_name = "Upcoming Open Shifts"
-    shifts = WorkshiftInstance.objects.filter(closed=False).ordered_by('-date')
+    shifts = WorkshiftInstance.objects.filter(closed=False).order_by('-date')
 
     paginator = Paginator(shifts, 100)
     page = request.GET.get("page")
