@@ -13,17 +13,18 @@
   <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
     <thead>
       <tr>
+	<th>Day</th>
         <th>Title</th>
         <th>Starts</th>
         <th>Ends</th>
         <th>Hours</th>
-        <th>Verifier</th>
         <th>Action</th>
       </tr>
     </thead>
     <tbody>
       {% for shift, forms in shifts %}
       <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+	<td>{{ shift.day }}
         <td>
           <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
         </td>
@@ -34,20 +35,6 @@
           {{ shift.hours }}
           {% else %}
           <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
-          {% endif %}
-        </td>
-        <td>
-          {% if shift.workshifter %}
-          <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.workshifter.user.username %}">{{ shift.workshifter.user.get_full_name }}</a>
-          {% elif shift.liable %}
-          <del><a title="Workshifter is still liable for this shift" href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
-          {% endif %}
-        </td>
-        <td>
-          {% if shift.blown %}
-          <font color="red">BLOWN</font>
-          {% elif shift.verifier %}
-          <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
           {% endif %}
         </td>
         <td>
@@ -68,14 +55,14 @@
   </table>
 </div> <!-- .workshift_table -->
 {% endif %}
-<div class="pagination">
+<div class="pagination text-center">
   <span class="step-links">
     {% if paginator.has_previous %}
     <a href="?page={{ paginator.previous_page_number }}">previous</a>
     {% endif %}
 
     <span class="current">
-      Page {{ paginator.number }} of {{ paginator.paginator.num_pages }}.
+      Page {{ paginator.number }} of {{ paginator.paginator.num_pages }}
     </span>
 
     {% if paginator.has_next %}
