@@ -502,9 +502,9 @@ class RegularWorkshift(models.Model):
         else:
             ret = "Week long"
         if self.start_time is not None:
-            ret += " {0}".format(self.start_time)
+            ret += " {0}".format(self.start_time.strftime("%I:%M %p"))
         if self.end_time is not None:
-            ret += " - {0}".format(self.end_time)
+            ret += " - {0}".format(self.end_time.strftime("%I:%M %p"))
         return ret
 
     def is_regular_workshift(self):
@@ -730,9 +730,9 @@ class WorkshiftInstance(models.Model):
     def display_time(self):
         ret = str(self.date)
         if self.start_time is not None:
-            ret += " {0}".format(self.start_time)
+            ret += " {0}".format(self.start_time.strftime("%I:%M %p"))
         if self.end_time is not None:
-            ret += " - {0}".format(self.end_time)
+            ret += " - {0}".format(self.end_time.strftime("%I:%M %p"))
         return ret
 
     def is_workshift_instance(self):
