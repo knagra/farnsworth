@@ -497,7 +497,10 @@ class RegularWorkshift(models.Model):
             return self.workshift_type.title
 
     def display_time(self):
-        ret = self.get_day_display()
+        if self.day is not None:
+            ret = self.get_day_display()
+        else:
+            ret = "Week long"
         if self.start_time is not None:
             ret += " {0}".format(self.start_time)
         if self.end_time is not None:
