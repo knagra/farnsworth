@@ -347,7 +347,8 @@ def view_open_shifts(request, semester, profile=None):
     except EmptyPage:
         shifts = paginator.page(paginator.num_pages)
 
-    shifts_and_forms = [(shift, _get_forms(profile, instance)) for shift in shifts]
+    shifts_and_forms = [(instance, _get_forms(profile, instance))
+                        for instance in shifts]
 
     return render_to_response("open_shifts.html", {
         "page_name": page_name,
