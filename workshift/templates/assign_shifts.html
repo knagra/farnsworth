@@ -33,6 +33,9 @@
       <thead>
         <tr>
           <th>Title</th>
+	  <th>Day</th>
+	  <th>Starts</th>
+	  <th>Ends</th>
           <th>Workshifter</th>
         </tr>
       </thead>
@@ -40,6 +43,9 @@
         {% for form in assign_forms %}
         <tr class="assign_row">
           <td><a href="{% wurl 'workshift:view_shift' pk=form.instance.pk sem_url=SEMESTER.sem_url %}">{{ form.instance.workshift_type.title }}</td>
+	  <td>{{ form.instance.day }}</td>
+	  <td>{{ form.instance.start_time }}</td>
+	  <td>{{ form.instance.end_time }}</td>
           <td>{{ form.current_assignees|bootstrap }}</td>
         </tr>
         {% endfor %}
