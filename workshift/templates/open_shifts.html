@@ -54,6 +54,9 @@
       {% endfor %}
     </tbody>
   </table>
+  {% with id_prefix="shifts" %}
+  {% include "pager.html" %}
+  {% endwith %}
 </div> <!-- .workshift_table -->
 {% else %}
 No open shifts.
@@ -70,7 +73,11 @@ $(document).ready(function() {
         widgetOptions: {
             resizable: true
         }
+    }).tablesorterPager({
+        container: "#shifts_pager",
+        cssGoto: "#shifts_goto"
     });
 });
 </script>
+<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
 {% endblock %}
