@@ -356,7 +356,7 @@ class BlownShiftForm(InteractShiftForm):
             targets.append(instance.workshifter.user)
         for manager in instance.pool.managers.all():
             if manager.incumbent.user != self.profile.user:
-                targets.append(manager.incubment.user)
+                targets.append(manager.incumbent.user)
         for target in targets:
             notify.send(
                 self.profile.user,
