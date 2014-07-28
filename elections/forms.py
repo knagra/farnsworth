@@ -122,4 +122,20 @@ class BasePollQuestionFormSet(BaseModelFormSet):
         for question in questions:
             question.poll = poll
             question.save()
+        return questions
+
+PollQuestionFormSet = modelformset_factory(
+    PollQuestion, form=PollQuestionForm,
+    formset=BasePollQuestionFormSet,
+    can_delete=True, extra=1, max_num=50,
+    )
+
+class QuestionAnswerForm(forms.Form):
+    """ Form for a user to answer a question. """
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile')
+        self.question = kwargs.pop('question')
+        super(QuestionAnswerForm, self).__init__(*args, **kwargs)
+
+    def is_valid(self):
         
