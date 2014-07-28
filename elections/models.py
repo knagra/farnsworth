@@ -213,7 +213,7 @@ class PollQuestion(models.Model):
         return True
 
 class PollChoice(models.Model):
-    """ A possible choice to a CHOICE type question. """
+    """ A possible choice to a CHOICE or CHECKBOXES type question. """
     question = models.ForeignKey(
         PollQuestion,
         null=False,
