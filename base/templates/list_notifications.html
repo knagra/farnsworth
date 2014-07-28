@@ -41,13 +41,18 @@
 $(document).ready(function() {
     $('table').tablesorter({
         sortList: [[0, 0], [2, 0]],
+        headers: {
+            2: {
+                sorter: 'farnsworth_datetime',
+            }
+        },
         widgets: ["filter", "resizable"],
         widgetOptions: {
             resizable: true
         }
     }).tablesorterPager({
-        container: "#shifts_pager",
-        cssGoto: "#shifts_goto"
+        container: "#notifications_pager",
+        cssGoto: "#notifications_goto"
     });
 });
 </script>
