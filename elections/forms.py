@@ -166,7 +166,8 @@ class QuestionAnswerForm(forms.Form):
                     )
         elif self.question.question_type == PollQuestion.RANK:
             for c in PollChoice.objects.filter(question=self.question):
-                self.fields['rank_{0}'.format(c.body)] = forms.IntegerField
+                self.fields['rank_{0}'.format(c.pk)] = forms.IntegerField(required=False)
+                self.fields['rank_{0}'.format(c.pk)].label = c.name
 
     def is_valid(self):
         if not super(QuestionAnswerForm, self).is_valid():
