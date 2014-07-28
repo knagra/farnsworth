@@ -185,17 +185,25 @@ class PollQuestion(models.Model):
     CHECKBOXES = 'B'
     TEXT = 'T'
     RANK = 'R'
+    RANGE = 'G'
     TYPE_CHOICES = (
-        (CHOICE, "Multiple Choice"),
-        (CHECKBOXES, "Checkboxes"),
+        (CHOICE, "Multiple Choice, Select One"),
+        (CHECKBOXES, "Checkboxes, Select Multiple"),
         (TEXT, "Text Input"),
-        (RANK, "Ranked Choice")
+        (RANK, "Rank Choices in Comparison to Each Other"),
+        (RANGE, "0 to n Range for Each Choice"),
         )
     question_type = models.CharField(
         max_length=1,
         choices=TYPE_CHOICES,
         default=TEXT,
         help_text="The type of question this is."
+        )
+    range_upper_limit = models.PositiveIntegerField(
+        default=10,
+        null=True,
+        blank=True,
+        help_text="Upper limit if this is a range type question."
         )
     required = models.BooleanField(
         default=True,
