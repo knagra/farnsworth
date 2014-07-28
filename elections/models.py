@@ -182,34 +182,24 @@ class PollQuestion(models.Model):
         help_text="The body of this question."
         )
     CHOICE = 'C'
-    BOOLEAN = 'B'
+    CHECKBOXES = 'B'
     TEXT = 'T'
     RANK = 'R'
     TYPE_CHOICES = (
         (CHOICE, "Multiple Choice"),
-        (BOOLEAN, "Yes/No"),
+        (CHECKBOXES, "Checkboxes"),
         (TEXT, "Text Input"),
         (RANK, "Ranked Choice")
-    )
+        )
     question_type = models.CharField(
         max_length=1,
         choices=TYPE_CHOICES,
         default=TEXT,
         help_text="The type of question this is."
         )
-    yes_answers = models.ManyToManyField(
-        UserProfile,
-        null=True,
-        blank=True,
-        help_text="Yes votes for this question, if a yes/no question.",
-        related_name="yes_answers"
-        )
-    no_answers = models.ManyToManyField(
-        UserProfile,
-        null=True,
-        blank=True,
-        help_text="No votes for this question, if a yes/no question.",
-        related_name="no_answers"
+    required = models.BooleanField(
+        default=True,
+        help_text="Whether an answer to this question is required."
         )
     write_ins_allowed = models.BooleanField(
         default=False,

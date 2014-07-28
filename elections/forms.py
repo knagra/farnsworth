@@ -99,8 +99,9 @@ class PollQuestionForm(models.Model):
     def is_valid(self):
         if not super(PollQuestionForm, self).is_valid():
             return False
-        if self.cleaned_data['question_type'] == PollQuestion.CHOICE \
+        if (self.cleaned_data['question_type'] == PollQuestion.CHOICE \
             or self.cleaned_data['question_type'] == PollQuestion.RANK \
+            or self.cleaned_data['question_type'] == PollQuestion.CHECKBOXES \
             and not self.cleaned_data['choice_text']:
                 self._errors['choices'] = self.error_class([u"No choices entered for a choice or rank question."])
                 return False
@@ -110,7 +111,8 @@ class PollQuestionForm(models.Model):
 
     def save(self):
         question = super(PollQuestionForm, self).save(commit=False)
-        if self.cleaned_data['question_type'] in [PollQuestion.CHOICE, PollQuestion.RANK]:
+        if self.cleaned_data['question_type'] in [PollQuestion.CHOICE,
+          PollQuestion.RANK, PollQuestion.CHECKBOXES]:
             for choice_string in self.cleaned_data['choices'].split('\n'):
                 choice = Choice(question=question, body=choice_string)
                 choice.save()
@@ -136,6 +138,28 @@ class QuestionAnswerForm(forms.Form):
         self.profile = kwargs.pop('profile')
         self.question = kwargs.pop('question')
         super(QuestionAnswerForm, self).__init__(*args, **kwargs)
+        if self.question.question_type == PollQuestion.CHOICE:
+            self.fields['answer'] = \
+                forms.ModelChoiceField(queryset=Choice.filter(
+                    question=self.question,
+                    widget=forms.widgets.RadioSelect,
+                    required=self.question.required,
+                    )
+        elif self.question.question_type == PollQuestion.CHECKBOXES:
+            self.fields['answer'] = \
+                forms.ModelMultipleChoiceField(
+                    queryset=Choice.filter(question=self.question),
+                    widget=forms.widgets.CheckboxSelectMultiple,
+                    required=self.question.required,
+                    )
+        elif self.question.question_type == PollQuestion.TEXT:
+            self.fields['answer'] = \
+                forms.CharField(
+                    widget=forms.Textarea,
+                    required=self.question.required,
+                    )
+        elif self.question.question_type == PollQuestion.RANK:
+            self.fields['answer'] = 
 
     def is_valid(self):
         
