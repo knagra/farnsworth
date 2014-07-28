@@ -13,6 +13,7 @@
   <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
     <thead>
       <tr>
+	<th>Preferred</th>
 	<th>Date</th>
         <th>Title</th>
 	<th>Starts</th>
@@ -22,8 +23,9 @@
       </tr>
     </thead>
     <tbody>
-      {% for shift, forms, recommended in shifts %}
+      {% for shift, forms, preferred in shift_tuples %}
       <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+	<td>{{ preferred }}</td>
 	<td>{{ shift.date }}</td>
         <td>
           <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
@@ -68,7 +70,7 @@ No open shifts.
 <script>
 $(document).ready(function() {
     $('table').tablesorter({
-        sortList: [[0, 0], [1,0]],
+        sortList: [[0, 0], [1, 0], [2, 0]],
         widgets: ["filter", "resizable"],
         widgetOptions: {
             resizable: true

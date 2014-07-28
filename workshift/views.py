@@ -332,7 +332,10 @@ def _get_forms(profile, instance):
             ret.append(sign_in_form)
     return ret
 
-def _is_recommended(instance, profile):
+def _is_preferred(instance, profile):
+    """
+    Check if a user has marked an instance's workshift type as preferred.
+    """
     if not instance.weekly_workshift:
         return False
     if profile.ratings.filter(
@@ -347,7 +350,7 @@ def view_open_shifts(request, semester, profile=None):
     page_name = "Upcoming Open Shifts"
     shifts = WorkshiftInstance.objects.filter(closed=False).order_by('-date')
     shift_tuples = [
-        (instance, _get_forms(profile, instance), _is_recommended(instance, profile))
+        (instance, _get_forms(profile, instance), _is_preferred(instance, profile))
         for instance in shifts
         ]
     return render_to_response("open_shifts.html", {
