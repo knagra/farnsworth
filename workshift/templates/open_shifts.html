@@ -25,7 +25,7 @@
     <tbody>
       {% for shift, forms, preferred in shift_tuples %}
       <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
-		<td>{{ preferred }}</td>
+		<td>{% if preferred %}preferred{% endif %}</td>
 		<td>{{ shift.date }}</td>
         <td>
           <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">
