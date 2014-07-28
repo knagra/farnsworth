@@ -289,8 +289,9 @@ def notifications_view(request):
     """
     Show a user their notifications.
     """
-    notifications = request.user.notifications.all()
     page_name = "Your Notifications"
+    notifications = request.user.notifications.all()
+    notifications.mark_all_as_read()
     return render_to_response("list_notifications.html", {
         "page_name": page_name,
         "notifications": notifications,
