@@ -9,7 +9,7 @@ services:
 
 env:
   - DJANGO="Django==1.6.5"
-  - DJANGO="git+git://github.com/django/django.git@1.7c1"
+  - DJANGO="git+git://github.com/django/django.git@1.7c2"
 
 # command to install dependencies
 install:

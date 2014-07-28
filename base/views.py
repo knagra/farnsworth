@@ -20,7 +20,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, render, get_object_or_404
@@ -290,21 +289,9 @@ def notifications_view(request):
     """
     Show a user their notifications.
     """
-    notifications = request.user.notifications.all()
-
-    paginator = Paginator(notifications, 25)
-    page = request.GET.get("p")
-
-    try:
-        notifications = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        notifications = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        notifications = paginator.page(paginator.num_pages)
-
     page_name = "Your Notifications"
+    notifications = request.user.notifications.all()
+    notifications.mark_all_as_read()
     return render_to_response("list_notifications.html", {
         "page_name": page_name,
         "notifications": notifications,
