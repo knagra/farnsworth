@@ -13,11 +13,11 @@
   <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
     <thead>
       <tr>
-	<th>Preferred</th>
-	<th>Date</th>
+		<th>Preferred</th>
+		<th>Date</th>
         <th>Title</th>
-	<th>Starts</th>
-	<th>Ends</th>
+		<th>Starts</th>
+		<th>Ends</th>
         <th>Hours</th>
         <th>Action</th>
       </tr>
@@ -25,13 +25,15 @@
     <tbody>
       {% for shift, forms, preferred in shift_tuples %}
       <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
-	<td>{{ preferred }}</td>
-	<td>{{ shift.date }}</td>
+		<td>{{ preferred }}</td>
+		<td>{{ shift.date }}</td>
         <td>
-          <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a>
+          <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">
+			{{ shift.title }}
+		  </a>
         </td>
-	<td>{{ shift.start_time }}</td>
-	<td>{{ shift.end_time }}</td>
+		<td>{{ shift.start_time }}</td>
+		<td>{{ shift.end_time }}</td>
         <td>
           {% if shift.intended_hours == shift.hours %}
           {{ shift.hours }}
@@ -45,10 +47,10 @@
             {% csrf_token %}
             {{ form }}
             <button
-                type="submit" class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
-                name="{{ form.action_name }}">
-	      {{ form.title_short|safe }}<span class="hidden-xs">{{ form.title_long }}</span>
-	    </button>
+               type="submit" name="{{ form.action_name }}"
+			   class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}">
+			  {{ form.title_short|safe }}<span class="hidden-xs">{{ form.title_long }}</span>
+			</button>
           </form>
           {% endfor %}
         </td>
