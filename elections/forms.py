@@ -99,14 +99,20 @@ class PollQuestionForm(models.Model):
     def is_valid(self):
         if not super(PollQuestionForm, self).is_valid():
             return False
-        if (self.cleaned_data['question_type'] == PollQuestion.CHOICE \
-            or self.cleaned_data['question_type'] == PollQuestion.RANK \
-            or self.cleaned_data['question_type'] == PollQuestion.CHECKBOXES \
-            and not self.cleaned_data['choice_text']:
-                self._errors['choices'] = self.error_class([u"No choices entered for a choice or rank question."])
+        if self.cleaned_data['question_type'] != PollQuestion.TEXT:
+            if not self.cleaned_data['choice_text']:
+                self._errors['choices'] = self.error_class(
+                    [u"No choices entered.  Choices are required for a {0} type question.".format(
+                        dict(self.fields['question_type'].choices)[self.cleaned_data['question_type']
+                        )
+                    )
                 return False
-        if self.cleaned_data['choice_text'].count('\n') < 2:
-            self._errors['choices'] = self.error_class([u"Only one choice entered. Maybe this should be a yes/no question?"])
+            if not self.cleaned_data['choice_text'].endswith('\n'):
+                self.cleaned_data['choice_text'] += '\n'
+            if self.cleaned_data['choice_text'].count('\n') < 2:
+                self._errors['choices'] = self.error_class(
+                    [u"Only one choice entered. Maybe this should be a yes/no question?"]
+                    )
         return True
 
     def save(self):
@@ -140,15 +146,15 @@ class QuestionAnswerForm(forms.Form):
         super(QuestionAnswerForm, self).__init__(*args, **kwargs)
         if self.question.question_type == PollQuestion.CHOICE:
             self.fields['answer'] = \
-                forms.ModelChoiceField(queryset=Choice.filter(
-                    question=self.question,
+                forms.ModelChoiceField(queryset=
+                    queryset=PollChoice.objects.filter(question=self.question),
                     widget=forms.widgets.RadioSelect,
                     required=self.question.required,
                     )
         elif self.question.question_type == PollQuestion.CHECKBOXES:
             self.fields['answer'] = \
                 forms.ModelMultipleChoiceField(
-                    queryset=Choice.filter(question=self.question),
+                    queryset=PollChoice.objects.filter(question=self.question),
                     widget=forms.widgets.CheckboxSelectMultiple,
                     required=self.question.required,
                     )
@@ -159,7 +165,10 @@ class QuestionAnswerForm(forms.Form):
                     required=self.question.required,
                     )
         elif self.question.question_type == PollQuestion.RANK:
-            self.fields['answer'] = 
+            for c in PollChoice.objects.filter(question=self.question):
+                self.fields['rank_{0}'.format(c.body)] = forms.IntegerField
 
     def is_valid(self):
-        
+        if not super(QuestionAnswerForm, self).is_valid():
+            return False
+        return True
