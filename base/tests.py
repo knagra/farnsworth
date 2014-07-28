@@ -1194,6 +1194,28 @@ class TestNotifications(TestCase):
                     recipient=self.u)
 
     def test_inbox_view(self):
+        self.assertEqual(1, self.u.notifications.unread().count())
+        url = reverse("notifications")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_thread_followers(self):
+        t = Thread.objects.create(
+            subject="subject",
+            owner=UserProfile.objects.get(user=self.u),
+            )
+        t.followers = [self.u]
+        t.save()
+
+        url = reverse("threads:view_thread", kwargs={"pk": t.pk})
+        response = self.client.post(url, {
+            "add_message": "",
+            "body": "reply body",
+            }, follow=True)
+        self.assertRedirects(response, url)
+
+        self.assertEqual(2, self.u.notifications.unread().count())
+
         url = reverse("notifications")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
