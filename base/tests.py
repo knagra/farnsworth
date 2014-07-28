@@ -5,13 +5,14 @@ when you run "manage.py test".
 
 from datetime import date, timedelta
 
-from django.test import TestCase
-from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.management import call_command
+from django.core.urlresolvers import reverse
+from django.test import TestCase
 from django.utils.timezone import now
 
-from django.core.management import call_command
+from notifications import notify
 import haystack
 from haystack.query import SearchQuerySet
 
@@ -1184,3 +1185,15 @@ class TestSearch(TestCase):
     #     response = self.client.get("/search/?q={0}".format(number))
     #     self.assertEqual(response.status_code, 200)
     #     self.assertContains(response, "No results found.")
+
+class TestNotifications(TestCase):
+    def setUp(self):
+        self.u = User.objects.create_user(username="u", password="pwd")
+        self.client.login(username="u", password="pwd")
+        notify.send(self.u, verb="tested", action_object=self.u,
+                    recipient=self.u)
+
+    def test_inbox_view(self):
+        url = reverse("notifications")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
