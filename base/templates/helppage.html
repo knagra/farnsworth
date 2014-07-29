@@ -930,12 +930,12 @@ $(document).ready(function() {
     $('#content_list').hide();
     $('#hide_content_list').hide();
     $('#show_content_list').click(function() {
-        $('#content_list').show();
+        $('#content_list').slideDown('fast');
         $('#hide_content_list').show();
         $('#show_content_list').hide();
     });
     $('#hide_content_list').click(function() {
-        $('#content_list').hide();
+        $('#content_list').slideUp('fast');
         $('#hide_content_list').hide();
         $('#show_content_list').show();
     });
