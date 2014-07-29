@@ -521,15 +521,19 @@ def assign_shifts_view(request, semester):
     entire semester's worth of weekly workshifts.
     """
     page_name = "Assign Shifts"
-    if "auto_assign" in request.POST:
-        unfinished = utils.auto_assign_shifts(semester)
-        # TODO: Update workshift instances
+
+    auto_assign_form = AutoAssignShiftForm(
+        request.POST if "auto_assign" in request.POST else None,
+        semester=semester,
+        )
+    if auto_assign_form.is_valid():
+        unfinished = auto_assign_form.save()
         messages.add_message(request, messages.INFO,
                              "Assigned all but {0} workshifts their shifts"
                              .format(len(unfinished)))
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
                                         sem_url=semester.sem_url))
-        
+
     assign_forms = []
     for shift in RegularWorkshift.objects.filter(pool__semester=semester,
                                                  active=True):
@@ -553,6 +557,7 @@ def assign_shifts_view(request, semester):
                                             sem_url=semester.sem_url))
     return render_to_response("assign_shifts.html", {
         "page_name": page_name,
+        "auto_assign_form": auto_assign_form,
         "assign_forms": assign_forms,
     }, context_instance=RequestContext(request))
 

@@ -454,6 +454,28 @@ class AddWorkshifterForm(forms.Form):
 
             return profile
 
+class AutoAssignShiftForm(forms.Form):
+    pool = forms.ModelChoiceField(
+        required=False,
+        queryset=WorkshiftPool.objects.filter(semester__current=True),
+        help_text="The workshift pool to assign shifts to.",
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop('semester')
+        super(AutoAssignShiftForm, self).__init__(*args, **kwargs)
+        self.fields['pool'].queryset = \
+          WorkshiftPool.objects.filter(semester=self.semester)
+        self.fields['pool'].initial = \
+          self.fields['pool'].queryset.filter(is_primary=True)[0]
+
+    def save(self):
+        unfinished = utils.auto_assign_shifts(
+            self.semester, pool=self.cleaned_data['pool'],
+            )
+        # TODO: Update workshift instances
+        return unfinished
+
 class AssignShiftForm(forms.ModelForm):
     class Meta:
         model = RegularWorkshift
