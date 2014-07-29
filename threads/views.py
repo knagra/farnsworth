@@ -72,6 +72,7 @@ def thread_view(request, pk):
             edit_message_form = EditMessageForm(
                 request.POST if "edit_message-{0}".format(message.pk) in request.POST else None,
                 instance=message,
+                prefix="edit-{0}".format(message.pk),
                 )
             delete_message_form = DeleteMessageForm(
                 request.POST if "delete_message-{0}".format(message.pk) in request.POST else None,

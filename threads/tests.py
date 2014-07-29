@@ -161,7 +161,7 @@ class VerifyThread(TestCase):
         url = reverse("threads:view_thread", kwargs={"pk": self.thread.pk})
         response = self.client.post(url, {
             "edit_message-{0}".format(self.message.pk): "",
-            "body": "New message body",
+            "edit-{0}-body".format(self.message.pk): "New message body",
             }, follow=True)
         self.assertRedirects(response, url)
         self.assertEqual(
