@@ -522,11 +522,14 @@ def assign_shifts_view(request, semester):
     """
     page_name = "Assign Shifts"
 
-    auto_assign_form = AutoAssignShiftForm(
-        request.POST if "auto_assign" in request.POST else None,
-        semester=semester,
-        )
-    if auto_assign_form.is_valid():
+    auto_assign_form = None
+    if WorkshiftPool.objects.filter(semester=semester).count():
+        auto_assign_form = AutoAssignShiftForm(
+            request.POST if "auto_assign" in request.POST else None,
+            semester=semester,
+            )
+
+    if auto_assign_form and auto_assign_form.is_valid():
         unfinished = auto_assign_form.save()
         messages.add_message(request, messages.INFO,
                              "Assigned all but {0} workshifters their shifts"

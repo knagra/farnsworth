@@ -466,8 +466,12 @@ class AutoAssignShiftForm(forms.Form):
         super(AutoAssignShiftForm, self).__init__(*args, **kwargs)
         self.fields['pool'].queryset = \
           WorkshiftPool.objects.filter(semester=self.semester)
-        self.fields['pool'].initial = \
-          self.fields['pool'].queryset.filter(is_primary=True)[0]
+        try:
+            primary = self.fields['pool'].queryset.get(is_primary=True)
+        except WorkshiftPool.DoesNotExist:
+            pass
+        else:
+            self.fields['pool'].initial = primary
 
     def save(self):
         unfinished = utils.auto_assign_shifts(
