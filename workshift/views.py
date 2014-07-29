@@ -878,10 +878,12 @@ def list_types_view(request):
     View the details of a particular WorkshiftType.
     """
     page_name = "Workshift Types"
-    shifts = WorkshiftType.objects.all()
+    types = WorkshiftType.objects.all()
+    shifts = [RegularWorkshift.objects.filter(workshift_type=i)
+              for i in types]
     return render_to_response("list_types.html", {
         "page_name": page_name,
-        "shifts": shifts,
+        "type_tuples": zip(types, shifts),
         "can_edit": utils.can_manage(request.user),
     }, context_instance=RequestContext(request))
 
