@@ -84,7 +84,7 @@ MAX_RESPONSES = 4
 ANNOUNCEMENT_LIFE = 4
 
 # Max number of threads loaded for home page.
-HOME_MAX_THREADS = 15
+HOME_MAX_THREADS = 30
 
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
