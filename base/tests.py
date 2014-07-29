@@ -1210,7 +1210,7 @@ class TestNotifications(TestCase):
         url = reverse("threads:view_thread", kwargs={"pk": t.pk})
         response = self.client.post(url, {
             "add_message": "",
-            "body": "reply body",
+            "body": "<p>reply body</p>",
             }, follow=True)
         self.assertRedirects(response, url)
 
@@ -1220,5 +1220,14 @@ class TestNotifications(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "unread")
+        self.assertContains(response, "posted")
+        self.assertContains(
+            response,
+            reverse("member_profile", kwargs={"targetUsername": self.u.username}),
+            )
+        self.assertContains(
+            response,
+            reverse("threads:view_thread", kwargs={"pk": t.pk}),
+            )
 
         self.assertEqual(0, self.u.notifications.unread().count())

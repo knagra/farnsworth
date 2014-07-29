@@ -18,13 +18,30 @@
     <tr>
       <td>{% if notification.unread %}unread{% endif %}</td>
       <td>
-	{{ notification.actor }} {{ notification.verb }}
+	{% if notification.actor.get_view_url %}
+	<a href="{{ notification.actor.get_view_url }}">
+	  {{ notification.actor }}
+	</a>
+	{% else %}
+	{{ notification.actor }}
+	{% endif %}
+	{{ notification.verb }}
+	{% if notification.action_object.get_view_url %}
+	<a href="{{ notification.action_object.get_view_url }}">
+	  {{ notification.action_object|striptags|truncatechars:50 }}
+	</a>
+	{% else %}
+	{{ notification.action_object|striptags|truncatechars:50 }}
+	{% endif %}
 	{% if notification.target and notification.action_object %}
-	{{ notification.action_object }} on {{ notification.target }}
-	{% elif notification.target %}
-	{{ notification.target }}
-	{% elif notification.action_object %}
-	{{ notification.action_object }}
+	on
+	{% endif %}
+	{% if notification.target.get_view_url %}
+	<a href="{{ notification.target.get_view_url }}">
+	  {{ notification.target|truncatechars:50 }}
+	</a>
+	{% else %}
+	{{ notification.target|truncatechars:50 }}
 	{% endif %}
       </td>
       <td>{{ notification.timestamp }}</td>

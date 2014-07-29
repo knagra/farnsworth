@@ -6,6 +6,8 @@ Author: Karandeep Singh Nagra
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+
 from django.db import models
 
 from utils.funcs import convert_to_url
@@ -134,6 +136,9 @@ class RequestType(models.Model):
             kwargs.setdefault("url_name", convert_to_url(kwargs["name"]))
         super(RequestType, self).__init__(*args, **kwargs)
 
+    def get_view_url(self):
+        return reverse("managers:requests", kwargs={"requestType": self.url_name})
+
 class Request(models.Model):
     '''
     The Request model.  Contains an owner, body, post_date, change_date, and relevant
@@ -225,6 +230,9 @@ class Request(models.Model):
 
     def is_request(self):
         return True
+
+    def get_view_url(self):
+        return reverse("managers:view_request", kwargs={"request_pk": self.pk})
 
 class Response(models.Model):
     '''

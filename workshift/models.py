@@ -6,6 +6,7 @@ Author: Karandeep Singh Nagra
 
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from base.models import UserProfile
@@ -737,6 +738,9 @@ class WorkshiftInstance(models.Model):
 
     def is_workshift_instance(self):
         return True
+
+    def get_view_url(self):
+        return reverse("workshift:view_instance", kwargs={"pk": self.pk})
 
 def create_workshift_profile(sender, instance, created, **kwargs):
     '''

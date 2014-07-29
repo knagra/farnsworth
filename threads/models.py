@@ -4,8 +4,9 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from django.db import models
 from django.contrib.auth.models import User, Group, Permission
+from django.core.urlresolvers import reverse
+from django.db import models
 
 from base.models import UserProfile
 
@@ -60,6 +61,9 @@ class Thread(models.Model):
     def is_thread(self):
         return True
 
+    def get_view_url(self):
+        return reverse("threads:view_thread", kwargs={"pk": self.pk})
+
 class Message(models.Model):
     '''
     The Message model.  Contains a body, owner, and post_date, referenced by thread.
@@ -82,8 +86,11 @@ class Message(models.Model):
         help_text="The thread to which this message belongs.",
         )
 
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
-        return "Message by %s on thread %s, posted %s" % (self.owner, self.thread.subject, self.post_date)
+        return self.body
 
     class Meta:
         ordering = ['post_date']

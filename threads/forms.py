@@ -57,8 +57,8 @@ class MessageForm(forms.ModelForm):
         message.save()
 
         for follower in self.thread.followers.all():
-            notify.send(self.profile.user, verb="replied to", action_object=self.thread,
-                        recipient=follower)
+            notify.send(self.profile.user, verb="posted", action_object=message,
+                        target=self.thread, recipient=follower)
 
         self.thread.number_of_messages += 1
         self.thread.save()

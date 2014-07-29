@@ -5,14 +5,20 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.conf import settings
-from django.db import models
 from django.contrib.auth.models import User, Group, Permission
+from django.core.urlresolvers import reverse
+from django.db import models
 
 from phonenumber_field.modelfields import PhoneNumberField
 
 from social.utils import setting_name
 
 UID_LENGTH = getattr(settings, setting_name('UID_LENGTH'), 255)
+
+def _get_user_view_url(user):
+    return reverse("member_profile", kwargs={"targetUsername": user.username})
+
+User.get_view_url = _get_user_view_url
 
 class UserProfile(models.Model):
     '''

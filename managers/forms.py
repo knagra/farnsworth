@@ -104,8 +104,8 @@ class RequestForm(forms.ModelForm):
         request.save()
         for manager in request.request_type.managers.all():
             if manager.incumbent:
-                notify.send(self.profile.user, verb="posted", action_object=self.request,
-                            recipient=manager.incumbent.user)
+                notify.send(self.profile.user, verb="posted", action_object=request,
+                            target=self.request_type, recipient=manager.incumbent.user)
         return request
 
 class ResponseForm(forms.ModelForm):
@@ -129,8 +129,8 @@ class ResponseForm(forms.ModelForm):
         response.save()
 
         for follower in self.request.followers.all():
-            notify.send(self.profile.user, verb="replied to", action_object=self.request,
-                        recipient=follower.user)
+            notify.send(self.profile.user, verb="posted", action_object=response,
+                        target=self.request, recipient=follower.user)
 
         self.request.number_of_responses += 1
         self.request.save()
