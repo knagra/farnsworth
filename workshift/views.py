@@ -29,7 +29,7 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     BlownShiftForm, SignInForm, SignOutForm, AddWorkshifterForm, \
     AssignShiftForm, RegularWorkshiftForm, WorkshiftTypeForm, \
     WorkshiftRatingForm, TimeBlockFormSet, ProfileNoteForm, \
-    RegularWorkshiftFormSet
+    RegularWorkshiftFormSet, AutoAssignShiftForm
 from workshift import utils
 
 def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
