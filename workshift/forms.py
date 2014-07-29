@@ -456,7 +456,7 @@ class AddWorkshifterForm(forms.Form):
 
 class AutoAssignShiftForm(forms.Form):
     pool = forms.ModelChoiceField(
-        required=False,
+        required=True,
         queryset=WorkshiftPool.objects.filter(semester__current=True),
         help_text="The workshift pool to assign shifts to.",
         )
