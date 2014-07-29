@@ -18,6 +18,7 @@
     <tr>
       <td>{% if notification.unread %}unread{% endif %}</td>
       <td>
+	{% if notification.actor %}
 	{% if notification.actor.get_view_url %}
 	<a href="{{ notification.actor.get_view_url }}">
 	  {{ notification.actor }}
@@ -25,7 +26,11 @@
 	{% else %}
 	{{ notification.actor }}
 	{% endif %}
+	{% endif %}
+	{% if notification.verb %}
 	{{ notification.verb }}
+	{% endif %}
+	{% if notification.action_object %}
 	{% if notification.action_object.get_view_url %}
 	<a href="{{ notification.action_object.get_view_url }}">
 	  {{ notification.action_object|striptags|truncatechars:50 }}
@@ -33,15 +38,18 @@
 	{% else %}
 	{{ notification.action_object|striptags|truncatechars:50 }}
 	{% endif %}
+	{% endif %}
 	{% if notification.target and notification.action_object %}
 	on
 	{% endif %}
+	{% if notification.target %}
 	{% if notification.target.get_view_url %}
 	<a href="{{ notification.target.get_view_url }}">
 	  {{ notification.target|truncatechars:50 }}
 	</a>
 	{% else %}
 	{{ notification.target|truncatechars:50 }}
+	{% endif %}
 	{% endif %}
       </td>
       <td>{{ notification.timestamp }}</td>
