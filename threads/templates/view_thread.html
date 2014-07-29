@@ -51,11 +51,11 @@
   <div class="thread_table bordered_div">
     <div class="thread_messages">
       <div class="message_table">
-		<h3 class="thread_name">
+		<h3 id="thread_name" class="thread_name">
 		  {{ thread.subject }}
 		  {% if edit_thread_form %}
 		  <a id="show_edit_thread_form"
-			 onclick="show_form('edit_thread_form', 'show_edit_thread_form')">
+			 onclick="show_form('edit_thread_form', 'thread_name')">
 			(edit)
 		  </a>
 		  {% endif %}
@@ -70,7 +70,7 @@
 				<span class="glyphicon glyphicon-comment"></span> Edit Subject
 			  </button>
               <button type="button" class="btn btn-default"
-					  onclick="hide_form('edit_thread_form', 'show_edit_thread_form')">
+					  onclick="hide_form('edit_thread_form', 'thread_name')">
 				<span class="glyphicon glyphicon-collapse-up"></span> Hide
 			  </button>
             </div> <!-- .btn-group -->
