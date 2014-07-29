@@ -94,7 +94,12 @@ class PollQuestionForm(models.Model):
 
     class Meta:
         model = PollQuestion
-        fields = ("body", "question_type", "write_ins_allowed")
+        fields = ("body", "question_type", "range_upper_limit", "write_ins_allowed")
+
+    def __init__(self, *args, **kwargs):
+        super(PollQuestionForm, self).__init__(*args, **kwargs)
+        self.fields['ranger_upper_limit'].required = False
+        self.fields['write_ins_allowed'].required = False
 
     def is_valid(self):
         if not super(PollQuestionForm, self).is_valid():
@@ -113,6 +118,18 @@ class PollQuestionForm(models.Model):
                 self._errors['choices'] = self.error_class(
                     [u"Only one choice entered. Maybe this should be a yes/no question?"]
                     )
+                return False
+        if self.cleaned_data['question_type'] == PollQuestion.RANGE:
+            if not self.cleaned_data['range_upper_limit']:
+                self._errors['range_upper_limit'] = self.error_class(
+                    [u"No upper limit entered.  An upper limit is required for range type questions."]
+                    )
+                return False
+            if self.cleaned_data['range_upper_limit'] < 1:
+                self._errors['range_upper_limit'] = self.error_class(
+                    [u"Upper limit is less than 1.  It must be at least 1."]
+                    )
+                return False
         return True
 
     def save(self):
@@ -145,22 +162,19 @@ class QuestionAnswerForm(forms.Form):
         self.question = kwargs.pop('question')
         super(QuestionAnswerForm, self).__init__(*args, **kwargs)
         if self.question.question_type == PollQuestion.CHOICE:
-            self.fields['answer'] = \
-                forms.ModelChoiceField(queryset=
+            self.fields['answer'] = forms.ModelChoiceField(
                     queryset=PollChoice.objects.filter(question=self.question),
                     widget=forms.widgets.RadioSelect,
                     required=self.question.required,
                     )
         elif self.question.question_type == PollQuestion.CHECKBOXES:
-            self.fields['answer'] = \
-                forms.ModelMultipleChoiceField(
+            self.fields['answer'] = forms.ModelMultipleChoiceField(
                     queryset=PollChoice.objects.filter(question=self.question),
                     widget=forms.widgets.CheckboxSelectMultiple,
                     required=self.question.required,
                     )
         elif self.question.question_type == PollQuestion.TEXT:
-            self.fields['answer'] = \
-                forms.CharField(
+            self.fields['answer'] = forms.CharField(
                     widget=forms.Textarea,
                     required=self.question.required,
                     )
@@ -168,6 +182,12 @@ class QuestionAnswerForm(forms.Form):
             for c in PollChoice.objects.filter(question=self.question):
                 self.fields['rank_{0}'.format(c.pk)] = forms.IntegerField(required=False)
                 self.fields['rank_{0}'.format(c.pk)].label = c.name
+        elif self.question.question_type == PollQuestion.RANGE:
+            for c in PollChoice.objects.filter(question=self.question):
+                self.fields['range_{0}'.format(c.pk)] = forms.ChoiceField(
+                    choices = ((s, str(s)) for s in range(0, self.question.range_upper_limit)),
+                    required=self.question.required,
+                    )
 
     def is_valid(self):
         if not super(QuestionAnswerForm, self).is_valid():
