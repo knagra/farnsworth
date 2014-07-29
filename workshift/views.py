@@ -529,7 +529,7 @@ def assign_shifts_view(request, semester):
     if auto_assign_form.is_valid():
         unfinished = auto_assign_form.save()
         messages.add_message(request, messages.INFO,
-                             "Assigned all but {0} workshifts their shifts"
+                             "Assigned all but {0} workshifters their shifts"
                              .format(len(unfinished)))
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
                                         sem_url=semester.sem_url))
