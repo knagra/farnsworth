@@ -28,18 +28,12 @@
                 {% endif %}<span class="glyphicon glyphicon-dashboard"></span> Workshift Dashboard</a></li>
             {% endif %}
             <li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
-            <li>
-              <a href="{% url 'notifications' %}" >
-                {% notifications_unread as unread_count %}
-                {% if unread_count %}
-                <span class="glyphicon glyphicon-star"></span>
-                {% else %}
-                <span class="glyphicon glyphicon-star-empty"></span>
-                {% endif %}
-                Notifications
-                {% if unread_count %}
-                <span class="badge pull-right">{{ unread_count }}</span>
-                {% endif %}
+            <li>{% notifications_unread as unread_count %}
+              <a href="{% url 'notifications' %}"
+                title="{{ unread_count }} unread notification{{ unread_count|pluralize }}">
+                  <span class="badge pull-right">{{ unread_count }}</span>
+                  <span class="glyphicon glyphicon-bell"></span>
+                  Notifications
               </a>
             </li>
             <li class="divider"></li>
