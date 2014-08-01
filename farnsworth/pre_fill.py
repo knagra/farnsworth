@@ -360,11 +360,16 @@ def main(args, verbose=True):
         # Start the Workshift Semester
         year, season = get_year_season()
         start_date, end_date = get_semester_start_end(year, season)
-        semester, created = Semester.objects.get_or_create(
-            year=year,
-            season=season,
-            defaults=dict(start_date=start_date, end_date=end_date),
-            )
+        try:
+            semester = Semester.objects.get(current=True)
+        except Semester.DoesNotExist:
+            semester, created = Semester.objects.get_or_create(
+                year=year,
+                season=season,
+                defaults=dict(start_date=start_date, end_date=end_date),
+                )
+        else:
+            created = False
 
         if created and verbose:
             print("Started a new workshift semester")
