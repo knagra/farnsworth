@@ -116,6 +116,7 @@ class ProfileRequest(models.Model):
     message = models.CharField(
         blank=True,
         max_length=255,
+        default="",
         help_text="Details on how you're affiliated with us.  Optional.",
         )
 
