@@ -320,6 +320,28 @@ class TestAssignment(TestCase):
         unfinished = utils.auto_assign_shifts(self.semester)
         self.assertEqual([], unfinished)
 
+    def test_pre_fill_and_assign_humor(self):
+        """
+        Tests that humor shifts can be correctly assigned after
+        farnsworth/pre_fill.py is run.
+        """
+        for i in range(1, 50):
+            user = User.objects.create_user(username="u{0}".format(i))
+        pre_fill.main([], verbose=False)
+        utils.make_workshift_pool_hours(semester=self.semester)
+        # Assign manager shifts beforehand
+        manager_shifts = RegularWorkshift.objects.filter(
+            pool=self.p1, workshift_type__auto_assign=False,
+            )
+        profiles = WorkshiftProfile.objects.all()
+        for profile, shift in zip(profiles, manager_shifts):
+            shift.current_assignees.add(profile)
+            shift.save()
+        unfinished = utils.auto_assign_shifts(
+            self.semester, pool=WorkshiftPool.objects.get(title="Humor Shift")
+            )
+        self.assertEqual([], unfinished)
+
 class TestUtils(TestCase):
     """
     Tests most of the various functions within workshift.utils.
@@ -1152,7 +1174,7 @@ class TestInteractForms(TestCase):
             workshift_type=self.wtype,
             pool=self.pool,
             start_time=now(),
-            end_time=now() + timedelta(hours=2),
+            end_time=time(23, 59, 59),
             )
         self.shift.days = [DAY_CHOICES[0][0]]
         self.shift.save()
@@ -1189,6 +1211,7 @@ class TestInteractForms(TestCase):
         self.assertTrue(self.client.login(username="u", password="pwd"))
 
         form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.wp)
+        form.is_valid()
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
         log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)

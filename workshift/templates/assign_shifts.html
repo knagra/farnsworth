@@ -17,14 +17,17 @@
 <div id="assign_container">
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
+  {% if auto_assign_form %}
   <form method="post">
     {% csrf_token %}
+	{{ auto_assign_form|bootstrap }}
     <div class="text-center">
       <button type="submit" class="btn btn-primary" name="auto_assign">
-	Auto assign shifts
+		Auto assign shifts
       </button>
     </div>
   </form>
+  {% endif %}
   <hr class="w_line" />
   <h3 class="w_title">Assign individual shifts</h3>
   <form method="post">
@@ -33,7 +36,7 @@
       <thead>
         <tr>
           <th>Title</th>
-	  <th>Time</th>
+		  <th>Time</th>
           <th>Workshifter</th>
         </tr>
       </thead>
@@ -41,7 +44,7 @@
         {% for form in assign_forms %}
         <tr class="assign_row">
           <td><a href="{% wurl 'workshift:view_shift' pk=form.instance.pk sem_url=SEMESTER.sem_url %}">{{ form.instance.workshift_type.title }}</td>
-	  <td>{{ form.instance.display_time }}</td>
+		  <td>{{ form.instance.display_time }}</td>
           <td>{{ form.current_assignees|bootstrap }}</td>
         </tr>
         {% endfor %}

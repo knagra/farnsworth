@@ -292,3 +292,8 @@ code {
 .tablesorter-filter-row td {
     padding: 0px 0px !important;
 }
+
+.danger_li {
+    font-weight: bold;
+    font-size: 15px;
+}
