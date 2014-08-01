@@ -135,11 +135,11 @@ MESSAGES = {
     'PROFILE_SUBMITTED': u"Your request has been submitted.  An admin will contact you soon.",
     'PROFILE_TAKEN': u"An account request for {first_name} {last_name} has already been made.",
     'USERNAME_TAKEN': u"This username is taken.  Try one of {username}_1 through {username}_10.",
-    'RESET_MESSAGE': u'Forgot your password? You can reset it at <a href="{reset_url}" class="alert-link">{reset_url}</a>.',
-    'PROFILE_REQUEST_RESET': u'You already have an account on this site. Forgot your password? You can reset it at <a href="{reset_url}" class="alert-link">{reset_url}</a>.',
-    'INVALID_LOGIN': u'Invalid username/password combination.',
+    'RESET_MESSAGE': u"Forgot your password? You can reset it at <a href=\"{reset_url}\" class=\"alert-link\">{reset_url}</a>.",
+    'PROFILE_REQUEST_RESET': u"You already have an account on this site. Forgot your password? You can reset it at <a href=\"{reset_url}\" class=\"alert-link\">{reset_url}</a>.",
+    'INVALID_LOGIN': u"Invalid username/password combination.",
     'EMAIL_TAKEN': u"This e-mail address is already taken.",
-    'INVALID_USERNAME': u'Invalid username. Must be characters A-Z, a-z, 0-9, or _.',
+    'INVALID_USERNAME': u"Invalid username. Must be characters A-Z, a-z, 0-9, or _.",
     'EVENT_ERROR': u"Your event post was not successful.  Please check for errors and try again.",
     'RSVP_ADD': u"You've been successfully added to the list of RSVPs for {event}.",
     'RSVP_REMOVE': u"You've been successfully removed from the list of RSVPs for {event}.",
@@ -165,9 +165,9 @@ MESSAGES = {
     'INACTIVE_MANAGER': u"{managerTitle} is currently deactivated.",
     'REQUEST_TYPE_ADDED': u"Request type {typeName} has been successfully added.",
     'REQUEST_TYPE_SAVED': u"Request type {typeName} has been successfully saved.",
-    'PROFILE_REQUEST_APPROVAL_EMAIL': u' A profile request approval e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # The initial space is necessary.
-    'PROFILE_REQUEST_DELETION_EMAIL': u' A profile request deletion e-mail was successfully sent to {full_name} at <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.', # The initial space is necessary.
-    'EMAIL_FAIL': u'Farnsworth failed at sending an e-mail to <a title="Write E-mail" href="mailto:{email}" class="alert-link">{email}</a>.',
-    'NO_WORKSHIFT': u'You have not been set up for workshift this semester.',
-    'MULTIPLE_CURRENT_SEMESTERS': u'Multiple current workshift semesters were detected. Farnsworth chose the semester with the latest start date as the current semester.  If you are not the workshift manager or the site admin, please inform both the site admin (<a href="mailto:{admin_email}">{admin_email}</a>) and the workshift manager(s){workshift_emails} with this information.',
+    'PROFILE_REQUEST_APPROVAL_EMAIL': u" A profile request approval e-mail was successfully sent to {full_name} at <a title=\"Write E-mail\" href=\"mailto:{email}\" class=\"alert-link\">{email}</a>.", # The initial space is necessary.
+    'PROFILE_REQUEST_DELETION_EMAIL': u" A profile request deletion e-mail was successfully sent to {full_name} at <a title=\"Write E-mail\" href=\"mailto:{email}\" class=\"alert-link\">{email}</a>.", # The initial space is necessary.
+    'EMAIL_FAIL': u"Farnsworth failed at sending an e-mail to <a title=\"Write E-mail\" href=\"mailto:{email}\" class=\"alert-link\">{email}</a>.",
+    'NO_WORKSHIFT': u"You have not been set up for workshift this semester.",
+    'MULTIPLE_CURRENT_SEMESTERS': u"Multiple current workshift semesters were detected. Farnsworth chose the semester with the latest start date as the current semester.  If you are not the workshift manager or the site admin, please inform both the site admin (<a href=\"mailto:{admin_email}\">{admin_email}</a>) and the workshift manager(s){workshift_emails} with this information.",
 }
