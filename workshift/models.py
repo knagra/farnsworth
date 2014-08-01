@@ -12,6 +12,7 @@ from django.db import models
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.fields import DayField
+from workshift import utils
 
 WORKSHIFT_MANAGER_VERIFY = "W"
 POOL_MANAGER_VERIFY = "P"
@@ -754,7 +755,14 @@ def create_workshift_profile(sender, instance, created, **kwargs):
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             pass
         else:
-            WorkshiftProfile.objects.create(user=instance.user, semester=semester)
+            profile = WorkshiftProfile.objects.create(
+                user=instance.user,
+                semester=semester,
+                )
+            utils.make_workshift_pool_hours(
+                semester=semester,
+                profiles=[profile],
+                )
 
 # Connect signals with their respective functions from above.
 # When a user is created, create a user profile associated with that user.
