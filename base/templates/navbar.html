@@ -20,24 +20,25 @@
       <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown"{% if ANONYMOUS_SESSION %} style="color: #ff0000 !important;" title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}><span class="glyphicon glyphicon-user"></span> {{ user.first_name }} <b class="caret"></b></a>
         <ul class="dropdown-menu">
-            <li><a href="{% url 'threads:list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
-            <li><a href="{% url 'managers:list_user_requests' targetUsername=user.username %}" ><span class="glyphicon glyphicon-inbox"></span> My Requests</a></li>
-            <li class="divider"></li>
-            {% if WORKSHIFT_PROFILE %}
-            <li><a href="{% url 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username %}" >{% if STANDING %}<span title="{% if STANDING > 0 or STANDING == 0 %}Up{% else %}Down{% endif %} {{ STANDING }} hours" class="badge {% if STANDING > 0 or STANDING == 0 %}alert-success{% else %}alert-danger{% endif %} pull-right">{% if STANDING > 0 or STANDING = 0 %}+{% endif %}{{ STANDING }}</span>
-                {% endif %}<span class="glyphicon glyphicon-dashboard"></span> Workshift Dashboard</a></li>
-            {% endif %}
-            <li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
-            <li>{% notifications_unread as unread_count %}
-              <a href="{% url 'notifications' %}"
-                title="{{ unread_count }} unread notification{{ unread_count|pluralize }}">
-                  <span class="badge pull-right">{{ unread_count }}</span>
-                  <span class="glyphicon glyphicon-bell"></span>
-                  Notifications
-              </a>
-            </li>
-            <li class="divider"></li>
-            <li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+          <li><a href="{% url 'threads:list_user_threads' targetUsername=user.username %}" ><span class="glyphicon glyphicon-comment"></span> My Threads</a></li>
+          <li><a href="{% url 'threads:list_user_messages' targetUsername=user.username %}" ><span class="glyphicon glyphicon-paperclip"></span> My Messages</a></li>
+          <li><a href="{% url 'managers:list_user_requests' targetUsername=user.username %}" ><span class="glyphicon glyphicon-inbox"></span> My Requests</a></li>
+          <li class="divider"></li>
+          {% if WORKSHIFT_PROFILE %}
+          <li><a href="{% url 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username %}" >{% if STANDING %}<span title="{% if STANDING > 0 or STANDING == 0 %}Up{% else %}Down{% endif %} {{ STANDING }} hours" class="badge {% if STANDING > 0 or STANDING == 0 %}alert-success{% else %}alert-danger{% endif %} pull-right">{% if STANDING > 0 or STANDING = 0 %}+{% endif %}{{ STANDING }}</span>
+              {% endif %}<span class="glyphicon glyphicon-dashboard"></span> Workshift Dashboard</a></li>
+          {% endif %}
+          <li><a href="{% url 'my_profile' %}" ><span class="glyphicon glyphicon-edit"></span> Update My Profile</a></li>
+          <li>{% notifications_unread as unread_count %}
+            <a href="{% url 'notifications' %}"
+              title="{{ unread_count }} unread notification{{ unread_count|pluralize }}">
+                <span class="badge pull-right">{{ unread_count }}</span>
+                <span class="glyphicon glyphicon-bell"></span>
+                Notifications
+            </a>
+          </li>
+          <li class="divider"></li>
+          <li><a class="menu_link" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
         </ul> <!-- .dropdown-menu -->
       </li> <!-- .dropdown -->
       {% endif %} {% comment %} End if user.username == ANONYMOUS_USERNAME, else {% endcomment %}
@@ -46,15 +47,15 @@
         <ul class="dropdown-menu">
             <li><a href="{% url 'managers:list_managers' %}" ><span class="glyphicon glyphicon-book"></span> Manager Directory</a></li>
         <li><a href="{% url 'managers:announcements' %}" ><span class="glyphicon glyphicon-bullhorn"></span> Announcements</a></li>
-              {% if REQUEST_TYPES %}
-              <li class="divider"></li>
-              <li class="dropdown-header">Requests</li>
+          {% if REQUEST_TYPES %}
+          <li class="divider"></li>
+          <li class="dropdown-header">Requests</li>
         {% for type_tuple in REQUEST_TYPES %}
-            <li><a href="{% url 'managers:requests' requestType=type_tuple.0.url_name %}" ><span title="{{ type_tuple.1 }} open request{{ type_tuple.1|pluralize }}" class="badge pull-right">{% if type_tuple.1 > 0 %}{{ type_tuple.1 }}{% endif %}</span>
-            <span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span>
-            {{ type_tuple.0.name }}</a></li>
+          <li><a href="{% url 'managers:requests' requestType=type_tuple.0.url_name %}" ><span title="{{ type_tuple.1 }} open request{{ type_tuple.1|pluralize }}" class="badge pull-right">{% if type_tuple.1 > 0 %}{{ type_tuple.1 }}{% endif %}</span>
+          <span class="glyphicon glyphicon-{% if type_tuple.0.glyphicon %}{{ type_tuple.0.glyphicon }}{% else %}inbox{% endif %}"></span>
+          {{ type_tuple.0.name }}</a></li>
         {% endfor %}
-              {% endif %} {% comment %} End if REQUEST_TYPES {% endcomment %}
+          {% endif %} {% comment %} End if REQUEST_TYPES {% endcomment %}
         </ul> <!-- .dropdown-menu -->
       </li>
      <li class="dropdown">
@@ -89,7 +90,7 @@
         <li><a href="{% url 'custom_manage_users' %}" ><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
         <li><a href="{% url 'custom_add_user' %}" ><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
         <li><a href="{% url 'manage_profile_requests' %}"><span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}" class="badge pull-right">{% if NUM_OF_PROFILE_REQUESTS > 0 %}{{ NUM_OF_PROFILE_REQUESTS }}{% endif %}</span>
-            <span class="glyphicon glyphicon-inbox"></span> Profile Requests</a></li>
+          <span class="glyphicon glyphicon-inbox"></span> Profile Requests</a></li>
         <li class="divider"></li>
         {% endif %}
         {% if user.is_superuser or PRESIDENT %}
@@ -116,14 +117,14 @@
       {% endif %} {% comment %} end if user.is_superuser {% endcomment %}
       </ul> <!-- .navbar-nav -->
         <div style="padding: 0px;" class="col-sm-3 col-md-4 pull-right">
-            <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=" style="padding-left: 5px; padding-right: 5px;">
-            <div class="input-group">
-                <input type="search" class="form-control search-query" name="q" placeholder="Search">
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span></button>
-                </span>
-            </div> <!-- .input-group -->
-            </form>
+          <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=" style="padding-left: 5px; padding-right: 5px;">
+          <div class="input-group">
+            <input type="search" class="form-control search-query" name="q" placeholder="Search">
+            <span class="input-group-btn">
+              <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span></button>
+            </span>
+          </div> <!-- .input-group -->
+          </form>
         </div> <!-- .col-sm-3 -->
   {% else %}
     <ul class="nav navbar-nav navbar-right">
