@@ -12,7 +12,6 @@ from django.db import models
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.fields import DayField
-from workshift import utils
 
 WORKSHIFT_MANAGER_VERIFY = "W"
 POOL_MANAGER_VERIFY = "P"
@@ -755,6 +754,7 @@ def create_workshift_profile(sender, instance, created, **kwargs):
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             pass
         else:
+            from workshift import utils
             profile = WorkshiftProfile.objects.create(
                 user=instance.user,
                 semester=semester,
