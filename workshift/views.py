@@ -66,24 +66,11 @@ def add_workshift_context(request):
     """ Add workshift variables to all dictionaries passed to templates. """
     if not request.user.is_authenticated():
         return dict()
-    # Semester is for populating the current page
     to_return = dict()
     for pos in Manager.objects.filter(workshift_manager=True):
         if pos.incumbent and pos.incumbent.user == request.user:
             to_return['WORKSHIFT_MANAGER'] = True
             break
-    try:
-        SEMESTER = request.semester
-    except AttributeError:
-        try:
-            SEMESTER = Semester.objects.get(current=True)
-        except Semester.DoesNotExist:
-            return to_return
-    try:
-        workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
-    except WorkshiftProfile.DoesNotExist:
-        return {'WORKSHIFT_ENABLED': False}
-    WORKSHIFT_MANAGER = utils.can_manage(request.user, semester=SEMESTER)
     # Current semester is for navbar notifications
     try:
         CURRENT_SEMESTER = Semester.objects.get(current=True)
@@ -108,6 +95,16 @@ def add_workshift_context(request):
                 admin_email=settings.ADMINS[0][1],
                 workshift_emails=workshift_email_str,
                 ))
+    # Semester is for populating the current page
+    try:
+        SEMESTER = request.semester
+    except AttributeError:
+        SEMESTER = CURRENT_SEMESTER
+    try:
+        workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
+    except WorkshiftProfile.DoesNotExist:
+        return {'WORKSHIFT_ENABLED': False}
+    WORKSHIFT_MANAGER = utils.can_manage(request.user, semester=SEMESTER)
     workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
     today = now().date()
     # number of days passed in this semester
