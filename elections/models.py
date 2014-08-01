@@ -4,9 +4,9 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
+from django.contrib.auth.models import User
 from django.db import models
 
-from base.models import UserProfile
 from managers.models import Manager
 
 class Petition(models.Model):
@@ -18,7 +18,7 @@ class Petition(models.Model):
         help_text="The title for this petition."
         )
     owner = models.ForeignKey(
-        UserProfile,
+        User,
         help_text="Person who initiated this petition."
         )
     description = models.TextField(
@@ -27,7 +27,7 @@ class Petition(models.Model):
         help_text="Description of this petition and what it entails."
         )
     signatures = models.ManyToManyField(
-        UserProfile,
+        User,
         null=True,
         blank=True,
         help_text="Members who have signed onto this petition.",
@@ -51,17 +51,17 @@ class Petition(models.Model):
         default=0,
         help_text="Number of comments on this petition."
         )
-    
+
     def __unicode__(self):
         return self.title
-    
+
     def is_petition(self):
         return True
 
 class PetitionComment(models.Model):
     """ Model for a comment on a petition. """
     owner = models.ForeignKey(
-        UserProfile,
+        User,
         help_text="Person who posted this comment."
         )
     body = models.TextField(
@@ -78,10 +78,10 @@ class PetitionComment(models.Model):
         Petition,
         help_text="The corresponding petition."
         )
-    
+
     def __unicode__(self):
         return "{0} comment".format(self.petition)
-    
+
     def is_petition_comment(self):
         return True
 
@@ -94,7 +94,7 @@ class Poll(models.Model):
         help_text="The title for this poll."
         )
     owner = models.ForeignKey(
-        UserProfile,
+        User,
         help_text="Person who posted this poll."
         )
     description = models.TextField(
@@ -128,10 +128,13 @@ class Poll(models.Model):
         default=False,
         help_text="Treat this poll as a formal election."
         )
-    
+
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return self.title
-    
+
     def is_poll(self):
         return True
 
@@ -146,7 +149,7 @@ class PollSettings(models.Model):
         help_text="The relevant poll."
         )
     owner = models.ForeignKey(
-        UserProfile,
+        User,
         help_text="The user whose settings these are."
         )
     anonymous = models.BooleanField(
@@ -213,10 +216,13 @@ class PollQuestion(models.Model):
         default=False,
         help_text="Whether write-ins are allowed, if this is a multiple choice question."
         )
-    
+
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return self.body
-    
+
     def is_poll_question(self):
         return True
 
@@ -235,15 +241,18 @@ class PollChoice(models.Model):
         help_text="The text body for this choice."
         )
     voters = models.ManyToManyField(
-        UserProfile,
+        User,
         null=True,
         blank=True,
         help_text="Those who have voted for this choice."
         )
-    
+
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return self.body
-    
+
     def is_poll_choice(self):
         return True
 
@@ -261,11 +270,14 @@ class PollAnswer(models.Model):
         help_text="Text body for this poll answer."
         )
     owner = models.ForeignKey(
-        UserProfile,
+        User,
         null=False,
         blank=False,
         help_text="User who posted this answer."
         )
+
+    def __str__(self):
+        return self.__unicode__()
 
     def __unicode__(self):
         return self.owner
