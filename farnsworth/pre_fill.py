@@ -15,7 +15,8 @@ if this_dir not in sys.path:
     sys.path.insert(0, this_dir)
 
 import django
-django.setup()
+if hasattr(django, "setup"):
+    django.setup()
 
 from base.models import UserProfile
 from managers.models import Manager, RequestType
