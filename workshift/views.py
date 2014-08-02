@@ -74,6 +74,8 @@ def add_workshift_context(request):
     # Current semester is for navbar notifications
     try:
         CURRENT_SEMESTER = Semester.objects.get(current=True)
+    except Semester.DoesNotExist:
+        return {'WORKSHIFT_ENABLED': False}
     except Semester.MultipleObjectsReturned:
         CURRENT_SEMESTER = Semester.objects.filter(current=True).latest('start_date')
         workshift_emails = []
@@ -101,7 +103,10 @@ def add_workshift_context(request):
     except AttributeError:
         SEMESTER = CURRENT_SEMESTER
     try:
-        workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
+        workshift_profile = WorkshiftProfile.objects.get(
+            semester=SEMESTER,
+            user=request.user,
+            )
     except WorkshiftProfile.DoesNotExist:
         return {'WORKSHIFT_ENABLED': False}
     WORKSHIFT_MANAGER = utils.can_manage(request.user, semester=SEMESTER)
