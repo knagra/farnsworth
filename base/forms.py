@@ -20,13 +20,33 @@ from managers.models import Request, Response
 
 class ProfileRequestForm(forms.Form):
     ''' Form to create a new profile request. '''
-    username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, -, or _.')
-    first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    email = forms.EmailField(max_length=100)
-    affiliation_with_the_house = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-    confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+    username = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        help_text='Characters A-Z, a-z, 0-9, -, or _.',
+        )
+    first_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        )
+    last_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        )
+    email = forms.EmailField(
+        max_length=100,
+        )
+    affiliation_with_the_house = forms.ChoiceField(
+        choices=UserProfile.STATUS_CHOICES,
+        )
+    password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(attrs={'size':'50'}),
+        )
+    confirm_password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(attrs={'size':'50'}),
+        )
     message = forms.CharField(
         required=False,
         max_length=255,
@@ -69,7 +89,7 @@ class ProfileRequestForm(forms.Form):
 
     def save(self):
         hashed_password = hashers.make_password(self.cleaned_data['password'])
-        profile_request = ProfileRequest(
+        profile_request = ProfileRequest.objects.create(
             username=self.cleaned_data['username'],
             first_name=self.cleaned_data['first_name'],
             last_name=self.cleaned_data['last_name'],
@@ -78,27 +98,67 @@ class ProfileRequestForm(forms.Form):
             password=hashed_password,
             message=self.cleaned_data['message'],
             )
-        profile_request.save()
         return profile_request
 
 class AddUserForm(forms.Form):
     ''' Form to add a new user and associated profile. '''
-    username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, -, or _.')
-    first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    email = forms.EmailField(max_length=100, required=False)
-    email_visible_to_others = forms.BooleanField(required=False)
-    phone_number = PhoneNumberField(required=False)
-    phone_visible_to_others = forms.BooleanField(required=False)
-    status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
-        help_text="Other houses where this user has boarded or lived.")
-    is_active = forms.BooleanField(required=False)
-    is_staff = forms.BooleanField(required=False)
-    is_superuser = forms.BooleanField(required=False)
-    groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
-    user_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
-    confirm_password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+    username = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        help_text='Characters A-Z, a-z, 0-9, -, or _.',
+        )
+    first_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        )
+    last_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        )
+    email = forms.EmailField(
+        max_length=100,
+        required=False,
+        )
+    email_visible_to_others = forms.BooleanField(
+        required=False,
+        )
+    phone_number = PhoneNumberField(
+        required=False,
+        )
+    phone_visible_to_others = forms.BooleanField(
+        required=False,
+        )
+    status = forms.ChoiceField(
+        choices=UserProfile.STATUS_CHOICES,
+        )
+    former_houses = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size': '50'}),
+        required=False,
+        label="Other houses",
+        help_text="Other houses where this user has boarded or lived.",
+        )
+    is_active = forms.BooleanField(
+        required=False,
+        )
+    is_staff = forms.BooleanField(
+        required=False,
+        )
+    is_superuser = forms.BooleanField(
+        required=False,
+        )
+    groups = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        required=False,
+        )
+    user_password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(attrs={'size':'50'}),
+        )
+    confirm_password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(attrs={'size':'50'}),
+        )
 
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -159,8 +219,16 @@ class AddUserForm(forms.Form):
 
 class DeleteUserForm(forms.Form):
     ''' Form to add a new user and associated profile. '''
-    username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text="Enter member's username to confirm deletion.")
-    password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}), label="Your password")
+    username = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        help_text="Enter member's username to confirm deletion.",
+        )
+    password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(attrs={'size':'50'}),
+        label="Your password",
+        )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
@@ -206,19 +274,53 @@ class DeleteUserForm(forms.Form):
 
 class ModifyUserForm(forms.Form):
     ''' Form to modify an existing user and profile. '''
-    first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    email = forms.EmailField(max_length=100, required=False)
-    email_visible_to_others = forms.BooleanField(required=False)
-    phone_number = PhoneNumberField(required=False)
-    phone_visible_to_others = forms.BooleanField(required=False)
-    status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
-        help_text="Other houses where this user has boarded or lived.")
-    is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
-    is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
-    is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
-    groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
+    first_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        )
+    last_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        )
+    email = forms.EmailField(
+        max_length=100,
+        required=False,
+        )
+    email_visible_to_others = forms.BooleanField(
+        required=False,
+        )
+    phone_number = PhoneNumberField(
+        required=False,
+        )
+    phone_visible_to_others = forms.BooleanField(
+        required=False,
+        )
+    status = forms.ChoiceField(
+        choices=UserProfile.STATUS_CHOICES,
+        )
+    former_houses = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        required=False,
+        label="Other houses",
+        help_text="Other houses where this user has boarded or lived.",
+        )
+    is_active = forms.BooleanField(
+        required=False,
+        help_text="Whether this user can login.",
+        )
+    is_staff = forms.BooleanField(
+        required=False,
+        help_text="Whether this user can access the Django admin interface.",
+        )
+    is_superuser = forms.BooleanField(
+        required=False,
+        help_text="Whether this user has admin privileges.",
+        )
+    groups = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        required=False,
+        )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
@@ -275,20 +377,58 @@ class ModifyUserForm(forms.Form):
 
 class ModifyProfileRequestForm(forms.Form):
     ''' Form to modify a profile request. '''
-    username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), help_text='Characters A-Z, a-z, 0-9, -, or _.')
-    first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    email = forms.EmailField(max_length=100, required=False)
-    email_visible_to_others = forms.BooleanField(required=False)
-    phone_number = PhoneNumberField(required=False)
-    phone_visible_to_others = forms.BooleanField(required=False)
-    status = forms.ChoiceField(choices=UserProfile.STATUS_CHOICES)
-    former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': '50'}), required=False, label="Other houses",
-        help_text="Other houses where this user has boarded or lived.")
-    is_active = forms.BooleanField(required=False, help_text="Whether this user can login.")
-    is_staff = forms.BooleanField(required=False, help_text="Whether this user can access the Django admin interface.")
-    is_superuser = forms.BooleanField(required=False, help_text="Whether this user has admin privileges.")
-    groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
+    username = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        help_text='Characters A-Z, a-z, 0-9, -, or _.',
+        )
+    first_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        )
+    last_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        )
+    email = forms.EmailField(
+        max_length=100,
+        required=False,
+        )
+    email_visible_to_others = forms.BooleanField(
+        required=False,
+        )
+    phone_number = PhoneNumberField(
+        required=False,
+        )
+    phone_visible_to_others = forms.BooleanField(
+        required=False,
+        )
+    status = forms.ChoiceField(
+        choices=UserProfile.STATUS_CHOICES,
+        )
+    former_houses = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size': '50'}),
+        required=False,
+        label="Other houses",
+        help_text="Other houses where this user has boarded or lived.",
+        )
+    is_active = forms.BooleanField(
+        required=False,
+        help_text="Whether this user can login.",
+        )
+    is_staff = forms.BooleanField(
+        required=False,
+        help_text="Whether this user can access the Django admin interface.",
+        )
+    is_superuser = forms.BooleanField(
+        required=False,
+        help_text="Whether this user has admin privileges.",
+        )
+    groups = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        required=False,
+        )
 
     def is_valid(self):
         ''' Validate form.
@@ -359,15 +499,33 @@ class ModifyProfileRequestForm(forms.Form):
 
 class UpdateProfileForm(forms.Form):
     ''' Form for a user to update own profile. '''
-    former_houses = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}), required=False, label="Other houses",
-        help_text="Other houses where you have boarded or lived.")
-    email = forms.EmailField(max_length=255, required=False)
-    email_visible_to_others = forms.BooleanField(required=False,
-        help_text="Make your e-mail address visible to other members in member directory, your profile, and elsewhere.")
-    phone_number = PhoneNumberField(required=False)
-    phone_visible_to_others = forms.BooleanField(required=False,
-        help_text="Make your phone number visible to other members in member directory, your profile, and elsewhere.")
-    enter_password = forms.CharField(required=False, max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+    former_houses = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        required=False,
+        label="Other houses",
+        help_text="Other houses where you have boarded or lived.",
+        )
+    email = forms.EmailField(
+        max_length=255,
+        required=False,
+        )
+    email_visible_to_others = forms.BooleanField(
+        required=False,
+        help_text="Make your e-mail address visible to other members in member directory, your profile, and elsewhere.",
+        )
+    phone_number = PhoneNumberField(
+        required=False,
+        )
+    phone_visible_to_others = forms.BooleanField(
+        required=False,
+        help_text="Make your phone number visible to other members in member directory, your profile, and elsewhere.",
+        )
+    enter_password = forms.CharField(
+        required=False,
+        max_length=100,
+        widget=forms.PasswordInput(attrs={'size':'50'}),
+        )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
@@ -402,5 +560,11 @@ class UpdateProfileForm(forms.Form):
 
 class LoginForm(forms.Form):
     ''' Form to login. '''
-    username_or_email = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':'50'}))
-    password = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'size':'50'}))
+    username_or_email = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size':'50'}),
+        )
+    password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(attrs={'size':'50'}),
+        )
