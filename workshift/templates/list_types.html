@@ -30,7 +30,7 @@
       {% for type, shifts in type_tuples %}
       <tr>
         <td><a href="{% wurl 'workshift:view_type' pk=type.pk %}">{{ type.title }}</a></td>
-        <td>{% for shift in shifts %}{% if not forloop.first %}, {% endif %}{{ shift.get_display_time }}{% endfor %}</td>
+        <td>{% for shift in shifts %}{% if not forloop.first %}, {% endif %}{{ shift.display_time }}{% endfor %}</td>
       </tr>
       {% endfor %}
     </tbody>
