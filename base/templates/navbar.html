@@ -32,7 +32,7 @@
           <li>{% notifications_unread as unread_count %}
             <a href="{% url 'notifications' %}"
               title="{{ unread_count }} unread notification{{ unread_count|pluralize }}">
-                <span class="badge pull-right">{{ unread_count }}</span>
+                {% if unread_count > 0 %}<span class="badge pull-right">{{ unread_count }}</span>{% endif %}
                 <span class="glyphicon glyphicon-bell"></span>
                 Notifications
             </a>
