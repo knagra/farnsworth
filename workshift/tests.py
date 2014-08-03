@@ -754,6 +754,7 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.wtype.title)
+        self.assertContains(response, "Week long")
         self.assertNotContains(response, self.wtype.quick_tips)
         self.assertNotContains(response, self.wtype.description)
 
