@@ -881,8 +881,10 @@ def list_types_view(request):
     """
     page_name = "Workshift Types"
     types = WorkshiftType.objects.all()
-    shifts = [RegularWorkshift.objects.filter(workshift_type=i)
-              for i in types]
+    shifts = [
+        RegularWorkshift.objects.filter(workshift_type=i, pool__semester__current=True)
+        for i in types
+    ]
     return render_to_response("list_types.html", {
         "page_name": page_name,
         "type_tuples": zip(types, shifts),
@@ -894,11 +896,11 @@ def type_view(request, pk):
     """
     View the details of a particular WorkshiftType.
     """
-    shift = get_object_or_404(WorkshiftType, pk=pk)
-    page_name = shift.title
+    wtype = get_object_or_404(WorkshiftType, pk=pk)
+    page_name = wtype.title
     return render_to_response("view_type.html", {
         "page_name": page_name,
-        "shift": shift,
+        "shift": wtype,
         "can_edit": utils.can_manage(request.user),
     }, context_instance=RequestContext(request))
 
