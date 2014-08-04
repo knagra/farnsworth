@@ -90,6 +90,7 @@ HOME_MAX_THREADS = 30
 # If this == n, then a request with post_date <= now - n hours, with no REOPENED
 # responses and no responses less than n hours old will be automatically expired
 # at the beginning of the day (00:01) and every hour.
+# The expiration cron job is in managers/cron.py.
 REQUEST_EXPIRATION_HOURS = 30 * 24
 
 # Add the context that populates a few variables used on every page in the site.
@@ -282,6 +283,7 @@ INSTALLED_APPS = (
 )
 
 CRON_CLASSES = [
+    "managers.cron.ExpireRequestsCronJob",
     "workshift.cron.CollectBlownCronJob",
     ]
 
