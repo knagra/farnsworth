@@ -78,17 +78,18 @@ MAX_REQUESTS = 30
 # Max number of responses loaded for each request.
 MAX_RESPONSES = 4
 
-# How old, in days, an announcement should be before it's automatically excluded
+# How old, in hours, an announcement should be before it's automatically excluded
 # from being displayed on the homepage and in the manager announcements page.
 # Pinned announcements will be displayed anyway.
-ANNOUNCEMENT_LIFE = 4
+ANNOUNCEMENT_LIFE = 4 * 24
 
 # Max number of threads loaded for home page.
 HOME_MAX_THREADS = 30
 
 # Number of hours after posting when a request is automatically expired.
-# If this == n, then a request with post_date <= now - n hours will be
-# automatically expired at the beginning of the day (00:01) and every hour.
+# If this == n, then a request with post_date <= now - n hours, with no REOPENED
+# responses and no responses less than n hours old will be automatically expired
+# at the beginning of the day (00:01) and every hour.
 REQUEST_EXPIRATION_HOURS = 30 * 24
 
 # Add the context that populates a few variables used on every page in the site.
