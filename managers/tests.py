@@ -15,6 +15,7 @@ from django.test.utils import override_settings
 from base.models import UserProfile, ProfileRequest
 from utils.funcs import convert_to_url
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+from managers.cron import ExpireRequestsCronJob
 from managers.models import Manager, RequestType, Request, Response, Announcement
 
 class TestPermissions(TestCase):
@@ -367,6 +368,9 @@ class TestRequestPages(TestCase):
             request=self.request,
             manager=True,
             )
+
+    def test_cron(self):
+        ExpireRequestsCronJob().do()
 
     def test_request_form(self):
         urls = [
