@@ -291,7 +291,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
@@ -321,7 +321,7 @@ class TestRequestProfile(TestCase):
                 "first_name": "first",
                 "last_name": "last",
                 "email": "request@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
+                "affiliation": UserProfile.RESIDENT,
                 "password": "pwd",
                 "confirm_password": "pwd",
                 })
@@ -348,7 +348,7 @@ class TestRequestProfile(TestCase):
                 "first_name": "first",
                 "last_name": "last",
                 "email": "request@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
+                "affiliation": UserProfile.RESIDENT,
                 "password": "pwd",
                 "confirm_password": "pwd",
                 }, follow=True)
@@ -365,7 +365,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
@@ -388,7 +388,7 @@ class TestRequestProfile(TestCase):
             "first_name": pr.first_name,
             "last_name": pr.last_name,
             "email": "request2@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
@@ -408,7 +408,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd2",
             }, follow=True)
@@ -421,7 +421,7 @@ class TestRequestProfile(TestCase):
             "username": "request",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd2",
             }, follow=True)
@@ -435,7 +435,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd2",
             }, follow=True)
@@ -449,7 +449,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": "123",
+            "affiliation": "123",
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
