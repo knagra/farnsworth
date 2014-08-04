@@ -262,15 +262,14 @@ def collect_blown(semester=None, moment=None):
 
             # Send out notifications
             targets = []
-            targets.append(instance.workshifter.user)
+            targets.append(workshifter.user)
             for manager in instance.pool.managers.all():
                 if manager.incumbent:
                     targets.append(manager.incumbent.user)
             for target in targets:
                 notify.send(
-                    None,
-                    verb="marked as blown",
-                    action_object=instance,
+                    instance,
+                    verb="was automatically marked as blown",
                     recipient=target,
                     )
 

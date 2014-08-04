@@ -9,6 +9,14 @@
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />
 <div class="instance_container">
+  {% if WORKSHIFT_MANAGER %}
+  <form action="{% wurl 'workshift:edit_profile' targetUsername=profile.user.username sem_url=SEMESTER.sem_url %}" class="pull-right">
+    <button class="btn btn-warning" type="submit">
+      <span class="glyphicon glyphicon-edit"></span>
+      <span class="hidden-xs">Edit</span>
+    </button>
+  </form>
+  {% endif %}
   {% if regular_shifts %}
   <h3 class="w_subtitle">Regular Shifts</h3>
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="regular_shifts_table">

@@ -29,7 +29,7 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     BlownShiftForm, SignInForm, SignOutForm, AddWorkshifterForm, \
     AssignShiftForm, RegularWorkshiftForm, WorkshiftTypeForm, \
     WorkshiftRatingForm, TimeBlockFormSet, ProfileNoteForm, \
-    RegularWorkshiftFormSet, AutoAssignShiftForm
+    RegularWorkshiftFormSet, AutoAssignShiftForm, WorkshiftPoolHoursForm
 from workshift import utils
 
 def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
@@ -350,6 +350,45 @@ def view_open_shifts(request, semester, profile=None):
         "page_name": page_name,
         "shift_tuples": shift_tuples,
         }, context_instance=RequestContext(request))
+
+@workshift_manager_required
+@get_workshift_profile
+def edit_profile_view(request, semester, targetUsername, profile=None):
+    wprofile = get_object_or_404(
+        WorkshiftProfile,
+        user__username=targetUsername,
+        semester=semester
+        )
+    note_form = ProfileNoteForm(
+        request.POST or None,
+        instance=wprofile,
+        prefix="note",
+        )
+    pool_hours = wprofile.pool_hours.all()
+    pools_forms = []
+    for pool_hours in pool_hours:
+        form = WorkshiftPoolHoursForm(
+            request.POST or None,
+            instance=pool_hours,
+            prefix="pool-{0}".format(pool_hours.pk),
+            )
+        pools_forms.append(form)
+    if (note_form is None or note_form.is_valid()) and \
+       all(i.is_valid() for i in pools_forms):
+        if note_form:
+            note_form.save()
+        for form in pools_forms:
+            form.save()
+        return HttpResponseRedirect(wurl(
+            'workshift:profile', kwargs={"targetUsername": targetUsername},
+            sem_url=semester.sem_url,
+        ))
+    page_name = "Edit {}'s Profile".format(wprofile.user.get_full_name())
+    return render_to_response("edit_profile.html", {
+        "page_name": page_name,
+        "note_form": note_form,
+        "pools_tuples": zip(pool_hours, pools_forms),
+    }, context_instance=RequestContext(request))
 
 @get_workshift_profile
 def profile_view(request, semester, targetUsername, profile=None):

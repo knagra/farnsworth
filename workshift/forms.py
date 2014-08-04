@@ -355,7 +355,7 @@ class BlownShiftForm(InteractShiftForm):
         if self.profile != instance.workshifter:
             targets.append(instance.workshifter.user)
         for manager in instance.pool.managers.all():
-            if manager.incumbent.user != self.profile.user:
+            if manager.incumbent and manager.incumbent.user != self.profile.user:
                 targets.append(manager.incumbent.user)
         for target in targets:
             notify.send(
@@ -689,6 +689,11 @@ RegularWorkshiftFormSet = modelformset_factory(
     formset=BaseRegularWorkshiftFormSet,
     can_delete=True, extra=1, max_num=50,
     )
+
+class WorkshiftPoolHoursForm(forms.ModelForm):
+    class Meta:
+        model = PoolHours
+        fields = ("hours", "hour_adjustment")
 
 class ProfileNoteForm(forms.ModelForm):
     class Meta:

@@ -1,0 +1,33 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+<form mehtod="post">
+  {% csrf_token %}
+  {% if note_form %}
+  {{ note_form|bootstrap }}
+  {% if pools_tuples %}
+  <br class="w_line" />
+  {% endif %}
+  {% endif %}
+
+  {% for pool_hours, form in pools_tuples %}
+  {% if not forloop.first %}
+  <br class="w_line" />
+  {% endif %}
+  <h3 class="w_subtitle">
+    pool_hours.pool.title
+  </h3>
+  {{ form|bootstrap }}
+  {% endfor %}
+  <button type="submit" class="btn btn-success">
+    <span class="glyphicon glyphicon-floppy-disk"></span> Save
+  </button>
+</form>
+{% endblock %}
