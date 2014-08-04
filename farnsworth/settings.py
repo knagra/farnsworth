@@ -86,6 +86,11 @@ ANNOUNCEMENT_LIFE = 4
 # Max number of threads loaded for home page.
 HOME_MAX_THREADS = 30
 
+# Number of hours after posting when a request is automatically expired.
+# If this == n, then a request with post_date <= now - n hours will be
+# automatically expired at the beginning of the day (00:01) and every hour.
+REQUEST_EXPIRATION_HOURS = 30 * 24
+
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     "base.views.add_context",
