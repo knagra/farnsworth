@@ -12,11 +12,6 @@ from notifications import notify
 from utils.funcs import convert_to_url, verify_url
 from managers.models import Manager, Announcement, RequestType, Request, Response
 
-if "workshift" in settings.INSTALLED_APPS:
-    from workshift.utils import make_manager_workshifts
-else:
-    make_manager_workshifts = None
-
 class ManagerForm(forms.ModelForm):
     ''' Form to create or modify a manager position. '''
     class Meta:
@@ -49,8 +44,6 @@ class ManagerForm(forms.ModelForm):
         manager = super(ManagerForm, self).save(commit=False)
         manager.url_title = convert_to_url(manager.title)
         manager.save()
-        if make_manager_workshifts:
-            make_manager_workshifts(managers=[manager])
         return manager
 
 class RequestTypeForm(forms.ModelForm):

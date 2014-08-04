@@ -764,6 +764,16 @@ def create_workshift_profile(sender, instance, created, **kwargs):
                     profiles=[profile],
                     )
 
+def create_manager_workshifts(sender, instance, created, **kwargs):
+    try:
+        semester = Semester.objects.get(current=True)
+    except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+        pass
+    else:
+        from workshift import utils
+        utils.make_manager_workshifts(semester=semester, managers=[instance])
+
 # Connect signals with their respective functions from above.
 # When a user is created, create a user profile associated with that user.
 models.signals.post_save.connect(create_workshift_profile, sender=UserProfile)
+models.signals.post_save.connect(create_manager_workshifts, sender=Manager)
