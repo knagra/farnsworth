@@ -569,9 +569,14 @@ def assign_shifts_view(request, semester):
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
                                         sem_url=semester.sem_url))
 
+    shifts = RegularWorkshift.objects.filter(
+        pool__semester=semester,
+        active=True,
+        workshift_type__assignable=True,
+        )
+
     assign_forms = []
-    for shift in RegularWorkshift.objects.filter(pool__semester=semester,
-                                                 active=True):
+    for shift in shifts:
         form = AssignShiftForm(
             request.POST if "individual_assign" in request.POST else None,
             prefix="shift-{0}".format(shift.pk),

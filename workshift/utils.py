@@ -159,7 +159,7 @@ def make_manager_workshifts(semester=None, managers=None):
             hours = manager.semester_hours
         wtype, new = WorkshiftType.objects.get_or_create(
             title=manager.title,
-            defaults=dict(rateable=False, auto_assign=False),
+            defaults=dict(rateable=False, auto_assign=False, assignable=False),
             )
         wtype.description = manager.duties
         wtype.hours = hours
@@ -322,7 +322,9 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
             ).order_by('preference_save_time')
     if shifts is None:
         shifts = RegularWorkshift.objects.filter(
-            pool=pool, workshift_type__auto_assign=True,
+            pool=pool,
+            workshift_type__auto_assign=True,
+            workshift_type__assignable=True,
             )
 
     shifts = set(shifts)

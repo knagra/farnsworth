@@ -219,6 +219,11 @@ class WorkshiftType(models.Model):
         default=True,
         help_text="Whether this workshift type is shown in preferences.",
         )
+    assignable = models.BooleanField(
+        default=True,
+        help_text="Whether this workshift type can have workshifters assigned to it. "
+        "This may be false in the case of manager workshifts.",
+        )
     auto_assign = models.BooleanField(
         default=True,
         help_text="Whether this workshift type is included in auto-assignment.",
