@@ -16,7 +16,7 @@ from managers.models import Request
 
 class ExpireRequests(CronJobBase):
     RUN_AT_TIMES = ['00:01',]
-    RUN_EVERY_MINS = 15
+    RUN_EVERY_MINS = 60
 
     schedule = Schedule(run_at_times=RUN_AT_TIMES, run_every_mins=RUN_EVERY_MINS)
     code = 'managers.expire_requests'
