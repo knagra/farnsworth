@@ -423,9 +423,16 @@ class SignOutForm(InteractShiftForm):
         return instance
 
 class AddWorkshifterForm(forms.Form):
-    add_profile = forms.BooleanField(initial=True, required=False)
-    hours = forms.DecimalField(min_value=0, max_digits=7, decimal_places=2,
-                               initial=settings.DEFAULT_WORKSHIFT_HOURS)
+    add_profile = forms.BooleanField(
+        initial=True,
+        required=False,
+        )
+    hours = forms.DecimalField(
+        min_value=0,
+        max_digits=7,
+        decimal_places=2,
+        initial=settings.DEFAULT_WORKSHIFT_HOURS,
+        )
 
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop("semester")
