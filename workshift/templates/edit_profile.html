@@ -17,15 +17,17 @@
   {% endif %}
   {% endif %}
 
+  {% if pools_tuples %}
   {% for pool_hours, form in pools_tuples %}
   {% if not forloop.first %}
   <br class="w_line" />
   {% endif %}
   <h3 class="w_subtitle">
-    pool_hours.pool.title
+    {{ pool_hours.pool.title }}
   </h3>
   {{ form|bootstrap }}
   {% endfor %}
+  {% endif %}
   <button type="submit" class="btn btn-success">
     <span class="glyphicon glyphicon-floppy-disk"></span> Save
   </button>
