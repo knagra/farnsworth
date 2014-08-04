@@ -151,7 +151,7 @@ def homepage_view(request, message=None):
     announcements_dict = list()
 
     # Oldest genesis of an unpinned announcement to be displayed.
-    within_life = now() - timedelta(days=settings.ANNOUNCEMENT_LIFE)
+    within_life = now() - timedelta(hours=settings.ANNOUNCEMENT_LIFE)
     announcements = \
       list(Announcement.objects.filter(pinned=True)) + \
       list(Announcement.objects.filter(pinned=False, post_date__gte=within_life))
