@@ -366,11 +366,11 @@ def edit_profile_view(request, semester, targetUsername, profile=None):
         )
     pool_hours = wprofile.pool_hours.all()
     pools_forms = []
-    for pool_hours in pool_hours:
+    for hours in pool_hours:
         form = WorkshiftPoolHoursForm(
             request.POST or None,
-            instance=pool_hours,
-            prefix="pool-{0}".format(pool_hours.pk),
+            instance=hours,
+            prefix="pool-{0}".format(hours.pk),
             )
         pools_forms.append(form)
     if (note_form is None or note_form.is_valid()) and \
