@@ -742,6 +742,7 @@ class WorkshiftInstance(models.Model):
     def get_view_url(self):
         return reverse("workshift:view_instance", kwargs={"pk": self.pk})
 
+
 def create_workshift_profile(sender, instance, created, **kwargs):
     '''
     Function to add a workshift profile for every User that is created.

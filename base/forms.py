@@ -7,6 +7,7 @@ Author: Karandeep Singh Nagra
 from django import forms
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import hashers
+from django.db import models
 
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -14,7 +15,7 @@ from social.apps.django_app.default.models import UserSocialAuth
 
 from utils.funcs import verify_username, form_add_error
 from utils.variables import MESSAGES
-from base.models import UserProfile, ProfileRequest
+from base.models import UserProfile, ProfileRequest, create_user_profile
 from threads.models import Thread, Message
 from managers.models import Request, Response
 
@@ -435,6 +436,11 @@ class ModifyProfileRequestForm(forms.Form):
         return email
 
     def save(self, profile_request):
+        models.signals.post_save.disconnect(
+            create_user_profile,
+            sender=User,
+            )
+
         user = User.objects.create_user(
             username=self.cleaned_data['username'],
             email=self.cleaned_data['email'],
@@ -455,14 +461,19 @@ class ModifyProfileRequestForm(forms.Form):
                 uid=profile_request.uid,
                 )
 
-        user_profile = UserProfile.objects.get(user=user)
-        user_profile.email_visible = self.cleaned_data['email_visible_to_others']
-        user_profile.phone_number = self.cleaned_data['phone_number']
-        user_profile.phone_visible = self.cleaned_data['phone_visible_to_others']
-        user_profile.status = self.cleaned_data['status']
-        user_profile.save()
-        user_profile.former_houses = self.cleaned_data['former_houses']
-        user_profile.save()
+        UserProfile.objects.create(
+            user=user,
+            email_visible=self.cleaned_data['email_visible_to_others'],
+            phone_number=self.cleaned_data['phone_number'],
+            phone_visible=self.cleaned_data['phone_visible_to_others'],
+            status=self.cleaned_data['status'],
+            former_houses=self.cleaned_data['former_houses'],
+            )
+
+        models.signals.post_save.connect(
+            create_user_profile,
+            sender=User,
+            )
 
         return user
 

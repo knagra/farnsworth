@@ -1630,13 +1630,13 @@ class TestWorkshifters(TestCase):
             )
 
         self.assertEqual(
-            2,
-            WorkshiftProfile.objects.count(),
+            1,
+            WorkshiftProfile.objects.filter(user__username=pr.username).count(),
             )
 
     def test_add_user_boarder(self):
         """
-        Test that adding a boarder does not create a workshift profile.
+        Test that adding a boarder creates a workshift profile.
         """
         pr = ProfileRequest.objects.create(
             username="request",
@@ -1666,8 +1666,8 @@ class TestWorkshifters(TestCase):
             )
 
         self.assertEqual(
-            1,
-            WorkshiftProfile.objects.count(),
+            0,
+            WorkshiftProfile.objects.filter(user__username=pr.username).count(),
             )
 
     def test_add_user_alumni(self):
@@ -1702,8 +1702,8 @@ class TestWorkshifters(TestCase):
             )
 
         self.assertEqual(
-            1,
-            WorkshiftProfile.objects.count(),
+            0,
+            WorkshiftProfile.objects.filter(user__username=pr.username).count(),
             )
 
     def test_add_workshifter(self):
