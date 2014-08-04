@@ -70,9 +70,15 @@
       {% for shift in shifts %}
       <tr>
         <td><a href="{% wurl 'workshift:view_shift' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.workshift_type.title }}</a></td>
-        <td>{% if shift.week_long %}Week long{% else %}{% for day in shift.days %}{{ day.display }}{% endfor %}{% endif %}</td>
-        <td>{{ shift.start_time }}</td>
-        <td>{{ shift.end_time }}</td>
+        <td>
+	  {% if shift.week_long %}
+	  Week long
+	  {% else %}
+	  {{ shift.get_day_display }}
+	  {% endif %}
+	</td>
+        <td>{% if shift.start_time %}{{ shift.start_time }}{% endif %}</td>
+        <td>{% if shift.end_time %}{{ shift.end_time }}{% endif %}</td>
         <td>{{ shift.hours }}</td>
         <td>
           {% if shift.current_assignee %}
