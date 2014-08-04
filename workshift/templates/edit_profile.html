@@ -7,15 +7,6 @@
 
 {% block w_headers %}
 <style>
-    .pool_row td {
-        padding-right: 5px;
-        padding-bottom: 5px;
-        border-top: none !important;
-        border-bottom: 1px solid #e4e4e4;
-    }
-    .pool_row td div {
-        margin: 0px;
-    }
     .pool_row td div label {
         display: none;
     }
@@ -36,7 +27,7 @@
   {% endif %}
 
   {% if pools_tuples %}
-  <table>
+  <table class="table table-striped table-bordered table-condensed table-hover">
     <thead>
       <tr>
 	<th>Pool</th>
