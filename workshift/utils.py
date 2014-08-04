@@ -11,6 +11,8 @@ import random
 from django.conf import settings
 from django.utils.timezone import now, utc
 
+from notifications import notify
+
 from managers.models import Manager
 from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
      Semester, PoolHours, WorkshiftProfile, WorkshiftPool, \
@@ -257,6 +259,20 @@ def collect_blown(semester=None, moment=None):
                     entry_type=entry_type,
                     )
                 instance.logs.add(log)
+
+            # Send out notifications
+            targets = []
+            targets.append(instance.workshifter.user)
+            for manager in instance.pool.managers.all():
+                if manager.incumbent:
+                    targets.append(manager.incumbent.user)
+            for target in targets:
+                notify.send(
+                    None,
+                    verb="marked as blown",
+                    action_object=instance,
+                    recipient=target,
+                    )
 
         instance.save()
 
