@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.timezone import now
 
-from base.models import User, UserProfile
+from base.models import User, UserProfile, ProfileRequest
 from farnsworth import pre_fill
 from managers.models import Manager
 from utils.variables import MESSAGES
@@ -1546,6 +1546,9 @@ class TestWorkshifters(TestCase):
         self.bu = User.objects.create_user(username="bu", password="pwd")
         self.au = User.objects.create_user(username="au", password="pwd")
 
+        self.ru.is_superuser = True
+        self.ru.save()
+
         self.rp = UserProfile.objects.get(user=self.ru)
         self.bp = UserProfile.objects.get(user=self.bu)
         self.ap = UserProfile.objects.get(user=self.au)
@@ -1593,6 +1596,114 @@ class TestWorkshifters(TestCase):
         self.assertEqual(
             0,
             WorkshiftProfile.objects.filter(user=self.au).count(),
+            )
+
+    def test_add_user_resident(self):
+        """
+        Test that adding a resident creates a workshift profile.
+        """
+        pr = ProfileRequest.objects.create(
+            username="request",
+            first_name="first",
+            last_name="last",
+            email="pr@email.com",
+            affiliation=UserProfile.RESIDENT,
+            password="pwd",
+            )
+
+        url = reverse("modify_profile_request", kwargs={"request_pk": pr.pk})
+        response = self.client.post(url, {
+            "username": pr.username,
+            "first_name": pr.first_name,
+            "last_name": pr.last_name,
+            "email": pr.email,
+            "status": pr.affiliation,
+            "former_houses": "",
+            "is_active": True,
+            "add_user": "",
+            }, follow=True)
+
+        self.assertRedirects(response, reverse("manage_profile_requests"))
+        self.assertContains(
+            response,
+            "User {0} was successfully added".format(pr.username),
+            )
+
+        self.assertEqual(
+            2,
+            WorkshiftProfile.objects.count(),
+            )
+
+    def test_add_user_boarder(self):
+        """
+        Test that adding a boarder does not create a workshift profile.
+        """
+        pr = ProfileRequest.objects.create(
+            username="request",
+            first_name="first",
+            last_name="last",
+            email="pr@email.com",
+            affiliation=UserProfile.BOARDER,
+            password="pwd",
+            )
+
+        url = reverse("modify_profile_request", kwargs={"request_pk": pr.pk})
+        response = self.client.post(url, {
+            "username": pr.username,
+            "first_name": pr.first_name,
+            "last_name": pr.last_name,
+            "email": pr.email,
+            "status": pr.affiliation,
+            "former_houses": "",
+            "is_active": True,
+            "add_user": "",
+            }, follow=True)
+
+        self.assertRedirects(response, reverse("manage_profile_requests"))
+        self.assertContains(
+            response,
+            "User {0} was successfully added".format(pr.username),
+            )
+
+        self.assertEqual(
+            1,
+            WorkshiftProfile.objects.count(),
+            )
+
+    def test_add_user_alumni(self):
+        """
+        Test that adding an alumni does not create a workshift profile.
+        """
+        pr = ProfileRequest.objects.create(
+            username="request",
+            first_name="first",
+            last_name="last",
+            email="pr@email.com",
+            affiliation=UserProfile.ALUMNUS,
+            password="pwd",
+            )
+
+        url = reverse("modify_profile_request", kwargs={"request_pk": pr.pk})
+        response = self.client.post(url, {
+            "username": pr.username,
+            "first_name": pr.first_name,
+            "last_name": pr.last_name,
+            "email": pr.email,
+            "status": pr.affiliation,
+            "former_houses": "",
+            "is_active": True,
+            "add_user": "",
+            }, follow=True)
+
+        self.assertRedirects(response, reverse("manage_profile_requests"))
+        self.assertContains(
+            response,
+            "User {0} was successfully added".format(pr.username),
+            )
+
+        self.assertEqual(
+            1,
+            WorkshiftProfile.objects.count(),
             )
 
     def test_add_workshifter(self):

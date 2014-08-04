@@ -748,21 +748,22 @@ def create_workshift_profile(sender, instance, created, **kwargs):
     Parameters:
         instance is an of UserProfile that was just saved.
     '''
-    if created and instance.status == UserProfile.RESIDENT:
+    if instance.status == UserProfile.RESIDENT:
         try:
             semester = Semester.objects.get(current=True)
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             pass
         else:
             from workshift import utils
-            profile = WorkshiftProfile.objects.create(
+            profile, created = WorkshiftProfile.objects.get_or_create(
                 user=instance.user,
                 semester=semester,
                 )
-            utils.make_workshift_pool_hours(
-                semester=semester,
-                profiles=[profile],
-                )
+            if created:
+                utils.make_workshift_pool_hours(
+                    semester=semester,
+                    profiles=[profile],
+                    )
 
 # Connect signals with their respective functions from above.
 # When a user is created, create a user profile associated with that user.

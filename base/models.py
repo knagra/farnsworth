@@ -56,7 +56,7 @@ class UserProfile(models.Model):
     status = models.CharField(
         max_length=1,
         choices=STATUS_CHOICES,
-        default=RESIDENT,
+        blank=True,
         help_text="Member status (resident, boarder, alumnus)",
         )
     email_announcement_notifications = models.BooleanField(
