@@ -548,7 +548,7 @@ def announcements_view(request):
                 return HttpResponseRedirect(reverse('managers:announcements'))
         announcements_dict.append((a, pin_form))
     # Oldest genesis of an pinned announcement to be displayed.
-    within_life = now() - timedelta(days=settings.ANNOUNCEMENT_LIFE)
+    within_life = now() - timedelta(hours=settings.ANNOUNCEMENT_LIFE)
     for a in Announcement.objects.filter(pinned=False, post_date__gte=within_life):
         pin_form = None
         if request.user.is_superuser or (a.manager.incumbent == userProfile):
