@@ -157,23 +157,21 @@ def make_manager_workshifts(semester=None, managers=None):
             hours = manager.summer_hours
         else:
             hours = manager.semester_hours
-        wtype, new = WorkshiftType.objects.get_or_create(title=manager.title)
-        if new:
-            wtype.rateable = False
-            wtype.auto_assign = False
+        wtype, new = WorkshiftType.objects.get_or_create(
+            title=manager.title,
+            defaults=dict(rateable=False, auto_assign=False),
+            )
         wtype.description = manager.duties
         wtype.hours = hours
         wtype.save()
         shift, new = RegularWorkshift.objects.get_or_create(
             workshift_type=wtype,
             pool=WorkshiftPool.objects.get(semester=semester, is_primary=True),
+            defaults=dict(week_long=True, verify=AUTO_VERIFY),
             )
-        if new:
-            shift.week_long = True
-            shift.verify = AUTO_VERIFY
         shift.hours = wtype.hours
         if manager.incumbent:
-            shift.current_assignee = WorkshiftProfile.objects.get(
+            shift.current_assignees = WorkshiftProfile.objects.filter(
                 user=manager.incumbent.user,
                 )
         shift.save()
