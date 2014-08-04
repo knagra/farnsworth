@@ -16,7 +16,6 @@
   {% endif %}
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
-  {% if interact_forms %}
   <h3 class="w_subtitle">Description</h3>
   <dl id="info_table" class="dl-horizontal">
   <dt>Workshift Pool</dt>
@@ -25,6 +24,7 @@
   <dd>{{ instance.date }}</dd>
   <dt>Worth</dt>
   <dd>{{ instance.hours }} hour{{ instance.hours|pluralize }}</dd>
+  {% if interact_forms %}
   <dt>Action</dt>
   <dd>
     {% for form in interact_forms %}
