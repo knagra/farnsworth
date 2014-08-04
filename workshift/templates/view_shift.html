@@ -18,7 +18,13 @@
   <hr class="w_line" />
   <dl class="dl-horizontal">
     <dt>Day</dt>
-    <dd>{{ shift.get_day_display }}&nbsp;</dd>
+    <dd>
+      {% if shift.day %}
+      {{ shift.get_day_display }}
+      {% else %}
+      Week long
+      {% endif %}
+    </dd>
     <dt>Hours</dt>
     <dd>{{ shift.hours }}</dd>
     <dt>Quick Tips</dt>
