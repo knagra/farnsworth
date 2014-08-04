@@ -694,6 +694,10 @@ class WorkshiftPoolHoursForm(forms.ModelForm):
     class Meta:
         model = PoolHours
         fields = ("hours", "hour_adjustment")
+        help_texts = {
+            "hours": "",
+            "hour_adjustment": "",
+            }
 
 class ProfileNoteForm(forms.ModelForm):
     class Meta:
