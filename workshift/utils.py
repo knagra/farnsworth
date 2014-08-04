@@ -149,6 +149,13 @@ def make_manager_workshifts(semester=None, managers=None):
             semester = Semester.objects.get(current=True)
         except Semester.DoesNotExist:
             return []
+    try:
+        pool = WorkshiftPool.objects.get(
+            semester=semester,
+            is_primary=True,
+            )
+    except WorkshiftPool.DoesNotExist:
+        return []
     if managers is None:
         managers = Manager.objects.filter(active=True)
     shifts = []
@@ -166,7 +173,7 @@ def make_manager_workshifts(semester=None, managers=None):
         wtype.save()
         shift, new = RegularWorkshift.objects.get_or_create(
             workshift_type=wtype,
-            pool=WorkshiftPool.objects.get(semester=semester, is_primary=True),
+            pool=pool,
             defaults=dict(week_long=True, verify=AUTO_VERIFY),
             )
         shift.hours = wtype.hours
