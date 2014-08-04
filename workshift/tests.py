@@ -1747,6 +1747,9 @@ class TestWorkshifts(TestCase):
             end_date=today + timedelta(days=7),
             current=True,
             )
+        self.pool = WorkshiftPool.objects.create(
+            semester=self.sem,
+            )
 
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.u = User.objects.create_user(username="u", password="pwd")
@@ -1757,9 +1760,6 @@ class TestWorkshifts(TestCase):
             workshift_manager=True,
             )
 
-        self.pool = WorkshiftPool.objects.create(
-            semester=self.sem,
-            )
         self.pool.managers = [self.wm]
         self.pool.save()
 

@@ -11,3 +11,6 @@ class CollectBlownCronJob(CronJobBase):
 
     def do(self):
         utils.collect_blown()
+
+# TODO: Run on sunday to update standings
+# TODO: Run on fine dates to generate fines?

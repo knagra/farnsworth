@@ -359,6 +359,7 @@ def edit_profile_view(request, semester, targetUsername, profile=None):
         user__username=targetUsername,
         semester=semester
         )
+    # TODO: Edit template to descript what hours / hours_adjustments are (mini-documentation)
     note_form = ProfileNoteForm(
         request.POST or None,
         instance=wprofile,
@@ -428,6 +429,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
     """
     Show the user their preferences for the given semester.
     """
+    # TODO: Change template to show descriptions in tooltip / ajax show box?
     wprofile = get_object_or_404(WorkshiftProfile, user__username=targetUsername)
 
     if wprofile.user != request.user and \
@@ -554,6 +556,10 @@ def assign_shifts_view(request, semester):
     """
     page_name = "Assign Shifts"
 
+    # TODO: Clear assignments form
+    # TODO: Assign instances randomly form
+    # TODO: Say who was not assigned shifts
+
     auto_assign_form = None
     if WorkshiftPool.objects.filter(semester=semester).count():
         auto_assign_form = AutoAssignShiftForm(
@@ -666,6 +672,7 @@ def add_shift_view(request, semester):
     View for the workshift manager to create new types of workshifts.
     """
     page_name = "Add Workshift"
+    # TODO: Start + end time for adding instance
     pools = WorkshiftPool.objects.filter(semester=semester)
     full_management = utils.can_manage(request.user, semester=semester)
     if not full_management:
@@ -753,6 +760,8 @@ def edit_pool_view(request, semester, pk, profile=None):
                              MESSAGES['ADMINS_ONLY'])
         return HttpResponseRedirect(wurl('workshift:view_semester',
                                          sem_url=semester.sem_url))
+
+    # TODO: Link auto-verify / auto-blown / etc to pool view?
 
     edit_pool_form = PoolForm(
         request.POST or None,
@@ -852,6 +861,8 @@ def instance_view(request, semester, pk, profile=None):
     instance = get_object_or_404(WorkshiftInstance, pk=pk)
     page_name = instance.title
     interact_forms = _get_forms(profile, instance)
+
+    # TODO: Form to contest / resolve workshift marks?
 
     for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
         if form.action_name in request.POST:
