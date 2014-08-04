@@ -14,7 +14,7 @@ from farnsworth.settings import REQUEST_EXPIRATION_HOURS
 from managers.models import Request, Response
 
 
-class ExpireRequests(CronJobBase):
+class ExpireRequestsCronJob(CronJobBase):
     """
     Expire OPEN requests that are more than REQUEST_EXPIRATION_HOURS old
     and have no REOPENED responses and no responses within the past
