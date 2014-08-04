@@ -18,39 +18,15 @@ from base.models import UserProfile, ProfileRequest
 from threads.models import Thread, Message
 from managers.models import Request, Response
 
-class ProfileRequestForm(forms.Form):
+class ProfileRequestForm(forms.ModelForm):
     ''' Form to create a new profile request. '''
-    username = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'size':'50'}),
-        help_text='Characters A-Z, a-z, 0-9, -, or _.',
-        )
-    first_name = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'size':'50'}),
-        )
-    last_name = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'size':'50'}),
-        )
-    email = forms.EmailField(
-        max_length=100,
-        )
-    affiliation_with_the_house = forms.ChoiceField(
-        choices=UserProfile.STATUS_CHOICES,
-        )
-    password = forms.CharField(
-        max_length=100,
-        widget=forms.PasswordInput(attrs={'size':'50'}),
-        )
+    class Meta:
+        model = ProfileRequest
+        exclude = ("provider", "uid")
+
     confirm_password = forms.CharField(
         max_length=100,
         widget=forms.PasswordInput(attrs={'size':'50'}),
-        )
-    message = forms.CharField(
-        required=False,
-        max_length=255,
-        help_text="Details on how you're affiliated with us. Optional.",
         )
 
     def clean_username(self):
@@ -88,17 +64,11 @@ class ProfileRequestForm(forms.Form):
         return validity
 
     def save(self):
+        pr = super(ProfileRequestForm, self).save(commit=False)
         hashed_password = hashers.make_password(self.cleaned_data['password'])
-        profile_request = ProfileRequest.objects.create(
-            username=self.cleaned_data['username'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            email=self.cleaned_data['email'],
-            affiliation=self.cleaned_data['affiliation_with_the_house'],
-            password=hashed_password,
-            message=self.cleaned_data['message'],
-            )
-        return profile_request
+        pr.password=hashed_password
+        pr.save()
+        return pr
 
 class AddUserForm(forms.Form):
     ''' Form to add a new user and associated profile. '''
@@ -479,12 +449,11 @@ class ModifyProfileRequestForm(forms.Form):
         user.save()
 
         if profile_request.provider and profile_request.uid:
-            social = UserSocialAuth(
+            UserSocialAuth.objects.create(
                 user=user,
                 provider=profile_request.provider,
                 uid=profile_request.uid,
                 )
-            social.save()
 
         user_profile = UserProfile.objects.get(user=user)
         user_profile.email_visible = self.cleaned_data['email_visible_to_others']
