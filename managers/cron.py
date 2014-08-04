@@ -31,11 +31,13 @@ class ExpireRequestsCronJob(CronJobBase):
     code = 'managers.expire_requests'
 
     def do(self):
-        for req in Request.objects.filter(
-          status=Request.OPEN,
-          post_date__lte=now()-timedelta(hours=REQUEST_EXPIRATION_HOURS),
-          ):
-            if not req.response_set.filter(action=Response.REOPENED).count() and \
-              not req.response_set.filter(post_date__lte=now()-timedelta(hours=REQUEST_EXPIRATION_HOURS)).count():
-                req.status = Request.EXPIRED
-                req.save()
+        cutoff = now() - timedelta(hours=REQUEST_EXPIRATION_HOURS)
+        for req in Request.objects.filter(status=Request.OPEN, post_date__lte=cutoff):
+            # Don't re-close a request that was already re-opened at least once
+            if req.response_set.filter(action=Response.REOPENED).count():
+                continue
+            # Skip requests with replies after the cutoff period
+            if req.response_set.filter(post_date__lte=cutoff).count():
+                continue
+            req.status = Request.EXPIRED
+            req.save()
