@@ -63,7 +63,8 @@ class SemesterForm(forms.ModelForm):
                 semester=semester,
                 )
 
-        utils.make_workshift_pool_hours(semester)
+        utils.make_workshift_pool_hours(semester=semester)
+        utils.make_manager_workshifts(semester=pool.semester)
 
         return semester
 
