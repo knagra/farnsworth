@@ -241,17 +241,15 @@ class TimeBlock(models.Model):
     created and retrieved for use.
     '''
     BUSY = 0
-    FREE = 1
-    PREFERRED = 2
+    PREFERRED = 1
     PREFERENCE_CHOICES = (
         (BUSY, "Busy"),
-        (FREE, "Free"),
         (PREFERRED, "Preferred"),
         )
     preference = models.PositiveSmallIntegerField(
         max_length=1,
         choices=PREFERENCE_CHOICES,
-        default=FREE,
+        default=BUSY,
         help_text="The user's preference for this time block.",
         )
     day = DayField(

@@ -992,7 +992,7 @@ class TestPreferences(TestCase):
             "time-0-day": DAY_CHOICES[0][0], # Monday
             "time-0-start_time": "8:00 AM",
             "time-0-end_time": "5:00 PM",
-            "time-1-preference": TimeBlock.FREE,
+            "time-1-preference": TimeBlock.BUSY,
             "time-1-day": DAY_CHOICES[-1][0], # Sunday
             "time-1-start_time": "4:00 PM",
             "time-1-end_time": "9:00 PM",
@@ -1021,7 +1021,7 @@ class TestPreferences(TestCase):
         self.assertEqual(self.wprofile.time_blocks.count(), 3)
         for block, preference, day, start, end, in zip(
                 self.wprofile.time_blocks.all(),
-                [TimeBlock.BUSY, TimeBlock.FREE, TimeBlock.PREFERRED],
+                [TimeBlock.BUSY, TimeBlock.BUSY, TimeBlock.PREFERRED],
                 [DAY_CHOICES[0][0], DAY_CHOICES[-1][0], DAY_CHOICES[1][0]],
                 [time(8, 0, 0), time(16, 0, 0), time(18, 0, 0)],
                 [time(17, 0, 0), time(21, 0, 0), time(22, 0, 0)],
