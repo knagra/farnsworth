@@ -9,7 +9,7 @@ from managers.models import Request as Rq
 def forwards_func(apps, schema_editor):
     Request = apps.get_model("managers", "Request")
     db_alias = schema_editor.connection.alias
-    for req in Request.objects.filter(using=db_alias):
+    for req in Request.objects.all():
         if req.filled:
             req.status = Rq.FILLED
         elif req.closed:
@@ -28,13 +28,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='manager',
             name='semester_hours',
-            field=models.DecimalField(default=5, help_text=b'Number of hours this manager receives during the fall and spring.', max_digits=5, decimal_places=2),
+            field=models.DecimalField(default=5, help_text='Number of hours this manager receives during the fall and spring.', max_digits=5, decimal_places=2),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='manager',
             name='summer_hours',
-            field=models.DecimalField(default=5, help_text=b'Number of hours this manager receives during the summer.', max_digits=5, decimal_places=2),
+            field=models.DecimalField(default=5, help_text='Number of hours this manager receives during the summer.', max_digits=5, decimal_places=2),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -46,19 +46,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='request',
             name='private',
-            field=models.BooleanField(default=False, help_text=b'Only show this request to the manager, other members cannot view it.'),
+            field=models.BooleanField(default=False, help_text='Only show this request to the manager, other members cannot view it.'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='request',
             name='status',
-            field=models.CharField(default=b'O', help_text=b'Status of this request.', max_length=1, choices=[(b'O', b'Open'), (b'C', b'Closed'), (b'F', b'Filled'), (b'E', b'Expired')]),
+            field=models.CharField(default='O', help_text='Status of this request.', max_length=1, choices=[('O', 'Open'), ('C', 'Closed'), ('F', 'Filled'), ('E', 'Expired')]),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='response',
             name='action',
-            field=models.CharField(default=b'N', help_text=b"A mark action (e.g., 'Marked closed'), if any.", max_length=1, choices=[(b'N', b'None'), (b'C', b'Mark closed'), (b'O', b'Mark open'), (b'F', b'Mark filled'), (b'E', b'Mark expired')]),
+            field=models.CharField(default='N', help_text="A mark action (e.g., 'Marked closed'), if any.", max_length=1, choices=[('N', 'None'), ('C', 'Mark closed'), ('O', 'Mark open'), ('F', 'Mark filled'), ('E', 'Mark expired')]),
             preserve_default=True,
         ),
         migrations.RunPython(
@@ -75,7 +75,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='request',
             name='change_date',
-            field=models.DateTimeField(help_text=b'The last time this request was modified.', auto_now=True),
+            field=models.DateTimeField(help_text='The last time this request was modified.', auto_now=True),
         ),
         migrations.AlterField(
             model_name='request',
