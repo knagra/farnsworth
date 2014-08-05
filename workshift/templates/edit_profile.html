@@ -18,14 +18,6 @@
 <hr class="w_line" />
 <form mehtod="post">
   {% csrf_token %}
-  {% if note_form %}
-  {{ note_form|bootstrap }}
-  {% endif %}
-
-  {% if pools_tuples and note_form %}
-  <br class="w_line" />
-  {% endif %}
-
   {% if pools_tuples %}
   <table class="table table-striped table-bordered table-condensed table-hover">
     <thead>
@@ -45,7 +37,30 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <p class="help-block">
+	Regular Hourly Requirement should be used to adjust how many hours a
+	workshifter owes each week (i.e. Reducing the number of hours a member with
+	a disability owes).
+  </p>
+  <p class="help-block">
+	Hour Adjustment is meant as a fallback method to adjust a workshifter's
+	standing. However it is usually preferrable to instead add completed hours
+	via an instance of a workshift (i.e. "Out of town for the week, credited 5
+	hours"). This ensures that workshift credits are publicly available and
+	easier to review at a future date. Positive numbers here add hours to a
+	workshifter's standing, while negative numbers subtract hours away.
+  </p>
   {% endif %}
+
+  {% if pools_tuples and note_form %}
+  <br class="w_line" />
+  {% endif %}
+
+  {% if note_form %}
+  {{ note_form|bootstrap }}
+  {% endif %}
+
   <div class="text-center">
     <button type="submit" class="btn btn-success">
       <span class="glyphicon glyphicon-floppy-disk"></span> Save
