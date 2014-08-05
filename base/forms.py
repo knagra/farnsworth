@@ -129,10 +129,6 @@ class AddUserForm(forms.Form):
     is_superuser = forms.BooleanField(
         required=False,
         )
-    groups = forms.ModelMultipleChoiceField(
-        queryset=Group.objects.all(),
-        required=False,
-        )
     user_password = forms.CharField(
         max_length=100,
         widget=forms.PasswordInput(attrs={'size':'50'}),
@@ -178,6 +174,10 @@ class AddUserForm(forms.Form):
         return True
 
     def save(self):
+        models.signals.post_save.disconnect(
+            create_user_profile,
+            sender=User,
+            )
         new_user = User.objects.create_user(
             username=self.cleaned_data['username'],
             email=self.cleaned_data['email'],
@@ -188,16 +188,21 @@ class AddUserForm(forms.Form):
         new_user.is_active = self.cleaned_data['is_active']
         new_user.is_staff = self.cleaned_data['is_staff']
         new_user.is_superuser = self.cleaned_data['is_superuser']
-        new_user.groups = self.cleaned_data['groups']
         new_user.save()
-        new_user_profile = UserProfile.objects.get(user=new_user)
-        new_user_profile.email_visible = self.cleaned_data['email_visible']
-        new_user_profile.phone_number = self.cleaned_data['phone_number']
-        new_user_profile.phone_visible = self.cleaned_data['phone_visible']
-        new_user_profile.status = self.cleaned_data['status']
-        new_user_profile.save()
-        new_user_profile.former_houses = self.cleaned_data['former_houses']
-        new_user_profile.save()
+
+        UserProfile.objects.create(
+            user=new_user,
+            email_visible=self.cleaned_data['email_visible'],
+            phone_number=self.cleaned_data['phone_number'],
+            phone_visible=self.cleaned_data['phone_visible'],
+            status=self.cleaned_data['status'],
+            former_houses=self.cleaned_data['former_houses']
+            )
+
+        models.signals.post_save.connect(
+            create_user_profile,
+            sender=User,
+            )
 
 class DeleteUserForm(forms.Form):
     ''' Form to add a new user and associated profile. '''
