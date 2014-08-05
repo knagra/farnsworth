@@ -66,33 +66,6 @@ else:
 #    )
 EMAIL_BLACKLIST = ()
 
-# Max number of threads loaded in member_forums.
-MAX_THREADS = 20
-
-# Max number of messages loaded for each thread in member_forums.
-MAX_MESSAGES = 4
-
-# Max number of requests loaded in requests_view.
-MAX_REQUESTS = 30
-
-# Max number of responses loaded for each request.
-MAX_RESPONSES = 4
-
-# How old, in hours, an announcement should be before it's automatically excluded
-# from being displayed on the homepage and in the manager announcements page.
-# Pinned announcements will be displayed anyway.
-ANNOUNCEMENT_LIFE = 4 * 24
-
-# Max number of threads loaded for home page.
-HOME_MAX_THREADS = 30
-
-# Number of hours after posting when a request is automatically expired.
-# If this == n, then a request with post_date <= now - n hours, with no REOPENED
-# responses and no responses less than n hours old will be automatically expired
-# at the beginning of the day (00:01) and every hour.
-# The expiration cron job is in managers/cron.py.
-REQUEST_EXPIRATION_HOURS = 30 * 24
-
 # Add the context that populates a few variables used on every page in the site.
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     "base.views.add_context",
@@ -139,28 +112,8 @@ else:
         },
     }
 
-########################################################################
-####    Workshift Settings
-########################################################################
-
-# Default cutoff for signing out of workshifts, in hours.
-# Users will be allowed to sign out of shifts with more time than this
-# number of hours before the workshift starts.
-DEFAULT_SIGN_OUT_CUTOFF = 24
-
-# Default cutoff for verifying a workshift after it has finished, in
-# hours. After this cutoff, the shift will be marked as blown.
-
-DEFAULT_VERIFY_CUTOFF = 8
-
-
-# Default number of hours for creating new semester instances.
-DEFAULT_WORKSHIFT_HOURS = 5
-
-########################################################################
-
 # Hosts/domain names that are valid for this site; required if DEBUG is False
-# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+# See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 try:
     SITE_DOMAIN
 except NameError:
@@ -324,6 +277,8 @@ LOGOUT_URL = BASE_URL + "/logout/"
 LOGIN_REDIRECT_URL = BASE_URL
 LOGIN_ERROR_URL = BASE_URL
 
+APPEND_SLASH = True
+
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
     'social.pipeline.social_auth.social_uid',
@@ -399,9 +354,66 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
 
-APPEND_SLASH = True
-
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
+### Threads Settings
+# Max number of threads loaded in member_forums.
+MAX_THREADS = 20
+
+# Max number of messages loaded for each thread in member_forums.
+MAX_MESSAGES = 4
+
+# Max number of threads loaded for home page.
+HOME_MAX_THREADS = 30
+
+### Managers settings
+# Max number of requests loaded in requests_view.
+MAX_REQUESTS = 30
+
+# Max number of responses loaded for each request.
+MAX_RESPONSES = 4
+
+# How old, in hours, an announcement should be before it's automatically excluded
+# from being displayed on the homepage and in the manager announcements page.
+# Pinned announcements will be displayed anyway.
+ANNOUNCEMENT_LIFE = 4 * 24
+
+# Number of hours after posting when a request is automatically expired.
+# If this == n, then a request with post_date <= now - n hours, with no REOPENED
+# responses and no responses less than n hours old will be automatically expired
+# at the beginning of the day (00:01) and every hour.
+# The expiration cron job is in managers/cron.py.
+REQUEST_EXPIRATION_HOURS = 30 * 24
+
+########################################################################
+####    Workshift Settings
+########################################################################
+
+# Default cutoff for signing out of workshifts, in hours.
+# Users will be allowed to sign out of shifts with more time than this
+# number of hours before the workshift starts.
+DEFAULT_SIGN_OUT_CUTOFF = 24
+
+# Default cutoff for verifying a workshift after it has finished, in
+# hours. After this cutoff, the shift will be marked as blown.
+
+DEFAULT_VERIFY_CUTOFF = 8
+
+
+# Default number of hours for creating new semester instances.
+DEFAULT_WORKSHIFT_HOURS = 5
+
+# Threshold above which a workshifter and workshift manager will receive
+# notifications that the workshifter is down a substantial number of hours
+DEFAULT_WARNING_HOURS = 10
+
+# Threshold above which central office will be emailed that a workshifter is
+# down a substantial number of hours and should be brought up for automatic
+# termination
+DEFAULT_EMAIL_HOURS = 15
+EMAIL_TARGET = "...@bsc.coop"
+
+########################################################################
 
 try:
     from farnsworth.local_settings import *
