@@ -480,67 +480,40 @@ class ModifyProfileRequestForm(forms.Form):
 
         return user
 
-class UpdateProfileForm(forms.Form):
+class UpdateProfileForm(forms.ModelForm):
     ''' Form for a user to update own profile. '''
-    former_houses = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'size':'50'}),
-        required=False,
-        label="Other houses",
-        help_text="Other houses where you have boarded or lived.",
-        )
-    email = forms.EmailField(
-        max_length=255,
-        required=False,
-        )
-    email_visible_to_others = forms.BooleanField(
-        required=False,
-        help_text="Make your e-mail address visible to other members in member directory, your profile, and elsewhere.",
-        )
-    phone_number = PhoneNumberField(
-        help_text="This should be of the form +1 (xxx) xxx-xxx",
-        required=False,
-        )
-    phone_visible_to_others = forms.BooleanField(
-        required=False,
-        help_text="Make your phone number visible to other members in member directory, your profile, and elsewhere.",
-        )
+    class Meta:
+        model = UserProfile
+        fields = ("email_visible", "phone_number", "phone_visible", "former_houses")
+
     enter_password = forms.CharField(
         required=False,
         max_length=100,
         widget=forms.PasswordInput(attrs={'size':'50'}),
         )
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop("user")
-        super(UpdateProfileForm, self).__init__(*args, **kwargs)
-
     def clean_enter_password(self):
+        user = self.instance.user
         try:
-            social_auth = UserSocialAuth.objects.get(user=self.user)
+            social_auth = UserSocialAuth.objects.get(user=user)
         except UserSocialAuth.DoesNotExist:
             social_auth = None
         password = self.cleaned_data["enter_password"]
-        if not social_auth and not hashers.check_password(password, self.user.password):
+        if not social_auth and not hashers.check_password(password, user.password):
             raise forms.ValidationError("Wrong password.")
         return None
+
+class UpdateEmailForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("email",)
 
     def clean_email(self):
         email = self.cleaned_data["email"]
         if User.objects.filter(email=email).count() > 0 and \
-          User.objects.get(email=email) != self.user:
+          User.objects.get(email=email) != self.instance.user:
             raise forms.ValidationError(MESSAGES['EMAIL_TAKEN'])
         return email
-
-    def save(self):
-        profile = UserProfile.objects.get(user=self.user)
-        profile.former_houses = self.cleaned_data["former_houses"]
-        profile.email_visible = self.cleaned_data["email_visible_to_others"]
-        profile.phone_number = self.cleaned_data["phone_number"]
-        profile.phone_visible = self.cleaned_data["phone_visible_to_others"]
-        profile.save()
-        self.user.email = self.cleaned_data["email"]
-        self.user.save()
 
 class LoginForm(forms.Form):
     ''' Form to login. '''

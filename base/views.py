@@ -35,7 +35,7 @@ from base.redirects import red_ext, red_home
 from base.decorators import profile_required, admin_required
 from base.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, \
     ModifyProfileRequestForm, LoginForm, \
-    UpdateProfileForm, DeleteUserForm
+    UpdateEmailForm, UpdateProfileForm, DeleteUserForm
 from threads.models import Thread, Message
 from threads.forms import ThreadForm
 from managers.models import RequestType, Manager, Request, Response, Announcement
@@ -253,33 +253,35 @@ def my_profile_view(request):
     page_name = "Profile Page"
     if request.user.username == ANONYMOUS_USERNAME:
         return red_home(request, MESSAGES['SPINELESS'])
-    user = request.user
     userProfile = UserProfile.objects.get(user=request.user)
     change_password_form = PasswordChangeForm(
         request.user,
         request.POST if "submit_password_form" in request.POST else None,
         )
+    update_email_form = UpdateEmailForm(
+        request.POST if "submit_profile_form" in request.POST else None,
+        instance=request.user,
+        prefix="user",
+        )
     update_profile_form = UpdateProfileForm(
         request.POST if "submit_profile_form" in request.POST else None,
-        user=request.user,
-        initial={
-            'former_houses': userProfile.former_houses,
-            'email': user.email,
-            'email_visible_to_others': userProfile.email_visible,
-            'phone_number': userProfile.phone_number,
-            'phone_visible_to_others': userProfile.phone_visible,
-            },
+        instance=userProfile,
+        prefix="profile",
         )
     if change_password_form.is_valid():
         change_password_form.save()
-        messages.add_message(request, messages.SUCCESS, "Your password was successfully changed.")
+        messages.add_message(request, messages.SUCCESS,
+                             "Your password was successfully changed.")
         return HttpResponseRedirect(reverse('my_profile'))
-    if update_profile_form.is_valid():
+    if update_email_form.is_valid() and update_profile_form.is_valid():
+        update_email_form.save()
         update_profile_form.save()
-        messages.add_message(request, messages.SUCCESS, "Your profile has been successfully updated.")
+        messages.add_message(request, messages.SUCCESS,
+                             "Your profile has been successfully updated.")
         return HttpResponseRedirect(reverse('my_profile'))
     return render_to_response('my_profile.html', {
         'page_name': page_name,
+        "update_email_form": update_email_form,
         'update_profile_form': update_profile_form,
         'change_password_form': change_password_form,
         }, context_instance=RequestContext(request))
