@@ -15,31 +15,31 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='profilerequest',
             name='message',
-            field=models.CharField(default=b'', help_text=b"Details on how you're affiliated with us.  Optional.", max_length=255, blank=True),
+            field=models.CharField(default='', help_text="Details on how you're affiliated with us.  Optional.", max_length=255, blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='userprofile',
             name='email_announcement_notifications',
-            field=models.BooleanField(default=True, help_text=b'Whether important manager announcements are e-mailed to you.'),
+            field=models.BooleanField(default=True, help_text='Whether important manager announcements are e-mailed to you.'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='userprofile',
             name='email_request_notifications',
-            field=models.BooleanField(default=False, help_text=b'Whether notifications are e-mailed to you about request updates.'),
+            field=models.BooleanField(default=False, help_text='Whether notifications are e-mailed to you about request updates.'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='userprofile',
             name='email_thread_notifications',
-            field=models.BooleanField(default=False, help_text=b'Whether notifications are e-mailed to you about thread updates.'),
+            field=models.BooleanField(default=False, help_text='Whether notifications are e-mailed to you about thread updates.'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='userprofile',
             name='email_workshift_notifications',
-            field=models.BooleanField(default=True, help_text=b'Whether notifications are e-mailed to you about workshift updates.'),
+            field=models.BooleanField(default=True, help_text='Whether notifications are e-mailed to you about workshift updates.'),
             preserve_default=True,
         ),
         migrations.RemoveField(
@@ -57,6 +57,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='phone_number',
-            field=phonenumber_field.modelfields.PhoneNumberField(default=b'', max_length=128, null=True, blank=True),
+            field=phonenumber_field.modelfields.PhoneNumberField(default='', max_length=128, null=True, blank=True),
         ),
     ]
