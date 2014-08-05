@@ -22,9 +22,4 @@ class Migration(migrations.Migration):
             name='change_date',
             field=models.DateTimeField(help_text=b'The date this event was last modified.', auto_now=True),
         ),
-        migrations.AlterField(
-            model_name='event',
-            name='rsvps',
-            field=models.ManyToManyField(to=b'base.UserProfile', blank=True),
-        ),
     ]

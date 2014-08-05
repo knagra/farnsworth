@@ -66,6 +66,7 @@ class Event(models.Model):
     rsvps = models.ManyToManyField(
         UserProfile,
         blank=True,
+        null=True,
         help_text="The users who plan to attend this event.",
         related_name="rsvps",
         )
