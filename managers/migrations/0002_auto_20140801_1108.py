@@ -64,6 +64,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='request',
             name='upvotes',
-            field=models.ManyToManyField(to=b'base.UserProfile', blank=True),
+            field=models.ManyToManyField(to='base.UserProfile', blank=True),
         ),
     ]
