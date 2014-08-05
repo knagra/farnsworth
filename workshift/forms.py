@@ -549,25 +549,6 @@ class RegularWorkshiftForm(forms.ModelForm):
                 )
         return data
 
-    def save(self):
-        prev_shift = self.instance
-        new = prev_shift.pk is None
-        shift = super(RegularWorkshiftForm, self).save()
-        if not new:
-            # Nuke all future instances and just re-create them anew
-            WorkshiftInstance.objects.filter(
-                weekly_workshift=shift, closed=False).delete()
-            utils.make_instances(
-                semester=self.semester,
-                shifts=[shift],
-                )
-        else:
-            utils.make_instances(
-                semester=self.semester,
-                shifts=[shift],
-                )
-        return shift
-
 class WorkshiftTypeForm(forms.ModelForm):
     class Meta:
         model = WorkshiftType
@@ -699,6 +680,15 @@ class WorkshiftPoolHoursForm(forms.ModelForm):
             "hours": "",
             "hour_adjustment": "",
             }
+
+    def save(self):
+        prev_instance = self.instance
+        pool_hours = super(WorkshiftPoolHoursForm, self).save(commit=False)
+        if prev_instance.pk is not None:
+            pool_hours.standing -= prev_instance.hour_adjustment
+        pool_hours.standing += prev_instance.hour_adjustment
+        pool_hours.save()
+        return pool_hours
 
 class ProfileNoteForm(forms.ModelForm):
     class Meta:

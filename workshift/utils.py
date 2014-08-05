@@ -83,20 +83,23 @@ def make_instances(semester, shifts=None, start=None):
         start = now().date()
     new_instances = []
     for shift in shifts:
+        # Delete all old instances of this shift
+        WorkshiftInstance.objects.filter(
+            weekly_workshift=shift, closed=False,
+            ).delete()
+
+        # Figure out the day to start from for this shift
         if shift.day is None or shift.week_long:
             # Workshifts have until Sunday to complete their shift
             day = 6
         else:
             day = shift.day
         next_day = start + timedelta(days=int(day) - start.weekday())
+
+        # Create new instances for the entire semester
+        assignees = shift.current_assignees.all()
         for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
-            # Create new instances for the entire semester
-            prev_instances = WorkshiftInstance.objects.filter(
-                weekly_workshift=shift, date=day, closed=False)
-            for instance in prev_instances[shift.count:]:
-                instance.delete()
-            assignees = shift.current_assignees.all()
-            for i in range(prev_instances.count(), shift.count):
+            for i in range(shift.count):
                 instance = WorkshiftInstance.objects.create(
                     weekly_workshift=shift,
                     date=day,
@@ -112,6 +115,7 @@ def make_instances(semester, shifts=None, start=None):
                     instance.logs.add(log)
                     instance.save()
                 new_instances.append(instance)
+
     return new_instances
 
 def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
@@ -166,7 +170,7 @@ def make_manager_workshifts(semester=None, managers=None):
             hours = manager.semester_hours
         wtype, new = WorkshiftType.objects.get_or_create(
             title=manager.title,
-            defaults=dict(rateable=False, auto_assign=False, assignable=False),
+            defaults=dict(rateable=False, assignment=WorkshiftType.NO_ASSIGN),
             )
         wtype.description = manager.duties
         wtype.hours = hours
@@ -181,9 +185,9 @@ def make_manager_workshifts(semester=None, managers=None):
             shift.current_assignees = WorkshiftProfile.objects.filter(
                 user=manager.incumbent.user,
                 )
+        shift.active = manager.active
         shift.save()
         shifts.append(shift)
-    make_instances(semester=semester, shifts=shifts)
     return shifts
 
 def past_verify(instance, moment=None):
@@ -330,8 +334,7 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     if shifts is None:
         shifts = RegularWorkshift.objects.filter(
             pool=pool,
-            workshift_type__auto_assign=True,
-            workshift_type__assignable=True,
+            workshift_type__assignment=WorkshiftType.AUTO_ASSIGN,
             )
 
     shifts = set(shifts)

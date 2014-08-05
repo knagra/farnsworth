@@ -219,14 +219,21 @@ class WorkshiftType(models.Model):
         default=True,
         help_text="Whether this workshift type is shown in preferences.",
         )
-    assignable = models.BooleanField(
-        default=True,
-        help_text="Whether this workshift type can have workshifters assigned to it. "
-        "This may be false in the case of manager workshifts.",
+    AUTO_ASSIGN = 'A'
+    MANUAL_ASSIGN = 'M'
+    NO_ASSIGN = 'O'
+    ASSIGNMENT_CHOICES = (
+        (AUTO_ASSIGN, "Auto-assign"),
+        (MANUAL_ASSIGN, "Manually assign"),
+        (NO_ASSIGN, "No assignment")
         )
-    auto_assign = models.BooleanField(
-        default=True,
-        help_text="Whether this workshift type is included in auto-assignment.",
+    assignment = models.CharField(
+        max_length=1,
+        choices=ASSIGNMENT_CHOICES,
+        default=AUTO_ASSIGN,
+        help_text="How assignment to this workshift works. This can be automatic, "
+        "manual-only, or no assignment (i.e. Manager shifts, which are internally "
+        "assigned.",
         )
 
     def __str__(self):
@@ -778,7 +785,14 @@ def create_manager_workshifts(sender, instance, created, **kwargs):
         from workshift import utils
         utils.make_manager_workshifts(semester=semester, managers=[instance])
 
+def create_workshift_instances(sender, instance, created, **kwargs):
+    from workshift import utils
+    utils.make_instances(instance.pool.semester, shifts=[instance])
+
 # Connect signals with their respective functions from above.
 # When a user is created, create a user profile associated with that user.
 models.signals.post_save.connect(create_workshift_profile, sender=UserProfile)
 models.signals.post_save.connect(create_manager_workshifts, sender=Manager)
+models.signals.post_save.connect(create_workshift_instances, sender=RegularWorkshift)
+# TODO: Auto-notify manager and workshifter when they are >= 10 hours down
+# TODO: Auto-email central when workshifters are >= 15 hours down?

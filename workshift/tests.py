@@ -305,18 +305,15 @@ class TestAssignment(TestCase):
         is run. This is a good test of how the assignment code functions "in the
         wild," rather than with many duplicates of the same shift.
         """
+        users = []
         for i in range(1, 50):
-            user = User.objects.create_user(username="u{0}".format(i))
+            users.append(User.objects.create_user(username="u{0}".format(i)))
         pre_fill.main([], verbose=False)
         utils.make_workshift_pool_hours(semester=self.semester)
         # Assign manager shifts beforehand
-        manager_shifts = RegularWorkshift.objects.filter(
-            pool=self.p1, workshift_type__auto_assign=False,
-            )
-        profiles = WorkshiftProfile.objects.all()
-        for profile, shift in zip(profiles, manager_shifts):
-            shift.current_assignees.add(profile)
-            shift.save()
+        for user, manager in zip(users, Manager.objects.all()):
+            manager.incumbent = UserProfile.objects.get(user=user)
+            manager.save()
         unfinished = utils.auto_assign_shifts(self.semester)
         self.assertEqual([], unfinished)
 
@@ -467,6 +464,10 @@ class TestUtils(TestCase):
     def test_make_instances(self):
         wtype = WorkshiftType.objects.create(
             title="Test Make Instances",
+            )
+        # Disconnect the handler and run make_instances ourselves
+        models.signals.post_save.disconnect(
+            create_workshift_instances, sender=RegularWorkshift
             )
         shift = RegularWorkshift.objects.create(
             workshift_type=wtype,
@@ -2080,6 +2081,7 @@ class TestWorkshifts(TestCase):
             "type-description": "Added Description",
             "type-quick_tips": "Added Quick Tips",
             "type-rateable": True,
+            "type-assignment": WorkshiftType.AUTO_ASSIGN,
             "shifts-TOTAL_FORMS": 0,
             "shifts-INITIAL_FORMS": 0,
             "shifts-MAX_NUM_FORMS": 50,
@@ -2090,6 +2092,7 @@ class TestWorkshifts(TestCase):
         self.assertEqual(shift_type.description, "Added Description")
         self.assertEqual(shift_type.quick_tips, "Added Quick Tips")
         self.assertEqual(shift_type.rateable, True)
+        self.assertEqual(shift_type.assignment, WorkshiftType.AUTO_ASSIGN)
 
     def test_edit_type(self):
         url = reverse("workshift:edit_type", kwargs={"pk": self.type.pk})
@@ -2099,6 +2102,7 @@ class TestWorkshifts(TestCase):
             "edit-description": "Edited Description",
             "edit-quick_tips": "Edited Quick Tips",
             "edit-rateable": False,
+            "edit-assignment": WorkshiftType.MANUAL_ASSIGN,
             "shifts-TOTAL_FORMS": 0,
             "shifts-INITIAL_FORMS": 0,
             "shifts-MAX_NUM_FORMS": 50,
@@ -2111,6 +2115,7 @@ class TestWorkshifts(TestCase):
         self.assertEqual(shift_type.description, "Edited Description")
         self.assertEqual(shift_type.quick_tips, "Edited Quick Tips")
         self.assertEqual(shift_type.rateable, False)
+        self.assertEqual(shift_type.assignment, WorkshiftType.MANUAL_ASSIGN)
 
 class TestSemester(TestCase):
     """

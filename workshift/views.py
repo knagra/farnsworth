@@ -183,8 +183,6 @@ def start_semester_view(request):
         return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
 
-    # TODO: Adding workshift pools? Should we do a separate page for that?
-
     return render_to_response("start_semester.html", {
         "page_name": page_name,
         "semester_form": semester_form,
@@ -359,7 +357,6 @@ def edit_profile_view(request, semester, targetUsername, profile=None):
         user__username=targetUsername,
         semester=semester
         )
-    # TODO: Edit template to descript what hours / hours_adjustments are (mini-documentation)
     note_form = ProfileNoteForm(
         request.POST or None,
         instance=wprofile,
@@ -578,8 +575,9 @@ def assign_shifts_view(request, semester):
     shifts = RegularWorkshift.objects.filter(
         pool__semester=semester,
         active=True,
-        workshift_type__assignable=True,
-        )
+        ).exclude(
+            workshift_type__assignment=WorkshiftType.NO_ASSIGN,
+            )
 
     assign_forms = []
     for shift in shifts:
