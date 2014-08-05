@@ -16,13 +16,15 @@ from managers.models import Request, Response
 
 class ExpireRequestsCronJob(CronJobBase):
     """
-    Expire OPEN requests that are more than REQUEST_EXPIRATION_HOURS old
-    and have no REOPENED responses and no responses within the past
-    REQUEST_EXPIRATION_HOURS associated with them.
+    Expire OPEN requests that were changed more than REQUEST_EXPIRATION_HOURS ago
+    and have no REOPENED responses associated with them.
     REOPENED responses are omitted to allow managers to reopen expired requests
     and not have those requests automatically expired by the system again.
     Responses within the past REQUEST_EXPIRATION_HOURS exclude expiration
     as such responses demontrate ongoing value or interest.
+    Since addition of responses changes the associated request's change_date,
+    requests with responses or upvotes within the past REQUEST_EXPIRATION_HOURS
+    will not be expired by the do() function below.
     """
     RUN_AT_TIMES = ['00:01',]
     RUN_EVERY_MINS = 60
@@ -32,12 +34,9 @@ class ExpireRequestsCronJob(CronJobBase):
 
     def do(self):
         cutoff = now() - timedelta(hours=REQUEST_EXPIRATION_HOURS)
-        for req in Request.objects.filter(status=Request.OPEN, post_date__lte=cutoff):
+        for req in Request.objects.filter(status=Request.OPEN, change_date__lte=cutoff):
             # Don't re-close a request that was already re-opened at least once
             if req.response_set.filter(action=Response.REOPENED).count():
-                continue
-            # Skip requests with replies after the cutoff period
-            if req.response_set.filter(post_date__lte=cutoff).count():
                 continue
             req.status = Request.EXPIRED
             req.save()

@@ -115,6 +115,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
     u"For the sophisticated shut-in.",
     u"No refunds.",
     u"Known to cause insanity in laboratory mice.",
+    u"Your web page is bad! And you should feel bad!",
     )
 
 # Standard messages sent to clients on errors.

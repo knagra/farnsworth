@@ -370,7 +370,60 @@ class TestRequestPages(TestCase):
             )
 
     def test_cron(self):
+        exp_req_1 = Request(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Request",
+            request_type=self.rt,
+            change_date=now()-timedelta(hours=settings.REQUEST_EXPIRATION_HOURS)
+            )
+        exp_req_1.save()
+        exp_req_2 = Request(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Request",
+            request_type=self.rt,
+            change_date=now()-timedelta(hours=settings.REQUEST_EXPIRATION_HOURS)
+            )
+        exp_req_2.save()
+        pres_req_1 = Request(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Request",
+            request_type=self.rt,
+            change_date=now()
+            )
+        pres_req_1.save()
+        pres_req_2 = Request(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Request",
+            request_type=self.rt,
+            change_date=now()-timedelta(hours=settings.REQUEST_EXPIRATION_HOURS)
+            )
+        pres_req_2.save()
+        pr2_res = Response(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Response",
+            request=pres_req_2,
+            action=Response.REOPENED,
+            )
+        pr2_res.save()
+        for r in [exp_req_1, exp_req_2, pres_req_1, pres_req_2]:
+            self.assertEqual(r.status, Request.OPEN)
         ExpireRequestsCronJob().do()
+        for r in [exp_req_1, exp_req_2]:
+            self.assertEqual(r.status, Request.EXPIRED)
+        for r in [pres_req_1, pres_req_2]:
+            self.assertEqual(r.status, Request.OPEN)
+        er1_res = Response(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Response",
+            request=exp_req_1,
+            action=Response.REOPENED,
+            )
+        er1_res.save()
+        exp_req_1.status = Request.OPEN
+        exp_req_1.change_date = now() - timedelta(hours=settings.REQUEST_EXPIRATION_HOURS)
+        exp_req_1.save()
+        ExpireRequestsCronJob().do()
+        self.assertEqual(exp_req_1.status, Request.OPEN)
 
     def test_request_form(self):
         urls = [
