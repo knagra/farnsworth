@@ -816,24 +816,7 @@ def edit_shift_view(request, semester, pk, profile=None):
         )
 
     if "delete" in request.POST:
-        instances = WorkshiftInstance.objects.filter(
-            weekly_workshift=shift,
-            )
-        info = InstanceInfo.objects.create(
-            title=shift.workshift_type.title,
-            description=shift.workshift_type.description,
-            pool=shift.pool,
-            start_time=shift.start_time,
-            end_time=shift.end_time,
-            )
-        for instance in instances:
-            if instance.closed:
-                instance.weekly_workshift = None
-                instance.info = info
-                instance.closed = True
-                instance.save()
-            else:
-                instance.delete()
+        # Open instances are deleted automatically
         shift.delete()
         return HttpResponseRedirect(wurl('workshift:manage',
                                          sem_url=semester.sem_url))

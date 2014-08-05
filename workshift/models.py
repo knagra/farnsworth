@@ -786,13 +786,39 @@ def create_manager_workshifts(sender, instance, created, **kwargs):
         utils.make_manager_workshifts(semester=semester, managers=[instance])
 
 def create_workshift_instances(sender, instance, created, **kwargs):
+    shift = instance
     from workshift import utils
-    utils.make_instances(instance.pool.semester, shifts=[instance])
+    if shift.active:
+        utils.make_instances(shift.pool.semester, shifts=[instance])
+    else:
+        delete_workshift_instances(sender=sender, instance=shift)
+
+def delete_workshift_instances(sender, instance, **kwargs):
+    shift = instance
+    instances = WorkshiftInstance.objects.filter(
+        weekly_workshift=shift,
+        )
+    info = InstanceInfo.objects.create(
+        title=shift.workshift_type.title,
+        description=shift.workshift_type.description,
+        pool=shift.pool,
+        start_time=shift.start_time,
+        end_time=shift.end_time,
+        )
+    for instance in instances:
+        if instance.closed:
+            instance.weekly_workshift = None
+            instance.info = info
+            instance.closed = True
+            instance.save()
+        else:
+            instance.delete()
 
 # Connect signals with their respective functions from above.
 # When a user is created, create a user profile associated with that user.
 models.signals.post_save.connect(create_workshift_profile, sender=UserProfile)
 models.signals.post_save.connect(create_manager_workshifts, sender=Manager)
 models.signals.post_save.connect(create_workshift_instances, sender=RegularWorkshift)
+models.signals.pre_delete.connect(delete_workshift_instances, sender=RegularWorkshift)
 # TODO: Auto-notify manager and workshifter when they are >= 10 hours down
 # TODO: Auto-email central when workshifters are >= 15 hours down?
