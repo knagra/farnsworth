@@ -36,6 +36,7 @@ class UserProfile(models.Model):
         null=True,
         blank=True,
         default='',
+        help_text="This should be of the form +1 (xxx) xxx-xxx",
         )
     email_visible = models.BooleanField(
         default=False,

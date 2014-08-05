@@ -33,9 +33,10 @@ from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
 from base.models import UserProfile, ProfileRequest
 from base.redirects import red_ext, red_home
 from base.decorators import profile_required, admin_required
-from base.forms import ProfileRequestForm, AddUserForm, ModifyUserForm, \
-    ModifyProfileRequestForm, LoginForm, \
-    UpdateEmailForm, UpdateProfileForm, DeleteUserForm
+from base.forms import ProfileRequestForm, AddUserForm, \
+     UpdateUserForm, FullProfileForm, \
+     ModifyProfileRequestForm, LoginForm, \
+     UpdateEmailForm, UpdateProfileForm, DeleteUserForm
 from threads.models import Thread, Message
 from threads.forms import ThreadForm
 from managers.models import RequestType, Manager, Request, Response, Announcement
@@ -309,36 +310,15 @@ def login_view(request):
         return HttpResponseRedirect(redirect_to)
     form = LoginForm(request.POST or None)
     if form.is_valid():
-        username_or_email = form.cleaned_data['username_or_email']
-        password = form.cleaned_data['password']
-        username = None
-        if username == ANONYMOUS_USERNAME:
-            return red_ext(request, MESSAGES['ANONYMOUS_DENIED'])
-        temp_user = None
-        try:
-            temp_user = User.objects.get(username=username_or_email)
-            username = username_or_email
-        except User.DoesNotExist:
-            try:
-                temp_user = User.objects.get(email=username_or_email)
-                username = User.objects.get(email=username_or_email).username
-            except User.DoesNotExist:
-                form.errors['__all__'] = form.error_class(["Invalid username/password combination. Please try again."])
-        if temp_user is not None:
-            if temp_user.is_active:
-                user = authenticate(username=username, password=password)
-                if user is not None:
-                    login(request, user)
-                    if ANONYMOUS_SESSION:
-                        request.session['ANONYMOUS_SESSION'] = True
-                    return HttpResponseRedirect(redirect_to)
-                else:
-                    reset_url = request.build_absolute_uri(reverse('reset_pw'))
-                    messages.add_message(request, messages.INFO, MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
-                    form.errors['__all__'] = form.error_class([MESSAGES['INVALID_LOGIN']])
-                    time.sleep(1) # Invalid login - delay 1 second as rudimentary security against brute force attacks
-            else:
-                form.errors['__all__'] = form.error_class(["Your account is not active. Please contact the site administrator to activate your account."])
+        user = form.save()
+        login(request, user)
+        if ANONYMOUS_SESSION:
+            request.session['ANONYMOUS_SESSION'] = True
+        return HttpResponseRedirect(redirect_to)
+    elif request.method == "POST":
+        reset_url = request.build_absolute_uri(reverse('reset_pw'))
+        messages.add_message(request, messages.INFO,
+                             MESSAGES['RESET_MESSAGE'].format(reset_url=reset_url))
 
     return render_to_response('login.html', {
         'page_name': page_name,
@@ -506,14 +486,7 @@ def modify_profile_request_view(request, request_pk):
     profile_request = get_object_or_404(ProfileRequest, pk=request_pk)
     mod_form = ModifyProfileRequestForm(
         request.POST if "add_user" in request.POST else None,
-        initial={
-            'status': profile_request.affiliation,
-            'username': profile_request.username,
-            'first_name': profile_request.first_name,
-            'last_name': profile_request.last_name,
-            'email': profile_request.email,
-            'is_active': True,
-            },
+        instance=profile_request,
         )
     addendum = ""
     if 'delete_request' in request.POST:
@@ -552,7 +525,6 @@ def modify_profile_request_view(request, request_pk):
             except SMTPException as e:
                 message = MESSAGES['EMAIL_FAIL'].format(email=new_user.email, error=e)
                 messages.add_message(request, messages.ERROR, message)
-        profile_request.delete()
         message = MESSAGES['USER_ADDED'].format(username=new_user.username)
         messages.add_message(request, messages.SUCCESS, message + addendum)
         return HttpResponseRedirect(reverse('manage_profile_requests'))
@@ -587,10 +559,15 @@ def custom_modify_user_view(request, targetUsername):
     targetUser = get_object_or_404(User, username=targetUsername)
     targetProfile = get_object_or_404(UserProfile, user=targetUser)
 
-    modify_user_form = ModifyUserForm(
+    update_user_form = UpdateUserForm(
         request.POST if "update_user_profile" in request.POST else None,
-        user=targetUser,
-        request=request,
+        instance=targetUser,
+        prefix="user",
+        )
+    update_profile_form = FullProfileForm(
+        request.POST if "update_user_profile" in request.POST else None,
+        instance=targetProfile,
+        prefix="profile",
         )
     change_user_password_form = AdminPasswordChangeForm(
         targetUser,
@@ -601,8 +578,9 @@ def custom_modify_user_view(request, targetUsername):
         user=targetUser,
         request=request,
         )
-    if modify_user_form.is_valid():
-        modify_user_form.save()
+    if update_user_form.is_valid() and update_profile_form.is_valid():
+        update_user_form.save()
+        update_profile_form.save()
         messages.add_message(
             request, messages.SUCCESS,
             MESSAGES['USER_PROFILE_SAVED'].format(username=targetUser.username),
@@ -631,7 +609,8 @@ def custom_modify_user_view(request, targetUsername):
         'targetUser': targetUser,
         'targetProfile': targetProfile,
         'page_name': page_name,
-        'modify_user_form': modify_user_form,
+        'update_user_form': update_user_form,
+        'update_profile_form': update_profile_form,
         'change_user_password_form': change_user_password_form,
         'delete_user_form': delete_user_form,
         'thread_count': Thread.objects.filter(owner=targetProfile).count(),
