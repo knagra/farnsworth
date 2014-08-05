@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils.timezone import now
 
 from base.models import UserProfile, ProfileRequest
 from utils.funcs import convert_to_url
