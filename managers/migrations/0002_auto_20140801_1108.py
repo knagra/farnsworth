@@ -9,7 +9,7 @@ from managers.models import Request as Rq
 def forwards_func(apps, schema_editor):
     Request = apps.get_model("managers", "Request")
     db_alias = schema_editor.connection.alias
-    for req in Request.objects.all():
+    for req in Request.objects.filter(using=db_alias):
         if req.filled:
             req.status = Rq.FILLED
         elif req.closed:
