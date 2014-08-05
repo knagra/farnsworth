@@ -50,7 +50,11 @@ class Migration(migrations.Migration):
             model_name='userprofile',
             name='former_rooms',
         ),
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name='userprofile',
+            name='phone_number',
+        ),
+        migrations.AddField(
             model_name='userprofile',
             name='phone_number',
             field=phonenumber_field.modelfields.PhoneNumberField(default=b'', max_length=128, null=True, blank=True),
