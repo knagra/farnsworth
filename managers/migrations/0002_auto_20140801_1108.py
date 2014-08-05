@@ -4,18 +4,16 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 from django.conf import settings
 
-from managers.models import Request as Rq
-
 def forwards_func(apps, schema_editor):
     Request = apps.get_model("managers", "Request")
     db_alias = schema_editor.connection.alias
     for req in Request.objects.all():
         if req.filled:
-            req.status = Rq.FILLED
+            req.status = 'F'
         elif req.closed:
-            req.status = Rq.CLOSED
+            req.status = 'C'
         else:
-            req.status = Rq.OPEN
+            req.status = 'O'
         req.save()
 
 class Migration(migrations.Migration):
