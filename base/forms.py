@@ -95,6 +95,7 @@ class AddUserForm(forms.Form):
         )
     phone_number = PhoneNumberField(
         required=False,
+        help_text="This should be of the form +1 (xxx) xxx-xxx",
         )
     phone_visible_to_others = forms.BooleanField(
         required=False,
@@ -262,6 +263,7 @@ class ModifyUserForm(forms.Form):
         )
     phone_number = PhoneNumberField(
         required=False,
+        help_text="This should be of the form +1 (xxx) xxx-xxx",
         )
     phone_visible_to_others = forms.BooleanField(
         required=False,
@@ -369,6 +371,7 @@ class ModifyProfileRequestForm(forms.Form):
         required=False,
         )
     phone_number = PhoneNumberField(
+        help_text="This should be of the form +1 (xxx) xxx-xxx",
         required=False,
         )
     phone_visible_to_others = forms.BooleanField(
@@ -495,6 +498,7 @@ class UpdateProfileForm(forms.Form):
         help_text="Make your e-mail address visible to other members in member directory, your profile, and elsewhere.",
         )
     phone_number = PhoneNumberField(
+        help_text="This should be of the form +1 (xxx) xxx-xxx",
         required=False,
         )
     phone_visible_to_others = forms.BooleanField(
