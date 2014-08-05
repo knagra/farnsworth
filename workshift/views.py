@@ -394,7 +394,6 @@ def profile_view(request, semester, targetUsername, profile=None):
     Show the user their workshift history for the current semester as well as
     upcoming shifts.
     """
-    # TODO: Permissions? Should this be open for anyone on the site to view?
     wprofile = get_object_or_404(
         WorkshiftProfile,
         user__username=targetUsername,
