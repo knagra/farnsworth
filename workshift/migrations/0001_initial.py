@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('entry_time', models.DateTimeField(help_text='Time this entry was made.', auto_now_add=True)),
-                ('note', models.TextField(help_text=b"Message to the workshift manager. (e.g. 'Can't cook because of flu')", null=True, blank=True)),
+                ('note', models.TextField(help_text="Message to the workshift manager. (e.g. 'Can't cook because of flu')", null=True, blank=True)),
                 ('entry_type', models.CharField(default='V', max_length=1, choices=[('A', 'Assigned'), ('', 'Blown'), ('I', 'Sign In'), ('O', 'Sign Out'), ('V', 'Verify'), ('S', 'Sell')])),
             ],
             options={
@@ -102,7 +102,7 @@ class Migration(migrations.Migration):
             name='TimeBlock',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('preference', models.PositiveSmallIntegerField(default=0, help_text=b"The user's preference for this time block.", max_length=1, choices=[(0, 'Busy'), (1, 'Preferred')])),
+                ('preference', models.PositiveSmallIntegerField(default=0, help_text="The user's preference for this time block.", max_length=1, choices=[(0, 'Busy'), (1, 'Preferred')])),
                 ('day', workshift.fields.DayField(help_text='Day of the week for this time block.', max_length=1, choices=[(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')])),
                 ('start_time', models.TimeField(help_text='Start time for this time block.')),
                 ('end_time', models.TimeField(help_text='End time for this time block.')),
