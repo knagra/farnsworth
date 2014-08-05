@@ -7,7 +7,7 @@ Author: Karandeep Singh Nagra
 from collections import OrderedDict
 
 from django import forms
-from django.contrib.auth import logout, login, authenticate, hashers
+from django.contrib.auth import authenticate, hashers
 from django.contrib.auth.models import Group, User
 from django.db import models
 
