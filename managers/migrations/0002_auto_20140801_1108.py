@@ -4,6 +4,17 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 from django.conf import settings
 
+def forwards_func(apps, schema_editor):
+    Request = apps.get_model("managers", "Request")
+    db_alias = schema_editor.connection.alias
+    for req in Request.objects.all():
+        if req.filled:
+            req.status = Request.FILLED
+        elif req.closed:
+            req.status = Request.CLOSED
+        else:
+            req.status = Request.OPEN
+        req.save()
 
 class Migration(migrations.Migration):
 
@@ -47,6 +58,9 @@ class Migration(migrations.Migration):
             name='action',
             field=models.CharField(default=b'N', help_text=b"A mark action (e.g., 'Marked closed'), if any.", max_length=1, choices=[(b'N', b'None'), (b'C', b'Mark closed'), (b'O', b'Mark open'), (b'F', b'Mark filled'), (b'E', b'Mark expired')]),
             preserve_default=True,
+        ),
+        migrations.RunPython(
+            forwards_func,
         ),
         migrations.RemoveField(
             model_name='request',
