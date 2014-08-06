@@ -460,9 +460,9 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
 
     # Initialize with already-assigned instances
     for profile in profiles:
-        for shift in profile.workshiftinstance_set.filter(
-                current_assignees=profile,
-                pool=pool,
+        for shift in profile.instance_workshifter.filter(
+                Q(info__pool=pool) |
+                Q(weekly_workshift__pool=pool)
             ):
             hours_mapping[profile] += float(shift.hours)
         pool_hours = profile.pool_hours.get(pool=pool)
@@ -476,7 +476,7 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
         for profile in profiles[:]:
             instance = random.choice(instances)
             instances.remove(instance)
-            hours_mapping[profile] += instance.hours
+            hours_mapping[profile] += float(instance.hours)
             if hours_mapping[profile] >= total_hours_owed[profile]:
                 profiles.remove(profile)
             if not instances:
