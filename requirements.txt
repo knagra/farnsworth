@@ -1,4 +1,4 @@
-Django==1.6.5
+Django
 django-bootstrap-form
 elasticsearch==1.0.0
 python-social-auth

@@ -59,14 +59,6 @@ class Migration(migrations.Migration):
             field=models.BooleanField(default=True, help_text='Whether notifications are e-mailed to you about workshift updates.'),
             preserve_default=True,
         ),
-        migrations.RemoveField(
-            model_name='userprofile',
-            name='current_room',
-        ),
-        migrations.RemoveField(
-            model_name='userprofile',
-            name='former_rooms',
-        ),
         migrations.RenameField(
             model_name='userprofile',
             old_name='phone_number',
