@@ -456,7 +456,7 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
     hours_mapping = defaultdict(float)
     total_hours_owed = defaultdict(float)
 
-    semester_weeks = (semester.end_date - semester.start_date).weeks
+    semester_weeks = (semester.end_date - semester.start_date).days / 7
 
     # Initialize with already-assigned instances
     for profile in profiles:
