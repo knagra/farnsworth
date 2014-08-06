@@ -461,7 +461,8 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
     # Initialize with already-assigned instances
     for profile in profiles:
         for shift in profile.instance_workshifter.filter(
-                pool=pool,
+                Q(info__pool=pool) |
+                Q(weekly_workshift__pool=pool)
             ):
             hours_mapping[profile] += float(shift.hours)
         pool_hours = profile.pool_hours.get(pool=pool)
