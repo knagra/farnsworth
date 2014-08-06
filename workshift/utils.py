@@ -460,8 +460,7 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
 
     # Initialize with already-assigned instances
     for profile in profiles:
-        for shift in profile.workshiftinstance_set.filter(
-                current_assignees=profile,
+        for shift in profile.instance_workshifter_set.filter(
                 pool=pool,
             ):
             hours_mapping[profile] += float(shift.hours)
