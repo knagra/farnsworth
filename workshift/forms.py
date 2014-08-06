@@ -466,7 +466,7 @@ class AutoAssignShiftForm(forms.Form):
     pool = forms.ModelChoiceField(
         required=True,
         queryset=WorkshiftPool.objects.filter(semester__current=True),
-        help_text="The workshift pool to assign shifts to.",
+        help_text="Auto-assign all recurring workshifts for this pool.",
         )
 
     def __init__(self, *args, **kwargs):
@@ -491,7 +491,7 @@ class RandomAssignInstancesForm(forms.Form):
     pool = forms.ModelChoiceField(
         required=True,
         queryset=WorkshiftPool.objects.filter(semester__current=True),
-        help_text="The workshift pool to assign shifts to.",
+        help_text="Randomly assign all single instances of workshifts for this pool.",
         )
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop('semester')
@@ -513,7 +513,7 @@ class ClearAssignmentsForm(forms.Form):
     pool = forms.ModelChoiceField(
         required=True,
         queryset=WorkshiftPool.objects.filter(semester__current=True),
-        help_text="The workshift pool to assign shifts to.",
+        help_text="Clear all recurring workshift assignments for this pool.",
         )
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop('semester')
