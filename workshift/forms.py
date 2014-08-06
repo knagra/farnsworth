@@ -485,8 +485,50 @@ class AutoAssignShiftForm(forms.Form):
         unfinished = utils.auto_assign_shifts(
             self.semester, pool=self.cleaned_data['pool'],
             )
-        # TODO: Update workshift instances
         return unfinished
+
+class RandomAssignInstancesForm(forms.Form):
+    pool = forms.ModelChoiceField(
+        required=True,
+        queryset=WorkshiftPool.objects.filter(semester__current=True),
+        help_text="The workshift pool to assign shifts to.",
+        )
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop('semester')
+        super(RandomAssignInstancesForm, self).__init__(*args, **kwargs)
+        try:
+            primary = self.fields['pool'].queryset.get(title__contains="Humor")
+        except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
+            pass
+        else:
+            self.fields['pool'].initial = primary
+
+    def save(self):
+        unfinished = utils.randomly_assign_instances(
+            self.semester, self.cleaned_data["pool"],
+            )
+        return unfinished
+
+class ClearAssignmentsForm(forms.Form):
+    pool = forms.ModelChoiceField(
+        required=True,
+        queryset=WorkshiftPool.objects.filter(semester__current=True),
+        help_text="The workshift pool to assign shifts to.",
+        )
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop('semester')
+        super(ClearAssignmentsForm, self).__init__(*args, **kwargs)
+        self.fields['pool'].queryset = \
+          WorkshiftPool.objects.filter(semester=self.semester)
+        try:
+            primary = self.fields['pool'].queryset.get(is_primary=True)
+        except WorkshiftPool.DoesNotExist:
+            pass
+        else:
+            self.fields['pool'].initial = primary
+
+    def save(self):
+        utils.clear_all_assignments(self.semester, self.cleaned_data["pool"])
 
 class AssignShiftForm(forms.ModelForm):
     class Meta:
