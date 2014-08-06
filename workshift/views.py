@@ -29,7 +29,9 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     BlownShiftForm, SignInForm, SignOutForm, AddWorkshifterForm, \
     AssignShiftForm, RegularWorkshiftForm, WorkshiftTypeForm, \
     WorkshiftRatingForm, TimeBlockFormSet, ProfileNoteForm, \
-    RegularWorkshiftFormSet, AutoAssignShiftForm, WorkshiftPoolHoursForm
+    RegularWorkshiftFormSet, \
+    AutoAssignShiftForm, RandomAssignInstancesForm, ClearAssignmentsForm, \
+    WorkshiftPoolHoursForm
 from workshift import utils
 
 def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
@@ -492,10 +494,13 @@ def profiles_view(request, semester, profile=None):
     page_name = "Workshift Profiles"
     profiles = WorkshiftProfile.objects.filter(semester=semester)
     pools = WorkshiftPool.objects.filter(semester=semester)
-    # TODO: Make sure pools and pool hours sort together?
+    pool_hours = [
+        [profile.pool_hours.get(pool=pool) for pool in pools]
+        for profile in profiles
+        ]
     return render_to_response("profiles.html", {
         "page_name": page_name,
-        "workshifters": profiles,
+        "workshifter_tuples": zip(profiles, pool_hours),
         "pools": pools,
     }, context_instance=RequestContext(request))
 
@@ -552,14 +557,20 @@ def assign_shifts_view(request, semester):
     """
     page_name = "Assign Shifts"
 
-    # TODO: Clear assignments form
-    # TODO: Assign instances randomly form
     # TODO: Say who was not assigned shifts
 
     auto_assign_form = None
     if WorkshiftPool.objects.filter(semester=semester).count():
-        auto_assign_form = AutoAssignShiftForm(
-            request.POST if "auto_assign" in request.POST else None,
+        auto_assign_shifts_form = AutoAssignShiftForm(
+            request.POST if "auto_assign_shifts" in request.POST else None,
+            semester=semester,
+            )
+        random_assign_instances_form = RandomAssignInstancesForm(
+            request.POST if "random_assign_instances" in request.POST else None,
+            semester=semester,
+            )
+        clear_assign_form = ClearAssignmentsForm(
+            request.POST if "clear_assignments" in request.POST else None,
             semester=semester,
             )
 
@@ -568,6 +579,15 @@ def assign_shifts_view(request, semester):
         messages.add_message(request, messages.INFO,
                              "Assigned all but {0} workshifters their shifts"
                              .format(len(unfinished)))
+        return HttpResponseRedirect(wurl('workshift:assign_shifts',
+                                        sem_url=semester.sem_url))
+    if random_assign_instances_form and random_assign_instances_form.is_valid():
+        unfinished = random_assign_instances_form.save()
+        # ...
+        return HttpResponseRedirect(wurl('workshift:assign_shifts',
+                                        sem_url=semester.sem_url))
+    if clear_assign_form and clear_assign_form.is_valid():
+        clear_assign_form.save()
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
                                         sem_url=semester.sem_url))
 
@@ -600,7 +620,9 @@ def assign_shifts_view(request, semester):
                                             sem_url=semester.sem_url))
     return render_to_response("assign_shifts.html", {
         "page_name": page_name,
-        "auto_assign_form": auto_assign_form,
+        "auto_assign_shifts_form": auto_assign_shifts_form,
+        "random_assign_instances_form": random_assign_instances_form,
+        "clear_assign_form": clear_assign_form,
         "assign_forms": assign_forms,
     }, context_instance=RequestContext(request))
 
@@ -669,7 +691,6 @@ def add_shift_view(request, semester):
     View for the workshift manager to create new types of workshifts.
     """
     page_name = "Add Workshift"
-    # TODO: Start + end time for adding instance
     pools = WorkshiftPool.objects.filter(semester=semester)
     full_management = utils.can_manage(request.user, semester=semester)
     if not full_management:
