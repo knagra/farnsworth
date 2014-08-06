@@ -80,7 +80,7 @@ def make_instances(semester, shifts=None, start=None):
     if shifts is None:
         shifts = RegularWorkshift.objects.filter(pool__semester=semester)
     if start is None:
-        start = now().date()
+        start = min([now().date(), Semester.start_date])
     new_instances = []
     for shift in shifts:
         # Delete all old instances of this shift
