@@ -38,9 +38,9 @@
         {% for hours in pool_hours %}
         <td>
 		  {% if 0 > pool_hours.standing %}
-		  <font color="red">{{ hours.standing }}</font>
-		  {% else %}
 		  <font color="green">{{ hours.standing }}</font>
+		  {% else %}
+		  <font color="red">{{ hours.standing }}</font>
 		  {% endif %}
 		</td>
         {% endfor %}
