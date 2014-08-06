@@ -37,10 +37,10 @@
         <td>{{ workshifter.user.last_name }}</td>
         {% for hours in pool_hours %}
         <td>
-		  {% if 0 > pool_hours.standing %}
-		  <font color="green">{{ hours.standing }}</font>
-		  {% else %}
+		  {% if 0 > hours.standing %}
 		  <font color="red">{{ hours.standing }}</font>
+		  {% else %}
+		  <font color="green">{{ hours.standing }}</font>
 		  {% endif %}
 		</td>
         {% endfor %}
