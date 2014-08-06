@@ -34,9 +34,9 @@ from base.models import UserProfile, ProfileRequest
 from base.redirects import red_ext, red_home
 from base.decorators import profile_required, admin_required
 from base.forms import ProfileRequestForm, AddUserForm, \
-     UpdateUserForm, FullProfileForm, \
-     ModifyProfileRequestForm, LoginForm, \
-     UpdateEmailForm, UpdateProfileForm, DeleteUserForm
+    UpdateUserForm, FullProfileForm, \
+    ModifyProfileRequestForm, LoginForm, \
+    UpdateEmailForm, UpdateProfileForm, DeleteUserForm
 from threads.models import Thread, Message
 from threads.forms import ThreadForm
 from managers.models import RequestType, Manager, Request, Response, Announcement
@@ -44,6 +44,8 @@ from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, PinF
 from events.models import Event
 from events.forms import RsvpForm
 from rooms.models import Room, PreviousResident
+from workshift.models import Semester, WorkshiftProfile, ShiftLogEntry, \
+    WorkshiftInstance
 
 def add_context(request):
     ''' Add variables to all dictionaries passed to templates. '''
@@ -691,23 +693,20 @@ def archives_view(request):
     resident_count = UserProfile.objects.filter(status=UserProfile.RESIDENT).count()
     boarder_count = UserProfile.objects.filter(status=UserProfile.BOARDER).count()
     alumni_count = UserProfile.objects.filter(status=UserProfile.ALUMNUS).exclude(user__username=ANONYMOUS_USERNAME).count()
-    member_count = resident_count + boarder_count + alumni_count
-    thread_count = Thread.objects.all().count()
-    message_count = Message.objects.all().count()
-    request_count = Request.objects.all().count()
-    response_count = Response.objects.all().count()
-    announcement_count = Announcement.objects.all().count()
-    event_count = Event.objects.all().count()
     return render_to_response('archives.html', {
         'page_name': "Archives",
         'resident_count': resident_count,
         'boarder_count': boarder_count,
         'alumni_count': alumni_count,
-        'member_count': member_count,
-        'thread_count': thread_count,
-        'message_count': message_count,
-        'request_count': request_count,
-        'response_count': response_count,
-        'announcement_count': announcement_count,
-        'event_count': event_count,
+        'member_count': resident_count + boarder_count + alumni_count,
+        'thread_count': Thread.objects.all().count(),
+        'message_count': Message.objects.all().count(),
+        'request_count': Request.objects.all().count(),
+        'response_count': Response.objects.all().count(),
+        'announcement_count': Announcement.objects.all().count(),
+        'event_count': Event.objects.all().count(),
+        'semester_count': Semester.objects.all().count(),
+        'workshift_profile_count': WorkshiftProfile.objects.all().count(),
+        'shift_log_entry_count': ShiftLogEntry.objects.all().count(),
+        'workshift_instance_count': WorkshiftInstance.objects.all().count(),
         }, context_instance=RequestContext(request))
