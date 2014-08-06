@@ -17,7 +17,6 @@ from managers.models import Manager
 from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
      Semester, PoolHours, WorkshiftProfile, WorkshiftPool, \
      WorkshiftType, RegularWorkshift, AUTO_VERIFY, WorkshiftRating
-from workshift.fields import DAY_CHOICES
 
 def can_manage(user, semester=None):
     """
@@ -345,7 +344,10 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
     # Initialize with already-assigned shifts
     for profile in profiles:
-        for shift in profile.regularworkshift_set.filter(current_assignees=profile):
+        for shift in profile.regularworkshift_set.filter(
+                current_assignees=profile,
+                pool=pool,
+                ):
             hours_mapping[profile] += float(shift.hours)
 
     # Pre-process, rank shifts by their times / preferences
@@ -428,3 +430,60 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
     # Return profiles that were incompletely assigned shifts
     return profiles
+
+def randomly_assign_instances(semester, pool, profiles=None, instances=None):
+    """
+    Randomly assigns workshift instances to profiles.
+
+    Returns
+    -------
+    list of workshift.WorkshiftProfile
+    list of workshift.WorkshiftInstance
+    """
+    if profiles is None:
+        profiles = WorkshiftProfile.objects.filter(semester=semester)
+    if instances is None:
+        instances = WorkshiftInstance.objects.filter(
+            Q(info__pool=pool) |
+            Q(weekly_workshift__pool=pool)
+            )
+
+    instances = list(instances)
+    profiles = list(profiles)
+
+    # List of hours assigned to each profile
+    hours_mapping = defaultdict(float)
+    total_hours_owed = defaultdict(float)
+
+    semester_weeks = (semester.end_date - semester.start_date).weeks
+
+    # Initialize with already-assigned instances
+    for profile in profiles:
+        for shift in profile.workshiftinstance_set.filter(
+                current_assignees=profile,
+                pool=pool,
+            ):
+            hours_mapping[profile] += float(shift.hours)
+        pool_hours = profile.pool_hours.get(pool=pool)
+        if pool.weeks_per_period == 0:
+            total_hours_owed[profile] = pool_hours.hours
+        else:
+            total_hours_owed[profile] = \
+              semester_weeks / pool.weeks_per_period * pool_hours.hours
+
+    while profiles and instances:
+        for profile in profiles[:]:
+            instance = random.choice(instances)
+            instances.remove(instance)
+            hours_mapping[profile] += instance.hours
+            if hours_mapping[profile] >= total_hours_owed[profile]:
+                profiles.remove(profile)
+            if not instances:
+                break
+
+    return profiles, instances
+
+def clear_all_assignments(semester, pool):
+    for shift in RegularWorkshift.objects.filter(pool=pool):
+        shift.current_assignees.clear()
+        shift.save()
