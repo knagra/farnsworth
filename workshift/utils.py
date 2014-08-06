@@ -476,7 +476,7 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
         for profile in profiles[:]:
             instance = random.choice(instances)
             instances.remove(instance)
-            hours_mapping[profile] += instance.hours
+            hours_mapping[profile] += float(instance.hours)
             if hours_mapping[profile] >= total_hours_owed[profile]:
                 profiles.remove(profile)
             if not instances:
