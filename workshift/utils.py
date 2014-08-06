@@ -9,6 +9,7 @@ from datetime import date, timedelta, time, datetime
 import random
 
 from django.conf import settings
+from django.db.models import Q
 from django.utils.timezone import now, utc
 
 from notifications import notify
