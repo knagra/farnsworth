@@ -411,7 +411,8 @@ def profile_view(request, semester, targetUsername, profile=None):
     )
     assigned_instances = WorkshiftInstance.objects.filter(
         closed=False, workshifter=wprofile,
-        weekly_workshift__current_assignees__ne=wprofile,
+    ).exclude(
+        weekly_workshift__current_assignees=wprofile,
     )
     first_standing, second_standing, third_standing = \
       any(pool_hours.first_date_standing for pool_hours in wprofile.pool_hours.all()), \
