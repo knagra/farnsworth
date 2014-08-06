@@ -64,8 +64,8 @@
     <tbody>
       {% for instance in assigned_instances %}
       <tr>
-	<td>{{ instance.pool }}</td>
-	<td>{{ instance.title }}</td>
+	<td><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool }}</a></td>
+	<td><a href="{% wurl 'workshift:view_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}">{{ instance.title }}</a></td>
 	<td>{{ instance.date }}</td>
 	<td>{% if instance.start_time %}{{ instance.start_time }}{% endif %}</td>
 	<td>{% if instance.end_time %}{{ instance.end_time }}{% endif %}</td>
