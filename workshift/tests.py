@@ -913,6 +913,18 @@ class TestViews(TestCase):
         response = self.client.get(url + "?day=2014-100-100")
         self.assertEqual(response.status_code, 200)
 
+    def test_clear_assignees(self):
+        url = reverse("workshift:assign_shifts")
+        response = self.client.post(url, {
+            "pool": self.pool.pk,
+            "clear_assignments": "",
+            })
+        self.assertRedirects(response, url)
+        self.assertEqual(
+            0,
+            RegularWorkshift.objects.filter(current_assignees=self.wprofile).count()
+            )
+
 class TestPreferences(TestCase):
     """
     Tests the various elements of the workshift preferences page.
