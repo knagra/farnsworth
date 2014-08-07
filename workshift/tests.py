@@ -919,6 +919,38 @@ class TestViews(TestCase):
         response = self.client.get(url + "?day=2014-100-100")
         self.assertEqual(response.status_code, 200)
 
+    def test_auto_assign(self):
+        self.test_clear_assignees()
+
+        url = reverse("workshift:assign_shifts")
+        response = self.client.post(url, {
+            "pool": self.pool.pk,
+            "auto_assign_shifts": "",
+            })
+        self.assertRedirects(response, url)
+        uprofile = WorkshiftProfile.objects.get(user=self.u)
+        self.assertEqual(
+            RegularWorkshift.objects.get(pk=self.shift.pk),
+            RegularWorkshift.objects.get(current_assignees=uprofile)
+            )
+
+    def test_random_assign(self):
+        for instance in WorkshiftInstance.objects.all():
+            instance.workshifter = None
+            instance.save()
+        WorkshiftProfile.objects.exclude(pk=self.wprofile.pk).delete()
+
+        url = reverse("workshift:assign_shifts")
+        response = self.client.post(url, {
+            "pool": self.pool.pk,
+            "random_assign_instances": "",
+            })
+        self.assertRedirects(response, url)
+        self.assertEqual(
+            1,
+            WorkshiftInstance.objects.filter(workshifter=self.wprofile).count()
+            )
+
     def test_clear_assignees(self):
         url = reverse("workshift:assign_shifts")
         response = self.client.post(url, {
@@ -933,21 +965,6 @@ class TestViews(TestCase):
         self.assertEqual(
             2,
             WorkshiftInstance.objects.filter(workshifter=self.wprofile).count()
-            )
-
-    def test_auto_assign(self):
-        self.test_clear_assignees()
-
-        url = reverse("workshift:assign_shifts")
-        response = self.client.post(url, {
-            "pool": self.pool.pk,
-            "auto_assign_shifts": "",
-            })
-        self.assertRedirects(response, url)
-        uprofile = WorkshiftProfile.objects.get(user=self.u)
-        self.assertEqual(
-            RegularWorkshift.objects.get(pk=self.shift.pk),
-            RegularWorkshift.objects.get(current_assignees=uprofile)
             )
 
 class TestPreferences(TestCase):
