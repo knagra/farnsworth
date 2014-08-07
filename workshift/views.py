@@ -566,7 +566,10 @@ def assign_shifts_view(request, semester):
 
     # TODO: Say who was not assigned shifts
 
-    auto_assign_form = None
+    auto_assign_shifts_form = None
+    random_assign_instances_form = None
+    clear_assign_form = None
+
     if WorkshiftPool.objects.filter(semester=semester).count():
         auto_assign_shifts_form = AutoAssignShiftForm(
             request.POST if "auto_assign_shifts" in request.POST else None,
@@ -581,8 +584,8 @@ def assign_shifts_view(request, semester):
             semester=semester,
             )
 
-    if auto_assign_form and auto_assign_form.is_valid():
-        unfinished = auto_assign_form.save()
+    if auto_assign_shifts_form and auto_assign_shifts_form.is_valid():
+        unfinished = auto_assign_shifts_form.save()
         messages.add_message(request, messages.INFO,
                              "Assigned all but {0} workshifters their shifts"
                              .format(len(unfinished)))
