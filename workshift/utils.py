@@ -473,7 +473,7 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
             total_hours_owed[profile] = pool_hours.hours
         else:
             total_hours_owed[profile] = \
-              semester_weeks / pool.weeks_per_period * pool_hours.hours
+              semester_weeks / pool.weeks_per_period * float(pool_hours.hours)
 
     while profiles and instances:
         for profile in profiles[:]:
