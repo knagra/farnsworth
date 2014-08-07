@@ -485,6 +485,11 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
     return profiles, instances
 
 def clear_all_assignments(semester, pool):
-    for shift in RegularWorkshift.objects.filter(pool=pool):
+    shifts = RegularWorkshift.objects.filter(
+        pool=pool,
+    ).exclude(
+        workshift_type__assignment=WorkshiftType.NO_ASSIGN,
+    )
+    for shift in shifts:
         shift.current_assignees.clear()
         shift.save()
