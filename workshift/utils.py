@@ -446,8 +446,11 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
     if instances is None:
         instances = WorkshiftInstance.objects.filter(
             Q(info__pool=pool) |
-            Q(weekly_workshift__pool=pool)
-            )
+            Q(weekly_workshift__pool=pool),
+            workshifter__isnull=True,
+        ).exclude(
+            weekly_workshift__workshift_type__assignment=WorkshiftType.NO_ASSIGN,
+        )
 
     instances = list(instances)
     profiles = list(profiles)
@@ -475,6 +478,8 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
     while profiles and instances:
         for profile in profiles[:]:
             instance = random.choice(instances)
+            instance.workshifter = profile
+            instance.save()
             instances.remove(instance)
             hours_mapping[profile] += float(instance.hours)
             if hours_mapping[profile] >= total_hours_owed[profile]:
