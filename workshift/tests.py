@@ -413,11 +413,13 @@ class TestUtils(TestCase):
             )
 
     def test_make_pool_hours_all(self):
+        PoolHours.objects.all().delete()
         utils.make_workshift_pool_hours()
         self.assertEqual(2, PoolHours.objects.count())
         self.assertEqual(2, self.profile.pool_hours.count())
 
     def test_make_pool_hours_profile(self):
+        PoolHours.objects.all().delete()
         utils.make_workshift_pool_hours(
             semester=self.semester,
             profiles=[],
@@ -433,6 +435,7 @@ class TestUtils(TestCase):
         self.assertEqual(2, self.profile.pool_hours.count())
 
     def test_make_pool_hours_pools(self):
+        PoolHours.objects.all().delete()
         utils.make_workshift_pool_hours(
             semester=self.semester,
             pools=[self.p1],
@@ -448,6 +451,7 @@ class TestUtils(TestCase):
         self.assertEqual(2, self.profile.pool_hours.count())
 
     def test_make_pool_hours_primary(self):
+        PoolHours.objects.all().delete()
         utils.make_workshift_pool_hours(
             semester=self.semester,
             primary_hours=6,
@@ -606,15 +610,17 @@ class TestViews(TestCase):
         self.wu.first_name, self.wu.last_name = "Cooperative", "User"
         self.wu.save()
 
+        self.pool = WorkshiftPool.objects.create(
+            semester=self.sem,
+            is_primary=True,
+            )
+
         self.wm = Manager.objects.create(
             title="Workshift Manager",
             incumbent=UserProfile.objects.get(user=self.wu),
             workshift_manager=True,
             )
 
-        self.pool = WorkshiftPool.objects.create(
-            semester=self.sem,
-            )
         self.pool.managers = [self.wm]
         self.pool.save()
 
@@ -921,8 +927,27 @@ class TestViews(TestCase):
             })
         self.assertRedirects(response, url)
         self.assertEqual(
-            0,
+            1,
             RegularWorkshift.objects.filter(current_assignees=self.wprofile).count()
+            )
+        self.assertEqual(
+            2,
+            WorkshiftInstance.objects.filter(workshifter=self.wprofile).count()
+            )
+
+    def test_auto_assign(self):
+        self.test_clear_assignees()
+
+        url = reverse("workshift:assign_shifts")
+        response = self.client.post(url, {
+            "pool": self.pool.pk,
+            "auto_assign_shifts": "",
+            })
+        self.assertRedirects(response, url)
+        uprofile = WorkshiftProfile.objects.get(user=self.u)
+        self.assertEqual(
+            RegularWorkshift.objects.get(pk=self.shift.pk),
+            RegularWorkshift.objects.get(current_assignees=uprofile)
             )
 
 class TestPreferences(TestCase):

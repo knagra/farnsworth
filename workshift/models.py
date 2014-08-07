@@ -776,6 +776,17 @@ def create_workshift_profile(sender, instance, created, **kwargs):
                     profiles=[profile],
                     )
 
+def create_workshift_pool_hours(sender, instance, **kwargs):
+    pool = instance
+    from workshift import utils
+    utils.make_workshift_pool_hours(
+        semester=pool.semester,
+        pools=[pool],
+        )
+    utils.make_manager_workshifts(
+        semester=pool.semester,
+        )
+
 def create_manager_workshifts(sender, instance, created, **kwargs):
     try:
         semester = Semester.objects.get(current=True)
@@ -817,6 +828,7 @@ def delete_workshift_instances(sender, instance, **kwargs):
 # Connect signals with their respective functions from above.
 # When a user is created, create a user profile associated with that user.
 models.signals.post_save.connect(create_workshift_profile, sender=UserProfile)
+models.signals.post_save.connect(create_workshift_pool_hours, sender=WorkshiftPool)
 models.signals.post_save.connect(create_manager_workshifts, sender=Manager)
 models.signals.post_save.connect(create_workshift_instances, sender=RegularWorkshift)
 models.signals.pre_delete.connect(delete_workshift_instances, sender=RegularWorkshift)
