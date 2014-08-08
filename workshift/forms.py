@@ -118,7 +118,9 @@ class PoolForm(forms.ModelForm):
         return pool
 
 class SwitchSemesterForm(forms.Form):
-    semester = forms.ModelChoiceField()
+    semester = forms.ModelChoiceField(
+        queryset=Semester.objects.all(),
+        )
 
 class WorkshiftInstanceForm(forms.ModelForm):
     class Meta:
