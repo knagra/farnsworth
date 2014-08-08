@@ -162,7 +162,7 @@ def start_semester_view(request):
 
     pool_forms = []
     try:
-        prev_semester = Semester.objects.all()[0]
+        prev_semester = Semester.objects.all().order_by('end_date')[0]
     except IndexError:
         pass
     else:
@@ -232,6 +232,16 @@ def view_semester(request, semester, profile=None):
         template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
     if day < semester.end_date:
         template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    if Semester.objects.count() > 1:
+        switch_form = SwitchSemesterForm()
+        template_dict["switch_form"] = switch_form
+
+        if switch_form.is_valid():
+            return HttpResponseRedirect(wurl(
+                "workshift:view_semester",
+                sem_url=switch_form.cleaned_data["semester"].sem_url
+                ))
 
     # Forms to interact with workshift
     if profile:
@@ -621,13 +631,8 @@ def assign_shifts_view(request, semester):
         for form in assign_forms:
             form.save()
         messages.add_message(request, messages.INFO, "Workshift assignments saved.")
-        if "finalize" in request.POST:
-            # TODO: Finalize everything, close preferences, etc?
-            return HttpResponseRedirect(wurl('workshift:manage',
-                                             sem_url=semester.sem_url))
-        else:
-            return HttpResponseRedirect(wurl('workshift:assign_shifts',
-                                            sem_url=semester.sem_url))
+        return HttpResponseRedirect(wurl('workshift:assign_shifts',
+                                         sem_url=semester.sem_url))
     return render_to_response("assign_shifts.html", {
         "page_name": page_name,
         "auto_assign_shifts_form": auto_assign_shifts_form,

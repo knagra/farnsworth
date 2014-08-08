@@ -117,6 +117,9 @@ class PoolForm(forms.ModelForm):
             utils.make_workshift_pool_hours(self.semester, pools=[pool])
         return pool
 
+class SwitchSemesterForm(forms.Form):
+    semester = forms.ModelChoiceField()
+
 class WorkshiftInstanceForm(forms.ModelForm):
     class Meta:
         model = WorkshiftInstance

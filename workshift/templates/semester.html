@@ -148,13 +148,28 @@
 
 {% block sidebartop %}
 <form class="inline-form" action="{% wurl 'workshift:view_semester' %}" style="margin-bottom: 10px;">
-    <span class="input-group">
+  <span class="input-group">
     <input id="jump_day" name="day" placeholder="Jump to date..." class="form-control">
     <span class="input-group-btn">
-        <button type="submit" title="Jump to date..." class="btn btn-default"><span class="glyphicon glyphicon-step-forward"></span></button>
+      <button type="submit" title="Jump to date..." class="btn btn-default">
+		<span class="glyphicon glyphicon-step-forward"></span>
+	  </button>
     </span>
-    </span>
+  </span>
 </form>
+{% if switch_form %}
+<form class="inline-form">
+  <span class="input-group">
+	{% csrf_token %}
+	{{ switch_form|bootstrap }}
+    <span class="input-group-btn">
+      <button type="submit" title="Switch semester" class="btn btn-default">
+		<span class="glyphicon glyphicon-th"></span>
+	  </button>
+    </span>
+  </span>
+</form>
+{% endif %}
 {% endblock %}
 
 {% block w_endscripts %}
