@@ -281,3 +281,56 @@ class PollAnswer(models.Model):
 
     def __unicode__(self):
         return self.owner
+
+class PollRanks(models.Model):
+    """
+    Ordered rankings for RANK type question.
+    Rankings are represented by a list of integers,
+    with integer position in the list representing
+    the relative primary key of the question choices.
+    
+    This class's rankings property returns a list of
+    tuples of form (choice, ranking) for the user who
+    submitted this ranking.
+    """
+    question = models.ForeignKey(
+        PollQuestion,
+        null=False,
+        blank=False,
+        help_text="The question being answered."
+        )
+    rankings = models.CommaSeparatedIntegerField(
+        max_length=1023,
+        null=False,
+        blank=False,
+        help_text="Rankings for the choices for this question."
+        )
+    owner = models.ForeignKey(
+        User,
+        null=False,
+        blank=False,
+        help_text="User who posted this ranking."
+        )
+
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return self.owner
+
+    @property
+    def rankings(self):
+        rankings_list = [int(s) for x in self.rankings.split(',')]
+        return [(choice, rankings_list.pop()) for choice in self.question.choice_set.order_by('pk')]
+
+    def create_ranking(self, ranking_tuples):
+        """
+        Create and return a string suitable for the rankings
+        field when given tuples of choices and rankings.
+        Parameters:     ranking_tuples should be a list or tuple
+                            of tuples of form (choice, ranking)
+        """
+        return ",".join([str(r) for c, r in sorted(
+                ranking_tuples,
+                key=lambda x: x[0].pk
+                )])
