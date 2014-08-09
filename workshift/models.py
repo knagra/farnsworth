@@ -527,11 +527,18 @@ class ShiftLogEntry(models.Model):
         WorkshiftProfile,
         blank=True,
         null=True,
-        help_text="Relevant person.",
+        help_text="Person who made this entry.",
         )
     entry_time = models.DateTimeField(
         auto_now_add=True,
         help_text="Time this entry was made."
+        )
+    hours = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text="Hours associated with a change in workshift credit.",
         )
     note = models.TextField(
         blank=True,
@@ -545,12 +552,14 @@ class ShiftLogEntry(models.Model):
     SIGNOUT = 'O'
     VERIFY = 'V'
     SELL = 'S'
+    MODIFY_HOURS = "M"
     ENTRY_CHOICES = (
         (ASSIGNED, 'Assigned'),
         (BLOWN, 'Blown'),
         (SIGNIN, 'Sign In'),
         (SIGNOUT, 'Sign Out'),
         (VERIFY, 'Verify'),
+        (MODIFY_HOURS, "Modify Hours"),
         (SELL, 'Sell'),
     )
     entry_type = models.CharField(

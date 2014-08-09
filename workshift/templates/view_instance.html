@@ -39,6 +39,19 @@
     {% endfor %}
   </dd>
   {% endif %}
+  {% if edit_hours_form %}
+  <dt>Edit Credited Hours</dt>
+  <dd>
+	<form method="POST">
+	  {% csrf_token %}
+	  {{ edit_hours_form|bootstrap }}
+	  <button type="submit" class="btn btn-default" name="edit_hours">
+		<span class="glyphicon glyphicon-edit"></span>
+		Edit Hours
+	  </button>
+	</form>
+  </dd>
+  {% endif %}
   {% if instance.workshifter %}
   <dt>Assignee</dt>
   <dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.workshifter.user.username %}">{{ instance.workshifter.user.get_full_name }}</a></dd>
@@ -84,6 +97,8 @@
           signed out of this shift.
           {% elif log.enty_type == 'V' %}
           verified that this shift was completed.
+		  {% elif log.entry_type == 'M' %}
+		  changed the hours credited by this shift to {{ log.hours }} hour{{ log.hours|pluralize}}.
           {% endif %}</td>
         <td>{% if log.note %}{{ log.note }}{% endif %}</td>
       </tr>

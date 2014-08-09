@@ -19,7 +19,7 @@ from django.template import RequestContext
 from workshift.templatetags.workshift_tags import wurl
 
 from utils.variables import MESSAGES, date_formats
-from base.models import User, UserProfile
+from base.models import User
 from managers.models import Manager
 from workshift.decorators import get_workshift_profile, \
     workshift_manager_required, semester_required
@@ -29,7 +29,7 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     BlownShiftForm, SignInForm, SignOutForm, AddWorkshifterForm, \
     AssignShiftForm, RegularWorkshiftForm, WorkshiftTypeForm, \
     WorkshiftRatingForm, TimeBlockFormSet, ProfileNoteForm, \
-    RegularWorkshiftFormSet, SwitchSemesterForm, \
+    RegularWorkshiftFormSet, SwitchSemesterForm, EditHoursForm, \
     AutoAssignShiftForm, RandomAssignInstancesForm, ClearAssignmentsForm, \
     WorkshiftPoolHoursForm
 from workshift import utils
@@ -287,15 +287,11 @@ def _get_forms(profile, instance):
         if instance.workshifter:
             workshifter = instance.workshifter or instance.liable
             pool = instance.pool
-            user_profile = UserProfile.objects.get(user=profile.user)
-            managers = Manager.objects.filter(incumbent=user_profile)
+            managers = Manager.objects.filter(incumbent__user=profile.user)
             verify = False
-            allowed_statuses = [UserProfile.RESIDENT, UserProfile.BOARDER]
 
             # The many ways a person can be eligible to verify a shift...
-            if user_profile.status not in allowed_statuses:
-                pass
-            elif instance.verify == AUTO_VERIFY:
+            if instance.verify == AUTO_VERIFY:
                 pass
             elif instance.verify == SELF_VERIFY:
                 verify = True
@@ -574,8 +570,6 @@ def assign_shifts_view(request, semester):
     """
     page_name = "Assign Shifts"
 
-    # TODO: Say who was not assigned shifts
-
     auto_assign_shifts_form = None
     random_assign_instances_form = None
     clear_assign_form = None
@@ -595,21 +589,34 @@ def assign_shifts_view(request, semester):
             )
 
     if auto_assign_shifts_form and auto_assign_shifts_form.is_valid():
-        unfinished = auto_assign_shifts_form.save()
-        messages.add_message(request, messages.INFO,
-                             "Assigned all but {0} workshifters their shifts"
-                             .format(len(unfinished)))
+        unassigned_profiles = auto_assign_shifts_form.save()
+        message = "Assigned workshifters to regular workshifts."
+        if unassigned_profiles:
+            message += " The following workshifters were not given " \
+              "complete assignments: "
+            message += ", ".join(i.user.get_full_name() for i in unassigned_profiles)
+        messages.add_message(request, messages.INFO, message)
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
-                                        sem_url=semester.sem_url))
+                                         sem_url=semester.sem_url))
     if random_assign_instances_form and random_assign_instances_form.is_valid():
-        unfinished = random_assign_instances_form.save()
-        # ...
+        unassigned_profiles, unassigned_shifts = \
+          random_assign_instances_form.save()
+        message = "Assigned workshifters randomly to instances within {0}." \
+          .format(random_assign_instances_form.cleaned_data["pool"])
+        if unassigned_profiles:
+            message += "The following workshifers were not given " \
+              "complete assignments: "
+            message += ", ".join(i.user.get_full_name() for i in unassigned_profiles)
+        messages.add_message(request, messages.INFO, message)
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
-                                        sem_url=semester.sem_url))
+                                         sem_url=semester.sem_url))
     if clear_assign_form and clear_assign_form.is_valid():
         clear_assign_form.save()
+        message = "Cleared all workshifters from their regular workshift " \
+          "assignments"
+        messages.add_message(request, messages.INFO, message)
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
-                                        sem_url=semester.sem_url))
+                                         sem_url=semester.sem_url))
 
     shifts = RegularWorkshift.objects.filter(
         pool__semester=semester,
@@ -652,7 +659,7 @@ def add_workshifter_view(request, semester):
     existing = [
         i.user.pk for i in WorkshiftProfile.objects.filter(semester=semester)
         ]
-    users = User.objects.exclude(pk__in=existing, is_active=True)
+    users = User.objects.exclude(pk__in=existing).exclude(is_active=False)
 
     add_workshifter_forms = []
     for user in users:
@@ -892,10 +899,28 @@ def instance_view(request, semester, pk, profile=None):
                 for error in f.errors.values():
                     messages.add_message(request, messages.ERROR, error)
 
+    edit_hours_form = None
+    if utils.can_manage(request.user, semester=instance.pool.semester) or \
+      instance.pool.managers.filter(incumbent__user=request.user):
+        edit_hours_form = EditHoursForm(
+            request.POST if "edit_hours" in request.POST else None,
+            instance=instance,
+            profile=profile,
+            )
+        if edit_hours_form.is_valid():
+            edit_hours_form.save()
+            messages.add_message(request, messages.INFO, "Updated instance's hours.")
+            return HttpResponseRedirect(wurl(
+                "workshift:view_instance",
+                sem_url=semester.sem_url,
+                pk=instance.pk,
+                ))
+
     return render_to_response("view_instance.html", {
         "page_name": page_name,
         "instance": instance,
         "interact_forms": interact_forms,
+        "edit_hours_form": edit_hours_form,
     }, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -918,6 +943,7 @@ def edit_instance_view(request, semester, pk, profile=None):
         request.POST if "edit" in request.POST else None,
         instance=instance,
         semester=semester,
+        edit_hours=False,
         )
 
     if "delete" in request.POST:

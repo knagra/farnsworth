@@ -176,8 +176,14 @@ class WorkshiftInstanceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.pools = kwargs.pop('pools', None)
         self.semester = kwargs.pop('semester')
+        self.edit_hours = kwargs.pop("edit_hours", True)
 
         super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
+
+        # Don't allow editing hours through this form if a view doesn't allow
+        # it, we have a separate form for that which requires a note as well.
+        if not self.edit_hours:
+            del self.fields["hours"]
 
         if self.pools:
             self.fields['pool'].queryset = self.pools
@@ -296,11 +302,10 @@ class VerifyShiftForm(InteractShiftForm):
         return instance
 
     def save(self):
-        entry = ShiftLogEntry(
+        entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.VERIFY,
             )
-        entry.save()
 
         instance = self.cleaned_data["pk"]
         instance.verifier = self.profile
@@ -310,7 +315,7 @@ class VerifyShiftForm(InteractShiftForm):
 
         workshifter = instance.workshifter or instance.liable
 
-        pool_hours = workshifter.pool_hours.get(pool=instance.get_info().pool)
+        pool_hours = workshifter.pool_hours.get(pool=instance.pool)
         pool_hours.standing += instance.hours
         pool_hours.save()
 
@@ -427,6 +432,53 @@ class SignOutForm(InteractShiftForm):
         instance.save()
 
         return instance
+
+class EditHoursForm(forms.Form):
+    hours = forms.DecimalField(
+        min_value=0,
+        max_digits=7,
+        decimal_places=2,
+        initial=settings.DEFAULT_WORKSHIFT_HOURS,
+        )
+    note = forms.CharField(
+        required=True,
+        widget=forms.Textarea(),
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.pop("instance")
+        self.profile = kwargs.pop("profile")
+        if "initial" not in kwargs:
+            kwargs["initial"] = {}
+        kwargs["initial"].setdefault("hours", self.instance.hours)
+        super(EditHoursForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        hours = self.cleaned_data["hours"]
+
+        if self.instance.workshifter and self.instance.closed:
+            # Remove the hours we gave them previously
+            pool_hours = self.instance.workshifter.pool_hours.get(
+                pool=self.instance.pool,
+                )
+            pool_hours.standing -= self.instance.hours
+
+            # Then give them the hours for this shift
+            pool_hours.standing += hours
+            pool_hours.save()
+
+        log = ShiftLogEntry.objects.create(
+            person=self.profile,
+            note=self.cleaned_data["note"],
+            hours=hours,
+            entry_type=ShiftLogEntry.MODIFY_HOURS,
+            )
+
+        self.instance.hours = hours
+        self.instance.logs.add(log)
+        self.instance.save()
+
+        return self.instance
 
 class AddWorkshifterForm(forms.Form):
     add_profile = forms.BooleanField(

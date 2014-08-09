@@ -448,6 +448,7 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
             Q(info__pool=pool) |
             Q(weekly_workshift__pool=pool),
             workshifter__isnull=True,
+            closed=False,
         ).exclude(
             weekly_workshift__workshift_type__assignment=WorkshiftType.NO_ASSIGN,
         )

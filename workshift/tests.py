@@ -1890,7 +1890,6 @@ class TestWorkshifts(TestCase):
             "date": date(2014, 5, 27),
             "workshifter": self.wp.pk,
             "closed": False,
-            "hours": 2,
             "verify": self.instance.verify,
             "week_long": self.instance.week_long,
             }, follow=True)
@@ -1908,7 +1907,6 @@ class TestWorkshifts(TestCase):
         self.assertEqual(date(2014, 5, 27), instance.date)
         self.assertEqual(self.wp, instance.workshifter)
         self.assertEqual(False, instance.closed)
-        self.assertEqual(2, instance.hours)
         self.assertEqual(self.instance.verify, instance.verify)
         self.assertEqual(self.instance.week_long, instance.week_long)
 
@@ -1924,7 +1922,6 @@ class TestWorkshifts(TestCase):
             "date": date(2014, 5, 27),
             "workshifter": self.wp.pk,
             "closed": False,
-            "hours": 2,
             "verify": SELF_VERIFY,
             "week_long": False,
             }, follow=True)
@@ -1945,7 +1942,6 @@ class TestWorkshifts(TestCase):
         self.assertEqual(instance.date, date(2014, 5, 27))
         self.assertEqual(instance.workshifter, self.wp)
         self.assertEqual(instance.closed, False)
-        self.assertEqual(instance.hours, 2)
         self.assertEqual(SELF_VERIFY, instance.verify)
         self.assertEqual(instance.week_long, False)
 
@@ -2016,7 +2012,6 @@ class TestWorkshifts(TestCase):
             "date": date(2014, 5, 27),
             "workshifter": self.wp.pk,
             "closed": False,
-            "hours": 2,
             "verify": OTHER_VERIFY,
             "week_long": False,
             }, follow=True)
@@ -2037,7 +2032,6 @@ class TestWorkshifts(TestCase):
         self.assertEqual(date(2014, 5, 27), instance.date)
         self.assertEqual(self.wp, instance.workshifter)
         self.assertEqual(False, instance.closed)
-        self.assertEqual(2, instance.hours)
         self.assertEqual(OTHER_VERIFY, instance.verify)
         self.assertEqual(False, instance.week_long)
 
