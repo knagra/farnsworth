@@ -832,9 +832,19 @@ def shift_view(request, semester, pk, profile=None):
     shift = get_object_or_404(RegularWorkshift, pk=pk)
     page_name = shift.workshift_type.title
 
+    instances = WorkshiftInstance.objects.get(
+        closed=False,
+        weekly_shift=shift,
+        )
+    instance_tuples = [
+        (instance, _get_forms(profile, instance))
+        for instance in instances
+        ]
+
     return render_to_response("view_shift.html", {
         "page_name": page_name,
         "shift": shift,
+        "instance_tuples": instance_tuples,
     }, context_instance=RequestContext(request))
 
 @get_workshift_profile
