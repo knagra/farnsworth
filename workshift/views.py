@@ -834,7 +834,7 @@ def shift_view(request, semester, pk, profile=None):
 
     instances = WorkshiftInstance.objects.get(
         closed=False,
-        weekly_shift=shift,
+        weekly_workshift=shift,
         )
     instance_tuples = [
         (instance, _get_forms(profile, instance))
