@@ -291,7 +291,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
@@ -321,7 +321,7 @@ class TestRequestProfile(TestCase):
                 "first_name": "first",
                 "last_name": "last",
                 "email": "request@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
+                "affiliation": UserProfile.RESIDENT,
                 "password": "pwd",
                 "confirm_password": "pwd",
                 })
@@ -348,7 +348,7 @@ class TestRequestProfile(TestCase):
                 "first_name": "first",
                 "last_name": "last",
                 "email": "request@email.com",
-                "affiliation_with_the_house": UserProfile.RESIDENT,
+                "affiliation": UserProfile.RESIDENT,
                 "password": "pwd",
                 "confirm_password": "pwd",
                 }, follow=True)
@@ -365,7 +365,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
@@ -388,7 +388,7 @@ class TestRequestProfile(TestCase):
             "first_name": pr.first_name,
             "last_name": pr.last_name,
             "email": "request2@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
@@ -408,7 +408,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd2",
             }, follow=True)
@@ -421,7 +421,7 @@ class TestRequestProfile(TestCase):
             "username": "request",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd2",
             }, follow=True)
@@ -435,7 +435,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": UserProfile.RESIDENT,
+            "affiliation": UserProfile.RESIDENT,
             "password": "pwd",
             "confirm_password": "pwd2",
             }, follow=True)
@@ -449,7 +449,7 @@ class TestRequestProfile(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": "request@email.com",
-            "affiliation_with_the_house": "123",
+            "affiliation": "123",
             "password": "pwd",
             "confirm_password": "pwd",
             }, follow=True)
@@ -528,10 +528,7 @@ class TestSocialRequest(TestCase):
             "first_name": "first",
             "last_name": "last",
             "email": self.pr.email,
-            "phone_number": "",
-            "status": self.pr.affiliation,
-            "current_room": "",
-            "former_rooms": [],
+            "affiliation": self.pr.affiliation,
             "former_houses": "",
             "is_active": True,
             "add_user": "",
@@ -602,7 +599,7 @@ class TestProfileRequestAdmin(TestCase):
             "last_name": self.pr.last_name,
             "email": self.pr.email,
             "phone_number": "",
-            "status": self.pr.affiliation,
+            "affiliation": self.pr.affiliation,
             "former_houses": "",
             "is_active": True,
             "add_user": "",
@@ -625,7 +622,7 @@ class TestProfileRequestAdmin(TestCase):
             "last_name": self.pr.last_name,
             "email": self.pr.email,
             "phone_number": "",
-            "status": self.pr.affiliation,
+            "affiliation": self.pr.affiliation,
             "former_houses": "",
             "is_active": True,
             "add_user": "",
@@ -804,13 +801,15 @@ class TestModifyUser(TestCase):
 
         url = reverse("custom_modify_user", kwargs={"targetUsername": self.ou.username})
         response = self.client.post(url, {
-            "email_visible_to_others": True,
-            "phone_visible_to_others": True,
-            "email": self.ou.email,
-            "phone_number": self.profile.phone_number,
-            "first_name": self.ou.first_name,
-            "last_name": self.ou.last_name,
-            "status": self.profile.status,
+            "user-first_name": self.ou.first_name,
+            "user-last_name": self.ou.last_name,
+            "user-email": self.ou.email,
+            "user-is_staff": True,
+            "user-is_superuser": True,
+            "profile-email_visible": True,
+            "profile-phone_visible": True,
+            "profile-phone_number": self.profile.phone_number,
+            "profile-status": self.profile.status,
             "update_user_profile": "",
             }, follow=True)
         self.assertRedirects(response, url)
@@ -840,13 +839,15 @@ class TestModifyUser(TestCase):
             url = reverse("custom_modify_user", kwargs={"targetUsername": self.ou.username})
 
             response = self.client.post(url, {
-                "email_visible_to_others": True,
-                "phone_visible_to_others": True,
-                "email": self.ou.email,
-                "phone_number": self.profile.phone_number,
-                "first_name": self.ou.first_name,
-                "last_name": self.ou.last_name,
-                "status": status,
+                "user-first_name": self.ou.first_name,
+                "user-last_name": self.ou.last_name,
+                "user-email": self.ou.email,
+                "user-is_staff": True,
+                "user-is_superuser": True,
+                "profile-email_visible": True,
+                "profile-phone_visible": True,
+                "profile-phone_number": self.profile.phone_number,
+                "profile-status": status,
                 "update_user_profile": "",
                 }, follow=True)
             self.assertRedirects(response, url)
@@ -920,11 +921,11 @@ class TestAdminFunctions(TestCase):
             "first_name": "First",
             "last_name": "Last",
             "email": "nu@email.com",
+            "is_active": "true",
+            "status": UserProfile.RESIDENT,
             "phone_number": "+15102222222",
             "user_password": "newpwd",
             "confirm_password": "newpwd",
-            "is_active": "true",
-            "status": UserProfile.RESIDENT,
              }, follow=True)
         self.assertRedirects(response, url)
         self.assertContains(
@@ -958,14 +959,14 @@ class TestAdminFunctions(TestCase):
             "first_name": "First",
             "last_name": "Last",
             "email": "nu@email.com",
+            "is_active": True,
+            "email_visible": True,
+            "status": UserProfile.RESIDENT,
             "phone_number": "+15102222222",
+            "phone_visible": True,
             "user_password": "newpwd",
             "confirm_password": "newpwd",
-            "is_active": True,
-            "email_visible_to_others": True,
-            "phone_visible_to_others": True,
-            "status": UserProfile.RESIDENT,
-             }, follow=True)
+            }, follow=True)
         self.assertRedirects(response, url)
         self.assertContains(
             response,
@@ -991,11 +992,11 @@ class TestAdminFunctions(TestCase):
                 "first_name": "First",
                 "last_name": "Last",
                 "email": "nu@email.com",
+                "is_active": "true",
                 "phone_number": "+15102222222",
+                "status": status,
                 "user_password": "newpwd",
                 "confirm_password": "newpwd",
-                "is_active": "true",
-                "status": status,
                 }, follow=True)
 
             self.assertRedirects(response, url)

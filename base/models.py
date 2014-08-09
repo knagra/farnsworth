@@ -36,6 +36,7 @@ class UserProfile(models.Model):
         null=True,
         blank=True,
         default='',
+        help_text="This should be of the form +1 (xxx) xxx-xxxx",
         )
     email_visible = models.BooleanField(
         default=False,
@@ -104,15 +105,53 @@ class ProfileRequest(models.Model):
     '''
     The ProfileRequest model.  A request to create a user account on the site.
     '''
-    username = models.CharField(blank=False, null=True, max_length=100, help_text="Username if this user is created.")
-    first_name = models.CharField(blank=False, null=False, max_length=100, help_text="First name if user is created.")
-    last_name = models.CharField(blank=False, null=False, max_length=100, help_text="Last name if user is created.")
-    email = models.CharField(blank=False, null=False, max_length=255, help_text="E-mail address if user is created.")
-    request_date = models.DateTimeField(auto_now_add=True, help_text="Whether this request has been granted.")
-    affiliation = models.CharField(max_length=1, choices=UserProfile.STATUS_CHOICES, default=UserProfile.RESIDENT, help_text="User's affiliation with the house.")
-    password = models.CharField(blank=True, max_length=255, help_text="User's password.  Stored as hash")
-    provider = models.CharField(blank=True, max_length=32)
-    uid = models.CharField(blank=True, max_length=UID_LENGTH)
+    username = models.CharField(
+        blank=False,
+        null=True,
+        max_length=100,
+        help_text="Username if this user is created.",
+        )
+    first_name = models.CharField(
+        blank=False,
+        null=False,
+        max_length=100,
+        help_text="First name if user is created.",
+        )
+    last_name = models.CharField(
+        blank=False,
+        null=False,
+        max_length=100,
+        help_text="Last name if user is created.",
+        )
+    email = models.CharField(
+        blank=False,
+        null=False,
+        max_length=255,
+        help_text="E-mail address if user is created.",
+        )
+    request_date = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Whether this request has been granted.",
+        )
+    affiliation = models.CharField(
+        max_length=1,
+        choices=UserProfile.STATUS_CHOICES,
+        default=UserProfile.RESIDENT,
+        help_text="User's affiliation with the house.",
+        )
+    password = models.CharField(
+        blank=True,
+        max_length=255,
+        help_text="User's password.  Stored as hash",
+        )
+    provider = models.CharField(
+        blank=True,
+        max_length=32,
+        )
+    uid = models.CharField(
+        blank=True,
+        max_length=UID_LENGTH,
+        )
     message = models.CharField(
         blank=True,
         max_length=255,

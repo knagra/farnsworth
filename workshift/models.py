@@ -219,9 +219,21 @@ class WorkshiftType(models.Model):
         default=True,
         help_text="Whether this workshift type is shown in preferences.",
         )
-    auto_assign = models.BooleanField(
-        default=True,
-        help_text="Whether this workshift type is included in auto-assignment.",
+    AUTO_ASSIGN = 'A'
+    MANUAL_ASSIGN = 'M'
+    NO_ASSIGN = 'O'
+    ASSIGNMENT_CHOICES = (
+        (AUTO_ASSIGN, "Auto-assign"),
+        (MANUAL_ASSIGN, "Manually assign"),
+        (NO_ASSIGN, "No assignment")
+        )
+    assignment = models.CharField(
+        max_length=1,
+        choices=ASSIGNMENT_CHOICES,
+        default=AUTO_ASSIGN,
+        help_text="How assignment to this workshift works. This can be automatic, "
+        "manual-only, or no assignment (i.e. Manager shifts, which are internally "
+        "assigned.",
         )
 
     def __str__(self):
@@ -241,17 +253,15 @@ class TimeBlock(models.Model):
     created and retrieved for use.
     '''
     BUSY = 0
-    FREE = 1
-    PREFERRED = 2
+    PREFERRED = 1
     PREFERENCE_CHOICES = (
         (BUSY, "Busy"),
-        (FREE, "Free"),
         (PREFERRED, "Preferred"),
         )
     preference = models.PositiveSmallIntegerField(
         max_length=1,
         choices=PREFERENCE_CHOICES,
-        default=FREE,
+        default=BUSY,
         help_text="The user's preference for this time block.",
         )
     day = DayField(
@@ -517,11 +527,18 @@ class ShiftLogEntry(models.Model):
         WorkshiftProfile,
         blank=True,
         null=True,
-        help_text="Relevant person.",
+        help_text="Person who made this entry.",
         )
     entry_time = models.DateTimeField(
         auto_now_add=True,
         help_text="Time this entry was made."
+        )
+    hours = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text="Hours associated with a change in workshift credit.",
         )
     note = models.TextField(
         blank=True,
@@ -535,12 +552,14 @@ class ShiftLogEntry(models.Model):
     SIGNOUT = 'O'
     VERIFY = 'V'
     SELL = 'S'
+    MODIFY_HOURS = "M"
     ENTRY_CHOICES = (
         (ASSIGNED, 'Assigned'),
         (BLOWN, 'Blown'),
         (SIGNIN, 'Sign In'),
         (SIGNOUT, 'Sign Out'),
         (VERIFY, 'Verify'),
+        (MODIFY_HOURS, "Modify Hours"),
         (SELL, 'Sell'),
     )
     entry_type = models.CharField(
@@ -742,28 +761,85 @@ class WorkshiftInstance(models.Model):
     def get_view_url(self):
         return reverse("workshift:view_instance", kwargs={"pk": self.pk})
 
+
 def create_workshift_profile(sender, instance, created, **kwargs):
     '''
     Function to add a workshift profile for every User that is created.
     Parameters:
         instance is an of UserProfile that was just saved.
     '''
-    if created and instance.status == UserProfile.RESIDENT:
+    if instance.status == UserProfile.RESIDENT:
         try:
             semester = Semester.objects.get(current=True)
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             pass
         else:
             from workshift import utils
-            profile = WorkshiftProfile.objects.create(
+            profile, created = WorkshiftProfile.objects.get_or_create(
                 user=instance.user,
                 semester=semester,
                 )
-            utils.make_workshift_pool_hours(
-                semester=semester,
-                profiles=[profile],
-                )
+            if created:
+                utils.make_workshift_pool_hours(
+                    semester=semester,
+                    profiles=[profile],
+                    )
+
+def create_workshift_pool_hours(sender, instance, **kwargs):
+    pool = instance
+    from workshift import utils
+    utils.make_workshift_pool_hours(
+        semester=pool.semester,
+        pools=[pool],
+        )
+    utils.make_manager_workshifts(
+        semester=pool.semester,
+        )
+
+def create_manager_workshifts(sender, instance, created, **kwargs):
+    try:
+        semester = Semester.objects.get(current=True)
+    except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+        pass
+    else:
+        from workshift import utils
+        utils.make_manager_workshifts(semester=semester, managers=[instance])
+
+def create_workshift_instances(sender, instance, created, **kwargs):
+    shift = instance
+    from workshift import utils
+    if shift.active:
+        utils.make_instances(shift.pool.semester, shifts=[instance])
+    else:
+        delete_workshift_instances(sender=sender, instance=shift)
+
+def delete_workshift_instances(sender, instance, **kwargs):
+    shift = instance
+    instances = WorkshiftInstance.objects.filter(
+        weekly_workshift=shift,
+        )
+    info = InstanceInfo.objects.create(
+        title=shift.workshift_type.title,
+        description=shift.workshift_type.description,
+        pool=shift.pool,
+        start_time=shift.start_time,
+        end_time=shift.end_time,
+        )
+    for instance in instances:
+        if instance.closed:
+            instance.weekly_workshift = None
+            instance.info = info
+            instance.closed = True
+            instance.save()
+        else:
+            instance.delete()
 
 # Connect signals with their respective functions from above.
 # When a user is created, create a user profile associated with that user.
 models.signals.post_save.connect(create_workshift_profile, sender=UserProfile)
+models.signals.post_save.connect(create_workshift_pool_hours, sender=WorkshiftPool)
+models.signals.post_save.connect(create_manager_workshifts, sender=Manager)
+models.signals.post_save.connect(create_workshift_instances, sender=RegularWorkshift)
+models.signals.pre_delete.connect(delete_workshift_instances, sender=RegularWorkshift)
+# TODO: Auto-notify manager and workshifter when they are >= 10 hours down
+# TODO: Auto-email central when workshifters are >= 15 hours down?

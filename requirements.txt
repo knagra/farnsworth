@@ -1,4 +1,4 @@
-Django==1.6.5
+Django
 django-bootstrap-form
 elasticsearch==1.0.0
 python-social-auth
@@ -6,7 +6,7 @@ psycopg2
 git+git://github.com/acdha/django-haystack.git@981-model-ct-cleanup
 pypandoc
 django-cron
-git+git://github.com/stefanfoulis/django-phonenumber-field.git@develop
+git+git://github.com/naderm/django-phonenumber-field.git@develop
 bcrypt
 pytz
 git+git://github.com/naderm/django-notifications@master

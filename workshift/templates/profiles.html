@@ -9,28 +9,46 @@
 <div class="profiles_container">
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
+  {% if not workshifter_tuples %}
+  No workshifters added yet.
+  {% else %}
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="profiles_table">
     <thead>
       <tr>
         <th>First Name</th>
         <th>Last Name</th>
         {% for pool in pools %}
-        <th><a href="{% wurl 'workshift:view_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}">{{ pool.title }}</a></th>
+        <th>
+		  <a href="{% wurl 'workshift:view_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}">
+			{{ pool.title }}
+		  </a>
+		</th>
         {% endfor %}
       </tr>
     </thead>
     <tbody>
-      {% for workshifter in workshifters %}
+      {% for workshifter, pool_hours in workshifter_tuples %}
       <tr>
-        <td><a href="{% wurl 'workshift:profile' targetUsername=workshifter.user.username sem_url=SEMESTER.sem_url %}">{{ workshifter.user.first_name }}</a></td>
+        <td>
+		  <a href="{% wurl 'workshift:profile' targetUsername=workshifter.user.username sem_url=SEMESTER.sem_url %}">
+			{{ workshifter.user.first_name }}
+		  </a>
+		</td>
         <td>{{ workshifter.user.last_name }}</td>
-        {% for pool_hours in workshifter.pool_hours.all %}
-        <td>{% if 0 > pool_hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ pool_hours.standing }}</font></td>
+        {% for hours in pool_hours %}
+        <td>
+		  {% if 0 > hours.standing %}
+		  <font color="red">{{ hours.standing }}</font>
+		  {% else %}
+		  <font color="green">{{ hours.standing }}</font>
+		  {% endif %}
+		</td>
         {% endfor %}
       </tr>
       {% endfor %}
     </tbody>
   </table> <!-- #profiles_table -->
+  {% endif %}
 </div> <!-- .profiles_container -->
 {% endblock %}
 

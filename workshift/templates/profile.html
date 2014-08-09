@@ -6,9 +6,17 @@
 {% load workshift_tags %}
 
 {% block w_content %}
+{% if WORKSHIFT_MANAGER %}
+<form action="{% wurl 'workshift:edit_profile' targetUsername=profile.user.username sem_url=SEMESTER.sem_url %}" class="pull-right">
+  <button class="btn btn-warning" type="submit">
+    <span class="glyphicon glyphicon-edit"></span>
+    <span class="hidden-xs">Edit</span>
+  </button>
+</form>
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />
 <div class="instance_container">
+  {% endif %}
   {% if regular_shifts %}
   <h3 class="w_subtitle">Regular Shifts</h3>
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="regular_shifts_table">
@@ -34,6 +42,33 @@
           {{ shift.end_time }}
         </td>
         <td>{{ shift.hours }} hour{{ shift.hours|pluralize }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if assigned_instances %}
+  <hr class="w_line" />
+  <h3 class="w_subtitle">Assigned Singular Workshifts</h3>
+  <table class="table table-striped table-bordered table-condensed table-hover members_table" id="assigned_instances_table">
+    <thead>
+      <tr>
+	<th>Pool</th>
+	<th>Title</th>
+	<th>Date</th>
+	<th>Start</th>
+	<th>End</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for instance in assigned_instances %}
+      <tr>
+	<td><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool }}</a></td>
+	<td><a href="{% wurl 'workshift:view_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}">{{ instance.title }}</a></td>
+	<td>{{ instance.date }}</td>
+	<td>{% if instance.start_time %}{{ instance.start_time }}{% endif %}</td>
+	<td>{% if instance.end_time %}{{ instance.end_time }}{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>

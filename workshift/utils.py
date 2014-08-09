@@ -9,13 +9,15 @@ from datetime import date, timedelta, time, datetime
 import random
 
 from django.conf import settings
+from django.db.models import Q
 from django.utils.timezone import now, utc
+
+from notifications import notify
 
 from managers.models import Manager
 from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
      Semester, PoolHours, WorkshiftProfile, WorkshiftPool, \
      WorkshiftType, RegularWorkshift, AUTO_VERIFY, WorkshiftRating
-from workshift.fields import DAY_CHOICES
 
 def can_manage(user, semester=None):
     """
@@ -78,23 +80,26 @@ def make_instances(semester, shifts=None, start=None):
     if shifts is None:
         shifts = RegularWorkshift.objects.filter(pool__semester=semester)
     if start is None:
-        start = now().date()
+        start = min([now().date(), semester.start_date])
     new_instances = []
     for shift in shifts:
+        # Delete all old instances of this shift
+        WorkshiftInstance.objects.filter(
+            weekly_workshift=shift, closed=False,
+            ).delete()
+
+        # Figure out the day to start from for this shift
         if shift.day is None or shift.week_long:
             # Workshifts have until Sunday to complete their shift
             day = 6
         else:
             day = shift.day
         next_day = start + timedelta(days=int(day) - start.weekday())
+
+        # Create new instances for the entire semester
+        assignees = shift.current_assignees.all()
         for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
-            # Create new instances for the entire semester
-            prev_instances = WorkshiftInstance.objects.filter(
-                weekly_workshift=shift, date=day, closed=False)
-            for instance in prev_instances[shift.count:]:
-                instance.delete()
-            assignees = shift.current_assignees.all()
-            for i in range(prev_instances.count(), shift.count):
+            for i in range(shift.count):
                 instance = WorkshiftInstance.objects.create(
                     weekly_workshift=shift,
                     date=day,
@@ -110,6 +115,7 @@ def make_instances(semester, shifts=None, start=None):
                     instance.logs.add(log)
                     instance.save()
                 new_instances.append(instance)
+
     return new_instances
 
 def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
@@ -147,6 +153,13 @@ def make_manager_workshifts(semester=None, managers=None):
             semester = Semester.objects.get(current=True)
         except Semester.DoesNotExist:
             return []
+    try:
+        pool = WorkshiftPool.objects.get(
+            semester=semester,
+            is_primary=True,
+            )
+    except WorkshiftPool.DoesNotExist:
+        return []
     if managers is None:
         managers = Manager.objects.filter(active=True)
     shifts = []
@@ -155,28 +168,26 @@ def make_manager_workshifts(semester=None, managers=None):
             hours = manager.summer_hours
         else:
             hours = manager.semester_hours
-        wtype, new = WorkshiftType.objects.get_or_create(title=manager.title)
-        if new:
-            wtype.rateable = False
-            wtype.auto_assign = False
+        wtype, new = WorkshiftType.objects.get_or_create(
+            title=manager.title,
+            defaults=dict(rateable=False, assignment=WorkshiftType.NO_ASSIGN),
+            )
         wtype.description = manager.duties
         wtype.hours = hours
         wtype.save()
         shift, new = RegularWorkshift.objects.get_or_create(
             workshift_type=wtype,
-            pool=WorkshiftPool.objects.get(semester=semester, is_primary=True),
+            pool=pool,
+            defaults=dict(week_long=True, verify=AUTO_VERIFY),
             )
-        if new:
-            shift.week_long = True
-            shift.verify = AUTO_VERIFY
         shift.hours = wtype.hours
         if manager.incumbent:
-            shift.current_assignee = WorkshiftProfile.objects.get(
+            shift.current_assignees = WorkshiftProfile.objects.filter(
                 user=manager.incumbent.user,
                 )
+        shift.active = manager.active
         shift.save()
         shifts.append(shift)
-    make_instances(semester=semester, shifts=shifts)
     return shifts
 
 def past_verify(instance, moment=None):
@@ -258,6 +269,19 @@ def collect_blown(semester=None, moment=None):
                     )
                 instance.logs.add(log)
 
+            # Send out notifications
+            targets = []
+            targets.append(workshifter.user)
+            for manager in instance.pool.managers.all():
+                if manager.incumbent:
+                    targets.append(manager.incumbent.user)
+            for target in targets:
+                notify.send(
+                    instance,
+                    verb="was automatically marked as blown",
+                    recipient=target,
+                    )
+
         instance.save()
 
     return closed, verified, blown
@@ -309,7 +333,8 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
             ).order_by('preference_save_time')
     if shifts is None:
         shifts = RegularWorkshift.objects.filter(
-            pool=pool, workshift_type__auto_assign=True,
+            pool=pool,
+            workshift_type__assignment=WorkshiftType.AUTO_ASSIGN,
             )
 
     shifts = set(shifts)
@@ -320,7 +345,10 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
     # Initialize with already-assigned shifts
     for profile in profiles:
-        for shift in profile.regularworkshift_set.filter(current_assignees=profile):
+        for shift in profile.regularworkshift_set.filter(
+                current_assignees=profile,
+                pool=pool,
+                ):
             hours_mapping[profile] += float(shift.hours)
 
     # Pre-process, rank shifts by their times / preferences
@@ -403,3 +431,71 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
     # Return profiles that were incompletely assigned shifts
     return profiles
+
+def randomly_assign_instances(semester, pool, profiles=None, instances=None):
+    """
+    Randomly assigns workshift instances to profiles.
+
+    Returns
+    -------
+    list of workshift.WorkshiftProfile
+    list of workshift.WorkshiftInstance
+    """
+    if profiles is None:
+        profiles = WorkshiftProfile.objects.filter(semester=semester)
+    if instances is None:
+        instances = WorkshiftInstance.objects.filter(
+            Q(info__pool=pool) |
+            Q(weekly_workshift__pool=pool),
+            workshifter__isnull=True,
+            closed=False,
+        ).exclude(
+            weekly_workshift__workshift_type__assignment=WorkshiftType.NO_ASSIGN,
+        )
+
+    instances = list(instances)
+    profiles = list(profiles)
+
+    # List of hours assigned to each profile
+    hours_mapping = defaultdict(float)
+    total_hours_owed = defaultdict(float)
+
+    semester_weeks = (semester.end_date - semester.start_date).days / 7
+
+    # Initialize with already-assigned instances
+    for profile in profiles:
+        for shift in profile.instance_workshifter.filter(
+                Q(info__pool=pool) |
+                Q(weekly_workshift__pool=pool)
+            ):
+            hours_mapping[profile] += float(shift.hours)
+        pool_hours = profile.pool_hours.get(pool=pool)
+        if pool.weeks_per_period == 0:
+            total_hours_owed[profile] = pool_hours.hours
+        else:
+            total_hours_owed[profile] = \
+              semester_weeks / pool.weeks_per_period * float(pool_hours.hours)
+
+    while profiles and instances:
+        for profile in profiles[:]:
+            instance = random.choice(instances)
+            instance.workshifter = profile
+            instance.save()
+            instances.remove(instance)
+            hours_mapping[profile] += float(instance.hours)
+            if hours_mapping[profile] >= total_hours_owed[profile]:
+                profiles.remove(profile)
+            if not instances:
+                break
+
+    return profiles, instances
+
+def clear_all_assignments(semester, pool):
+    shifts = RegularWorkshift.objects.filter(
+        pool=pool,
+    ).exclude(
+        workshift_type__assignment=WorkshiftType.NO_ASSIGN,
+    )
+    for shift in shifts:
+        shift.current_assignees.clear()
+        shift.save()

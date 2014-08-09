@@ -5,16 +5,19 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils.timezone import now
 
 from base.models import UserProfile, ProfileRequest
 from utils.funcs import convert_to_url
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
+from managers.cron import ExpireRequestsCronJob
 from managers.models import Manager, RequestType, Request, Response, Announcement
 
 class TestPermissions(TestCase):
@@ -366,6 +369,66 @@ class TestRequestPages(TestCase):
             body="Response Body",
             request=self.request,
             manager=True,
+            )
+
+    def test_cron(self):
+        expired_time = now() - timedelta(hours=settings.REQUEST_EXPIRATION_HOURS + 24)
+        exp_req_1 = Request.objects.create(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Request",
+            request_type=self.rt,
+            )
+        exp_req_2 = Request.objects.create(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Request",
+            request_type=self.rt,
+            )
+        pres_req_2 = Request.objects.create(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Request",
+            request_type=self.rt,
+            )
+        Request.objects.all().update(change_date=expired_time)
+        pres_req_1 = Request.objects.create(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Request",
+            request_type=self.rt,
+            )
+        pr2_res = Response.objects.create(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Response",
+            request=pres_req_2,
+            action=Response.REOPENED,
+            )
+        for r in [exp_req_1, exp_req_2, pres_req_1, pres_req_2]:
+            self.assertEqual(
+                Request.OPEN,
+                Request.objects.get(pk=r.pk).status,
+                )
+        ExpireRequestsCronJob().do()
+        for r in [exp_req_1, exp_req_2]:
+            self.assertEqual(
+                Request.EXPIRED,
+                Request.objects.get(pk=r.pk).status,
+                )
+        for r in [pres_req_1, pres_req_2]:
+            self.assertEqual(
+                Request.OPEN,
+                Request.objects.get(pk=r.pk).status,
+                )
+        Response.objects.create(
+            owner=UserProfile.objects.get(user=self.u),
+            body="New Response",
+            request=exp_req_1,
+            action=Response.REOPENED,
+            )
+        exp_req_1.status = Request.OPEN
+        exp_req_1.save()
+        Request.objects.filter(pk=exp_req_1.pk).update(change_date=expired_time)
+        ExpireRequestsCronJob().do()
+        self.assertEqual(
+            Request.OPEN,
+            Request.objects.get(pk=exp_req_1.pk).status,
             )
 
     def test_request_form(self):

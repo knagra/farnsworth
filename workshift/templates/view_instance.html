@@ -16,7 +16,6 @@
   {% endif %}
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
-  {% if interact_forms %}
   <h3 class="w_subtitle">Description</h3>
   <dl id="info_table" class="dl-horizontal">
   <dt>Workshift Pool</dt>
@@ -25,6 +24,7 @@
   <dd>{{ instance.date }}</dd>
   <dt>Worth</dt>
   <dd>{{ instance.hours }} hour{{ instance.hours|pluralize }}</dd>
+  {% if interact_forms %}
   <dt>Action</dt>
   <dd>
     {% for form in interact_forms %}
@@ -37,6 +37,19 @@
         {{ form.title_long }}</button>
     </form>
     {% endfor %}
+  </dd>
+  {% endif %}
+  {% if edit_hours_form %}
+  <dt>Edit Credited Hours</dt>
+  <dd>
+	<form method="POST">
+	  {% csrf_token %}
+	  {{ edit_hours_form|bootstrap }}
+	  <button type="submit" class="btn btn-default" name="edit_hours">
+		<span class="glyphicon glyphicon-edit"></span>
+		Edit Hours
+	  </button>
+	</form>
   </dd>
   {% endif %}
   {% if instance.workshifter %}
@@ -70,7 +83,7 @@
         <td>{{ log.entry_time }}</td>
         <td>
           {% if log.person %}
-          <a href="{% url 'workshift:profile' log.person.pk %}">{{ log.person.user.get_full_name }}</a>
+          <a href="{% url 'workshift:profile' targetUsername=log.person.user.username %}">{{ log.person.user.get_full_name }}</a>
           {% else %}
           Farnsworth automatically
           {% endif %}
@@ -84,6 +97,8 @@
           signed out of this shift.
           {% elif log.enty_type == 'V' %}
           verified that this shift was completed.
+		  {% elif log.entry_type == 'M' %}
+		  changed the hours credited by this shift to {{ log.hours }} hour{{ log.hours|pluralize}}.
           {% endif %}</td>
         <td>{% if log.note %}{{ log.note }}{% endif %}</td>
       </tr>

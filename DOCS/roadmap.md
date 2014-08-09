@@ -10,10 +10,10 @@
 
 ## 2.1.0
 
-* Recommended shifts
 * Printed workshift pages
 * Workshift fines + finalizing workshift semesters
 * Email notifications
+* Generic manager permissions
 * File uploads
 
 ## "At some point"

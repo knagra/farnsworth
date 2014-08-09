@@ -63,7 +63,8 @@ class SemesterForm(forms.ModelForm):
                 semester=semester,
                 )
 
-        utils.make_workshift_pool_hours(semester)
+        utils.make_workshift_pool_hours(semester=semester)
+        utils.make_manager_workshifts(semester=pool.semester)
 
         return semester
 
@@ -115,6 +116,11 @@ class PoolForm(forms.ModelForm):
         else:
             utils.make_workshift_pool_hours(self.semester, pools=[pool])
         return pool
+
+class SwitchSemesterForm(forms.Form):
+    semester = forms.ModelChoiceField(
+        queryset=Semester.objects.all(),
+        )
 
 class WorkshiftInstanceForm(forms.ModelForm):
     class Meta:
@@ -170,8 +176,14 @@ class WorkshiftInstanceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.pools = kwargs.pop('pools', None)
         self.semester = kwargs.pop('semester')
+        self.edit_hours = kwargs.pop("edit_hours", True)
 
         super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
+
+        # Don't allow editing hours through this form if a view doesn't allow
+        # it, we have a separate form for that which requires a note as well.
+        if not self.edit_hours:
+            del self.fields["hours"]
 
         if self.pools:
             self.fields['pool'].queryset = self.pools
@@ -290,11 +302,10 @@ class VerifyShiftForm(InteractShiftForm):
         return instance
 
     def save(self):
-        entry = ShiftLogEntry(
+        entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.VERIFY,
             )
-        entry.save()
 
         instance = self.cleaned_data["pk"]
         instance.verifier = self.profile
@@ -304,7 +315,7 @@ class VerifyShiftForm(InteractShiftForm):
 
         workshifter = instance.workshifter or instance.liable
 
-        pool_hours = workshifter.pool_hours.get(pool=instance.get_info().pool)
+        pool_hours = workshifter.pool_hours.get(pool=instance.pool)
         pool_hours.standing += instance.hours
         pool_hours.save()
 
@@ -355,7 +366,7 @@ class BlownShiftForm(InteractShiftForm):
         if self.profile != instance.workshifter:
             targets.append(instance.workshifter.user)
         for manager in instance.pool.managers.all():
-            if manager.incumbent.user != self.profile.user:
+            if manager.incumbent and manager.incumbent.user != self.profile.user:
                 targets.append(manager.incumbent.user)
         for target in targets:
             notify.send(
@@ -422,10 +433,64 @@ class SignOutForm(InteractShiftForm):
 
         return instance
 
+class EditHoursForm(forms.Form):
+    hours = forms.DecimalField(
+        min_value=0,
+        max_digits=7,
+        decimal_places=2,
+        initial=settings.DEFAULT_WORKSHIFT_HOURS,
+        )
+    note = forms.CharField(
+        required=True,
+        widget=forms.Textarea(),
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.pop("instance")
+        self.profile = kwargs.pop("profile")
+        if "initial" not in kwargs:
+            kwargs["initial"] = {}
+        kwargs["initial"].setdefault("hours", self.instance.hours)
+        super(EditHoursForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        hours = self.cleaned_data["hours"]
+
+        if self.instance.workshifter and self.instance.closed:
+            # Remove the hours we gave them previously
+            pool_hours = self.instance.workshifter.pool_hours.get(
+                pool=self.instance.pool,
+                )
+            pool_hours.standing -= self.instance.hours
+
+            # Then give them the hours for this shift
+            pool_hours.standing += hours
+            pool_hours.save()
+
+        log = ShiftLogEntry.objects.create(
+            person=self.profile,
+            note=self.cleaned_data["note"],
+            hours=hours,
+            entry_type=ShiftLogEntry.MODIFY_HOURS,
+            )
+
+        self.instance.hours = hours
+        self.instance.logs.add(log)
+        self.instance.save()
+
+        return self.instance
+
 class AddWorkshifterForm(forms.Form):
-    add_profile = forms.BooleanField(initial=True, required=False)
-    hours = forms.DecimalField(min_value=0, max_digits=7, decimal_places=2,
-                               initial=settings.DEFAULT_WORKSHIFT_HOURS)
+    add_profile = forms.BooleanField(
+        initial=True,
+        required=False,
+        )
+    hours = forms.DecimalField(
+        min_value=0,
+        max_digits=7,
+        decimal_places=2,
+        initial=settings.DEFAULT_WORKSHIFT_HOURS,
+        )
 
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop("semester")
@@ -458,7 +523,7 @@ class AutoAssignShiftForm(forms.Form):
     pool = forms.ModelChoiceField(
         required=True,
         queryset=WorkshiftPool.objects.filter(semester__current=True),
-        help_text="The workshift pool to assign shifts to.",
+        help_text="Auto-assign all recurring workshifts for this pool.",
         )
 
     def __init__(self, *args, **kwargs):
@@ -477,8 +542,50 @@ class AutoAssignShiftForm(forms.Form):
         unfinished = utils.auto_assign_shifts(
             self.semester, pool=self.cleaned_data['pool'],
             )
-        # TODO: Update workshift instances
         return unfinished
+
+class RandomAssignInstancesForm(forms.Form):
+    pool = forms.ModelChoiceField(
+        required=True,
+        queryset=WorkshiftPool.objects.filter(semester__current=True),
+        help_text="Randomly assign all single instances of workshifts for this pool.",
+        )
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop('semester')
+        super(RandomAssignInstancesForm, self).__init__(*args, **kwargs)
+        try:
+            primary = self.fields['pool'].queryset.get(title__contains="Humor")
+        except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
+            pass
+        else:
+            self.fields['pool'].initial = primary
+
+    def save(self):
+        unfinished = utils.randomly_assign_instances(
+            self.semester, self.cleaned_data["pool"],
+            )
+        return unfinished
+
+class ClearAssignmentsForm(forms.Form):
+    pool = forms.ModelChoiceField(
+        required=True,
+        queryset=WorkshiftPool.objects.filter(semester__current=True),
+        help_text="Clear all recurring workshift assignments for this pool.",
+        )
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop('semester')
+        super(ClearAssignmentsForm, self).__init__(*args, **kwargs)
+        self.fields['pool'].queryset = \
+          WorkshiftPool.objects.filter(semester=self.semester)
+        try:
+            primary = self.fields['pool'].queryset.get(is_primary=True)
+        except WorkshiftPool.DoesNotExist:
+            pass
+        else:
+            self.fields['pool'].initial = primary
+
+    def save(self):
+        utils.clear_all_assignments(self.semester, self.cleaned_data["pool"])
 
 class AssignShiftForm(forms.ModelForm):
     class Meta:
@@ -540,25 +647,6 @@ class RegularWorkshiftForm(forms.ModelForm):
                 "Not enough shifts to cover the workshifters you selected."
                 )
         return data
-
-    def save(self):
-        prev_shift = self.instance
-        new = prev_shift.pk is None
-        shift = super(RegularWorkshiftForm, self).save()
-        if not new:
-            # Nuke all future instances and just re-create them anew
-            WorkshiftInstance.objects.filter(
-                weekly_workshift=shift, closed=False).delete()
-            utils.make_instances(
-                semester=self.semester,
-                shifts=[shift],
-                )
-        else:
-            utils.make_instances(
-                semester=self.semester,
-                shifts=[shift],
-                )
-        return shift
 
 class WorkshiftTypeForm(forms.ModelForm):
     class Meta:
@@ -682,6 +770,24 @@ RegularWorkshiftFormSet = modelformset_factory(
     formset=BaseRegularWorkshiftFormSet,
     can_delete=True, extra=1, max_num=50,
     )
+
+class WorkshiftPoolHoursForm(forms.ModelForm):
+    class Meta:
+        model = PoolHours
+        fields = ("hours", "hour_adjustment")
+        help_texts = {
+            "hours": "",
+            "hour_adjustment": "",
+            }
+
+    def save(self):
+        prev_instance = self.instance
+        pool_hours = super(WorkshiftPoolHoursForm, self).save(commit=False)
+        if prev_instance.pk is not None:
+            pool_hours.standing -= prev_instance.hour_adjustment
+        pool_hours.standing += prev_instance.hour_adjustment
+        pool_hours.save()
+        return pool_hours
 
 class ProfileNoteForm(forms.ModelForm):
     class Meta:
