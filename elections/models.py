@@ -128,6 +128,10 @@ class Poll(models.Model):
         default=False,
         help_text="Treat this poll as a formal election."
         )
+    voc = models.BooleanField(
+        default=False,
+        help_text="Treat this poll as a \"Votes of Confidence\" election.",
+        )
 
     def __str__(self):
         return self.__unicode__()
@@ -284,7 +288,7 @@ class PollAnswer(models.Model):
 
 class PollRanks(models.Model):
     """
-    Ordered rankings for RANK type question.
+    Ordered rankings for RANK or RANGE type question.
     Rankings are represented by a list of integers,
     with integer position in the list representing
     the relative primary key of the question choices.
@@ -335,3 +339,15 @@ class PollRanks(models.Model):
                 ranking_tuples,
                 key=lambda x: x[0].pk
                 )])
+
+    def normalize_ranking(self, ranking_tuples):
+        """
+        Normalize rankings by reducing them to the simplest
+        order.  E.g.:
+            If the rankings for 2 choices are -244 and 4,
+            this function will normalize them to 0 and 1,
+            respectively.
+        Parameters:     ranking_tuples should be an iterable
+                            of tuples of form (choice, ranking)
+        """
+        pass    #TODO: Fill this in

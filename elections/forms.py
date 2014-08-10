@@ -189,7 +189,32 @@ class QuestionAnswerForm(forms.Form):
                     required=self.question.required,
                     )
 
-    def is_valid(self):
+    '''def is_valid(self):
         if not super(QuestionAnswerForm, self).is_valid():
             return False
-        return True
+        validity = True
+        if self.question.question_type == PollQuestion.CHOICE:
+            
+        return validity'''
+
+    def save(self):
+        if self.question.question_type == PollQuestion.CHOICE:
+            poll_choice = self.cleaned_data['answer']
+            poll_choice.voters.add(self.profile.user)
+            poll_choice.save()
+        elif self.question.question_type == PollQuestion.CHECKBOXES:
+            for poll_choice in self.cleaned_data['answer']:
+                poll_choice.voters.add(self.profile.user)
+                poll_choice.save()
+        elif self.question.question_type == PollQuestion.TEXT
+          and self.cleaned_data['answer']:
+            poll_answer = PollAnswer(
+                question=self.question,
+                body=self.cleaned_data['answer'],
+                owner=self.profile.user,
+                )
+            poll_answer.save()
+        elif self.question.question_type == PollQuestion.RANK:
+            
+        elif self.question.question_type == PollQuestion.RANGE:
+            
