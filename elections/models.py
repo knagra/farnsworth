@@ -321,13 +321,14 @@ class PollRanks(models.Model):
     @property
     def rankings(self):
         rankings_list = [int(s) for x in self.rankings.split(',')]
+        rankings_list.reverse()
         return [(choice, rankings_list.pop()) for choice in self.question.choice_set.order_by('pk')]
 
     def create_ranking(self, ranking_tuples):
         """
         Create and return a string suitable for the rankings
         field when given tuples of choices and rankings.
-        Parameters:     ranking_tuples should be a list or tuple
+        Parameters:     ranking_tuples should be an iterable
                             of tuples of form (choice, ranking)
         """
         return ",".join([str(r) for c, r in sorted(
