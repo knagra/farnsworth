@@ -325,8 +325,7 @@ class PollRanks(models.Model):
     @property
     def rankings(self):
         rankings_list = [int(s) for x in self.rankings.split(',')]
-        rankings_list.reverse()
-        return [(choice, rankings_list.pop()) for choice in self.question.choice_set.order_by('pk')]
+        return [(choice, rankings_list.pop(0)) for choice in self.question.choice_set.order_by('pk')]
 
     def create_ranking(self, ranking_tuples):
         """
@@ -349,5 +348,16 @@ class PollRanks(models.Model):
             respectively.
         Parameters:     ranking_tuples should be an iterable
                             of tuples of form (choice, ranking)
+        Return a list of tuples of form (choice, ranking), with
+        the ranking normalized.
         """
-        pass    #TODO: Fill this in
+        ranking_tuples = sorted(ranking_tuples, key=lambda x: x[1])
+        normalized = [(ranking_tuples.pop(0)[0], 0)]
+        while ranking_tuples:
+            current = ranking_tuples.pop(0)
+            normalized.append(
+                current[0],
+                normalized[-1][1] if current[1] = normalized[-1][1] \
+                    else normalized[-1][1] + 1,
+                )
+        return normalized
