@@ -4,6 +4,8 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from __future__ import unicode_literals
+
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.urlresolvers import reverse
