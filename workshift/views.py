@@ -832,7 +832,7 @@ def shift_view(request, semester, pk, profile=None):
     shift = get_object_or_404(RegularWorkshift, pk=pk)
     page_name = shift.workshift_type.title
 
-    instances = WorkshiftInstance.objects.get(
+    instances = WorkshiftInstance.objects.filter(
         closed=False,
         weekly_workshift=shift,
         )
