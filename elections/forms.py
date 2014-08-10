@@ -9,7 +9,7 @@ from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from elections.models import Petition, PetitionComment, \
     Poll, PollSettings, PollQuestion, PollChoice, \
-    PollAnswer
+    PollAnswer, PollRanks
 
 class PetitionForm(forms.ModelForm):
     class Meta:
@@ -189,14 +189,6 @@ class QuestionAnswerForm(forms.Form):
                     required=self.question.required,
                     )
 
-    '''def is_valid(self):
-        if not super(QuestionAnswerForm, self).is_valid():
-            return False
-        validity = True
-        if self.question.question_type == PollQuestion.CHOICE:
-            
-        return validity'''
-
     def save(self):
         if self.question.question_type == PollQuestion.CHOICE:
             poll_choice = self.cleaned_data['answer']
@@ -206,7 +198,7 @@ class QuestionAnswerForm(forms.Form):
             for poll_choice in self.cleaned_data['answer']:
                 poll_choice.voters.add(self.profile.user)
                 poll_choice.save()
-        elif self.question.question_type == PollQuestion.TEXT
+        elif self.question.question_type == PollQuestion.TEXT:
           and self.cleaned_data['answer']:
             poll_answer = PollAnswer(
                 question=self.question,
@@ -215,6 +207,19 @@ class QuestionAnswerForm(forms.Form):
                 )
             poll_answer.save()
         elif self.question.question_type == PollQuestion.RANK:
-            
+            choice_rankings = [(c, self.cleaned_data['rank_{}'.format(c.pk)]) for c in self.question.poll_choice_set.all()]
+            choice_rankings = PollRanks.normalize_ranking(choice_rankings)
+            poll_ranks = PollRanks(
+                question=self.question,
+                rankings=PollRanks.create_ranking(choice_rankings),
+                owner=self.profile.user,
+                )
+            poll_ranks.save()
         elif self.question.question_type == PollQuestion.RANGE:
-            
+            choice_rankings = [(c, self.cleaned_data['rank_{}'.format(c.pk)]) for c in self.question.poll_choice_set.all()]
+            poll_ranks = PollRanks(
+                question=self.question,
+                rankings=PollRanks.create_ranking(choice_rankings),
+                owner=self.profile.user,
+                )
+            poll_ranks.save()

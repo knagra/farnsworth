@@ -327,7 +327,7 @@ class PollRanks(models.Model):
         rankings_list = [int(s) for x in self.rankings.split(',')]
         return [(choice, rankings_list.pop(0)) for choice in self.question.choice_set.order_by('pk')]
 
-    def create_ranking(self, ranking_tuples):
+    def create_ranking(ranking_tuples):
         """
         Create and return a string suitable for the rankings
         field when given tuples of choices and rankings.
@@ -339,7 +339,7 @@ class PollRanks(models.Model):
                 key=lambda x: x[0].pk
                 )])
 
-    def normalize_ranking(self, ranking_tuples):
+    def normalize_ranking(ranking_tuples):
         """
         Normalize rankings by reducing them to the simplest
         order.  E.g.:
