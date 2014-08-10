@@ -3,16 +3,18 @@
 ## 2.0.0
 
 * Workshift
-* Elections and petitions
 * Notifications
 * Rooms
 * UI Refactor
 
 ## 2.1.0
 
-* Printed workshift pages
+* Elections and petitions
 * Workshift fines + finalizing workshift semesters
 * Email notifications
+
+## 2.2.0
+
 * Generic manager permissions
 * File uploads
 
