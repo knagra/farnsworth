@@ -400,11 +400,7 @@ def member_profile_view(request, targetUsername):
     number_of_threads = Thread.objects.filter(owner=targetProfile).count()
     number_of_messages = Message.objects.filter(owner=targetProfile).count()
     number_of_requests = Request.objects.filter(owner=targetProfile).count()
-    # TODO: House room
-    try:
-        room = Room.objects.get(current_residents__in=[targetProfile])
-    except Room.DoesNotExist:
-        room = None
+    rooms = Room.objects.filter(current_residents=targetProfile)
     prev_rooms = PreviousResident.objects.filter(resident=targetProfile)
     return render_to_response('member_profile.html', {
         'page_name': page_name,
@@ -413,7 +409,7 @@ def member_profile_view(request, targetUsername):
         'number_of_threads': number_of_threads,
         'number_of_messages': number_of_messages,
         'number_of_requests': number_of_requests,
-        "room": room,
+        "rooms": rooms,
         "prev_rooms": prev_rooms,
         }, context_instance=RequestContext(request))
 
