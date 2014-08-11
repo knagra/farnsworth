@@ -27,7 +27,7 @@
     {% for room in rooms %}
     <tr>
       <td><a title="View Room" href="{% url 'rooms:view' room_title=room.title %}">{{ room.title }}</a></td>
-      <td>{{ room.unofficial_name }}</td>
+      <td>{% if room.unofficial_name %}{{ room.unofficial_name }}{% endif %}</td>
       <td>{{ room.occupancy }}</td>
       <td>
         {% for person in room.current_residents.all %}
