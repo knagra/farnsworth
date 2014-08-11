@@ -698,9 +698,9 @@ def recount_view(request):
         requests_changed=requests_changed,
         request_count=Request.objects.all().count(),
         threads_changed=threads_changed,
-        thread_count=Thread.objects.all().count()),
+        thread_count=Thread.objects.all().count(),
         dates_changed=dates_changed,
-        )
+        ))
     return HttpResponseRedirect(reverse('utilities'))
 
 def archives_view(request):
