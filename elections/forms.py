@@ -191,10 +191,18 @@ class QuestionAnswerForm(forms.Form):
 
     def save(self):
         if self.question.question_type == PollQuestion.CHOICE:
+            for c in self.question.poll_choice_set.all():
+                if self.profile.user in c.voters.all():
+                    c.voters.remove(self.profile.user)
+                    c.save()
             poll_choice = self.cleaned_data['answer']
             poll_choice.voters.add(self.profile.user)
             poll_choice.save()
         elif self.question.question_type == PollQuestion.CHECKBOXES:
+            for c in self.question.poll_choice_set.all():
+                if self.profile.user in c.voters.all():
+                    c.voters.remove(self.profile.user)
+                    c.save()
             for poll_choice in self.cleaned_data['answer']:
                 poll_choice.voters.add(self.profile.user)
                 poll_choice.save()
