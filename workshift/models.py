@@ -332,6 +332,11 @@ class PoolHours(models.Model):
         default=0,
         help_text="Manual hour requirement adjustment.",
         )
+    last_updated = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the last time the system updated this workshifter's standings.",
+        )
     first_date_standing = models.DecimalField(
         max_digits=5,
         decimal_places=2,
