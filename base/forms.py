@@ -291,7 +291,7 @@ class ModifyProfileRequestForm(forms.ModelForm):
     ''' Form to modify a profile request. '''
     class Meta:
         model = ProfileRequest
-        exclude = ("request_date", "provider", "uid")
+        exclude = ("request_date", "password", "provider", "uid")
 
     former_houses = forms.CharField(
         max_length=100,
