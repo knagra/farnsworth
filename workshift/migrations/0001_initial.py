@@ -36,6 +36,7 @@ class Migration(migrations.Migration):
                 ('hours', models.DecimalField(default=5, help_text='Periodic hour requirement.', max_digits=5, decimal_places=2)),
                 ('standing', models.DecimalField(default=0, help_text='Current hours standing, below or above requirement.', max_digits=5, decimal_places=2)),
                 ('hour_adjustment', models.DecimalField(default=0, help_text='Manual hour requirement adjustment.', max_digits=5, decimal_places=2)),
+                ('last_updated', models.DateTimeField(help_text="When the last time the system updated this workshifter's standings.", null=True, blank=True)),
                 ('first_date_standing', models.DecimalField(decimal_places=2, default=0, max_digits=5, blank=True, help_text='The hourly fines or repayment at the first fine date. Stored in a field for manual adjustment.', null=True)),
                 ('second_date_standing', models.DecimalField(decimal_places=2, default=0, max_digits=5, blank=True, help_text='The hourly fines or repayment at the second fine date. Stored in a field for manual adjustment.', null=True)),
                 ('third_date_standing', models.DecimalField(decimal_places=2, default=0, max_digits=5, blank=True, help_text='The hourly fines or repayment at the third fine date. Stored in a field for manual adjustment.', null=True)),
@@ -92,7 +93,7 @@ class Migration(migrations.Migration):
                 ('entry_time', models.DateTimeField(help_text='Time this entry was made.', auto_now_add=True)),
                 ('hours', models.DecimalField(help_text='Hours associated with a change in workshift credit.', null=True, max_digits=5, decimal_places=2, blank=True)),
                 ('note', models.TextField(help_text="Message to the workshift manager. (e.g. 'Can't cook because of flu')", null=True, blank=True)),
-                ('entry_type', models.CharField(default='V', max_length=1, choices=[('A', 'Assigned'), ('', 'Blown'), ('I', 'Sign In'), ('O', 'Sign Out'), ('V', 'Verify'), ('M', 'Modify Hours'), ('S', 'Sell')])),
+                ('entry_type', models.CharField(default='V', max_length=1, choices=[('A', 'Assigned'), ('B', 'Blown'), ('I', 'Sign In'), ('O', 'Sign Out'), ('V', 'Verify'), ('M', 'Modify Hours'), ('S', 'Sell')])),
             ],
             options={
                 'ordering': ['-entry_time'],
