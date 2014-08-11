@@ -35,8 +35,12 @@
     <ul><li>Login as the anonymous user "{{ ANONYMOUS_USERNAME }}": <a class="page_link" href="{% url 'managers:anonymous_login' %}"><span class="glyphicon glyphicon-log-out"></span> Anonymous Login</a></li></ul>
     </li>
 {% endif %}
-    <li>Sometimes (especially if you used the Django admin), the number of request responses and thread messages stored in their model fields can be different from the real value.
-    If this is the case, or you're not sure, you can recount both these fields for each request and thread.
+    <li>Sometimes (especially if someone used the Django admin), the number of request responses
+    and thread messages stored in their model fields can be different from the real value.
+    The change date for a thread can also fall out of line from the post date of the latest message
+    associated with that thread.
+    If this is the case, or you're not sure, you can recount both these fields for each request and thread
+    and update the change_date for those threads.
     It is advised that you do this every few weeks.
     Running this utility will not modify the change date on either requests or threads.
     <ul><li>Recount request responses and thread messages: <a class="page_link" href="{% url 'recount' %}"><span class="glyphicon glyphicon-repeat"></span> Recount</a></li></ul>
