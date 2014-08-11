@@ -224,6 +224,9 @@ class PinForm(forms.ModelForm):
     class Meta:
         model = Announcement
         fields = ("pinned",)
+        widgets = {
+            "pinned": forms.HiddenInput(),
+            }
 
     def __init__(self, *args, **kwargs):
         if "instance" in kwargs:
