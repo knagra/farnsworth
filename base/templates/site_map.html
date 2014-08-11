@@ -50,7 +50,7 @@
     <li><a class="page_link" href="{% url 'events:list' %}" >Upcoming Events</a> - see a list of upcoming events.</li>
     {% if REQUEST_TYPES %}
         {% for type_tuple in REQUEST_TYPES %}
-            <li><a class="page_link" href="{% url 'requests' requestType=type_tuple.0.url_name %}">{{ type_tuple.0.name|title }} Requests</a> - see and add to recent {{ type_tuple.0.name.lower }} requests.</li>
+            <li><a class="page_link" href="{% url 'managers:requests' requestType=type_tuple.0.url_name %}">{{ type_tuple.0.name|title }} Requests</a> - see and add to recent {{ type_tuple.0.name.lower }} requests.</li>
         {% endfor %}
     {% endif %}
 </ul>
