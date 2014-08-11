@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0003_update_rooms'),
+        ('base', '0003_update_phones'),
         ('rooms', '0002_add_rooms'),
     ]
 

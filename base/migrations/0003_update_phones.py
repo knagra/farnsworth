@@ -6,7 +6,7 @@ from django.db import migrations
 def forwards_func(apps, schema_editor):
     UserProfile = apps.get_model("base", "UserProfile")
     db_alias = schema_editor.connection.alias
-    for profile in UserProfile.objects.all():
+    for profile in UserProfile.objects.using(db_alias).all():
         if profile.tmp_phone_number:
             phone_number = profile.tmp_phone_number \
               .replace('-', '') \
