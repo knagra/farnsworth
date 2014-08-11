@@ -29,7 +29,7 @@ class Thread(models.Model):
         help_text="The date this thread was started.",
         )
     change_date = models.DateTimeField(
-        auto_now=True,
+        auto_now_add=True,
         help_text="The last time this thread was modified.",
         )
     number_of_messages = models.PositiveSmallIntegerField(
