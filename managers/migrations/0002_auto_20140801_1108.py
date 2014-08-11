@@ -14,7 +14,7 @@ def forwards_func(apps, schema_editor):
             req.status = 'C'
         else:
             req.status = 'O'
-        req.save()
+        req.save(using=db_alias)
 
 class Migration(migrations.Migration):
 

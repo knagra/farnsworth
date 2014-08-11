@@ -6,6 +6,7 @@ import phonenumber_field.modelfields
 
 def forwards_func(apps, schema_editor):
     UserProfile = apps.get_model("base", "UserProfile")
+    db_alias = schema_editor.connection.alias
     for profile in UserProfile.objects.all():
         if profile.tmp_phone_number:
             phone_number = profile.tmp_phone_number \
@@ -20,7 +21,7 @@ def forwards_func(apps, schema_editor):
                     phone_number = "+1" + phone_number
             profile.phone_number = phone_number
             if profile.phone_number.is_valid():
-                profile.save()
+                profile.save(using=db_alias)
 
 class Migration(migrations.Migration):
 

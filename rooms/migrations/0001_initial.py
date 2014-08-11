@@ -40,7 +40,7 @@ def forwards_func(apps, schema_editor):
             room.current_residents.add(profile)
             if not created:
                 room.occupancy += 1
-            room.save()
+            room.save(using=db_alias)
         if profile.former_rooms:
             titles = [_fix_room_title(i) for i in profile.former_rooms.split(",")]
             for title in titles:
@@ -54,6 +54,7 @@ def forwards_func(apps, schema_editor):
                     room=room,
                     resident=profile,
                     defaults=dict(start_date=today, end_date=today),
+                    using=db_alias,
                     )
 
 class Migration(migrations.Migration):
