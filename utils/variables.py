@@ -152,7 +152,7 @@ MESSAGES = {
     'ANONYMOUS_DENIED': u"Only superadmins are allowed to login the anonymous user or end the anonymous session.",
     'ANONYMOUS_LOGIN': u"You have successfully logged out and started an anonymous session on this machine.",
     'ANONYMOUS_SESSION_ENDED': u"You have successfully ended the anonymous session on this machine.",
-    'RECOUNTED': u"Thread messages and request responses successfully recounted.  {threads_changed} of {thread_count} threads and {requests_changed} of {request_count} requests were out-of-date and updated.",
+    'RECOUNTED': u"Thread messages and request responses successfully recounted.  {threads_changed} of {thread_count} threads and {requests_changed} of {request_count} requests were out-of-date and updated. {change_count} of {thread_count} threads' change dates were out-of-date and updated.",
     'ALREADY_PAST': u"This event has already passed.  You can no longer RSVP to this event.",
     'LAST_SUPERADMIN': u"You are the only superadmin in the database.  To prevent permanent system lock-out, you have been prevented from changing your own superadmin status.",
     'PRESIDENTS_ONLY': u"This page is restricted to Presidents and superadmins.",
