@@ -85,6 +85,9 @@ class Message(models.Model):
         Thread,
         help_text="The thread to which this message belongs.",
         )
+    edited = models.BooleanField(
+        default=False,
+        )
 
     def __str__(self):
         return self.__unicode__()
