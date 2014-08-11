@@ -39,8 +39,8 @@ class RoomForm(forms.ModelForm):
 
 class ResidentForm(forms.ModelForm):
     class Meta:
-        model = Room
-        fields = "__all__"
+        model = PreviousResident
+        fields = ("resident", "start_date", "end_date")
 
 class BaseResidentFormSet(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
@@ -58,5 +58,5 @@ class BaseResidentFormSet(BaseModelFormSet):
 ResidentFormSet = modelformset_factory(
     PreviousResident, form=ResidentForm, formset=BaseResidentFormSet,
     can_delete=True, extra=1, max_num=50,
-    help_texts=dict(room="", resident="", start_date="", end_date="")
+    help_texts=dict(resident="", start_date="", end_date="")
     )
