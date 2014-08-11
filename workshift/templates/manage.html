@@ -1,0 +1,128 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<div id="manage_container">
+  <h1 class="w_title">Manage Workshifts</h1>
+  <hr class="w_line" />
+  <ul class="nav nav-pills" style="margin-bottom: 10px;">
+    {% if pools %}
+	<li class="active"><a href="#pools_div" data-toggle="tab">Workshift Pools</a></li>
+	{% endif %}
+    {% if workshifters %}
+	<li{% if not pools %} class="active"{% endif %}><a href="#workshifters_div" data-toggle="tab">Workshifters</a></li>
+	{% endif %}
+	{% if semester_form %}
+	<li><a href="#edit_semester_div" data-toggle="tab">Edit Semester Options</a></li>
+	{% endif %}
+  </ul>
+
+  <div class="tab-content">
+	{% if pools %}
+	<div class="tab-pane active" id="pools_div">
+	  <table id="pools_table" class="table table-striped table-bordered table-condensed table-hover members_table">
+		<thead>
+		  <tr>
+			<th>Workshift Pool</th>
+			<th>Managers</th>
+			<th>Hours</th>
+		  </tr>
+		</thead>
+		<tbody>
+		  {% for pool in pools %}
+		  <tr>
+			<td><a href="{% wurl 'workshift:view_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}">{{ pool.title }}</a></td>
+			<td>
+			  {% if pool.managers.count %}
+			  {% for pos in pool.managers.all %}
+			  {% if not forloop.first %}, {% endif %}
+			  <a {% if pos.active %}title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{% url 'managers:edit_manager' managerTitle=pos.url_title %}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+			  {% if pos.incumbent %}
+			  (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
+			  {% else %}
+			  (<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
+			  {% endif %}
+			  {% endfor %}
+			  {% endif %}
+			</td>
+			<td>{{ pool.show_hours }}</td>
+		  </tr>
+		  {% endfor %}
+		</tbody>
+	  </table>
+	</div> <!-- #pools_div -->
+	{% endif %}
+
+	{% if workshifters %}
+	<div class="tab-pane{% if not pools %} active{% endif %}" id="workshifters_div">
+	  <table id="workshifters_table" class="table table-striped table-bordered table-condensed table-hover members_table">
+		<thead>
+		  <tr>
+			<th>First Name</th>
+			<th>Last Name</th>
+			<th>E-mail</th>
+			{% for pool in pools %}
+			<th>{{ pool.title }}</th>
+			{% endfor %}
+		  </tr>
+		</thead>
+		<tbody>
+		  {% for workshifter, pool_hours in workshifters %}
+		  <tr>
+			<td><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=workshifter.user.username %}">{{ workshifter.user.first_name }}</td>
+			<td>{{ workshifter.user.last_name }}</td>
+			<td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
+			{% for hours in pool_hours %}
+			<td>{% if 0 > hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ hours.standing }}</font></td>
+			{% endfor %}
+		  </tr>
+		  {% endfor %}
+		</tbody>
+	  </table>
+	</div> <!-- #workshifters_div -->
+	{% endif %}
+
+	{% if semester_form %}
+	<div class="tab-pane" id="edit_semester_div">
+	  <form method="post">
+		{% csrf_token %}
+		{{ semester_form|bootstrap }}
+		<div class="text-center">
+		  <button type="submit" class="btn btn-success" name="edit_semester"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+		</div>
+	  </form>
+	</div> <!-- #edit_semester_div -->
+  </div> <!-- .tab-content -->
+  {% endif %}
+</div> <!-- #manage_container -->
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+  $("[id$=date]").datetimepicker({pickTime: false});
+  $("[id$=time]").datetimepicker({pickDate: false});
+  $(document).ready(function() {
+    $('#pools_table').tablesorter({
+        sortList: [[0,0]],
+        widgets: ["resizable", "filter"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+    $('#workshifters_table').tablesorter({
+        sortList: [[0,0], [1,0]],
+        widgets: ["resizable", "filter"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+  });
+</script>
+{% endblock %}

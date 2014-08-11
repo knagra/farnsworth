@@ -3,12 +3,11 @@
 {% load static from staticfiles %}
 
 {% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <style>
 p {
-	padding-top: 10px;
-	padding-left: 10px;
-	padding-right: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 </style>
 {% endblock %}
@@ -16,9 +15,9 @@ p {
 {% block title %}
 {% if not user.is_authenticated %}
 <div id="title">
-	<h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
-	<h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
-	<br />
+    <h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
+    <h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
+    <br />
 </div> <!-- close "title" -->
 {% endif %}
 {% endblock %}
@@ -30,917 +29,916 @@ p {
 <h1 class="sub_title"><small><a name="contents" title="A link to contents" href="#contents">&Dagger;</a></small> Contents</h1>
 <hr />
 <div class="text-center">
-	<a id="show_content_list" title="Show table of contents"><span class="glyphicon glyphicon-collapse-down"></span> show</a>
+    <a id="show_content_list" title="Show table of contents"><span class="glyphicon glyphicon-collapse-down"></span> show</a>
 </div>
 <ol id="content_list" type="1">
-	<li><a href="#welcome">Welcome</a></li>
-	{% if user.is_superuser %}
-	<li><a href="#managing_users">Admin: Managing Users</a>
-		<ol type="a">
-			<li><a href="#adding_users">Adding Users</a></li>
-			<li><a href="#modifying_users">Modifying Users</a></li>
-			<li><a href="#profile_requests">Profile Requests</a></li>
-		</ol>
-	</li>
-	<li><a href="#admin_miscellaneous">Admin: Miscellaneous</a>
-		<ol type="a">
-			<li><a href="#anonymous_user">Anonymous User</a></li>
-			<li><a href="#recounts">Model Recounts</a></li>
-			<li><a href="#django">Django Admin</a></li>
-		</ol>
-	</li>
-	{% endif %}
-	{% if user.is_superuser or PRESIDENT %}
-	<li><a href="#meta_manager">President: Meta-Manager</a>
-		<ol type="a">
-			<li><a href="#adding_managers">Adding Managers</a></li>
-			<li><a href="#managing_managers">Managing Managers</a></li>
-		</ol>
-	</li>
-	<li><a href="#request_types">President: Request Types</a>
-		<ol type="a">
-			<li><a href="#about_request_types">About Request Types</a></li>
-			<li><a href="#adding_request_types">Adding Request Types</a></li>
-			<li><a href="#managing_request_types">Managing Request Types</a></li>
-		</ol>
-	</li>
-	{% endif %}
-	<li><a href="#navigation">Navigation</a></li>
-	<li><a href="#tips">General Tips</a></li>
-	<li><a href="#profile_management">Profile Management</a>
-		<ol type="a">
-			<li><a href="#profile">Profile Details</a></li>
-			<li><a href="#password">Password</a></li>
-			<li><a href="#profile_history">Profile History</a></li>
-		</ol>
-	</li>
-	<li><a href="#threads">Threads</a>
-		<ol type="a">
-			<li><a href="#starting_threads">Starting Threads</a></li>
-			<li><a href="#adding_messages">Adding Messages</a></li>
-		</ol>
-	</li>
-	<li><a href="#requests">Requests</a>
-		<ol type="a">
-			<li><a href="#about_requests">About Requests</a></li>
-			<li><a href="#working_with_requests">Working with Requests</a></li>
-		</ol>
-	</li>
-	<li><a href="#announcements">Announcements</a></li>
-	<li><a href="#events">Events</a></li>
-	<li><a href="#miscellaneous">Miscellaneous</a>
-		<ol type="a">
-			<li><a href="#tinymce">TinyMCE</a></li>
-			<li><a href="#datetime">Date-Time Picker</a></li>
-			<li><a href="#search">Search</a></li>
-		</ol>
-	</li>
+    <li><a href="#welcome">Welcome</a></li>
+    {% if user.is_superuser %}
+    <li><a href="#managing_users">Admin: Managing Users</a>
+        <ol type="a">
+            <li><a href="#adding_users">Adding Users</a></li>
+            <li><a href="#modifying_users">Modifying Users</a></li>
+            <li><a href="#profile_requests">Profile Requests</a></li>
+        </ol>
+    </li>
+    <li><a href="#admin_miscellaneous">Admin: Miscellaneous</a>
+        <ol type="a">
+            <li><a href="#anonymous_user">Anonymous User</a></li>
+            <li><a href="#recounts">Model Recounts</a></li>
+            <li><a href="#django">Django Admin</a></li>
+        </ol>
+    </li>
+    {% endif %}
+    {% if user.is_superuser or PRESIDENT %}
+    <li><a href="#meta_manager">President: Meta-Manager</a>
+        <ol type="a">
+            <li><a href="#adding_managers">Adding Managers</a></li>
+            <li><a href="#managing_managers">Managing Managers</a></li>
+        </ol>
+    </li>
+    <li><a href="#request_types">President: Request Types</a>
+        <ol type="a">
+            <li><a href="#about_request_types">About Request Types</a></li>
+            <li><a href="#adding_request_types">Adding Request Types</a></li>
+            <li><a href="#managing_request_types">Managing Request Types</a></li>
+        </ol>
+    </li>
+    {% endif %}
+    <li><a href="#navigation">Navigation</a></li>
+    <li><a href="#tips">General Tips</a></li>
+    <li><a href="#profile_management">Profile Management</a>
+        <ol type="a">
+            <li><a href="#profile">Profile Details</a></li>
+            <li><a href="#password">Password</a></li>
+            <li><a href="#profile_history">Profile History</a></li>
+        </ol>
+    </li>
+    <li><a href="#threads">Threads</a>
+        <ol type="a">
+            <li><a href="#starting_threads">Starting Threads</a></li>
+            <li><a href="#adding_messages">Adding Messages</a></li>
+        </ol>
+    </li>
+    <li><a href="#requests">Requests</a>
+        <ol type="a">
+            <li><a href="#about_requests">About Requests</a></li>
+            <li><a href="#working_with_requests">Working with Requests</a></li>
+        </ol>
+    </li>
+    <li><a href="#announcements">Announcements</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#miscellaneous">Miscellaneous</a>
+        <ol type="a">
+            <li><a href="#tinymce">TinyMCE</a></li>
+            <li><a href="#datetime">Date-Time Picker</a></li>
+            <li><a href="#search">Search</a></li>
+        </ol>
+    </li>
 </ol>
 <div class="text-center">
-	<a id="hide_content_list" title="Hide table of contents"><span class="glyphicon glyphicon-collapse-up"></span> hide</a>
+    <a id="hide_content_list" title="Hide table of contents"><span class="glyphicon glyphicon-collapse-up"></span> hide</a>
 </div>
 <hr />
 </div> <!-- .col-md-4 -->
 <div class="col-sm-7 col-md-8">
-	<h1 class="text-center sub_title">
-		<small><a name="welcome" title="A link to this section" href="#welcome">&sect;</a></small>
-		Welcome to {{ HOUSE }}
-	</h1>
+    <h1 class="text-center sub_title">
+        <small><a name="welcome" title="A link to this section" href="#welcome">&sect;</a></small>
+        Welcome to {{ HOUSE }}
+    </h1>
 {% else %}
 <div class="col-sm-12">
 {% endif %}
-	<p>Welcome!  This is a virtual gathering place for members of {{ HOUSE }} as well as a community outreach and general information site.
-	</p>
-	{% if not user.is_authenticated %}
-	<p>If you are a new member, you can request an account by clicking <a href="{% url 'request_profile' %}">here</a> or on the request profile link
-	in the menu above.  Once your request is submitted, an admin will contact you.
-	If you are currently a member, please login to access member forums, manager requests, event postings, and announcements.
-	</p>
-	{% else %}
-	<p>This help page is quite lengthy and tries to be as exhaustive as possible about how to use this website.
-	If you find that this page is lacking in information or clarity, please feel free to contact Karandeep.
-	Or better yet, you can open up the source code and update this page yourself.
-	</p>
-	<p>For quick links, please refer to the <a href="#contents">table of contents</a>.
-	</p>
-	{% endif %}
-	<p>This website is an instance of a project called Farnsworth, planned and executed by
-	<a title="Opens in new tab" target="_blank" href="https://www.github.com/knagra/"><span class="glyphicon glyphicon-new-window"></span> Karandeep Singh Nagra</a>
-	and <a title="Opens in new tab" target="_blank" href="https://www.github.com/naderm"><span class="glyphicon glyphicon-new-window"></span> Nader Morshed</a>.
-	It was originally developed to encourage the use of new technologies in the <a href="http://bsc.coop">Berkeley Student Cooperative</a>
-	and provide a better online presence for houses in the cooperative.
-	The site is designed abstractly and easily set up for any other house with a few settings changes.
-	Several example implementations of Farnsworth exist for you to mimic.
-	If you would like to implement an instance of Farnsworth for another house, please contact Karandeep at
-	<a title="Write E-mail" href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>.
-	</p>
-	<p>Farnsworth is free and open source software.  The source code is freely available in
-	<a title="Opens in new tab" target="_blank" href="https://github.com/knagra/farnsworth/"><span class="glyphicon glyphicon-new-window"></span>
-	this GitHub repository</a>.
-	You are encouraged to modify, expand, and share this software with others.
-	The several branches of this repository represent different implementations of Farnsworth for difference houses.
-	If you would like to contribute to this project, see the
-	<a title="Opens in new tab" target="_blank" href="https://github.com/knagra/farnsworth/blob/master/DOCS/roadmap">
-		<span class="glyphicon glyphicon-new-window"></span> roadmap</a>
-	for a list of features you can implement.  Pull requests to the repository are welcomed.
-	</p>
+    <p>Welcome!  This is a virtual gathering place for members of {{ HOUSE }} as well as a community outreach and general information site.
+    </p>
+    {% if not user.is_authenticated %}
+    <p>If you are a new member, you can request an account by clicking <a href="{% url 'request_profile' %}">here</a> or on the request profile link
+    in the menu above.  Once your request is submitted, an admin will contact you.
+    </p>
+    {% else %}
+    <p>This help page is quite lengthy and tries to be as exhaustive as possible about how to use this website.
+    If you find that this page is lacking in information or clarity, please feel free to contact Karandeep.
+    Or better yet, you can open up the source code and update this page yourself.
+    </p>
+    <p>For quick links, please refer to the <a href="#contents">table of contents</a>.
+    </p>
+    {% endif %}
+    <p>This website is an instance of a project called Farnsworth, planned and executed by
+    <a title="Opens in new tab" target="_blank" href="https://www.github.com/knagra/"><span class="glyphicon glyphicon-new-window"></span> Karandeep Singh Nagra</a>
+    and <a title="Opens in new tab" target="_blank" href="https://www.github.com/naderm"><span class="glyphicon glyphicon-new-window"></span> Nader Morshed</a>.
+    It was originally developed to encourage the use of new technologies in the <a href="http://bsc.coop">Berkeley Student Cooperative</a>
+    and provide a better online presence for houses in the cooperative.
+    The site is designed abstractly and easily set up for any other house with a few settings changes.
+    Several example implementations of Farnsworth exist for you to mimic.
+    If you would like to implement an instance of Farnsworth for another house, please contact Karandeep at
+    <a title="Write E-mail" href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>.
+    </p>
+    <p>Farnsworth is free and open source software.  The source code is freely available in
+    <a title="Opens in new tab" target="_blank" href="https://github.com/knagra/farnsworth/"><span class="glyphicon glyphicon-new-window"></span>
+    this GitHub repository</a>.
+    You are encouraged to modify, expand, and share this software with others.
+    The several branches of this repository represent different implementations of Farnsworth for different houses.
+    If you would like to contribute to this project, see the
+    <a title="Opens in new tab" target="_blank" href="https://github.com/knagra/farnsworth/blob/master/DOCS/roadmap.md">
+        <span class="glyphicon glyphicon-new-window"></span> roadmap</a>
+    for a list of features you can implement.  Pull requests to the repository are welcomed.
+    </p>
 </div> <!-- #general_info -->
 </div> <!-- .row -->
 {% if user.is_authenticated %}
-	{% if user.is_superuser %}
-	<div class="row">
-	<div id="managing_users" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="managing_users" title="A link to this section" href="#managing_users">&sect;</a></small>
-			Admin: Managing Users
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="managing_users_body" class="toggleable">
-		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle"><a name="adding_users" title="A link to this sub-section" href="#adding_users">&sect;</a> Adding Users</h2>
-			<p>You can add a user from the <a target="_blank" href="{% url 'custom_add_user' %}">add user page</a>.
-			Usernames should be unique and a single word composed of alphanumeric characters or the underscore character.
-			It is recommended that e-mails and phone numbers be kept hidden from other members when creating a user.
-			A user can modify her/his own profile to reveal e-mail and phone number to other members.
-			</p>
-			<p>The "is active" status is an indicator of whether the user can login.  You can add inactive users, but you will probably be adding active users.
-			Starting alumni as inactive users is advised, as this will result in a tighter security spec for your implementation of Farnsworth.
-			Doing so is permissible as alumni are not very likely to log in.  And if an alumnus does want to, s/he can e-mail you (via the e-mail listed at the
-			bottom of this page to get her/his account activated.
-			When an inactive user attempts to login, s/he is given a message saying her/his account is inactive.
-			</p>
-			<p>The "is staff" status indicates whether a user can access the <a target="_blank" href="{% url 'admin:index' %}">Django admin pages</a>.
-			Use of the Django admin pages is discouraged.  If something really needs to be done at that level,
-			it would be better if you wrote the page up yourself in the regular interface
-			and shared it with everyone else using Farnsworth.  Writing pages is very easy.  Read the documentation at Karandeep's
-			<a target="_blank" href="https://www.github.com/knagra/farnsworth/">GitHub repo</a> or contact him directly
-			(e-mail: <a href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>) for some quick tips.
-			</p>
-			<p>However, even if a user has staff status, s/he will not have any privileges without a superuser giving her/him those rights.
-			This can be done from the Django admin pages.  Read the <a target="_blank" href="https://docs.djangoproject.com/">Django docs</a> to learn more.
-			</p>
-			<p>The "is superuser" status toggles admin rights on the site.
-			A user with superuser privileges will able to access admin pages written into this interface and have full privileges in the Django admin.
-			</p>
-			<p>It can be useful to give users superadmin status and not give them staff status as all admin privileges in the custom admin are granted
-			with superadmin status, but access to the Django admin is restricted.
-			Effectively, superuser-not-staff status is a weak obfuscation-based security against users really messing things up by misusing the Django
-			admin.
-			</p>
-			<p>Groups are fully supported by Django but are not yet supported by the custom Farnsworth interface.
-			They are provided in this page in case someone wants to do further development of Django which involves groups.
-			You can CTRL-click and select multiple groups from this list.
-			</p>
-			<p><b>You must provide a password.</b>  An option is not yet available to create users without passwords.
-			This would be a neat feature if you care to implement it yourself.  If you want to create a user that will probably not use the site for a while
-			(alumni, for example), it is recommended that you toggle off the "is active" option for the user.  You can toggle it back on later by modifying
-			the user when the user wants access to the site.
-			</p>
-		<h2 class="sub_subtitle"><a name="modifying_users" title="A link to this sub-section" href="#modifying_users">&sect;</a> Modifying Users</h2>
-			<p>A list of all users can be seen at the <a target="_blank" href="{% url 'custom_manage_users' %}">manage users page</a>.
-			This page will give you a quick run-down of users, their e-mail addresses, phone numbers, and active, staff and superuser statuses.
-			The tables are sortable.  You can click on any heading to sort the table by that column.
-			You can also hold <kbd>Shift</kbd> and click multiple column headings to sort by all those columns successively.
-			By default, the tables are sorted by last name and then first name.
-			Clicking on an e-mail address will prompt you to send an e-mail to that address.
-			You can click on any user's name from the manage users page to edit that user's profile.
-			</p>
-			<p>From the modify user page, you can change a user's personal details, member status, etc., as well as change her/his password.
-			To prevent permanent lockout, if you are the only superadmin, <b>you will be prevented from changing your own superadmin status</b>.
-			Everything else will be saved when you try to change your own profile as the only admin.
-			</p>
-			<p><b>It is highly recommended that users not be deleted.  You should instead deactivate them.</b>
-			But if you really need to delete a user, you can do so from the modify user page for that user.
-			Doing so will delete all threads and requests the user posted, all messages and responses the user posted, as well as all events
-			and all announcements the user posted.
-			This can mess up all manner of things.  So it's recommended that you not do it.
-			</p>
-			<p>You will be required to provide your password to delete a user.
-			</p>
-			<p>To prevent someone from maliciously changing your password if you leave yourself logged in somewhere,
-			you are prevented from changing your own password from the modify user page.
-			You can instead change your password from the <a href="{% url 'my_profile' %}">my profile</a> page.
-			</p>
-			<p>You cannot modify usernames from the custom admin pages, but you can do so from the Django admin pages.
-			It doesn't seem productive to allow such a change as the user who owns the account will locked out of his/her account and unable even to know
-			what happened.
-			</p>
-			<p>You are also discouraged from modifying the anonymous user (username "{{ ANONYMOUS_USERNAME }}").
-			When you open this user's edit page, a warning will be displayed saying the same.
-			More on the anonymous user is covered under the <a href="#anonymous_user">Anonymous User sub-section</a>
-			of the <a href="#admin_miscellaneous">Admin: Miscellaneous section</a>.
-			</p>
-			<p>On every user profile page (a general user page accessed from various parts of the site, most notably the
-			<a href="{% url 'member_directory' %}">member directory</a>),
-			there will appear a yellow edit button in the top right corner if an admin is accessing the page.
-			This button does not appear for non-superadmin users; so you don't need to worry about that.
-			Clicking this button will redirect you to the modify user page (an admin page accessed usually through the manage users page).
-			</p>
-			<p>The modify user page is almost identical to the <a href="{% url 'custom_add_user' %}">add user page</a>, with a few exceptions.
-			First, the username, first name, and last name fields are missing.  And second, there is a separate form at the bottom to change the password.
-			You can update the profile or change the password for the user, but not both in one HTTP request.
-			AJAX is not currently supported.  This is another cool feature, if you care to implement it.
-			</p>
-		<h2 class="sub_subtitle"><a name="profile_requests" title="A link to this sub-section" href="#profile_requests">&sect;</a> Profile Requests</h2>
-			<p>Sometimes - especially at the beginning of the semester - you will get requests for new profiles.
-			These can be managed from the <a href="{% url 'manage_profile_requests' %}">manage profile requests</a> page.
-			Profile requests contain most of the information affiliated with a prospective user profile.
-			You can sort this table as well, in the same way described in the <a href="#modifying_users">Modifying Users</a> sub-section above.
-			You can click on the e-mail link to write an e-mail to the user or click the user's proposed username to modify the request.
-			</p>
-			<p>The form in the modify profile request page is almost identical to the one in the add user page
-			(detailed <a href="#adding_users">above</a>), with a few exceptions.
-			First, the information the user provided in her/his profile request is used to fill some of the fields of the form.
-			Second, there is a button next to the add user button that allows you to delete the request permanently.
-			And third, there is no password field since the user provided her/his own password when submitting the request.
-			</p>
-			<p>Please note that if a request is deleted, there is no way to retrieve it.
-			The user will have to fill another request, or you can add the user manually
-			(check the <a href="#adding_users">adding users</a> section above for more info).
-			</p>
-		</div> <!-- #managing_users_body -->
-	</div> <!-- #managing_users -->
-	</div> <!-- .row -->
+    {% if user.is_superuser %}
+    <div class="row">
+    <div id="managing_users" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="managing_users" title="A link to this section" href="#managing_users">&sect;</a></small>
+            Admin: Managing Users
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="managing_users_body" class="toggleable">
+        <hr style="width: 75%;" />
+        <h2 class="sub_subtitle"><a name="adding_users" title="A link to this sub-section" href="#adding_users">&sect;</a> Adding Users</h2>
+            <p>You can add a user from the <a target="_blank" href="{% url 'custom_add_user' %}">add user page</a>.
+            Usernames should be unique and a single word composed of alphanumeric characters or the underscore character.
+            It is recommended that e-mails and phone numbers be kept hidden from other members when creating a user.
+            A user can modify her/his own profile to reveal e-mail and phone number to other members.
+            </p>
+            <p>The "is active" status is an indicator of whether the user can login.  You can add inactive users, but you will probably be adding active users.
+            Starting alumni as inactive users is advised, as this will result in a tighter security spec for your implementation of Farnsworth.
+            Doing so is permissible as alumni are not very likely to log in.  And if an alumnus does want to, s/he can e-mail you (via the e-mail listed at the
+            bottom of this page to get her/his account activated.
+            When an inactive user attempts to login, s/he is given a message saying her/his account is inactive.
+            </p>
+            <p>The "is staff" status indicates whether a user can access the <a target="_blank" href="{% url 'admin:index' %}">Django admin pages</a>.
+            Use of the Django admin pages is discouraged.  If something really needs to be done at that level,
+            it would be better if you wrote the page up yourself in the regular interface
+            and shared it with everyone else using Farnsworth.  Writing pages is very easy.  Read the documentation at Karandeep's
+            <a target="_blank" href="https://www.github.com/knagra/farnsworth/">GitHub repo</a> or contact him directly
+            (e-mail: <a href="mailto:karandeepsnagra@gmail.com">karandeepsnagra@gmail.com</a>) for some quick tips.
+            </p>
+            <p>However, even if a user has staff status, s/he will not have any privileges without a superuser giving her/him those rights.
+            This can be done from the Django admin pages.  Read the <a target="_blank" href="https://docs.djangoproject.com/">Django docs</a> to learn more.
+            </p>
+            <p>The "is superuser" status toggles admin rights on the site.
+            A user with superuser privileges will able to access admin pages written into this interface and have full privileges in the Django admin.
+            </p>
+            <p>It can be useful to give users superadmin status and not give them staff status as all admin privileges in the custom admin are granted
+            with superadmin status, but access to the Django admin is restricted.
+            Effectively, superuser-not-staff status is a weak obfuscation-based security against users really messing things up by misusing the Django
+            admin.
+            </p>
+            <p>Groups are fully supported by Django but are not yet supported by the custom Farnsworth interface.
+            They are provided in this page in case someone wants to do further development of Django which involves groups.
+            You can CTRL-click and select multiple groups from this list.
+            </p>
+            <p><b>You must provide a password.</b>  An option is not yet available to create users without passwords.
+            This would be a neat feature if you care to implement it yourself.  If you want to create a user that will probably not use the site for a while
+            (alumni, for example), it is recommended that you toggle off the "is active" option for the user.  You can toggle it back on later by modifying
+            the user when the user wants access to the site.
+            </p>
+        <h2 class="sub_subtitle"><a name="modifying_users" title="A link to this sub-section" href="#modifying_users">&sect;</a> Modifying Users</h2>
+            <p>A list of all users can be seen at the <a target="_blank" href="{% url 'custom_manage_users' %}">manage users page</a>.
+            This page will give you a quick run-down of users, their e-mail addresses, phone numbers, and active, staff and superuser statuses.
+            The tables are sortable.  You can click on any heading to sort the table by that column.
+            You can also hold <kbd>Shift</kbd> and click multiple column headings to sort by all those columns successively.
+            By default, the tables are sorted by last name and then first name.
+            Clicking on an e-mail address will prompt you to send an e-mail to that address.
+            You can click on any user's name from the manage users page to edit that user's profile.
+            </p>
+            <p>From the modify user page, you can change a user's personal details, member status, etc., as well as change her/his password.
+            To prevent permanent lockout, if you are the only superadmin, <b>you will be prevented from changing your own superadmin status</b>.
+            Everything else will be saved when you try to change your own profile as the only admin.
+            </p>
+            <p><b>It is highly recommended that users not be deleted.  You should instead deactivate them.</b>
+            But if you really need to delete a user, you can do so from the modify user page for that user.
+            Doing so will delete all threads and requests the user posted, all messages and responses the user posted, as well as all events
+            and all announcements the user posted.
+            This can mess up all manner of things.  So it's recommended that you not do it.
+            </p>
+            <p>You will be required to provide your password to delete a user.
+            </p>
+            <p>To prevent someone from maliciously changing your password if you leave yourself logged in somewhere,
+            you are prevented from changing your own password from the modify user page.
+            You can instead change your password from the <a href="{% url 'my_profile' %}">my profile</a> page.
+            </p>
+            <p>You cannot modify usernames from the custom admin pages, but you can do so from the Django admin pages.
+            It doesn't seem productive to allow such a change as the user who owns the account will locked out of his/her account and unable even to know
+            what happened.
+            </p>
+            <p>You are also discouraged from modifying the anonymous user (username "{{ ANONYMOUS_USERNAME }}").
+            When you open this user's edit page, a warning will be displayed saying the same.
+            More on the anonymous user is covered under the <a href="#anonymous_user">Anonymous User sub-section</a>
+            of the <a href="#admin_miscellaneous">Admin: Miscellaneous section</a>.
+            </p>
+            <p>On every user profile page (a general user page accessed from various parts of the site, most notably the
+            <a href="{% url 'member_directory' %}">member directory</a>),
+            there will appear a yellow edit button in the top right corner if an admin is accessing the page.
+            This button does not appear for non-superadmin users; so you don't need to worry about that.
+            Clicking this button will redirect you to the modify user page (an admin page accessed usually through the manage users page).
+            </p>
+            <p>The modify user page is almost identical to the <a href="{% url 'custom_add_user' %}">add user page</a>, with a few exceptions.
+            First, the username, first name, and last name fields are missing.  And second, there is a separate form at the bottom to change the password.
+            You can update the profile or change the password for the user, but not both in one HTTP request.
+            AJAX is not currently supported.  This is another cool feature, if you care to implement it.
+            </p>
+        <h2 class="sub_subtitle"><a name="profile_requests" title="A link to this sub-section" href="#profile_requests">&sect;</a> Profile Requests</h2>
+            <p>Sometimes - especially at the beginning of the semester - you will get requests for new profiles.
+            These can be managed from the <a href="{% url 'manage_profile_requests' %}">manage profile requests</a> page.
+            Profile requests contain most of the information affiliated with a prospective user profile.
+            You can sort this table as well, in the same way described in the <a href="#modifying_users">Modifying Users</a> sub-section above.
+            You can click on the e-mail link to write an e-mail to the user or click the user's proposed username to modify the request.
+            </p>
+            <p>The form in the modify profile request page is almost identical to the one in the add user page
+            (detailed <a href="#adding_users">above</a>), with a few exceptions.
+            First, the information the user provided in her/his profile request is used to fill some of the fields of the form.
+            Second, there is a button next to the add user button that allows you to delete the request permanently.
+            And third, there is no password field since the user provided her/his own password when submitting the request.
+            </p>
+            <p>Please note that if a request is deleted, there is no way to retrieve it.
+            The user will have to fill another request, or you can add the user manually
+            (check the <a href="#adding_users">adding users</a> section above for more info).
+            </p>
+        </div> <!-- #managing_users_body -->
+    </div> <!-- #managing_users -->
+    </div> <!-- .row -->
 
-	<div class="row">
-	<div id="admin_misc" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="admin_miscellaneous" title="A link to this section" href="#admin_miscellaneous">&sect;</a></small>
-			Admin: Miscellaneous
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="admin_misc_body" class="toggleable">
-		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle"><a name="anonymous_user" title="A link to this sub-section" href="#anonymous_user">&sect;</a> Anonymous User</h2>
-			<p>Farnsworth comes prepackaged with an anonymous user.  This user (and profile) is autogenerated the first time you start an anonymous session.
-			The default username is {{ ANONYMOUS_USERNAME }}.  This can be changed from the settings file (/path/to/head/farnsworth/settings.py)
-			<b>before starting a first anonymous session.  Don't change this setting if the anonymous user already exists.</b>
-			The autogenerated user is named Anonymous Coward.
-			</p>
-			<p>The anonymous user is intended for logins on common space machines.  Since users will want access to the site fairly quickly on common space
-			machines and won't want to login and logout constantly to check minor things, the anonymous user can be used to fill the need.
-			The anonymous user is prevented from up/down voting requests or RSVP-ing to events.  But the account is permitted to start threads,
-			post messages, make requests, post responses, and start events.
-			</p>
-			<p>An anonymous session is started from the <a href="{% url 'utilities' %}">utilities</a> page.  Login on a common space machine
-			and go to this page and start an anonymous session.  When the anonymous user is logged in, the profile links are disabled and replaced by
-			a login link.  Users can temporarily login to assume identity.  When a logged in user logs out, the anonymous user will be logged in and
-			the anonymous session will resume.  Anonymous sessions are easy to detect as the login/profile link (the second link in the menu) is red
-			during an anonymous session.
-			</p>
-			<p><b>Logout is disabled for the anonymous user.</b>  To logout the anonymous user and end the anonymous session, login as yourself in the
-			anonymous session, go to the <a href="{% url 'utilities' %}">utilities</a> page, and end the anonymous session.
-			This will logout the anonymous user and end the anonymous session.
-			Your session will resume.  So make sure to logout yourself if you intend to leave the computer.
-			</p>
-			<p>The anonymous user is also forbidden from modifying the anonymous user profile.
-			An error message will be displayed if a user tries to modify the anonymous user profile from the my profile page.
-			The member directory excludes the anonymous user and the profile for the anonymous user
-			</p>
-		<h2 class="sub_subtitle"><a name="recounts" title="A link to this sub-section" href="#recounts">&sect;</a> Model Recounts</h2>
-			<p>To save processor power and increase efficiency, Farnsworth counts thread messages and request responses very infrequently.
-			These fields are incremented whenever a new message or response is posted.
-			However, if messages or responses are deleted (only through the Django admin interface), or users or user profiles are deleted
-			(also only through the Django admin interface), these fields can fall out of sync.
-			The fact that this can happen is one of the reasons you are discouraged from using the Django admin interface.
-			To further the development of Farnsworth, you are encouraged to write your own interface for doing things not currently supported.
-			</p>
-			<p>To correct for the possibility of the database entries for response and messages counts, a utitility is provided to recount these fields.
-			The recount utility is accessed from the <a href="{% url 'utilities' %}">utilities</a> page.
-			When you recount responses and messages, Farnsworth iterates over the set of requests, checks if the number of responses in the database is
-			different from the number present in the model instance of each request, and if it is different, Farnsworth changes the model field of
-			the request to reflect the newly counted number of responses.
-			Thread messages are counted in an identical fashion.
-			</p>
-			<p>Since UPDATEs are heavier, resource-wise, than SELECTs, in database systems, this setup is more efficient than recounting responses or messages
-			for and changing every instance of request and thread, since it reduces the number of UPDATEs while maintaining the number of SELECTs.
-			</p>
-			<p>Even still, the recount process may still take a while.
-			Avoid having to use this utility by not messing with the Django admin interface often.
-			</p>
-		<h2 class="sub_subtitle"><a name="django" title="A link to this sub-section" href="#django">&sect;</a> Django Admin</h2>
-			<p>If you absolutely must use the Django admin interface, here are a few quick tips on how to use it.
-			</p>
-			<p>Django arranges its admin interface by application.  There are several applications that make up the whole of Farnsworth.
-			These include an application for threads, an application for requests and announcements, and an application for events.
-			You can click on the header of each of the tables to see just that application or select one of the model types listed.
-			By selecting one of the listed model types, you can get a list of all model instances of that type.
-			Then you can delete or modify these models.
-			</p>
-			<p>
-			Certain fields have been disabled for models.  You can change this aspect of the program with some effort.
-			If you haven't worked with Django before, contact Karandeep for more details on how to do this.
-			</p>
-			<p>There are also links form these pages to add new instances of models.  You can use these to manually create models,
-			though this is not a very likely scenario.
-			</p>
-			<p>The Django auth application is used for handling user authentication.
-			The auth package includes a user model and a group model.  The user model contains the core set of fields for users on this site.
-			But to augment this set, a user profile model with a one-to-one relationship was created in the threads application.
-			This decision was made to make it easy to integrate Farnsworth with other Django applications or with other interfaces that are Django-compatible.
-			</p>
-			<p><b>Note that deleting a user will delete all model instances dependent on that user instance.</b>
-			This means that all threads (including mesages associated with a thread started by the user), all messages,
-			all requests (including all responses associated with a request posted by the user), etc. are deleted when a user is deleted.
-			Do this only if you really really <b>really</b> need to delete a user.  You will be prompted with the repercussions of deleting
-			a model when you try to delete any model at all from the Django interface.
-			</p>
-			<p>For most cases, though, simply deactivating users is sufficient and encouraged.
-			</p>
-			<p>Django fully supports groups and permissions in case you ever need to implement a system that needs either or both of those features.
-			For example, you can group users together by semester and then create a custom filter for the member directory or manage users page
-			to see only users who are in that semester group.  This feature is not currently on the roadmap for Farnsworth but would be a useful
-			feature for the future, especially as the number of users grows linearly every semester.
-			</p>
-			<p>Managing all models is identical through the Django admin interface.
-			Please refer to Django's documentation for more on how to use the admin interface to manage model instances.
-			</p>
-		</div> <!-- #admin_misc_body -->
-	</div> <!-- #admin_misc -->
-	</div> <!-- .row -->
-	{% endif %}
-	
-	{% if user.is_superuser or PRESIDENT %}
-	<div class="row">
-	<div id="meta_manager" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="meta_manager" title="A link to this section" href="#meta_manager">&sect;</a></small>
-			President: Meta-Manager
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="meta_manager_body" class="toggleable">
-		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle"><a name="adding_managers" title="A link to this sub-section" href="#adding_managers">&sect;</a> Adding Managers</h2>
-			<p>Managers are managed from the <a href="{% url 'meta_manager' %}">meta-manager</a> page.
-			</p>
-			<p>You can add a new manager by clicking the top right button on the meta-manager page or by going directly to
-			the <a href="{% url 'add_manager' %}">add manager</a> page.  A manager position can have only one incumbent.  Keep this in mind.
-			</p>
-			<p>Since houses allow multiple members to hold the same position, an "active" status is available for these scenarios.
-			The recommended way to have multiple members hold the same position is to create multiple types of a singular position.
-			So, for example, to have a Kitchen Manager position that can have more than one incumbent, create two (or three or four, depending on your house)
-			instances of Kitchen Managers (Kitchen Manager 1, Kitchen Manager 2, ...) and then deactive the excess manager positions.
-			</p>
-			<p>Though this may seem a shortcoming of the site, in practical terms, it's a decision between a clean end-user experience
-			and a clean site admin experience.  Having multiple incumbents for the same position makes sorting and searching more cumbersome for the user.
-			A simple injective relation is optimal for understanding managers and incumbents.
-			</p>
-			<p>Yes, this implementation does mean slightly more work for you. But it means significantly less combined mental work for end-users.
-			</p>
-			<p>All fields in the form to add a new manager are optional except the manager title field.
-			Farnsworth auto-generates the URL key for the manager from the title you provide by lower-casing all letters, replacing spaces with underscore,
-			and a few other things that are covered in the documentation.
-			"Kitchen Manager 1" &rarr; "kitchen_manager_1", "WRM" &rarr; "wrm", etc.  These URLs are used to reference managers in the directory
-			and the meta-manager.  You will be thrown an error when adding a manager whose URL collides with a previous URL.
-			</p>
-			<p>The "president" status gives the user rights to do President duties, which currently include managing managers and managing request types.
-			Planned expansion of these duties include managing petitions, elections, and a few other things.
-			</p>
-			<p>The "workshift manager" status is currently not used but is included in case a workshift package is rolled out in the future.
-			</p>
-			<p>The "active" status indicates whether the manager is visible in the directory to the general membership 
-			</p>
-			<p>The e-mail form should be for official e-mails for that manager, not personal e-mails.  Personal e-mails are under individual users' control.
-			This field is optional as not all manager positions have dedicated e-mail addresses.
-			</p>
-			<p><b>If there is a manager position without an e-mail address and the incumbent has set her/his e-mail to be visible to everyone,
-			the incumbent's e-mail will be displayed in the manager directory and in individual manager descriptions,
-			with a short snippet saying that the listed e-mail address is a personal e-mail address.</b>
-			</p>
-			<p>So you don't need to go get the incumbent's permission and then add her/his e-mail to the manager record,
-			and then delete it again when the incumbent's e-mail or the incumbent herself changes.
-			Besides succinctness, this implementation gives users better control over their own information and its visibility.
-			</p>
-			<p>The incumbent field is optional and excludes all alumni.  Effectively, only residents and boarders can hold manager positions.
-			If an incumbent for the position doesn't exist, leave the option blank (displayed as a series of dashes)
-			and the position will be created without an incumbent.
-			</p>
-		<h2 class="sub_subtitle"><a name="managing_managers" title="A link to this sub-section" href="#managing_managers">&sect;</a> Managing Managers</h2>
-			<p>There is a catch in that when a user is changed from a resident or boarder to an alumnus, s/he continues to be the incumbent for the position.
-			So, some maintenance on the site is required on your part at the beginning and end of each term,
-			or whenever a manager position is vacated/refilled.
-			</p>
-			<p>For this maintenance work, you will need to modify manager instances.
-			</p>
-			<p>You can see a list of managers and links to their modification pages, incumbent user profile pages, and manager e-mails from
-			the <a href="{% url 'meta_manager' %}">meta-manager</a> (a manager of managers) page.
-			This list will tell you most of the handy information about each manager, as well.
-			Unlike the manager directory, this list does not show incumbents' personal e-mails.
-			The meta-manager table is sortable, just like any other table in Farnsworth.
-			You can hold down the <kbd>Shift</kbd> key and click multiple table headers to sort by all of the ones you select.
-			</p>
-			<p>When you click on the title of each manager, you will be directed to a page to modify that manager instance.
-			This form is identical to the add manager form; so details will not be covered here.
-			The same conditions apply and the same tests apply when you try to modify a manager as when you add a manager.
-			If you try to change a manager to have the same title as a different existing manager, you will be thrown an error.
-			Similarly, if the URL name resolved from the title you gave collides with the URL of a different existing manager, you will be thrown an error.
-			</p>
-		</div> <!-- #meta_manager_body -->
-	</div> <!-- #meta_manager -->
-	</div> <!-- .row -->
-	
-	<div class="row">
-	<div id="request_types" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="request_types" title="A link to this section" href="#request_types">&sect;</a></small>
-			President: Request Types
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="request_types_body" class="toggleable">
-		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle"><a name="about_request_types" title="A link to this sub-section" href="#about_request_types">&sect;</a> About Request Types</h2>
-			<p>Farnsworth abstracts manager requests so that request types can be created on the fly as needed.
-			A request type is simple.  It has a name, relevant managers, an enabled status, and an optional glyphicon.
-			Names should be unique and resolve to unique URLs.  URLs are resolved by lowercasing all letters, replacing space characters with underscores,
-			replacing &amp;'s with "and"s, and removing special characters such as *, $, !, and ?.
-			</p>
-			<p>A request type's relevant managers are all the managers to whom requests of that type are made.
-			The enabled status controls whether new requests of that type can be made.
-			However, even if a request type is disabled, users will be able to post new responses to requests.
-			Disabling request types can be useful when a manager position has been vacated, managers are being harassed on the site, etc.
-			</p>
-			<p>When there are no existing or enabled request types, the Requests dropdown menu will disappear.
-			The dropdown menu only appears when there is at least one enabled request type.
-			When request types are enabled, they will automatically be added to the list in the dropdown menu.
-			When request types are disabled, they will automatically be removed from the list.
-			</p>
-			<p>You can see a list of request types from the <a href="{% url 'manage_request_types' %}">manage request types</a> page.
-			</p>
-		<h2 class="sub_subtitle"><a name="adding_request_types" title="A link to this sub-section" href="#adding_request_types">&sect;</a> Adding Request Types</h2>
-			<p>The Add Request Type button on the <a href="{% url 'manage_request_types' %}">manage request types</a> page will take you to the
-			<a href="{% url 'add_request_type' %}">add request type</a> page.  Filling out and submitting this form will add a new request type.
-			</p>
-			<p>It is recommended, for presentability, that request types be treated as titles (first letter of each word capitalized, unless an acronym).
-			Request type names are converted to URLs in the same manner as the manager titles; so the same rules apply to request type names as manager titles.
-			</p>
-			<p>Glyphicons are optional.  If you leave the field blank, the default icon (the inbox icon used for the Requests dropdown menu) will be used
-			for the request type.
-			If you mistype the glyphicon, however, no icon will be displayed.
-			There is a link in the form (which opens in a new tab) to all the currently available glyphicons.
-			You can use any of them, but it might be better to steer clear of a few key ones used elsewhere in Farnsworth and others that serve
-			as warning symbols.
-			</p>
-			<p>Here is a list of some of the glyphicons and their recommended use:
-			</p>
-			<ul style="list-style: none;">
-				<li>Food: cutlery - <span class="glyphicon glyphicon-cutlery"></span></li>
-				<li>Maintenance: wrench - <span class="glyphicon glyphicon-wrench"></span></li>
-				<li>Health: heart - <span class="glyphicon glyphicon-heart"></span>
-					or heart-empty - <span class="glyphicon glyphicon-heart-empty"></span></li>
-				<li>Garden: tree-conifer - <span class="glyphicon glyphicon-tree-conifer"></span>
-					or tree-deciduous - <span class="glyphicon glyphicon-tree-deciduous"></span></li>
-				<li>Social: glass - <span class="glyphicon glyphicon-glass"></span></li>
-				<li>House Manager: credit-card - <span class="glyphicon glyphicon-credit-card"></span></li>
-				<li>Site: globe - <span class="glyphicon glyphicon-globe"></span></li>
-				<li>Network: signal - <span class="glyphicon glyphicon-signal"></span></li>
-				<li>Supplies: shopping-cart - <span class="glyphicon glyphicon-shopping-cart"></span></li>
-				<li>Geek Social: film - <span class="glyphicon glyphicon-film"></span></li>
-				<li>Waste Reduction: trash - <span class="glyphicon glyphicon-trash"></span></li>
-				<li>Historian: camera - <span class="glyphicon glyphicon-camera"></span></li>
-			</ul>
-			<p>There is no hard limitation preventing you from using the same glyphicon for multiple request types,
-			but it will greatly enhance user experience if you use glyphicons intelligently.
-			</p>
-			<p>When users access this site from a small screen (smart phones, etc. &lt; 768px in width), text from certain buttons is not displayed,
-			and only the glyphicon in those buttons is displayed.
-			In these cases, it can help to have an intuitive glyphicon for users to know what request type they are accessing, to which page they are
-			navigating, etc.
-			Also in these cases, it is especially crucial to type the glyphicon correctly as the buttons will be empty (since there is no glyphicon)
-			if the glyphicon is mistyped.
-			</p>
-		<h2 class="sub_subtitle"><a name="managing_request_types" title="A link to this sub-section" href="#managing_request_types">&sect;</a> Managing Request Types</h2>
-			<p>You can see a list of all the request types with links to modify them, relevant managers, and whether they are enabled from the
-			<a href="{% url 'manage_request_types' %}">manage request types</a> page.
-			From here, you can also see links to view relevant managers or their incumbents.
-			When you click on the name of a request type, you will be taken to the modify request type page.
-			</p>
-			<p>This form is identical to the add request type page.
-			</p>
-		</div> <!-- # request_types_body -->
-	</div> <!-- #request_types -->
-	</div> <!-- .row -->
-	{% endif %}
-	
-	<div class="row">
-	<div id="navigation" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="navigation" title="A link to this section" href="#navigation">&sect;</a></small>
-			Navigation
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="navigation_body" class="toggleable">
-		<hr style="width: 75%;" />
-			<p>The site is quite expansive and has dynamically generated content and pages.
-			It grows as the site is used more - as more users are added, more user profile pages (and ancillary pages) are available;
-			as more requests or threads are started, more pages to view them in detail are added.
-			</p>
-			<p>Most navigation is done from the navigation bar at the top of every page.
-			The menu options are fairly clear.
-			</p>
-			<p>The first link redirects to the home page, which presents recent and important information, including events in the next 24 hours,
-			pinned manager announcements, recently active threads, and, if you are a manager responsible for addressing certain request types,
-			you will be presented with all open, unfilled requests of those request types, as well.
-			</p>
-			<p>The second is a dropdown menu regarding your profile.
-			From here, you can access pages to edit your profile, update your password, see all your requests and all your threads,
-			and a link to logout of the site.
-			</p>
-			<p>If there are any enabled request types, the next link will be a dropdown menu for requests.
-			From here, you can see recent requests for a selected request type.
-			</p>
-			<p>The next choice is the Go menu, which contains a bulk of links to various pages.
-			First come the two directories - one for members and one for managers.
-			Next, a page with pinned manager announcements.
-			Then a list of all upcoming events, and then a link to see the external landing to the page.
-			Below that are several links to archives for threads, announcements, events, and requests.
-			Below that are links to this help page and the <a href="{% url 'site_map' %}">site map</a> page.
-			</p>
-			<p>However, interspersed throughout the site are links to various pages.
-			The most common of these are links to profile pages.
-			But there are also links to see manager details, members' posted threads and requests, and other pages.
-			</p>
-		</div> <!-- #navigation_body -->
-	</div> <!-- #navigation -->
-	</div> <!-- .row -->
+    <div class="row">
+    <div id="admin_misc" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="admin_miscellaneous" title="A link to this section" href="#admin_miscellaneous">&sect;</a></small>
+            Admin: Miscellaneous
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="admin_misc_body" class="toggleable">
+        <hr style="width: 75%;" />
+        <h2 class="sub_subtitle"><a name="anonymous_user" title="A link to this sub-section" href="#anonymous_user">&sect;</a> Anonymous User</h2>
+            <p>Farnsworth comes prepackaged with an anonymous user.  This user (and profile) is autogenerated the first time you start an anonymous session.
+            The default username is {{ ANONYMOUS_USERNAME }}.  This can be changed from the settings file (/path/to/head/farnsworth/settings.py)
+            <b>before starting a first anonymous session.  Don't change this setting if the anonymous user already exists.</b>
+            The autogenerated user is named Anonymous Coward.  This is a bit trickier to change; contact Karandeep if you really want to change this.
+            </p>
+            <p>The anonymous user is intended for logins on common space machines.  Since users will want access to the site fairly quickly on common space
+            machines and won't want to login and logout constantly to check minor things, the anonymous user can be used to fill the need.
+            The anonymous user is prevented from up/down voting requests or RSVP-ing to events.  But the account is permitted to start threads,
+            post messages, make requests, post responses, and start events.
+            </p>
+            <p>An anonymous session is started from the <a href="{% url 'utilities' %}">utilities</a> page.  Login on a common space machine
+            and go to this page and start an anonymous session.  When the anonymous user is logged in, the profile links are disabled and replaced by
+            a login link.  Users can temporarily login to assume identity.  When a logged in user logs out, the anonymous user will be logged in and
+            the anonymous session will resume.  Anonymous sessions are easy to detect as the login/profile link (the second link in the menu) is red
+            during an anonymous session.
+            </p>
+            <p><b>Logout is disabled for the anonymous user.</b>  To logout the anonymous user and end the anonymous session, login as yourself in the
+            anonymous session, go to the <a href="{% url 'utilities' %}">utilities</a> page, and end the anonymous session.
+            This will logout the anonymous user and end the anonymous session.
+            Your session will resume.  So make sure to logout yourself if you intend to leave the computer.
+            </p>
+            <p>The anonymous user is also forbidden from modifying the anonymous user profile.
+            An error message will be displayed if a user tries to modify the anonymous user profile from the my profile page.
+            The member directory excludes the anonymous user and the profile for the anonymous user
+            </p>
+        <h2 class="sub_subtitle"><a name="recounts" title="A link to this sub-section" href="#recounts">&sect;</a> Model Recounts</h2>
+            <p>To save processor power and increase efficiency, Farnsworth counts thread messages and request responses very infrequently.
+            These fields are incremented whenever a new message or response is posted.
+            However, if messages or responses are deleted (only through the Django admin interface), or users or user profiles are deleted
+            (also only through the Django admin interface), these fields can fall out of sync.
+            The fact that this can happen is one of the reasons you are discouraged from using the Django admin interface.
+            To further the development of Farnsworth, you are encouraged to write your own interface for doing things not currently supported.
+            </p>
+            <p>To correct for the possibility of the database entries for response and messages counts, a utitility is provided to recount these fields.
+            The recount utility is accessed from the <a href="{% url 'utilities' %}">utilities</a> page.
+            When you recount responses and messages, Farnsworth iterates over the set of requests, checks if the number of responses in the database is
+            different from the number present in the model instance of each request, and if it is different, Farnsworth changes the model field of
+            the request to reflect the newly counted number of responses.
+            Thread messages are counted in an identical fashion.
+            </p>
+            <p>Since UPDATEs are heavier, resource-wise, than SELECTs, in database systems, this setup is more efficient than recounting responses or messages
+            for and changing every instance of request and thread, since it reduces the number of UPDATEs while maintaining the number of SELECTs.
+            </p>
+            <p>Even still, the recount process may still take a while.
+            Avoid having to use this utility by not messing with the Django admin interface often.
+            </p>
+        <h2 class="sub_subtitle"><a name="django" title="A link to this sub-section" href="#django">&sect;</a> Django Admin</h2>
+            <p>If you absolutely must use the Django admin interface, here are a few quick tips on how to use it.
+            </p>
+            <p>Django arranges its admin interface by application.  There are several applications that make up the whole of Farnsworth.
+            These include an application for threads, an application for requests and announcements, and an application for events.
+            You can click on the header of each of the tables to see just that application or select one of the model types listed.
+            By selecting one of the listed model types, you can get a list of all model instances of that type.
+            Then you can delete or modify these models.
+            </p>
+            <p>
+            Certain fields have been disabled for models.  You can change this aspect of the program with some effort.
+            If you haven't worked with Django before, contact Karandeep for more details on how to do this.
+            </p>
+            <p>There are also links form these pages to add new instances of models.  You can use these to manually create models,
+            though this is not a very likely scenario.
+            </p>
+            <p>The Django auth application is used for handling user authentication.
+            The auth package includes a user model and a group model.  The user model contains the core set of fields for users on this site.
+            But to augment this set, a user profile model with a one-to-one relationship was created in the threads application.
+            This decision was made to make it easy to integrate Farnsworth with other Django applications or with other interfaces that are Django-compatible.
+            </p>
+            <p><b>Note that deleting a user will delete all model instances dependent on that user instance.</b>
+            This means that all threads (including mesages associated with a thread started by the user), all messages,
+            all requests (including all responses associated with a request posted by the user), etc. are deleted when a user is deleted.
+            Do this only if you really really <b>really</b> need to delete a user.  You will be prompted with the repercussions of deleting
+            a model when you try to delete any model at all from the Django interface.
+            </p>
+            <p>For most cases, though, simply deactivating users is sufficient and encouraged.
+            </p>
+            <p>Django fully supports groups and permissions in case you ever need to implement a system that needs either or both of those features.
+            For example, you can group users together by semester and then create a custom filter for the member directory or manage users page
+            to see only users who are in that semester group.  This feature is not currently on the roadmap for Farnsworth but would be a useful
+            feature for the future, especially as the number of users grows linearly every semester.
+            </p>
+            <p>Managing all models is identical through the Django admin interface.
+            Please refer to Django's documentation for more on how to use the admin interface to manage model instances.
+            </p>
+        </div> <!-- #admin_misc_body -->
+    </div> <!-- #admin_misc -->
+    </div> <!-- .row -->
+    {% endif %}
 
-	<div class="row">
-	<div id="tips" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="tips" title="A link to this section" href="#tips">&sect;</a></small>
-			General Tips
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="tips_body" class="toggleable">
-		<hr style="width: 75%;" />
-			<p>All tables in Farnsworth are sortable.  If you click on the header of a table, you will sort by the items in that column.
-			You can hold down <kbd>Shift</kbd> and click multiple column headers to sort by each one successively.
-			</p>
-			<p><b>Be careful of what you post on the site.</b>
-			If you post something on the site, it is a tedious process for the admin to delete your post.
-			Admins may refuse to do so since the process can sometimes be dangerous to database integrity.
-			<b>Admins are discouraged from deleting posts in Farnsworth's documentation due to this risk.</b>
-			</p>
-			<p>The site collapses to a mobile version when the screen size reduces down to an extra small size (&lt; 768px in width) or if
-			the site is launched with a small screen size.
-			Several things happen dynamically:
-			</p>
-			<ul style="list-style: none">
-				<li>Font size in container headers (colored horizontal bars at top of containers) changes as screen size changes.</li>
-				<li>Text from container header buttons disappears when the screen gets to the extra small size.</li>
-				<li>Certain text elements are replaced by others upon screen size change.</li>
-				<li>Certain images and maps are replaced by others or disappear entirely when the screen is extra small.</li>
-				<li>Some containers rearrange themselves depending on the site of the screen.
-				Some containers will be side-by-side on larger screens but one-above-the-other in smaller screens.
-				</li>
-			</ul>
-			<p>Learning to use the site is done best on large screens, as the mobile version is essentially reduced in visual aids,
-			such as the text in container header buttons.
-			Using the mobile version is not cumbersome, still.
-			</p>
-			<p>The contents of containers will sometimes be too large for containment, especially on extra small screens.
-			In these cases, the overflow contents of containers become horizontally scrollable.
-			On mobile devices, you can tap and drag the contents of a table to scroll horizontally.
-			Try this out on a small smart phone screen with the threads list on the homepage.
-			</p>
-			<p>The site uses several third-party packages, like TinyMCE, Bootstrap Datetime-Picker, and Django-Haystack.
-			Details on how to use these check the <a href="#miscellaneous">miscellaneous</a> section.
-			</p>
-		</div> <!-- #tips_body -->
-	</div> <!-- #tips -->
-	</div> <!-- .row -->
+    {% if user.is_superuser or PRESIDENT %}
+    <div class="row">
+    <div id="meta_manager" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="meta_manager" title="A link to this section" href="#meta_manager">&sect;</a></small>
+            President: Meta-Manager
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="meta_manager_body" class="toggleable">
+        <hr style="width: 75%;" />
+        <h2 class="sub_subtitle"><a name="adding_managers" title="A link to this sub-section" href="#adding_managers">&sect;</a> Adding Managers</h2>
+            <p>Managers are managed from the <a href="{% url 'managers:meta_manager' %}">meta-manager</a> page.
+            </p>
+            <p>You can add a new manager by clicking the top right button on the meta-manager page or by going directly to
+            the <a href="{% url 'managers:add_manager' %}">add manager</a> page.  A manager position can have only one incumbent.  Keep this in mind.
+            </p>
+            <p>Since houses allow multiple members to hold the same position, an "active" status is available for these scenarios.
+            The recommended way to have multiple members hold the same position is to create multiple types of a singular position.
+            So, for example, to have a Kitchen Manager position that can have more than one incumbent, create two (or three or four, depending on your house)
+            instances of Kitchen Managers (Kitchen Manager 1, Kitchen Manager 2, ...) and then deactive the excess manager positions.
+            </p>
+            <p>Though this may seem a shortcoming of the site, in practical terms, it's a decision between a clean end-user experience
+            and a clean site admin experience.  Having multiple incumbents for the same position makes sorting and searching more cumbersome for the user.
+            A simple injective relation is optimal for understanding managers and incumbents.
+            </p>
+            <p>Yes, this implementation does mean slightly more work for you. But it means significantly less combined mental work for end-users.
+            </p>
+            <p>All fields in the form to add a new manager are optional except the manager title field.
+            Farnsworth auto-generates the URL key for the manager from the title you provide by lower-casing all letters, replacing spaces with underscore,
+            and a few other things that are covered in the documentation.
+            "Kitchen Manager 1" &rarr; "kitchen_manager_1", "WRM" &rarr; "wrm", etc.  These URLs are used to reference managers in the directory
+            and the meta-manager.  You will be thrown an error when adding a manager whose URL collides with a previous URL.
+            </p>
+            <p>The "president" status gives the user rights to do President duties, which currently include managing managers and managing request types.
+            Planned expansion of these duties include managing petitions, elections, and a few other things.
+            </p>
+            <p>The "workshift manager" status is currently not used but is included in case a workshift package is rolled out in the future.
+            </p>
+            <p>The "active" status indicates whether the manager is visible in the directory to the general membership
+            </p>
+            <p>The e-mail form should be for official e-mails for that manager, not personal e-mails.  Personal e-mails are under individual users' control.
+            This field is optional as not all manager positions have dedicated e-mail addresses.
+            </p>
+            <p><b>If there is a manager position without an e-mail address and the incumbent has set her/his e-mail to be visible to everyone,
+            the incumbent's e-mail will be displayed in the manager directory and in individual manager descriptions,
+            with a short snippet saying that the listed e-mail address is a personal e-mail address.</b>
+            </p>
+            <p>So you don't need to go get the incumbent's permission and then add her/his e-mail to the manager record,
+            and then delete it again when the incumbent's e-mail or the incumbent herself changes.
+            Besides succinctness, this implementation gives users better control over their own information and its visibility.
+            </p>
+            <p>The incumbent field is optional and excludes all alumni.  Effectively, only residents and boarders can hold manager positions.
+            If an incumbent for the position doesn't exist, leave the option blank (displayed as a series of dashes)
+            and the position will be created without an incumbent.
+            </p>
+        <h2 class="sub_subtitle"><a name="managing_managers" title="A link to this sub-section" href="#managing_managers">&sect;</a> Managing Managers</h2>
+            <p>There is a catch in that when a user is changed from a resident or boarder to an alumnus, s/he continues to be the incumbent for the position.
+            So, some maintenance on the site is required on your part at the beginning and end of each term,
+            or whenever a manager position is vacated/refilled.
+            </p>
+            <p>For this maintenance work, you will need to modify manager instances.
+            </p>
+            <p>You can see a list of managers and links to their modification pages, incumbent user profile pages, and manager e-mails from
+            the <a href="{% url 'managers:meta_manager' %}">meta-manager</a> (a manager of managers) page.
+            This list will tell you most of the handy information about each manager, as well.
+            Unlike the manager directory, this list does not show incumbents' personal e-mails.
+            The meta-manager table is sortable, just like any other table in Farnsworth.
+            You can hold down the <kbd>Shift</kbd> key and click multiple table headers to sort by all of the ones you select.
+            </p>
+            <p>When you click on the title of each manager, you will be directed to a page to modify that manager instance.
+            This form is identical to the add manager form; so details will not be covered here.
+            The same conditions apply and the same tests apply when you try to modify a manager as when you add a manager.
+            If you try to change a manager to have the same title as a different existing manager, you will be thrown an error.
+            Similarly, if the URL name resolved from the title you gave collides with the URL of a different existing manager, you will be thrown an error.
+            </p>
+        </div> <!-- #meta_manager_body -->
+    </div> <!-- #meta_manager -->
+    </div> <!-- .row -->
 
-	<div class="row">
-	<div id="profile" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="profile_management" title="A link to this section" href="#profile_management">&sect;</a></small>
-			Profile Management
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="profile_body" class="toggleable">
-		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle"><a name="profile" title="A link to this sub-section" href="#profile">&sect;</a> Profile Details</h2>
-			<p>Control over your profile is handled through the <a href="{% url 'my_profile' %}">my profile page</a>.
-			You can access this page from anywhere from the top menu.
-			Links to this page are also sprinkled across the website - a link appears anywhere you posted an event, request, thread message, etc.
-			</p>
-			<p>Please note, <b>you cannot edit your first or last names, but you can request your site admin to do it for you.</b>
-			</p>
-			<p>By default, your first &amp; last names and username are visible to all users, but your e-mail and phone number are only visible
-			to the site admin and no one else.
-			</p>
-			<p>However, you can allow others to see your e-mail address and phone number by toggling the e-mail visible and phone visible checkboxes
-			in the update profile container.
-			Doing so will display your phone and e-mail in the member directory and in your profile.
-			Your e-mail will also become searchable when it is made visible; so that others can search for your profile by your e-mail.
-			</p>
-			<p>Enabling phone visible will also display your phone number in the manager directory and the manager details
-			for all manager positions you hold.
-			Enabling e-mail visible will display your e-mail if a manager e-mail does not exist for a position you hold.
-			</p>
-			<p>The current room, former rooms, and other houses fields are also indexed for search, meaning people can find you by your room
-			or affiliation with other houses if you input this information.
-			</p>
-			<p>Whenever you remove information, it is removed from the indexes.
-			So if you later decide that you don't people to be able to search for you by a particular field, you can erase the field.
-			</p>
-		<h2 class="sub_subtitle"><a name="password" title="A link to this sub-section" href="#password">&sect;</a> Password</h2>
-			<p>You can change your password from the same page using the change password form at the bottom.
-			</p>
-			<p>For your security, your password is hashed before storage.
-			Hashing is a function that takes a regular value converts it to a value that is impossible to decrypt back to its original value
-			using the current technology.
-			Hashing makes your passwords safe and it's commonly done throughout the IT industry.
-			</p>
-			<p>This means that admins cannot see your password.
-			You and only you should know your own password.
-			However, if you ever forget or lose your password, an admin can reset it for you.
-			</p>
-		<h2 class="sub_subtitle"><a name="profile_history" title="A link to this sub-section" href="#profile_history">&sect;</a> Profile History</h2>
-			<p>You can see some parts of your profile history from the profile dropdown menu items in the top navbar.
-			These include links to see all your requests and all the threads you have started.
-			You cannot see all the messages you have posted, but you can search for threads you have posted to
-			or search for the thread subject itself.
-			</p>
-			<p>There are two views each of these two types of pages, but the ones that are linked in the menu are the concise ones.
-			These will simply list your requests or threads with meta-data and some core details about them.
-			The expanded views can be slow to load, but you ca load them from the simple views using the buttons in the container headers.
-			</p>
-		</div> <!-- #profile_body -->
-	</div> <!-- #profile -->
-	</div> <!-- .row -->
-	
-	<div class="row">
-	<div id="threads" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="threads" title="A link to this section" href="#threads">&sect;</a></small>
-			Threads
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="threads_body" class="toggleable">
-		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle"><a name="starting_threads" title="A link to this sub-section" href="#starting_threads">&sect;</a> Starting Threads</h2>
-			<p>Threads in Farnsworth are designed like e-mail threads in most ways.
-			You can start threads from various pages, including the homepage and the member forums page.  The form is identical from any page.
-			Both the subject and the body of the form are required.
-			The subject will constitute a title for the thread and the body will constitute the first message in the thread.
-			</p>
-			<p>After you have started a thread, anyone can add a message to that thread.
-			Messages in threads are sorted by date.
-			The old message (the one used to start the thread) is always listed first, and the most recent message is always listed last.
-			</p>
-			<p>Threads are not deactivated and can be "revived" by simply posting another message in the thread.
-			For reference, the homepage grabs the most recently modified threads to list.
-			So if you add another message to a really old thread, it will be pushed to the top of the list on the homepage,
-			grabbing attention for the thread from the entire membership.
-			</p>
-		<h2 class="sub_subtitle"><a name="adding_messages" title="A link to this sub-section" href="#adding_messages">&sect;</a> Adding Messages</h2>
-			<p>You can add a message to a thread from a view with the thread.
-			Generally this will be from the member forums or the thread view page.
-			Messages require only a body and are fully editable and just like the body of a new thread.
-			</p>
-			<p>New messages are added to the end of a thread and displayed below all prior messages.
-			Threads are therefore designed completely linearly, rather than as trees
-			- how some forums on the Internet are designed.
-			</p>
-			<p>For the growth and spread of discussions, you are encouraged to branch threads by
-			creating new ones similar subjects to steer the discussion is a different direction or to focus
-			in on a specific issue in the parent discussion.
-			</p>
-			<p>Doing so will keep threads clear and concise while allowing for full discussion.
-			</p>
-		</div> <!-- #threads_body -->
-	</div> <!-- #threads -->
-	</div> <!-- .row -->
-	
-	<div class="row">
-	<div id="requests" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="requests" title="A link to this section" href="#requests">&sect;</a></small>
-			Requests
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="requests_body" class="toggleable">
-		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle"><a name="about_requests" title="A link to this sub-section" href="#about_requests">&sect;</a> About Requests</h2>
-			<p>If your House President adds and enables request types, you will see a requests dropdown menu appear in the navigation bar.
-			From here, you can select a request type and add requests of that type for managers to address.
-			</p>
-			<p>Each request type has a list of relevant managers.
-			Active relevant managers and their incumbents will be displayed whenever you visit a request page.
-			For example, for food requests, the relevant manager might be your Kitchen Manager or Food Manager
-			or multiple Food Managers or Kitchen Managers.
-			</p>
-			<p>When a relevant manager posts a response to a request, the body of the reponse will be colored a light blue
-			and have hover text indicating that the response is a manager response.
-			</p>
-			<p>Relevant managers also have the ability to mark requests closed or filled.
-			A filled request will have a light green body and a closed request will have a light red body.
-			Hovering over the body of a request will display hover text indicating the request's status (open, filled, or closed).
-			</p>
-			<p>Requests also keep a running record of up votes.
-			All user up votes are recorded and the number tabulated upon display of requests.
-			</p>
-		<h2 class="sub_subtitle"><a name="working_with_requests" title="A link to this sub-section" href="#working_with_requests">&sect;</a> Working with Requests</h2>
-			<p>You can add a new request of a certain request type from that request type's request page.
-			Requests contain just a body that is fully editable like the body of a thread or message.
-			</p>
-			<p>After you have posted your request, you or anyone else can add a response to the request.
-			Others can also up vote your request to express support for your request.
-			If you up vote a request, you can cancel your up vote by clicking the cancel up vote link.
-			</p>
-			<p>The vote count will be displayed next to the name of the person who originally posted the request.
-			Clicking on this count will display a dropdown menu containing a list of up votes for that request.
-			You can click on any of these names to see the up voter's profile.
-			</p>
-		</div> <!-- #requests_body -->
-	</div> <!-- #requests -->
-	</div> <!-- .row -->
-	
-	<div class="row">
-	<div id="announcements" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="announcements" title="A link to this section" href="#announcements">&sect;</a></small>
-			Announcements
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="announcements_body" class="toggleable">
-		<hr style="width: 75%;" />
-			<p>If you are a manager, you can make an announcement that will be pinned to the home page
-			and the manager announcements page until you unpin it.
-			If you unpin an announcement and want it to be repinned, you can visit the
-			<a href="{% url 'all_announcements' %}">all announcements</a> page to repin it to the home page and
-			the manager announcement page.
-			</p>
-			<p>Announcements are meant to be high priority addresses to the entire house.
-			You can use announcements to warn the house about emergencies or provide critial information.
-			</p>
-			<p>Once you have posted an announcement, it will automatically be pinned to the home page and the
-			manager announcement page.
-			You can unpin the announcement by clicking the unpin link at the bottom right side of the announcement.
-			Doing so will move your announcement to the archives, where it can still be seen.
-			</p>
-			<p>If you accidentally unpin an announcement and want to repin it, you can go to the
-			<a href="{% url 'all_announcements' %}">all announcements</a> page and repin it from there.
-			</p>
-			<p>You can edit an announcement by clicking the edit link at the bottom right side of the announcement.
-			Once you edit an announcement and save it, you will be taken to a page that shows you the modified
-			version of the announcement.  From here, if you approve, you can navigate anywhere else.
-			Your announcement is already updated and saved.
-			If you disapprove, you can click edit again and modify the announcement again.
-			</p>
-			<p><b>You cannot modify the announcement of a previous incumbent for a position you hold.</b>
-			However, you can copy paste it and start a new announcement.
-			You can also ask the site admin to modify it or unpin/repin the announcement for you.
-			</p>
-		</div> <!-- #announcements_body -->
-	</div> <!-- #announcements -->
-	</div> <!-- .row -->
-	
-	<div class="row">
-	<div id="events" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="events" title="A link to this section" href="#events">&sect;</a></small>
-			Events
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div id="events_body" class="toggleable">
-		<hr style="width: 75%;" />
-			<p>Events can be posted from the <a href="{% url 'events:list' %}">upcoming events</a> page or the
-			<a href="{% url 'events:all' %}">all events</a> page.
-			All fields except the RSVP and Mark Cancelled checkboxes are required in this form.
-			By default, {{ HOUSE }} will set as the location of the event and the RSVP box will be checked.
-			</p>
-			<p>For picking the date and time of the event, Farnsworth uses Bootstrap Date Time picker, details on which
-			can be found in the <a href="#datetime">Date-Time Picker</a> sub-section of the
-			<a href="#miscellaneous">Miscellaneous</a> section.
-			</p>
-			<p>Once you're posted an event, others can RSVP to it.
-			The list of RSVPs will be displayed with every event.
-			You are by default RSVP'd to the event you posted.
-			You can un-RSVP to the event by clicking the Un-RSVP link at the bottom right of the event.
-			</p>
-			<p>If you need to edit the event, you can do so by clicking the edit link at the bottom right of the event.
-			Once you've modified and saved your event, you will be taken to a view of that event.
-			Your event already updated and saved.  You can edit it again or navigate anywhere you'd like.
-			</p>
-		</div> <!-- #events_body -->
-	</div> <!-- #events -->
-	</div> <!-- .row -->
-	
-	<div class="row">
-	<div id="misc" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-		<h1 class="sub_title text-center">
-			<small><a name="miscellaneous" title="A link to this section" href="#miscellaneous">&sect;</a></small>
-			Miscellaneous
-			<small><a href="#contents" title="To contents">&Dagger;</a></small>
-		</h1>
-		<div class="misc_body" class="toggleable">
-		<hr style="width: 75%;" />
-		<h2 class="sub_subtitle"><a name="tinymce" title="A link to this sub-section" href="#tinymce">&sect;</a> TinyMCE</h2>
-			<p>Farnsworth includes a "what you see is what you get" (WYSIWYG) editor called TinyMCE used in several places in the site.
-			TinyMCE is feature rich and does extensive security checks on its own.
-			TinyMCE allows image and video inserts via <code>iframe</code>s or URL links.
-			Both of these methods can be used through the buttons in the TinyMCE interface.
-			<p>Using URLs is the more straightforward and approachable way to insert videos.
-			TinyMCE will do the work for you in finding the video from the URL you enter and inserting it into your message.
-			This may not work properly sometimes (e.g., when more than one video is on a page).
-			</p>
-			<p>In these cases, you can use the <code>iframe</code> option, which is slightly more work.
-			You will have to get the <code>iframe</code> code from the video you are trying to insert
-			and then paste the code into the text field in the "Embed" tab of the insert/edit video popup of TinyMCE.
-			</p>
-			<p>TinyMCE also supports inserting emoticons, special characters, links, ordered &amp; unordered lists, and horizontal rules.
-			These can all be accessed from the buttons in the interface.
-			</p>
-			<p>Formatting can be done via keyboard as well as the buttons in the interface.
-			For example, you can press <kbd>CTRL</kbd> + <kbd>B</kbd> to <b>bold</b>, <kbd>CTRL</kbd> + <kbd>I</kbd> to <i>italicize</i>,
-			or <kbd>CTRL</kbd> + <kbd>U</kbd> to <u>underline</u> text.
-			The buttons available will allow you greater control over your formatting.
-			You can insert headings, change font size or font, strikethrough text - <strike>like this</strike> - and insert text to be rendered as code - like so:
-			</p>
-			<pre>python hello_world.py</pre>
-			<p>TinyMCE also supports inline code, like so: <code>print "Hello, world!"</code>, divs, paragraphs, and blockquotes:
-			</p>
-			<blockquote>Cogito ergo sum.</blockquote>
-			<p>These options can be selected from the blocks sub-menu in the formats dropdown menu inside TinyMCE.
-			</p>
-			<p>TinyMCE also supports keyboard shortcuts to copy (<kbd>CTRL</kbd> + <kbd>C</kbd>), cut (<kbd>CTRL</kbd> + <kbd>X</kbd>),
-			or paste (<kbd>CTRL</kbd> + <kbd>P</kbd>) text from or to the text field, along with several other keyboard shortcuts.
-			</p>
-			<p><b>However, please note that TinyMCE will preserve the formatting of text you paste into the editor,
-			including background color.</b>
-			So, it is recommended that you paste input as plain text, an option offered by TinyMCE.
-			You can click the paste as plaintext button, which render anything you paste as plaintext until you toggle
-			the plaintext button to off.
-			</p>
-			<p>You can also align your text however you please and undo/redo your changes.
-			</p>
-			<p>However, a downside of using TinyMCE is that your input will not be preserved between attempts to submit forms.
-			So it is crucial that you input all required fields to ensure that the form is submitted on the first try.
-			</p>
-		<h2 class="sub_subtitle"><a name="datetime" title="A link to this sub-section" href="#datetime">&sect;</a> Date-Time Picker</h2>
-			<p>Bootstrap Datetime Picker is used in Farnsworth to pick date and time for events.
-			It allows the selection of a date and then a time from a box that drops down when a datetime field is clicked.
-			The widget allows you to quickly move through dates through several means.
-			</p>
-			<p>You can click on the arrows at the top of the dropdown calendar to flip through the months.
-			If you click on the month year field between the arrows, the widget will swith to a month view,
-			with a year at the top and months listed below.
-			From here, if you click the arrows, you can quickly flip through years, or you can click the year field,
-			which will switch the widget to a year view.
-			From here, you can quickly flip through decades via the arrows at the top.
-			</p>
-			<p>If you click the clock icon <span class="glyphicon glyphicon-time"></span> at the bottom of the calendar,
-			the widget will switch to a time view.
-			From here you can select a time, in hours, minutes, and AM/PM.
-			To switch back to the calendar view, click the calendar icon <span class="glyphicon glyphicon-calendar"></span>
-			at the top of the widget.
-			If you click on the hour button, the widget will switch to an hour selector, form where you can select an hour.
-			If you click the minute button, the widget will switch to a minute selector, allowing you to select a minute field in 3 minutes increments.
-			</p>
-		<h2 class="sub_subtitle"><a name="search" title="A link to this sub-section" href="#search">&sect;</a> Search</h2>
-			<p>Farnsworth uses Django-Haystack for search.
-			Haystack serves as a wrapper around an engine of your setup's choosing.
-			Most likely, your version of Farnsworth was deployed with Elasticsearch, an implementation of Lucene,
-			a pure Java search engine.
-			</p>
-			<p>You can search the entire site from any page via the search bar in the navigation bar.
-			The indexes are updated live; so results should always be up to date.
-			</p>
-			<p>Farnsworth's implementation is designed to use partial-word search.
-			You can search for parts of a word and get effective results.
-			Haystack matches 2-letter combinations for parts of the words you type with parts of all words in the database.
-			</p>
-			<p>As a drawback to this implementation, you will often get results you aren't looking for.
-			But most likely, if you are specific with your search, you will get results you are looking for.
-			</p>
-			<p>Search results can be filtered by clicking the filter button at the top and selecting one of the filter choices, if any.
-			</p>
-			<p>Results are paginated for presentability.
-			Undoubtedly, as the database grows larger, more results will be returned.
-			So, you can click through the pages at the bottom to look through the results for your query.
-			</p>
-		</div> <!-- #misc_body -->
-	</div> <!-- #misc -->
-	</div> <!-- .row -->
+    <div class="row">
+    <div id="request_types" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="request_types" title="A link to this section" href="#request_types">&sect;</a></small>
+            President: Request Types
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="request_types_body" class="toggleable">
+        <hr style="width: 75%;" />
+        <h2 class="sub_subtitle"><a name="about_request_types" title="A link to this sub-section" href="#about_request_types">&sect;</a> About Request Types</h2>
+            <p>Farnsworth abstracts manager requests so that request types can be created on the fly as needed.
+            A request type is simple.  It has a name, relevant managers, an enabled status, and an optional glyphicon.
+            Names should be unique and resolve to unique URLs.  URLs are resolved by lowercasing all letters, replacing space characters with underscores,
+            replacing &amp;'s with "and"s, and removing special characters such as *, $, !, and ?.
+            </p>
+            <p>A request type's relevant managers are all the managers to whom requests of that type are made.
+            The enabled status controls whether new requests of that type can be made.
+            However, even if a request type is disabled, users will be able to post new responses to requests.
+            Disabling request types can be useful when a manager position has been vacated, managers are being harassed on the site, etc.
+            </p>
+            <p>When there are no existing or enabled request types, the Requests dropdown menu will disappear.
+            The dropdown menu only appears when there is at least one enabled request type.
+            When request types are enabled, they will automatically be added to the list in the dropdown menu.
+            When request types are disabled, they will automatically be removed from the list.
+            </p>
+            <p>You can see a list of request types from the <a href="{% url 'managers:manage_request_types' %}">manage request types</a> page.
+            </p>
+        <h2 class="sub_subtitle"><a name="adding_request_types" title="A link to this sub-section" href="#adding_request_types">&sect;</a> Adding Request Types</h2>
+            <p>The Add Request Type button on the <a href="{% url 'managers:manage_request_types' %}">manage request types</a> page will take you to the
+            <a href="{% url 'managers:add_request_type' %}">add request type</a> page.  Filling out and submitting this form will add a new request type.
+            </p>
+            <p>It is recommended, for presentability, that request types be treated as titles (first letter of each word capitalized, unless an acronym).
+            Request type names are converted to URLs in the same manner as the manager titles; so the same rules apply to request type names as manager titles.
+            </p>
+            <p>Glyphicons are optional.  If you leave the field blank, the default icon (the inbox icon used for the Requests dropdown menu) will be used
+            for the request type.
+            If you mistype the glyphicon, however, no icon will be displayed.
+            There is a link in the form (which opens in a new tab) to all the currently available glyphicons.
+            You can use any of them, but it might be better to steer clear of a few key ones used elsewhere in Farnsworth and others that serve
+            as warning symbols.
+            </p>
+            <p>Here is a list of some of the glyphicons and their recommended use:
+            </p>
+            <ul style="list-style: none;">
+                <li>Food: cutlery - <span class="glyphicon glyphicon-cutlery"></span></li>
+                <li>Maintenance: wrench - <span class="glyphicon glyphicon-wrench"></span></li>
+                <li>Health: heart - <span class="glyphicon glyphicon-heart"></span>
+                    or heart-empty - <span class="glyphicon glyphicon-heart-empty"></span></li>
+                <li>Garden: tree-conifer - <span class="glyphicon glyphicon-tree-conifer"></span>
+                    or tree-deciduous - <span class="glyphicon glyphicon-tree-deciduous"></span></li>
+                <li>Social: glass - <span class="glyphicon glyphicon-glass"></span></li>
+                <li>House Manager: credit-card - <span class="glyphicon glyphicon-credit-card"></span></li>
+                <li>Site: globe - <span class="glyphicon glyphicon-globe"></span></li>
+                <li>Network: signal - <span class="glyphicon glyphicon-signal"></span></li>
+                <li>Supplies: shopping-cart - <span class="glyphicon glyphicon-shopping-cart"></span></li>
+                <li>Geek Social: film - <span class="glyphicon glyphicon-film"></span></li>
+                <li>Waste Reduction: trash - <span class="glyphicon glyphicon-trash"></span></li>
+                <li>Historian: camera - <span class="glyphicon glyphicon-camera"></span></li>
+            </ul>
+            <p>There is no hard limitation preventing you from using the same glyphicon for multiple request types,
+            but it will greatly enhance user experience if you use glyphicons intelligently.
+            </p>
+            <p>When users access this site from a small screen (smart phones, etc. &lt; 768px in width), text from certain buttons is not displayed,
+            and only the glyphicon in those buttons is displayed.
+            In these cases, it can help to have an intuitive glyphicon for users to know what request type they are accessing, to which page they are
+            navigating, etc.
+            Also in these cases, it is especially crucial to type the glyphicon correctly as the buttons will be empty (since there is no glyphicon)
+            if the glyphicon is mistyped.
+            </p>
+        <h2 class="sub_subtitle"><a name="managing_request_types" title="A link to this sub-section" href="#managing_request_types">&sect;</a> Managing Request Types</h2>
+            <p>You can see a list of all the request types with links to modify them, relevant managers, and whether they are enabled from the
+            <a href="{% url 'managers:manage_request_types' %}">manage request types</a> page.
+            From here, you can also see links to view relevant managers or their incumbents.
+            When you click on the name of a request type, you will be taken to the modify request type page.
+            </p>
+            <p>This form is identical to the add request type page.
+            </p>
+        </div> <!-- # request_types_body -->
+    </div> <!-- #request_types -->
+    </div> <!-- .row -->
+    {% endif %}
+
+    <div class="row">
+    <div id="navigation" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="navigation" title="A link to this section" href="#navigation">&sect;</a></small>
+            Navigation
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="navigation_body" class="toggleable">
+        <hr style="width: 75%;" />
+            <p>The site is quite expansive and has dynamically generated content and pages.
+            It grows as the site is used more - as more users are added, more user profile pages (and ancillary pages) are available;
+            as more requests or threads are started, more pages to view them in detail are added.
+            </p>
+            <p>Most navigation is done from the navigation bar at the top of every page.
+            The menu options are fairly clear.
+            </p>
+            <p>The first link redirects to the home page, which presents recent and important information, including events in the next 24 hours,
+            pinned manager announcements, recently active threads, and, if you are a manager responsible for addressing certain request types,
+            you will be presented with all open, unfilled requests of those request types, as well.
+            </p>
+            <p>The second is a dropdown menu regarding your profile.
+            From here, you can access pages to edit your profile, update your password, see all your requests and all your threads,
+            and a link to logout of the site.
+            </p>
+            <p>If there are any enabled request types, the next link will be a dropdown menu for requests.
+            From here, you can see recent requests for a selected request type.
+            </p>
+            <p>The next choice is the Go menu, which contains a bulk of links to various pages.
+            First come the two directories - one for members and one for managers.
+            Next, a page with pinned manager announcements.
+            Then a list of all upcoming events, and then a link to see the external landing to the page.
+            Below that are several links to archives for threads, announcements, events, and requests.
+            Below that are links to this help page and the <a href="{% url 'site_map' %}">site map</a> page.
+            </p>
+            <p>However, interspersed throughout the site are links to various pages.
+            The most common of these are links to profile pages.
+            But there are also links to see manager details, members' posted threads and requests, and other pages.
+            </p>
+        </div> <!-- #navigation_body -->
+    </div> <!-- #navigation -->
+    </div> <!-- .row -->
+
+    <div class="row">
+    <div id="tips" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="tips" title="A link to this section" href="#tips">&sect;</a></small>
+            General Tips
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="tips_body" class="toggleable">
+        <hr style="width: 75%;" />
+            <p>All tables in Farnsworth are sortable.  If you click on the header of a table, you will sort by the items in that column.
+            You can hold down <kbd>Shift</kbd> and click multiple column headers to sort by each one successively.
+            </p>
+            <p><b>Be careful of what you post on the site.</b>
+            If you post something on the site, it is a tedious process for the admin to delete your post.
+            Admins may refuse to do so since the process can sometimes be dangerous to database integrity.
+            <b>Admins are discouraged from deleting posts in Farnsworth's documentation due to this risk.</b>
+            </p>
+            <p>The site collapses to a mobile version when the screen size reduces down to an extra small size (&lt; 768px in width) or if
+            the site is launched with a small screen size.
+            Several things happen dynamically:
+            </p>
+            <ul style="list-style: none">
+                <li>Font size in container headers (colored horizontal bars at top of containers) changes as screen size changes.</li>
+                <li>Text from container header buttons disappears when the screen gets to the extra small size.</li>
+                <li>Certain text elements are replaced by others upon screen size change.</li>
+                <li>Certain images and maps are replaced by others or disappear entirely when the screen is extra small.</li>
+                <li>Some containers rearrange themselves depending on the site of the screen.
+                Some containers will be side-by-side on larger screens but one-above-the-other on smaller screens.
+                </li>
+            </ul>
+            <p>Learning to use the site is done best on large screens, as the mobile version is essentially reduced in visual aids,
+            such as the text in container header buttons.
+            Using the mobile version is not cumbersome, still.
+            </p>
+            <p>The contents of containers will sometimes be too large for containment, especially on extra small screens.
+            In these cases, the overflow contents of containers become horizontally scrollable.
+            On mobile devices, you can tap and drag the contents of a table to scroll horizontally.
+            Try this out on a small smart phone screen with the threads list on the homepage.
+            </p>
+            <p>The site uses several third-party packages, like TinyMCE, Bootstrap Datetime-Picker, and Django-Haystack.
+            Details on how to use these can be found in the <a href="#miscellaneous">miscellaneous</a> section.
+            </p>
+        </div> <!-- #tips_body -->
+    </div> <!-- #tips -->
+    </div> <!-- .row -->
+
+    <div class="row">
+    <div id="profile" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="profile_management" title="A link to this section" href="#profile_management">&sect;</a></small>
+            Profile Management
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="profile_body" class="toggleable">
+        <hr style="width: 75%;" />
+        <h2 class="sub_subtitle"><a name="profile" title="A link to this sub-section" href="#profile">&sect;</a> Profile Details</h2>
+            <p>Control over your profile is handled through the <a href="{% url 'my_profile' %}">my profile page</a>.
+            You can access this page from anywhere from the top menu.
+            Links to this page are also sprinkled across the website - a link appears anywhere you posted an event, request, thread message, etc.
+            </p>
+            <p>Please note, <b>you cannot edit your first or last names, but you can request your site admin to do it for you.</b>
+            </p>
+            <p>By default, your first &amp; last names and username are visible to all users, but your e-mail and phone number are only visible
+            to the site admin and no one else.
+            </p>
+            <p>However, you can allow others to see your e-mail address and phone number by toggling the e-mail visible and phone visible checkboxes
+            in the update profile container.
+            Doing so will display your phone and e-mail in the member directory and in your profile.
+            Your e-mail will also become searchable when it is made visible; so that others can search for your profile by your e-mail.
+            </p>
+            <p>Enabling phone visible will also display your phone number in the manager directory and the manager details
+            for all manager positions you hold.
+            Enabling e-mail visible will display your e-mail if a manager e-mail does not exist for a position you hold.
+            </p>
+            <p>The current room, former rooms, and other houses fields are also indexed for search, meaning people can find you by your room
+            or affiliation with other houses if you input this information.
+            </p>
+            <p>Whenever you remove information, it is removed from the indexes.
+            So if you later decide that you don't people to be able to search for you by a particular field, you can erase the field.
+            </p>
+        <h2 class="sub_subtitle"><a name="password" title="A link to this sub-section" href="#password">&sect;</a> Password</h2>
+            <p>You can change your password from the same page using the change password form at the bottom.
+            </p>
+            <p>For your security, your password is hashed before storage.
+            Hashing is a function that takes a regular value converts it to a value that is impossible to decrypt back to its original value
+            using the current technology.
+            Hashing makes your passwords safe and it's commonly done throughout the IT industry.
+            </p>
+            <p>This means that admins cannot see your password.
+            You and only you should know your own password.
+            However, if you ever forget or lose your password, an admin can reset it for you.
+            </p>
+        <h2 class="sub_subtitle"><a name="profile_history" title="A link to this sub-section" href="#profile_history">&sect;</a> Profile History</h2>
+            <p>You can see some parts of your profile history from the profile dropdown menu items in the top navbar.
+            These include links to see all your requests and all the threads you have started.
+            You cannot see all the messages you have posted, but you can search for threads you have posted to
+            or search for the thread subject itself.
+            </p>
+            <p>There are two views each of these two types of pages, but the ones that are linked in the menu are the concise ones.
+            These will simply list your requests or threads with meta-data and some core details about them.
+            The expanded views can be slow to load, but you ca load them from the simple views using the buttons in the container headers.
+            </p>
+        </div> <!-- #profile_body -->
+    </div> <!-- #profile -->
+    </div> <!-- .row -->
+
+    <div class="row">
+    <div id="threads" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="threads" title="A link to this section" href="#threads">&sect;</a></small>
+            Threads
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="threads_body" class="toggleable">
+        <hr style="width: 75%;" />
+        <h2 class="sub_subtitle"><a name="starting_threads" title="A link to this sub-section" href="#starting_threads">&sect;</a> Starting Threads</h2>
+            <p>Threads in Farnsworth are designed like e-mail threads in most ways.
+            You can start threads from various pages, including the homepage and the member forums page.  The form is identical from any page.
+            Both the subject and the body of the form are required.
+            The subject will constitute a title for the thread and the body will constitute the first message in the thread.
+            </p>
+            <p>After you have started a thread, anyone can add a message to that thread.
+            Messages in threads are sorted by date.
+            The old message (the one used to start the thread) is always listed first, and the most recent message is always listed last.
+            </p>
+            <p>Threads are not deactivated and can be "revived" by simply posting another message in the thread.
+            For reference, the homepage grabs the most recently modified threads to list.
+            So if you add another message to a really old thread, it will be pushed to the top of the list on the homepage,
+            grabbing attention for the thread from the entire membership.
+            </p>
+        <h2 class="sub_subtitle"><a name="adding_messages" title="A link to this sub-section" href="#adding_messages">&sect;</a> Adding Messages</h2>
+            <p>You can add a message to a thread from a view with the thread.
+            Generally this will be from the member forums or the thread view page.
+            Messages require only a body and are fully editable and just like the body of a new thread.
+            </p>
+            <p>New messages are added to the end of a thread and displayed below all prior messages.
+            Threads are therefore designed completely linearly, rather than as trees
+            - how some forums on the Internet are designed.
+            </p>
+            <p>For the growth and spread of discussions, you are encouraged to branch threads by
+            creating new ones similar subjects to steer the discussion is a different direction or to focus
+            in on a specific issue in the parent discussion.
+            </p>
+            <p>Doing so will keep threads clear and concise while allowing for full discussion.
+            </p>
+        </div> <!-- #threads_body -->
+    </div> <!-- #threads -->
+    </div> <!-- .row -->
+
+    <div class="row">
+    <div id="requests" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="requests" title="A link to this section" href="#requests">&sect;</a></small>
+            Requests
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="requests_body" class="toggleable">
+        <hr style="width: 75%;" />
+        <h2 class="sub_subtitle"><a name="about_requests" title="A link to this sub-section" href="#about_requests">&sect;</a> About Requests</h2>
+            <p>If your House President adds and enables request types, you will see a requests dropdown menu appear in the navigation bar.
+            From here, you can select a request type and add requests of that type for managers to address.
+            </p>
+            <p>Each request type has a list of relevant managers.
+            Active relevant managers and their incumbents will be displayed whenever you visit a request page.
+            For example, for food requests, the relevant manager might be your Kitchen Manager or Food Manager
+            or multiple Food Managers or Kitchen Managers.
+            </p>
+            <p>When a relevant manager posts a response to a request, the body of the reponse will be colored a light blue
+            and have hover text indicating that the response is a manager response.
+            </p>
+            <p>Relevant managers also have the ability to mark requests closed or filled.
+            A filled request will have a light green body and a closed request will have a light red body.
+            Hovering over the body of a request will display hover text indicating the request's status (open, filled, or closed).
+            </p>
+            <p>Requests also keep a running record of up votes.
+            All user up votes are recorded and the number tabulated upon display of requests.
+            </p>
+        <h2 class="sub_subtitle"><a name="working_with_requests" title="A link to this sub-section" href="#working_with_requests">&sect;</a> Working with Requests</h2>
+            <p>You can add a new request of a certain request type from that request type's request page.
+            Requests contain just a body that is fully editable like the body of a thread or message.
+            </p>
+            <p>After you have posted your request, you or anyone else can add a response to the request.
+            Others can also up vote your request to express support for your request.
+            If you up vote a request, you can cancel your up vote by clicking the cancel up vote link.
+            </p>
+            <p>The vote count will be displayed next to the name of the person who originally posted the request.
+            Clicking on this count will display a dropdown menu containing a list of up votes for that request.
+            You can click on any of these names to see the up voter's profile.
+            </p>
+        </div> <!-- #requests_body -->
+    </div> <!-- #requests -->
+    </div> <!-- .row -->
+
+    <div class="row">
+    <div id="announcements" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="announcements" title="A link to this section" href="#announcements">&sect;</a></small>
+            Announcements
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="announcements_body" class="toggleable">
+        <hr style="width: 75%;" />
+            <p>If you are a manager, you can make an announcement that will be pinned to the home page
+            and the manager announcements page until you unpin it.
+            If you unpin an announcement and want it to be repinned, you can visit the
+            <a href="{% url 'managers:all_announcements' %}">all announcements</a> page to repin it to the home page and
+            the manager announcement page.
+            </p>
+            <p>Announcements are meant to be high priority addresses to the entire house.
+            You can use announcements to warn the house about emergencies or provide critial information.
+            </p>
+            <p>Once you have posted an announcement, it will automatically be pinned to the home page and the
+            manager announcement page.
+            You can unpin the announcement by clicking the unpin link at the bottom right side of the announcement.
+            Doing so will move your announcement to the archives, where it can still be seen.
+            </p>
+            <p>If you accidentally unpin an announcement and want to repin it, you can go to the
+            <a href="{% url 'managers:all_announcements' %}">all announcements</a> page and repin it from there.
+            </p>
+            <p>You can edit an announcement by clicking the edit link at the bottom right side of the announcement.
+            Once you edit an announcement and save it, you will be taken to a page that shows you the modified
+            version of the announcement.  From here, if you approve, you can navigate anywhere else.
+            Your announcement is already updated and saved.
+            If you disapprove, you can click edit again and modify the announcement again.
+            </p>
+            <p><b>You cannot modify the announcement of a previous incumbent for a position you hold.</b>
+            However, you can copy paste it and start a new announcement.
+            You can also ask the site admin to modify it or unpin/repin the announcement for you.
+            </p>
+        </div> <!-- #announcements_body -->
+    </div> <!-- #announcements -->
+    </div> <!-- .row -->
+
+    <div class="row">
+    <div id="events" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="events" title="A link to this section" href="#events">&sect;</a></small>
+            Events
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div id="events_body" class="toggleable">
+        <hr style="width: 75%;" />
+            <p>Events can be posted from the <a href="{% url 'events:list' %}">upcoming events</a> page or the
+            <a href="{% url 'events:all' %}">all events</a> page.
+            All fields except the RSVP and Mark Cancelled checkboxes are required in this form.
+            By default, {{ HOUSE }} will set as the location of the event and the RSVP box will be checked.
+            </p>
+            <p>For picking the date and time of the event, Farnsworth uses Bootstrap Date Time picker, details on which
+            can be found in the <a href="#datetime">Date-Time Picker</a> sub-section of the
+            <a href="#miscellaneous">Miscellaneous</a> section.
+            </p>
+            <p>Once you're posted an event, others can RSVP to it.
+            The list of RSVPs will be displayed with every event.
+            You are by default RSVP'd to the event you posted.
+            You can un-RSVP to the event by clicking the Un-RSVP link at the bottom right of the event.
+            </p>
+            <p>If you need to edit the event, you can do so by clicking the edit link at the bottom right of the event.
+            Once you've modified and saved your event, you will be taken to a view of that event.
+            Your event already updated and saved.  You can edit it again or navigate anywhere you'd like.
+            </p>
+        </div> <!-- #events_body -->
+    </div> <!-- #events -->
+    </div> <!-- .row -->
+
+    <div class="row">
+    <div id="misc" class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+        <h1 class="sub_title text-center">
+            <small><a name="miscellaneous" title="A link to this section" href="#miscellaneous">&sect;</a></small>
+            Miscellaneous
+            <small><a href="#contents" title="To contents">&Dagger;</a></small>
+        </h1>
+        <div class="misc_body" class="toggleable">
+        <hr style="width: 75%;" />
+        <h2 class="sub_subtitle"><a name="tinymce" title="A link to this sub-section" href="#tinymce">&sect;</a> TinyMCE</h2>
+            <p>Farnsworth includes a "what you see is what you get" (WYSIWYG) editor called TinyMCE used in several places in the site.
+            TinyMCE is feature rich and does extensive security checks on its own.
+            TinyMCE allows image and video inserts via <code>iframe</code>s or URL links.
+            Both of these methods can be used through the buttons in the TinyMCE interface.
+            <p>Using URLs is the more straightforward and approachable way to insert videos.
+            TinyMCE will do the work for you in finding the video from the URL you enter and inserting it into your message.
+            This may not work properly sometimes (e.g., when more than one video is on a page).
+            </p>
+            <p>In these cases, you can use the <code>iframe</code> option, which is slightly more work.
+            You will have to get the <code>iframe</code> code from the video you are trying to insert
+            and then paste the code into the text field in the "Embed" tab of the insert/edit video popup of TinyMCE.
+            </p>
+            <p>TinyMCE also supports inserting emoticons, special characters, links, ordered &amp; unordered lists, and horizontal rules.
+            These can all be accessed from the buttons in the interface.
+            </p>
+            <p>Formatting can be done via keyboard as well as the buttons in the interface.
+            For example, you can press <kbd>CTRL</kbd> + <kbd>B</kbd> to <b>bold</b>, <kbd>CTRL</kbd> + <kbd>I</kbd> to <i>italicize</i>,
+            or <kbd>CTRL</kbd> + <kbd>U</kbd> to <u>underline</u> text.
+            The buttons available will allow you greater control over your formatting.
+            You can insert headings, change font size or font, strikethrough text - <strike>like this</strike> - and insert text to be rendered as code - like so:
+            </p>
+            <pre>python hello_world.py</pre>
+            <p>TinyMCE also supports inline code, like so: <code>print "Hello, world!"</code>, divs, paragraphs, and blockquotes:
+            </p>
+            <blockquote>Cogito ergo sum.</blockquote>
+            <p>These options can be selected from the blocks sub-menu in the formats dropdown menu inside TinyMCE.
+            </p>
+            <p>TinyMCE also supports keyboard shortcuts to copy (<kbd>CTRL</kbd> + <kbd>C</kbd>), cut (<kbd>CTRL</kbd> + <kbd>X</kbd>),
+            or paste (<kbd>CTRL</kbd> + <kbd>P</kbd>) text from or to the text field, along with several other keyboard shortcuts.
+            </p>
+            <p><b>However, please note that TinyMCE will preserve the formatting of text you paste into the editor,
+            including background color.</b>
+            So, it is recommended that you paste input as plain text, an option offered by TinyMCE.
+            You can click the paste as plaintext button, which render anything you paste as plaintext until you toggle
+            the plaintext button to off.
+            </p>
+            <p>You can also align your text however you please and undo/redo your changes.
+            </p>
+            <p>However, a downside of using TinyMCE is that your input will not be preserved between attempts to submit forms.
+            So it is crucial that you input all required fields to ensure that the form is submitted on the first try.
+            </p>
+        <h2 class="sub_subtitle"><a name="datetime" title="A link to this sub-section" href="#datetime">&sect;</a> Date-Time Picker</h2>
+            <p>Bootstrap Datetime Picker is used in Farnsworth to pick date and time for events.
+            It allows the selection of a date and then a time from a box that drops down when a datetime field is clicked.
+            The widget allows you to quickly move through dates through several means.
+            </p>
+            <p>You can click on the arrows at the top of the dropdown calendar to flip through the months.
+            If you click on the month year field between the arrows, the widget will swith to a month view,
+            with a year at the top and months listed below.
+            From here, if you click the arrows, you can quickly flip through years, or you can click the year field,
+            which will switch the widget to a year view.
+            From here, you can quickly flip through decades via the arrows at the top.
+            </p>
+            <p>If you click the clock icon <span class="glyphicon glyphicon-time"></span> at the bottom of the calendar,
+            the widget will switch to a time view.
+            From here you can select a time, in hours, minutes, and AM/PM.
+            To switch back to the calendar view, click the calendar icon <span class="glyphicon glyphicon-calendar"></span>
+            at the top of the widget.
+            If you click on the hour button, the widget will switch to an hour selector, form where you can select an hour.
+            If you click the minute button, the widget will switch to a minute selector, allowing you to select a minute field in 3 minutes increments.
+            </p>
+        <h2 class="sub_subtitle"><a name="search" title="A link to this sub-section" href="#search">&sect;</a> Search</h2>
+            <p>Farnsworth uses Django-Haystack for search.
+            Haystack serves as a wrapper around an engine of your setup's choosing.
+            Most likely, your version of Farnsworth was deployed with Elasticsearch, an implementation of Lucene,
+            a pure Java search engine.
+            </p>
+            <p>You can search the entire site from any page via the search bar in the navigation bar.
+            The indexes are updated live; so results should always be up to date.
+            </p>
+            <p>Farnsworth's implementation is designed to use partial-word search.
+            You can search for parts of a word and get effective results.
+            Haystack matches 2-letter combinations for parts of the words you type with parts of all words in the database.
+            </p>
+            <p>As a drawback to this implementation, you will often get results you aren't looking for.
+            But most likely, if you are specific with your search, you will get results you are looking for.
+            </p>
+            <p>Search results can be filtered by clicking the filter button at the top and selecting one of the filter choices, if any.
+            </p>
+            <p>Results are paginated for presentability.
+            Undoubtedly, as the database grows larger, more results will be returned.
+            So, you can click through the pages at the bottom to look through the results for your query.
+            </p>
+        </div> <!-- #misc_body -->
+    </div> <!-- #misc -->
+    </div> <!-- .row -->
 {% endif %}
 {% endblock %}
 
 {% block endscripts %}
 <script>
 $(document).ready(function() {
-	$('#content_list').hide();
-	$('#hide_content_list').hide();
-	$('#show_content_list').click(function() {
-		$('#content_list').show();
-		$('#hide_content_list').show();
-		$('#show_content_list').hide();
-	});
-	$('#hide_content_list').click(function() {
-		$('#content_list').hide();
-		$('#hide_content_list').hide();
-		$('#show_content_list').show();
-	});
+    $('#content_list').hide();
+    $('#hide_content_list').hide();
+    $('#show_content_list').click(function() {
+        $('#content_list').slideDown('fast');
+        $('#hide_content_list').show();
+        $('#show_content_list').hide();
+    });
+    $('#hide_content_list').click(function() {
+        $('#content_list').slideUp('fast');
+        $('#hide_content_list').hide();
+        $('#show_content_list').show();
+    });
 });
 </script>
 {% endblock %}

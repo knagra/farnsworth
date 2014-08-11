@@ -4,9 +4,14 @@
 *~
 *.kate-swp
 .#*
-migrations/
 static/admin/
+static/bootstrap/
+static/jquery/
+static/js/
+static/tinymce/
 static/ui/css/
+static/ui/images/
+static/ui/js/
 *.swp
 *.tmp
 .svn/

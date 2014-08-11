@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+
+{% block headers %}
+<style>
+    .resident_formset_row td {
+        padding-right: 5px;
+        padding-bottom: 5px;
+        border-top: none !important;
+        border-bottom: 1px solid #e4e4e4;
+    }
+    .resident_formset_row td div {
+        margin: 0px;
+    }
+    .resident_formset_row td div label {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+<form id="new_room_form" method="post">
+  {% csrf_token %}
+  <div class="form-group">
+    {{ form|bootstrap }}
+	{% if resident_formset %}
+    <hr />
+    <table class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
+      <tbody>
+        {% for form in resident_formset.forms %}
+        {{ form.id }}
+        <tr class="resident_formset_row">
+          <td>{{ form.resident|bootstrap }}</td>
+          <td>{{ form.start_date|bootstrap }}</td>
+          <td>{{ form.end_date|bootstrap }}</td>
+          <td style="vertical-align: middle;"></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+	{{ resident_formset.management_form }}
+	{% endif %}
+    <hr />
+    <div class="text-center">
+      <button type="submit" class="btn btn-success" name="add_room"><span
+				class="glyphicon glyphicon-{% if editing %}floppy-disk{% else %}plus{% endif %}"></span>
+        {% if editing %}Save{% else %}Add{% endif %} Room</button>
+    </div> <!-- .text-center -->
+  </div> <!-- .form-group -->
+</form>
+{% endblock %}
+
+{% block endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+function renewDatePickers(row) {
+    $("[id$=date]", row || null).datetimepicker({
+        pickTime: false,
+    });
+});
+$(document).ready(function() {
+    $(function() {
+        $('.resident_formset_row').formset({
+            prefix: "{{ resident_formset.prefix }}",
+            added: renewDatePickers,
+        });
+        renewDatePickers();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+
+{% block content %}
+<form action="{% url 'rooms:edit' room_title=room.title %}" class="pull-right">
+  <button class="btn btn btn-primary"><span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit Room</span></button>
+</form>
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+<dl class="dl-horizontal">
+  <dt>Total Occupancy</dt>
+  <dd>{{ room.occupancy }}</dd>
+  <dt>Current Residents</dt>
+  <dd>{% for person in room.current_residents.all %}{% if not forloop.first %}, {% endif %}<a title="View Profile" href="{% url 'member_profile' targetUsername=person.user.username %}">{{ person.user.get_full_name }}</a>{% endfor %}&nbsp;</dd>
+  <dt>Previous Residents</dt>
+  <dd>
+    {% if not previous_residents %}
+    <div class="text-info">No records in database.</div>
+    {% else %}
+    <div class="text-info field_wrapper">Some of these dates may be approximate.</div>
+    <table class="table table-condensed table-striped table-bordered table-hover">
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Start</th>
+          <th>End</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prev in previous_residents %}
+        <tr>
+          <td><a href="{% url 'member_profile' targetUsername=prev.resident.get_user %}">{{ prev.resident.get_first }}</a></td>
+          <td>{{ prev.resident.get_last }}</td>
+          <td>{{ prev.start_date }}</td>
+          <td>{{ prev.end_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </dd>
+</dl>
+
+{% if room.description %}
+<hr />
+<h3 class="w_subtitle">Description</h3>
+{{ room.description|safe }}&nbsp;
+{% endif %}
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+    $('table').tablesorter({
+        headers: {
+            2: {
+                sorter: 'farnsworth_datetime',
+            },
+            3: {
+                sorter: 'farnsworth_datetime',
+            }
+        },
+        sortList: [[2,0], [3,0]],
+        widgets: ["filter", "resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+});
+</script>
+{% endblock %}

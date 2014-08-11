@@ -9,5 +9,11 @@ recursive-include events/static *
 recursive-include events/templates *
 recursive-include managers/static *
 recursive-include managers/templates *
+recursive-include workshift/static *
+recursive-include workshift/templates *
+recursive-include electionss/static *
+recursive-include elections/templates *
+recursive-include rooms/static *
+recursive-include rooms/templates *
 
 global-exclude .DS_Store

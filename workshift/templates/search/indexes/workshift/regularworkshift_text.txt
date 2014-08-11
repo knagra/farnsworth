@@ -1,0 +1,3 @@
+{{ object.title }},
+{{ object.workshift_type.title }}, {{ object.pool.title }}
+{{ object.addendum|safe }}

@@ -1,0 +1,2 @@
+{{ object.get_season_display }} {{ object.year }}
+{{ object.start_date }} - {{ object.end_date }}

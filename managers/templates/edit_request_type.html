@@ -3,32 +3,72 @@
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/custom_modify_user.css' %}" />
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-{% endblock %}
 
 {% block content %}
-	<div id="update_profile" class="table_container">
-		<div class="header">
-			{% if page_name = 'Admin - Edit Request Type' %}
-			<h3 class="table_title{% if requestType.name|longer_than:'1234567890123' %} large_title{% elif requestType.name|longer_than:'12345678' %} medium_title{% else %} small_title{% endif %}">"{{ requestType.name }}" Request Type</h3>
-			{% else %}
-			<h3 class="table_title small_title">Add Request Type</h3>
-			{% endif %}
-		</div> <!-- .header -->
-		<div class="main_table">
-			<form method="post" action="">
-				{% csrf_token %}
-				<div class="form-group">
-					{{ form|bootstrap }}
-					<div class="text-center">
-						<button type="submit" class="btn btn-lg btn-success" name="update_manager"><span class="glyphicon glyphicon-{% if page_name = 'Admin - Edit Request Type' %}floppy-disk{% else %}plus{% endif %}"></span> {% if page_name = 'Admin - Edit Request Type' %}Update{% else %}Add{% endif %} Request Type</button>
-					</div> <!-- .text-center -->
-				</div> <!-- .form-group -->
-			</form>
-		</div> <!-- main_table -->
-	</div> <!-- #update_profile -->
+<div class="row">
+<div class="col-md-7">
+{% if page_name = 'Admin - Edit Request Type' %}
+<h1 class="w_title">"{{ requestType.name }}" Request Type</h1>
+{% else %}
+<h1 class="w_title">Add Request Type</h1>
+{% endif %}
+<hr class="w_line" />
+<form method="post" action="">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form|bootstrap }}
+        <div class="text-center">
+            <button type="submit" class="btn btn-success" name="update_manager"><span class="glyphicon glyphicon-{% if page_name = 'Admin - Edit Request Type' %}floppy-disk{% else %}plus{% endif %}"></span> {% if page_name = 'Admin - Edit Request Type' %}Update{% else %}Add{% endif %} Request Type</button>
+        </div> <!-- .text-center -->
+    </div> <!-- .form-group -->
+</form>
+</div> <!-- .col-md-7 -->
+
+<br class="visible-xs visible-sm" />
+<hr class="visible-xs visible-sm" />
+
+<div class="col-md-5">
+<h1 class="w_title">Existing Request Types</h1>
+<hr class="w_line" />
+{% if not request_types %}
+<div class="field_wrapper text-danger">No request types in database.</div>
+{% else %}
+<table class="table table-striped table-bordered table-condensed table-hover members_table" id="alumni_table">
+<thead>
+<tr>
+  <th>Request Type</th>
+  <th class="filter-false">Enabled</th>
+</tr>
+</thead>
+<tbody>
+{% for type in request_types %}
+<tr>
+  <td><a title="Modify Request Type" href="{% url 'managers:edit_request_type' typeName=type.url_name %}"><span class="glyphicon glyphicon-{% if type.glyphicon %}{{ type.glyphicon }}{% else %}cog{% endif %}"></span> {{ type.name }}</a></td>
+  <td>{% if type.enabled %}<span style="display: none">1</span><img src="{% static 'admin/img/icon-yes.gif' %}" alt="Yes" />{% else %}<span style="display: none">2</span><img src="{% static 'admin/img/icon-no.gif' %}" alt="No" />{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table> <!-- #user_table -->
+{% endif %}
+{% if page_name = 'Admin - Edit Request Type' %}
+<form class="text-center" action="{% url 'managers:add_request_type' %}" style="margin-top: 10px;">
+    <button id="add_request_type" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Request Type</span></button>
+</form>
+{% endif %}
+</div> <!-- .col-md-5 -->
+</div>
+{% endblock %}
+
+{% block endscripts %}
+<script>
+    $(document).ready(function() {
+        $('table').tablesorter({
+            sortList: [[0,0], [1,0]],
+            widgets: ["filter", "resizable"],
+            widgetOptions: {
+                resizable: true
+            }
+        });
+    });
+</script>
 {% endblock %}

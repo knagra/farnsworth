@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load bootstrap %}
+
+{% block content %}
+{% if user.is_superuser %}
+<form action="{% url 'rooms:add' %}" class="pull-right">
+  <button class="btn btn-default"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Room</span></button>
+</form>
+{% endif %}
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+{% if not rooms %}
+<div class="field_wrapper text-info">No rooms in database.</div>
+{% else %}
+<table class="table table-striped table-bordered table-condensed table-hover" style="margin: 0px;">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Unofficial Name</th>
+      <th>Max Occupancy</th>
+      <th>Residents</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for room in rooms %}
+    <tr>
+      <td><a title="View Room" href="{% url 'rooms:view' room_title=room.title %}">{{ room.title }}</a></td>
+      <td>{{ room.unofficial_name }}</td>
+      <td>{{ room.occupancy }}</td>
+      <td>
+        {% for person in room.current_residents.all %}
+        {% if not forloop.first %}, {% endif %} <a title="View Profile" href="{% url 'member_profile' targetUsername=person.get_user %}">{{ person.get_full }}</a> {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+    $('table').tablesorter({
+        sortList: [[0,0]],
+        widgets: ["filter", "resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+});
+</script>
+{% endblock %}

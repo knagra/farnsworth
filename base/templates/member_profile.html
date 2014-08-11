@@ -3,62 +3,71 @@
 {% load static from staticfiles %}
 {% load request_tags %}
 {% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_profile.css' %}" />
+<style>
+#profile_table {
+    font-size: 15px;
+    position: relative;
+    padding-top: 10px;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div id="user_profile">
-  <div class="header">
-	{% if user.is_superuser and targetUser.username != ANONYMOUS_USERNAME and targetUser %}
-	<form class="header_form" action="{% url 'custom_modify_user' targetUsername=targetUser.username %}">
-	  <button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs"> Edit</span></button>
-	</form>
+<div class="table_60 centered_table">
+  {% if user.is_superuser and targetUser.username != ANONYMOUS_USERNAME and targetUser %}
+  <form class="pull-right" action="{% url 'custom_modify_user' targetUsername=targetUser.username %}">
+    <button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs"> Edit</span></button>
+  </form>
+  {% endif %}
+  <h1 class="w_title">{{ targetUser.username }}'s Profile</h1>
+  <hr class="w_line" />
+  <dl id="profile_table" class="dl-horizontal">
+    <dt>Name</dt>
+    <dd>{{ targetUser.get_full_name }}</dd>
+    <dt>Status</dt>
+    <dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ targetProfile.get_status_display }}{% endif %}</dd>
+	{% if not targetUser.username == ANONYMOUS_USERNAME %}
+	{% if rooms %}
+	<dt>Current Room</dt>
+	<dd>
+	  {% for room in rooms %}{% if not forloop.first %}, {% endif %}<a href="{% url 'rooms:view' room_title=room.title %}">{{ room.title }}</a>{% endfor %}
+	</dd>
 	{% endif %}
-	{% if targetUser %}
-	<h3 class="table_title{% if targetUser.username|longer_than:'1234567890123456' %} medium_title{% elif targetUser.username|longer_than:'123456890' %} small_title{% endif %}">
-	  {{ targetUser.username }}'s Profile
-	  {% else %}
-	  <h3 class="table_title small_title">
-		User Not Found
-		{% endif %}
-	  </h3>
-  </div> <!-- .header -->
-  <div class="main_table">
-	<dl id="profile_table" class="dl-horizontal">
-	  <dt>Name</dt>
-	  <dd>{{ targetUser.get_full_name }}</dd>
-	  <dt>Status</dt>
-	  <dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ targetProfile.get_status_display }}{% endif %}</dd>
-	  {% if not targetUser.username == ANONYMOUS_USERNAME %}
-	  <dt>Current Room</dt>
-	  <dd>{% if targetProfile.current_room %}{{ targetProfile.current_room }}{% else %}&nbsp;{% endif %}</dd>
-	  <dt>Former Rooms</dt>
-	  <dd>{% if targetProfile.former_rooms %}{{ targetProfile.former_rooms }}{% else %}&nbsp;{% endif %}</dd>
-	  <dt>Other Houses</dt>
-	  <dd>{% if targetProfile.former_houses %}{{ targetProfile.former_houses }}{% else %}&nbsp;{% endif %}</dd>
-	  {% if targetProfile.email_visible %}
-	  <dt>E-mail</dt>
-	  <dd><a class="page_link" title="Write E-mail" href="mailto:{{ targetUser.email }}">{{ targetUser.email }}</a></dd>
-	  {% endif %}
-	  {% if targetProfile.phone_visible %}
-	  <dt>Phone</dt>
-	  <dd>{{ targetProfile.phone_number }}</dd>
-	  {% endif %}
-	  <dt>Threads Started</dt>
-	  <dd>{% if number_of_threads > 0 %}<a class="page_link" title="See Threads" href="{% url 'list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a>{% else %}{{ number_of_threads }}{% endif %}</dd>
-	  <dt>Messages Posted</dt>
-	  <dd>{% if number_of_messages > 0 %}<a class="page_link" title="See Messages" href="{% url 'list_user_messages' targetUsername=targetUser.username %}">{{ number_of_messages }}</a>{% else %}{{ number_of_messages }}{% endif %}</dd>
-	  <dt>Requests Posted</dt>
-	  <dd>{% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}</dd>
-	  {% endif %}
-	</dl>
-	<hr>
-	<div class="text-center">
-	  <form action="{% url 'member_directory' %}">
-		<button id="member_directory" type="submit" class="btn btn-lg btn-info"><span class="glyphicon glyphicon-book"></span> Member Directory</button>
-	  </form>
-	</div>
-  </div> <!-- .main_table -->
-</div>
+	{% if prev_rooms %}
+	<dt>Former Rooms</dt>
+	<dd>
+	  {% for prev_res in prev_rooms %}{% if not forloop.first %}, {% endif %}<a href="{% url 'rooms:view' room_title=prev_res.room.title %}">{{ room.title }}</a>{% endfor %}
+	</dd>
+	{% endif %}
+	{% if targetProfile.former_houses %}
+    <dt>Other Houses</dt>
+    <dd>{{ targetProfile.former_houses }}</dd>
+	{% endif %}
+    {% if targetProfile.email_visible %}
+    <dt>E-mail</dt>
+    <dd><a class="page_link" title="Write E-mail" href="mailto:{{ targetUser.email }}">{{ targetUser.email }}</a></dd>
+    {% endif %}
+    {% if targetProfile.phone_visible %}
+    <dt>Phone</dt>
+    <dd>{{ targetProfile.phone_number }}</dd>
+    {% endif %}
+    <dt>Threads Started</dt>
+    <dd>{% if number_of_threads > 0 %}<a class="page_link" title="See Threads" href="{% url 'threads:list_user_threads' targetUsername=targetUser.username %}">{{ number_of_threads }}</a>{% else %}{{ number_of_threads }}{% endif %}</dd>
+    <dt>Messages Posted</dt>
+    <dd>{% if number_of_messages > 0 %}<a class="page_link" title="See Messages" href="{% url 'threads:list_user_messages' targetUsername=targetUser.username %}">{{ number_of_messages }}</a>{% else %}{{ number_of_messages }}{% endif %}</dd>
+    <dt>Requests Posted</dt>
+    <dd>
+	  {% if number_of_requests > 0 %}<a class="page_link" title="See Requests" href="{% url 'managers:list_user_requests' targetUsername=targetUser.username %}">{{ number_of_requests }}</a>{% else %}{{ number_of_requests }}{% endif %}
+	</dd>
+    {% endif %}
+  </dl>
+  <hr>
+  <div class="text-center">
+    <form action="{% url 'member_directory' %}">
+      <button id="member_directory" type="submit" class="btn btn-info"><span class="glyphicon glyphicon-book"></span> Member Directory</button>
+    </form>
+  </div> <!-- .text-center -->
+</div> <!-- .table_60 -->
 {% endblock %}

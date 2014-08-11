@@ -1,4 +1,4 @@
 {% load highlight %}
-<h3 class="result_title"><a href="{% url 'view_thread' thread_pk=result.object.thread.pk %}">{{ result.object.thread.subject }}</a>
+<h3 class="result_title"><a href="{% url 'threads:view_thread' thread_pk=result.object.thread.pk %}">{{ result.object.thread.subject }}</a>
 	<small>Message in thread</small></h3>
 <div class="result_highlight">{% highlight result.text with query %}</div>

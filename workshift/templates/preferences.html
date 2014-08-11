@@ -1,0 +1,121 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_headers %}
+<style>
+    .time_formset_row td {
+        padding-right: 5px;
+        padding-bottom: 5px;
+        border-top: none !important;
+        border-bottom: 1px solid #e4e4e4;
+    }
+    .time_formset_row td div {
+        margin: 0px;
+    }
+    .time_formset_row td div label {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block w_content %}
+<h1 class="w_title">My Preferences</h1>
+<hr class="w_line" />
+{% if rating_forms %}
+<h3 class="w_subtitle">Workshift Descriptions</h3>
+<p id="descriptions_information" class="text-info text-center">Please select a workshift type from Workshift Preferences below.</p>
+<hr class="text-center" style="width: 75%;" />
+<div class="tab-content">
+  {% for form in rating_forms %}
+  <div class="tab-pane{% if forloop.counter == 1 %} active{% endif %}" id="description_{{ form.instance.workshift_type.pk }}">
+    <dl class="dl-horizontal">
+      <dt>Title</dt>
+      <dd>{{ form.instance.workshift_type.title }}</dd>
+      <dt>Description</dt>
+      <dd>{{ form.instance.workshift_type.description|safe }}&nbsp;</dd>
+      <dt>Tips</dt>
+      <dd>{{ form.instance.workshift_type.quick_tips|safe }}&nbsp;</dd>
+    </dl>
+  </div> <!-- .tab-pane -->
+  {% endfor %}
+</div> <!-- .tab-content -->
+{% endif %}
+
+<form id="preferences_form" method="post" action="">
+  {% csrf_token %}
+  {% if rating_forms %}
+  <hr />
+  <h3 class="w_subtitle">Workshift Preferences</h3>
+  <p class="text-info text-center">Click on a workshift type to see its description above.</p>
+  <table class="table table-striped table-bordered table-condensed">
+    <tbody>
+      {% for form in rating_forms %}
+      <tr id="rating_forms_row">
+        <td{% if forloop.counter == 1 %} class="active"{% endif %}><a href="#description_{{ form.instance.workshift_type.pk }}" data-toggle="tab">{{ form.title }}</a></td>
+        <td>{{ form.rating }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% endif %}
+  {% if time_formset %}
+  {% if rating_forms %}
+  <hr />
+  {% endif %}
+  <h3 class="w_subtitle">Your Schedule</h3>
+  <table id="time_blocks" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      {% for form in time_formset.forms %}
+      {{ form.id }}
+      <tr class="time_formset_row">
+        <td>{{ form.preference|bootstrap }}</td>
+        <td>{{ form.day|bootstrap }}</td>
+        <td>{{ form.start_time|bootstrap }}</td>
+        <td>{{ form.end_time|bootstrap }}</td>
+        <td style="vertical-align: middle;"></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {{ time_formset.management_form }}
+
+  {% endif %}
+  {% if rating_forms or time_formset %}
+  <hr />
+  {% endif %}
+  <h3 class="w_subtitle">Note to Workshift Manager(s)</h3>
+  {{ note_form|bootstrap }}
+  <div class="text-center">
+    <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+  function renewDatePickers(row) {
+    $("[id$=time]", row || null).datetimepicker({
+      pickDate: false,
+      pick12HourFormat: true,
+    });
+  };
+  $(document).ready(function() {
+    $(function() {
+      $(".time_formset_row").formset({
+        prefix: "{{ time_formset.prefix }}",
+        added: renewDatePickers,
+      });
+      renewDatePickers();
+      $('label[for="id_note"]').hide();
+    });
+  });
+</script>
+{% endblock %}

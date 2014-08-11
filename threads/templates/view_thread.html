@@ -2,75 +2,179 @@
 
 {% load static from staticfiles %}
 {% load thread_tags %}
+{% load bootstrap %}
+
 {% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/threads.css' %}" />
+<style>
+  .form-group label[for*="subject"] {
+    display: none;
+  }
+  .form-group label[for*="body"] {
+    display: none;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="table_container">
-  <div class="header">
-    <form action="{% url 'member_forums' %}">
-	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-comment"></span><span class="hidden-xs"> Member Forums</span></button>
+<div class="">
+  <div class="pull-right">
+	{% if follow_form %}
+	<form method="POST" style="display:inline">
+	  {% csrf_token %}
+	  {{ follow_form|bootstrap }}
+	  <button class="btn btn-default header_button" name="follow_thread" type="submit">
+		{% if following %}
+		<span class="glyphicon glyphicon-minus-sign"></span>
+		<span class="hidden-xs"> Unfollow</span>
+		{% else %}
+		<span class="glyphicon glyphicon-plus-sign"></span>
+		<span class="hidden-xs"> Follow</span>
+		{% endif %}
+	  </button>
 	</form>
-    <h3 class="table_title">View Thread</h3>
-  </div> <!-- table_header -->
-  <div class="thread_table main_table">
-    {% if not thread %}
-    <div class="field_wrapper text-warning">Thread not found.</div>
-    {% else %}
+	{% endif %}
+	<form action="{% url 'threads:list_all_threads' %}" style="display:inline">
+      <button class="btn btn-info header_button" type="submit">
+		<span class="glyphicon glyphicon-comment"></span>
+		<span class="hidden-xs"> Member Forums</span>
+	  </button>
+	</form>
+  </div>
+  <h1 class="w_title">View Thread</h1>
+  <hr class="w_line" />
+  {% if not thread %}
+  <div class="field_wrapper text-warning">
+	Thread not found.
+  </div>
+  {% else %}
+  <div class="thread_table bordered_div">
     <div class="thread_messages">
       <div class="message_table">
-	<h3 class="thread_name">{{ thread.subject }}</h3>
-	{% for message in messages_list %}
-	{% if forloop.counter > 1 %}
-	<hr class="main_divider" />
-	{% endif %}
-	<div class="message_row">
-	  <div class="message_owner">
-	    <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >{{ message.owner|display_user:user }}</a> ({{ message.post_date }}):
-	  </div>
-	  <div class="message_body">{{ message.body|safe }}</div>
-	</div> <!-- message_row -->
-	{% endfor %}
-	<div class="text-center">
-	  <button class="btn btn-primary" type="button" id="show_form" onclick="show_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-paperclip"></span> Add Message</button>
-	</div>
-	  <form class="new_message_form" id="add_message_form" method="post" action="">
-	    {% csrf_token %}
-	    <input id="id_thread_pk" name="thread_pk" type="hidden" value="{{ thread.pk }}">
-	  	<div class="form-group">
-			<label class="control-label" for="id_body">Add Message</label>
-			<textarea name="body"></textarea>
-		</div>
-			<div class="text-center">
+		<div id="thread_name">
+		  <h3 class="thread_name">
+			{{ thread.subject }}
+			{% if edit_thread_form %}
+			<a id="show_edit_thread_form"
+			   onclick="show_form('edit_thread_form', 'thread_name')">
+			  (edit)
+			</a>
+			{% endif %}
+		  </h3> <!-- .thread_name -->
+		</div> <!-- #thread_name -->
+		{% if edit_thread_form %}
+		<form class="edit_thread_form" id="edit_thread_form" method="post">
+		  {% csrf_token %}
+		  {{ edit_thread_form|bootstrap }}
+          <div class="text-center">
+            <div class="btn-group">
+              <button type="submit" class="btn btn-success" name="edit_thread">
+				<span class="glyphicon glyphicon-comment"></span> Edit Subject
+			  </button>
+              <button type="button" class="btn btn-default"
+					  onclick="hide_form('edit_thread_form', 'thread_name')">
+				<span class="glyphicon glyphicon-collapse-up"></span> Hide
+			  </button>
+            </div> <!-- .btn-group -->
+          </div> <!-- .text-center -->
+		</form> <!-- #edit_thread_form -->
+		{% endif %}
+
+		{% for message, edit_form, delete_form in messages_list %}
+		{% if forloop.counter > 1 %}
+		<hr class="main_divider" />
+		{% endif %}
+		<div class="message_row">
+		  <div class="message_owner">
+			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >
+			  {{ message.owner|display_user:user }}
+			</a>
+			{% if edit_form %}(<a onclick="show_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">edit</a>{% endif %}{% if delete_form %}{% if edit_form %}, {% else %}({% endif %}<a onclick="show_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">delete</a>){% else %}){% endif %}
+			({{ message.post_date }}):
+		  </div>
+		  <div class="message_body">{{ message.body|safe }}</div>
+		</div> <!-- message_row -->
+
+		{% if edit_form %}
+		<form class="edit_message_form" id="edit_message_form-{{ message.pk }}" method="post">
+		  {% csrf_token %}
+		  {{ edit_form|bootstrap }}
+		  <div class="text-center">
 			<div class="btn-group">
-				<button type="submit" class="btn btn-success" name="submit_message_form"><span class="glyphicon glyphicon-comment"></span> Post Message</button>
-				<button type="button" class="btn btn-default" name="cancel_message_form" onclick="hide_new_message_form('add_message_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-			</div> <!-- .btn-group -->
-			</div> <!-- .text-center -->
-	  </form>
+			  <button type="submit" class="btn btn-success" name="edit_message-{{ mesage.pk }}">
+				<span class="glyphicon glyphicon-comment"></span> Edit
+			  </button>
+			  <button type="button" class="btn btn-default" name="cancel_edit"
+					  onclick="hide_form('edit_message_form-{{ message.pk }}', 'show_edit_form-{{ message.pk }}')">
+				<span class="glyphicon glyphicon-collapse-up"></span> Hide
+			  </button>
+			</div>
+		  </div>
+		</form>
+		{% endif %}
+		{% if delete_form %}
+		<form class="delete_message_form" id="delete_message_form-{{ message.pk }}" method="post">
+		  {% csrf_token %}
+		  {{ delete_form|bootstrap }}
+		  <div class="text-center">
+			<div class="btn-group">
+			  <button type="submit" class="btn btn-danger" name="delete_message-{{ mesage.pk }}">
+				<span class="glyphicon glyphicon-fire"></span> Yes, delete this message!
+			  </button>
+			  <button type="button" class="btn btn-default" name="cancel_delete"
+					  onclick="hide_form('delete_message_form-{{ message.pk }}', 'show_delete_form-{{ message.pk }}')">
+				<span class="glyphicon glyphicon-collapse-up"></span> Hide
+			  </button>
+			</div>
+		  </div>
+		</form>
+		{% endif %}
+		{% endfor %}
+
+		{% if add_message_form %}
+		<div class="text-center">
+		  <button class="btn btn-primary" type="button" id="show_add_form"
+				  onclick="show_form('add_message_form', 'show_add_form')">
+			<span class="glyphicon glyphicon-paperclip"></span> Add Message
+		  </button>
+		</div>
+
+		<form class="new_message_form" id="add_message_form" method="post">
+          {% csrf_token %}
+          {{ add_message_form|bootstrap }}
+          <div class="text-center">
+            <div class="btn-group">
+              <button type="submit" class="btn btn-success" name="add_message">
+				<span class="glyphicon glyphicon-comment"></span> Post
+			  </button>
+              <button type="button" class="btn btn-default" name="cancel_message_form"
+					  onclick="hide_form('add_message_form', 'show_add_form')">
+				<span class="glyphicon glyphicon-collapse-up"></span> Hide
+			  </button>
+            </div> <!-- .btn-group -->
+          </div> <!-- .text-center -->
+        </form>
+		{% endif %}
       </div> <!-- message_table -->
     </div> <!-- thread_messages -->
-    {% endif %}
   </div> <!-- thread_table -->
+  {% endif %}
 </div>
 <div class="text-center text-info" style="margin-top: 10px;">
-	Showing {{ messages_list|length }} message{{ messages_list|length|pluralize }}.
+  Showing {{ messages_list|length }} message{{ messages_list|length|pluralize }}.
+  Viewed {{ thread.views }} time{{ thread.views|pluralize }}.
 </div>
 {% endblock %}
 
 {% block endscripts %}
 <script>
-  function show_new_message_form(message_form_id, button_id) {
-  document.getElementById(message_form_id).style.display="inline";
-  document.getElementById(button_id).style.display="none";
+  function show_form(message_form_id, button_id) {
+    document.getElementById(message_form_id).style.display="inline";
+    document.getElementById(button_id).style.display="none";
   }
-  function hide_new_message_form(message_form_id, button_id) {
-  document.getElementById(message_form_id).style.display="none";
-  document.getElementById(button_id).style.display="inline";
+  function hide_form(message_form_id, button_id) {
+    document.getElementById(message_form_id).style.display="none";
+    document.getElementById(button_id).style.display="inline";
   }
 </script>
 {% endblock %}

@@ -2,80 +2,92 @@
 
 {% load static from staticfiles %}
 {% load bootstrap %}
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/custom_modify_user.css' %}" />
-{% endblock %}
 
 {% block content %}
-<div id="update_profile" class="table_container">
-  <div class="header"><h3 class="table_title medium_title">Modify {{ targetUser.username }}'s Profile</h3></div>
-  <div class="main_table">
-    <form method="post" action="">
+<div class="row">
+  <div class="col-md-7">
+    <h1 class="w_title">Modify {{ targetUser.username }}'s Profile</h1>
+    <hr class="w_line" />
+    <form method="post">
       {% csrf_token %}
-		{{ modify_user_form|bootstrap }}
-		<div class="text-center form-group">
-			<button type="submit" class="btn btn-lg btn-success" name="update_user_profile"><span class="glyphicon glyphicon-floppy-disk"></span> Update User Profile</button>
-		</div>
+      {{ update_user_form|bootstrap }}
+      {{ update_profile_form|bootstrap }}
+      <div class="text-center form-group">
+        <button type="submit" class="btn btn-success" name="update_user_profile">
+		  <span class="glyphicon glyphicon-floppy-disk"></span> Update User Profile
+		</button>
+      </div>
     </form>
-  </div> <!-- .main_table -->
-</div> <!-- #update_profile -->
-{% if targetUser = user %}
-<h2 class="sub_subtitle text-center text-primary" style="margin-top: 40px;">
-For your own security, you are only able to change your password from the <a href="{% url 'my_profile' %}">my profile</a> page.
-</h2>
+  </div> <!-- .col-md-7 -->
+  <br class="visible-xs visible-sm" />
+  <hr class="visible-xs visible-sm" />
+  {% if targetUser = user %}
+  <div class="col-md-5">
+	<h2 class="sub_subtitle text-center text-primary" style="margin-top: 40px;">
+	  For your own security, you are only able to change your password from the
+	  <a href="{% url 'my_profile' %}">my profile</a> page.
+	</h2>
+  </div> <!-- .col-md-5 -->
+</div> <!-- .row -->
 {% else %}
-<div id="change_password" class="table_container">
-  <div class="header"><h3 class="table_title large_title">Change {{ targetUser.username }}'s Password</h3></div>
-  <div class="main_table">
-    <form method="post" action="">
-		{% csrf_token %}
-		{{ change_user_password_form|bootstrap }}
-		<div class="text-center form-group">
-			<button type="submit" class="btn btn-lg btn-warning" name="change_user_password"><span class="glyphicon glyphicon-flash"></span> Change User Password</button>
-		</div>
-    </form>
-  </div> <!-- .main_table -->
-</div> <!-- #change_password -->
-<div id="delete_user" class="table_container">
-  <div class="header"><h3 class="table_title large_title">Delete {{ targetUser.username }}</h3></div>
-  <div class="main_table">
+<div class="col-md-5">
+  <h1 class="w_title">Change {{ targetUser.username }}'s Password</h1>
+  <hr class="w_line" />
+  <form method="post">
+    {% csrf_token %}
+    {{ change_user_password_form|bootstrap }}
+    <div class="text-center form-group">
+      <button type="submit" class="btn btn-warning" name="change_user_password">
+		<span class="glyphicon glyphicon-flash"></span> Change User Password
+	  </button>
+    </div>
+  </form>
+</div> <!-- .col-md-5 -->
+</div> <!-- .row -->
+<br />
+<hr />
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+	<h1 class="w_title">Delete {{ targetUser.username }}</h1>
+	<hr class="w_line" />
     <div class="text-danger" style="margin-left: 10px; margin-right: 10px; margin-top: 10px;">
-      This will permenantly delete the user's account, her/his forum posts, requests, events--EVERYTHING! This cannot be undone.
-      This user owns the following items, all of which will be deleted:
+      This will permenantly delete {{ targetUser.username }}'s account, her/his forum posts, requests, events--EVERYTHING!
+      This cannot be undone. This user owns the following items, all of which will be deleted:
     </div>
     <ul class="text-danger" style="list-style: none">
-		<li{% if thread_count > 0 %} class="danger_li"{% endif %}>{{ thread_count }}
-			thread{{ thread_count|pluralize }}</li>
-		<li{% if message_count > 0 %} class="danger_li"{% endif %}>{{ message_count }}
-			message{{ message_count|pluralize }}</li>
-		<li{% if request_count > 0 %} class="danger_li"{% endif %}>{{ request_count }}
-			request{{ request_count|pluralize }}</li>
-		<li{% if response_count > 0 %} class="danger_li"{% endif %}>{{ response_count }}
-			response{{ response_count|pluralize }}</li>
-		<li{% if announcement_count > 0 %} class="danger_li"{% endif %}>{{ announcement_count }}
-			announcement{{ thread_count|pluralize }}</li>
-		<li{% if event_count > 0 %} class="danger_li"{% endif %}>{{ event_count }}
-			event{{ event_count|pluralize }}</li>
+      <li{% if thread_count > 0 %} class="danger_li"{% endif %}>{{ thread_count }}
+        thread{{ thread_count|pluralize }}</li>
+      <li{% if message_count > 0 %} class="danger_li"{% endif %}>{{ message_count }}
+        message{{ message_count|pluralize }}</li>
+      <li{% if request_count > 0 %} class="danger_li"{% endif %}>{{ request_count }}
+        request{{ request_count|pluralize }}</li>
+      <li{% if response_count > 0 %} class="danger_li"{% endif %}>{{ response_count }}
+        response{{ response_count|pluralize }}</li>
+      <li{% if announcement_count > 0 %} class="danger_li"{% endif %}>{{ announcement_count }}
+        announcement{{ thread_count|pluralize }}</li>
+      <li{% if event_count > 0 %} class="danger_li"{% endif %}>{{ event_count }}
+        event{{ event_count|pluralize }}</li>
     </ul>
     {% if message_count > thread_count %}
     <div class="text-danger" style="margin: 10px 10px;">
-		Thread messages will automatically be recounted if you decide to delete this user.
+      Thread messages will automatically be recounted if you decide to delete this user.
     </div>
     {% endif %}
     {% if response_count > 0 %}
     <div class="text-danger" style="margin: 10px 10px;">
-		Request responses will automatically be recounted if you decide to delete this user.
+      Request responses will automatically be recounted if you decide to delete this user.
     </div>
     {% endif %}
     <form method="post" action="">
-		{% csrf_token %}
-		{{ delete_user_form|bootstrap }}
-		<div class="text-center form-group">
-			<button type="submit" class="btn btn-lg btn-danger" name="delete_user"><span class="glyphicon glyphicon-fire"></span> Delete User</button>
-		</div>
+      {% csrf_token %}
+      {{ delete_user_form|bootstrap }}
+      <div class="text-center form-group">
+        <button type="submit" class="btn btn-danger" name="delete_user">
+		  <span class="glyphicon glyphicon-fire"></span> Delete User
+		</button>
+      </div>
     </form>
-  </div> <!-- .main_table -->
-</div> <!-- #change_password -->
+  </div> <!-- .col-md-6 -->
+</div> <!-- .row -->
 {% endif %}
 {% endblock %}
