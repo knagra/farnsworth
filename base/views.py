@@ -183,8 +183,10 @@ def homepage_view(request, message=None):
     week_from_now = now() + timedelta(days=7)
     # Get only next 7 days of events:
     events_list = Event.objects.exclude(
-        start_time__gte=week_from_now, end_time__lte=now(),
-        )
+        start_time__gte=week_from_now
+    ).exclude(
+        end_time__lte=now(),
+    )
     # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
     events_dict = list()
     for event in events_list:
