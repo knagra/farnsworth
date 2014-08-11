@@ -6,11 +6,11 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 
 from datetime import timedelta
 
+from django.conf import settings
 from django.utils.timezone import now
 
 from django_cron import CronJobBase, Schedule
 
-from farnsworth.settings import REQUEST_EXPIRATION_HOURS
 from managers.models import Request, Response
 
 
@@ -33,7 +33,7 @@ class ExpireRequestsCronJob(CronJobBase):
     code = 'managers.expire_requests'
 
     def do(self):
-        cutoff = now() - timedelta(hours=REQUEST_EXPIRATION_HOURS)
+        cutoff = now() - timedelta(hours=settings.REQUEST_EXPIRATION_HOURS)
         for req in Request.objects.filter(status=Request.OPEN, change_date__lte=cutoff):
             # Don't re-close a request that was already re-opened at least once
             if req.response_set.filter(action=Response.REOPENED).count():
