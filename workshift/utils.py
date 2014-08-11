@@ -509,30 +509,29 @@ def update_standings(semester=None):
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             return []
 
-    for hours in PoolHours.objects.filter(pool__semester=semester):
+    for pool_hours in PoolHours.objects.filter(pool__semester=semester):
         # Don't update hours after the semester ends
-        if hours.last_updated and hours.last_updated.date() > semester.end_date:
+        if pool_hours.last_updated and pool_hours.last_updated.date() > semester.end_date:
             continue
 
         # Calculate the number of periods since we last updated the standings
-        if hours.pool.weeks_per_period == 0:
+        if pool_hours.pool.weeks_per_period == 0:
             periods = 1
         else:
             # Note, this will give periods > 0 on weeks starting on start_date's day, 
             # rather than explicitly Sunday
-            if not hours.last_updated:
+            if not pool_hours.last_updated:
                 last_weeks = 0
             else:
-                last_weeks = (hours.last_updated.date() - semester.start_date).days // 7
+                last_weeks = (pool_hours.last_updated.date() - semester.start_date).days // 7
             sem_weeks = (now().date() - semester.start_date).days // 7
-            periods = (sem_weeks - last_weeks) // hours.pool.weeks_per_period
+            periods = (sem_weeks - last_weeks) // pool_hours.pool.weeks_per_period
 
         # Update the actual standings
         if periods:
             pool_hours.standing -= pool_hours.hours * periods
             pool_hours.last_updated = now()
             pool_hours.save()
-
 
 
 
