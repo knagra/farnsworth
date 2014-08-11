@@ -93,7 +93,7 @@ class TestAddRoom(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            "Room with this Title already exists.",
+            "A room with this title already exists.",
             )
 
     def test_bad_title(self):
@@ -232,7 +232,7 @@ class TestEditRoom(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            "Room with this Title already exists.",
+            "A room with this title already exists.",
             )
 
     def test_edit_room_minimal(self):
