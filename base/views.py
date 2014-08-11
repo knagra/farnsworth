@@ -121,11 +121,13 @@ def homepage_view(request, message=None):
                     initial={'action': Response.NONE},
                     profile=userProfile,
                     request=req,
+                    prefix="response",
                     )
                 vote_form = VoteForm(
                     request.POST if "vote-{0}".format(req.pk) in request.POST else None,
                     profile=userProfile,
                     request=req,
+                    prefix="vote",
                     )
 
                 if response_form.is_valid():
@@ -164,6 +166,7 @@ def homepage_view(request, message=None):
             pin_form = PinForm(
                 request.POST if "pin-{0}".format(a.pk) in request.POST else None,
                 instance=a,
+                prefix="pin",
                 )
             if pin_form.is_valid():
                 pin_form.save()
@@ -173,6 +176,7 @@ def homepage_view(request, message=None):
     announcement_form = AnnouncementForm(
         request.POST if "post_announcement" in request.POST else None,
         profile=userProfile,
+        prefix="announce",
         )
 
     if announcement_form.is_valid():
@@ -183,8 +187,10 @@ def homepage_view(request, message=None):
     week_from_now = now() + timedelta(days=7)
     # Get only next 7 days of events:
     events_list = Event.objects.exclude(
-        start_time__gte=week_from_now, end_time__lte=now(),
-        )
+        start_time__gte=week_from_now
+    ).exclude(
+        end_time__lte=now(),
+    )
     # Pseudo-dictionary, list with items of form (event, ongoing, rsvpd, rsvp_form)
     events_dict = list()
     for event in events_list:
@@ -195,6 +201,7 @@ def homepage_view(request, message=None):
             request.POST if "rsvp-{0}".format(event.pk) in request.POST else None,
             profile=userProfile,
             instance=event,
+            prefix="rsvp",
             )
 
         if rsvp_form.is_valid():
@@ -213,6 +220,7 @@ def homepage_view(request, message=None):
     thread_form = ThreadForm(
         request.POST if "submit_thread_form" in request.POST else None,
         profile=userProfile,
+        prefix="thread",
         )
     if thread_form.is_valid():
         thread_form.save()
@@ -400,11 +408,7 @@ def member_profile_view(request, targetUsername):
     number_of_threads = Thread.objects.filter(owner=targetProfile).count()
     number_of_messages = Message.objects.filter(owner=targetProfile).count()
     number_of_requests = Request.objects.filter(owner=targetProfile).count()
-    # TODO: House room
-    try:
-        room = Room.objects.get(current_residents__in=[targetProfile])
-    except Room.DoesNotExist:
-        room = None
+    rooms = Room.objects.filter(current_residents=targetProfile)
     prev_rooms = PreviousResident.objects.filter(resident=targetProfile)
     return render_to_response('member_profile.html', {
         'page_name': page_name,
@@ -413,7 +417,7 @@ def member_profile_view(request, targetUsername):
         'number_of_threads': number_of_threads,
         'number_of_messages': number_of_messages,
         'number_of_requests': number_of_requests,
-        "room": room,
+        "rooms": rooms,
         "prev_rooms": prev_rooms,
         }, context_instance=RequestContext(request))
 
@@ -665,7 +669,11 @@ def reset_pw_confirm_view(request, uidb64=None, token=None):
 
 @admin_required
 def recount_view(request):
-    ''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
+    """
+    Recount number_of_messages for all threads and number_of_responses for all requests.
+    Also set the change_date for every thread to the post_date of the latest message
+    associated with that thread.
+    """
     requests_changed = 0
     for req in Request.objects.all():
         recount = Response.objects.filter(request=req).count()
@@ -680,12 +688,19 @@ def recount_view(request):
             thread.number_of_messages = recount
             thread.save()
             threads_changed += 1
+    dates_changed = 0
+    for thread in Thread.objects.all():
+        if thread.change_date != thread.message_set.latest('post_date').post_date:
+            thread.change_date = thread.message_set.latest('post_date').post_date
+            thread.save()
+            dates_changed += 1
     messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
         requests_changed=requests_changed,
         request_count=Request.objects.all().count(),
         threads_changed=threads_changed,
-        thread_count=Thread.objects.all().count()),
-        )
+        thread_count=Thread.objects.all().count(),
+        dates_changed=dates_changed,
+        ))
     return HttpResponseRedirect(reverse('utilities'))
 
 def archives_view(request):

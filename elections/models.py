@@ -128,6 +128,10 @@ class Poll(models.Model):
         default=False,
         help_text="Treat this poll as a formal election."
         )
+    voc = models.BooleanField(
+        default=False,
+        help_text="Treat this poll as a \"Votes of Confidence\" election.",
+        )
 
     def __str__(self):
         return self.__unicode__()
@@ -284,7 +288,7 @@ class PollAnswer(models.Model):
 
 class PollRanks(models.Model):
     """
-    Ordered rankings for RANK type question.
+    Ordered rankings for RANK or RANGE type question.
     Rankings are represented by a list of integers,
     with integer position in the list representing
     the relative primary key of the question choices.
@@ -321,16 +325,39 @@ class PollRanks(models.Model):
     @property
     def rankings(self):
         rankings_list = [int(s) for x in self.rankings.split(',')]
-        return [(choice, rankings_list.pop()) for choice in self.question.choice_set.order_by('pk')]
+        return [(choice, rankings_list.pop(0)) for choice in self.question.choice_set.order_by('pk')]
 
-    def create_ranking(self, ranking_tuples):
+    def create_ranking(ranking_tuples):
         """
         Create and return a string suitable for the rankings
         field when given tuples of choices and rankings.
-        Parameters:     ranking_tuples should be a list or tuple
+        Parameters:     ranking_tuples should be an iterable
                             of tuples of form (choice, ranking)
         """
         return ",".join([str(r) for c, r in sorted(
                 ranking_tuples,
                 key=lambda x: x[0].pk
                 )])
+
+    def normalize_ranking(ranking_tuples):
+        """
+        Normalize rankings by reducing them to the simplest
+        order.  E.g.:
+            If the rankings for 2 choices are -244 and 4,
+            this function will normalize them to 0 and 1,
+            respectively.
+        Parameters:     ranking_tuples should be an iterable
+                            of tuples of form (choice, ranking)
+        Return a list of tuples of form (choice, ranking), with
+        the ranking normalized.
+        """
+        ranking_tuples = sorted(ranking_tuples, key=lambda x: x[1])
+        normalized = [(ranking_tuples.pop(0)[0], 0)]
+        while ranking_tuples:
+            current = ranking_tuples.pop(0)
+            normalized.append(
+                current[0],
+                normalized[-1][1] if current[1] = normalized[-1][1] \
+                    else normalized[-1][1] + 1,
+                )
+        return normalized

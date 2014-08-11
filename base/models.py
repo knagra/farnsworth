@@ -169,7 +169,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     '''
     Function to add a user profile for every User that is created.
     Parameters:
-        instance is an of User that was just saved.
+        instance is an instance of User that was just saved.
     '''
     if created:
         UserProfile.objects.create(user=instance)

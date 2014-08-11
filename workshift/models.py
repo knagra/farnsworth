@@ -4,6 +4,8 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from __future__ import unicode_literals
+
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -329,6 +331,11 @@ class PoolHours(models.Model):
         decimal_places=2,
         default=0,
         help_text="Manual hour requirement adjustment.",
+        )
+    last_updated = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the last time the system updated this workshifter's standings.",
         )
     first_date_standing = models.DecimalField(
         max_digits=5,

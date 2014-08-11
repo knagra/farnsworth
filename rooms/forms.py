@@ -7,6 +7,7 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 from django import forms
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
+from utils.funcs import form_add_error
 from utils.variables import MESSAGES
 from base.models import UserProfile
 from rooms.models import Room, PreviousResident
@@ -25,7 +26,7 @@ class RoomForm(forms.ModelForm):
         if not super(RoomForm, self).is_valid():
             return False
         elif self.cleaned_data["current_residents"].count() > self.cleaned_data["occupancy"]:
-            self._errors['current_residents'] = forms.util.ErrorList([u"There are more current residents than occupancy"])
+            form_add_error(self, "current_residents", "There are more current residents than occupancy")
             return False
         return True
 

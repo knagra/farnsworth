@@ -37,7 +37,7 @@
 	<form action="{% url 'threads:list_all_threads' %}" style="display:inline">
       <button class="btn btn-info header_button" type="submit">
 		<span class="glyphicon glyphicon-comment"></span>
-		<span class="hidden-xs"> Member Forums</span>
+		<span class="hidden-xs"> All Threads</span>
 	  </button>
 	</form>
   </div>
@@ -55,10 +55,10 @@
 		  <h3 class="thread_name">
 			{{ thread.subject }}
 			{% if edit_thread_form %}
-			<a id="show_edit_thread_form"
+			<small><a id="show_edit_thread_form"
 			   onclick="show_form('edit_thread_form', 'thread_name')">
 			  (edit)
-			</a>
+			</a></small>
 			{% endif %}
 		  </h3> <!-- .thread_name -->
 		</div> <!-- #thread_name -->
@@ -170,6 +170,7 @@
 <div class="text-center text-info" style="margin-top: 10px;">
   Showing {{ messages_list|length }} message{{ messages_list|length|pluralize }}.
   Viewed {{ thread.views }} time{{ thread.views|pluralize }}.
+  {% if thread.followers.count %}Followed by {{ thread.followers.count }} members{{ thread.followers.count|pluralize }}.{% endif %}
 </div>
 {% endblock %}
 

@@ -4,24 +4,6 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import phonenumber_field.modelfields
 
-def forwards_func(apps, schema_editor):
-    UserProfile = apps.get_model("base", "UserProfile")
-    for profile in UserProfile.objects.all():
-        if profile.tmp_phone_number:
-            phone_number = profile.tmp_phone_number \
-              .replace('-', '') \
-              .replace(' ', '') \
-              .replace('(', '') \
-              .replace(')', '')
-            if not phone_number.startswith("+"):
-                if phone_number.startswith("1"):
-                    phone_number = "+" + phone_number
-                else:
-                    phone_number = "+1" + phone_number
-            profile.phone_number = phone_number
-            if profile.phone_number.is_valid():
-                profile.save()
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -68,12 +50,5 @@ class Migration(migrations.Migration):
             model_name='userprofile',
             name='phone_number',
             field=phonenumber_field.modelfields.PhoneNumberField(default='', max_length=128, null=True, blank=True),
-        ),
-        migrations.RunPython(
-            forwards_func,
-        ),
-        migrations.RemoveField(
-            model_name='userprofile',
-            name='tmp_phone_number',
         ),
     ]

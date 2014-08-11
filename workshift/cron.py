@@ -1,4 +1,6 @@
 
+from django.utils.timezone import now
+
 from django_cron import CronJobBase, Schedule
 
 from workshift import utils
@@ -12,5 +14,12 @@ class CollectBlownCronJob(CronJobBase):
     def do(self):
         utils.collect_blown()
 
-# TODO: Run on sunday to update standings
-# TODO: Run on fine dates to generate fines?
+class UpdateWeeklyStandings(CronJobBase):
+    RUN_AT_TIMES = ["23:59"]
+
+    schedule = Schedule(run_at_times=RUN_AT_TIMES)
+    code = "workshift.update_standings"
+
+    def do(self):
+        utils.update_standings()
+

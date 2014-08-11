@@ -6,7 +6,7 @@ Author: Karandeep Singh Nagra
 Custom fields for workshift models.
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 from django.db import models
 
