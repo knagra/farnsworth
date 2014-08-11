@@ -161,8 +161,8 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "submit_thread_form": "",
-            "subject": "Thread Subject Test",
-            "body": "Thread Body Text Test",
+            "thread-subject": "Thread Subject Test",
+            "thread-body": "Thread Body Text Test",
             }, follow=True)
         self.assertRedirects(response, url)
         self.assertContains(response, "Thread Subject Test")
@@ -173,8 +173,8 @@ class TestHomepage(TestCase):
     def test_announcment_post(self):
         url = reverse("homepage")
         response = self.client.post(url, {
-            "manager": self.manager.pk,
-            "body": "Announcement Body Text Test",
+            "announce-manager": self.manager.pk,
+            "announce-body": "Announcement Body Text Test",
             "post_announcement": "",
             }, follow=True)
         self.assertRedirects(response, url)
@@ -201,8 +201,8 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "add_response-{0}".format(self.req.pk): "",
-            "body": "You betcha",
-            "action": Response.NONE,
+            "response-body": "You betcha",
+            "response-action": Response.NONE,
             }, follow=True)
         self.assertRedirects(response, url)
         self.assertContains(response, "You betcha")
@@ -213,8 +213,8 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "add_response-{0}".format(self.req.pk): "",
-            "body": "You betcha",
-            "action": Response.CLOSED,
+            "response-body": "You betcha",
+            "response-action": Response.CLOSED,
             }, follow=True)
         self.assertRedirects(response, url)
         # We shouldn't see the request body on the homepage any more when it is
@@ -227,8 +227,8 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "add_response-{0}".format(self.req.pk): "",
-            "body": "You betcha",
-            "action": Response.FILLED,
+            "response-body": "You betcha",
+            "response-action": Response.FILLED,
             }, follow=True)
         self.assertRedirects(response, url)
         # We shouldn't see the request body on the homepage any more when it is
@@ -244,7 +244,7 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "pin-{0}".format(self.announce.pk): "",
-            "pinned": False,
+            "pin-pinned": False,
             }, follow=True)
         self.assertRedirects(response, url)
         self.assertEqual(

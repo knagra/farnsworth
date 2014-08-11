@@ -121,11 +121,13 @@ def homepage_view(request, message=None):
                     initial={'action': Response.NONE},
                     profile=userProfile,
                     request=req,
+                    prefix="response",
                     )
                 vote_form = VoteForm(
                     request.POST if "vote-{0}".format(req.pk) in request.POST else None,
                     profile=userProfile,
                     request=req,
+                    prefix="vote",
                     )
 
                 if response_form.is_valid():
@@ -164,6 +166,7 @@ def homepage_view(request, message=None):
             pin_form = PinForm(
                 request.POST if "pin-{0}".format(a.pk) in request.POST else None,
                 instance=a,
+                prefix="pin",
                 )
             if pin_form.is_valid():
                 pin_form.save()
@@ -173,6 +176,7 @@ def homepage_view(request, message=None):
     announcement_form = AnnouncementForm(
         request.POST if "post_announcement" in request.POST else None,
         profile=userProfile,
+        prefix="announce",
         )
 
     if announcement_form.is_valid():
@@ -197,6 +201,7 @@ def homepage_view(request, message=None):
             request.POST if "rsvp-{0}".format(event.pk) in request.POST else None,
             profile=userProfile,
             instance=event,
+            prefix="rsvp",
             )
 
         if rsvp_form.is_valid():
@@ -215,6 +220,7 @@ def homepage_view(request, message=None):
     thread_form = ThreadForm(
         request.POST if "submit_thread_form" in request.POST else None,
         profile=userProfile,
+        prefix="thread",
         )
     if thread_form.is_valid():
         thread_form.save()
