@@ -11,7 +11,7 @@ def _fix_room_title(title):
       .replace("many", "") \
       .replace("guru", "1A") \
       .replace("Enchanted Forest", "3F") \
-      .replace("Boarder")
+      .replace("Boarder", "")
 
     if "ST." in title:
         return ""
