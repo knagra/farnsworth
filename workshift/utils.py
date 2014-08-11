@@ -520,7 +520,7 @@ def update_standings(semester=None):
         else:
             # Note, this will give periods > 0 on weeks starting on start_date's day, 
             # rather than explicitly Sunday
-            if not last_updated:
+            if not hours.last_updated:
                 last_weeks = 0
             else:
                 last_weeks = (hours.last_updated.date() - semester.start_date).days // 7
