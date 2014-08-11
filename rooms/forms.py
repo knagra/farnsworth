@@ -22,13 +22,20 @@ class RoomForm(forms.ModelForm):
         super(RoomForm, self).__init__(*args, **kwargs)
         self.fields["current_residents"].queryset = UserProfile.objects.filter(status=UserProfile.RESIDENT)
 
-    def is_valid(self, instance=False):
-        if not super(RoomForm, self).is_valid():
-            return False
-        elif self.cleaned_data["current_residents"].count() > self.cleaned_data["occupancy"]:
-            form_add_error(self, "current_residents", "There are more current residents than occupancy")
-            return False
-        return True
+    def clean_title(self):
+        title = self.cleaned_data["title"]
+        query = Room.objects.filter(title=title)
+        if self.instance:
+            query = query.exclude(pk=self.instance.pk)
+        if query.count():
+            raise forms.ValidationError("A room with this title already exists.")
+        return title
+
+    def clean(self):
+        occupancy = self.cleaned_data.get("occupancy", 1)
+        if self.cleaned_data["current_residents"].count() > occupancy:
+            raise forms.ValidationError("There are more residents than the room has occupancy for.")
+        return self.cleaned_data
 
 class ResidentForm(forms.ModelForm):
     class Meta:

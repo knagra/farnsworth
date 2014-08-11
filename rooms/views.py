@@ -1,4 +1,5 @@
 
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
@@ -23,6 +24,7 @@ def add_room(request):
 
     if form.is_valid():
         form.save()
+        messages.add_message(request, messages.INFO, "Added room.")
         return HttpResponseRedirect(reverse('rooms:list'))
 
     return render_to_response('add_room.html', {
@@ -65,6 +67,7 @@ def edit_room(request, room_title):
     if form.is_valid() and resident_formset.is_valid():
         room = form.save()
         resident_formset.save()
+        messages.add_message(request, messages.INFO, "Updated room.")
         return HttpResponseRedirect(
             reverse('rooms:view', kwargs={'room_title': room.title}),
             )
