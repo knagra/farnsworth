@@ -4,6 +4,8 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
+from __future__ import division
+
 from collections import defaultdict
 from datetime import date, timedelta, time, datetime
 import random
@@ -225,7 +227,7 @@ def collect_blown(semester=None, moment=None):
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
-        except Semester.DoesNotExist:
+        except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             return []
     if moment is None:
         moment = now()
@@ -499,3 +501,36 @@ def clear_all_assignments(semester, pool):
     for shift in shifts:
         shift.current_assignees.clear()
         shift.save()
+
+def update_standings(semester=None):
+    if semester is None:
+        try:
+            semester = Semester.objects.get(current=True)
+        except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+            return []
+
+    for hours in PoolHours.objects.filter(pool__semester=semester):
+        # Don't update hours after the semester ends
+        if hours.last_updated and hours.last_updated.date() > semester.end_date:
+            continue
+
+        # Calculate the number of periods since we last updated the standings
+        if hours.pool.weeks_per_period == 0:
+            periods = 1
+        else:
+            if not last_updated:
+                last_weeks = 0
+            else:
+                last_weeks = (hours.last_updated.date() - semester.start_date).days // 7
+            sem_weeks = (now().date() - semester.start_date).days // 7
+            periods = (sem_weeks - last_weeks) // hours.pool.weeks_per_period
+
+        # Update the actual standings
+        if periods:
+            pool_hours.standing -= pool_hours.hours * periods
+            pool_hours.last_updated = now()
+            pool_hours.save()
+
+
+
+
