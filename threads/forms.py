@@ -112,3 +112,8 @@ class EditMessageForm(forms.ModelForm):
         help_texts = {
             "body": "",
             }
+
+    def save(self):
+        message = super(EditMessageForm, self).save()
+        message.edited = True
+        message.save()
