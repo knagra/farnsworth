@@ -159,7 +159,15 @@ $ ./manage.py syncdb
 $ ./manage.py collectstatic
 ```
 
-There will be a prompt to create a superuser, if you mistakenly close the prompt before the user is created, you can get back to it with: `./manage.py createsuperuser`
+There will be a prompt to create a superuser, if you mistakenly close the prompt before the user is created, you can get back to it with: `./manage.py createsuperuser`.
+
+If you are running Django 1.7 instead of Django 1.6, rather than running `syncdb`, you should enter the command:
+
+```
+$ ./manage.py migrate
+```
+
+This will allow older deployments to update their databases, migrating data from previous versions of Farnsworth and creating new tables, columns, and filling in their default values.
 
 Once you have the site up and running, navigate to /admin/sites/site/ and update the example.com site to have your domain.  Django grabs this domain when sending e-mails, etc. to create links to your site.
 
