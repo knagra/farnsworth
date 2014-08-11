@@ -32,13 +32,18 @@ def forwards_func(apps, schema_editor):
     for profile in UserProfile.objects.all():
         title = _fix_room_title(profile.current_room)
         if title:
-            room, created = Room.objects.get_or_create(
-                title=title,
-                using=db_alias,
+            if not Room.objects.filter(title=title):
+                room = Room.objects.create(
+                    title=title,
+                    using=db_alias,
                 )
+            else:
+                room = Room.objects.get(
+                    title=title,
+                    )
             room.current_residents.add(profile)
             if not created:
-                room.occupancy += 1
+                room.occupancy = room.current_residents.count()
             room.save(using=db_alias, update_fields=["occupancy", "current_residents"])
         if profile.former_rooms:
             titles = [_fix_room_title(i) for i in profile.former_rooms.split(",")]
