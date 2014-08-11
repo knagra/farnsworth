@@ -6,7 +6,7 @@ from django.db import models, migrations
 def forwards_func(apps, schema_editor):
     Request = apps.get_model("managers", "Request")
     db_alias = schema_editor.connection.alias
-    for req in Request.objects.all():
+    for req in Request.objects.using(db_alias).all():
         if req.filled:
             req.status = 'F'
         elif req.closed:
