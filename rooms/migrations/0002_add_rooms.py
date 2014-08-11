@@ -37,10 +37,7 @@ def forwards_func(apps, schema_editor):
                 )
             room.current_residents.add(profile)
             room.occupancy = room.current_residents.count()
-            room.save(
-                using=db_alias, 
-                update_fields=["occupancy", "current_residents"],
-                )
+            room.save(using=db_alias)
         if profile.former_rooms:
             titles = [_fix_room_title(i) for i in profile.former_rooms.split(",")]
             for title in titles:
