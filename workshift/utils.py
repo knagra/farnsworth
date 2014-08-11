@@ -518,6 +518,8 @@ def update_standings(semester=None):
         if hours.pool.weeks_per_period == 0:
             periods = 1
         else:
+            # Note, this will give periods > 0 on weeks starting on start_date's day, 
+            # rather than explicitly Sunday
             if not last_updated:
                 last_weeks = 0
             else:
