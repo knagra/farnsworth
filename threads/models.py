@@ -111,4 +111,4 @@ def update_thread_change_date(sender, instance, created, **kwargs):
 
 # Connect signals with their respective functions from above.
 # When a message is created, update that message's thread's change_date to the post_date of that message.
-models.signals.post_save.connect(update_thread_change_date, sender=User)
+models.signals.post_save.connect(update_thread_change_date, sender=Message)

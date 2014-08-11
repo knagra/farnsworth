@@ -676,7 +676,11 @@ def reset_pw_confirm_view(request, uidb64=None, token=None):
 
 @admin_required
 def recount_view(request):
-    ''' Recount number_of_messages for all threads and number_of_responses for all requests. '''
+    """
+    Recount number_of_messages for all threads and number_of_responses for all requests.
+    Also set the change_date for every thread to the post_date of the latest message
+    associated with that thread.
+    """
     requests_changed = 0
     for req in Request.objects.all():
         recount = Response.objects.filter(request=req).count()
@@ -691,11 +695,18 @@ def recount_view(request):
             thread.number_of_messages = recount
             thread.save()
             threads_changed += 1
+    dates_changed = 0
+    for thread in Thread.objects.all():
+        if thread.change_date != thread.message_set.latest('post_date').post_date:
+            thread.change_date = thread.message_set.latest('post_date').post_date
+            thread.save()
+            dates_changed += 1
     messages.add_message(request, messages.SUCCESS, MESSAGES['RECOUNTED'].format(
         requests_changed=requests_changed,
         request_count=Request.objects.all().count(),
         threads_changed=threads_changed,
         thread_count=Thread.objects.all().count()),
+        dates_changed=dates_changed,
         )
     return HttpResponseRedirect(reverse('utilities'))
 
