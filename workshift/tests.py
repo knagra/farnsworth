@@ -704,7 +704,7 @@ class TestViews(TestCase):
         self.instance.save()
         self.once.save()
 
-        hours = self.wprofile.objects.pool_hours.get(pool=self.pool)
+        hours = self.wprofile.pool_hours.get(pool=self.pool)
         hours.first_fine_date = 13.00
         hours.save()
 
