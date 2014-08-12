@@ -515,6 +515,8 @@ class RegularWorkshift(models.Model):
         )
     addendum = models.TextField(
         default='',
+        blank=True,
+        null=True,
         help_text="Addendum to the description for this workshift.",
         )
 
