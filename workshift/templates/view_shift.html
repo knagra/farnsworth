@@ -57,7 +57,7 @@
   <tbody>
 	{% for instance, forms in instance_tuples %}
 	<tr>
-	  <td><a href="{% wurl 'workshift:view_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}"{{ instance.date }}</a></td>
+	  <td><a href="{% wurl 'workshift:view_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}">{{ instance.date }}</a></td>
 	  <td>
         {% if shift.intended_hours == shift.hours %}
         {{ shift.hours }}
