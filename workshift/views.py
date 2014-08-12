@@ -31,7 +31,7 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     WorkshiftRatingForm, TimeBlockFormSet, ProfileNoteForm, \
     RegularWorkshiftFormSet, SwitchSemesterForm, EditHoursForm, \
     AutoAssignShiftForm, RandomAssignInstancesForm, ClearAssignmentsForm, \
-    WorkshiftPoolHoursForm
+    WorkshiftPoolHoursForm, FineDateForm
 from workshift import utils
 
 def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
@@ -758,6 +758,38 @@ def add_shift_view(request, semester):
         "add_type_form": add_type_form,
         "shifts_formset": shifts_formset,
         "add_instance_form": add_instance_form,
+    }, context_instance=RequestContext(request))
+
+@semester_required
+@workshift_manager_required
+def fine_date_view(request, semester, profile=None):
+    page_name = "Calculate Workshift Fines"
+
+    fine_form = FineDateForm(
+        request.POST or None,
+        semester=semester,
+        )
+    if fine_form.is_valid():
+        fined_members = fine_form.save()
+        messages.add_message(
+            request, messages.INFO,
+            "Calculated workshift fines, {0} members will be fined.".format(fined_members),
+        )
+        return HttpResponseRedirect(wurl("workshift:manage",
+                                         sem_url=semester.sem_url))
+
+    pools = WorkshiftPool.objects.filter(semester=semester)
+    pools = pools.order_by('-is_primary', 'title')
+    workshifters = WorkshiftProfile.objects.filter(semester=semester)
+    pool_hours = [workshifter.pool_hours.filter(pool__in=pools)
+                  .order_by('-pool__is_primary', 'pool__title')
+                  for workshifter in workshifters]
+
+    return render_to_response("fine_date.html", {
+        "page_name": page_name,
+        "fine_form": fine_form,
+        "pools": pools,
+        "workshifters": zip(workshifters, pool_hours),
     }, context_instance=RequestContext(request))
 
 @get_workshift_profile

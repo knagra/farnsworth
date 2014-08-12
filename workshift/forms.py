@@ -793,3 +793,60 @@ class ProfileNoteForm(forms.ModelForm):
     class Meta:
         model = WorkshiftProfile
         fields = ("note",)
+
+# I recommend red wine and a late night walk along a lake
+FINE_DATE_CHOICES = (
+    (1, "First Fine Date"),
+    (2, "Second Fine Date"),
+    (3, "Third Fine Date"),
+    )
+
+class FineDateForm(forms.Form):
+    pool = forms.ModelChoiceField(
+        queryset=WorkshiftPool.objects.none(),
+        help_text="The workshift pool to calculate fines for.",
+        )
+    period = forms.ChoiceField(
+        choices=FINE_DATE_CHOICES,
+        help_text="Which period to generate fines for. This will overwrite previous "
+        "fines if any have been calculated for that period.",
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop("semester")
+        super(FineDateForm, self).__init__(*args, **kwargs)
+        self.fields["pool"].queryset = WorkshiftPool.objects.filter(semester=self.semester)
+        try:
+            self.fields["pool"].initial = WorkshiftPool.objects.get(
+                semester=self.semester,
+                is_primary=True,
+            )
+        except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
+            pass
+
+    def save(self):
+        pool = self.cleaned_data["pool"]
+        period = self.cleaned_data["period"]
+
+        fined = []
+
+        for profile in WorkshiftProfile.objects.filter(semester=self.semester):
+            pool_hours = profile.pool_hours.get(pool=pool)
+            if pool_hours.standing < 0:
+                fine = pool_hours.standing * self.semester.rate
+                if period == 1:
+                    pool_hours.first_date_standing = fine
+                elif period == 2:
+                    pool_hours.second_date_standing = fine
+                else:
+                    pool_hours.third_date_standing = fine
+                pool_hours.save()
+                fined.append(profile)
+                notify.send(
+                    pool,
+                    verb="received a workshift fine of ${0}".format(fine),
+                    recipient=profile.user,
+                    )
+
+        return fined
+

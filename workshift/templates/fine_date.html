@@ -1,0 +1,21 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+{% include 'workshifters_table.html' %}
+<hr class="w_line" />
+<form method="post">
+  {% csrf_token %}
+  {{ fine_form|bootstrap }}
+  <button type="submit" class="btn btn-default">
+    <span class="glyphicon glyphicon-floppy-disk"></span>
+    Calculate Fines
+  </button>
+</form>
+{% endblock %}
