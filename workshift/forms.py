@@ -255,6 +255,7 @@ class InteractShiftForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
+        self.undo = kwargs.pop("undo", False)
         super(InteractShiftForm, self).__init__(*args, **kwargs)
 
     def clean_pk(self):
@@ -263,7 +264,7 @@ class InteractShiftForm(forms.Form):
             shift = WorkshiftInstance.objects.get(pk=pk)
         except WorkshiftInstance.DoesNotExist:
             raise forms.ValidationError("Workshift does not exist.")
-        if shift.closed:
+        if shift.closed and not self.undo:
             raise forms.ValidationError("Workshift has been closed.")
         return shift
 

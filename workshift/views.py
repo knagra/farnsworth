@@ -309,6 +309,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
                 initial={"pk": instance.pk},
                 profile=profile,
                 prefix=prefix,
+                undo=undo,
                 )
             ret.append(verify_form)
 
@@ -318,6 +319,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
                 initial={"pk": instance.pk},
                 profile=profile,
                 prefix=prefix,
+                undo=undo,
                 )
             ret.append(blown_form)
     if not instance.closed:
