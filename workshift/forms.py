@@ -825,9 +825,9 @@ class ProfileNoteForm(forms.ModelForm):
 
 # I recommend red wine and a late night walk along a lake
 FINE_DATE_CHOICES = (
-    (1, "First Fine Date"),
-    (2, "Second Fine Date"),
-    (3, "Third Fine Date"),
+    ("1", "First Fine Date"),
+    ("2", "Second Fine Date"),
+    ("3", "Third Fine Date"),
     )
 
 class FineDateForm(forms.Form):
@@ -883,9 +883,9 @@ class FineDateForm(forms.Form):
             standing = pool_hours.standing + offset
             if standing < threshold:
                 fine = standing * self.semester.rate
-                if period == 1:
+                if period == "1":
                     pool_hours.first_date_standing = fine
-                elif period == 2:
+                elif period == "2":
                     pool_hours.second_date_standing = fine
                 else:
                     pool_hours.third_date_standing = fine
