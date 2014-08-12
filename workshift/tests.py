@@ -970,6 +970,20 @@ class TestViews(TestCase):
             WorkshiftInstance.objects.filter(workshifter=self.wprofile).count()
             )
 
+    def test_fine_date(self):
+        url = reverse("workshift:fine_date")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        print(response.content.decode('utf-8'))
+        self.assertContains(
+            response,
+            "workshifters_table",
+            )
+        self.assertContains(
+            response,
+            self.pool.title,
+            )
+
 class TestPreferences(TestCase):
     """
     Tests the various elements of the workshift preferences page.

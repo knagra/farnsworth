@@ -7,9 +7,9 @@
 
 {% block w_content %}
 <h1 class="w_title">{{ page_name }}</h1>
-{% if workshifters %}
+{% if workshifters and pools %}
 <hr class="w_line" />
-{% include 'workshifters_table.html' %}
+{% include "workshifters_table.html" %}
 {% endif %}
 <hr class="w_line" />
 <form method="post">
