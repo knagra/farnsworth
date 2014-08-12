@@ -26,15 +26,15 @@
 		{% endif %}
 		{% if hours.first_date_standing %}
 		<br />
-		First Fines: ${{ hours.first_date_standing }}
+		First Fines: {{ hours.first_date_standing|currency }}
 		{% endif %}
 		{% if hours.second_date_standing %}
 		<br />
-		Second Fines: ${{ hours.second_date_standing }}
+		Second Fines: {{ hours.second_date_standing|currency }}
 		{% endif %}
 		{% if hours.third_date_standing %}
 		<br />
-		Third Fines:  ${{ hours.third_date_standing }}
+		Third Fines: {{ hours.third_date_standing|currency }}
 		{% endif %}
 	  </td>
       {% endfor %}
