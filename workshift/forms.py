@@ -840,7 +840,7 @@ class FineDateForm(forms.Form):
         help_text="Which period to generate fines for. This will overwrite previous "
         "fines if any have been calculated for that period.",
         )
-    hours = forms.DecimalField(
+    offset = forms.DecimalField(
         max_digits=7,
         decimal_places=2,
         initial=0,
