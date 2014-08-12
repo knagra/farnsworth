@@ -779,7 +779,7 @@ def fine_date_view(request, semester, profile=None):
         semester=semester,
         )
     if fine_form.is_valid():
-        fined_members = fine_form.save()
+        fined_members = fine_form.save(clear="clear" in request.POST)
         messages.add_message(
             request, messages.INFO,
             "Calculated workshift fines, {0} members will be fined."

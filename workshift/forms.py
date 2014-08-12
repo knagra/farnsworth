@@ -870,7 +870,7 @@ class FineDateForm(forms.Form):
         except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
             pass
 
-    def save(self):
+    def save(self, clear=False):
         pool = self.cleaned_data["pool"]
         period = self.cleaned_data["period"]
         offset = self.cleaned_data["offset"]
@@ -880,8 +880,24 @@ class FineDateForm(forms.Form):
 
         for profile in WorkshiftProfile.objects.filter(semester=self.semester):
             pool_hours = profile.pool_hours.get(pool=pool)
+            if clear:
+                if period == "1":
+                    pool_hours.first_date_standing = None
+                elif period == "2":
+                    pool_hours.second_date_standing = None
+                else:
+                    pool_hours.third_date_standing = None
+                pool_hours.save()
+                notify.send(
+                    pool,
+                    verb="had its workshift fine cleared.",
+                    recipient=profile.user,
+                    )
+                continue
+
             standing = pool_hours.standing + offset
-            if standing < threshold:
+
+            if standing < threshold or clear:
                 fine = standing * self.semester.rate
                 if period == "1":
                     pool_hours.first_date_standing = fine

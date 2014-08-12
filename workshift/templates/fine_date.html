@@ -16,10 +16,16 @@
   {% csrf_token %}
   {{ fine_form|bootstrap }}
   <div class="text-center">
-	<button type="submit" class="btn btn-success">
-      <span class="glyphicon glyphicon-floppy-disk"></span>
-      Calculate Fines
-	</button>
+	<div class="btn-group">
+	  <button type="submit" class="btn btn-success" name="calculate">
+		<span class="glyphicon glyphicon-floppy-disk"></span>
+		Calculate Fines
+	  </button>
+	  <button type="submit" class="btn btn-danger" name="clear">
+		<span class="glyphicon glyphicon-remove"></span>
+		Clear Fines
+	  </button>
+	</div>
   </div>
 </form>
 {% endblock %}
