@@ -90,6 +90,28 @@
 	</tr>
 	{% endfor %}
   </tbody>
+  {% with id_prefix="instances" %}
+  {% include "pager.html" %}
+  {% endwith %}
 </table>
 {% endif %}
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('table').tablesorter({
+        sortList: [[0, 0]],
+        widgets: ["filter", "resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+    }).tablesorterPager({
+        container: "#instances_pager",
+        cssGoto: "#instances_goto"
+    });
+});
+</script>
+<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
 {% endblock %}
