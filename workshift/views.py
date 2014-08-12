@@ -16,8 +16,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
-from workshift.templatetags.workshift_tags import wurl
-
 from utils.variables import MESSAGES, date_formats
 from base.models import User
 from managers.models import Manager
@@ -33,6 +31,7 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     AutoAssignShiftForm, RandomAssignInstancesForm, ClearAssignmentsForm, \
     WorkshiftPoolHoursForm, FineDateForm, NoteForm
 from workshift import utils
+from workshift.templatetags.workshift_tags import wurl
 
 def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
     """ Given a workshift pool and a workshift profile,
