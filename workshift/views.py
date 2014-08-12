@@ -941,6 +941,7 @@ def instance_view(request, semester, pk, profile=None):
                 request.POST or None,
                 profile=profile,
                 prefix="interact",
+                undo=utils.can_manage(request.user, semester),
             )
             if f.is_valid() and note_form.is_valid():
                 note = note_form.save()
