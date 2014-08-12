@@ -286,7 +286,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
         workshifter = instance.workshifter or instance.liable
         pool = instance.pool
         managers = Manager.objects.filter(incumbent__user=profile.user)
-        verify = False
+        verify, blow = False, False
 
         # The many ways a person can be eligible to verify a shift...
         if instance.verify == AUTO_VERIFY:
@@ -304,7 +304,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
           any(i.workshift_manager for i in managers):
           verify = True
 
-        if verify:
+        if verify and not instance.verifier:
             verify_form = VerifyShiftForm(
                 initial={"pk": instance.pk},
                 profile=profile,
@@ -313,8 +313,14 @@ def _get_forms(profile, instance, undo=False, prefix=""):
                 )
             ret.append(verify_form)
 
-        if pool.any_blown or \
-          pool.managers.filter(incumbent__user=profile.user).count():
+        if pool.any_blown:
+            blow = True
+        
+        pool_managers = pool.managers.filter(incumbent__user=profile.user)
+        if pool_managers.count():
+            blow = True
+
+        if blow and not instance.blown:
             blown_form = BlownShiftForm(
                 initial={"pk": instance.pk},
                 profile=profile,
@@ -322,6 +328,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
                 undo=undo,
                 )
             ret.append(blown_form)
+
     if not instance.closed:
         if not instance.workshifter:
             sign_in_form = SignInForm(
