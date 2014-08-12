@@ -8,12 +8,12 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import models
 
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.fields import DayField
+from workshift.templatetags.workshift_tags import wurl
 
 WORKSHIFT_MANAGER_VERIFY = "W"
 POOL_MANAGER_VERIFY = "P"
@@ -192,6 +192,9 @@ class WorkshiftPool(models.Model):
         return ret.format(
             self.hours, "s" if self.hours != 1 else "",
             )
+
+    def get_view_url(self):
+        return wurl("workshift:view_pool", pk=self.pk, sem_url=self.semester.sem_url)
 
     def is_workshift_pool(self):
         return True
@@ -766,8 +769,7 @@ class WorkshiftInstance(models.Model):
         return True
 
     def get_view_url(self):
-        return reverse("workshift:view_instance", kwargs={"pk": self.pk})
-
+        return wurl("workshift:view_instance", pk=self.pk, sem_url=self.semester.sem_url)
 
 def create_workshift_profile(sender, instance, created, **kwargs):
     '''
