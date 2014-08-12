@@ -38,7 +38,7 @@
 	{% if prev_rooms %}
 	<dt>Former Rooms</dt>
 	<dd>
-	  {% for prev_res in prev_rooms %}{% if not forloop.first %}, {% endif %}<a href="{% url 'rooms:view' room_title=prev_res.room.title %}">{{ room.title }}</a>{% endfor %}
+	  {% for prev_res in prev_rooms %}{% if not forloop.first %}, {% endif %}<a href="{% url 'rooms:view' room_title=prev_res.room.title %}">{{ prev_res.room.title }}</a>{% endfor %}
 	</dd>
 	{% endif %}
 	{% if targetProfile.former_houses %}
