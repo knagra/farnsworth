@@ -310,7 +310,7 @@ class VerifyShiftForm(InteractShiftForm):
             if workshifter == self.profile:
                 raise forms.ValidationError("Workshifter cannot verify self.")
 
-        if utils.past_verify(instance):
+        if utils.past_verify(instance) and not self.undo:
             raise forms.ValidationError("Workshift is past verification period.")
 
         return instance
