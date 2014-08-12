@@ -263,6 +263,15 @@ class InteractShiftForm(forms.Form):
             raise forms.ValidationError("Workshift has been closed.")
         return shift
 
+def _undo_verify_blown(instance, pool_hours):
+    if instance.blown:
+        instance.blown = False
+        pool_hours.standing += instance.hours
+
+    if instance.verifier:
+        instance.verifier = None
+        pool_hours.standing -= instance.hours
+
 class VerifyShiftForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-ok"></span>'
     title_long = "Verify"
@@ -301,21 +310,25 @@ class VerifyShiftForm(InteractShiftForm):
 
         return instance
 
-    def save(self):
+    def save(self, note=None):
         entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.VERIFY,
+            note=note,
             )
 
         instance = self.cleaned_data["pk"]
+        workshifter = instance.workshifter or instance.liable
+        pool_hours = workshifter.pool_hours.get(pool=instance.pool)
+
+        # Check if the shift was previously verified or marked as blown
+        _undo_verify_blown(instance, pool_hours)
+
         instance.verifier = self.profile
         instance.closed = True
         instance.logs.add(entry)
         instance.save()
 
-        workshifter = instance.workshifter or instance.liable
-
-        pool_hours = workshifter.pool_hours.get(pool=instance.pool)
         pool_hours.standing += instance.hours
         pool_hours.save()
 
@@ -342,22 +355,27 @@ class BlownShiftForm(InteractShiftForm):
 
         return shift
 
-    def save(self):
+    def save(self, note=None):
         entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.BLOWN,
+            note=note,
             )
 
-        # Close the shift
         instance = self.cleaned_data["pk"]
+        workshifter = instance.workshifter or instance.liable
+        pool_hours = workshifter.pool_hours.get(pool=instance.pool)
+
+        # Check if the shift was previously verified or marked as blown
+        _undo_verify_blown(instance, pool_hours)
+
+        # Close the shift
         instance.blown = True
         instance.closed = True
         instance.logs.add(entry)
         instance.save()
 
         # Update the workshifter's hours
-        pool_hours = instance.workshifter.pool_hours \
-          .get(pool=instance.get_info().pool)
         pool_hours.standing -= instance.hours
         pool_hours.save()
 
@@ -378,6 +396,15 @@ class BlownShiftForm(InteractShiftForm):
 
         return instance
 
+class NoteForm(forms.Form):
+    note = forms.CharField(
+        required=False,
+        widget=forms.Textarea(),
+        )
+
+    def save(self):
+        return self.cleaned_data["note"]
+
 class SignInForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-log-in"></span>'
     title_long = "Sign In"
@@ -391,10 +418,11 @@ class SignInForm(InteractShiftForm):
 
         return shift
 
-    def save(self):
+    def save(self, note=None):
         entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.SIGNIN,
+            note=note,
             )
 
         instance = self.cleaned_data["pk"]
@@ -418,10 +446,11 @@ class SignOutForm(InteractShiftForm):
 
         return shift
 
-    def save(self):
+    def save(self, note=None):
         entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.SIGNOUT,
+            note=note,
             )
 
         instance = self.cleaned_data["pk"]

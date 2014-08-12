@@ -31,7 +31,7 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     WorkshiftRatingForm, TimeBlockFormSet, ProfileNoteForm, \
     RegularWorkshiftFormSet, SwitchSemesterForm, EditHoursForm, \
     AutoAssignShiftForm, RandomAssignInstancesForm, ClearAssignmentsForm, \
-    WorkshiftPoolHoursForm, FineDateForm
+    WorkshiftPoolHoursForm, FineDateForm, NoteForm
 from workshift import utils
 
 def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
@@ -277,58 +277,67 @@ def view_semester(request, semester, profile=None):
     return render_to_response("semester.html", template_dict,
                               context_instance=RequestContext(request))
 
-def _get_forms(profile, instance):
+def _get_forms(profile, instance, redundant=False, prefix=""):
     """
     Gets the forms for profile interacting with an instance of a shift. This
     includes verify shift, mark shift as blown, sign in, and sign out.
     """
+    if not profile:
+        return []
     ret = []
-    if not instance.closed and profile:
-        if instance.workshifter:
-            workshifter = instance.workshifter or instance.liable
-            pool = instance.pool
-            managers = Manager.objects.filter(incumbent__user=profile.user)
-            verify = False
+    if (not instance.closed or redundant) and instance.workshifter:
+        workshifter = instance.workshifter or instance.liable
+        pool = instance.pool
+        managers = Manager.objects.filter(incumbent__user=profile.user)
+        verify = False
 
-            # The many ways a person can be eligible to verify a shift...
-            if instance.verify == AUTO_VERIFY:
-                pass
-            elif instance.verify == SELF_VERIFY:
-                verify = True
-            elif instance.verify == OTHER_VERIFY and profile != workshifter:
-                verify = True
-            elif instance.verify == ANY_MANAGER_VERIFY and managers:
-                verify = True
-            elif instance.verify == POOL_MANAGER_VERIFY and \
-              set(managers).intersections(pool.managers):
-              verify = True
-            elif instance.verify == WORKSHIFT_MANAGER_VERIFY and \
-              any(i.workshift_manager for i in managers):
-              verify = True
+        # The many ways a person can be eligible to verify a shift...
+        if instance.verify == AUTO_VERIFY:
+            pass
+        elif instance.verify == SELF_VERIFY:
+            verify = True
+        elif instance.verify == OTHER_VERIFY and profile != workshifter:
+            verify = True
+        elif instance.verify == ANY_MANAGER_VERIFY and managers:
+            verify = True
+        elif instance.verify == POOL_MANAGER_VERIFY and \
+          set(managers).intersections(pool.managers):
+          verify = True
+        elif instance.verify == WORKSHIFT_MANAGER_VERIFY and \
+          any(i.workshift_manager for i in managers):
+          verify = True
 
-            if verify:
-                verify_form = VerifyShiftForm(initial={
-                    "pk": instance.pk,
-                    }, profile=profile)
-                ret.append(verify_form)
+        if verify:
+            verify_form = VerifyShiftForm(
+                initial={"pk": instance.pk},
+                profile=profile,
+                prefix=prefix,
+                )
+            ret.append(verify_form)
 
-            if pool.any_blown or \
-              pool.managers.filter(incumbent__user=profile.user).count():
-                blown_form = BlownShiftForm(initial={
-                    "pk": instance.pk,
-                    }, profile=profile)
-                ret.append(blown_form)
-
-            if instance.workshifter == profile:
-                sign_out_form = SignOutForm(initial={
-                    "pk": instance.pk,
-                    }, profile=profile)
-                ret.append(sign_out_form)
-        else:
-            sign_in_form = SignInForm(initial={
-                "pk": instance.pk,
-                }, profile=profile)
+        if pool.any_blown or \
+          pool.managers.filter(incumbent__user=profile.user).count():
+            blown_form = BlownShiftForm(
+                initial={"pk": instance.pk},
+                profile=profile,
+                prefix=prefix,
+                )
+            ret.append(blown_form)
+    if not instance.closed:
+        if not instance.workshifter:
+            sign_in_form = SignInForm(
+                initial={"pk": instance.pk},
+                profile=profile,
+                prefix=prefix,
+            )
             ret.append(sign_in_form)
+        elif instance.workshifter == profile:
+            sign_out_form = SignOutForm(
+                initial={"pk": instance.pk},
+                profile=profile,
+                prefix=prefix,
+            )
+            ret.append(sign_out_form)
     return ret
 
 def _is_preferred(instance, profile):
@@ -925,15 +934,27 @@ def instance_view(request, semester, pk, profile=None):
     """
     instance = get_object_or_404(WorkshiftInstance, pk=pk)
     page_name = instance.title
-    interact_forms = _get_forms(profile, instance)
+    interact_forms = _get_forms(
+        profile, instance,
+        redundant=True,
+        prefix="interact",
+    )
 
-    # TODO: Form to contest / resolve workshift marks?
+    note_form = NoteForm(
+        request.POST or None,
+        prefix="note",
+        )
 
     for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
         if form.action_name in request.POST:
-            f = form(request.POST, profile=profile)
-            if f.is_valid():
-                instance = f.save()
+            f = form(
+                request.POST or None,
+                profile=profile,
+                prefix="interact",
+            )
+            if f.is_valid() and note_form.is_valid():
+                note = note_form.save()
+                instance = f.save(note=note)
                 return HttpResponseRedirect(wurl('workshift:view_instance',
                                                  sem_url=semester.sem_url,
                                                  pk=instance.pk))
@@ -962,6 +983,7 @@ def instance_view(request, semester, pk, profile=None):
         "page_name": page_name,
         "instance": instance,
         "interact_forms": interact_forms,
+        "note_form": note_form,
         "edit_hours_form": edit_hours_form,
     }, context_instance=RequestContext(request))
 

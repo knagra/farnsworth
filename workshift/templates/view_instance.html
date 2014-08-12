@@ -27,16 +27,18 @@
   {% if interact_forms %}
   <dt>Action</dt>
   <dd>
-    {% for form in interact_forms %}
     <form style="display:inline" method="POST">
+      {% for form in interact_forms %}
       {% csrf_token %}
       {{ form }}
       <button type="submit"
-        class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
-        name="{{ form.action_name }}">{{ form.title_short|safe }}
-        {{ form.title_long }}</button>
+			  class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
+			  name="{{ form.action_name }}">{{ form.title_short|safe }}
+        {{ form.title_long }}
+	  </button>
+      {% endfor %}
+	  {{ note_form|bootstrap }}
     </form>
-    {% endfor %}
   </dd>
   {% endif %}
   {% if edit_hours_form %}
