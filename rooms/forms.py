@@ -53,8 +53,11 @@ class BaseResidentFormSet(BaseModelFormSet):
         for prev in prev_residents:
             prev.room = self.room
             prev.save()
-        for prev in self.deleted_objects:
-            prev.delete()
+        try:
+            for prev in self.deleted_objects:
+                prev.delete()
+        except AssertionError:
+            pass
         return prev_residents
 
 ResidentFormSet = modelformset_factory(
