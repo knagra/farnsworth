@@ -237,10 +237,8 @@ def view_semester(request, semester, profile=None):
         template_dict["switch_form"] = switch_form
 
         if switch_form.is_valid():
-            return HttpResponseRedirect(wurl(
-                "workshift:view_semester",
-                sem_url=switch_form.cleaned_data["semester"].sem_url
-                ))
+            semester = switch_form.save()
+            return HttpResponseRedirect(semester.get_view_url())
 
     # Forms to interact with workshift
     if profile:
@@ -250,7 +248,7 @@ def view_semester(request, semester, profile=None):
                 if f.is_valid():
                     f.save()
                     return HttpResponseRedirect(
-                        wurl("workshift:view_semester", sem_url=semester.sem_url) +
+                        semester.get_view_url() +
                         "?day={0}".format(day) if "day" in request.GET else ""
                         )
                 else:
@@ -393,10 +391,7 @@ def edit_profile_view(request, semester, targetUsername, profile=None):
             note_form.save()
         for form in pools_forms:
             form.save()
-        return HttpResponseRedirect(wurl(
-            'workshift:profile', kwargs={"targetUsername": targetUsername},
-            sem_url=semester.sem_url,
-        ))
+        return HttpResponseRedirect(wprofile.get_view_url())
     page_name = "Edit {}'s Profile".format(wprofile.user.get_full_name())
     return render_to_response("edit_profile.html", {
         "page_name": page_name,
@@ -455,8 +450,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
       not utils.can_manage(request.user, semester=semester):
         messages.add_message(request, messages.ERROR,
                              MESSAGES['ADMINS_ONLY'])
-        return HttpResponseRedirect(wurl('workshift:view_semester',
-                                         sem_url=semester.sem_url))
+        return HttpResponseRedirect(semester.get_view_url())
 
     rating_forms = []
     for wtype in WorkshiftType.objects.filter(rateable=True):
@@ -541,8 +535,7 @@ def manage_view(request, semester, profile=None):
         if not pools.count():
             messages.add_message(request, messages.ERROR,
                                  MESSAGES['ADMINS_ONLY'])
-            return HttpResponseRedirect(wurl('workshift:view_semester',
-                                             sem_url=semester.sem_url))
+            return HttpResponseRedirect(semester.get_view_url())
     else:
         semester_form = FullSemesterForm(
             request.POST if "edit_semester" in request.POST else None,
@@ -728,8 +721,7 @@ def add_shift_view(request, semester):
         if not pools.count():
             messages.add_message(request, messages.ERROR,
                                  MESSAGES['ADMINS_ONLY'])
-            return HttpResponseRedirect(wurl('workshift:view_semester',
-                                             sem_url=semester.sem_url))
+            return HttpResponseRedirect(semester.get_view_url())
 
     if full_management:
         add_type_form = WorkshiftTypeForm(
@@ -811,9 +803,7 @@ def pool_view(request, semester, pk, profile=None):
             f = SignInForm(request.POST, profile=profile)
             if f.is_valid():
                 f.save()
-                return HttpResponseRedirect(wurl("workshift:view_pool",
-                                                    sem_url=semester.sem_url,
-                                                    pk=pk))
+                return HttpResponseRedirect(pool.get_view_url())
             else:
                 for error in f.errors.values():
                     messages.add_message(request, messages.ERROR, error)
@@ -841,8 +831,7 @@ def edit_pool_view(request, semester, pk, profile=None):
     if not full_management and not managers.count():
         messages.add_message(request, messages.ERROR,
                              MESSAGES['ADMINS_ONLY'])
-        return HttpResponseRedirect(wurl('workshift:view_semester',
-                                         sem_url=semester.sem_url))
+        return HttpResponseRedirect(semester.get_view_url())
 
     # TODO: Link auto-verify / auto-blown / etc to pool view?
 
@@ -901,8 +890,7 @@ def edit_shift_view(request, semester, pk, profile=None):
     if not request.user.is_superuser and not managers.count():
         messages.add_message(request, messages.ERROR,
                              MESSAGES['ADMINS_ONLY'])
-        return HttpResponseRedirect(wurl('workshift:view_semester',
-                                         sem_url=semester.sem_url))
+        return HttpResponseRedirect(semester.get_view_url())
 
     edit_form = RegularWorkshiftForm(
         request.POST if "edit" in request.POST else None,
@@ -917,9 +905,7 @@ def edit_shift_view(request, semester, pk, profile=None):
                                          sem_url=semester.sem_url))
     elif edit_form.is_valid():
         shift = edit_form.save()
-        return HttpResponseRedirect(wurl('workshift:view_shift',
-                                         sem_url=semester.sem_url,
-                                         pk=shift.pk))
+        return HttpResponseRedirect(shift.get_view_url())
 
     page_name = "Edit {0}".format(shift)
 
@@ -957,9 +943,7 @@ def instance_view(request, semester, pk, profile=None):
             if f.is_valid() and note_form.is_valid():
                 note = note_form.save()
                 instance = f.save(note=note)
-                return HttpResponseRedirect(wurl('workshift:view_instance',
-                                                 sem_url=semester.sem_url,
-                                                 pk=instance.pk))
+                return HttpResponseRedirect(instance.get_view_url())
             else:
                 for error in f.errors.values():
                     messages.add_message(request, messages.ERROR, error)
@@ -975,11 +959,7 @@ def instance_view(request, semester, pk, profile=None):
         if edit_hours_form.is_valid():
             edit_hours_form.save()
             messages.add_message(request, messages.INFO, "Updated instance's hours.")
-            return HttpResponseRedirect(wurl(
-                "workshift:view_instance",
-                sem_url=semester.sem_url,
-                pk=instance.pk,
-                ))
+            return HttpResponseRedirect(instance.get_view_url())
 
     return render_to_response("view_instance.html", {
         "page_name": page_name,
@@ -1000,8 +980,7 @@ def edit_instance_view(request, semester, pk, profile=None):
     if not request.user.is_superuser and not managers.count():
         messages.add_message(request, messages.ERROR,
                              MESSAGES['ADMINS_ONLY'])
-        return HttpResponseRedirect(wurl('workshift:view_semester',
-                                         sem_url=semester.sem_url))
+        return HttpResponseRedirect(semester.get_view_url())
 
     page_name = "Edit " + instance.title
 
@@ -1018,9 +997,7 @@ def edit_instance_view(request, semester, pk, profile=None):
                                          sem_url=semester.sem_url))
     elif edit_form.is_valid():
         instance = edit_form.save()
-        return HttpResponseRedirect(wurl('workshift:view_instance',
-                                         sem_url=semester.sem_url,
-                                         pk=instance.pk))
+        return HttpResponseRedirect(instance.get_view_url())
 
     return render_to_response("edit_instance.html", {
         "page_name": page_name,
@@ -1085,7 +1062,7 @@ def edit_type_view(request, pk):
     if edit_form.is_valid() and shifts_formset.is_valid():
         wtype = edit_form.save()
         shifts_formset.save(wtype)
-        return HttpResponseRedirect(wurl('workshift:view_type', pk=pk))
+        return HttpResponseRedirect(wtype.get_view_url())
 
     page_name = "Edit {0}".format(wtype.title)
 

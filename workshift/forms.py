@@ -21,6 +21,7 @@ from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     PoolHours, AUTO_VERIFY, WORKSHIFT_MANAGER_VERIFY, \
     POOL_MANAGER_VERIFY, ANY_MANAGER_VERIFY, OTHER_VERIFY, VERIFY_CHOICES
 from workshift import utils
+from workshift.templatetags.workshift_tags import currency
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
 
@@ -121,6 +122,9 @@ class SwitchSemesterForm(forms.Form):
     semester = forms.ModelChoiceField(
         queryset=Semester.objects.all(),
         )
+
+    def save(self):
+        return self.cleaned_data["semester"]
 
 class WorkshiftInstanceForm(forms.ModelForm):
     class Meta:
@@ -909,7 +913,8 @@ class FineDateForm(forms.Form):
                 fined.append(profile)
                 notify.send(
                     pool,
-                    verb="generated a workshift fine of ${0}".format(fine),
+                    verb="generated a workshift fine of {0}"
+                    .format(currency(fine)),
                     recipient=profile.user,
                     )
 

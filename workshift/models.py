@@ -110,6 +110,9 @@ class Semester(models.Model):
     def is_semester(self):
         return True
 
+    def get_view_url(self):
+        return wurl("workshift:view_semester", sem_url=self.sem_url)
+
 class WorkshiftPool(models.Model):
     title = models.CharField(
         max_length=100,
@@ -249,6 +252,9 @@ class WorkshiftType(models.Model):
 
     def is_workshift_type(self):
         return True
+
+    def get_view_url(self):
+        return wurl("workshift:view_type", pk=self.pk)
 
 class TimeBlock(models.Model):
     '''
@@ -440,6 +446,13 @@ class WorkshiftProfile(models.Model):
     def get_full_name(self):
         return self.user.get_full_name()
 
+    def get_view_url(self):
+        return wurl(
+            "workshift:profile",
+            targetUsername=self.user.username,
+            sem_url=self.semester.sem_url,
+        )
+
 class RegularWorkshift(models.Model):
     '''
     A weekly workshift for a semester.
@@ -516,6 +529,9 @@ class RegularWorkshift(models.Model):
                 )
         else:
             return self.workshift_type.title
+
+    def get_view_url(self):
+        return wurl("workshift:view_shift", pk=self.pk, sem_url=self.pool.semester.sem_url)
 
     def display_time(self):
         if self.day is not None:
