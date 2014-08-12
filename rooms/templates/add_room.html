@@ -32,10 +32,11 @@
     <table class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
       <tbody>
         {% for form in resident_formset.forms %}
-        {{ form.id }}
         <tr class="resident_formset_row">
-	  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
-          <td>{{ form.resident|bootstrap }}</td>
+	  <td>
+	    {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+            {{ form.resident|bootstrap }}
+	  </td>
           <td>{{ form.start_date|bootstrap }}</td>
           <td>{{ form.end_date|bootstrap }}</td>
           <td style="vertical-align: middle;"></td>

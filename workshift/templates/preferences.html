@@ -71,9 +71,11 @@
   <table id="time_blocks" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
     <tbody>
       {% for form in time_formset.forms %}
-      {{ form.id }}
       <tr class="time_formset_row">
-        <td>{{ form.preference|bootstrap }}</td>
+	<td>
+	  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+          {{ form.preference|bootstrap }}
+	</td>
         <td>{{ form.day|bootstrap }}</td>
         <td>{{ form.start_time|bootstrap }}</td>
         <td>{{ form.end_time|bootstrap }}</td>

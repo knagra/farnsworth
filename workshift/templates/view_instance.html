@@ -87,7 +87,12 @@
       {% for log in instance.logs.all %}
       <tr>
         <td>{{ log.entry_time }}</td>
-        <td>
+        <td {% if log.entry_type == 'B' %}
+	    class="danger"
+	    {% elif log.entry_type == 'V' %}
+	    class="success"
+	    {% endif %}
+	    >
           {% if log.person %}
           <a href="{% url 'workshift:profile' targetUsername=log.person.user.username %}">{{ log.person.user.get_full_name }}</a>
           {% else %}

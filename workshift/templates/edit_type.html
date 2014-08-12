@@ -45,7 +45,10 @@
 		{% for form in shifts_formset.forms %}
 		{{ form.id }}
 		<tr class="shifts_formset_row">
-		  <td>{{ form.pool|bootstrap }}</td>
+		  <td>
+		    {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+		    {{ form.pool|bootstrap }}
+		  </td>
 		  <td>{{ form.day|bootstrap }}</td>
 		  <td>{{ form.count|bootstrap }}</td>
 		  <td>{{ form.hours|bootstrap }}</td>
