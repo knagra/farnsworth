@@ -811,6 +811,21 @@ class FineDateForm(forms.Form):
         help_text="Which period to generate fines for. This will overwrite previous "
         "fines if any have been calculated for that period.",
         )
+    hours = forms.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        initial=0,
+        help_text="Offset to apply to everyone's workshift standing, useful if you are "
+        "fining people after their standings were reduced on Sunday by 5 hours.",
+        )
+    threshold = forms.DecimalField(
+        max_value=0,
+        max_digits=7,
+        decimal_places=2,
+        initial=-2,
+        help_text="Only members below this threshold will be fined, though they will "
+        "be fined for all of their hours, including those up to the threshold.",
+        )
 
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop("semester")
@@ -827,13 +842,16 @@ class FineDateForm(forms.Form):
     def save(self):
         pool = self.cleaned_data["pool"]
         period = self.cleaned_data["period"]
+        offset = self.cleaned_data["offset"]
+        threshold = self.cleaned_data["threshold"]
 
         fined = []
 
         for profile in WorkshiftProfile.objects.filter(semester=self.semester):
             pool_hours = profile.pool_hours.get(pool=pool)
-            if pool_hours.standing < 0:
-                fine = pool_hours.standing * self.semester.rate
+            standing = pool_hours.standing + offset
+            if standing < threshold:
+                fine = standing * self.semester.rate
                 if period == 1:
                     pool_hours.first_date_standing = fine
                 elif period == 2:
@@ -844,7 +862,7 @@ class FineDateForm(forms.Form):
                 fined.append(profile)
                 notify.send(
                     pool,
-                    verb="received a workshift fine of ${0}".format(fine),
+                    verb="generated a workshift fine of ${0}".format(fine),
                     recipient=profile.user,
                     )
 
