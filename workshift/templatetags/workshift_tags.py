@@ -16,7 +16,7 @@ def wurl(url_name, *args, **kwargs):
     kwargs = dict((i, j) for i, j in kwargs.items() if j)
     return reverse(url_name, args=args, kwargs=kwargs)
 
-@register.simple_tag
+@register.filter
 def currency(dollars):
     dollars = round(float(dollars), 2)
     minus = "-" if dollar < 0 else ""
