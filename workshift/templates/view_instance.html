@@ -101,11 +101,12 @@
           signed into this shift.
           {% elif log.entry_type == 'O' %}
           signed out of this shift.
-          {% elif log.enty_type == 'V' %}
+          {% elif log.entry_type == 'V' %}
           verified that this shift was completed.
 		  {% elif log.entry_type == 'M' %}
 		  changed the hours credited by this shift to {{ log.hours }} hour{{ log.hours|pluralize}}.
-          {% endif %}</td>
+          {% endif %}
+		</td>
         <td>{% if log.note %}{{ log.note }}{% endif %}</td>
       </tr>
       {% endfor %}
