@@ -27,7 +27,7 @@ valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
 class FullSemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
-        exclude = ("workshift_managers")
+        exclude = ("workshift_managers",)
 
 class SemesterForm(forms.ModelForm):
     class Meta:
