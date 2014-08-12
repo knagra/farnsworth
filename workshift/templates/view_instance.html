@@ -18,53 +18,59 @@
   <hr class="w_line" />
   <h3 class="w_subtitle">Description</h3>
   <dl id="info_table" class="dl-horizontal">
-  <dt>Workshift Pool</dt>
-  <dd><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool.title }}</a></dd>
-  <dt>Date</dt>
-  <dd>{{ instance.date }}</dd>
-  <dt>Worth</dt>
-  <dd>{{ instance.hours }} hour{{ instance.hours|pluralize }}</dd>
-  {% if interact_forms %}
-  <dt>Action</dt>
-  <dd>
-    {% for form in interact_forms %}
-    <form style="display:inline" method="POST">
-      {% csrf_token %}
-      {{ form }}
-      <button type="submit"
-        class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
-        name="{{ form.action_name }}">{{ form.title_short|safe }}
-        {{ form.title_long }}</button>
-    </form>
-    {% endfor %}
-  </dd>
-  {% endif %}
-  {% if edit_hours_form %}
-  <dt>Edit Credited Hours</dt>
-  <dd>
-	<form method="POST">
-	  {% csrf_token %}
-	  {{ edit_hours_form|bootstrap }}
-	  <button type="submit" class="btn btn-default" name="edit_hours">
-		<span class="glyphicon glyphicon-edit"></span>
-		Edit Hours
-	  </button>
-	</form>
-  </dd>
-  {% endif %}
-  {% if instance.workshifter %}
-  <dt>Assignee</dt>
-  <dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.workshifter.user.username %}">{{ instance.workshifter.user.get_full_name }}</a></dd>
-  {% elif instance.liable %}
-  <dt>Event</dt>
-  <dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.liable.user.username %}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of this shift and is still expected to complete the shift if it is not filled by another person.</dd>
-  {% endif %}
-  {% if instance.weekly_workshift %}
-  <dt>Quick Tips</dt>
-  <dd>{{ instance.weekly_workshift.workshift_type.quick_tips }}&nbsp;</dd>
-  {% endif %}
-  <dt>Description</dt>
-  <dd>{{ instance.description|safe }}<br />{% if instance.addendum %}{{ instance.addendum|safe }}{% endif %}</dd>
+    {% if instance.weekly_workshift %}
+    <dt>Recurring Workshift</dt>
+    <dd><a href="{{ instance.weekly_workshift.get_view_url }}">{{ instance.weekly_workshift.display_time }}</a></dd>
+    {% endif %}
+	<dt>Workshift Pool</dt>
+	<dd><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool.title }}</a></dd>
+	<dt>Date</dt>
+	<dd>{{ instance.date }}</dd>
+	<dt>Worth</dt>
+	<dd>{{ instance.hours }} hour{{ instance.hours|pluralize }}</dd>
+	{% if interact_forms %}
+	<dt>Action</dt>
+	<dd>
+      <form style="display:inline" method="POST">
+		{% for form in interact_forms %}
+		{% csrf_token %}
+		{{ form }}
+		<button type="submit"
+				class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
+				name="{{ form.action_name }}">{{ form.title_short|safe }}
+          {{ form.title_long }}
+		</button>
+		{% endfor %}
+		{{ note_form|bootstrap }}
+      </form>
+	</dd>
+	{% endif %}
+	{% if edit_hours_form %}
+	<dt>Edit Credited Hours</dt>
+	<dd>
+	  <form method="POST">
+		{% csrf_token %}
+		{{ edit_hours_form|bootstrap }}
+		<button type="submit" class="btn btn-default" name="edit_hours">
+		  <span class="glyphicon glyphicon-edit"></span>
+		  Edit Hours
+		</button>
+	  </form>
+	</dd>
+	{% endif %}
+	{% if instance.workshifter %}
+	<dt>Assignee</dt>
+	<dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.workshifter.user.username %}">{{ instance.workshifter.user.get_full_name }}</a></dd>
+	{% elif instance.liable %}
+	<dt>Event</dt>
+	<dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.liable.user.username %}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of this shift and is still expected to complete the shift if it is not filled by another person.</dd>
+	{% endif %}
+	{% if instance.weekly_workshift %}
+	<dt>Quick Tips</dt>
+	<dd>{{ instance.weekly_workshift.workshift_type.quick_tips }}&nbsp;</dd>
+	{% endif %}
+	<dt>Description</dt>
+	<dd>{{ instance.description|safe }}<br />{% if instance.addendum %}{{ instance.addendum|safe }}{% endif %}</dd>
   </dl>
   {% if instance.logs.all %}
   <hr />
@@ -95,11 +101,12 @@
           signed into this shift.
           {% elif log.entry_type == 'O' %}
           signed out of this shift.
-          {% elif log.enty_type == 'V' %}
+          {% elif log.entry_type == 'V' %}
           verified that this shift was completed.
 		  {% elif log.entry_type == 'M' %}
 		  changed the hours credited by this shift to {{ log.hours }} hour{{ log.hours|pluralize}}.
-          {% endif %}</td>
+          {% endif %}
+		</td>
         <td>{% if log.note %}{{ log.note }}{% endif %}</td>
       </tr>
       {% endfor %}

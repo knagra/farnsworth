@@ -50,14 +50,13 @@
 	  <th>Date</th>
 	  <th>Hours</th>
 	  <th>Workshifter</th>
-	  <th>Verifier</th>
 	  <th>Action</th>
 	</tr>
   </thead>
   <tbody>
 	{% for instance, forms in instance_tuples %}
 	<tr>
-	  <td><a href="{% wurl 'workshift:view_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}"{{ instance.date }}</a></td>
+	  <td><a href="{% wurl 'workshift:view_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}">{{ instance.date }}</a></td>
 	  <td>
         {% if shift.intended_hours == shift.hours %}
         {{ shift.hours }}
@@ -91,6 +90,28 @@
 	</tr>
 	{% endfor %}
   </tbody>
+  {% with id_prefix="instances" %}
+  {% include "pager.html" %}
+  {% endwith %}
 </table>
 {% endif %}
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('table').tablesorter({
+        sortList: [[0, 0]],
+        widgets: ["filter", "resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+    }).tablesorterPager({
+        container: "#instances_pager",
+        cssGoto: "#instances_goto"
+    });
+});
+</script>
+<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
 {% endblock %}

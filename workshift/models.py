@@ -8,12 +8,12 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import models
 
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.fields import DayField
+from workshift.templatetags.workshift_tags import wurl
 
 WORKSHIFT_MANAGER_VERIFY = "W"
 POOL_MANAGER_VERIFY = "P"
@@ -110,6 +110,9 @@ class Semester(models.Model):
     def is_semester(self):
         return True
 
+    def get_view_url(self):
+        return wurl("workshift:view_semester", sem_url=self.sem_url)
+
 class WorkshiftPool(models.Model):
     title = models.CharField(
         max_length=100,
@@ -193,6 +196,9 @@ class WorkshiftPool(models.Model):
             self.hours, "s" if self.hours != 1 else "",
             )
 
+    def get_view_url(self):
+        return wurl("workshift:view_pool", pk=self.pk, sem_url=self.semester.sem_url)
+
     def is_workshift_pool(self):
         return True
 
@@ -246,6 +252,9 @@ class WorkshiftType(models.Model):
 
     def is_workshift_type(self):
         return True
+
+    def get_view_url(self):
+        return wurl("workshift:view_type", pk=self.pk)
 
 class TimeBlock(models.Model):
     '''
@@ -437,6 +446,13 @@ class WorkshiftProfile(models.Model):
     def get_full_name(self):
         return self.user.get_full_name()
 
+    def get_view_url(self):
+        return wurl(
+            "workshift:profile",
+            targetUsername=self.user.username,
+            sem_url=self.semester.sem_url,
+        )
+
 class RegularWorkshift(models.Model):
     '''
     A weekly workshift for a semester.
@@ -499,6 +515,8 @@ class RegularWorkshift(models.Model):
         )
     addendum = models.TextField(
         default='',
+        blank=True,
+        null=True,
         help_text="Addendum to the description for this workshift.",
         )
 
@@ -513,6 +531,9 @@ class RegularWorkshift(models.Model):
                 )
         else:
             return self.workshift_type.title
+
+    def get_view_url(self):
+        return wurl("workshift:view_shift", pk=self.pk, sem_url=self.pool.semester.sem_url)
 
     def display_time(self):
         if self.day is not None:
@@ -766,8 +787,7 @@ class WorkshiftInstance(models.Model):
         return True
 
     def get_view_url(self):
-        return reverse("workshift:view_instance", kwargs={"pk": self.pk})
-
+        return wurl("workshift:view_instance", pk=self.pk, sem_url=self.semester.sem_url)
 
 def create_workshift_profile(sender, instance, created, **kwargs):
     '''

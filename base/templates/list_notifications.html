@@ -10,13 +10,11 @@
 {% else %}
 <table class="table table-striped table-bordered table-condensed table-hover">
   <thead>
-    <th>Status</th>
     <th>Message</th>
     <th>Time</th>
   <tbody>
     {% for notification in notifications %}
-    <tr>
-      <td>{% if notification.unread %}unread{% endif %}</td>
+    <tr {% if notification.unread %} class="info" {% endif %}>
       <td>
 	{% if notification.actor %}
 	{% if notification.actor.get_view_url %}
