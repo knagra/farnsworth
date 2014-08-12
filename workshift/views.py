@@ -788,6 +788,8 @@ def fine_date_view(request, semester, profile=None):
         return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
 
+    # TODO: A place to view the fines?
+
     pools = WorkshiftPool.objects.filter(semester=semester)
     pools = pools.order_by('-is_primary', 'title')
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
