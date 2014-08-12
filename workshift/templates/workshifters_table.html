@@ -18,7 +18,25 @@
       <td>{{ workshifter.user.last_name }}</td>
       <td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
       {% for hours in pool_hours %}
-      <td>{% if 0 > hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ hours.standing }}</font></td>
+      <td>
+		{% if 0 > hours.standing %}
+		<font color="red">{{ hours.standing }}</font>
+		{% else %}
+		<font color="green">{{ hours.standing }}</font>
+		{% endif %}
+		{% if hours.first_date_standing %}
+		<br />
+		First Fines: ${{ hours.first_date_standing }}
+		{% endif %}
+		{% if hours.second_date_standing %}
+		<br />
+		Second Fines: ${{ hours.second_date_standing }}
+		{% endif %}
+		{% if hours.third_date_standing %}
+		<br />
+		Third Fines:  ${{ hours.third_date_standing }}
+		{% endif %}
+	  </td>
       {% endfor %}
     </tr>
     {% endfor %}
