@@ -782,7 +782,8 @@ def fine_date_view(request, semester, profile=None):
         fined_members = fine_form.save()
         messages.add_message(
             request, messages.INFO,
-            "Calculated workshift fines, {0} members will be fined.".format(fined_members),
+            "Calculated workshift fines, {0} members will be fined."
+            .format(len(fined_members)),
         )
         return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
