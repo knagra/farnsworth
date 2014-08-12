@@ -404,7 +404,6 @@ class BlownShiftForm(InteractShiftForm):
 class NoteForm(forms.Form):
     note = forms.CharField(
         required=False,
-        widget=forms.Textarea(),
         )
 
     def save(self):
@@ -476,7 +475,6 @@ class EditHoursForm(forms.Form):
         )
     note = forms.CharField(
         required=True,
-        widget=forms.Textarea(),
         )
 
     def __init__(self, *args, **kwargs):
