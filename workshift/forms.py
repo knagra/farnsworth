@@ -844,16 +844,18 @@ class FineDateForm(forms.Form):
         max_digits=7,
         decimal_places=2,
         initial=0,
-        help_text="Offset to apply to everyone's workshift standing, useful if you are "
-        "fining people after their standings were reduced on Sunday by 5 hours.",
+        help_text="Offset (in hours) to apply to everyone's workshift standing, "
+        "useful if you are fining people after their standings were reduced on "
+        "Sunday by 5 hours.",
         )
     threshold = forms.DecimalField(
         max_value=0,
         max_digits=7,
         decimal_places=2,
         initial=-2,
-        help_text="Only members below this threshold will be fined, though they will "
-        "be fined for all of their hours, including those up to the threshold.",
+        help_text="Only members below this threshold (in hours) will be fined, "
+        "though they will be fined for all of their hours, including those up to "
+        "the threshold.",
         )
 
     def __init__(self, *args, **kwargs):
