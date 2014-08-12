@@ -704,6 +704,10 @@ class TestViews(TestCase):
         self.instance.save()
         self.once.save()
 
+        hours = self.wprofile.objects.pool_hours.get(pool=self.pool)
+        hours.first_fine_date = 13.00
+        hours.save()
+
         self.assertTrue(self.client.login(username="wu", password="pwd"))
 
     def test_no_profile(self):
