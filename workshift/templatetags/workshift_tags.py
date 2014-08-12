@@ -17,8 +17,8 @@ def wurl(url_name, *args, **kwargs):
     return reverse(url_name, args=args, kwargs=kwargs)
 
 @register.filter
-def currency(dollars):
-    dollars = round(float(dollars), 2)
+def currency(value):
+    dollars = round(float(value), 2)
     minus = "-" if dollar < 0 else ""
     return "{0}${1}{2}".format(
         minus,
