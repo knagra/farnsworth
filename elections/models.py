@@ -296,6 +296,12 @@ class PollRanks(models.Model):
     This class's rankings property returns a list of
     tuples of form (choice, ranking) for the user who
     submitted this ranking.
+    
+    It also includes a few functions for creating and
+    normalizing ratings.
+    
+    A higher rating indicates a preference over a
+    lower rating.
     """
     question = models.ForeignKey(
         PollQuestion,
