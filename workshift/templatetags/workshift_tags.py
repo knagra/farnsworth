@@ -19,7 +19,7 @@ def wurl(url_name, *args, **kwargs):
 @register.filter
 def currency(value):
     dollars = round(float(value), 2)
-    minus = "-" if dollar < 0 else ""
+    minus = "-" if dollars < 0 else ""
     return "{0}${1}{2}".format(
         minus,
         intcomma(int(dollars)),
