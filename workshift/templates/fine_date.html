@@ -21,3 +21,18 @@
   </button>
 </form>
 {% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#workshifters_table').tablesorter({
+        sortList: [[0,0], [1,0]],
+        widgets: ["resizable", "filter"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+  });
+</script>
+{% endblock %}
