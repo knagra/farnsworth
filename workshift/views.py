@@ -277,7 +277,7 @@ def view_semester(request, semester, profile=None):
     return render_to_response("semester.html", template_dict,
                               context_instance=RequestContext(request))
 
-def _get_forms(profile, instance, redundant=False, prefix=""):
+def _get_forms(profile, instance, undo=False, prefix=""):
     """
     Gets the forms for profile interacting with an instance of a shift. This
     includes verify shift, mark shift as blown, sign in, and sign out.
@@ -285,7 +285,7 @@ def _get_forms(profile, instance, redundant=False, prefix=""):
     if not profile:
         return []
     ret = []
-    if (not instance.closed or redundant) and instance.workshifter:
+    if (not instance.closed or undo) and instance.workshifter:
         workshifter = instance.workshifter or instance.liable
         pool = instance.pool
         managers = Manager.objects.filter(incumbent__user=profile.user)
@@ -936,7 +936,7 @@ def instance_view(request, semester, pk, profile=None):
     page_name = instance.title
     interact_forms = _get_forms(
         profile, instance,
-        redundant=True,
+        undo=can_manage(request.user, semester),
         prefix="interact",
     )
 
