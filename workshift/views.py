@@ -936,7 +936,7 @@ def instance_view(request, semester, pk, profile=None):
     page_name = instance.title
     interact_forms = _get_forms(
         profile, instance,
-        undo=can_manage(request.user, semester),
+        undo=utils.can_manage(request.user, semester),
         prefix="interact",
     )
 
