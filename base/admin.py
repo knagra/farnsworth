@@ -5,7 +5,7 @@ Author: Karandeep Singh Nagra
 '''
 
 from django.contrib import admin
-from base.models import UserProfile
+from base.models import UserProfile, ProfileRequest
 
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'get_info', 'status', 'get_email', 'phone_number')
@@ -33,5 +33,13 @@ class UserProfileAdmin(admin.ModelAdmin):
     get_first.short_description = 'First name'
     get_last.short_description = 'Last name'
     get_user.short_description = 'Username'
-
 admin.site.register(UserProfile, UserProfileAdmin)
+
+class ProfileRequestAdmin(admin.ModelAdmin):
+    list_display = ('username', 'last_name', 'first_name', 'email')
+    search_fields = ('username', 'last_name', 'first_name', 'email')
+    date_hierarchy = 'request_date'
+    list_filter = ('request_date',)
+    ordering = ('request_date',)
+    readonly_fields = ('username', 'last_name', 'first_name', 'email')
+admin.site.register(ProfileRequest, ProfileRequestAdmin)

@@ -109,7 +109,12 @@ def thread_view(request, pk):
         thread=thread,
         )
 
-    if add_message_form.is_valid():
+    if edit_thread_form and edit_thread_form.is_valid():
+        thread = edit_thread_form.save()
+        return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
+            "pk": thread.pk,
+            }))
+    elif add_message_form.is_valid():
         add_message_form.save()
         return HttpResponseRedirect(reverse('threads:view_thread', kwargs={
             'pk': pk,
@@ -117,11 +122,6 @@ def thread_view(request, pk):
     elif request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES['MESSAGE_ERROR'])
 
-    if edit_thread_form and edit_thread_form.is_valid():
-        thread = edit_thread_form.save()
-        return HttpResponseRedirect(reverse("threads:view_thread", kwargs={
-            "pk": thread.pk,
-            }))
 
     thread.views += 1
     thread.save()
