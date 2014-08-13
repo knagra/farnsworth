@@ -49,10 +49,15 @@ class BaseResidentFormSet(BaseModelFormSet):
         self.queryset = PreviousResident.objects.filter(room=self.room)
 
     def save(self):
-        prev_residents = super(BaseResidentFormSet, self).save()
+        prev_residents = super(BaseResidentFormSet, self).save(commit=False)
         for prev in prev_residents:
             prev.room = self.room
             prev.save()
+        try:
+            for prev in self.deleted_objects:
+                prev.delete()
+        except AssertionError:
+            pass
         return prev_residents
 
 ResidentFormSet = modelformset_factory(

@@ -704,6 +704,10 @@ class TestViews(TestCase):
         self.instance.save()
         self.once.save()
 
+        hours = self.wprofile.pool_hours.get(pool=self.pool)
+        hours.first_fine_date = 13.00
+        hours.save()
+
         self.assertTrue(self.client.login(username="wu", password="pwd"))
 
     def test_no_profile(self):
@@ -968,6 +972,19 @@ class TestViews(TestCase):
         self.assertEqual(
             2,
             WorkshiftInstance.objects.filter(workshifter=self.wprofile).count()
+            )
+
+    def test_fine_date(self):
+        url = reverse("workshift:fine_date")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "workshifters_table",
+            )
+        self.assertContains(
+            response,
+            self.pool.title,
             )
 
 class TestPreferences(TestCase):
@@ -1500,6 +1517,7 @@ class TestPermissions(TestCase):
             reverse("workshift:manage"),
             reverse("workshift:assign_shifts"),
             reverse("workshift:add_workshifter"),
+            reverse("workshift:fine_date"),
             reverse("workshift:add_shift"),
             reverse("workshift:edit_shift", kwargs={"pk": self.wshift.pk}),
             reverse("workshift:edit_instance", kwargs={"pk": self.winstance.pk}),
@@ -1525,6 +1543,7 @@ class TestPermissions(TestCase):
             (True, reverse("workshift:assign_shifts")),
             (False, reverse("workshift:add_workshifter")),
             (True, reverse("workshift:add_shift")),
+            (True, reverse("workshift:fine_date")),
             (False, reverse("workshift:edit_shift", kwargs={"pk": self.wshift.pk})),
             (False, reverse("workshift:edit_instance", kwargs={"pk": self.winstance.pk})),
             (False, reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk})),
@@ -1553,6 +1572,7 @@ class TestPermissions(TestCase):
             (False, reverse("workshift:assign_shifts")),
             (False, reverse("workshift:add_workshifter")),
             (False, reverse("workshift:add_shift")),
+            (False, reverse("workshift:fine_date")),
             (False, reverse("workshift:edit_shift", kwargs={"pk": self.wshift.pk})),
             (False, reverse("workshift:edit_instance", kwargs={"pk": self.winstance.pk})),
             (False, reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk})),
@@ -1582,6 +1602,7 @@ class TestPermissions(TestCase):
             (False, reverse("workshift:assign_shifts")),
             (False, reverse("workshift:add_workshifter")),
             (False, reverse("workshift:add_shift")),
+            (False, reverse("workshift:fine_date")),
             (False, reverse("workshift:edit_shift", kwargs={"pk": self.wshift.pk})),
             (False, reverse("workshift:edit_instance", kwargs={"pk": self.winstance.pk})),
             (False, reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk})),

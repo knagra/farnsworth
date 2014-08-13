@@ -4,11 +4,22 @@
 {% load bootstrap %}
 
 {% block content %}
-{% if user.is_superuser %}
-<form action="{% url 'rooms:add' %}" class="pull-right">
-  <button class="btn btn-default"><span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Room</span></button>
-</form>
-{% endif %}
+<div class="pull-right">
+  {% if user.is_superuser %}
+  <form action="{% url 'rooms:add' %}" style="display:inline">
+	<button class="btn btn-default">
+	  <span class="glyphicon glyphicon-plus"></span>
+	  <span class="hidden-xs"> Add Room</span>
+	</button>
+  </form>
+  {% endif %}
+  <form action="{% url 'rooms:list' %}" style="display:inline">
+    <button class="btn btn-info header_button" type="submit">
+      <span class="glyphicon glyphicon-home"></span>
+      <span class="hidden-xs"> All Rooms</span>
+    </button>
+  </form>
+</div>
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />
 {% if not rooms %}

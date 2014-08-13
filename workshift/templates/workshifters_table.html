@@ -1,0 +1,46 @@
+{% load static from staticfiles %}
+{% load workshift_tags %}
+{% load bootstrap %}
+
+<table id="workshifters_table" class="table table-striped table-bordered table-condensed table-hover members_table">
+  <thead>
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>E-mail</th>
+      {% for pool in pools %}
+      <th>{{ pool.title }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for workshifter, pool_hours in workshifters %}
+    <tr>
+      <td><a href="{{ workshifter.get_view_url }}">{{ workshifter.user.first_name }}</td>
+      <td>{{ workshifter.user.last_name }}</td>
+      <td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
+      {% for hours in pool_hours %}
+      <td>
+		{% if 0 > hours.standing %}
+		<font color="red">{{ hours.standing }}</font>
+		{% else %}
+		<font color="green">{{ hours.standing }}</font>
+		{% endif %}
+		{% if hours.first_date_standing %}
+		<br />
+		First Fines: {{ hours.first_date_standing|currency }}
+		{% endif %}
+		{% if hours.second_date_standing %}
+		<br />
+		Second Fines: {{ hours.second_date_standing|currency }}
+		{% endif %}
+		{% if hours.third_date_standing %}
+		<br />
+		Third Fines: {{ hours.third_date_standing|currency }}
+		{% endif %}
+	  </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

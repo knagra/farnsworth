@@ -4,6 +4,8 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
+from __future__ import absolute_import
+
 from collections import OrderedDict
 
 from django import forms
@@ -13,6 +15,7 @@ from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from notifications import notify
 
+from utils.variables import ANONYMOUS_USERNAME
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
@@ -21,13 +24,14 @@ from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     PoolHours, AUTO_VERIFY, WORKSHIFT_MANAGER_VERIFY, \
     POOL_MANAGER_VERIFY, ANY_MANAGER_VERIFY, OTHER_VERIFY, VERIFY_CHOICES
 from workshift import utils
+from workshift.templatetags.workshift_tags import currency
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
 
 class FullSemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
-        fields = "__all__"
+        exclude = ("workshift_managers",)
 
 class SemesterForm(forms.ModelForm):
     class Meta:
@@ -58,6 +62,8 @@ class SemesterForm(forms.ModelForm):
 
         # Create this semester's workshift profiles
         for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
+            if uprofile.user.username == ANONYMOUS_USERNAME:
+                continue
             WorkshiftProfile.objects.create(
                 user=uprofile.user,
                 semester=semester,
@@ -121,6 +127,9 @@ class SwitchSemesterForm(forms.Form):
     semester = forms.ModelChoiceField(
         queryset=Semester.objects.all(),
         )
+
+    def save(self):
+        return self.cleaned_data["semester"]
 
 class WorkshiftInstanceForm(forms.ModelForm):
     class Meta:
@@ -251,6 +260,7 @@ class InteractShiftForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
+        self.undo = kwargs.pop("undo", False)
         super(InteractShiftForm, self).__init__(*args, **kwargs)
 
     def clean_pk(self):
@@ -259,9 +269,18 @@ class InteractShiftForm(forms.Form):
             shift = WorkshiftInstance.objects.get(pk=pk)
         except WorkshiftInstance.DoesNotExist:
             raise forms.ValidationError("Workshift does not exist.")
-        if shift.closed:
+        if shift.closed and not self.undo:
             raise forms.ValidationError("Workshift has been closed.")
         return shift
+
+def _undo_verify_blown(instance, pool_hours):
+    if instance.blown:
+        instance.blown = False
+        pool_hours.standing += instance.hours
+
+    if instance.verifier:
+        instance.verifier = None
+        pool_hours.standing -= instance.hours
 
 class VerifyShiftForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-ok"></span>'
@@ -296,26 +315,30 @@ class VerifyShiftForm(InteractShiftForm):
             if workshifter == self.profile:
                 raise forms.ValidationError("Workshifter cannot verify self.")
 
-        if utils.past_verify(instance):
+        if utils.past_verify(instance) and not self.undo:
             raise forms.ValidationError("Workshift is past verification period.")
 
         return instance
 
-    def save(self):
+    def save(self, note=None):
         entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.VERIFY,
+            note=note,
             )
 
         instance = self.cleaned_data["pk"]
+        workshifter = instance.workshifter or instance.liable
+        pool_hours = workshifter.pool_hours.get(pool=instance.pool)
+
+        # Check if the shift was previously verified or marked as blown
+        _undo_verify_blown(instance, pool_hours)
+
         instance.verifier = self.profile
         instance.closed = True
         instance.logs.add(entry)
         instance.save()
 
-        workshifter = instance.workshifter or instance.liable
-
-        pool_hours = workshifter.pool_hours.get(pool=instance.pool)
         pool_hours.standing += instance.hours
         pool_hours.save()
 
@@ -342,22 +365,27 @@ class BlownShiftForm(InteractShiftForm):
 
         return shift
 
-    def save(self):
+    def save(self, note=None):
         entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.BLOWN,
+            note=note,
             )
 
-        # Close the shift
         instance = self.cleaned_data["pk"]
+        workshifter = instance.workshifter or instance.liable
+        pool_hours = workshifter.pool_hours.get(pool=instance.pool)
+
+        # Check if the shift was previously verified or marked as blown
+        _undo_verify_blown(instance, pool_hours)
+
+        # Close the shift
         instance.blown = True
         instance.closed = True
         instance.logs.add(entry)
         instance.save()
 
         # Update the workshifter's hours
-        pool_hours = instance.workshifter.pool_hours \
-          .get(pool=instance.get_info().pool)
         pool_hours.standing -= instance.hours
         pool_hours.save()
 
@@ -378,6 +406,14 @@ class BlownShiftForm(InteractShiftForm):
 
         return instance
 
+class NoteForm(forms.Form):
+    note = forms.CharField(
+        required=False,
+        )
+
+    def save(self):
+        return self.cleaned_data["note"]
+
 class SignInForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-log-in"></span>'
     title_long = "Sign In"
@@ -391,10 +427,11 @@ class SignInForm(InteractShiftForm):
 
         return shift
 
-    def save(self):
+    def save(self, note=None):
         entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.SIGNIN,
+            note=note,
             )
 
         instance = self.cleaned_data["pk"]
@@ -418,10 +455,11 @@ class SignOutForm(InteractShiftForm):
 
         return shift
 
-    def save(self):
+    def save(self, note=None):
         entry = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.SIGNOUT,
+            note=note,
             )
 
         instance = self.cleaned_data["pk"]
@@ -442,7 +480,6 @@ class EditHoursForm(forms.Form):
         )
     note = forms.CharField(
         required=True,
-        widget=forms.Textarea(),
         )
 
     def __init__(self, *args, **kwargs):
@@ -793,3 +830,97 @@ class ProfileNoteForm(forms.ModelForm):
     class Meta:
         model = WorkshiftProfile
         fields = ("note",)
+
+# I recommend red wine and a late night walk along a lake
+FINE_DATE_CHOICES = (
+    ("1", "First Fine Date"),
+    ("2", "Second Fine Date"),
+    ("3", "Third Fine Date"),
+    )
+
+class FineDateForm(forms.Form):
+    pool = forms.ModelChoiceField(
+        queryset=WorkshiftPool.objects.none(),
+        help_text="The workshift pool to calculate fines for.",
+        )
+    period = forms.ChoiceField(
+        choices=FINE_DATE_CHOICES,
+        help_text="Which period to generate fines for. This will overwrite previous "
+        "fines if any have been calculated for that period.",
+        )
+    offset = forms.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        initial=0,
+        help_text="Offset (in hours) to apply to everyone's workshift standing, "
+        "useful if you are fining people after their standings were reduced on "
+        "Sunday by 5 hours.",
+        )
+    threshold = forms.DecimalField(
+        max_value=0,
+        max_digits=7,
+        decimal_places=2,
+        initial=-2,
+        help_text="Only members below this threshold (in hours) will be fined, "
+        "though they will be fined for all of their hours, including those up to "
+        "the threshold.",
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop("semester")
+        super(FineDateForm, self).__init__(*args, **kwargs)
+        self.fields["pool"].queryset = WorkshiftPool.objects.filter(semester=self.semester)
+        try:
+            self.fields["pool"].initial = WorkshiftPool.objects.get(
+                semester=self.semester,
+                is_primary=True,
+            )
+        except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
+            pass
+
+    def save(self, clear=False):
+        pool = self.cleaned_data["pool"]
+        period = self.cleaned_data["period"]
+        offset = self.cleaned_data["offset"]
+        threshold = self.cleaned_data["threshold"]
+
+        fined = []
+
+        for profile in WorkshiftProfile.objects.filter(semester=self.semester):
+            pool_hours = profile.pool_hours.get(pool=pool)
+            if clear:
+                if period == "1":
+                    pool_hours.first_date_standing = None
+                elif period == "2":
+                    pool_hours.second_date_standing = None
+                else:
+                    pool_hours.third_date_standing = None
+                pool_hours.save()
+                notify.send(
+                    pool,
+                    verb="had its workshift fine cleared.",
+                    recipient=profile.user,
+                    )
+                continue
+
+            standing = pool_hours.standing + offset
+
+            if standing < threshold or clear:
+                fine = standing * self.semester.rate
+                if period == "1":
+                    pool_hours.first_date_standing = fine
+                elif period == "2":
+                    pool_hours.second_date_standing = fine
+                else:
+                    pool_hours.third_date_standing = fine
+                pool_hours.save()
+                fined.append(profile)
+                notify.send(
+                    pool,
+                    verb="generated a workshift fine of {0}"
+                    .format(currency(fine)),
+                    recipient=profile.user,
+                    )
+
+        return fined
+

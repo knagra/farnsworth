@@ -1,0 +1,46 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<h1 class="w_title">{{ page_name }}</h1>
+{% if workshifters and pools %}
+<hr class="w_line" />
+{% include "workshifters_table.html" %}
+{% endif %}
+<hr class="w_line" />
+<form method="post">
+  {% csrf_token %}
+  {{ fine_form|bootstrap }}
+  <div class="text-center">
+	<div class="btn-group">
+	  <button type="submit" class="btn btn-success" name="calculate">
+		<span class="glyphicon glyphicon-floppy-disk"></span>
+		Calculate Fines
+	  </button>
+	  <button type="submit" class="btn btn-danger" name="clear">
+		<span class="glyphicon glyphicon-remove"></span>
+		Clear Fines
+	  </button>
+	</div>
+  </div>
+</form>
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#workshifters_table').tablesorter({
+        sortList: [[0,0], [1,0]],
+        widgets: ["resizable", "filter"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+  });
+</script>
+{% endblock %}
