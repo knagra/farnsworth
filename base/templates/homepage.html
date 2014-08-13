@@ -341,13 +341,13 @@ $(document).ready(function() {
   });
   $('#hide_announcement_form').click(function() {
     $('#new_announcement_form').slideUp();
-  })
+  });
   $('#show_thread_form').click(function() {
     $('#new_thread_form').slideToggle();
   });
   $('#hide_thread_form').click(function() {
     $('#new_thread_form').slideUp();
-  })
+  });
   $('.show_response_form').click(function() {
     $(this).parent().siblings('.new_reponse_form').slideDown();
     $(this).fadeOut();
@@ -355,7 +355,7 @@ $(document).ready(function() {
   $('.hide_response_form').click(function() {
     $(this).closest('.new_response_form').slideUp();
     $(this).closest('.new_response_form').siblings('.text-center:has(.show_response_form):first-child').fadeIn();
-  })
+  });
 });
 </script>
 {% endblock %}
