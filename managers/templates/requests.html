@@ -16,12 +16,6 @@
 
 {% block content %}
 <script>
- function show_new_request_form() {
-   document.getElementById("new_request_form").style.display="inline";
- }
- function hide_new_request_form() {
-   document.getElementById("new_request_form").style.display="none";
- }
  function show_new_response_form(response_form_id, button_id) {
    document.getElementById(response_form_id).style.display="inline";
    document.getElementById(button_id).style.display="none";
@@ -32,7 +26,7 @@
  }
 </script>
 <div class="requests">
-  <button type="button" class="btn btn-primary pull-right" onclick="show_new_request_form()">
+  <button type="button" class="btn btn-primary pull-right" id="show_request_form">
 	<span class="glyphicon glyphicon-pencil"></span>
 	<span class="hidden-xs"> New Request</span>
   </button>
@@ -47,7 +41,7 @@
 		<button type="submit" class="btn btn-success" name="submit_request">
 		  <span class="glyphicon glyphicon-inbox"></span> Submit Request
 		</button>
-		<button type="button" class="btn btn-default" name="cancel_request_form" onclick="hide_new_request_form()">
+		<button type="button" class="btn btn-default" id="hide_request_form">
 		  <span class="glyphicon glyphicon-collapse-up"></span> Hide
 		</button>
       </div> <!-- btn-group -->
@@ -164,4 +158,17 @@
     {% endif %}
   </div> <!-- .requests_table -->
 </div> <!-- .requests -->
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+    $('#show_request_form').click(function() {
+        $('#new_request_form').slideToggle();
+    });
+    $('#hide_request_form').click(function() {
+        $('#new_request_form').slideUp();
+    })
+});
+</script>
 {% endblock %}
