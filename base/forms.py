@@ -429,16 +429,18 @@ class LoginForm(forms.Form):
     ''' Form to login. '''
     username_or_email = forms.CharField(
         max_length=100,
+        required=True,
         widget=forms.TextInput(attrs={'size':'50'}),
         )
     password = forms.CharField(
         max_length=100,
+        required=True,
         widget=forms.PasswordInput(attrs={'size':'50'}),
         )
 
     def clean(self):
-        username_or_email = self.cleaned_data['username_or_email']
-        password = self.cleaned_data['password']
+        username_or_email = self.cleaned_data.get('username_or_email', "")
+        password = self.cleaned_data.get('password', "")
         if username_or_email == ANONYMOUS_USERNAME:
             raise forms.ValidationError(MESSAGES['ANONYMOUS_DENIED'])
         try:
