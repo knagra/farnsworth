@@ -4,14 +4,6 @@
 {% block template_page_name %} - Search{% endblock %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/search.css' %}" />
-<script>
-    function show_facets() {
-        document.getElementById("facets_container").style.display="inline";
-    }
-    function hide_facets() {
-        document.getElementById("facets_container").style.display="none";
-    }
-</script>
 {% endblock %}
 {% block content %}
 {% if not query %}
@@ -22,7 +14,7 @@
     </div>
 </form>
 {% else %}
-<button type="button" class="btn btn-info pull-right" onclick="show_facets()" title="Show filters"><span class="glyphicon glyphicon-filter"></span><span class="hidden-xs"> Filter</span></button>
+<button type="button" class="btn btn-info pull-right" id="show_facets" title="Show filters"><span class="glyphicon glyphicon-filter"></span><span class="hidden-xs"> Filter</span></button>
 <h1 class="w_title">Search: "{{ query }}"</h1>
 <hr class="w_line" />
 <div id="facets_container">
@@ -74,7 +66,7 @@
 {% endif %}
 {% endif %}
 <div class="text-center hide_facets">
-    <button type="button" class="btn btn-default" onclick="hide_facets()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+    <button type="button" class="btn btn-default" id="hide_facets"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
 </div>
 </div> <!-- #facets_container -->
 {% if not page.object_list %}
@@ -129,4 +121,17 @@
 {% endif %}
 </div> <!-- .table_container -->
 {% endif %}
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+    $('#show_facets').click(function() {
+        $('#facets_container').slideDown('fast');
+    });
+    $('#hide_facets').click(function() {
+        $('#facets_container').slideUp('fast');
+    });
+});
+</script>
 {% endblock %}
