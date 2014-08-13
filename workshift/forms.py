@@ -4,6 +4,8 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
+from __future__ import absolute_import
+
 from collections import OrderedDict
 
 from django import forms
@@ -13,6 +15,7 @@ from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from notifications import notify
 
+from utils.variables import ANONYMOUS_USERNAME
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
@@ -59,6 +62,8 @@ class SemesterForm(forms.ModelForm):
 
         # Create this semester's workshift profiles
         for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
+            if uprofile.user.username == ANONYMOUS_USERNAME:
+                continue
             WorkshiftProfile.objects.create(
                 user=uprofile.user,
                 semester=semester,

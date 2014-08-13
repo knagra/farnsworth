@@ -4,13 +4,14 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
 
 from base.models import UserProfile
+from utils.variables import ANONYMOUS_USERNAME
 from managers.models import Manager
 from workshift.fields import DayField
 from workshift.templatetags.workshift_tags import wurl
@@ -795,22 +796,25 @@ def create_workshift_profile(sender, instance, created, **kwargs):
     Parameters:
         instance is an of UserProfile that was just saved.
     '''
-    if instance.status == UserProfile.RESIDENT:
-        try:
-            semester = Semester.objects.get(current=True)
-        except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
-            pass
-        else:
-            from workshift import utils
-            profile, created = WorkshiftProfile.objects.get_or_create(
-                user=instance.user,
+    if instance.user.username == ANONYMOUS_USERNAME or \
+       instance.status != UserProfile.RESIDENT:
+        return
+
+    try:
+        semester = Semester.objects.get(current=True)
+    except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+        pass
+    else:
+        from workshift import utils
+        profile, created = WorkshiftProfile.objects.get_or_create(
+            user=instance.user,
+            semester=semester,
+            )
+        if created:
+            utils.make_workshift_pool_hours(
                 semester=semester,
+                profiles=[profile],
                 )
-            if created:
-                utils.make_workshift_pool_hours(
-                    semester=semester,
-                    profiles=[profile],
-                    )
 
 def create_workshift_pool_hours(sender, instance, **kwargs):
     pool = instance
