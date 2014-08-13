@@ -4,7 +4,7 @@ Project: Farnsworth
 Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
-
+from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 
@@ -49,6 +49,9 @@ class Room(models.Model):
 
     def __str__(self):
         return self.__unicode__()
+
+    def get_view_url(self):
+        return reverse("rooms:view", kwargs={"room_title": self.title})
 
 class PreviousResident(models.Model):
     """ Model to represent a previous resident in a room. """
