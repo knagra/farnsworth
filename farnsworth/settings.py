@@ -238,6 +238,7 @@ INSTALLED_APPS = (
 CRON_CLASSES = [
     "managers.cron.ExpireRequestsCronJob",
     "workshift.cron.CollectBlownCronJob",
+    "workshift.cron.UpdateWeeklyStandings",
     ]
 
 AUTHENTICATION_BACKENDS = (

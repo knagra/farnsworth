@@ -89,6 +89,12 @@ class TestLogin(TestCase):
     def test_homepage(self):
         response = self.client.get(reverse("homepage"), follow=True)
         self.assertRedirects(response, reverse('external'))
+        self.assertContains(response, "Login")
+        self.assertContains(response, "Request Account")
+        self.assertContains(response, "Source")
+        self.assertContains(response, "Help")
+        self.assertContains(response, "Site Map")
+
         self.client.login(username="u", password="pwd")
         response = self.client.get(reverse("homepage"))
         self.assertEqual(response.status_code, 200)

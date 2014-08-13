@@ -27,7 +27,7 @@
   </button>
 </form>
 {% else %}
-<button class="btn btn-primary pull-right" type="button" onclick="show_new_thread_form()">
+<button class="btn btn-primary pull-right" type="button" id="show_form">
   <span class="glyphicon glyphicon-pencil"></span>
   <span class="hidden-xs"> New Thread</span>
 </button>
@@ -43,7 +43,7 @@
       <button type="submit" class="btn btn-success" name="submit_thread_form">
 		<span class="glyphicon glyphicon-comment"></span> Start Thread
 	  </button>
-      <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_new_thread_form()">
+      <button type="button" class="btn btn-default" name="cancel_thread_form" id="hide_form">
 		<span class="glyphicon glyphicon-collapse-up"></span> Hide
 	  </button>
     </div> <!-- .btn-group -->
@@ -103,53 +103,43 @@
 
 {% block endscripts %}
 <script>
-  function show_new_thread_form() {
-    document.getElementById("new_thread_form").style.display="inline";
-  }
-  function hide_new_thread_form() {
-    document.getElementById("new_thread_form").style.display="none";
-  }
-  function show_new_message_form(message_form_id, button_id) {
-    document.getElementById(message_form_id).style.display="inline";
-    document.getElementById(button_id).style.display="none";
-  }
-  function hide_new_message_form(message_form_id, button_id) {
-    document.getElementById(message_form_id).style.display="none";
-    document.getElementById(button_id).style.display="inline";
-  }
-</script>
-<script>
 $(document).ready(function() {
-    $('table').tablesorter({
-        {% if page_name == 'Archives - All Threads' %}
-        headers: {
-            3: {
-                sorter: 'farnsworth_datetime',
-            },
-            4: {
-                sorter: 'farnsworth_datetime',
-            }
-        },
-        sortList: [[4,1], [3,1]],
-        {% else %}
-        headers: {
-            2: {
-                sorter: 'farnsworth_datetime',
-            },
-            3: {
-                sorter: 'farnsworth_datetime',
-            }
-        },
-        sortList: [[3,1], [2,1]],
-        {% endif %}
-        widgets: ["filter", "resizable"],
-        widgetOptions: {
-            resizable: true
-        }
-    }).tablesorterPager({
-       container: "#thread_pager",
-       cssGoto: '#thread_goto'
-    });
+  $('table').tablesorter({
+    {% if page_name == 'Archives - All Threads' %}
+    headers: {
+      3: {
+        sorter: 'farnsworth_datetime',
+      },
+      4: {
+        sorter: 'farnsworth_datetime',
+      }
+    },
+    sortList: [[4,1], [3,1]],
+    {% else %}
+    headers: {
+      2: {
+        sorter: 'farnsworth_datetime',
+      },
+      3: {
+        sorter: 'farnsworth_datetime',
+      }
+    },
+    sortList: [[3,1], [2,1]],
+    {% endif %}
+    widgets: ["filter", "resizable"],
+      widgetOptions: {
+        resizable: true
+      }
+  }).tablesorterPager({
+    container: "#thread_pager",
+    cssGoto: '#thread_goto'
+  });
+  $('#show_form').click(function() {
+    $('#new_thread_form').slideToggle();
+  });
+  $('#hide_form').click(function() {
+    $('#new_thread_form').slideUp();
+  });
 });
 </script>
 {% endblock %}

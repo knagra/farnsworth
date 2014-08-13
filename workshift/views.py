@@ -102,7 +102,7 @@ def add_workshift_context(request):
     except WorkshiftProfile.DoesNotExist:
         return {'WORKSHIFT_ENABLED': False}
     WORKSHIFT_MANAGER = utils.can_manage(request.user, semester=SEMESTER)
-    workshift_profile = WorkshiftProfile.objects.get(semester=SEMESTER, user=request.user)
+
     today = now().date()
     # number of days passed in this semester
     days_passed = (today - SEMESTER.start_date).days
@@ -118,7 +118,6 @@ def add_workshift_context(request):
         date__lte=today + timedelta(days=2),
         )
     # TODO: Add a fudge factor of an hour to this?
-    # TODO: Pass a STANDING variable that contains regular workshift up/down hours
     time = now().time()
     happening_now = [
         shift.week_long or
@@ -128,12 +127,18 @@ def add_workshift_context(request):
          (time > shift.start_time and time < shift.end_time))
         for shift in upcoming_shifts
         ]
+    try:
+        standing = workshift_profile.pool_hours.get(pool__is_primary=True).standing
+    except (PoolHours.DoesNotExist, PoolHours.MultipleObjectsReturned):
+        standing = None
+
     return {
         'WORKSHIFT_ENABLED': True,
         'SEMESTER': SEMESTER,
         'CURRENT_SEMESTER': CURRENT_SEMESTER,
         'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
         'WORKSHIFT_PROFILE': workshift_profile,
+        "STANDING": standing,
         'days_passed': days_passed,
         'total_days': total_days,
         'semester_percent': semester_percent,
@@ -315,7 +320,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
 
         if pool.any_blown:
             blow = True
-        
+
         pool_managers = pool.managers.filter(incumbent__user=profile.user)
         if pool_managers.count():
             blow = True
@@ -787,8 +792,6 @@ def fine_date_view(request, semester, profile=None):
         )
         return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
-
-    # TODO: A place to view the fines?
 
     pools = WorkshiftPool.objects.filter(semester=semester)
     pools = pools.order_by('-is_primary', 'title')
