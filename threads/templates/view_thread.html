@@ -173,7 +173,7 @@
 <div class="text-center text-info" style="margin-top: 10px;">
   Showing {{ messages_list|length }} message{{ messages_list|length|pluralize }}.
   Viewed {{ thread.views }} time{{ thread.views|pluralize }}.
-  {% if thread.followers.count %}Followed by {{ thread.followers.count }} members{{ thread.followers.count|pluralize }}.{% endif %}
+  {% if thread.followers.count %}Followed by {{ thread.followers.count }} member{{ thread.followers.count|pluralize }}.{% endif %}
 </div>
 {% endblock %}
 
