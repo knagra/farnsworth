@@ -143,8 +143,7 @@
 
         {% if add_message_form %}
         <div class="text-center">
-          <button class="btn btn-primary" type="button" id="show_add_form"
-                  onclick="show_form('add_message_form', 'show_add_form')">
+          <button class="btn btn-primary" type="button" id="show_add_form">
             <span class="glyphicon glyphicon-paperclip"></span> Add Message
           </button>
         </div>
@@ -157,8 +156,7 @@
               <button type="submit" class="btn btn-success" name="add_message">
                 <span class="glyphicon glyphicon-comment"></span> Post
               </button>
-              <button type="button" class="btn btn-default" name="cancel_message_form"
-                    onclick="hide_form('add_message_form', 'show_add_form')">
+              <button type="button" class="btn btn-default" id="hide_form">
                 <span class="glyphicon glyphicon-collapse-up"></span> Hide
               </button>
             </div> <!-- .btn-group -->
@@ -179,13 +177,15 @@
 
 {% block endscripts %}
 <script>
-  function show_form(message_form_id, button_id) {
-    document.getElementById(message_form_id).style.display="inline";
-    document.getElementById(button_id).style.display="none";
-  }
-  function hide_form(message_form_id, button_id) {
-    document.getElementById(message_form_id).style.display="none";
-    document.getElementById(button_id).style.display="inline";
-  }
+$(document).ready(function() {
+  $('#show_add_form').click(function() {
+    $('#add_message_form').slideDown('slow');
+    $(this).hide();
+  });
+  $('#hide_form').click(function() {
+    $('#add_message_form').slideUp('slow');
+    $('#show_add_form').show();
+  })
+})
 </script>
 {% endblock %}
