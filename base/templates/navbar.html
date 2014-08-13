@@ -118,25 +118,47 @@
       </li>
       {% endif %} {% comment %} end if user.is_superuser {% endcomment %}
       </ul> <!-- .navbar-nav -->
-        <div style="padding: 0px;" class="col-sm-3 col-md-4 pull-right">
-          <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=" style="padding-left: 5px; padding-right: 5px;">
+      <div style="padding: 0px;" class="col-sm-3 col-md-4 pull-right">
+        <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=" style="padding-left: 5px; padding-right: 5px;">
           <div class="input-group">
             <input type="search" class="form-control search-query" name="q" placeholder="Search">
             <span class="input-group-btn">
-              <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span></button>
+              <button type="submit" class="btn btn-info">
+				<span class="glyphicon glyphicon-search"></span>
+			  </button>
             </span>
           </div> <!-- .input-group -->
-          </form>
-        </div> <!-- .col-sm-3 -->
-  {% else %}
-    <ul class="nav navbar-nav navbar-right">
-      <li><a class="menu_link" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-      <li><a class="menu_link" href="{% url 'request_profile' %}"><span class="glyphicon glyphicon-leaf"></span> Request Account</a></li>
-      <li><a class="menu_link" href="https://github.com/knagra/farnsworth" target="_blank" ><span class="glyphicon glyphicon-info-sign"></span> Source</a></li>
-      <li><a class="menu_link" href="{% url 'helppage' %}"><span class="glyphicon glyphicon-question-sign"></span> Help</a></li>
-      <li><a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}" ><span class="glyphicon glyphicon-map-marker"></span> Site Map</a></li>
-    </ul> <!-- .navbar-right -->
-  {% endif %} {% comment %} End if user.is_authenticated, else {% endcomment %}
-  </div> <!-- .navbar-collapse -->
-</div> <!-- .container -->
+        </form>
+      </div> <!-- .col-sm-3 -->
+	  {% else %}
+      <ul class="nav navbar-nav navbar-right">
+		<li>
+		  <a class="menu_link" href="{% url 'login' %}">
+			<span class="glyphicon glyphicon-log-in"></span> Login
+		  </a>
+		</li>
+		<li>
+		  <a class="menu_link" href="{% url 'request_profile' %}">
+			<span class="glyphicon glyphicon-leaf"></span> Request Account
+		  </a>
+		</li>
+		<li>
+		  <a class="menu_link" href="https://github.com/knagra/farnsworth" target="_blank">
+			<span class="glyphicon glyphicon-info-sign"></span> Source
+		  </a>
+		</li>
+		<li>
+		  <a class="menu_link" href="{% url 'helppage' %}">
+			<span class="glyphicon glyphicon-question-sign"></span> Help
+		  </a>
+		</li>
+		<li>
+		  <a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}">
+			<span class="glyphicon glyphicon-map-marker"></span> Site Map
+		  </a>
+		</li>
+      </ul> <!-- .navbar-right -->
+	  {% endif %} {% comment %} End if user.is_authenticated, else {% endcomment %}
+	</div> <!-- .navbar-collapse -->
+  </div> <!-- .container -->
 </div> <!-- .navbar -->
