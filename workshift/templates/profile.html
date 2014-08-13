@@ -106,27 +106,33 @@
       <tr>
         <th>Title</th>
         <th>Hours</th>
-        <th>Current Standing</th>
-        {% if first_standing %}<th>First Fine Date Standing</th>{% endif %}
-        {% if second_standing %}<th>Second Fine Date Standing</th>{% endif %}
-        {% if third_standing %}<th>Third Fine Date Standing</th>{% endif %}
+        <th>Standing</th>
       </tr>
     </thead>
     <tbody>
       {% for pool_hours in profile.pool_hours.all %}
       <tr>
-        <td><a href="{% wurl 'workshift:view_pool' pk=pool_hours.pool.pk sem_url=SEMESTER.sem_url %}">{{ pool_hours.pool.title }}</a></td>
+        <td><a href="{{ pool_hours.pool.get_view_url }}">{{ pool_hours.pool.title }}</a></td>
         <td>{{ pool_hours.show_hours }}</td>
-        <td>{% if 0 > pool_hours.standing %}<font color="red">{% else %}<font color="green">{% endif %}{{ pool_hours.standing }}</font></td>
-        {% if pool_hours.first_date_standing %}
-        <td>First Fine Date Standing: {{ pool_hours.first_date_standing }}</td>
-        {% endif %}
-        {% if pool_hours.second_date_standing %}
-        <td>Second Fine Date Standing: {{ pool_hours.second_date_standing }}</td>
-        {% endif %}
-        {% if pool_hours.third_date_standing %}
-        <td>Third Fine Date Standing: {{ pool_hours.third_date_standing }}</td>
-        {% endif %}
+		<td>
+		  {% if 0 > pool_hours.standing %}
+		  <font color="red">{{ pool_hours.standing }}</font>
+		  {% else %}
+		  <font color="green">{{ pool_hours.standing }}</font>
+		  {% endif %}
+		  {% if pool_hours.first_date_standing %}
+		  <br />
+		  First Fines: {{ pool_hours.first_date_standing|currency }}
+		  {% endif %}
+		  {% if pool_hours.second_date_standing %}
+		  <br />
+		  Second Fines: {{ pool_hours.second_date_standing|currency }}
+		  {% endif %}
+		  {% if pool_hours.third_date_standing %}
+		  <br />
+		  Third Fines: {{ pool_hours.third_date_standing|currency }}
+		  {% endif %}
+		</td>
       </tr>
       {% endfor %}
     </tbody>
