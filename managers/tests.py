@@ -235,7 +235,7 @@ class TestAnonymousUser(TestCase):
         response = self.client.get(reverse("homepage"))
         self.assertNotContains(
             response,
-            "Logged in as anonymous user Anonymous Coward",
+            MESSAGES["ANONYMOUS_LOGIN"],
             )
 
         url = reverse("managers:anonymous_login")
@@ -243,12 +243,12 @@ class TestAnonymousUser(TestCase):
         self.assertRedirects(response, reverse("homepage"))
         self.assertContains(
             response,
-            "Logged in as anonymous user Anonymous Coward",
+            MESSAGES["ANONYMOUS_LOGIN"],
             )
 
     def test_anonymous_end(self):
         url = reverse("managers:anonymous_login")
-        self.client.get(url)
+        self.client.get(url, follow=True)
         self.client.login(username="su", password="pwd")
 
         url = reverse("managers:end_anonymous_session")
@@ -257,7 +257,7 @@ class TestAnonymousUser(TestCase):
         self.assertContains(response, MESSAGES["ANONYMOUS_SESSION_ENDED"])
         self.assertNotContains(
             response,
-            "Logged in as anonymous user Anonymous Coward",
+            MESSAGES["ANONYMOUS_LOGIN"],
             )
 
     def test_anonymous_profile(self):
@@ -311,20 +311,20 @@ class TestAnonymousUser(TestCase):
 
     def test_anonymous_user_login_logout(self):
         url = reverse("managers:anonymous_login")
-        self.client.get(url)
+        self.client.get(url, follow=True)
 
         # Need to be careful here, client.login and client.logout clear the
         # session cookies, causing this test to break
         url = reverse("login")
         response = self.client.post(url, {
-                "username_or_email": "u",
-                "password": "pwd",
-                }, follow=True)
+            "username_or_email": "u",
+            "password": "pwd",
+            }, follow=True)
 
         self.assertRedirects(response, reverse("homepage"))
         self.assertNotContains(
             response,
-            "Logged in as anonymous user Anonymous Coward",
+            MESSAGES["ANONYMOUS_LOGIN"],
             )
 
         url = reverse("logout")
@@ -333,10 +333,6 @@ class TestAnonymousUser(TestCase):
 
         response = self.client.get(reverse("homepage"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            "Logged in as anonymous user Anonymous Coward",
-            )
 
 class TestRequestPages(TestCase):
     def setUp(self):
