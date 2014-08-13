@@ -51,10 +51,10 @@
 			<li class="divider"></li>
 			{% if WORKSHIFT_PROFILE %}
 			<li>
-			  <a href="{% url 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username %}">
+			  <a href="{{ WORKSHIFT_PROFILE.get_view_url }}">
 				{% if STANDING %}
-				<span title="{% if STANDING > 0 or STANDING == 0 %}Up{% else %}Down{% endif %} {{ STANDING }} hours" class="badge {% if STANDING > 0 or STANDING == 0 %}alert-success{% else %}alert-danger{% endif %} pull-right">
-				  {% if STANDING > 0 or STANDING = 0 %}+{% endif %}{{ STANDING }}
+				<span title="{% if STANDING > 0 or STANDING == 0 %}Up{% else %}Down{% endif %} {{ STANDING }} hours" class="badge {% if STANDING >= 0 %}alert-success{% else %}alert-danger{% endif %} pull-right">
+				  {% if STANDING >= 0 %}+{% endif %}{{ STANDING }}
 				</span>
 				{% endif %}
 				<span class="glyphicon glyphicon-dashboard"></span> Workshift Dashboard
