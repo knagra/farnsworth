@@ -115,22 +115,22 @@
         <td><a href="{{ pool_hours.pool.get_view_url }}">{{ pool_hours.pool.title }}</a></td>
         <td>{{ pool_hours.show_hours }}</td>
 		<td>
-		  {% if 0 > hours.standing %}
-		  <font color="red">{{ hours.standing }}</font>
+		  {% if 0 > pool_hours.standing %}
+		  <font color="red">{{ pool_hours.standing }}</font>
 		  {% else %}
-		  <font color="green">{{ hours.standing }}</font>
+		  <font color="green">{{ pool_hours.standing }}</font>
 		  {% endif %}
-		  {% if hours.first_date_standing %}
+		  {% if pool_hours.first_date_standing %}
 		  <br />
-		  First Fines: {{ hours.first_date_standing|currency }}
+		  First Fines: {{ pool_hours.first_date_standing|currency }}
 		  {% endif %}
-		  {% if hours.second_date_standing %}
+		  {% if pool_hours.second_date_standing %}
 		  <br />
-		  Second Fines: {{ hours.second_date_standing|currency }}
+		  Second Fines: {{ pool_hours.second_date_standing|currency }}
 		  {% endif %}
-		  {% if hours.third_date_standing %}
+		  {% if pool_hours.third_date_standing %}
 		  <br />
-		  Third Fines: {{ hours.third_date_standing|currency }}
+		  Third Fines: {{ pool_hours.third_date_standing|currency }}
 		  {% endif %}
 		</td>
       </tr>
