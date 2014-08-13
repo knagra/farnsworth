@@ -3,7 +3,6 @@
     <dt>Status</dt>
     <dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ result.object.get_status_display }}{% endif %}</dd>
     {% if not result.object.user.username == ANONYMOUS_USERNAME %}
-        <dd>{{ result.object.former_rooms }}&nbsp;</dd>
         <dt>Former Houses</dt>
         <dd>{{ result.object.former_houses }}&nbsp;</dd>
     {% if result.object.email_visible %}
