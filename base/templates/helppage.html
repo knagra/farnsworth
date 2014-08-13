@@ -930,14 +930,14 @@ $(document).ready(function() {
     $('#content_list').hide();
     $('#hide_content_list').hide();
     $('#show_content_list').click(function() {
-        $('#content_list').slideDown('fast');
-        $('#hide_content_list').show();
-        $('#show_content_list').hide();
+        $('#content_list').slideDown();
+        $('#hide_content_list').fadeIn();
+        $('#show_content_list').fadeOut();
     });
     $('#hide_content_list').click(function() {
-        $('#content_list').slideUp('fast');
-        $('#hide_content_list').hide();
-        $('#show_content_list').show();
+        $('#content_list').slideUp();
+        $('#hide_content_list').fadeOut();
+        $('#show_content_list').fadeIn();
     });
 });
 </script>

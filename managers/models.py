@@ -286,8 +286,8 @@ class Response(models.Model):
         return self.owner.user.get_full_name()
 
     def display_action(self):
-        if not self.action == self.NONE:
-            return '<hr style="width: 75%;" class="text-center" /><div class="field_wrapper text-info">Action: {0}</div>'.format(
+        if self.action != self.NONE:
+            return '<div class="text-center"><hr style="width: 75%; margin-top: 0; margin-bottom: 0;" /></div><div class="field_wrapper text-info">Action: {0}</div>'.format(
                 self.get_action_display()
                 )
         return ""
