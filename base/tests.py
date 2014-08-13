@@ -1220,7 +1220,6 @@ class TestNotifications(TestCase):
         url = reverse("notifications")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "unread")
         self.assertContains(response, "posted")
         self.assertContains(
             response,
