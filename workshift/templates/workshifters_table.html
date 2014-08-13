@@ -1,4 +1,3 @@
-{% load bootstrap %}
 {% load workshift_tags %}
 <table id="workshifters_table" class="table table-striped table-bordered table-condensed table-hover members_table">
   <thead>
@@ -14,7 +13,7 @@
   <tbody>
     {% for workshifter, pool_hours in workshifters %}
     <tr>
-      <td><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=workshifter.user.username %}">{{ workshifter.user.first_name }}</td>
+      <td><a href="{{ workshifter.get_view_url }}">{{ workshifter.user.first_name }}</td>
       <td>{{ workshifter.user.last_name }}</td>
       <td><a href="mailto:{{ workshifter.user.email }}">{{ workshifter.user.email }}</a></td>
       {% for hours in pool_hours %}
