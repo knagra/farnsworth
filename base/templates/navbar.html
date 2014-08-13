@@ -1,4 +1,5 @@
 {% load notifications_tags %}
+{% notifications_unread as unread_count %}
 <div class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 10px;">
   <div class="container">
 	<div class="navbar-header">
@@ -23,7 +24,6 @@
 		  </a>
 		</li>
 		{% else %}
-		{% notifications_unread as unread_count %}
 		<li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown"{% if ANONYMOUS_SESSION %} style="color: #ff0000 !important;" title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}>
 			<span class="glyphicon glyphicon-user"></span> {{ user.first_name }}
@@ -53,7 +53,8 @@
 			<li>
 			  <a href="{{ WORKSHIFT_PROFILE.get_view_url }}">
 				{% if STANDING %}
-				<span title="{% if STANDING > 0 or STANDING == 0 %}Up{% else %}Down{% endif %} {{ STANDING }} hours" class="badge {% if STANDING >= 0 %}alert-success{% else %}alert-danger{% endif %} pull-right">
+				<span title="{% if STANDING >= 0 %}Up{% else %}Down{% endif %} {{ STANDING }} hours"
+					  class="badge {% if STANDING >= 0 %}alert-success{% else %}alert-danger{% endif %} pull-right">
 				  {% if STANDING >= 0 %}+{% endif %}{{ STANDING }}
 				</span>
 				{% endif %}
@@ -110,7 +111,7 @@
 				  {{ counts }}
 				</span>
 				{% endif %}
-				<span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type..glyphicon }}{% else %}inbox{% endif %}"></span>
+				<span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span>
 				{{ request_type.name }}
 			  </a>
 			</li>
@@ -208,7 +209,7 @@
 			</li>
 			<li>
 			  <a href="{% url 'manage_profile_requests' %}">
-				{% if NUM_OF_PROFILE_REQUESTS> 0 %}
+				{% if NUM_OF_PROFILE_REQUESTS > 0 %}
 				<span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}" class="badge pull-right">
 				  {{ NUM_OF_PROFILE_REQUESTS }}
 				</span>
