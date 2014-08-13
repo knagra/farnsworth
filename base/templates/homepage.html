@@ -19,14 +19,6 @@ function hide_new_response_form(response_form_id, button_id) {
     document.getElementById(response_form_id).style.display="none";
     document.getElementById(button_id).style.display="inline";
 }
-function show_form(form_id) {
-    //$(form_id).slideDown();
-    document.getElementById(form_id).style.display="inline";
-}
-function hide_form(form_id) {
-    //$(form_id).slideUp();
-    document.getElementById(form_id).style.display="none";
-}
 </script>
 <style>
   .form-group label[for*="body"] {
@@ -38,7 +30,6 @@ function hide_form(form_id) {
 {% block content %}
 {% if requests_dict %}
 {% for request_type, requests in requests_dict %}
-{% with x=forloop.counter|stringformat:"s" %}
 {% if requests %}
 <div class="row" style="margin-bottom: 20px;">
   <div class="col-lg-12">
@@ -111,15 +102,12 @@ function hide_form(form_id) {
                 </div> <!-- response_body -->
               </div> <!-- .response_row -->
               {% endfor %}
-              {% with y=forloop.counter|stringformat:"s" %}
-              {% with response_form_id="response_form_"|add:x|add:"_"|add:y %}
-              {% with button_id="button_"|add:x|add:"_"|add:y %}
               <div class="text-center">
-                <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')">
+                <button class="btn btn-primary show_response_form" type="button">
 				  <span class="glyphicon glyphicon-paperclip"></span> Add Response
 				</button>
               </div> <!-- .text-center -->
-              <form class="new_response_form" id="{{ response_form_id }}" method="post">
+              <form class="new_response_form" method="post">
                 {% csrf_token %}
                 {{ response_form|bootstrap }}
                 <div class="text-center">
@@ -127,15 +115,12 @@ function hide_form(form_id) {
                     <button type="submit" class="btn btn-success" name="add_response-{{ request.pk }}">
 					  <span class="glyphicon glyphicon-send"></span> Add Response
 					</button>
-                    <button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')">
+                    <button type="button" class="btn btn-default hide_response_form" name="cancel_response_form">
 					  <span class="glyphicon glyphicon-collapse-up"></span> Hide
 					</button>
                   </div> <!-- .btn-group -->
                 </div> <!-- .text-center -->
               </form>
-              {% endwith %}
-              {% endwith %}
-              {% endwith %}
             </div> <!-- .response_table -->
           </div> <!-- .request_responses -->
         </div> <!-- .requests_row -->
@@ -145,7 +130,6 @@ function hide_form(form_id) {
   </div> <!-- .col-md-12 -->
 </div> <!-- .row -->
 {% endif %}
-{% endwith %}
 {% endfor %}
 {% endif %}
 
@@ -153,7 +137,7 @@ function hide_form(form_id) {
   <div class="col-md-12">
     <div class="announcements">
       {% if announcement_form %}
-      <button class="btn btn-primary pull-right" type="button" onclick="show_form('new_announcement_form')"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+      <button class="btn btn-primary pull-right" type="button" id="show_announcement_form"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
       {% endif %}
       <h1 class="w_title">Recent Announcements</h1>
       <hr class="w_line" />
@@ -171,7 +155,7 @@ function hide_form(form_id) {
         <div class="text-center">
           <div class="btn-group">
             <button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
-            <button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_form('new_announcement_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+            <button type="button" class="btn btn-default" name="cancel_announcement" id="hide_announcement_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
           </div> <!-- .btn-group -->
         </div> <!-- .text-center -->
       </form>
@@ -217,7 +201,7 @@ function hide_form(form_id) {
 <div class="row">
   <div class="col-lg-7" style="margin-top: 20px;">
     <div class="threads">
-      <button class="btn btn-primary pull-right" onclick="show_form('new_thread_form')" type="button">
+      <button class="btn btn-primary pull-right" id="show_thread_form" type="button">
 		<span class="glyphicon glyphicon-pencil"></span>
 		<span class="hidden-xs"> New Thread</span>
 	  </button>
@@ -354,18 +338,32 @@ function hide_form(form_id) {
 {% block endscripts %}
 <script>
 $(document).ready(function() {
-    $('table').tablesorter({
-        headers: {
-            3: {
-                sorter: 'farnsworth_datetime'
-            }
-        },
-        sortList: [[3,1]],
-        widgets: ["resizable"],
-        widgetOptions: {
-            resizable: true
-        }
-    });
+  $('table').tablesorter({
+    headers: {
+      3: {
+        sorter: 'farnsworth_datetime'
+      }
+    },
+    sortList: [[3,1]],
+    widgets: ["resizable"],
+    widgetOptions: {
+      resizable: true
+    }
+  });
+  $('#show_announcement_form').click(function() {
+    $('#new_announcement_form').slideToggle();
+  });
+  $('#show_thread_form').click(function() {
+    $('#new_thread_form').slideToggle();
+  });
+  $('.show_response_form').click(function() {
+    $(this).parent().siblings('.new_reponse_form').slideDown();
+    $(this).fadeOut();
+  });
+  $('.hide_response_form').click(function() {
+    $(this).parent().parent().parent().slideUp();
+    $(this).parent().parent().parent().siblings('.show_response_form').fadeIn();
+  })
 });
 </script>
 {% endblock %}
