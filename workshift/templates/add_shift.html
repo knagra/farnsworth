@@ -55,6 +55,7 @@
       </thead>
       <tbody>
 	{% for form in shifts_formset.forms %}
+	{{ form.id }}
 	<tr class="shifts_formset_row">
 	  <td>
 	    {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
