@@ -421,7 +421,7 @@ class UpdateEmailForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data["email"]
         if User.objects.filter(email=email).count() > 0 and \
-          User.objects.get(email=email) != self.instance.user:
+          User.objects.get(email=email) != self.instance:
             raise forms.ValidationError(MESSAGES['EMAIL_TAKEN'])
         return email
 
