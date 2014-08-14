@@ -30,7 +30,7 @@
   {% csrf_token %}
   {% if rating_forms %}
   <h3 class="w_subtitle text-center">Workshift Preferences</h3>
-  <p class="text-info text-center">Click on a workshift type to see its description.</p>
+  <p class="text-info text-center">Click on a workshift type to show or hide its description.</p>
   <div id="accordion">
       {% for form in rating_forms %}
       <div id="rating_forms_row" class="row">
