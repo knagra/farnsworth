@@ -349,11 +349,11 @@ $(document).ready(function() {
     $('#new_thread_form').slideUp();
   });
   $('.show_response_form').click(function() {
-    $(this).fadeOut();
-    $(this).parent().siblings('.new_reponse_form').slideDown();
+    $(this).hide();
+    $(this).parent().next().slideDown();
   });
   $('.hide_response_form').click(function() {
-    $(this).closest('.new_response_form').siblings('.text-center:has(.show_response_form):first-child').fadeIn();
+    $(this).closest('.new_response_form').prev().children().first().fadeIn();
     $(this).closest('.new_response_form').slideUp();
   });
 });

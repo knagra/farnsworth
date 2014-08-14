@@ -30,12 +30,14 @@
   {% csrf_token %}
   {% if rating_forms %}
   <h3 class="w_subtitle text-center">Workshift Preferences</h3>
-  <p class="text-info text-center">Click on a workshift type to show or hide its description.</p>
+  <p class="text-info text-center">Click on a workshift type to show or hide its description.
+  <span class="hidden-xs">You can click and drag the rows.</span></p>
   <div id="accordion">
       {% for form in rating_forms %}
-      <div class="rating_forms_row row">
-        <h3 class="w_subtitle col-xs-6" style="margin-top: 4px; margin-bottom: 0;">{{ form.title }}</h3>
-        <div class="col-xs-6">{{ form.rating }}</div>
+      <div class="group">
+      <div class="rating_forms_row row" style="padding: 3px 0px 3px 0px;">
+        <h4 class="col-xs-6" style="margin-top: 8px; margin-bottom: 0; padding: 0px 5px 0px 5px;">{{ form.title }}</h4>
+        <div class="col-xs-6" style="padding: 0px 5px 0px 5px;">{{ form.rating }}</div>
       </div>
       <dl class="dl-horizontal">
           <dt>Description</dt>
@@ -43,6 +45,7 @@
           <dt>Tips</dt>
           <dd>{{ form.instance.workshift_type.quick_tips|safe }}&nbsp;</dd>
       </dl> <!-- .dl-horizontal -->
+      </div> <!-- .group -->
       {% endfor %}
   </div> <!-- #accordion -->
 
@@ -57,10 +60,10 @@
       {% for form in time_formset.forms %}
       {{ form.id }}
       <tr class="time_formset_row">
-	<td>
-	  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+    <td>
+      {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
           {{ form.preference|bootstrap }}
-	</td>
+    </td>
         <td>{{ form.day|bootstrap }}</td>
         <td>{{ form.start_time|bootstrap }}</td>
         <td>{{ form.end_time|bootstrap }}</td>
@@ -104,27 +107,26 @@
       $('label[for="id_note"]').hide();
     });
     $(function() {
-      //var icons = {
-      //	header: "glyphicon glyphicon-expand",
-      //	activeHeader: "glyphicon glyphicon-collapse-down"
+      //var icons = {       // Uncomment these and set icons: icons below, optionally
+      //    header: "glyphicon glyphicon-expand",
+      //    activeHeader: "glyphicon glyphicon-collapse-down"
       //};
       $('#accordion').accordion({
           collapsible: true,
           icons: false,
+          header: "> div > div.rating_forms_row",
           beforeActivate: function(event, ui) {
-          	return !$(event.originalEvent.target).is('select');
+              return !$(event.originalEvent.target).is('select');
+          }
+      })
+      .sortable({
+          axis: "y",
+          handle: "div.rating_forms_row",
+          stop: function(event, ui) {
+              ui.item.children("div.rating_forms_row").triggerHandler("focusout");
+              $(this).accordion("refresh");
           }
       });
-    });
-    $('.ratings_form_row').css({
-    	'padding-top': '3px',
-    	'padding-bottom': '3px',
-    	'padding-right': '0px',
-    	'padding-left': '0px'
-    });
-    $('#accordion col-xs-6').css({
-    	'padding-left': '5px',
-    	'padding-right': '5px'
     });
   });
 </script>
