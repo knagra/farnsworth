@@ -175,7 +175,16 @@
 </div>
 {% endblock %}
 
-{% block endscripts %}
+{% block endscripts %}<script>
+  function show_form(message_form_id, button_id) {
+    document.getElementById(message_form_id).style.display="inline";
+    document.getElementById(button_id).style.display="none";
+  }
+  function hide_form(message_form_id, button_id) {
+    document.getElementById(message_form_id).style.display="none";
+    document.getElementById(button_id).style.display="inline";
+  }
+</script>
 <script>
 $(document).ready(function() {
   $('#show_add_form').click(function() {
