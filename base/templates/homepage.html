@@ -55,7 +55,7 @@
               {% endif %}
               {% endif %}
               <a href="{% url 'managers:view_request' request_pk=request.pk %}" class="btn btn-xs btn-info"
-                title="Permanent link to request"><span class="glyphicon glyphicon-link"></span></a>
+                title="Permanent link to this request"><span class="glyphicon glyphicon-link"></span></a>
               {% with vote_count_request=request %}
               {% include "vote_list.html" %}
               {% endwith %}
