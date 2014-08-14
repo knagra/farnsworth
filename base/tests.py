@@ -207,7 +207,7 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "add_response-{0}".format(self.req.pk): "",
-            "response-body": "You betcha",
+            "{}-response-body".format(self.req.pk): "You betcha",
             "response-action": Response.NONE,
             }, follow=True)
         self.assertRedirects(response, url)
@@ -219,7 +219,7 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "add_response-{0}".format(self.req.pk): "",
-            "response-body": "You betcha",
+            "{}-response-body".format(self.req.pk): "You betcha",
             "response-action": Response.CLOSED,
             }, follow=True)
         self.assertRedirects(response, url)
@@ -233,7 +233,7 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "add_response-{0}".format(self.req.pk): "",
-            "response-body": "You betcha",
+            "{}-response-body".format(self.req.pk): "You betcha",
             "response-action": Response.FILLED,
             }, follow=True)
         self.assertRedirects(response, url)
