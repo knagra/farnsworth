@@ -1207,9 +1207,15 @@ class TestNotifications(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_thread_followers(self):
+        up = UserProfile.objects.get(user=self.u)
         t = Thread.objects.create(
             subject="subject",
-            owner=UserProfile.objects.get(user=self.u),
+            owner=up,
+            )
+        Message.objects.create(
+            thread=t,
+            body="Body",
+            owner=up,
             )
         t.followers = [self.u]
         t.save()
