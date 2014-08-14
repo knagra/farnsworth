@@ -121,7 +121,7 @@ def homepage_view(request, message=None):
                     initial={'action': Response.NONE},
                     profile=userProfile,
                     request=req,
-                    prefix="response",
+                    prefix="{}-response".format(req.pk),
                     )
                 vote_form = VoteForm(
                     request.POST if "vote-{0}".format(req.pk) in request.POST else None,
