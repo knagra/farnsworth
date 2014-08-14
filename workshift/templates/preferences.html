@@ -105,14 +105,14 @@
     });
     $(function() {
       var icons = {
-      	header: "glyphicon glyphicon-expand"
+      	header: "glyphicon glyphicon-expand",
       	activeHeader: "glyphicon glyphicon-collapse-down"
       };
       $('#accordion').accordion({
           collapsible: true,
           icons: icons,
           beforeActivate: function(event, ui) {
-          	return !($(event.originalEvent.target).is('select'));
+          	return !$(event.originalEvent.target).is('select');
           }
       });
     });
