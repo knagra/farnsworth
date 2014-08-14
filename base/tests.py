@@ -176,7 +176,7 @@ class TestHomepage(TestCase):
         thread = Thread.objects.get(subject="Thread Subject Test")
         self.assertEqual(thread.owner, self.profile)
 
-    def test_announcment_post(self):
+    def test_announcement_post(self):
         url = reverse("homepage")
         response = self.client.post(url, {
             "announce-manager": self.manager.pk,

@@ -6,20 +6,6 @@
 {% load request_tags %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/homepage.css' %}" />
-<script>
-function show_new_response_form(response_form_id, button_id) {
-    //$(response_form_id).slideDown();
-    //$(button_id).fadeOut();
-    document.getElementById(response_form_id).style.display="inline";
-    document.getElementById(button_id).style.display="none";
-}
-function hide_new_response_form(response_form_id, button_id) {
-    //$(response_form_id).slideUp();
-    //$(button_id).fadeIn();
-    document.getElementById(response_form_id).style.display="none";
-    document.getElementById(button_id).style.display="inline";
-}
-</script>
 <style>
   .form-group label[for*="body"] {
     display: none;
@@ -36,9 +22,9 @@ function hide_new_response_form(response_form_id, button_id) {
     <div class="requests">
       <form class="pull-right" action="{% url 'managers:requests' requestType=request_type.url_name %}">
         <button class="btn btn-info" type="submit">
-		  <span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span>
-		  <span class="hidden-xs"> Requests Page</span>
-		</button>
+          <span class="glyphicon glyphicon-{% if request_type.glyphicon %}{{ request_type.glyphicon }}{% else %}inbox{% endif %}"></span>
+          <span class="hidden-xs"> Requests Page</span>
+        </button>
       </form>
       <h1 class="w_title">{{ request_type.name }} Requests</h1>
       <hr class="w_line" />
@@ -52,7 +38,7 @@ function hide_new_response_form(response_form_id, button_id) {
           <div class="request_name bg-warning" title="Open">
             <div class="request_owner">
               {% if not request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
-			  {% if vote_form %}
+              {% if vote_form %}
               <form style="display:inline" method="POST">
                 {% csrf_token %}
                 {{ vote_form|bootstrap }}
@@ -66,7 +52,7 @@ function hide_new_response_form(response_form_id, button_id) {
                 </button>
                 {% endif %}
               </form>
-			  {% endif %}
+              {% endif %}
               {% endif %}
               {% with vote_count_request=request %}
               {% include "vote_list.html" %}
@@ -74,7 +60,7 @@ function hide_new_response_form(response_form_id, button_id) {
             </div> <!-- .request_owner -->
             <div class="request_body">{{ request.body|safe }}
               {% if not request.owner.user = user %}
-			  {% if vote_form %}
+              {% if vote_form %}
               <form class="pull-right" method="POST">
                 {% csrf_token %}
                 {{ vote_form|bootstrap }}
@@ -92,9 +78,9 @@ function hide_new_response_form(response_form_id, button_id) {
               <div class="response_row hover_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
                 <div class="response_owner">
                   <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=response.owner.user.username %}">
-					{{ response.owner|display_user:user }}
-				  </a>
-				  ({{ response.post_date }}):
+                    {{ response.owner|display_user:user }}
+                  </a>
+                  ({{ response.post_date }}):
                 </div> <!-- .response_owner -->
                 <div class="response_body">
                   {{ response.body|safe }}
@@ -104,8 +90,8 @@ function hide_new_response_form(response_form_id, button_id) {
               {% endfor %}
               <div class="text-center">
                 <button class="btn btn-primary show_response_form" type="button">
-				  <span class="glyphicon glyphicon-paperclip"></span> Add Response
-				</button>
+                  <span class="glyphicon glyphicon-paperclip"></span> Add Response
+                </button>
               </div> <!-- .text-center -->
               <form class="new_response_form" method="post">
                 {% csrf_token %}
@@ -113,11 +99,11 @@ function hide_new_response_form(response_form_id, button_id) {
                 <div class="text-center">
                   <div class="btn-group">
                     <button type="submit" class="btn btn-success" name="add_response-{{ request.pk }}">
-					  <span class="glyphicon glyphicon-send"></span> Add Response
-					</button>
-                    <button type="button" class="btn btn-default hide_response_form" name="cancel_response_form">
-					  <span class="glyphicon glyphicon-collapse-up"></span> Hide
-					</button>
+                      <span class="glyphicon glyphicon-send"></span> Add Response
+                    </button>
+                    <button type="button" class="btn btn-default hide_response_form">
+                      <span class="glyphicon glyphicon-collapse-up"></span> Hide
+                    </button>
                   </div> <!-- .btn-group -->
                 </div> <!-- .text-center -->
               </form>
@@ -202,12 +188,12 @@ function hide_new_response_form(response_form_id, button_id) {
   <div class="col-lg-7" style="margin-top: 20px;">
     <div class="threads">
       <button class="btn btn-primary pull-right" id="show_thread_form" type="button">
-		<span class="glyphicon glyphicon-pencil"></span>
-		<span class="hidden-xs"> New Thread</span>
-	  </button>
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-xs"> New Thread</span>
+      </button>
       <h1 class="w_title">Recent Threads</h1>
       <hr class="w_line" />
-	  {% if thread_form %}
+      {% if thread_form %}
       <form id="new_thread_form" method="post">
         {% csrf_token %}
         <div class="form-group">
@@ -215,16 +201,16 @@ function hide_new_response_form(response_form_id, button_id) {
           <div class="text-center">
             <div class="btn-group">
               <button type="submit" class="btn btn-success" name="submit_thread_form">
-				<span class="glyphicon glyphicon-comment"></span> Start Thread
-			  </button>
-              <button type="button" class="btn btn-default" name="cancel_thread_form" onclick="hide_form('new_thread_form')">
-				<span class="glyphicon glyphicon-collapse-up"></span> Hide
-			  </button>
+                <span class="glyphicon glyphicon-comment"></span> Start Thread
+              </button>
+              <button type="button" class="btn btn-default" id="hide_thread_form">
+                <span class="glyphicon glyphicon-collapse-up"></span> Hide
+              </button>
             </div> <!-- .btn-group -->
           </div> <!-- .text-center -->
         </div>
       </form>
-	  {% endif %}
+      {% endif %}
       {% if not thread_set %}
       <div class="field_wrapper">No threads found in database.</div>
       {% else %}
@@ -242,15 +228,15 @@ function hide_new_response_form(response_form_id, button_id) {
           {% for thread, last_message in thread_set %}
           <tr>
             <td>
-			  <a title="View Thread" class="page_link" href="{% url 'threads:view_thread' pk=thread.pk %}">
-				{{ thread.subject|truncatechars:45 }}
-			  </a>
-			</td>
+              <a title="View Thread" class="page_link" href="{% url 'threads:view_thread' pk=thread.pk %}">
+                {{ thread.subject|truncatechars:45 }}
+              </a>
+            </td>
             <td>
-			  <a class="page_link" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">
-				{{ thread.owner.user.get_full_name }}
-			  </a>
-			</td>
+              <a class="page_link" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">
+                {{ thread.owner.user.get_full_name }}
+              </a>
+            </td>
             <td>{{ thread.number_of_messages|add:"-1" }}</td>
             <td>{{ thread.change_date|date:"m/d/Y, h:i A" }}</td>
             <td><a title="page_link" href="{% url 'member_profile' targetUsername=last_message.owner.user.username %}">{{ last_message.owner.user.get_full_name }}</a></td>
@@ -353,17 +339,23 @@ $(document).ready(function() {
   $('#show_announcement_form').click(function() {
     $('#new_announcement_form').slideToggle();
   });
+  $('#hide_announcement_form').click(function() {
+    $('#new_announcement_form').slideUp();
+  });
   $('#show_thread_form').click(function() {
     $('#new_thread_form').slideToggle();
   });
+  $('#hide_thread_form').click(function() {
+    $('#new_thread_form').slideUp();
+  });
   $('.show_response_form').click(function() {
-    $(this).parent().siblings('.new_reponse_form').slideDown();
-    $(this).fadeOut();
+    $(this).hide();
+    $(this).parent().next().slideDown();
   });
   $('.hide_response_form').click(function() {
-    $(this).parent().parent().parent().slideUp();
-    $(this).parent().parent().parent().siblings('.show_response_form').fadeIn();
-  })
+    $(this).closest('.new_response_form').prev().children().first().fadeIn();
+    $(this).closest('.new_response_form').slideUp();
+  });
 });
 </script>
 {% endblock %}

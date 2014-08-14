@@ -25,58 +25,45 @@
 {% block w_content %}
 <h1 class="w_title">My Preferences</h1>
 <hr class="w_line" />
-{% if rating_forms %}
-<h3 class="w_subtitle">Workshift Descriptions</h3>
-<p id="descriptions_information" class="text-info text-center">Please select a workshift type from Workshift Preferences below.</p>
-<hr class="text-center" style="width: 75%;" />
-<div class="tab-content">
-  {% for form in rating_forms %}
-  <div class="tab-pane{% if forloop.counter == 1 %} active{% endif %}" id="description_{{ form.instance.workshift_type.pk }}">
-    <dl class="dl-horizontal">
-      <dt>Title</dt>
-      <dd>{{ form.instance.workshift_type.title }}</dd>
-      <dt>Description</dt>
-      <dd>{{ form.instance.workshift_type.description|safe }}&nbsp;</dd>
-      <dt>Tips</dt>
-      <dd>{{ form.instance.workshift_type.quick_tips|safe }}&nbsp;</dd>
-    </dl>
-  </div> <!-- .tab-pane -->
-  {% endfor %}
-</div> <!-- .tab-content -->
-{% endif %}
 
 <form id="preferences_form" method="post" action="">
   {% csrf_token %}
   {% if rating_forms %}
-  <hr />
-  <h3 class="w_subtitle">Workshift Preferences</h3>
-  <p class="text-info text-center">Click on a workshift type to see its description above.</p>
-  <table class="table table-striped table-bordered table-condensed">
-    <tbody>
+  <h3 class="w_subtitle text-center">Workshift Preferences</h3>
+  <p class="text-info text-center">Click on a workshift type to show or hide its description.
+  <span class="hidden-xs">You can click and drag the rows.</span></p>
+  <div id="accordion">
       {% for form in rating_forms %}
-      <tr id="rating_forms_row">
-        <td{% if forloop.counter == 1 %} class="active"{% endif %}><a href="#description_{{ form.instance.workshift_type.pk }}" data-toggle="tab">{{ form.title }}</a></td>
-        <td>{{ form.rating }}</td>
-      </tr>
+      <div class="group">
+      <div class="rating_forms_row row" style="padding: 3px 0px 3px 0px;">
+        <h4 class="col-xs-6" style="margin-top: 8px; margin-bottom: 0; padding: 0px 5px 0px 5px;">{{ form.title }}</h4>
+        <div class="col-xs-6" style="padding: 0px 5px 0px 5px;">{{ form.rating }}</div>
+      </div>
+      <dl class="dl-horizontal">
+          <dt>Description</dt>
+          <dd>{{ form.instance.workshift_type.description|safe }}&nbsp;</dd>
+          <dt>Tips</dt>
+          <dd>{{ form.instance.workshift_type.quick_tips|safe }}&nbsp;</dd>
+      </dl> <!-- .dl-horizontal -->
+      </div> <!-- .group -->
       {% endfor %}
-    </tbody>
-  </table>
+  </div> <!-- #accordion -->
 
   {% endif %}
   {% if time_formset %}
   {% if rating_forms %}
   <hr />
   {% endif %}
-  <h3 class="w_subtitle">Your Schedule</h3>
+  <h3 class="w_subtitle text-center">Your Schedule</h3>
   <table id="time_blocks" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
     <tbody>
       {% for form in time_formset.forms %}
       {{ form.id }}
       <tr class="time_formset_row">
-	<td>
-	  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+    <td>
+      {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
           {{ form.preference|bootstrap }}
-	</td>
+    </td>
         <td>{{ form.day|bootstrap }}</td>
         <td>{{ form.start_time|bootstrap }}</td>
         <td>{{ form.end_time|bootstrap }}</td>
@@ -91,7 +78,7 @@
   {% if rating_forms or time_formset %}
   <hr />
   {% endif %}
-  <h3 class="w_subtitle">Note to Workshift Manager(s)</h3>
+  <h3 class="w_subtitle text-center">Note to Workshift Manager(s)</h3>
   {{ note_form|bootstrap }}
   <div class="text-center">
     <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>
@@ -118,6 +105,28 @@
       });
       renewDatePickers();
       $('label[for="id_note"]').hide();
+    });
+    $(function() {
+      //var icons = {       // Uncomment these and set icons: icons below, optionally
+      //    header: "glyphicon glyphicon-expand",
+      //    activeHeader: "glyphicon glyphicon-collapse-down"
+      //};
+      $('#accordion').accordion({
+          collapsible: true,
+          icons: false,
+          header: "> div > div.rating_forms_row",
+          beforeActivate: function(event, ui) {
+              return !$(event.originalEvent.target).is('select');
+          }
+      })
+      .sortable({
+          axis: "y",
+          handle: "div.rating_forms_row",
+          stop: function(event, ui) {
+              ui.item.children("div.rating_forms_row").triggerHandler("focusout");
+              $(this).accordion("refresh");
+          }
+      });
     });
   });
 </script>

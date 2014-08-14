@@ -68,7 +68,7 @@ def add_context(request):
         for request_type in RequestType.objects.filter(enabled=True):
             requests = Request.objects.filter(request_type=request_type, status=Request.OPEN)
             if not request_type.managers.filter(incumbent__user=request.user):
-                requests.exclude(
+                requests = requests.exclude(
                     ~Q(owner__user=request.user), private=True,
                     )
             request_types.append((request_type, requests.count()))
@@ -121,7 +121,7 @@ def homepage_view(request, message=None):
                     initial={'action': Response.NONE},
                     profile=userProfile,
                     request=req,
-                    prefix="response",
+                    prefix="{}-response".format(req.pk),
                     )
                 vote_form = VoteForm(
                     request.POST if "vote-{0}".format(req.pk) in request.POST else None,
@@ -568,6 +568,7 @@ def custom_modify_user_view(request, targetUsername):
     update_user_form = UpdateUserForm(
         request.POST if "update_user_profile" in request.POST else None,
         instance=targetUser,
+        profile = UserProfile.objects.get(user=request.user),
         prefix="user",
         )
     update_profile_form = FullProfileForm(

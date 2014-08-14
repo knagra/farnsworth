@@ -8,7 +8,7 @@ from django import forms
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from utils.funcs import form_add_error
-from utils.variables import MESSAGES
+from utils.variables import MESSAGES, ANONYMOUS_USERNAME
 from base.models import UserProfile
 from rooms.models import Room, PreviousResident
 
@@ -20,7 +20,7 @@ class RoomForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(RoomForm, self).__init__(*args, **kwargs)
-        self.fields["current_residents"].queryset = UserProfile.objects.filter(status=UserProfile.RESIDENT)
+        self.fields["current_residents"].queryset = UserProfile.objects.filter(status=UserProfile.RESIDENT).exclude(user__username=ANONYMOUS_USERNAME)
 
     def clean_title(self):
         title = self.cleaned_data["title"]
@@ -41,6 +41,10 @@ class ResidentForm(forms.ModelForm):
     class Meta:
         model = PreviousResident
         fields = ("resident", "start_date", "end_date")
+
+    def __init__(self, *args, **kwargs):
+        super(ResidentForm, self).__init__(*args, **kwargs)
+        self.fields['resident'].queryset = UserProfile.objects.exclude(user__username=ANONYMOUS_USERNAME)
 
 class BaseResidentFormSet(BaseModelFormSet):
     def __init__(self, *args, **kwargs):

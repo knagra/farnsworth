@@ -156,7 +156,6 @@ def add_request_type_view(request):
         'form': form,
         }, context_instance=RequestContext(request))
 
-
 @president_admin_required
 def edit_request_type_view(request, typeName):
     ''' View to edit a new request type.  Restricted to presidents and superadmins.
