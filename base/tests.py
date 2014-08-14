@@ -210,7 +210,7 @@ class TestHomepage(TestCase):
             "{0}-response-body".format(self.req.pk): "You betcha",
             "{0}-response-action".format(self.req.pk): Response.NONE,
             }, follow=True)
-        self.assertRedirects(response, url)
+        self.assertEquals(response.status_code, 200)
         self.assertContains(response, "You betcha")
         self.assertNotContains(response, MESSAGES['REQ_CLOSED'])
         self.assertNotContains(response, MESSAGES['REQ_FILLED'])
@@ -222,7 +222,7 @@ class TestHomepage(TestCase):
             "{0}-response-body".format(self.req.pk): "You betcha",
             "{0}-response-action".format(self.req.pk): Response.CLOSED,
             }, follow=True)
-        self.assertRedirects(response, url)
+        self.assertEquals(response.status_code, 200)
         # We shouldn't see the request body on the homepage any more when it is
         # filled
         self.assertNotContains(response, "You betcha")
@@ -236,7 +236,7 @@ class TestHomepage(TestCase):
             "{0}-response-body".format(self.req.pk): "You betcha",
             "{0}-response-action".format(self.req.pk): Response.FILLED,
             }, follow=True)
-        self.assertRedirects(response, url)
+        self.assertEquals(response.status_code, 200)
         # We shouldn't see the request body on the homepage any more when it is
         # filled
         self.assertNotContains(response, "You betcha")
