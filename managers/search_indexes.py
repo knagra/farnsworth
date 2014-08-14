@@ -41,7 +41,7 @@ class RequestIndex(indexes.SearchIndex, indexes.Indexable):
         return Request
 
     def index_queryset(self, using=None):
-        return self.get_model().objects.all()
+        return self.get_model().objects.filter(private=False)
 
 class ResponseIndex(indexes.SearchIndex, indexes.Indexable):
     ''' Index for Responses. '''
@@ -56,7 +56,7 @@ class ResponseIndex(indexes.SearchIndex, indexes.Indexable):
         return Response
 
     def index_queryset(self, using=None):
-        return self.get_model().objects.all()
+        return self.get_model().objects.filter(request__private=False)
 
 class AnnouncementIndex(indexes.SearchIndex, indexes.Indexable):
     ''' Index for Announcements. '''
