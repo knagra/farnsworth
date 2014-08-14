@@ -43,7 +43,7 @@
                 {% csrf_token %}
                 {{ vote_form|bootstrap }}
                 {% if upvote %}
-                <button type="submit" class="btn btn-xs" name="vote-{{ request.pk }}" title="Remove upvote">
+                <button type="submit" class="btn btn-xs btn-success" name="vote-{{ request.pk }}" title="Remove upvote">
                   <span class="glyphicon glyphicon-star"></span>
                 </button>
                 {% else %}
@@ -54,6 +54,8 @@
               </form>
               {% endif %}
               {% endif %}
+              <a href="{% url 'managers:view_request' request_pk=request.pk %}" class="btn btn-xs btn-info"
+                title="Permanent link to request"><span class="glyphicon glyphicon-link"></span></a>
               {% with vote_count_request=request %}
               {% include "vote_list.html" %}
               {% endwith %}
