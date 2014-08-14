@@ -60,9 +60,6 @@ class MessageForm(forms.ModelForm):
             notify.send(self.profile.user, verb="posted", action_object=message,
                         target=self.thread, recipient=follower)
 
-        self.thread.number_of_messages += 1
-        self.thread.save()
-
         return message
 
 class FollowThreadForm(forms.Form):
@@ -98,11 +95,8 @@ class DeleteMessageForm(forms.ModelForm):
         message = super(DeleteMessageForm, self).save()
         thread = message.thread
         message.delete()
-        thread.number_of_messages -= 1
-        if thread.number_of_messages == 0:
-            thread.delete()
-        else:
-            thread.save()
+
+        if thread.number_of_messages > 1:
             return thread
 
 class EditMessageForm(forms.ModelForm):

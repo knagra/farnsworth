@@ -101,17 +101,31 @@ class Message(models.Model):
     def is_message(self):
         return True
 
-def update_thread_change_date(sender, instance, created, **kwargs):
-    """
-    Update the change_date for the associated thread of an instance of message,
-    if that message was just created.
-    Parameters:
-        instance is an instance of a message that was just saved.
-    """
+def pre_save_thread(sender, instance, **kwargs):
+    thread = instance
+    thread.number_of_messages = thread.message_set.count()
+
+def post_save_thread(sender, instance, created, **kwargs):
+    thread = instance
+    if not created and thread.number_of_messages == 0:
+        thread.delete()
+
+def update_message(sender, instance, created, **kwargs):
+    message = instance
+    thread = message.thread
+
     if created:
-        instance.thread.change_date = instance.post_date
-        instance.thread.save()
+        thread.change_date = message.post_date
+
+    thread.save()
+
+def delete_message(sender, instance, **kwargs):
+    message = instance
+    message.thread.save()
 
 # Connect signals with their respective functions from above.
 # When a message is created, update that message's thread's change_date to the post_date of that message.
-models.signals.post_save.connect(update_thread_change_date, sender=Message)
+models.signals.post_save.connect(update_message, sender=Message)
+models.signals.post_delete.connect(delete_message, sender=Message)
+models.signals.pre_save.connect(pre_save_thread, sender=Thread)
+models.signals.post_save.connect(post_save_thread, sender=Thread)
