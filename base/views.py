@@ -568,6 +568,7 @@ def custom_modify_user_view(request, targetUsername):
     update_user_form = UpdateUserForm(
         request.POST if "update_user_profile" in request.POST else None,
         instance=targetUser,
+        profile = UserProfile.objects.get(user=request.user),
         prefix="user",
         )
     update_profile_form = FullProfileForm(

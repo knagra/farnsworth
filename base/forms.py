@@ -265,10 +265,14 @@ class UpdateUserForm(forms.ModelForm):
         fields = ("first_name", "last_name", "email", "is_active", "is_staff",
                   "is_superuser")
 
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile')
+        super(UpdateUserForm, self).__init__(*args, **kwargs)
+
     def clean_is_superuser(self):
         is_superuser = self.cleaned_data["is_superuser"]
         if User.objects.filter(is_superuser=True).count() <= 1 and \
-          not is_superuser:
+          self.instance == self.profile and not is_superuser:
             raise forms.ValidationError(MESSAGES['LAST_SUPERADMIN'])
         return is_superuser
 

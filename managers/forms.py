@@ -10,6 +10,7 @@ from django.conf import settings
 from notifications import notify
 
 from utils.funcs import convert_to_url, verify_url
+from base.models import UserProfile
 from managers.models import Manager, Announcement, RequestType, Request, Response
 
 class ManagerForm(forms.ModelForm):
@@ -17,6 +18,10 @@ class ManagerForm(forms.ModelForm):
     class Meta:
         model = Manager
         exclude = ("url_title",)
+
+    def __init__(self, *args, **kwargs):
+        super(ManagerForm, self).__init__(*args, **kwargs)
+        self.fields['incumbent'].queryset = UserProfile.objects.exclude(status=UserProfile.ALUMNUS)
 
     def clean_title(self):
         title = self.cleaned_data['title']
