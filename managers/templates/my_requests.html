@@ -4,24 +4,9 @@
 {% load thread_tags %}
 {% load request_tags %}
 {% load bootstrap %}
+
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/my_requests.css' %}" />
-<script>
-  function show_new_request_form(request_form_id) {
-  document.getElementById(request_form_id).style.display="inline";
-  }
-  function hide_new_request_form(request_form_id) {
-  document.getElementById(request_form_id).style.display="none";
-  }
-  function show_new_response_form(response_form_id, button_id) {
-  document.getElementById(response_form_id).style.display="inline";
-  document.getElementById(button_id).style.display="none";
-  }
-  function hide_new_response_form(response_form_id, button_id) {
-  document.getElementById(response_form_id).style.display="none";
-  document.getElementById(button_id).style.display="inline";
-  }
-</script>
 {% endblock %}
 
 {% block content %}
@@ -29,16 +14,15 @@
 <div class="text-center field_wrapper text-info">There are no active request types.</div>
 {% else %}
 {% for type_tuple in request_dict %}
-{% with x=forloop.counter|stringformat:"s" %}
 <div class="requests">
-  {% with request_form_id="request_form_"|add:x %}
     {% if type_tuple.0.enabled %}
-    <button class="btn btn-primary pull-right" onclick="show_new_request_form('{{ request_form_id }}')" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
+    <button class="btn btn-primary pull-right show_request_form"
+        type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
     {% endif %}
     <h1 class="w_title">My {{ type_tuple.0.name }} Requests</h1>
     <hr class="w_line" />
   {% if type_tuple.0.enabled %}
-  <form class="new_request_form" id="{{ request_form_id }}" method="post" action="">
+  <form class="new_request_form" method="post" action="">
     {% csrf_token %}
     {{ type_tuple.1.type_pk }}
     <div class="form-group">
@@ -48,14 +32,13 @@
     <div class="text-center">
     <div class="btn-group">
         <button type="submit" class="btn btn-success" name="submit_request"><span class="glyphicon glyphicon-inbox"></span> Submit Request</button>
-        <button type="button" class="btn btn-default" name="cancel_request_form" onclick="hide_new_request_form('{{ request_form_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+        <button type="button" class="btn btn-default hide_request_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
     </div> <!-- .btn-group -->
     </div> <!-- .text-center -->
   </form>
   {% else %}
   <div class="field_wrapper text-danger">This request type has been disabled.</div>
   {% endif %}
-  {% endwith %}
   <div class="requests_table">
     {% if type_tuple.4 %}
     <div class="field_wrapper text-info">{{ type_tuple.0.name.capitalize }} requests are made to:
@@ -111,11 +94,8 @@
       </div> <!-- response_row -->
       {% endfor %}
 
-        {% with y=forloop.counter|stringformat:"s" %}
-        {% with response_form_id="response_form_"|add:x|add:"_"|add:y %}
-        {% with button_id="button_"|add:x|add:"_"|add:y %}
         <div class="text-center">
-        <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
+        <button class="btn btn-primary show_response_form" type="button"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
         </div> <!-- text-center -->
         <form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
           {% csrf_token %}
@@ -130,13 +110,10 @@
           <div class="text-center">
           <div class="btn-group">
           <button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-send"></span> Post Message</button>
-          <button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+          <button type="button" class="btn btn-default hide_response_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
           </div> <!-- .btn-group -->
           </div> <!-- .text-center -->
         </form>
-        {% endwith %}
-        {% endwith %}
-        {% endwith %}
       </div> <!-- response_row -->
     </div> <!-- response_table -->
       </div> <!-- request_name -->
@@ -145,7 +122,27 @@
     {% endif %}
     </div>
 </div>
-{% endwith %}
 {% endfor %}
 {% endif %}
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+    $('.show_request_form').click(function() {
+        $(this).siblings('.new_request_form').slideToggle();
+    });
+    $('.hide_request_form').click(function() {
+        $(this).closest('.new_request_form').slideUp();
+    });
+    $('.show_response_form').click(function() {
+        $(this).hide();
+        $(this).parent().next().slideDown();
+    });
+    $('.hide_response_form').click(function() {
+        $(this).closest('.new_response_form').prev().children().first().fadeIn();
+        $(this).closest('.new_response_form').slideUp();
+    });
+});
+</script>
 {% endblock %}

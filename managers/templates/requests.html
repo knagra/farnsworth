@@ -15,16 +15,6 @@
 {% endblock %}
 
 {% block content %}
-<script>
- function show_new_response_form(response_form_id, button_id) {
-   document.getElementById(response_form_id).style.display="inline";
-   document.getElementById(button_id).style.display="none";
- }
- function hide_new_response_form(response_form_id, button_id) {
-   document.getElementById(response_form_id).style.display="none";
-   document.getElementById(button_id).style.display="inline";
- }
-</script>
 <div class="requests">
   <button type="button" class="btn btn-primary pull-right" id="show_request_form">
     <span class="glyphicon glyphicon-pencil"></span>
@@ -128,10 +118,7 @@
             {% endfor %}
 
             <div class="text-center">
-              {% with y=forloop.counter|stringformat:"s" %}
-              {% with response_form_id="response_form_"|add:y %}
-              {% with button_id="button_"|add:y %}
-              <button class="btn btn-primary" type="button" id="{{ button_id }}" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')">
+              <button class="btn btn-primary show_response_form" type="button" onclick="show_new_response_form('{{ response_form_id }}', '{{ button_id }}')">
                 <span class="glyphicon glyphicon-paperclip"></span> Add Response
               </button>
             </div> <!-- text-center -->
@@ -143,15 +130,12 @@
                   <button type="submit" class="btn btn-success" name="add_response-{{ request.pk }}">
                     <span class="glyphicon glyphicon-send"></span> Post Message
                   </button>
-                  <button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_response_form('{{ response_form_id }}', '{{ button_id }}')">
+                  <button type="button" class="btn btn-default hide_response_form">
                     <span class="glyphicon glyphicon-collapse-up"></span> Hide
                   </button>
                 </div> <!-- .btn-group -->
               </div> <!-- .text-center -->
             </form>
-            {% endwith %}
-            {% endwith %}
-            {% endwith %}
           </div> <!-- response_row -->
         </div> <!-- response_table -->
       </div> <!-- requests_row -->
@@ -170,7 +154,15 @@ $(document).ready(function() {
     });
     $('#hide_request_form').click(function() {
         $('#new_request_form').slideUp();
-    })
+    });
+    $('.show_response_form').click(function() {
+        $(this).hide();
+        $(this).parent().next().slideDown();
+    });
+    $('.hide_response_form').click(function() {
+        $(this).closest('.new_response_form').prev().children().first().fadeIn();
+        $(this).closest('.new_response_form').slideUp();
+    });
 });
 </script>
 {% endblock %}
