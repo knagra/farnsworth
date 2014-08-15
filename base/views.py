@@ -704,6 +704,7 @@ def recount_view(request):
         ))
     return HttpResponseRedirect(reverse('utilities'))
 
+@profile_required
 def archives_view(request):
     """ View of the archives page. """
     resident_count = UserProfile.objects.filter(status=UserProfile.RESIDENT).count()
