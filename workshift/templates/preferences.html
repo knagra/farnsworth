@@ -19,18 +19,6 @@
     .time_formset_row td div label {
         display: none;
     }
-    .rating_forms.row.ui-accordion-header {
-        border-radius: 0px;
-        background-image: none;
-        padding: 3px 0px 3px 0px;
-    }
-    .dl-horizontal.ui-accordion-content {
-        background-image: none;
-        background-color: #fff;
-    }
-    .rating_forms_row.row > .col-xs-6 {
-        padding: 0px 5px 0px 5px;
-    }
 </style>
 {% endblock %}
 
@@ -47,11 +35,11 @@
   <div id="accordion">
       {% for form in rating_forms %}
       <div class="group">
-      <div class="rating_forms_row row">
-        <h4 class="col-xs-6" style="margin-top: 8px; margin-bottom: 0;">{{ form.title }}</h4>
-        <div class="col-xs-6">{{ form.rating }}</div>
+      <div class="rating_forms_row row" style="border-radius: 0px; background-image: none; padding: 3px 0px 3px 0px;">
+        <h4 class="col-xs-6" style="margin-top: 8px; margin-bottom: 0; padding: 0px 5px 0px 5px;">{{ form.title }}</h4>
+        <div class="col-xs-6" style="padding: 0px 5px 0px 5px;">{{ form.rating }}</div>
       </div>
-      <dl class="dl-horizontal">
+      <dl class="dl-horizontal" style="background-image: none; background-color: #fff;">
           <dt>Description</dt>
           <dd>{{ form.instance.workshift_type.description|safe }}&nbsp;</dd>
           <dt>Tips</dt>
@@ -74,7 +62,6 @@
       {% for form in time_formset.forms %}
       {{ form.id }}
       <tr class="time_formset_row">
-      <td class="move_time_block hidden-xs"><span class="glyphicon glyphicon-resize-vertical"></span></td>
       <td>
       {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
           {{ form.preference|bootstrap }}
@@ -82,6 +69,7 @@
         <td>{{ form.day|bootstrap }}</td>
         <td>{{ form.start_time|bootstrap }}</td>
         <td>{{ form.end_time|bootstrap }}</td>
+        <td class="move_time_block hidden-xs" style="vertical-align: middle;"><span class="glyphicon glyphicon-resize-vertical"></span></td>
         <td style="vertical-align: middle;"></td>
       </tr>
       {% endfor %}
@@ -144,6 +132,7 @@
       });
       $('#time_blocks > tbody').sortable({
           axis: "y",
+          items: "tr:not(.add_row)",
           handle: "td.move_time_block"
       });
     });
