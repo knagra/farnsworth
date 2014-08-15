@@ -5,19 +5,12 @@
 {% load thread_tags %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/announcements.css' %}" />
-<script>
-    function show_new_announcement_form() {
-        document.getElementById("new_announcement_form").style.display="inline";
-    }
-    function hide_new_announcement_form() {
-        document.getElementById("new_announcement_form").style.display="none";
-    }
-</script>
 {% endblock %}
 
 {% block content %}
 {% if manager_positions %}
-<button class="btn btn-primary pull-right" onclick="show_new_announcement_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+<button class="btn btn-primary pull-right" id="show_announcement_form" type="button"><span
+    class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
 {% endif %}
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />
@@ -29,7 +22,7 @@
     <div class="text-center">
       <div class="btn-group">
         <button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
-        <button type="button" class="btn btn-default" name="cancel_announcement" onclick="hide_new_announcement_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+        <button type="button" class="btn btn-default" id="hide_announcement_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
       </div> <!-- .btn-group -->
     </div> <!-- .text-center -->
   </div> <!-- .form-group -->
@@ -73,4 +66,17 @@
 {{ announcements_dict|length }} announcement{{ announcements_dict|length|pluralize }} in total.
 </div>
 {% endif %}
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+    $('#show_announcement_form').click(function() {
+        $('#new_announcement_form').slideToggle();
+    });
+    $('#hide_announcement_form').click(function() {
+        $('#new_announcement_form').slideUp();
+    });
+});
+</script>
 {% endblock %}
