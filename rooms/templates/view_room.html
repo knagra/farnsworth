@@ -35,8 +35,8 @@
     <tr>
       <td><a href="{% url 'member_profile' targetUsername=prev.resident.get_user %}">{{ prev.resident.get_first }}</a></td>
       <td>{{ prev.resident.get_last }}</td>
-      <td>{{ prev.start_date|date:"m/d/Y, h:i A" }}</td>
-      <td>{{ prev.end_date|date:"m/d/Y, h:i A" }}</td>
+      <td>{{ prev.start_date|date:"m/d/Y" }}</td>
+      <td>{{ prev.end_date|date:"m/d/Y" }}</td>
     </tr>
     {% endfor %}
   </tbody>
