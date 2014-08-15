@@ -340,3 +340,23 @@ class Announcement(models.Model):
 
     def is_announcement(self):
         return True
+
+def update_request(sender, instance, **kwargs):
+    instance.number_of_responses = instance.response_set.count()
+
+def update_response(sender, instance, created, **kwargs):
+    response = instance
+    if created:
+        actions = {
+            Response.CLOSED: Request.CLOSED,
+            Response.REOPENED: Request.OPEN,
+            Response.FILLED: Request.FILLED,
+            Response.EXPIRED: Request.EXPIRED,
+            }
+        response.request.status = actions.get(
+            response.action, response.request.status,
+            )
+    response.request.save()
+
+models.signals.pre_save.connect(update_request, sender=Request)
+models.signals.post_save.connect(update_response, sender=Response)

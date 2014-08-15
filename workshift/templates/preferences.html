@@ -19,6 +19,18 @@
     .time_formset_row td div label {
         display: none;
     }
+    .rating_forms.row.ui-accordion-header {
+        border-radius: 0px;
+        background-image: none;
+        padding: 3px 0px 3px 0px;
+    }
+    .dl-horizontal.ui-accordion-content {
+        background-image: none;
+        background-color: #fff;
+    }
+    .rating_forms_row.row > .col-xs-6 {
+        padding: 0px 5px 0px 5px;
+    }
 </style>
 {% endblock %}
 
@@ -31,13 +43,13 @@
   {% if rating_forms %}
   <h3 class="w_subtitle text-center">Workshift Preferences</h3>
   <p class="text-info text-center">Click on a workshift type to show or hide its description.
-  <span class="hidden-xs">You can click and drag the rows.</span></p>
+  <span class="hidden-xs">You can click and drag the rows vertically.</span></p>
   <div id="accordion">
       {% for form in rating_forms %}
       <div class="group">
-      <div class="rating_forms_row row" style="padding: 3px 0px 3px 0px;">
-        <h4 class="col-xs-6" style="margin-top: 8px; margin-bottom: 0; padding: 0px 5px 0px 5px;">{{ form.title }}</h4>
-        <div class="col-xs-6" style="padding: 0px 5px 0px 5px;">{{ form.rating }}</div>
+      <div class="rating_forms_row row">
+        <h4 class="col-xs-6" style="margin-top: 8px; margin-bottom: 0;">{{ form.title }}</h4>
+        <div class="col-xs-6">{{ form.rating }}</div>
       </div>
       <dl class="dl-horizontal">
           <dt>Description</dt>
@@ -55,15 +67,18 @@
   <hr />
   {% endif %}
   <h3 class="w_subtitle text-center">Your Schedule</h3>
+  <p class="text-info field_wrapper hidden-xs">Click and drag 
+    <span class="glyphicon glyphicon-resize-vertical"></span> to move rows vertically.</p>
   <table id="time_blocks" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
     <tbody>
       {% for form in time_formset.forms %}
       {{ form.id }}
       <tr class="time_formset_row">
-    <td>
+      <td class="move_time_block hidden-xs"><span class="glyphicon glyphicon-resize-vertical"></span></td>
+      <td>
       {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
           {{ form.preference|bootstrap }}
-    </td>
+      </td>
         <td>{{ form.day|bootstrap }}</td>
         <td>{{ form.start_time|bootstrap }}</td>
         <td>{{ form.end_time|bootstrap }}</td>
@@ -126,6 +141,10 @@
               ui.item.children("div.rating_forms_row").triggerHandler("focusout");
               $(this).accordion("refresh");
           }
+      });
+      $('#time_blocks > tbody').sortable({
+          axis: "y",
+          handle: "td.move_time_block"
       });
     });
   });
