@@ -33,7 +33,7 @@
     {% if forloop.counter > 1 %}
     <hr class="main_divider"/>
     {% endif %}
-    <div class="event_row hover_row{% if event_tuple.0.cancelled %} bg-danger" title="Cancelled{% elif event_tuple.1 %} bg-success" title="Happening Now{% elif event_tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
+    <div class="event_row hover_row{% if event.cancelled %} bg-danger" title="Cancelled{% elif ongoing %} bg-success" title="Happening Now{% elif event.as_manager %} bg-info" title="Official House Event{% endif %}">
       <div class="event_owner">
         {% if event.as_manager %}
         <a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=event.as_manager.url_title %}">
