@@ -35,8 +35,8 @@
     <tr>
       <td><a href="{% url 'member_profile' targetUsername=prev.resident.get_user %}">{{ prev.resident.get_first }}</a></td>
       <td>{{ prev.resident.get_last }}</td>
-      <td>{{ prev.start_date|date:"m/d/Y, h:i A" }}</td>
-      <td>{{ prev.end_date|date:"m/d/Y, h:i A" }}</td>
+      <td>{{ prev.start_date|date:"m/d/Y" }}</td>
+      <td>{{ prev.end_date|date:"m/d/Y" }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -56,10 +56,10 @@ $(document).ready(function() {
     $('table').tablesorter({
         headers: {
             2: {
-                sorter: 'farnsworth_datetime',
+                sorter: 'farnsworth_date',
             },
             3: {
-                sorter: 'farnsworth_datetime',
+                sorter: 'farnsworth_date',
             }
         },
         sortList: [[2,0], [3,0]],

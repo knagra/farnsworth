@@ -10,6 +10,17 @@ $.tablesorter.addParser({
     },
     type: 'numeric'
 });
+<!-- Custom date parser -->
+$.tablesorter.addParser({
+    id: 'farnsworth_date',
+    is: function(s) {
+        return /d{1,2}\/d{1,2}\/d{1,4}/.test(s);
+    },
+    format: function(s) {
+        return Date.parse(s);
+    },
+    type: 'numeric'
+});
 
 <!-- Add highlight.js to pre blocks -->
     $(document).ready(function(){
