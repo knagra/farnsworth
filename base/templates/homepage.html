@@ -220,8 +220,8 @@
         <thead>
           <tr>
             <th>Subject</th>
-            <th>Progenitor</th>
-            <th>Replies</th>
+            <th class="hidden-xs">Progenitor</th>
+            <th class="hidden-xs">Replies</th>
             <th>Last Message</th>
             <th>Last Poster</th>
           </tr>
@@ -234,12 +234,12 @@
                 {{ thread.subject|truncatechars:45 }}
               </a>
             </td>
-            <td>
+            <td class="hidden-xs">
               <a class="page_link" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">
                 {{ thread.owner.user.get_full_name }}
               </a>
             </td>
-            <td>{{ thread.number_of_messages|add:"-1" }}</td>
+            <td class="hidden-xs">{{ thread.number_of_messages|add:"-1" }}</td>
             <td>{{ thread.change_date|date:"m/d/Y, h:i A" }}</td>
             <td><a title="page_link" href="{% url 'member_profile' targetUsername=last_message.owner.user.username %}">{{ last_message.owner.user.get_full_name }}</a></td>
           </tr>
