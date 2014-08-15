@@ -86,6 +86,9 @@ class RequestForm(forms.ModelForm):
     class Meta:
         model = Request
         fields = ("body", "private")
+        labels = {
+            "body": "New Request",
+            }
         help_texts = {
             "body": "",
             }

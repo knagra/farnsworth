@@ -13,114 +13,122 @@
 {% if not request_dict %}
 <div class="text-center field_wrapper text-info">There are no active request types.</div>
 {% else %}
-{% for type_tuple in request_dict %}
+{% for request_type, request_form, type_manager, requests_list, relevant_managers in request_dict %}
 <div class="requests">
-    {% if type_tuple.0.enabled %}
-    <button class="btn btn-primary pull-right show_request_form"
-        type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Request</span></button>
-    {% endif %}
-    <h1 class="w_title">My {{ type_tuple.0.name }} Requests</h1>
-    <hr class="w_line" />
-  {% if type_tuple.0.enabled %}
-  <form class="new_request_form" method="post" action="">
+  {% if request_type.enabled %}
+  <button class="btn btn-primary pull-right show_request_form"
+          type="button">
+	<span class="glyphicon glyphicon-pencil"></span>
+	<span class="hidden-xs"> New Request</span>
+  </button>
+  {% endif %}
+  <h1 class="w_title">My {{ request_type.name }} Requests</h1>
+  <hr class="w_line" />
+  {% if request_type.enabled %}
+  <form class="new_request_form" method="post">
     {% csrf_token %}
-    {{ type_tuple.1.type_pk }}
     <div class="form-group">
-      <label for="id_body">New {{ type_tuple.0.name }} Request</label>
-      <textarea name="body"></textarea>
+	  {{ request_form|bootstrap }}
     </div>
     <div class="text-center">
-    <div class="btn-group">
-        <button type="submit" class="btn btn-success" name="submit_request"><span class="glyphicon glyphicon-inbox"></span> Submit Request</button>
-        <button type="button" class="btn btn-default hide_request_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-    </div> <!-- .btn-group -->
+      <div class="btn-group">
+        <button type="submit" class="btn btn-success" name="submit_request">
+		  <span class="glyphicon glyphicon-inbox"></span> Submit Request
+		</button>
+        <button type="button" class="btn btn-default hide_request_form">
+		  <span class="glyphicon glyphicon-collapse-up"></span> Hide
+		</button>
+      </div> <!-- .btn-group -->
     </div> <!-- .text-center -->
   </form>
   {% else %}
   <div class="field_wrapper text-danger">This request type has been disabled.</div>
   {% endif %}
   <div class="requests_table">
-    {% if type_tuple.4 %}
-    <div class="field_wrapper text-info">{{ type_tuple.0.name.capitalize }} requests are made to:
-        {% for pos in type_tuple.4 %}
-            {% if forloop.counter > 1 %}, {% endif %}
-            <a title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
-            {% if pos.incumbent %}
-                (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
-            {% else %}
-                (<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
-            {% endif %}
-        {% endfor %}
+    {% if relevant_managers %}
+    <div class="field_wrapper text-info">{{ request_type.name.capitalize }} requests are made to:
+      {% for pos in relevant_managers %}
+      {% if forloop.counter > 1 %}, {% endif %}
+      <a title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+      {% if pos.incumbent %}
+      (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
+      {% else %}
+      (<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
+      {% endif %}
+      {% endfor %}
     </div>
     {% else %}
-    <div class="field_wrapper text-danger">No active managers are currently responsible for addressing {{ type_tuple.0.name.lower }} requests.</div>
+    <div class="field_wrapper text-danger">No active managers are currently responsible for addressing {{ request_type.name.lower }} requests.</div>
     {% endif %}
-    {% if not type_tuple.3 %}
-    <div class="field_wrapper text-info">You have no {{ type_tuple.0.name.lower }} requests.</div>
+    {% if not requests_list %}
+    <div class="field_wrapper text-info">You have no {{ request_type.name.lower }} requests.</div>
     {% else %}
     <div class="bordered_div">
-    {% for request_tuple in type_tuple.3 %}
-    {% if forloop.counter > 1 %}
-    <hr class="main_divider"/>
-    {% endif %}
-
-    <div class="requests_row">
-      <div class="request_name bg-{% if request_tuple.0.filled %}success{% elif request_tuple.0.closed %}danger{% elif request_tuple.0.expired %}expired{% else %}warning{% endif %}" title="{{ request_tuple.0.get_status_display }}">
-    <div class="request_owner">
-      <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=request_tuple.0.owner.user.username %}" >{{ request_tuple.0.owner|display_user:user }}</a>
-      ({{ request_tuple.0.post_date }}):
-    </div> <!-- request_owner -->
-    <div class="request_body">{{ request_tuple.0.body|safe }}</div>
-      </div> <!-- request_name -->
-
-      <div class="request_responses">
-    <div class="response_table">
-      {% for response in request_tuple.1 %}
+      {% for request, responses_list, response_form, upvote, vote_form in requests_list %}
       {% if forloop.counter > 1 %}
-      <hr class="main_divider" />
+      <hr class="main_divider"/>
       {% endif %}
-      <div class="response_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
-        <div class="response_owner">
-          <a href="{% url 'managers:view_request' request_pk=request.pk %}" class="btn btn-xs btn-info"
-            title="Permanent link to this request"><span class="glyphicon glyphicon-link"></span></a>
-          <a class="page_link" title="View Profile"
-            href="{% url 'member_profile' targetUsername=response.owner.user.username %}">{{ response.owner|display_user:user }}</a>
-          ({{ response.post_date }}):
-        </div> <!-- response_owner -->
-        <div class="response_body">
-          {{ response.body|safe }}
-          {{ response.display_action|safe }}
-        </div> <!-- response_body -->
-      </div> <!-- response_row -->
-      {% endfor %}
 
-        <div class="text-center">
-        <button class="btn btn-primary show_response_form" type="button"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
-        </div> <!-- text-center -->
-        <form class="new_response_form add_response" id="{{ response_form_id }}" method="post" action="">
-          {% csrf_token %}
-          {{ request_tuple.2.request_pk }}
-          <div class="form-group">
-            <label for="id_body" class="control-label">Add Response</label>
-            <textarea class="response" name="body"></textarea>
-          </div> <!-- form-group -->
-          {% if type_tuple.2 %}
-            {{ request_tuple.2.action|bootstrap }}
-          {% endif %}
-          <div class="text-center">
-          <div class="btn-group">
-          <button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-send"></span> Post Message</button>
-          <button type="button" class="btn btn-default hide_response_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-          </div> <!-- .btn-group -->
-          </div> <!-- .text-center -->
-        </form>
-      </div> <!-- response_row -->
-    </div> <!-- response_table -->
+      <div class="requests_row">
+		<div class="request_name bg-{% if request.filled %}success{% elif request.closed %}danger{% elif request.expired %}expired{% else %}warning{% endif %}" title="{{ request.get_status_display }}">
+		  <div class="request_owner">
+			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=request.owner.user.username %}" >{{ request.owner|display_user:user }}</a>
+			({{ request.post_date }}):
+		  </div> <!-- request_owner -->
+		  <div class="request_body">{{ request.body|safe }}</div>
+		</div> <!-- request_name -->
+
+		<div class="request_responses">
+		  <div class="response_table">
+			{% for response in responses_list %}
+			{% if forloop.counter > 1 %}
+			<hr class="main_divider" />
+			{% endif %}
+			<div class="response_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
+			  <div class="response_owner">
+				<a href="{% url 'managers:view_request' request_pk=request.pk %}" class="btn btn-xs btn-info"
+				   title="Permanent link to this request">
+				  <span class="glyphicon glyphicon-link"></span>
+				</a>
+				<a class="page_link" title="View Profile"
+				   href="{% url 'member_profile' targetUsername=response.owner.user.username %}">{{ response.owner|display_user:user }}</a>
+				({{ response.post_date }}):
+			  </div> <!-- response_owner -->
+			  <div class="response_body">
+				{{ response.body|safe }}
+				{{ response.display_action|safe }}
+			  </div> <!-- response_body -->
+			</div> <!-- response_row -->
+			{% endfor %}
+
+			<div class="text-center">
+			  <button class="btn btn-primary show_response_form" type="button">
+				<span class="glyphicon glyphicon-paperclip"></span> Add Response
+			  </button>
+			</div> <!-- text-center -->
+			<form class="new_response_form add_response" id="{{ response_form_id }}" method="post">
+			  {% csrf_token %}
+			  <div class="form-group">
+				{{ response_form|bootstrap }}
+			  </div> <!-- form-group -->
+			  <div class="text-center">
+				<div class="btn-group">
+				  <button type="submit" class="btn btn-success" name="add_response">
+					<span class="glyphicon glyphicon-send"></span> Post Message
+				  </button>
+				  <button type="button" class="btn btn-default hide_response_form">
+					<span class="glyphicon glyphicon-collapse-up"></span> Hide
+				  </button>
+				</div> <!-- .btn-group -->
+			  </div> <!-- .text-center -->
+			</form>
+		  </div> <!-- response_row -->
+		</div> <!-- response_table -->
       </div> <!-- request_name -->
-    {% endfor %}
+      {% endfor %}
     </div>
     {% endif %}
-    </div>
+  </div>
 </div>
 {% endfor %}
 {% endif %}
