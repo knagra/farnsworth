@@ -7,6 +7,10 @@
     .stats_list {
         list-style: none;
     }
+    .stats_list ul {
+        list-style: none;
+        padding-left: 20px;
+    }
     p {
         margin-left: 5px;
         margin-right: 5px;
@@ -26,13 +30,21 @@
 <p>Welcome to the archives! You can find really old (and recent) threads, requests, announcements, and events here.</p>
 <p>If you're curious, here are some basic statistics on the database:</p>
     <ul class="stats_list">
-        <li>{{ resident_count }} resident{{ resident_count|pluralize }}</li>
-        <li>{{ boarder_count }} boarder{{ boarder_count|pluralize }}</li>
-        <li>{{ alumni_count }} alumn{{ alumni_count|pluralize:"a/alumnus,i" }}</li>
-        <li>{{ member_count }} total member{{ member_count|pluralize }}</li>
+        <li>{{ member_count }} total member{{ member_count|pluralize }}
+            <ul>
+            <li>{{ resident_count }} resident{{ resident_count|pluralize }}</li>
+            <li>{{ boarder_count }} boarder{{ boarder_count|pluralize }}</li>
+            <li>{{ alumni_count }} alumn{{ alumni_count|pluralize:"a/alumnus,i" }}</li>
+            </ul></li>
         <li>{{ thread_count }} thread{{ thread_count|pluralize }}</li>
         <li>{{ message_count }} message{{ message_count|pluralize }}</li>
-        <li>{{ request_count }} request{{ request_count|pluralize }}</li>
+        <li>{{ request_count }} total request{{ request_count|pluralize }}
+            <ul>
+            <li>{{ open_count }} open</li>
+            <li>{{ filled_count }} filled</li>
+            <li>{{ closed_count }} closed</li>
+            <li>{{ expired_count }} expired</li>
+            </ul></li>
         <li>{{ response_count }} response{{ response_count|pluralize }}</li>
         <li>{{ announcement_count }} announcement{{ announcement_count|pluralize }}</li>
         <li>{{ event_count }} event{{ event_count|pluralize }}</li>
