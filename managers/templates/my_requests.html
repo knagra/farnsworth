@@ -7,6 +7,11 @@
 
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/my_requests.css' %}" />
+<style>
+ .form-group label[for*="body"] {
+   display: none;
+ }
+</style>
 {% endblock %}
 
 {% block content %}
