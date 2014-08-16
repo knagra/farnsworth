@@ -48,32 +48,78 @@ def edit(request, slug, binder, *args, **kwargs):
         if not hookset.can_edit_page(page, request.user):
             return HttpResponseForbidden()
     except Page.DoesNotExist:
-        page = Page(wiki=wiki, slug=slug)
-        rev = None
-        if not hookset.can_edit_page(page, request.user):
-            raise Http404()
-    if request.method == "POST":
-        form = RevisionForm(request.POST, revision=rev)
-        if form.is_valid():
-            if page.pk is None:
-                page.save()
-            revision = form.save(commit=False)
-            revision.page = page
-            revision.created_by = request.user
-            revision.created_ip = request.META.get(settings.WIKI_IP_ADDRESS_META_FIELD, "REMOTE_ADDR")
-            revision.parse()
-            revision.save()
-            return HttpResponseRedirect(binder.page_url(wiki, slug))
-    else:
-        form = RevisionForm(revision=rev)
+        return HttpResponseRedirect(reverse("wiki_add") + "?slug=" + slug)
+
+    form = RevisionForm(
+        request.POST if "edit" in request.POST else None,
+        revision=rev,
+    )
+    if form.is_valid():
+        revision = form.save(commit=False)
+        revision.page = page
+        revision.created_by = request.user
+        revision.created_ip = request.META.get(settings.WIKI_IP_ADDRESS_META_FIELD, "REMOTE_ADDR")
+        revision.parse()
+        revision.save()
+        return HttpResponseRedirect(binder.page_url(wiki, slug))
 
     form.fields["content"].help_text = ""
 
+    can_delete = hookset.can_delete_page(page, request.user) and page.pk
+
+    if can_delete and "delete" in request.POST:
+        page.delete()
+        return HttpResponseRedirect(reverse("wiki_all"))
+
+    page_name = "Edit {0}".format(page.slug)
+
     return render_to_response("wiki/edit.html", {
+        "page_name": page_name,
         "form": form,
         "page": page,
-        "revision": rev,
-        "can_delete": hookset.can_delete_page(page, request.user)
+        "can_delete": can_delete,
+    }, context_instance=RequestContext(request))
+
+@profile_required
+def add_page_view(request, binder, *args, **kwargs):
+    wiki = binder.lookup(*args, **kwargs)
+    slug = request.GET.get("slug", "Page Name")
+
+    try:
+        if wiki:
+            page = wiki.pages.get(slug=slug)
+        else:
+            page = Page.objects.get(slug=slug)
+    except Page.DoesNotExist:
+        pass
+    else:
+        return HttpResponseRedirect(page.get_edit_url())
+
+    if not hookset.can_create_page(wiki, request.user):
+        raise Http404()
+
+    form = RevisionForm(
+        request.POST if "edit" in request.POST else None,
+        revision=None,
+    )
+    if form.is_valid():
+        page = Page.objects.create(wiki=wiki, slug=slug)
+        revision = form.save(commit=False)
+        revision.page = page
+        revision.created_by = request.user
+        revision.created_ip = request.META.get(settings.WIKI_IP_ADDRESS_META_FIELD, "REMOTE_ADDR")
+        revision.parse()
+        revision.save()
+        return HttpResponseRedirect(binder.page_url(wiki, slug))
+
+    form.fields["content"].help_text = ""
+
+    page_name = "Add {0}".format(page.slug)
+
+    return render_to_response("wiki/edit.html", {
+        "page_name": page_name,
+        "form": form,
+        "can_delete": False,
     }, context_instance=RequestContext(request))
 
 @profile_required
@@ -103,8 +149,17 @@ def all_pages_view(request, binder, *args, **kwargs):
         pages = wiki.pages.all()
     else:
         pages = Page.objects.all()
+
+    pages = [
+        page
+        for page in pages
+        if hookset.can_view_page(page, request.user)
+    ]
+
     page_name = "All Pages"
+    can_add = hookset.can_create_page(wiki, request.user)
     return render_to_response("wiki/all.html", {
         "page_name": page_name,
         "pages": pages,
+        "can_add": can_add,
     }, context_instance=RequestContext(request))

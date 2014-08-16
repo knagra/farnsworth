@@ -16,5 +16,6 @@ for binder in settings.WIKI_BINDERS:
     urlpatterns += patterns(
         "farnswiki.views",
         url(binder.root + r"/$", "all_pages_view", {"binder": binder}, name="wiki_all"),
+        url(binder.root + r"/add/$", "add_page_view", {"binder": binder}, name="wiki_add"),
         url(binder.root + r"/page/(?P<slug>[^/]+)/history/$", "history_view", {"binder": binder}, name="wiki_history"),
     )

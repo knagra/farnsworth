@@ -3,13 +3,12 @@
 {% load bootstrap %}
 
 {% block content %}
-<h1>
-  {% if page.pk %}
-  Edit {{ page.slug }}
-  {% else %}
-  Add {{ page.slug }}
-  {% endif %}
-</h1>
+<div class="pull-right">
+  <a href="{% if page %}{{ page.get_absolute_url }}{% else %}{% url 'wiki_all' %}{% endif %}" class="btn btn-default">
+    <span class="glyphicon glyphicon-arrow-left"></span> Back
+  </a>
+</div>
+<h1>{{ page_name }}</h1>
 
 <hr />
 
@@ -17,10 +16,14 @@
   {% csrf_token %}
   {{ form|bootstrap }}
   <div class="text-center">
-    <button class="btn btn-primary">
+    <button class="btn btn-primary" name="edit">
       <span class="glyphicon glyphicon-floppy-disk"></span> Save
     </button>
-    <a href="{{ page.get_absolute_url }}" class="btn btn-default">Cancel</a>
+    {% if can_delete %}
+    <button class="btn btn-danger" name="delete">
+      <span class="glyphicon glyphicon-fire"></span> Delete
+    </button>
+    {% endif %}
   </div>
 </form>
 {% endblock %}

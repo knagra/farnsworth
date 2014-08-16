@@ -12,7 +12,7 @@ class ProjectWikiHookset(WikiDefaultHookset):
         return self._perm_check(page.wiki, user)
 
     def can_delete_page(self, page, user):
-        return self._perm_check(page.wiki, user)
+        return self._perm_check(page.wiki, user) and user.is_staff or user.is_superuser
 
     def can_view_page(self, page, user):
         return True
