@@ -81,6 +81,7 @@ def add_context(request):
         'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
         'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
         'PRESIDENT': PRESIDENT,
+        "WIKI_ENABLED": "farnswiki" in settings.INSTALLED_APPS,
         }
 
 def landing_view(request):
@@ -654,13 +655,6 @@ def utilities_view(request):
         'page_name': "Admin - Site Utilities",
         }, context_instance=RequestContext(request))
 
-@profile_required
-def bylaws_view(request):
-	""" View for bylaws. """
-	return render_to_response('bylaws.html', {
-			'page_name': "House Bylaws",
-			}, context_instance=RequestContext(request))
-
 def reset_pw_view(request):
     """ View to send an e-mail to reset password. """
     return password_reset(request,
@@ -711,6 +705,7 @@ def recount_view(request):
         ))
     return HttpResponseRedirect(reverse('utilities'))
 
+@profile_required
 def archives_view(request):
     """ View of the archives page. """
     resident_count = UserProfile.objects.filter(status=UserProfile.RESIDENT).count()

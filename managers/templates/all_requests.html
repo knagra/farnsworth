@@ -9,12 +9,16 @@
 <div class="field_wrapper text-info">No enabled request types.</div>
 {% else %}
 <div class="text-center">
-<h4>Please Choose a Request Type</h3>
+  <h4>Please Choose a Request Type</h3>
 </div> <!-- .text-center -->
 <ul class="list-group" style="margin-left: 10px; margin-right: 10px;">
-    {% for type_tuple in types_dict %}
-    <a href="{% url 'managers:list_all_requests' requestType=type_tuple.2 %}" class="list-group-item{% if not type_tuple.3 %} list-group-item-danger" title="{{ type_tuple.0 }} Requests are Disabled{% endif %}"><span title="{{ type_tuple.1 }} {{ type_tuple.0 }} Request{{ type_tuple.1|pluralize }}" class="badge">{{ type_tuple.1 }}</span><span class="glyphicon glyphicon-{% if type_tuple.4 %}{{ type_tuple.4 }}{% else %}inbox{% endif %}"></span> {{ type_tuple.0 }}</a>
-    {% endfor %}
+  {% for title, number_of_requests, url_name, enabled, glyphicon in types_dict %}
+  <a href="{% url 'managers:list_all_requests' requestType=url_name %}" class="list-group-item{% if not enabled %} list-group-item-danger" title="{{ title }} Requests are Disabled{% endif %}">
+	<span title="{{ number_of_requests }} {{ title }} Request{{ number_of_requests|pluralize }}" class="badge">{{ number_of_requests }}</span>
+	<span class="glyphicon glyphicon-{% if glyphicon %}{{ glyphicon }}{% else %}inbox{% endif %}"></span>
+	{{ title }}
+  </a>
+  {% endfor %}
 </ul>
 {% endif %}
 {% endblock %}

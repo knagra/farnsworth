@@ -287,12 +287,14 @@ def my_requests_view(request):
                     initial={'action': Response.NONE},
                     profile=userProfile,
                     request=req,
+                    prefix="response-{0}".format(req.pk),
                     )
             else:
                 response_form = ResponseForm(
                     request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
                     profile=userProfile,
                     request=req,
+                    prefix="response-{0}".format(req.pk),
                     )
 
             upvote = userProfile in req.upvotes.all()
@@ -301,6 +303,7 @@ def my_requests_view(request):
                 request.POST or None,
                 profile=userProfile,
                 request=req,
+                prefix="vote-{0}",
                 )
 
             if response_form.is_valid():
@@ -315,6 +318,7 @@ def my_requests_view(request):
             request.POST if "submit_request" in request.POST else None,
             profile=userProfile,
             request_type=request_type,
+            prefix="request-{0}".format(request_type.pk),
             )
         if request_form.is_valid():
             request_form.save()

@@ -10,3 +10,4 @@ git+git://github.com/naderm/django-phonenumber-field.git@develop
 bcrypt
 pytz
 git+git://github.com/naderm/django-notifications@master
+pinax-wiki
