@@ -227,6 +227,8 @@ INSTALLED_APPS = (
     'rooms',
     "django_cron",
     # 'elections',
+    "wiki",
+    "farnswiki",
     "notifications",
     'bootstrapform',
     'haystack',
@@ -240,6 +242,9 @@ CRON_CLASSES = [
     "workshift.cron.CollectBlownCronJob",
     "workshift.cron.UpdateWeeklyStandings",
     ]
+
+WIKI_HOOKSET = "farnswiki.hooks.ProjectWikiHookset"
+WIKI_PARSE = "farnswiki.hooks.parse"
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
