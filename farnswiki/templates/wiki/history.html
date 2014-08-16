@@ -18,6 +18,7 @@
       <th>Revision</th>
       <th>Editor</th>
       <th>Message</th>
+      <th>Time</th>
     </tr>
   </thead>
   <tbody>
@@ -35,6 +36,9 @@
       </td>
       <td>
 	{{ rev.message }}
+      </td>
+      <td>
+	{{ rev.created_at }}
       </td>
     </tr>
     {% endfor %}
