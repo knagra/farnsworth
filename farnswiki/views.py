@@ -58,7 +58,8 @@ def edit(request, slug, binder, *args, **kwargs):
         revision = form.save(commit=False)
         revision.page = page
         revision.created_by = request.user
-        revision.created_ip = request.META.get(settings.WIKI_IP_ADDRESS_META_FIELD, "REMOTE_ADDR")
+        revision.created_ip = request.META.get(settings.WIKI_IP_ADDRESS_META_FIELD,
+                                               request.META.get("REMOTE_ADDR"))
         revision.parse()
         revision.save()
         return HttpResponseRedirect(binder.page_url(wiki, slug))
@@ -109,7 +110,8 @@ def add_page_view(request, binder, *args, **kwargs):
         revision = form.save(commit=False)
         revision.page = page
         revision.created_by = request.user
-        revision.created_ip = request.META.get(settings.WIKI_IP_ADDRESS_META_FIELD, "REMOTE_ADDR")
+        revision.created_ip = request.META.get(settings.WIKI_IP_ADDRESS_META_FIELD,
+                                               request.META.get("REMOTE_ADDR"))
         revision.parse()
         revision.save()
         return HttpResponseRedirect(binder.page_url(wiki, slug))
