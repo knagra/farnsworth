@@ -1,5 +1,10 @@
 {% load highlight %}
+{% load truncatehtml %}
 <h3 class="result_title">
   <a href="{{ result.object.get_absolute_url }}">{{ result.object.slug }}</a>
   <small>Wiki Page</small>
 </h3>
+<dl class="result_description dl-horizontal">
+  <dt>Content</dt>
+  <dd>{{ result.object.revisions.latest.content|truncatehtml:300|safe }}</dd>
+</dl>
