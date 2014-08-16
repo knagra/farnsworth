@@ -83,7 +83,9 @@ def edit(request, slug, binder, *args, **kwargs):
 @profile_required
 def add_page_view(request, binder, *args, **kwargs):
     wiki = binder.lookup(*args, **kwargs)
-    slug = request.GET.get("slug", "Page Name")
+    slug = request.GET.get("slug", "")
+    if not slug:
+        slug = "Page Name"
 
     try:
         if wiki:
