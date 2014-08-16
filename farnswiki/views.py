@@ -114,7 +114,7 @@ def add_page_view(request, binder, *args, **kwargs):
 
     form.fields["content"].help_text = ""
 
-    page_name = "Add {0}".format(page.slug)
+    page_name = "Add {0}".format(slug)
 
     return render_to_response("wiki/edit.html", {
         "page_name": page_name,
