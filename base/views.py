@@ -81,6 +81,7 @@ def add_context(request):
         'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
         'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
         'PRESIDENT': PRESIDENT,
+        "WIKI_ENABLED": "farnswiki" in settings.INSTALLED_APPS,
         }
 
 def landing_view(request):

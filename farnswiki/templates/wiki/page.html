@@ -2,8 +2,12 @@
 
 {% block content %}
 <div class="pull-right">
-  <a class="btn btn-default" href="{% url 'history' slug=revision.page.slug %}">
-    <span class="glyphicon glyphicon-th-list"></span>
+  <a class="btn btn-default" href="{% url 'wiki_all' %}">
+    <span class="glyphicon glyphicon-list"></span>
+    <span class="hidden-xs">All Pages</span>
+  </a>
+  <a class="btn btn-default" href="{% url 'wiki_history' slug=revision.page.slug %}">
+    <span class="glyphicon glyphicon-hdd"></span>
     <span class="hidden-xs">History</span>
   </a>
   {% if can_edit %}
