@@ -1,0 +1,9 @@
+{% load highlight %}
+<h3 class="result_title">
+  <a href="{{ result.object.page.get_absolute_url }}?rev={{ result.object.pk }}">{{ result.object.page.slug }}</a>
+  <small>Wiki Revision</small>
+</h3>
+<dl class="result_description dl-horizontal">
+  <dt>Content</dt>
+  <dd>{{ result.object.content|truncatechars:255 }}</dd>
+</dl>

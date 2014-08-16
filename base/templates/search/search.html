@@ -106,6 +106,10 @@
         {% include "search/regular_workshift.html" %}
     {% elif result.object.is_workshift_instance %}
         {% include "search/workshift_instance.html" %}
+    {% elif result.object.slug %}
+        {% include "search/page.html" %}
+    {% elif result.object.page.slug %}
+        {% include "search/revision.html" %}
     {% endif %}
     </div> <!-- .hover_row -->
 {% endfor %}
