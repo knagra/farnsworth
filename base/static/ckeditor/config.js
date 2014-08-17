@@ -22,9 +22,8 @@ CKEDITOR.editorConfig = function( config ) {
     
     /* Define the toolbar, item by item */
     config.toolbar = [
-        { name: 'editing', items: ['Bold', 'Italic', 'Underline','Strike', 'Subscript', 'Superscript', '-', 'Find', 'Replace', 'Scayt'] },
-        { name: 'document', items: ['Cut', 'Copy', 'Paste', 'Preview', 'Print', '-', 'Undo', 'Redo'] },
-        { name: 'links' , items: ['Link', 'Unlink', 'Anchor'] },
+        { name: 'editing', items: ['Bold', 'Italic', 'Underline','Strike', 'Subscript', 'Superscript', '-', 'Link', 'Unlink', 'Anchor'] },
+        { name: 'document', items: ['Cut', 'Copy', 'Paste', '-', 'Find', 'Replace', 'Scayt', '-', 'Undo', 'Redo'] },
         '/',
         { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv'] },
         { name: 'others', items: ['Image', 'HorizontalRule', 'Smiley', 'oembed', 'Symbol', '-', 'pbckcode', 'Mathjax', 'leaflet', 'Footnotes'] },
