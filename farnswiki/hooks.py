@@ -1,4 +1,3 @@
-
 from wiki.hooks import WikiDefaultHookset
 
 class ProjectWikiHookset(WikiDefaultHookset):
