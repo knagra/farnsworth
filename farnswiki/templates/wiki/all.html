@@ -7,7 +7,7 @@
     <div class="input-group pull-right" style="width: 400px">
       <input type="search" class="form-control" name="slug" placeholder="Page Name">
       <span class="input-group-btn">
-        <button type="submit" class="btn btn-info">
+        <button title="Edit/Add Page" type="submit" class="btn btn-info">
           <span class="glyphicon glyphicon-plus"></span>
         </button>
       </span>
@@ -36,12 +36,12 @@
     {% for page in pages %}
     <tr>
       <td>
-	<a href="{{ page.get_absolute_url }}">
-	  {{ page.slug }}
-	</a>
+    <a href="{{ page.get_absolute_url }}">
+      {{ page.slug }}
+    </a>
       </td>
       <td>
-	{{ page.revisions.latest.created_at }}
+    {{ page.revisions.latest.created_at|date:"m/d/Y, h:i A" }}
       </td>
     </tr>
     {% endfor %}
@@ -58,6 +58,11 @@
 <script type="text/javascript">
   $(document).ready(function() {
     $('.table').tablesorter({
+        headers: {
+            1: {
+                sorter: 'farnsworth_datetime',
+            }
+        },
         sortList: [[1, 1]],
         widgets: ["resizable", "filter"],
         widgetOptions: {

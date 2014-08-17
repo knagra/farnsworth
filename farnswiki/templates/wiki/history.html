@@ -25,20 +25,20 @@
     {% for rev in page.revisions.all %}
     <tr>
       <td>
-	<a href="{{ page.get_absolute_url }}?rev={{ rev.pk }}">
-	  {{ rev.pk }}
-	</a>
+    <a href="{{ page.get_absolute_url }}?rev={{ rev.pk }}">
+      {{ rev.pk }}
+    </a>
       </td>
       <td>
-	<a href="{% url 'member_profile' targetUsername=rev.created_by.username %}">
-	  {{ rev.created_by.get_full_name }}
-	</a>
+    <a href="{% url 'member_profile' targetUsername=rev.created_by.username %}">
+      {{ rev.created_by.get_full_name }}
+    </a>
       </td>
       <td>
-	{{ rev.message }}
+    {{ rev.message }}
       </td>
       <td>
-	{{ rev.created_at }}
+    {{ rev.created_at|date:"m/d/Y, h:i A" }}
       </td>
     </tr>
     {% endfor %}
@@ -54,6 +54,11 @@
 <script type="text/javascript">
   $(document).ready(function() {
     $('.table').tablesorter({
+        headers: {
+            3: {
+                sorter: 'farnsworth_datetime',
+            }
+        },
         sortList: [[0, 1]],
         widgets: ["resizable", "filter"],
         widgetOptions: {
