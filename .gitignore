@@ -13,6 +13,7 @@ static/tinymce/
 static/ui/css/
 static/ui/images/
 static/ui/js/
+static/ckeditor/
 *.swp
 *.tmp
 .svn/
