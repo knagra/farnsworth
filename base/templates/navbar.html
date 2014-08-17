@@ -141,13 +141,13 @@
                 <span class="glyphicon glyphicon-home"></span> Room List
               </a>
             </li>
-	    {% if WIKI_ENABLED %}
+        {% if WIKI_ENABLED %}
             <li>
               <a href="{% url 'wiki_all' %}">
                 <span class="glyphicon glyphicon-pencil"></span> Wiki
               </a>
             </li>
-	    {% endif %}
+        {% endif %}
             {% if WORKSHIFT_PROFILE %}
             <li class="divider"></li>
             <li class="dropdown-header">Workshift</li>
