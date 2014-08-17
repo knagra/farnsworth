@@ -2,6 +2,18 @@
 <!-- Add CKEditor to all textareas -->
 $('textarea').addClass('ckeditor');
 
+/* Italicize blockquotes */
+$(document).ready(function() {
+    $('blockquote').css({
+        'font-style': 'italic',
+        'font-family': 'Times New Roman'
+    });
+    $('blockquote *').css({
+        'font-style': 'italic',
+        'font-family': 'Times New Roman'
+    });
+});
+
 <!-- Custom datetime parser -->
 $.tablesorter.addParser({
     id: 'farnsworth_datetime',
@@ -27,7 +39,7 @@ $.tablesorter.addParser({
 
 <!-- Add highlight.js to pre blocks -->
     $(document).ready(function(){
-        hljs.configure({useBR: true});
+        //hljs.configure({useBR: true});
         $('pre').each(function(i, e) {hljs.highlightBlock(e)});
     });
     <!-- prevent multiple form submissions by disabling submit button on all forms after post -->
@@ -37,6 +49,25 @@ $.tablesorter.addParser({
         });
         return true;
     });
+
+/* stylize code and footnotes */
+$(document).ready(function() {
+    $('pre').addClass('prettyprint linenums');
+    $('code').addClass('prettyprint');
+    $('.footnotes > header').addClass('text-muted');
+    $('.footnotes > ol > li').addClass('text-muted');
+    $('.footnotes > header > h2').after('<hr class="w_line main_divider" />');
+    $('.footnotes > header > h2').replaceWith('<h3 class="w_subtitle" style="margin-top: 10px;">Footnotes</h3>');
+    /* Highlight corresponding footnote when hoving over a link */
+    $('a[rel="footnote"]').hover(function () {
+        var h = $(this).attr('href');
+        $(h).removeClass('text-muted');
+    }, function() {
+        var h = $(this).attr('href');
+        $(h).addClass('text-muted');
+    });
+});
+
 <!-- add Bootstrap form control to select elements -->
     $("input[type=text]").addClass("form-control");
     $("input[type=password]").addClass("form-control");
