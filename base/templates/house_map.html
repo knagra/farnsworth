@@ -1,15 +1,12 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
-{% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-{% endblock %}
 
 {% block jumbotron %}
 <div class="container-fluid" style="height: 100%;">
 <div class="row" style="height: 100%;">
 <div class="col-md-12" style="padding: 0px; height: 100%">
-	<iframe id="big_frame" width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;geocode=&amp;q=2519+Ridge+Road,+Berkeley,+CA&amp;aq=0&amp;oq=2519+Ridge&amp;sll=37.870775,-122.30098&amp;sspn=0.074665,0.169086&amp;ie=UTF8&amp;hq=&amp;hnear=2519+Ridge+Rd,+Berkeley,+California+94709&amp;ll=37.876369,-122.25977&amp;spn=0.010129,0.021136&amp;t=m&amp;z=14&amp;output=embed"></iframe>
+    <iframe id="big_frame" width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;geocode=&amp;q=2519+Ridge+Road,+Berkeley,+CA&amp;aq=0&amp;oq=2519+Ridge&amp;sll=37.870775,-122.30098&amp;sspn=0.074665,0.169086&amp;ie=UTF8&amp;hq=&amp;hnear=2519+Ridge+Rd,+Berkeley,+California+94709&amp;ll=37.876369,-122.25977&amp;spn=0.010129,0.021136&amp;t=m&amp;z=14&amp;output=embed"></iframe>
 </div>
 </div>
 </div>
@@ -19,14 +16,14 @@
 {% block endscripts %}
 <script>
 $(document).ready(function() {
-	$('html').css('height', $(window).height() - 51);
-	$('html').css('overflow', 'hidden');
-	$('#bottom').hide();
-	$('#body').parent().hide();
-	$('.navbar').css('margin-bottom', 0);
-	$(window).resize(function () {
-		$('html').css('height', $(window).height() - 51);
-	});
+    $('html').css('height', $(window).height() - 51);
+    $('html').css('overflow', 'hidden');
+    $('#bottom').hide();
+    $('#body').parent().hide();
+    $('.navbar').css('margin-bottom', 0);
+    $(window).resize(function () {
+        $('html').css('height', $(window).height() - 51);
+    });
 });
 </script>
 {% endblock %}
