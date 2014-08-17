@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load thread_tags %}
+
+{% block title %}
+<div class="text-center" id="title">
+    <h1 id="page_title" class="hidden-xs">Page Not Found <small>(404)</small></h1>
+    <h1 class="visible-xs sub_title" style="margin: 0;">Page Not Found <small>(404)</small></h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<h2 style="margin-top: 20px;" class="text-center sub_subtitle">{{ ""|show_404_subtext }}</h2>
+{% endblock %}

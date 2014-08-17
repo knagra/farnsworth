@@ -4,9 +4,16 @@
 *~
 *.kate-swp
 .#*
-migrations/
 static/admin/
+static/bootstrap/
+static/jquery/
+static/jquery-ui/
+static/js/
+static/tinymce/
 static/ui/css/
+static/ui/images/
+static/ui/js/
+static/ckeditor/
 *.swp
 *.tmp
 .svn/
@@ -20,3 +27,6 @@ lib/
 lib64
 src/
 .coverage
+dist/
+*.egg-info
+flycheck_*

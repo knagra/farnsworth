@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="pull-right">
+  <a class="btn btn-default" href="{{ page.get_absolute_url }}">
+    <span class="glyphicon glyphicon-arrow-left"></span>
+    <span class="hidden-xs">Back</span>
+  </a>
+</div>
+<h1>
+  {{ page_name }}
+</h1>
+<hr class="w_line" />
+
+<table class="table table-striped table-bordered table-condensed table-hover" style="margin: 0px;">
+  <thead>
+    <tr>
+      <th>Revision</th>
+      <th>Editor</th>
+      <th>Message</th>
+      <th>Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for rev in page.revisions.all %}
+    <tr>
+      <td>
+    <a href="{{ page.get_absolute_url }}?rev={{ rev.pk }}">
+      {{ rev.pk }}
+    </a>
+      </td>
+      <td>
+    <a href="{% url 'member_profile' targetUsername=rev.created_by.username %}">
+      {{ rev.created_by.get_full_name }}
+    </a>
+      </td>
+      <td>
+    {{ rev.message }}
+      </td>
+      <td>
+    {{ rev.created_at|date:"m/d/Y, h:i A" }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="page">
+  {{ revision.content_html|safe }}
+</div>
+{% endblock %}
+
+{% block endscripts %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('.table').tablesorter({
+        headers: {
+            3: {
+                sorter: 'farnsworth_datetime',
+            }
+        },
+        sortList: [[0, 1]],
+        widgets: ["resizable", "filter"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+  });
+</script>
+{% endblock %}

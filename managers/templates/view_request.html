@@ -4,113 +4,106 @@
 {% load thread_tags %}
 {% load bootstrap %}
 {% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/requests.css' %}" />
 {% endblock %}
 
 {% block content %}
-<div class="requests table_container">
-  <div class="header">
-    <form action="{% url 'list_all_requests' requestType=relevant_request.request_type.url_name %}">
-	<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-{% if relevant_request.request_type.glyphicon %}{{ relevant_request.request_type.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> List All Requests</span></button>
-	</form>
-    <h3 class="table_title">{{ page_name }}</h3>
-  </div> <!-- table_header -->
-  <div class="requests_table main_table">
-	{% if relevant_managers %}
+<div class="requests">
+<form action="{% url 'managers:list_all_requests' requestType=relevant_request.request_type.url_name %}" class="pull-right">
+    <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-{% if relevant_request.request_type.glyphicon %}{{ relevant_request.request_type.glyphicon }}{% else %}inbox{% endif %}"></span><span class="hidden-xs"> List All Requests</span></button>
+</form>
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+  <div class="requests_table bordered_div">
+    {% if relevant_managers %}
     <div class="field_wrapper text-info">{{ relevant_request.request_type.name.capitalize }} requests are made to:
-		{% for pos in relevant_managers %}
-			{% if forloop.counter > 1 %}, {% endif %}
-			<a title="View Details" href="{% url 'view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
-			{% if pos.incumbent %}
-				(<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
-			{% else %}
-				(<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
-			{% endif %}
-		{% endfor %}
+        {% for pos in relevant_managers %}
+            {% if forloop.counter > 1 %}, {% endif %}
+            <a title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+            {% if pos.incumbent %}
+                (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}"><span class="glyphicon glyphicon-user"></span> {{ pos.incumbent|display_user:user }}</a>)
+            {% else %}
+                (<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
+            {% endif %}
+        {% endfor %}
     </div>
     {% else %}
     <div class="field_wrapper text-danger">No managers are currently responsible for addressing {{ relevant_request.request_type.name.lower }} requests.</div>
     {% endif %}
-	<div class="request_name{% if relevant_request.filled %} bg-success" title="Filled"{% elif relevant_request.closed %} bg-danger" title="Closed"{% else %} bg-warning" title="Open"{% endif %}>
-		<div class="request_owner">
-		{% if not relevant_request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
-		<form style="display:inline" method="POST" action="">
-		  {% csrf_token %}
-		  {{ vote_form }}
-		  {% if upvote %}
-		  <button type="submit" class="btn btn-xs" name="upvote" title="Remove upvote">
-			<span class="glyphicon glyphicon-star"></span>
-		  </button>
-		  {% else %}
-		  <button type="submit" class="btn btn-xs" name="upvote" title="Upvote to express approval">
-			<span class="glyphicon glyphicon-star-empty"></span>
-		  </button>
-		  {% endif %}
-		</form>
-		{% endif %}
-		{% with vote_count_request=relevant_request %}
-		{% include "vote_list.html" %}
-		{% endwith %}
-		</div> <!-- .request_owner -->
-		<div class="request_body">
-		  {{ relevant_request.body|safe }}
-		</div>
-	</div> <!-- .request_name -->
-	<div class="request_responses">
-	<div class="response_table">
-	{% for response in request_responses %}
-	{% if forloop.counter > 1 %}
-	<hr class="main_divider" />
-	{% endif %}
-	<div class="response_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
-	  <div class="response_owner">
-	    <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=response.owner.user.username %}" >{{ response.owner|display_user:user }}</a> ({{ response.post_date }}):
-	  </div>
-	  <div class="response_body">{{ response.body|safe }}</div>
-	</div> <!-- message_row -->
-	{% endfor %}
-	<div class="text-center">
-	  <button class="btn btn-primary" type="button" id="show_form" onclick="show_new_message_form('add_response_form', 'show_form')"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
-	</div>
-	  <form class="new_response_form add_response" id="add_response_form" method="post" action="">
-	    {% csrf_token %}
-	    {{ response_form|bootstrap }}
-		<div class="text-center">
-		<div class="btn-group">
-			<button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-paperclip"></span> Post Response</button>
-			<button type="button" class="btn btn-default" name="cancel_response_form" onclick="hide_new_message_form('add_response_form', 'show_form')"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
-		</div> <!-- .btn-group -->
-		</div> <!-- .text-center -->
-	  </form>
-	</div>
-	</div>
+    <div class="request_name bg-{% if relevant_request.filled %}success{% elif relevant_request.closed %}danger{% elif relevant_request.expired %}expired{% else %}warning{% endif %}" title="{{ relevant_request.get_status_display }}">
+        <div class="request_owner">
+        {% if not relevant_request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
+        <form style="display:inline" method="POST" action="">
+          {% csrf_token %}
+          {{ vote_form }}
+          {% if upvote %}
+          <button type="submit" class="btn btn-xs" name="upvote" title="Remove upvote">
+            <span class="glyphicon glyphicon-star"></span>
+          </button>
+          {% else %}
+          <button type="submit" class="btn btn-xs" name="upvote" title="Upvote to express approval">
+            <span class="glyphicon glyphicon-star-empty"></span>
+          </button>
+          {% endif %}
+        </form>
+        {% endif %}
+        {% with vote_count_request=relevant_request %}
+        {% include "vote_list.html" %}
+        {% endwith %}
+        </div> <!-- .request_owner -->
+        <div class="request_body">
+          {{ relevant_request.body|safe }}
+        </div>
+    </div> <!-- .request_name -->
+    <div class="request_responses">
+    <div class="response_table">
+    {% for response in request_responses %}
+    {% if forloop.counter > 1 %}
+    <hr class="main_divider" />
+    {% endif %}
+    <div class="response_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
+      <div class="response_owner">
+        <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=response.owner.user.username %}" >{{ response.owner|display_user:user }}</a> ({{ response.post_date }}):
+      </div>
+      <div class="response_body">
+        {{ response.body|safe }}
+        {{ response.display_action|safe }}
+      </div>
+    </div> <!-- message_row -->
+    {% endfor %}
+    <div class="text-center">
+      <button class="btn btn-primary" type="button" id="show_response_form"><span class="glyphicon glyphicon-paperclip"></span> Add Response</button>
+    </div>
+      <form class="new_response_form add_response" id="add_response_form" method="post" action="">
+        {% csrf_token %}
+        {{ response_form|bootstrap }}
+        <div class="text-center">
+        <div class="btn-group">
+            <button type="submit" class="btn btn-success" name="add_response"><span class="glyphicon glyphicon-paperclip"></span> Post Response</button>
+            <button type="button" class="btn btn-default" id="hide_response_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+        </div> <!-- .btn-group -->
+        </div> <!-- .text-center -->
+      </form>
+    </div>
+    </div>
   </div> <!-- thread_table -->
 </div>
 <div class="text-center text-info" style="margin-top: 10px;">
-	Showing {{ request_responses.count }} response{{ request_responses.count|pluralize }}.
+    Showing {{ request_responses.count }} response{{ request_responses.count|pluralize }}.
 </div>
 {% endblock %}
 
 {% block endscripts %}
 <script>
-  function show_new_message_form(message_form_id, button_id) {
-  document.getElementById(message_form_id).style.display="inline";
-  document.getElementById(button_id).style.display="none";
-  }
-  function hide_new_message_form(message_form_id, button_id) {
-  document.getElementById(message_form_id).style.display="none";
-  document.getElementById(button_id).style.display="inline";
-  }
-  /* Realign checkboxes horizontally if manager response form. */
-  $(document).ready(function() {
-	  $('.checkbox').parent().parent().addClass('col-sm-6');
-	  $('.checkbox').parent().parent().removeClass('form-group');
-	  if ($('.checkbox').length) {
-		$('<hr class="main_divider" style="width:75%" />').insertAfter($('textarea').parent().parent());
-	  }
-  });
+$(document).ready(function() {
+    $('#hide_response_form').click(function() {
+        $('#add_response_form').slideUp();
+        $('#show_response_form').fadeIn();
+    });
+    $('#show_response_form').click(function() {
+        $('#show_response_form').hide();
+        $('#add_response_form').slideDown();
+    });
+});
 </script>
 {% endblock %}

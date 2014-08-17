@@ -5,18 +5,18 @@ Author: Karandeep Singh Nagra
 */
 
 label {
-	padding-left: 5px;
+    padding-left: 5px;
 }
 
 .checkbox {
-	margin-left: 10px;
-	display: inline-block;
-	margin-top: 0px;
+    margin-left: 10px;
+    display: inline-block;
+    margin-top: 0px;
 }
 
 .btn-group {
-	padding-bottom: 5px;
-	border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
 }
 
 .new_response_form {
@@ -61,7 +61,7 @@ label {
 
 /*
   Remove confusion about table layout in case user enters a horizontal line.
-  */	
+  */    
 .response_table hr:not(.main_divider) {
     margin-left: 10px;
 }
@@ -76,7 +76,6 @@ label {
 }
 
 .request_owner {
-    padding-left: 2px;
     color: #7e7e7e;
     font-size: 11pt;
 }
@@ -89,6 +88,7 @@ label {
 
 .request_body {
     padding-left: 5px;
+    padding-right: 5px;
     font-size: 13pt;
     word-wrap: break-word;
     overflow-x: auto;

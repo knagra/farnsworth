@@ -11,18 +11,18 @@ import sys
 from django.conf import global_settings
 
 try:
-	from farnsworth.house_settings import *
+    from farnsworth.house_settings import *
 except ImportError:
-	pass
+    pass
 
 DEBUG = False
 # TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-	# This top admin is used on all pages as the support contact.
-	# The e-mail for this admin is used as the reply-to e-mail for e-mails
-	# if sending e-mails is enabled.
-	(SHORT_HOUSE_NAME + " Network Manager", HOUSE_ABBREV + "nm@bsc.coop"),
+    # This top admin is used on all pages as the support contact.
+    # The e-mail for this admin is used as the reply-to e-mail for e-mails
+    # if sending e-mails is enabled.
+    (SHORT_HOUSE_NAME + " Network Manager", HOUSE_ABBREV + "nm@bsc.coop"),
 )
 
 MANAGERS = ADMINS
@@ -30,115 +30,100 @@ MANAGERS = ADMINS
 BASE_URL = "/" + SHORT_HOUSE_NAME.lower()
 
 # Name of the house
-house = HOUSE_NAME
+HOUSE = HOUSE_NAME
 
 # Short name of the house. Alphabet only; otherwise, search won't work.
-short_house = SHORT_HOUSE_NAME
+SHORT_HOUSE = SHORT_HOUSE_NAME
 
 try:
-	NETWORK_MANAGER_PASSWORD
+    NETWORK_MANAGER_PASSWORD
 except NameError:
-	NETWORK_MANAGER_PASSWORD = None
+    NETWORK_MANAGER_PASSWORD = None
 
 if NETWORK_MANAGER_PASSWORD:
-	# Whether e-mails are sent for certain events.
-	# Currently, this includes approval or deletion of profile requests,
-	# and profile request submission.
-	# Change this setting to True and fill out the e-mail settings below
-	# to send e-mails.
-	SEND_EMAILS = True
+    # Whether e-mails are sent for certain events.
+    # Currently, this includes approval or deletion of profile requests,
+    # and profile request submission.
+    # Change this setting to True and fill out the e-mail settings below
+    # to send e-mails.
+    SEND_EMAILS = True
 
-	# E-mail settings.  Enter your username and password to use Gmail.
-	# You can also use a different SMTP server by changing these settings.
-	EMAIL_USE_TLS = True
-	EMAIL_HOST = 'smtp.gmail.com'
-	EMAIL_HOST_USER = HOUSE_ABBREV + "nm@bsc.coop"
-	EMAIL_HOST_PASSWORD = NETWORK_MANAGER_PASSWORD
-	EMAIL_PORT = 587
+    # E-mail settings.  Enter your username and password to use Gmail.
+    # You can also use a different SMTP server by changing these settings.
+    EMAIL_USE_TLS = True
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_HOST_USER = HOUSE_ABBREV + "nm@bsc.coop"
+    EMAIL_HOST_PASSWORD = NETWORK_MANAGER_PASSWORD
+    EMAIL_PORT = 587
 else:
-	SEND_EMAILS = False
+    SEND_EMAILS = False
 
 # E-mail blacklist.  E-mails will not be sent to these addresses no matter what.
 # Add e-mails here as strings separated by commas, to prevent the site from sending e-mails
 # to select addresses.  Here's an example:
 # EXAMPLE_EMAIL_BLACKLIST = ('karandeepsnagra@gmail.com',
-#	'some_user@some_domain.com',
-#	)
+#    'some_user@some_domain.com',
+#    )
 EMAIL_BLACKLIST = ()
 
-# Max number of threads loaded in member_forums.
-max_threads = 20
-
-# Max number of messages loaded for each thread.
-max_messages = 4
-
-# Max number of requests loaded in requests_view.
-max_requests = 30
-
-# Max number of responses loaded for each request.
-max_responses = 4
-
-# Max number of announcements loaded for home page.
-home_max_announcements = 5
-
-# Max number of threads loaded for home page.
-home_max_threads = 15
-
 # Add the context that populates a few variables used on every page in the site.
-TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ("base.views.add_context",)
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+    "base.views.add_context",
+    "workshift.views.add_workshift_context",
+    )
 
 try:
-	ENABLE_OAUTH
+    ENABLE_OAUTH
 except NameError:
-	ENABLE_OAUTH = None
+    ENABLE_OAUTH = None
 
 if ENABLE_OAUTH:
-	TEMPLATE_CONTEXT_PROCESSORS += (
-		'social.apps.django_app.context_processors.backends',
-	)
+    TEMPLATE_CONTEXT_PROCESSORS += (
+        'social.apps.django_app.context_processors.backends',
+    )
 
 try:
-	POSTGRES_PASSWORD
+    POSTGRES_PASSWORD
 except NameError:
-	POSTGRES_PASSWORD = None
+    POSTGRES_PASSWORD = None
 
 if POSTGRES_PASSWORD:
-	# PostgreSQL setup
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': SHORT_HOUSE_NAME.lower(),
-			'USER': SHORT_HOUSE_NAME.lower() + '_admin',
-			'PASSWORD': POSTGRES_PASSWORD,
-			'HOST': 'localhost',
-			'PORT': '',
-		},
-	}
+    # PostgreSQL setup
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': SHORT_HOUSE_NAME.lower(),
+            'USER': SHORT_HOUSE_NAME.lower() + '_admin',
+            'PASSWORD': POSTGRES_PASSWORD,
+            'HOST': 'localhost',
+            'PORT': '',
+        },
+    }
 else:
-	# SQLite3 setup
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.sqlite3',
-			'NAME': os.path.join(os.path.dirname(__file__), 'farnsworth.db').replace('\\', '/'),
-			'USER': '',
-			'PASSWORD': '',
-			'HOST': '',
-			'PORT': '',
-		},
-	}
+    # SQLite3 setup
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(os.path.dirname(__file__), 'farnsworth.db').replace('\\', '/'),
+            'USER': '',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+        },
+    }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
-# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+# See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 try:
-	SITE_DOMAIN
+    SITE_DOMAIN
 except NameError:
-	SITE_DOMAIN = None
+    SITE_DOMAIN = None
 
 if SITE_DOMAIN:
-	# Matches SITE_DOMAIN and "*.SITE_DOMAIN"
-	ALLOWED_HOSTS = ["." + SITE_DOMAIN]
+    # Matches SITE_DOMAIN and "*.SITE_DOMAIN"
+    ALLOWED_HOSTS = ["." + SITE_DOMAIN]
 else:
-	ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = []
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -184,33 +169,34 @@ STATIC_URL = BASE_URL + '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-	# Put strings here, like "/home/html/static" or "C:/www/django/static".
-	# Always use forward slashes, even on Windows.
-	# Don't forget to use absolute paths, not relative paths.
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
 )
 
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
-	'django.contrib.staticfiles.finders.FileSystemFinder',
-	'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#	'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-	'django.template.loaders.filesystem.Loader',
-	'django.template.loaders.app_directories.Loader',
-#	'django.template.loaders.eggs.Loader',
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+#    'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
-	'django.middleware.common.CommonMiddleware',
-	'django.contrib.sessions.middleware.SessionMiddleware',
-	'django.middleware.csrf.CsrfViewMiddleware',
-	'django.contrib.auth.middleware.AuthenticationMiddleware',
-	'django.contrib.messages.middleware.MessageMiddleware',
-	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'farnsworth.urls'
@@ -219,57 +205,74 @@ ROOT_URLCONF = 'farnsworth.urls'
 WSGI_APPLICATION = 'farnsworth.wsgi.application'
 
 TEMPLATE_DIRS = (
-	os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates').replace('\\', '/'),
-	# Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-	# Always use forward slashes, even on Windows.
-	# Don't forget to use absolute paths, not relative paths.
+    os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates').replace('\\', '/'),
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
 )
 
 INSTALLED_APPS = (
-	'django.contrib.auth',
-	'django.contrib.contenttypes',
-	'django.contrib.sessions',
-	'django.contrib.sites',
-	'django.contrib.messages',
-	'django.contrib.staticfiles',
-	'base',
-	'threads',
-	'events',
-	'managers',
-	'bootstrapform',
-	'haystack',
-	'django.contrib.admin',
-	'django.contrib.admindocs',
-	'social.apps.django_app.default',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'base',
+    'threads',
+    'events',
+    'requests',
+    'managers',
+    'workshift',
+    'rooms',
+    "django_cron",
+    # 'elections',
+    "wiki",
+    "farnswiki",
+    "notifications",
+    'bootstrapform',
+    'haystack',
+    'django.contrib.admin',
+    'django.contrib.admindocs',
+    'social.apps.django_app.default',
 )
 
+CRON_CLASSES = [
+    "managers.cron.ExpireRequestsCronJob",
+    "workshift.cron.CollectBlownCronJob",
+    "workshift.cron.UpdateWeeklyStandings",
+    ]
+
+WIKI_HOOKSET = "farnswiki.hooks.ProjectWikiHookset"
+WIKI_PARSE = "farnswiki.hooks.parse"
+
 AUTHENTICATION_BACKENDS = (
-	'django.contrib.auth.backends.ModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 try:
-	ENABLE_OAUTH
+    ENABLE_OAUTH
 except NameError:
-	ENABLE_OAUTH = False
+    ENABLE_OAUTH = False
 
 if ENABLE_OAUTH:
-	try:
-		if SOCIAL_AUTH_FACEBOOK_KEY and SOCIAL_AUTH_FACEBOOK_SECRET:
-			AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',) + AUTHENTICATION_BACKENDS
-	except NameError:
-		pass
+    try:
+        if SOCIAL_AUTH_FACEBOOK_KEY and SOCIAL_AUTH_FACEBOOK_SECRET:
+            AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',) + AUTHENTICATION_BACKENDS
+    except NameError:
+        pass
 
-	try:
-		if SOCIAL_AUTH_GITHUB_KEY and SOCIAL_AUTH_GITHUB_SECRET:
-			AUTHENTICATION_BACKENDS = ('social.backends.github.GithubOAuth2',) + AUTHENTICATION_BACKENDS
-	except NameError:
-		pass
+    try:
+        if SOCIAL_AUTH_GITHUB_KEY and SOCIAL_AUTH_GITHUB_SECRET:
+            AUTHENTICATION_BACKENDS = ('social.backends.github.GithubOAuth2',) + AUTHENTICATION_BACKENDS
+    except NameError:
+        pass
 
-	try:
-		if SOCIAL_AUTH_GOOGLE_OAUTH2_KEY and SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET:
-			AUTHENTICATION_BACKENDS = ('social.backends.google.GoogleOAuth2',) + AUTHENTICATION_BACKENDS
-	except NameError:
-		pass
+    try:
+        if SOCIAL_AUTH_GOOGLE_OAUTH2_KEY and SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET:
+            AUTHENTICATION_BACKENDS = ('social.backends.google.GoogleOAuth2',) + AUTHENTICATION_BACKENDS
+    except NameError:
+        pass
 
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'public_profile']
 SOCIAL_AUTH_GITHUB_SCOPE = ['user:email']
@@ -278,17 +281,30 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email']
 LOGIN_URL = BASE_URL + "/login/"
 LOGOUT_URL = BASE_URL + "/logout/"
 LOGIN_REDIRECT_URL = BASE_URL
+LOGIN_ERROR_URL = BASE_URL
+
+APPEND_SLASH = True
 
 SOCIAL_AUTH_PIPELINE = (
-	'social.pipeline.social_auth.social_details',
-	'social.pipeline.social_auth.social_uid',
-	'social.pipeline.social_auth.auth_allowed',
-	'social.pipeline.social_auth.social_user',
-	'social.pipeline.user.get_username',
-	'base.pipeline.request_user',
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.user.get_username',
+    'base.pipeline.request_user',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
+
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.CryptPasswordHasher',
+    )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -296,54 +312,127 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
-	'version': 1,
-	'disable_existing_loggers': False,
-	'filters': {
-		'require_debug_false': {
-			'()': 'django.utils.log.RequireDebugFalse'
-		}
-	},
-	'handlers': {
-		'mail_admins': {
-			'level': 'ERROR',
-			'filters': ['require_debug_false'],
-			'class': 'django.utils.log.AdminEmailHandler'
-		}
-	},
-	'loggers': {
-		'django.request': {
-			'handlers': ['mail_admins'],
-			'level': 'ERROR',
-			'propagate': True,
-		},
-		'elasticsearch': {
-			'handlers': ['mail_admins'],
-			'level': 'ERROR',
-			'propagate': True,
-		}
-	}
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'elasticsearch': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
+            'propagate': False,
+        },
+    },
 }
 
 # Haystack search backend setting.
 HAYSTACK_CONNECTIONS = {
-	'default': {
-		'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-		'URL': 'http://localhost:9200/',
-		'INDEX_NAME': SHORT_HOUSE_NAME.lower(),
-	},
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': 'http://localhost:9200/',
+        'INDEX_NAME': SHORT_HOUSE_NAME.lower(),
+    },
 }
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50
 
-if 'test' in sys.argv:
-	PASSWORD_HASHERS = (
-		'django.contrib.auth.hashers.MD5PasswordHasher',
-	)
-	DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
-	HAYSTACK_CONNECTIONS['default']['INDEX_NAME'] = SHORT_HOUSE_NAME.lower() + "_test"
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
+### Threads Settings
+# Max number of threads loaded in member_forums.
+MAX_THREADS = 20
+
+# Max number of messages loaded for each thread in member_forums.
+MAX_MESSAGES = 4
+
+# Max number of threads loaded for home page.
+HOME_MAX_THREADS = 30
+
+### Managers settings
+# Max number of requests loaded in requests_view.
+MAX_REQUESTS = 30
+
+# Max number of responses loaded for each request.
+MAX_RESPONSES = 4
+
+# How old, in hours, an announcement should be before it's automatically excluded
+# from being displayed on the homepage and in the manager announcements page.
+# Pinned announcements will be displayed anyway.
+ANNOUNCEMENT_LIFE = 4 * 24
+
+# Number of hours after posting when a request is automatically expired.
+# If this == n, then a request with post_date <= now - n hours, with no REOPENED
+# responses and no responses less than n hours old will be automatically expired
+# at the beginning of the day (00:01) and every hour.
+# The expiration cron job is in managers/cron.py.
+REQUEST_EXPIRATION_HOURS = 30 * 24
+
+########################################################################
+####    Workshift Settings
+########################################################################
+
+# Default cutoff for signing out of workshifts, in hours.
+# Users will be allowed to sign out of shifts with more time than this
+# number of hours before the workshift starts.
+DEFAULT_SIGN_OUT_CUTOFF = 24
+
+# Default cutoff for verifying a workshift after it has finished, in
+# hours. After this cutoff, the shift will be marked as blown.
+
+DEFAULT_VERIFY_CUTOFF = 8
+
+
+# Default number of hours for creating new semester instances.
+DEFAULT_WORKSHIFT_HOURS = 5
+
+# Threshold above which a workshifter and workshift manager will receive
+# notifications that the workshifter is down a substantial number of hours
+DEFAULT_WARNING_HOURS = 10
+
+# Threshold above which central office will be emailed that a workshifter is
+# down a substantial number of hours and should be brought up for automatic
+# termination
+DEFAULT_EMAIL_HOURS = 15
+EMAIL_TARGET = "...@bsc.coop"
+
+########################################################################
 
 try:
-	from farnsworth.local_settings import *
+    from farnsworth.local_settings import *
 except ImportError:
-	pass
+    pass
+
+if 'test' in sys.argv:
+    PASSWORD_HASHERS = (
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+    )
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        }
+    HAYSTACK_CONNECTIONS['default'] = {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+        }

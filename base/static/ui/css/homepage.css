@@ -5,93 +5,92 @@ Author: Karandeep Singh Nagra
 */
 
 .requests {
-	float: middle;
-	overflow: hidden;
-	width: 100%;
+    float: middle;
+    overflow: hidden;
+    width: 100%;
 }
 
 #new_announcement_form .btn-group {
-	padding-bottom: 10px;
-	margin-bottom: 3px;
-	border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid #eee;
 }
 
 .requests_row {
-	width: 100%;
-	color: black;
-	overflow: auto;
+    width: 100%;
+    color: black;
+    overflow: auto;
 }
 
 .request_name {
-	margin: 5px auto;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	width: 75%;
-	border: 1px solid #888;
+    margin: 5px auto;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 75%;
+    border: 1px solid #888;
 }
 
 .request_owner {
-	text-align: center;
-	padding-left: 5px;
-	padding-top: 3px;
-	color: #7e7e7e;
-	font-size: 11pt;
+    text-align: center;
+    color: #7e7e7e;
+    font-size: 11pt;
 }
 
 .request_body {
-	font-size: 11pt;
-	word-wrap: break-word;
-	overflow-x: auto;
-	padding-left: 5px;
+    font-size: 11pt;
+    word-wrap: break-word;
+    overflow-x: auto;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .main_row {
-	padding-left: 5px;
-	padding-right: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .announcement_owner {
-	color: #7e7e7e;
+    color: #7e7e7e;
 }
 
 .announcement_body {
-	word-wrap: break-word;
-	overflow-x: auto;
+    word-wrap: break-word;
+    overflow-x: auto;
 }
 
 .new_response_form {
-	display: none;
+    display: none;
 }
 
 .response_row {
-	padding-left: 5px;
-	padding-right: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .response_table {
-	padding-bottom: 5px;
+    padding-bottom: 5px;
 }
 
 .response_owner {
-	color: #7e7e7e;
-	font-size: 10pt;
+    color: #7e7e7e;
+    font-size: 10pt;
 }
 
 .manager_response{
-	background-color: #efffef;
+    background-color: #efffef;
 }
 
 .response_body {
-	font-size: 11pt;
-	word-wrap: break-work;
-	overflow-x: auto;
+    font-size: 11pt;
+    word-wrap: break-work;
+    overflow-x: auto;
 }
 
 #threads_table {
-	margin-top: 0px;
-	margin-bottom: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 #new_thread_form {
-	display: none;
+    display: none;
 }

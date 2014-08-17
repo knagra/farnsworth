@@ -5,14 +5,14 @@ Author: Karandeep Singh Nagra
 */
 
 #jumbotron {
-	background: none;
-	color: #101010;
+    background: none;
+    color: #101010;
 }
 
 #jumbotron * {
-	color: #101010;
+    color: #101010;
 }
 
 .page_list {
-	list-style: none;
+    list-style: none;
 }

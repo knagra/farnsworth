@@ -1,0 +1,70 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_headers %}
+<style>
+    .pool_row td div label {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block w_content %}
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+<form mehtod="post">
+  {% csrf_token %}
+  {% if pools_tuples %}
+  <table class="table table-striped table-bordered table-condensed table-hover">
+    <thead>
+      <tr>
+	<th>Pool</th>
+	<th>Regular Hourly Requirement</th>
+	<th>Hour Adjustment</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pool_hours, form in pools_tuples %}
+      <tr class="pool_row">
+	<td>{{ pool_hours.pool.title }}</td>
+	<td>{{ form.hours|bootstrap }}</td>
+	<td>{{ form.hour_adjustment|bootstrap }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p class="help-block">
+	Regular Hourly Requirement should be used to adjust how many hours a
+	workshifter owes each week (i.e. Reducing the number of hours a member with
+	a disability owes).
+  </p>
+  <p class="help-block">
+	Hour Adjustment is meant as a fallback method to adjust a workshifter's
+	standing. However it is usually preferrable to instead add completed hours
+	via an instance of a workshift (i.e. "Out of town for the week, credited 5
+	hours"). This ensures that workshift credits are publicly available and
+	easier to review at a future date. Positive numbers here add hours to a
+	workshifter's standing, while negative numbers subtract hours away.
+  </p>
+  {% endif %}
+
+  {% if pools_tuples and note_form %}
+  <br class="w_line" />
+  {% endif %}
+
+  {% if note_form %}
+  {{ note_form|bootstrap }}
+  {% endif %}
+
+  <div class="text-center">
+    <button type="submit" class="btn btn-success">
+      <span class="glyphicon glyphicon-floppy-disk"></span> Save
+    </button>
+  </div> <!-- .text-center -->
+</form>
+{% endblock %}

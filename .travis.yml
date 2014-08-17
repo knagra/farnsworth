@@ -1,0 +1,31 @@
+language: python
+python:
+  - "2.7"
+#  - "3.3"
+#  - "3.4"
+
+services:
+  - elasticsearch
+
+env:
+  - DJANGO="Django==1.6.5"
+  - DJANGO="git+git://github.com/django/django.git@1.7c2"
+
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+  - pip install $DJANGO
+  - pip install coveralls
+
+before_script:
+  - cp farnsworth/house_settings.py.example farnsworth/house_settings.py
+  - echo "SECRET_KEY = 'TESTING SECRET KEY'" >> farnsworth/house_settings.py
+  - echo "DEBUG = True ; TEMPLATE_DEBUG = True" >> farnsworth/local_settings.py
+
+# command to run tests
+script:
+  - coverage run --source=base,threads,events,managers,workshift,elections,rooms setup.py test
+
+# command to notify coveralls
+after_success:
+  - coveralls

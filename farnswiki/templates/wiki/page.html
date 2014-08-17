@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="pull-right">
+  <a class="btn btn-default" href="{% url 'wiki_all' %}">
+    <span class="glyphicon glyphicon-list"></span>
+    <span class="hidden-xs">All Pages</span>
+  </a>
+  <a class="btn btn-default" href="{% url 'wiki_history' slug=revision.page.slug %}">
+    <span class="glyphicon glyphicon-hdd"></span>
+    <span class="hidden-xs">History</span>
+  </a>
+  {% if can_edit %}
+  <a class="btn btn-primary" href="{{ revision.page.get_edit_url }}">
+    <span class="glyphicon glyphicon-edit"></span>
+    <span class="hidden-xs">Edit</span>
+  </a>
+  {% endif %}
+</div>
+<h1>
+  {{ revision.page.slug }}
+</h1>
+<hr class="w_line" />
+
+<div class="page">
+  {{ revision.content_html|safe }}
+</div>
+{% endblock %}

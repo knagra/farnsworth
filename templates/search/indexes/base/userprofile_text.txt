@@ -1,5 +1,0 @@
-{{ object.user.get_full_name }}
-{{ object.get_status_display }}
-{{ object.current_room }}
-{{ object.former_rooms }}
-{{ object.former_houses }}

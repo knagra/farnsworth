@@ -1,0 +1,87 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+{% if shift_tuples %}
+<div class="workshift_table">
+  <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
+    <thead>
+      <tr>
+		<th>Preferred</th>
+		<th>Date</th>
+        <th>Title</th>
+		<th>Starts</th>
+		<th>Ends</th>
+        <th>Hours</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for shift, forms, preferred in shift_tuples %}
+      <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+		<td>{% if preferred %}preferred{% endif %}</td>
+		<td>{{ shift.date }}</td>
+        <td>
+          <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">
+			{{ shift.title }}
+		  </a>
+        </td>
+		<td>{{ shift.start_time }}</td>
+		<td>{{ shift.end_time }}</td>
+        <td>
+          {% if shift.intended_hours == shift.hours %}
+          {{ shift.hours }}
+          {% else %}
+          <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
+          {% endif %}
+        </td>
+        <td>
+          {% for form in forms %}
+          <form style="display:inline" method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <button
+               type="submit" name="{{ form.action_name }}"
+			   class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}">
+			  {{ form.title_short|safe }}<span class="hidden-xs">{{ form.title_long }}</span>
+			</button>
+          </form>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% with id_prefix="shifts" %}
+  {% include "pager.html" %}
+  {% endwith %}
+</div> <!-- .workshift_table -->
+{% else %}
+No open shifts.
+{% endif %}
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('table').tablesorter({
+        sortList: [[1, 0], [0, 0], [2, 0]],
+        widgets: ["filter", "resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+    }).tablesorterPager({
+        container: "#shifts_pager",
+        cssGoto: "#shifts_goto"
+    });
+});
+</script>
+<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static from staticfiles %}
+{% load bootstrap %}
+{% block template_page_name %} - Search{% endblock %}
+{% block headers %}
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/search.css' %}" />
+{% endblock %}
+{% block content %}
+{% if not query %}
+<form id="search_form" method="get" action=".">
+    {{ form|bootstrap }}
+    <div class="text-center">
+    <button class="btn btn-lg btn-default" type="submit"><span class="glyphicon glyphicon-search"></span> Search</button>
+    </div>
+</form>
+{% else %}
+<button type="button" class="btn btn-info pull-right" id="show_facets" title="Show filters"><span class="glyphicon glyphicon-filter"></span><span class="hidden-xs"> Filter</span></button>
+<h1 class="w_title">Search: "{{ query }}"</h1>
+<hr class="w_line" />
+<div id="facets_container">
+<h3 class="text-center">Filter</h3>
+<hr class="main_divider" style="width:50%;" />
+{% if not facets.fields %}
+    <div class="field_wrapper">No applicable filters.</div>
+    <hr class="main_divider" />
+{% else %}
+{% if facets.fields.exact_user %}
+    <h4 class="text-center"><small>By</small> User</h4>
+    <div class="list-group" style="margin-left: 10px; margin-right: 10px;">
+    {% for datum in facets.fields.exact_user %}
+    {% if datum.0 %}
+        <a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_user:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{{ datum.0 }}</a>
+    {% endif %}
+    {% endfor %}
+    </div>
+{% endif %}
+{% if facets.fields.exact_manager %}
+    <h4 class="text-center"><small>By</small> Manager</h4>
+    <div class="list-group" style="margin-left: 10px; margin-right: 10px;">
+    {% for datum in facets.fields.exact_manager %}
+    {% if datum.0 %}
+        <a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_manager:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{{ datum.0 }}</a>
+    {% endif %}
+    {% endfor %}
+    </div>
+{% endif %}
+{% if facets.fields.exact_location %}
+    <h4 class="text-center"><small>By</small> Location</h4>
+    <div class="list-group" style="margin-left: 10px; margin-right: 10px;">
+    {% for datum in facets.fields.exact_location %}
+    {% if datum.0 %}
+        <a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_location:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{{ datum.0 }}</a>
+    {% endif %}
+    {% endfor %}
+    </div>
+{% endif %}
+{% if facets.fields.exact_status %}
+    <h4 class="text-center"><small>By</small> Member Status</h4>
+    <div class="list-group" style="margin-left: 10px; margin-right: 10px;">
+    {% for datum in facets.fields.exact_status %}
+    {% if datum.0 %}
+        <a class="list-group-item" href="{{ request.get_full_path}}&amp;selected_facets=exact_status:{{ datum.0|urlencode }}"><span class="badge">{{ datum.1}}</span>{% if datum.0 = 'R' %}Resident{% elif datum.0 = 'B' %}Boarder{% elif datum.0 = 'A' %}Alumnus{% else %}Unknown Status{% endif %}</a>
+    {% endif %}
+    {% endfor %}
+    </div>
+{% endif %}
+{% endif %}
+<div class="text-center hide_facets">
+    <button type="button" class="btn btn-default" id="hide_facets"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+</div>
+</div> <!-- #facets_container -->
+{% if not page.object_list %}
+    <div class="field_wrapper">No results found.</div>
+{% else %}
+<div class="results_container bordered_div">
+{% for result in page.object_list %}
+    {% if forloop.counter > 1 %}
+        <hr class="main_divider" />
+    {% endif %}
+    <div class="hover_row result_row">
+    {% if result.object.is_userprofile %}
+        {% include "search/userprofile.html" %}
+    {% elif result.object.is_thread %}
+        {% include "search/thread.html" %}
+    {% elif result.object.is_message %}
+        {% include "search/message.html" %}
+    {% elif result.object.is_manager %}
+        {% include "search/manager.html" %}
+    {% elif result.object.is_request %}
+        {% include "search/request.html" %}
+    {% elif result.object.is_response %}
+        {% include "search/response.html" %}
+    {% elif result.object.is_announcement %}
+        {% include "search/announcement.html" %}
+    {% elif result.object.is_event %}
+        {% include "search/event.html" %}
+    {% elif result.object.is_semester %}
+        {% include "search/semester.html" %}
+    {% elif result.object.is_workshift_pool %}
+        {% include "search/workshift_pool.html" %}
+    {% elif result.object.is_workshift_type %}
+        {% include "search/workshift_type.html" %}
+    {% elif result.object.is_workshift_profile %}
+        {% include "search/workshift_profile.html" %}
+    {% elif result.object.is_regular_workshift %}
+        {% include "search/regular_workshift.html" %}
+    {% elif result.object.is_workshift_instance %}
+        {% include "search/workshift_instance.html" %}
+    {% elif result.object.slug %}
+        {% include "search/page.html" %}
+    {% elif result.object.page.slug %}
+        {% include "search/revision.html" %}
+    {% endif %}
+    </div> <!-- .hover_row -->
+{% endfor %}
+
+{% if page.has_previous or page.has_next %}
+    <div class="text-center field_wrapper">
+    {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}<span class="glyphicon glyphicon-chevron-left"></span> Previous{% if page.has_previous %}</a>{% endif %}
+    |
+    {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next <span class="glyphicon glyphicon-chevron-right"></span>{% if page.has_next %}</a>{% endif %}
+    </div> <!-- text-center" -->
+{% endif %}
+</div> <!-- .results_container -->
+{% endif %}
+</div> <!-- .table_container -->
+{% endif %}
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+    $('#show_facets').click(function() {
+        $('#facets_container').slideToggle();
+    });
+    $('#hide_facets').click(function() {
+        $('#facets_container').slideUp();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<!--
+   Project: Farnsworth
+
+   Author: Karandeep Singh Nagra
+
+   The HTML for {{ page_name }}.
+  -->
+
+<html>
+  <head>
+    <title>{{ SHORT_HOUSE }}{% if page_name %} - {{ page_name }}{% else %}{% block template_page_name %}{% endblock %}{% endif %}</title>
+    {% load static from staticfiles %}
+    <link rel="shortcut icon" href="{% static 'ui/images/favicon.ico' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link type="text/css" rel="stylesheet" href="{% static 'ui/css/base.css' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+    <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" />
+    <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:300,400,700" />
+    <link type="text/css" rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/dark.min.css" />
+    <link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static 'jquery-ui/jquery-ui.min.css' %}" />
+    <!--<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>-->
+    <!--<script type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://google-code-prettify.googlecode.com/svn/trunk/src/prettify.css" />-->
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/config.js' %}"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    {% block headers %} {% endblock %}
+  </head>
+  <body id="html_body">
+    {% include 'navbar.html' %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="container">
+      <div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}" style="margin-top: 0px; margin-bottom: 5px;">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        {{ message|safe }}
+      </div> <!-- .alert -->
+    </div> <!-- .container -->
+    {% endfor %}
+    {% endif %}
+
+    {% block jumbotron %}{% endblock %}
+    <div id="body" class="container">
+      {% block title %}{% endblock %}
+      <div id="content">
+        {% block content %}{% endblock %}
+      </div> <!-- close #content -->
+      {% block gallery %}{% endblock %}
+    </div> <!-- .container -->
+    <div id="bottom" class="container-fluid text-center">
+      Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.
+    </div> <!-- #bottom -->
+    <script type="text/javascript" src="{% static 'jquery/jquery-2.1.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery/tablesorter-master/addons/pager/jquery.tablesorter.pager.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery-ui/jquery-ui.min.js' %}"></script>
+    {% include "default_scripts.html" %}
+    {% block endscripts %}{% endblock %}
+  </body>
+</html>
