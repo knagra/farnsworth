@@ -4,9 +4,6 @@
  */
  
 CKEDITOR.editorConfig = function( config ) {
-    /* Enable spell-checking */
-    config.scayt_autoStartup = true;
-    
     /* Define extra plugins to load */
     config.extraPlugins = 'widget,lineutils,pbckcode,mathjax,leaflet,autolink,codemirror,footnotes,oembed,imagebrowser,symbol,dialog';
     /*config.toolbarGroups = [
