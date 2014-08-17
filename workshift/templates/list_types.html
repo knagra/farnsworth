@@ -1,0 +1,63 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load workshift_tags %}
+{% load bootstrap %}
+
+{% block w_content %}
+<div id="types_container">
+    {% if can_edit %}
+    <form action="{% wurl 'workshift:add_shift' %}" class="pull-right">
+      <button class="btn btn-default" type="submit">
+        <span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Shift</span>
+      </button>
+    </form>
+    {% endif %}
+    <h1 class="w_title">{{ page_name }}</h1>
+    <hr class="w_line" />
+  {% if not type_tuples %}
+  <div class="field_wrapper text-info">No shifts found.</div>
+  {% else %}
+  <table class="table table-striped table-bordered table-condensed table-hover" style="margin: 0px;">
+    <colgroup>
+      <col style="width:40%">
+      <col style="width:60%">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Times</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for type, shifts in type_tuples %}
+      <tr>
+        <td><a href="{% wurl 'workshift:view_type' pk=type.pk %}">{{ type.title }}</a></td>
+        <td>
+	  {% for shift in shifts %}
+	  {% if not forloop.first %}<br/>{% endif %}
+	  <a href="{% wurl 'workshift:view_shift' pk=shift.pk %}">{{ shift.display_time }}</a>
+	  {% endfor %}
+	</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div> <!-- #types_container -->
+{% endblock %}
+
+{% block endscripts %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('.table').tablesorter({
+        sortList: [[0,0]],
+        widgets: ["resizable", "filter"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+  });
+</script>
+{% endblock %}

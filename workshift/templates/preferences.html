@@ -1,0 +1,141 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_headers %}
+<style>
+    .time_formset_row td {
+        padding-right: 5px;
+        padding-bottom: 5px;
+        border-top: none !important;
+        border-bottom: 1px solid #e4e4e4;
+    }
+    .time_formset_row td div {
+        margin: 0px;
+    }
+    .time_formset_row td div label {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block w_content %}
+<h1 class="w_title">My Preferences</h1>
+<hr class="w_line" />
+
+<form id="preferences_form" method="post" action="">
+  {% csrf_token %}
+  {% if rating_forms %}
+  <h3 class="w_subtitle text-center">Workshift Preferences</h3>
+  <p class="text-info text-center">Click on a workshift type to show or hide its description.
+  <span class="hidden-xs">You can click and drag the rows vertically.</span></p>
+  <div id="accordion">
+      {% for form in rating_forms %}
+      <div class="group">
+      <div class="rating_forms_row row" style="border-radius: 0px; background-image: none; padding: 3px 0px 3px 0px;">
+        <h4 class="col-xs-6" style="margin-top: 8px; margin-bottom: 0; padding: 0px 5px 0px 5px;">{{ form.title }}</h4>
+        <div class="col-xs-6" style="padding: 0px 5px 0px 5px;">{{ form.rating }}</div>
+      </div>
+      <dl class="dl-horizontal" style="background-image: none; background-color: #fff;">
+          <dt>Description</dt>
+          <dd>{{ form.instance.workshift_type.description|safe }}&nbsp;</dd>
+          <dt>Tips</dt>
+          <dd>{{ form.instance.workshift_type.quick_tips|safe }}&nbsp;</dd>
+      </dl> <!-- .dl-horizontal -->
+      </div> <!-- .group -->
+      {% endfor %}
+  </div> <!-- #accordion -->
+
+  {% endif %}
+  {% if time_formset %}
+  {% if rating_forms %}
+  <hr />
+  {% endif %}
+  <h3 class="w_subtitle text-center">Your Schedule</h3>
+  <p class="text-info field_wrapper hidden-xs">Click and drag 
+    <span class="glyphicon glyphicon-resize-vertical"></span> to move rows vertically.</p>
+  <table id="time_blocks" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      {% for form in time_formset.forms %}
+      {{ form.id }}
+      <tr class="time_formset_row">
+      <td>
+      {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+          {{ form.preference|bootstrap }}
+      </td>
+        <td>{{ form.day|bootstrap }}</td>
+        <td>{{ form.start_time|bootstrap }}</td>
+        <td>{{ form.end_time|bootstrap }}</td>
+        <td class="move_time_block hidden-xs" style="vertical-align: middle;"><span class="glyphicon glyphicon-resize-vertical"></span></td>
+        <td style="vertical-align: middle;"></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {{ time_formset.management_form }}
+
+  {% endif %}
+  {% if rating_forms or time_formset %}
+  <hr />
+  {% endif %}
+  <h3 class="w_subtitle text-center">Note to Workshift Manager(s)</h3>
+  {{ note_form|bootstrap }}
+  <div class="text-center">
+    <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+  function renewDatePickers(row) {
+    $("[id$=time]", row || null).datetimepicker({
+      pickDate: false,
+      pick12HourFormat: true,
+    });
+  };
+  $(document).ready(function() {
+    $(function() {
+      $(".time_formset_row").formset({
+        prefix: "{{ time_formset.prefix }}",
+        added: renewDatePickers,
+      });
+      renewDatePickers();
+      $('label[for="id_note"]').hide();
+    });
+    $(function() {
+      //var icons = {       // Uncomment these and set icons: icons below, optionally
+      //    header: "glyphicon glyphicon-expand",
+      //    activeHeader: "glyphicon glyphicon-collapse-down"
+      //};
+      $('#accordion').accordion({
+          collapsible: true,
+          icons: false,
+          header: "> div > div.rating_forms_row",
+          beforeActivate: function(event, ui) {
+              return !$(event.originalEvent.target).is('select');
+          }
+      })
+      .sortable({
+          axis: "y",
+          handle: "div.rating_forms_row",
+          stop: function(event, ui) {
+              ui.item.children("div.rating_forms_row").triggerHandler("focusout");
+              $(this).accordion("refresh");
+          }
+      });
+      $('#time_blocks > tbody').sortable({
+          axis: "y",
+          items: "tr:not(.add_row)",
+          handle: "td.move_time_block"
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -5,35 +5,35 @@ Author: Karandeep Singh Nagra
 */
 
 .carousel_img {
-	width: 100%;
-	height: auto;
+    width: 100%;
+    height: auto;
 }
 
 .description {
-	padding-top: 10px;
-	clear: left;
-	padding-left: 10px;
-	padding-right: 10px;
-	text-shadow: 1px 1px black;
-	font-size: 180%;
+    padding-top: 10px;
+    clear: left;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-shadow: 1px 1px black;
+    font-size: 180%;
 }
 
 .info {
-	text-shadow: 1px 1px black;
-	font-size: 150%;
+    text-shadow: 1px 1px black;
+    font-size: 150%;
 }
 
 .img_heading {
-	font-size: 1000%;
-	font-weight: 200;
-	text-shadow: 2px 1px black;
+    font-size: 1000%;
+    font-weight: 200;
+    text-shadow: 2px 1px black;
 }
 
 .carousel_link {
-	color: #dadada;
-	text-decoration: underline;
+    color: #dadada;
+    text-decoration: underline;
 }
 
 .carousel_link:hover {
-	text-decoration: none;
+    text-decoration: none;
 }

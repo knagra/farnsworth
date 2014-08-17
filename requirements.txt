@@ -1,7 +1,13 @@
-Django>=1.6
-django-bootstrap-form>=3.1
--e hg+https://bitbucket.org/schinckel/django-weekday-field@6cb823c5e94aad1aa5dd1caad4dd7a5be7391b28#egg=django_weekday_field-dev
+Django
+django-bootstrap-form
 elasticsearch==1.0.0
-python-social-auth==0.1.26
-psycopg2==2.5.3
--e git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master
+python-social-auth
+psycopg2
+git+git://github.com/acdha/django-haystack.git@981-model-ct-cleanup
+pypandoc
+django-cron
+git+git://github.com/naderm/django-phonenumber-field.git@develop
+bcrypt
+pytz
+git+git://github.com/naderm/django-notifications@master
+pinax-wiki

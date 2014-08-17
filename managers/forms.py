@@ -4,218 +4,236 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
-from datetime import datetime
-
 from django import forms
-from django.utils.timezone import utc
+from django.conf import settings
+
+from notifications import notify
 
 from utils.funcs import convert_to_url, verify_url
+from base.models import UserProfile
 from managers.models import Manager, Announcement, RequestType, Request, Response
 
-
 class ManagerForm(forms.ModelForm):
-	''' Form to create or modify a manager position. '''
-	class Meta:
-		model = Manager
-		exclude = ("url_title",)
+    ''' Form to create or modify a manager position. '''
+    class Meta:
+        model = Manager
+        exclude = ("url_title",)
 
-	def clean_title(self):
-		title = self.cleaned_data['title']
-		if Manager.objects.filter(title=title).count() and Manager.objects.get(title=title) != self.instance:
-			raise forms.ValidationError("A manager with this title already exists.")
-		if not verify_url(title):
-			raise forms.ValidationError("Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
-		url_title = convert_to_url(title)
-		if Manager.objects.filter(url_title=url_title).count() and Manager.objects.get(url_title=url_title) != self.instance:
-			raise forms.ValidationError('This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.')
-		return title
+    def __init__(self, *args, **kwargs):
+        super(ManagerForm, self).__init__(*args, **kwargs)
+        self.fields['incumbent'].queryset = UserProfile.objects.exclude(status=UserProfile.ALUMNUS)
 
-	def clean(self):
-		''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
-		cleaned_data = super(ManagerForm, self).clean()
-		compensation = cleaned_data.get("compensation")
-		duties = cleaned_data.get("duties")
-		if compensation == '<br data-mce-bogus="1">':
-			cleaned_data["compensation"] = ""
-		if duties == '<br data-mce-bogus="1">':
-			cleaned_data["duties"] = ""
-		return cleaned_data
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if Manager.objects.filter(title=title).count() and Manager.objects.get(title=title) != self.instance:
+            raise forms.ValidationError("A manager with this title already exists.")
+        if not verify_url(title):
+            raise forms.ValidationError("Invalid title. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
+        url_title = convert_to_url(title)
+        if Manager.objects.filter(url_title=url_title).count() and Manager.objects.get(url_title=url_title) != self.instance:
+            raise forms.ValidationError('This manager title maps to a url that is already taken.  Please note, "Site Admin" and "sITe_adMIN" map to the same URL.')
+        return title
 
-	def save(self):
-		manager = super(ManagerForm, self).save(commit=False)
-		manager.url_title = convert_to_url(self.cleaned_data['title'])
-		manager.save()
-		return manager
+    def clean(self):
+        ''' TinyMCE adds a placeholder <br> if no data is inserted.  In this case, remove it. '''
+        cleaned_data = super(ManagerForm, self).clean()
+        compensation = cleaned_data.get("compensation")
+        duties = cleaned_data.get("duties")
+        if compensation == '<br data-mce-bogus="1">':
+            cleaned_data["compensation"] = ""
+        if duties == '<br data-mce-bogus="1">':
+            cleaned_data["duties"] = ""
+        return cleaned_data
+
+    def save(self):
+        manager = super(ManagerForm, self).save(commit=False)
+        manager.url_title = convert_to_url(manager.title)
+        manager.save()
+        return manager
 
 class RequestTypeForm(forms.ModelForm):
-	''' Form to add or modify a request type. '''
-	class Meta:
-		model = RequestType
-		exclude = ("url_name",)
-		help_texts = {
-			'name': "Unique name identifying this request type. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,. Capitalize first letter of each word.",
-			"enabled": "Whether users can post new requests of this type.",
-			"glyphicon": 'Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.',
-			}
+    ''' Form to add or modify a request type. '''
+    class Meta:
+        model = RequestType
+        exclude = ("url_name",)
+        help_texts = {
+            'name': "Unique name identifying this request type. Characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,. Capitalize first letter of each word.",
+            "enabled": "Whether users can post new requests of this type.",
+            "glyphicon": 'Optional glyphicon for this request type (e.g., cutlery).  Check <a target="_blank" href="//getbootstrap.com/components/#glyphicons">Bootstrap Documentation</a> for list of options.  Insert &lt;name> for glyphicon-&lt;name>.',
+            }
 
-	def clean_name(self):
-		name = self.cleaned_data['name']
-		if not verify_url(name):
-			raise forms.ValidationError("Invalid name. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
-		if RequestType.objects.filter(name=name).count() and \
-		  RequestType.objects.get(name=name) != self.instance:
-			raise forms.ValidationError("A request type with this name already exists.")
-		url_name = convert_to_url(name)
-		if RequestType.objects.filter(url_name=url_name).count() and \
-		  RequestType.objects.get(url_name=url_name) != self.instance:
-			raise forms.ValidationError('This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.')
-		return name
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        if not verify_url(name):
+            raise forms.ValidationError("Invalid name. Must be characters A-Z, a-z, 0-9, space, or _&-'?$^%@!#*()=+;:|/.,")
+        if RequestType.objects.filter(name=name).count() and \
+          RequestType.objects.get(name=name) != self.instance:
+            raise forms.ValidationError("A request type with this name already exists.")
+        url_name = convert_to_url(name)
+        if RequestType.objects.filter(url_name=url_name).count() and \
+          RequestType.objects.get(url_name=url_name) != self.instance:
+            raise forms.ValidationError('This request type name maps to a url that is already taken.  Please note, "Waste Reduction" and "wasTE_RedUCtiON" map to the same URL.')
+        return name
 
-	def save(self):
-		rtype = super(RequestTypeForm, self).save()
-		rtype.url_name = convert_to_url(self.cleaned_data['name'])
-		rtype.save()
-		return rtype
+    def save(self):
+        rt = super(RequestTypeForm, self).save()
+        rt.url_name = convert_to_url(rt.name)
+        rt.save()
+        return rt
 
-class RequestForm(forms.Form):
-	''' Form to create a new Request. '''
-	type_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-	body = forms.CharField(widget=forms.Textarea())
+class RequestForm(forms.ModelForm):
+    ''' Form to create a new Request. '''
+    class Meta:
+        model = Request
+        fields = ("body", "private")
+        help_texts = {
+            "body": "",
+            }
 
-	def __init__(self, *args, **kwargs):
-		self.profile = kwargs.pop('profile')
-		self.request_type = kwargs.pop('request_type', None)
-		super(RequestForm, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile')
+        self.request_type = kwargs.pop('request_type', None)
+        super(RequestForm, self).__init__(*args, **kwargs)
 
-	def clean_type_pk(self):
-		if self.request_type:
-			return self.request_type
-		type_pk = self.cleaned_data['type_pk']
-		try:
-			request_type = RequestType.objects.get(pk=type_pk)
-		except RequestType.DoesNotExist:
-			raise forms.ValidationError("The request type was not recognized.  Please contact an admin for support.")
-		return request_type
+    def save(self):
+        request = super(RequestForm, self).save(commit=False)
+        request.owner = self.profile
+        request.request_type = self.request_type
+        request.save()
+        for manager in request.request_type.managers.all():
+            if manager.incumbent:
+                notify.send(self.profile.user, verb="posted", action_object=request,
+                            target=self.request_type, recipient=manager.incumbent.user)
+        return request
 
-	def save(self):
-		request = Request(
-			owner=self.profile,
-			body=self.cleaned_data['body'],
-			request_type=self.cleaned_data['type_pk'],
-			)
-		request.save()
-		return request
+class ResponseForm(forms.ModelForm):
+    '''' Form for a regular user to create a new Response. '''
+    class Meta:
+        model = Response
+        fields = ("body",)
+        help_texts = {
+            "body": "",
+            }
 
-class ResponseForm(forms.Form):
-	'''' Form for a regular user to create a new Response. '''
-	request_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-	body = forms.CharField(widget=forms.Textarea())
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile')
+        self.request = kwargs.pop("request")
+        super(ResponseForm, self).__init__(*args, **kwargs)
 
-	def __init__(self, *args, **kwargs):
-		self.profile = kwargs.pop('profile')
-		super(ResponseForm, self).__init__(*args, **kwargs)
+    def save(self):
+        response = super(ResponseForm, self).save(commit=False)
+        response.owner = self.profile
+        response.request = self.request
+        response.save()
 
-	def clean_request_pk(self):
-		request_pk = self.cleaned_data['request_pk']
-		try:
-			request = Request.objects.get(pk=request_pk)
-		except Request.DoesNotExist:
-			raise forms.ValidationError("Request does not exist.")
-		return request
+        for follower in self.request.followers.all():
+            notify.send(self.profile.user, verb="posted", action_object=response,
+                        target=self.request, recipient=follower.user)
 
-	def save(self):
-		response = Response(
-			owner=self.profile,
-			body=self.cleaned_data['body'],
-			request=self.cleaned_data['request_pk'],
-			)
-		response.request.change_date = datetime.utcnow().replace(tzinfo=utc)
-		response.request.number_of_responses += 1
-		response.request.save()
-		response.save()
-		return response
+        self.request.number_of_responses += 1
+        self.request.save()
+
+        return response
 
 class ManagerResponseForm(ResponseForm):
-	''' Form for a manager to create a new Response. '''
-	mark_filled = forms.BooleanField(required=False)
-	mark_closed = forms.BooleanField(required=False)
+    ''' Form for a manager to create a new Response. '''
+    class Meta:
+        model = Response
+        fields = ("body", "action")
 
-	def save(self):
-		response = super(ManagerResponseForm, self).save()
-		response.manager = True
-		response.save()
-		request = self.cleaned_data['request_pk']
-		request.closed = self.cleaned_data['mark_closed']
-		request.filled = self.cleaned_data['mark_filled']
-		request.save()
-		return response
+    def __init__(self, *args, **kwargs):
+        super(ManagerResponseForm, self).__init__(*args, **kwargs)
+        if self.request.closed:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.CLOSED)
+        elif self.request.open:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.REOPENED)
+        elif self.request.filled:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.FILLED)
+        elif self.request.expired:
+            self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.EXPIRED)
+
+    def save(self):
+        response = super(ManagerResponseForm, self).save()
+        response.manager = True
+        response.save()
+
+        actions = {
+            Response.CLOSED: Request.CLOSED,
+            Response.REOPENED: Request.OPEN,
+            Response.FILLED: Request.FILLED,
+            Response.EXPIRED: Request.EXPIRED,
+            Response.NONE: response.request.status,
+            }
+        response.request.status = actions[response.action]
+        response.request.save()
+
+        return response
 
 class VoteForm(forms.Form):
-	''' Form to cast an up or down vote for a request. '''
-	request_pk = forms.IntegerField(widget=forms.HiddenInput())
+    ''' Form to cast an up vote for a request. '''
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop("profile")
+        self.request = kwargs.pop("request")
 
-	def __init__(self, *args, **kwargs):
-		self.profile = kwargs.pop("profile")
-		super(VoteForm, self).__init__(*args, **kwargs)
+        super(VoteForm, self).__init__(*args, **kwargs)
 
-	def save(self, pk=None):
-		if pk is None:
-			pk = self.cleaned_data['request_pk']
-		relevant_request = Request.objects.get(pk=pk)
-		if self.profile in relevant_request.upvotes.all():
-			relevant_request.upvotes.remove(self.profile)
-		else:
-			relevant_request.upvotes.add(self.profile)
-		relevant_request.save()
+    def save(self):
+        if self.profile in self.request.upvotes.all():
+            self.request.upvotes.remove(self.profile)
+        else:
+            self.request.upvotes.add(self.profile)
+        self.request.save()
+        return self.request
 
 class AnnouncementForm(forms.ModelForm):
-	class Meta:
-		model = Announcement
-		fields = ("manager", "body")
+    email_members = forms.BooleanField(
+        required=False,
+        help_text="Send an e-mail to residents and boarders in database."
+        )
+    email_alumni = forms.BooleanField(
+        required=False,
+        help_text="Send an e-mail to alumni addresses in database."
+        )
 
-	def __init__(self, *args, **kwargs):
-		self.profile = kwargs.pop("profile")
-		self.manager_positions = Manager.objects.filter(incumbent=self.profile)
-		super(AnnouncementForm, self).__init__(*args, **kwargs)
-		if self.manager_positions:
-			self.fields["manager"].queryset = self.manager_positions
-			self.fields["manager"].initial = self.manager_positions[0].pk
-		else:
-			self.fields["manager"].widget = forms.HiddenInput()
-			self.fields["manager"].queryset = Manager.objects.none()
+    class Meta:
+        model = Announcement
+        fields = ("manager", "body")
 
-	def is_valid(self):
-		if not super(AnnouncementForm, self).is_valid():
-			return False
-		if not self.manager_positions and not self.profile.user.is_superuser:
-			raise forms.ValidationError("You do not have permission to post an announcement.")
-		return True
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop("profile")
+        self.manager_positions = Manager.objects.filter(incumbent=self.profile)
+        super(AnnouncementForm, self).__init__(*args, **kwargs)
+        if self.manager_positions:
+            self.fields["manager"].queryset = self.manager_positions
+            self.fields["manager"].initial = self.manager_positions[0].pk
+        else:
+            self.fields["manager"].widget = forms.HiddenInput()
+            self.fields["manager"].queryset = Manager.objects.none()
 
-	def save(self, *args, **kwargs):
-		announcement = super(AnnouncementForm, self).save(commit=False)
-		if announcement.pk is None:
-			announcement.incumbent = self.profile
-		announcement.save()
+    def is_valid(self):
+        if not super(AnnouncementForm, self).is_valid():
+            return False
+        if not self.manager_positions and not self.profile.user.is_superuser:
+            self._errors['__all__'] = forms.util.ErrorList([u"You do not have permission to post an announcement."])
+        return True
 
-class UnpinForm(forms.Form):
-	''' Form to repin or unpin an announcement. '''
-	announcement_pk = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    def save(self):
+        announcement = super(AnnouncementForm, self).save(commit=False)
+        if announcement.pk is None:
+            announcement.incumbent = self.profile
+        announcement.save()
+        return announcement
 
-	def __init__(self, *args, **kwargs):
-		self.announce = kwargs.pop('announce', None)
-		super(UnpinForm, self).__init__(*args, **kwargs)
+class PinForm(forms.ModelForm):
+    ''' Form to repin or unpin an announcement. '''
+    class Meta:
+        model = Announcement
+        fields = ("pinned",)
+        widgets = {
+            "pinned": forms.HiddenInput(),
+            }
 
-	def clean_announcement_pk(self):
-		if self.announce:
-			return self.announce
-		announcement_pk = self.cleaned_data['announcement_pk']
-		try:
-			announce = Announcement.objects.get(pk=announcement_pk)
-		except Announcement.DoesNotExist:
-			raise forms.ValidationError("Announcement does not exist.")
-		return announce
-
-	def save(self):
-		announce = self.cleaned_data['announcement_pk']
-		announce.pinned = not announce.pinned
-		announce.save()
+    def __init__(self, *args, **kwargs):
+        if "instance" in kwargs:
+            kwargs.setdefault("initial", {"pinned": not kwargs["instance"].pinned})
+        super(PinForm, self).__init__(*args, **kwargs)

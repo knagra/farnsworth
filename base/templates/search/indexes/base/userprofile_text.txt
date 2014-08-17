@@ -1,5 +1,9 @@
 {{ object.user.get_full_name }}
 {{ object.get_status_display }}
-{{ object.current_room }}
-{{ object.former_rooms }}
+{% for room in object.room_set.all %}
+{{ room.title }}
+{% endfor %}
+{% for prev_res in object.previousresident_set.all %}
+{{ prev_res.room.title }}
+{% endfor %}
 {{ object.former_houses }}

@@ -1,0 +1,23 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<div class="type_container">
+  {% if WORKSHIFT_MANAGER %}
+  <form action="{% wurl 'workshift:edit_type' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
+    <button class="btn btn-warning" type="submit">
+      <span class="glyphicon glyphicon-edit"></span>
+      <span class="hidden-xs">Edit</span>
+    </button>
+  </form>
+  {% endif %}
+  <h1 class="w_title">{{ page_name }}</h1>
+  <p>{{ shift.hours }}</p>
+  <p>{{ shift.quick_tips|safe }}</p>
+  <p>{{ shift.description|safe }}</p>
+</div> <!-- .instance_container -->
+{% endblock %}

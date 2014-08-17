@@ -52,7 +52,7 @@ HOUSE_ABBREV = "exa"
 ### OAuth provider credentials, needed to enable logins with these providers.
 
 ### Facebook
-### http://developers.facebook.com/docs/authentication/
+### http://developers.facebook.com/setup/
 
 # SOCIAL_AUTH_FACEBOOK_KEY = ''
 # SOCIAL_AUTH_FACEBOOK_SECRET = ''

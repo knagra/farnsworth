@@ -1,0 +1,5 @@
+{% load highlight %}
+{% load workshift_tags %}
+<h3 class="result_title"><a href="{% wurl 'workshift:view_instance' sem_url=result.object.semester.sem_url pk=result.object.pk %}">{{ result.object.title }}</a>
+    <small>Workshift Instance</small></h3>
+<div class="result_highlight">{% highlight result.text with query %}</div>

@@ -5,22 +5,20 @@ Author: Karandeep Singh Nagra
 */
 
 .thread_link {
-	text-decoration: none;
-	color: black;
+    text-decoration: none;
+    color: black;
 }
 
 .thread_link:hover {
-	color: #7e7e7e;
+    color: #7e7e7e;
 }
 
 label {
-	padding-left: 5px;
+    padding-left: 5px;
 }
 
 .btn-group {
-	padding-bottom: 10px;
-	margin-bottom: 5px;
-	border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
 }
 
 .add_thread {
@@ -30,6 +28,18 @@ label {
 }
 
 .new_message_form {
+    display: none;
+}
+
+.edit_thread_form {
+    display: none;
+}
+
+.edit_message_form {
+    display: none;
+}
+
+.delete_message_form {
     display: none;
 }
 
@@ -69,7 +79,7 @@ label {
 
 /*
   Remove confusion about table layout in case user enters a horizontal line.
-  */	
+  */
 .message_table hr:not(.main_divider) {
     margin-left: 10px;
 }
@@ -87,10 +97,4 @@ label {
 
 #new_thread_form {
     display: none;
-    padding-bottom: 10px;
-}
-
-#id_subject {
-    margin-bottom: 5px;
-    max-width: 75%;
 }

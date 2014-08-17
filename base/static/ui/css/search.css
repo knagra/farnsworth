@@ -5,61 +5,60 @@ Author: Karandeep Singh Nagra
 */
 
 #facets_container {
-	display: none;
-	overflow: auto;
-	background-color: #d9edf7;
+    display: none;
+    overflow: auto;
 }
 
 .hide_facets {
-	margin-top: 5px;
-	width: 100%;
+    margin-top: 5px;
+    width: 100%;
 }
 
 .hide_facets > button {
-	margin-bottom: 20px;
-	min-width: 25%;
-	max-width: 100%;
+    margin-bottom: 20px;
+    min-width: 25%;
+    max-width: 100%;
 }
 
 .result_row {
-	padding-bottom: 5px;
+    padding-bottom: 5px;
 }
 
 .result_row:hover .result_highlight {
-	color: black;
+    color: black;
 }
 
 .result_title {
-	margin: 0px;
-	padding-top: 5px;
-	padding-left: 5px;
+    margin: 0px;
+    padding-top: 5px;
+    padding-left: 5px;
 }
 
 .result_description {
-	margin-left: 15px;
-	padding-bottom: 5px;
-	height: auto;
-	font-size: 110%;
+    margin-left: 15px;
+    padding-bottom: 5px;
+    height: auto;
+    font-size: 110%;
 }
 
 .result_highlight {
-	margin-left: 30px;
-	padding-top: 5px;
-	padding-bottom: 10px;
-	height: auto;
-	font-size: 90%;
-	color: #9e9e9e;
+    margin-left: 30px;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    height: auto;
+    font-size: 90%;
+    color: #9e9e9e;
 }
 
 .result_description tr th {
-	padding-right: 5px;
+    padding-right: 5px;
 }
 
 .response_body {
-	font-size: 11pt;
-	word-wrap: break-word;
+    font-size: 11pt;
+    word-wrap: break-word;
 }
 
 th {
-	padding-right: 5px;
+    padding-right: 5px;
 }

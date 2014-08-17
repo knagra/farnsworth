@@ -1,0 +1,125 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_headers %}
+<style>
+    .shifts_formset_row td {
+        padding-right: 5px;
+        padding-bottom: 5px;
+        border-top: none !important;
+        border-bottom: 1px solid #e4e4e4;
+    }
+    .shifts_formset_row td div {
+        margin: 0px;
+    }
+    .shifts_formset_row td div label {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block w_content %}
+<h1 class="w_title">{{ page_name }}</h1>
+<ul class="nav nav-pills" style="margin-bottom: 10px;">
+  {% if add_instance_form %}<li class="active"><a href="#workshift_instance" data-toggle="tab">Workshift Instance</a></li>{% endif %}
+  {% if add_type_form %}<li><a href="#workshift_type" data-toggle="tab">Workshift Type</a></li>{% endif %}
+</ul>
+<div class="tab-content">
+  {% if add_instance_form %}
+  <form class="tab-pane active" id="workshift_instance" method="post">
+    {% csrf_token %}
+    {{ add_instance_form|bootstrap }}
+    <div class="text-center">
+      <button type="submit" class="btn btn-success" name="add_instance">Create Single Workshift</button>
+    </div>
+  </form>
+  {% endif %}
+  {% if add_type_form and shifts_formset %}
+  <form class="tab-pane" id="workshift_type" method="post">
+    {% csrf_token %}
+    {{ add_type_form|bootstrap }}
+    <table id="shifts" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
+      <thead>
+	<tr>
+	  <th>Pool</th>
+	  <th>Day</th>
+	  <th>Count</th>
+	  <th>Hours</th>
+	  <th>Start Time</th>
+	  <th>End Time</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for form in shifts_formset.forms %}
+	{{ form.id }}
+	<tr class="shifts_formset_row">
+	  <td>
+	    {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+	    {{ form.pool|bootstrap }}
+	  </td>
+	  <td>{{ form.day|bootstrap }}</td>
+	  <td>{{ form.count|bootstrap }}</td>
+	  <td>{{ form.hours|bootstrap }}</td>
+	  <td>{{ form.start_time|bootstrap }}</td>
+	  <td>{{ form.end_time|bootstrap }}</td>
+          <td style="vertical-align: middle;"></td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+    {{ shifts_formset.management_form }}
+    <div class="text-center">
+      <button type="submit" class="btn btn-success" name="add_type">Create Workshift Type</button>
+    </div>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ui/js/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+  function renewDatePickers(row) {
+    $("[id$=time]", row || null).datetimepicker({
+      pickDate: false,
+      pick12HourFormat: true,
+    });
+  };
+  $("[id$=date]").datetimepicker({
+    pickTime: false,
+  });
+  function show_hide_details() {
+    var weekly_workshift = $("#id_weekly_workshift").val();
+    if (weekly_workshift != "") {
+      $("#id_title").parent().parent().hide()
+      $("#id_description").parent().parent().hide()
+      $("#id_pool").parent().parent().hide()
+      $("#id_start_time").parent().parent().hide()
+      $("#id_end_time").parent().parent().hide()
+    } else {
+      $("#id_title").parent().parent().show()
+      $("#id_description").parent().parent().show()
+      $("#id_pool").parent().parent().show()
+      $("#id_start_time").parent().parent().show()
+      $("#id_end_time").parent().parent().show()
+    }
+  }
+  $("#id_weekly_workshift").change(show_hide_details)
+  $(document).ready(function() {
+    $(function() {
+      $(".shifts_formset_row").formset({
+        prefix: "{{ shifts_formset.prefix }}",
+        added: renewDatePickers,
+      });
+      renewDatePickers();
+      show_hide_details();
+    });
+  });
+</script>
+{% endblock %}

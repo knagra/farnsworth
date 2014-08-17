@@ -3,49 +3,54 @@
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load thread_tags %}
+
 {% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/member_profile.css' %}" />
+<style>
+#profile_table {
+    font-size: 15px;
+    position: relative;
+    padding-top: 10px;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div id="user_profile" class="table_container">
-	<div class="header">
-		{% if user.is_superuser or PRESIDENT %}
-			<form class="header_form" action="{% url 'edit_manager' managerTitle=targetManager.url_title %}">
-				<button id="edit_profile" type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs"> Edit</span></button>
-			</form>
-		{% endif %}
-		<h3 class="table_title{% if user.is_superuser or PRESIDENT %} small_title{% endif %}">View Manager</h3>
-	</div> <!-- .header -->
-	<div class="main_table">
-	<dl id="profile_table" class="dl-horizontal">
-		<dt>Title</dt>
-			<dd>{{ targetManager.title }}</dd>
-		<dt>Incumbent</dt>
-			<dd>{% if targetManager.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=targetManager.incumbent.user.username %}" >{{ targetManager.incumbent|display_user:user }}</a>{% else %}&nbsp;{% endif %}</dd>
-		{% if targetManager.email %}
-		<dt>E-mail</dt>
-			<dd><a title="Write E-mail" href="mailto:{{ targetManager.email }}">{{ targetManager.email }}</a></dd>
-		{% elif targetManager.incumbent.email_visible and targetManager.incumbent.user.email %}
-		<dt title="No e-mail address for this manager in database. This is the incumbent's personal e-mail address.">Personal E-mail</dt>
-			<dd><a title="Write E-mail" href="mailto:{{ targetManager.incumbent.user.email }}">{{ targetManager.incumbent.user.email }}</a></dd>
-		{% endif %}
-		{% if targetManager.incumbent.phone_visible %}
-		<dt>Personal Phone</dt>
-			<dd>{{ targetManager.incumbent.phone_number }}</dd>
-		{% endif %}
-		<dt>Compensation</dt>
-			<dd>{% if targetManager.compensation %}{{ targetManager.compensation|safe }}{% else %}&nbsp;{% endif %}</dd>
-		<dt>Duties</dt>
-			<dd>{% if targetManager.duties %}{{ targetManager.duties|safe }}{% else %}&nbsp;{% endif %}</dd>
-	</dl>
-	<hr>
-	<div class="text-center">
-		<form action="{% url 'list_managers' %}">
-			<button id="member_directory" type="submit" class="btn btn-lg btn-info"><span class="glyphicon glyphicon-tower"></span> Manager Directory</button>
-		</form>
-	</div>
-	</div> <!-- .main_table -->
+<div id="user_profile">
+{% if user.is_superuser or PRESIDENT %}
+    <form class="pull-right" action="{% url 'managers:edit_manager' managerTitle=targetManager.url_title %}">
+        <button type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs"> Edit</span></button>
+    </form>
+{% endif %}
+    <h1 class="w_title">View Manager</h1>
+    <hr class="w_line" />
+    <dl id="profile_table" class="dl-horizontal">
+        <dt>Title</dt>
+            <dd>{{ targetManager.title }}</dd>
+        <dt>Incumbent</dt>
+            <dd>{% if targetManager.incumbent %}<a title="View Profile" href="{% url 'member_profile' targetUsername=targetManager.incumbent.user.username %}" >{{ targetManager.incumbent|display_user:user }}</a>{% else %}&nbsp;{% endif %}</dd>
+        {% if targetManager.email %}
+        <dt>E-mail</dt>
+            <dd><a title="Write E-mail" href="mailto:{{ targetManager.email }}">{{ targetManager.email }}</a></dd>
+        {% elif targetManager.incumbent.email_visible and targetManager.incumbent.user.email %}
+        <dt title="No e-mail address for this manager in database. This is the incumbent's personal e-mail address.">Personal E-mail</dt>
+            <dd><a title="Write E-mail" href="mailto:{{ targetManager.incumbent.user.email }}">{{ targetManager.incumbent.user.email }}</a></dd>
+        {% endif %}
+        {% if targetManager.incumbent.phone_visible %}
+        <dt>Personal Phone</dt>
+            <dd>{{ targetManager.incumbent.phone_number }}</dd>
+        {% endif %}
+        <dt>Compensation</dt>
+            <dd>{% if targetManager.compensation %}{{ targetManager.compensation|safe }}{% else %}&nbsp;{% endif %}</dd>
+        <dt>Duties</dt>
+            <dd>{% if targetManager.duties %}{{ targetManager.duties|safe }}{% else %}&nbsp;{% endif %}</dd>
+    </dl>
+    <hr class="line_75">
+    <div class="text-center">
+        <form action="{% url 'managers:list_managers' %}">
+            <button id="member_directory" type="submit" class="btn btn-info"><span class="glyphicon glyphicon-tower"></span> Manager Directory</button>
+        </form>
+    </div>
 </div> <!-- #user_profile -->
 {% endblock %}

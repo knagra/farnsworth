@@ -1,20 +1,33 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import, print_function
+
 import os
 import sys
 
 from django.conf import settings
 
-from utils.funcs import convert_to_url
-from managers.models import Manager, RequestType
+from datetime import time
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "farnsworth.settings")
-this_dir = os.path.abspath(os.path.dirname(__file__))
+this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if this_dir not in sys.path:
-	sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+    sys.path.insert(0, this_dir)
+
+import django
+if hasattr(django, "setup"):
+    django.setup()
+
+from base.models import UserProfile
+from managers.models import Manager, RequestType
+from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
+    RegularWorkshift, WorkshiftProfile
+from workshift.utils import get_year_season, make_instances, \
+    get_semester_start_end, make_workshift_pool_hours, \
+    make_manager_workshifts
 
 MANAGERS = [
-	("President", "5 hours/week", "hp", """<ol>
+    ("President", "", 5, "hp", """<ol>
 <li>Ensure that each manager has a copy of the house Constitution and a copy of the list of duties from the list of house policies pertaining to his/her office</li>
 <li>Facilitate all house councils, held at least one every two weeks, but usually every week, with the times and place to be set by the President.</li>
 <li>Ensure that the major managers are fulfilling their duties.</li>
@@ -26,7 +39,7 @@ MANAGERS = [
 <li>The house President will maintain a suggestion box and regularly post results.</li>
 <li>Keep house records in order (see Record-Keeping Bylaw).</li>
 </ol>"""),
-	("Vice President", "3 hours/week", "", """<ol>
+    ("Vice President", "", 3, "", """<ol>
 <li>Take and post the minutes of house meetings.</li>
 <li>Assist the President to administer elections.</li>
 <li>Act as President when the President is unable to serve.</li>
@@ -34,10 +47,10 @@ MANAGERS = [
 <li>Record the attendance of the manager and the board rep at the beginning and the end of council.</li>
 <li>Give the president a paper copy of each week's minutes, dated and copy of all the semester's minutes with the VP's name at the end of the semester.</li>
 </ol>"""),
-	("Board Representative", "5 hours/week", "br", """<ol>
+    ("Board Representative", "", 5, "br", """<ol>
 <li>Attend central-level Board of Representative meetings</li>
 </ol>"""),
-	("House Manager", "5 hours/week + 9/16 rent compensation", "hm", """<ol>
+    ("House Manager", "9/16 rent compensation", 5, "hm", """<ol>
 <li>Attend house council.</li>
 <li>Oversee the house bank account:
 <ol>
@@ -68,9 +81,9 @@ MANAGERS = [
 <li>Monitor consumption of food by non-members and non-boarders. The House Manager must also monitor receipts of food purchased by the Kitchen Manager from sources other than Central Kitchen.</li>
 <li>The House manager may not spend more than $20 per week without prior council approval.</li>
 </ol>"""),
-	("Finance Manager", "5 hours/week", "", """<ol>
+    ("Finance Manager", "", 5, "", """<ol>
 </ol>"""),
-	("Kitchen Manager", "5 hours/week + 100% rent compensation", "km", """<ol>
+    ("Kitchen Manager", "100% rent compensation", 5, "km", """<ol>
 <li>Have the final say in the selection of all cooks.</li>
 <li>Oversee all actions of the kitchen including menu planning, cooking techniques, and quality of food control</li>
 <li>Be responsible for ordering of all food, beverages, and cleaning supplies.</li>
@@ -80,9 +93,9 @@ MANAGERS = [
 <li>Make available to the member of the house within 48 hrs, all budget reports, inspection report, or anything else of importance concerning the kitchen.</li>
 <li>Work with the Workshift Manager with organizing and overseeing the kitchen clean-up crew, with including the dining room and dish room.</li>
 </ol>"""),
-	("IKC Manager", "5 hours/week", "", """<ol>
+    ("IKC Manager", "", 5, "", """<ol>
 </ol>"""),
-	("Workshift Manager", "5 hours/week + 9/16 rent compensation", "wm", """<ol>
+    ("Workshift Manager", "9/16 rent compensation", 5, "wm", """<ol>
 <li>Enforce and abide by the Workshift Policy bylaws.</li>
 <li>Assist house members as they materialize their ideas for HI (House Improvement) projects, and encourage house members to create independent HI projects, with the main objective of approval and documentation of HI hours. This meaning participating in planning, getting supplies, and recruiting other member to work, coordinating schedules, and facilitating work on the actual day of the project.</li>
 <li>Have open and ongoing communication with other managers about HI project ideas and think up and identify a variety of projects as alternatives for member who need ideas. Help facilitate their completion.</li>
@@ -92,7 +105,7 @@ MANAGERS = [
 <li>On the day cards are due, give a list of member who have and have not done their HI hours to the House Manager so that fines can be implemented immediately. Post this list in common space. Read now delinquent members' names in council. Leave a note on the door of each delinquent member notifying him/her of said delinquency, the fine $$$ amount, available projects, and the possibility of possible fine redemption.</li>
 <li>On the last day of the semester, give the House Manager an updated list of members who have done their HI noting those who completed hours late.</li>
 </ol>"""),
-	("Maintenance Manager", "5 hours/week + 7/16 rent compensation", "mm", """<ol>
+    ("Maintenance Manager", "7/16 rent compensation", 5, "mm", """<ol>
 <li>Attend all house councils.</li>
 <li>Keep an accurate and up to date record of maintenance expenditures.</li>
 <li>Report the status of the Maintenance budget at each council.</li>
@@ -116,7 +129,7 @@ MANAGERS = [
 <li>Create and facilitate HI Project days to give members the opportunity to complete their hours. Specifically, these days are meant to encourage the completion of large, house-wide projects. Ultimately, the bulk of the responsibility for coordinating HI projects will fall on the Maintenance and Garden Managers. Their roles main entail: planning, preparing supplies, coordinating schedules, recruiting other members to work, and facilitating the work on the day of the project.</li>
 <li>Maintenance Manager/team may not spend more than $100 per week without prior council approval.</li>
 </ol>"""),
-	("Social Manager", "5 hours/week", "sm", """<ol>
+    ("Social Manager", "", 5, "sm", """<ol>
 <li>Attend all house meeting or submit a written report to the House President.</li>
 <li>Attend SMUC meetings and try to utilize SMUC to the fullest extent.</li>
 <li>Provide timely notice of all house activities.</li>
@@ -136,7 +149,7 @@ MANAGERS = [
 <li>Write a minimum of one page single spaces summary of the defining moments that took place in the house under their tenure, both from organized and spur of the moment. The summary will be posted on the hose server, in coordination with the Network Manager, for future generations to see and inspire themselves from.</li>
 <li>With House Manager, run a Neighbor day and manage the Neighbor dossier (see House Manager duties)</li>
 </ol>"""),
-	("Network Manager", "3 hours/week", "nm", """<ol>
+    ("Network Manager", "", 3, "nm", """<ol>
 <li>Be responsible for maintaining all house network equipment in working order. This includes, but is not limited to, the house server, printer, and the physical networks (all hubs, lines and network jacks in the rooms and common areas.)</li>
 <li>Repair broken ethernet jacks in member rooms upon request.</li>
 <li>Oversee the proper operation of the house server, and provide appropriate special access to managers to create phone list, and other documents which will be seen but not modified by members.</li>
@@ -149,14 +162,14 @@ MANAGERS = [
 <li>Be voted in by the membership.</li>
 <li>Be given an office key and have access to the master key when needed.</li>
 </ol>"""),
-	("Garden Manager", "3 hours/week", "", """<ol>
+    ("Garden Manager", "", 3, "", """<ol>
 <li>The Garden Manager may not spend more that $50 per week without prior council approval.</li>
 <li>Assist house members as the materialize their ideas for HI projects, and encourage house members to create independent HI projects, with the main objective of approval and documentation of HI hours. This means participating in planning, getting supplies, recruiting other member to work, coordinating schedules, and facilitating work on the actual day of the project.</li>
 <li>Have open and ongoing communicating with the other managers about HI project ideas and think up and identify a variety of projects as alternatives for member who need ideas. Help facilitate their completion.</li>
 <li>Starting two weeks before cards are due, hound member incessantly to do their HI hours, leaving at least one note on potentially delinquent member's doors.</li>
 <li>Create and facilitates HI Project days to give members the opportunity to complete their hours. Specifically, these days are meant to encourage the completion of large, house-wide projects. Ultimately, the bulk of the responsibility for coordinating HI projects will fall on the Maintenance and Garden Managers. Their roles main entail: planning, preparing supplies, coordinating schedules, recruiting other members to work, and facilitating the work on the day of the project.</li>
 </ol>"""),
-	("Waste Reduction Manager", "5 hours/week", "rm", """<ol>
+    ("Waste Reduction Manager", "", 5, "rm", """<ol>
 <li>Bring recycling bins to the curbside on the respective pick-up dates.</li>
 <li>Provide member education on ways to reduce waste, proper disposal of materials, environmental and cost benefits of waste reduction, and other related information.</li>
 <li>Make sure the free-piles are up the city habitability standards. This taste maybe fulfilled the WRM or a delegated workshifter.</li>
@@ -167,48 +180,300 @@ MANAGERS = [
 <li>Research options for buying renewable energy credits.</li>
 <li>Advise the House manager on where to buy renewable energy credits and how many credits to buy to keep the house carbon neutral.</li>
 </ol>"""),
-	("Health Worker", "2 hours/week", "hw", ""),
-	]
+    ("Health Worker", "", 2, "hw", ""),
+    ]
 
 REQUESTS = [
-	("Cleanliness", ["IKC Manager", "Workshift Manager"], "certificate"),
-	("Finance", ["Finance Manager"], "usd"),
-	("Food", ["Kitchen Manager"], "cutlery"),
-	("Health", ["Health Worker"], "heart"),
-	("House", ["House Manager"], "home"),
-	("Maintenance", ["Maintenance Manager"], "wrench"),
-	("Network", ["Network Manager"], "signal"),
-	("President", ["President"], "star"),
-	("Social", ["Social Manager"], "comment"),
-	]
+    ("Cleanliness", ["IKC Manager", "Workshift Manager"], "certificate"),
+    ("Finance", ["Finance Manager"], "usd"),
+    ("Food", ["Kitchen Manager"], "cutlery"),
+    ("Health", ["Health Worker"], "heart"),
+    ("House", ["House Manager"], "home"),
+    ("Maintenance", ["Maintenance Manager"], "wrench"),
+    ("Network", ["Network Manager"], "signal"),
+    ("President", ["President"], "star"),
+    ("Social", ["Social Manager"], "comment"),
+    ]
 
-def main(args):
-	# Add Managers
-	for title, compensation, email, duties in MANAGERS:
-		m = Manager(
-			title=title,
-			url_title=convert_to_url(title),
-			compensation=compensation,
-			duties=duties,
-			email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
-			president="president" in title.lower(),
-			workshift_manager="workshift" in title.lower(),
-			)
-		m.save()
+# Items of form (title, description, quick_tips, hours, rateable)
+WORKSHIFT_TYPES = [
+    ("Clean",
+        """<ol>
+        <li>Put away any perishables left out.</li>
+        <li>clear all dishes from dining room into dishroom.</li>
+        <li>Throw away yesterday's paper.</li>
+        <li>Put away your cleaning supplies.<li>
+        <li>Clean and sanitize all counters and tables with sponge and a spray bottle.</li>
+        </ol>
+        """, "", True),
+    ("Food Put Away",
+        """<ol>
+        <li>Put away food.</li>
+        <li>Place opened food in containers and label containers.</li>
+        </ol>
+        """, "", True),
+    ("Pots",
+        """<ol>
+        <li>Wash and sanitize all pots.</li>
+        <li>Clean up pots area after all pots are washed and sanitized.</li>
+        <li>Soak any pots that you can't wash in soap water.</li>
+        <li>Clean out all scraps from the disposals.</li>
+        <li>Allow pots to air dry.</li>
+        </ol>
+        """, "", True),
+    ("Basement / Laundry Room Clean",
+        """<ol>
+        <li>Take all dishes to the dishroom.</li>
+        <li>Throw away any trash lying around.</li>
+        <li>Organize the laundry room and maintenance hallway.</li>
+        <li>Sweep laundry room floor.</li>
+        <li>Organize free pile by category.  Throw away anything that's obviously trash.</li>
+        <li>Make sure basement doors are closed.  These should never be left open.</li>
+        </ol>
+        """, "", True),
+    ("Bathroom Clean",
+        """<ol>
+        <li>Clean all sinks, toilets and handles.</li>
+        <li>Sweep and mop the floors.</li>
+        <li>Scrub the grout and surfaces in the showers.</li>
+        <li>Take out all trash, recycling, and compost.</li>
+        </ol>
+        """, "", True),
+    ("Bike / Living / Study Room Clean",
+        """<ol>
+        <li>Clear out the rooms of any trash.</li>
+        <li>Pick up dishes and food and move them to the dish room.</li>
+        <li>Recycle any cans, bottles, or paper.</li>
+        </ol>
+        """, "", True),
+    ("Roofdeck Clean & Top Two Floors",
+        """
+        """, "", True),
+    ("Ramp and Amphitheater Clean", "", "", True),
+    ("Ramp and Gazebo Clean", "", "", True),
+    ("Pantry / Fridge Clean", "", "", True),
+    ("Free Pile Clean", "", "", True),
+    ("Bread Run", "", "", True),
+    ("Brunch", "", "", True),
+    ("Extra bagels", "", "", True),
+    ("Dishes", "", "", True),
+    ("Dairy / Non-perishables Run", "", "", True),
+    ("Farmer's Market Run", "", "", True),
+    ("Hummus", "", "", True),
+    ("Granola", "", "", True),
+    ("Laundry", "", "", True),
+    ("Sweep & Mop", "", "", True),
+    ("Cook", "", "", True),
+    ("IKC", "", "", True),
+    ("Main Entrance / Front Walk Clean", "", "", True),
+    ("Mail Sort / Forward", "", "", True),
+    ("Vacuum", "", "", True),
+    ]
 
-	# Add Requests
-	for name, managers, glyphicon in REQUESTS:
-		r = RequestType(
-			name=name,
-			url_name=convert_to_url(name),
-			glyphicon=glyphicon,
-			)
-		r.save()
-		r.managers = [Manager.objects.get(title=i) for i in managers]
-		r.save()
+REGULAR_WORKSHIFTS = [
+    ("Clean", 1, [0, 1, 2, 3, 4, 5, 6], 1, None, time(11)),
+    ("Dishes", 1, [0, 1, 2, 3, 4, 5, 6], 1, None, time(11)),
+    ("Pots", 2, [0, 1, 2, 3, 4, 5, 6], 1, time(10), time(11)),
+    ("Dishes", 1, [0, 1, 2, 3, 4, 5, 6], 1, time(12), time(16)),
+    ("Clean", 1, [0, 1, 2, 3, 4, 5, 6], 1, time(13), time(15)),
+    ("Pots", 2, [0, 1, 2, 3, 4, 5, 6], 2, time(13), time(15)),
+    ("Clean", 1, [0, 1, 2, 3, 4, 6], 1, time(18), time(19)),
+    ("Dishes", 1, [0, 1, 2, 3, 4, 6], 1, time(17), time(19)),
+    ("Dishes", 1, [1, 2, 0], 1, time(20), time(0)),
+    ("Pots", 2, [1, 2, 0], 2, time(20), time(0)),
+    ("Sweep & Mop", 1, [1, 2, 3], 1, time(21), time(0)),
+    ("Main Entrance / Front Walk Clean", 1, [1, 3], 1, None, None),
+    ("Basement / Laundry Room Clean", 1, [1, 4], 1, None, time(19)),
+    ("Bike / Living / Study Room Clean", 1, [1, 4], 1, None, time(19)),
+    ("Roofdeck Clean & Top Two Floors", 1, [1, 4], 1, None, time(19)),
+    ("Ramp and Amphitheater Clean", 1, [2], 1, None, None),
+    ("Ramp and Gazebo Clean", 0.5, [2], 1, None, None),
+    ("Pantry / Fridge Clean", 0.5, [2], 1, None, time(20)),
+    ("Free Pile Clean", 1.5, [2], 1, None, None),
+    ("Laundry", 1, [2], 1, None, None),
+    ("Vacuum", 2, [1, 4], 1, None, None),
+    ("Food Put Away", 1, [0, 3], 1, None, None),
+    ("Bread Run", 2, [3], 1, None, None),
+    ("Dairy / Non-perishables Run", 2, [3], 2, None, None),
+    ("Food Put Away", 1, [3], 1, time(15), time(19)),
+    ("Cook", 3, [0, 1, 2, 3, 4, 6], 3, time(16), time(19)),
+    ("IKC", 2, [0], 8, time(20), time(23)),
+    ("IKC", 2, [3], 7, time(20), time(23)),
+    ]
 
-	# Add Workshifts
-	# ...
+WEEK_LONG = (
+    ("Extra bagels", 1, 1),
+    ("Farmer's Market Run", 1, 1),
+    ("Granola", 2, 1),
+    ("Hummus", 2, 1),
+    ("Mail Sort / Forward", 1, 1),
+    )
+
+HUMOR_WORKSHIFTS = [
+    ("Pots", 2, [4, 5], time(20), time(0)),
+    ("Sweep & Mop", 2, [4, 5], time(20), time(0)),
+    ]
+
+# TODO: Bathroom shifts
+
+def main(args, verbose=True):
+    # Add Managers
+    managers = 0
+    for title, compensation, hours, email, duties in MANAGERS:
+        created = Manager.objects.get_or_create(
+            title=title,
+            defaults=dict(
+                compensation=compensation,
+                semester_hours=hours,
+                summer_hours=hours,
+                duties=duties,
+                email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
+                president="president" in title.lower(),
+                workshift_manager="workshift" in title.lower(),
+                ),
+            )[1]
+        if created:
+            managers += 1
+
+    if verbose:
+        print("Created {0} managers".format(managers))
+
+    # Add Requests
+    requests = 0
+    for name, managers, glyphicon in REQUESTS:
+        r, created = RequestType.objects.get_or_create(
+            name=name,
+            defaults=dict(
+                glyphicon=glyphicon,
+                ),
+            )
+
+        if created:
+            r.managers = [Manager.objects.get(title=i) for i in managers]
+            r.save()
+            requests += 1
+
+    if verbose:
+        print("Created {0} request types".format(requests))
+
+    if "workshift" in settings.INSTALLED_APPS:
+        # Start the Workshift Semester
+        year, season = get_year_season()
+        start_date, end_date = get_semester_start_end(year, season)
+        try:
+            semester = Semester.objects.get(current=True)
+        except Semester.DoesNotExist:
+            semester, created = Semester.objects.get_or_create(
+                year=year,
+                season=season,
+                defaults=dict(start_date=start_date, end_date=end_date),
+                )
+        else:
+            created = False
+
+        if created and verbose:
+            print("Started a new workshift semester")
+
+        # Regular Weekly Workshift Hours
+        pool, created = WorkshiftPool.objects.get_or_create(
+            semester=semester,
+            is_primary=True,
+            defaults=dict(hours=5, any_blown=True),
+            )
+        if created:
+            pool.managers = Manager.objects.filter(workshift_manager=True)
+            pool.save()
+
+        # HI Hours
+        hi_pool, created = WorkshiftPool.objects.get_or_create(
+            title="Home Improvement",
+            semester=semester,
+            defaults=dict(hours=4, weeks_per_period=0),
+            )
+        if created:
+            hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
+            hi_pool.save()
+
+        # Social Hours
+        social_pool, created = WorkshiftPool.objects.get_or_create(
+            title="Social",
+            semester=semester,
+            defaults=dict(hours=1, weeks_per_period=0),
+            )
+        if created:
+            social_pool.managers = Manager.objects.filter(title="Social Manager")
+            social_pool.save()
+
+        # Humor Shift
+        humor_pool, created = WorkshiftPool.objects.get_or_create(
+            title="Humor Shift",
+            semester=semester,
+            defaults=dict(any_blown=True, hours=2, weeks_per_period=6),
+            )
+        if created:
+            humor_pool.managers = Manager.objects.filter(workshift_manager=True)
+            humor_pool.save()
+
+        make_workshift_pool_hours(semester)
+
+        # Workshift Types
+        for title, description, quick_tips, rateable in WORKSHIFT_TYPES:
+            WorkshiftType.objects.get_or_create(
+                title=title,
+                defaults=dict(
+                    description=description,
+                    quick_tips=quick_tips,
+                    rateable=rateable,
+                    ),
+                )
+
+        # Regular Workshifts
+        for type_title, hours, days, count, start, end in REGULAR_WORKSHIFTS:
+            wtype = WorkshiftType.objects.get(title=type_title)
+            for day in days:
+                RegularWorkshift.objects.get_or_create(
+                    workshift_type=wtype,
+                    pool=pool,
+                    day=day,
+                    start_time=start,
+                    end_time=end,
+                    defaults=dict(
+                        count=count,
+                        hours=hours,
+                        ),
+                    )
+
+        for type_title, hours, count in WEEK_LONG:
+            wtype = WorkshiftType.objects.get(title=type_title)
+            RegularWorkshift.objects.get_or_create(
+                workshift_type=wtype,
+                pool=pool,
+                count=count,
+                week_long=True,
+                defaults=dict(
+                    start_time=None,
+                    end_time=None,
+                    hours=hours,
+                    ),
+                )
+
+        # Humor Workshifts
+        for type_title, hours, days, start, end in HUMOR_WORKSHIFTS:
+            wtype = WorkshiftType.objects.get(title=type_title)
+            for day in days:
+                RegularWorkshift.objects.get_or_create(
+                    workshift_type=wtype,
+                    pool=humor_pool,
+                    day=day,
+                    defaults=dict(
+                        start_time=start,
+                        end_time=end,
+                        hours=hours,
+                        ),
+                    )
+
+        make_instances(semester=semester)
+        make_manager_workshifts(semester)
 
 if __name__ == "__main__":
-	main(sys.argv[1:])
+    main(sys.argv[1:])

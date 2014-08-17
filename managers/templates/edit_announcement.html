@@ -2,33 +2,24 @@
 
 {% load static from staticfiles %}
 {% load bootstrap %}
-{% block headers %}
-<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
-{% endblock %}
 
 {% block content %}
-<div class="table_container" style="position: relative; margin: 0px auto; max-width: 85%;">
-  <div class="header"><h3 class="table_title">Edit Announcement</h3></div> <!-- .header -->
-  <div class="announcement_table main_table">
-    <form id="announcement_form" method="post" action="">
-      {% csrf_token %}
-      <div class="form-group">
-	{{ announcement_form|bootstrap }}
-	<div class="text-center">
-	  <button type="submit" class="btn btn-lg btn-success" name="post_event" style="min-width: 50%;"><span class="glyphicon glyphicon-floppy-disk"></span> Update Announcement</button>
-	</div> <!-- .text-center -->
-      </div> <!-- .form-group -->
-    </form>
-  </div> <!-- .main_table -->
-</div> <!-- #announcement_form_table -->
+<h1 class="w_title">Edit Announcement</h1>
+<hr class="w_line" />
+<div class="announcement_table">
+<form id="announcement_form" method="post" action="">
+  {% csrf_token %}
+  <div class="form-group">
+{{ announcement_form|bootstrap }}
+<div class="text-center">
+  <button type="submit" class="btn btn-success" name="post_event"><span class="glyphicon glyphicon-floppy-disk"></span> Update Announcement</button>
+</div> <!-- .text-center -->
+  </div> <!-- .form-group -->
+</form>
+</div> <!-- .announcement_table -->
 {% endblock %}
 
 {% block endscripts %}
-<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript">
   $(function(){$("#id_start_time").datetimepicker();});
   $(function(){$("#id_end_time").datetimepicker();});

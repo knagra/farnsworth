@@ -2,104 +2,144 @@
 
 {% load static from staticfiles %}
 {% load request_tags %}
+{% load bootstrap %}
+
 {% block headers %}
-<link type="text/css" rel="stylesheet" href="{% static 'ui/css/content.css' %}" />
-<link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
+<style>
+#new_thread_form {
+    display: none;
+}
+
+#new_thread_form .btn-group {
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="table_container">
-	<div class="header">
-		{% if page_name == 'Archives - All Threads' %}
-			<form action="{% url 'all_threads' %}">
-			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span><span class="hidden-xs"> Expanded View</span></button>
-			</form>
-		{% elif page_name == 'My Threads' %}
-			<form action="{% url 'my_threads' %}">
-			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-th-large"></span><span class="hidden-xs"> Expanded View</span></button>
-			</form>
-		{% elif targetUsername %}
-			<form action="{% url 'member_profile' targetUsername=targetUsername %}">
-			<button class="btn btn-info header_button" type="submit"><span class="glyphicon glyphicon-user"></span><span class="hidden-xs"> {{ targetUsername }}'s Profile</span></button>
-			</form>
-		{% endif %}
-		<h3 class="table_title{% if page_name|longer_than:'1234567890123456789' %} medium_title{% elif page_name|longer_than:'123456789012' %} small_title{% endif %}">
-			{{ page_name }}
-		</h3>
-	</div>
-  <div class="main_table">
-  {% if not threads %}
+{% if targetUsername and targetUsername != user.username %}
+<form action="{% url 'member_profile' targetUsername=targetUsername %}" class="pull-right">
+  <button class="btn btn-info" type="submit">
+	<span class="glyphicon glyphicon-user"></span>
+	<span class="hidden-xs"> {{ targetUsername }}'s Profile</span>
+  </button>
+</form>
+{% else %}
+<button class="btn btn-primary pull-right" type="button" id="show_form">
+  <span class="glyphicon glyphicon-pencil"></span>
+  <span class="hidden-xs"> New Thread</span>
+</button>
+{% endif %}
+<h1 class="w_title">{{ page_name }}</h1>
+<hr class="w_line" />
+{% if create_form %}
+<form id="new_thread_form" method="post">
+  {% csrf_token %}
+  {{ create_form|bootstrap }}
+  <div class="text-center">
+    <div class="btn-group">
+      <button type="submit" class="btn btn-success" name="submit_thread_form">
+		<span class="glyphicon glyphicon-comment"></span> Start Thread
+	  </button>
+      <button type="button" class="btn btn-default" name="cancel_thread_form" id="hide_form">
+		<span class="glyphicon glyphicon-collapse-up"></span> Hide
+	  </button>
+    </div> <!-- .btn-group -->
+  </div> <!-- .text-center" -->
+</form>
+{% endif %}
+{% if not threads %}
   <div class="field_wrapper text-info">No threads found.</div>
-  {% else %}
+{% else %}
   <table class="table table-striped table-bordered table-condensed table-hover" style="margin: 0px;">
     <thead>
       <tr>
-	<th>Subject</th>
-	{% if page_name == 'Archives - All Threads' %}<th>Progenitor</th>{% endif %}
-	<th>Replies</th>
-	<th>Posted</th>
-	<th>Updated</th>
+        <th>Subject</th>
+        {% if page_name == 'Archives - All Threads' %}<th>Progenitor</th>{% endif %}
+        <th>Replies</th>
+        <th>Posted</th>
+        <th>Updated</th>
       </tr>
     </thead>
     <tbody>
       {% for thread in threads %}
       <tr>
-	<td><a title="View Thread" class="page_link" href="{% url 'view_thread' thread_pk=thread.pk %}">{% if page_name == 'Archives - All Threads' %}{{ thread.subject|truncatechars:40 }}{% else %}{{ thread.subject|truncatechars:60 }}{% endif %}</a></td>
-	{% if page_name == 'Archives - All Threads' %}<td><a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">{{ thread.owner.user.first_name }} {{ thread.owner.user.last_name }}</a></td>{% endif %}
-	<td>{{ thread.number_of_messages|add:"-1" }}</td>
-	<td>{{ thread.start_date|date:"m/d/Y, h:i A" }}</td>
-	<td>{{ thread.change_date|date:"m/d/Y, h:i A" }}</td>
+        <td>
+		  <a title="View Thread" class="page_link" href="{% url 'threads:view_thread' pk=thread.pk %}">
+			{% if page_name == 'Archives - All Threads' %}
+			{{ thread.subject|truncatechars:40 }}
+			{% else %}
+			{{ thread.subject|truncatechars:60 }}
+			{% endif %}
+		  </a>
+		</td>
+        {% if page_name == 'Archives - All Threads' %}
+		<td>
+		  <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=thread.owner.user.username %}" title="View Profile">
+			{{ thread.owner.user.first_name }} {{ thread.owner.user.last_name }}
+		  </a>
+		</td>
+		{% endif %}
+        <td>{{ thread.number_of_messages|add:"-1" }}</td>
+        <td>{{ thread.start_date|date:"m/d/Y, h:i A" }}</td>
+        <td>{{ thread.change_date|date:"m/d/Y, h:i A" }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  {% if threads.count > 10 %}
+    {% with id_prefix="thread" %}
+        {% include "pager.html" %}
+    {% endwith %}
+  {% else %}
+    <div class="text-center text-info" style="margin-top: 10px;">
+        {{ threads.count }} thread{{ threads|pluralize }} in total.
+    </div>
   {% endif %}
-  </div> <!-- .main_table -->
-</div>
-<div class="text-center text-info" style="margin-top: 10px;">
-	{{ threads.count }} thread{{ threads|pluralize }} in total.
-</div>
+{% endif %}
 {% endblock %}
 
 {% block endscripts %}
-<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.min.js' %}"></script>
 <script>
-$.tablesorter.addParser({
-	id: 'farnsworth_datetime',
-	is: function(s) {
-		return /d{1,2}\/d{1,2}\/d{1,4} d{1,2}:d{1,2} s(AM|PM)/.test(s);
-	},
-	format: function(s) {
-		return Date.parse(s);
-	},
-	type: 'numeric'
-});
-
 $(document).ready(function() {
-	$('table').tablesorter({
-		{% if page_name == 'Archives - All Threads' %}
-		headers: {
-			3: {
-				sorter: 'farnsworth_datetime',
-			},
-			4: {
-				sorter: 'farnsworth_datetime',
-			}
-		},
-		sortList: [[4,1], [3,1]],
-		{% else %}
-		headers: {
-			2: {
-				sorter: 'farnsworth_datetime',
-			},
-			3: {
-				sorter: 'farnsworth_datetime',
-			}
-		},
-		sortList: [[3,1], [2,1]],
-		{% endif %}
-		widgets: ["filter"]
-	});
+  $('table').tablesorter({
+    {% if page_name == 'Archives - All Threads' %}
+    headers: {
+      3: {
+        sorter: 'farnsworth_datetime',
+      },
+      4: {
+        sorter: 'farnsworth_datetime',
+      }
+    },
+    sortList: [[4,1], [3,1]],
+    {% else %}
+    headers: {
+      2: {
+        sorter: 'farnsworth_datetime',
+      },
+      3: {
+        sorter: 'farnsworth_datetime',
+      }
+    },
+    sortList: [[3,1], [2,1]],
+    {% endif %}
+    widgets: ["filter", "resizable"],
+      widgetOptions: {
+        resizable: true
+      }
+  }).tablesorterPager({
+    container: "#thread_pager",
+    cssGoto: '#thread_goto'
+  });
+  $('#show_form').click(function() {
+    $('#new_thread_form').slideToggle();
+  });
+  $('#hide_form').click(function() {
+    $('#new_thread_form').slideUp();
+  });
 });
 </script>
 {% endblock %}
