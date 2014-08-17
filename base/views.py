@@ -613,7 +613,7 @@ def custom_modify_user_view(request, targetUsername):
             )
         return HttpResponseRedirect(reverse("custom_manage_users"))
 
-    return render_to_response('custom_modify_user.html', {
+    template_dict = {
         'targetUser': targetUser,
         'targetProfile': targetProfile,
         'page_name': page_name,
@@ -621,13 +621,30 @@ def custom_modify_user_view(request, targetUsername):
         'update_profile_form': update_profile_form,
         'change_user_password_form': change_user_password_form,
         'delete_user_form': delete_user_form,
-        'thread_count': Thread.objects.filter(owner=targetProfile).count(),
-        'message_count': Message.objects.filter(owner=targetProfile).count(),
-        'request_count': Request.objects.filter(owner=targetProfile).count(),
-        'response_count': Response.objects.filter(owner=targetProfile).count(),
-        'announcement_count': Announcement.objects.filter(incumbent=targetProfile).count(),
-        'event_count': Event.objects.filter(owner=targetProfile).count(),
-        }, context_instance=RequestContext(request))
+        }
+
+    if "pinax-wiki" in settings.INSTALLED_APPS:
+        from wiki.models import Revision
+        template_dict["wiki_count"] = \
+          Revision.objects.filter(created_by=targetUser).count()
+
+    template_dict['thread_count'] = \
+      Thread.objects.filter(owner=targetProfile).count()
+    template_dict['message_count'] = \
+      Message.objects.filter(owner=targetProfile).count()
+    template_dict['request_count'] = \
+      Request.objects.filter(owner=targetProfile).count()
+    template_dict['response_count'] = \
+      Response.objects.filter(owner=targetProfile).count()
+    template_dict['announcement_count'] = \
+      Announcement.objects.filter(incumbent=targetProfile).count()
+    template_dict['event_count'] = \
+      Event.objects.filter(owner=targetProfile).count()
+
+    return render_to_response(
+        'custom_modify_user.html',
+        template_dict,
+        context_instance=RequestContext(request))
 
 @admin_required
 def custom_add_user_view(request):

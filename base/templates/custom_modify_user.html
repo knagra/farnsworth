@@ -67,6 +67,8 @@
         announcement{{ thread_count|pluralize }}</li>
       <li{% if event_count > 0 %} class="danger_li"{% endif %}>{{ event_count }}
         event{{ event_count|pluralize }}</li>
+      <li{% if revision_count > 0 %} class="danger_li"{% endif %}>{{ revision_count }}
+        wiki revisions{{ revision_count|pluralize }}</li>
     </ul>
     {% if message_count > thread_count %}
     <div class="text-danger" style="margin: 10px 10px;">
