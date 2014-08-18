@@ -103,6 +103,7 @@ def add_manager_view(request):
         return HttpResponseRedirect(reverse('managers:add_manager'))
     return render_to_response('edit_manager.html', {
         'page_name': "Admin - Add Manager",
+        'managerset': Manager.objects.all(),
         'form': form,
         }, context_instance=RequestContext(request))
 
