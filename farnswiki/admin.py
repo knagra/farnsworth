@@ -1,7 +1,7 @@
 '''
 Project: Farnsworth
 
-Author: Karandeep Singh Nagra
+Authors: Karandeep Singh Nagra and Nader Morshed
 '''
 
 from django.contrib import admin
