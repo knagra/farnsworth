@@ -8,7 +8,7 @@ from django import forms
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from utils.funcs import form_add_error
-from utils.variables import time_formats, MESSAGES, ANONYMOUS_USERNAME
+from utils.variables import date_formats, MESSAGES, ANONYMOUS_USERNAME
 from base.models import UserProfile
 from rooms.models import Room, PreviousResident
 
@@ -45,8 +45,8 @@ class ResidentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ResidentForm, self).__init__(*args, **kwargs)
         self.fields['resident'].queryset = UserProfile.objects.exclude(user__username=ANONYMOUS_USERNAME)
-        self.fields['start_date'].widget.format = time_formats[0]
-        self.fields['end_date'].widget.format = time_formats[0]
+        self.fields['start_date'].widget.format = date_formats[0]
+        self.fields['end_date'].widget.format = date_formats[0]
 
 class BaseResidentFormSet(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
