@@ -26,6 +26,8 @@ from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
 
+from wiki.models import Revision
+
 from utils.funcs import form_add_error
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
     APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
@@ -640,11 +642,14 @@ def custom_modify_user_view(request, targetUsername):
       Announcement.objects.filter(incumbent=targetProfile).count()
     template_dict['event_count'] = \
       Event.objects.filter(owner=targetProfile).count()
+    template_dict['revision_count'] = \
+      Revision.objects.filter(created_by=targetUser).count()
 
     return render_to_response(
         'custom_modify_user.html',
         template_dict,
-        context_instance=RequestContext(request))
+        context_instance=RequestContext(request),
+        )
 
 @admin_required
 def custom_add_user_view(request):
