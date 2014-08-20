@@ -625,7 +625,7 @@ def custom_modify_user_view(request, targetUsername):
         'delete_user_form': delete_user_form,
         }
 
-    if "pinax-wiki" in settings.INSTALLED_APPS:
+    if "wiki" in settings.INSTALLED_APPS:
         from wiki.models import Revision
         template_dict["revision_count"] = \
           Revision.objects.filter(created_by=targetUser).count()
