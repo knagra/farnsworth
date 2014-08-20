@@ -14,7 +14,7 @@ $(document).ready(function() {
     });
 });
 
-<!-- Custom datetime parser -->
+/* Custom datetime parser */
 $.tablesorter.addParser({
     id: 'farnsworth_datetime',
     is: function(s) {
@@ -25,7 +25,8 @@ $.tablesorter.addParser({
     },
     type: 'numeric'
 });
-<!-- Custom date parser -->
+
+/* Custom date parser */
 $.tablesorter.addParser({
     id: 'farnsworth_date',
     is: function(s) {
@@ -37,7 +38,7 @@ $.tablesorter.addParser({
     type: 'numeric'
 });
 
-<!-- Add highlight.js to pre blocks -->
+/* Add highlight.js to pre blocks */
     $(document).ready(function(){
         //hljs.configure({useBR: true});
         $('pre').each(function(i, e) {hljs.highlightBlock(e)});
@@ -74,24 +75,34 @@ $(document).ready(function() {
     });
 });
 
-<!-- add Bootstrap form control to select elements -->
-    $("input[type=text]").addClass("form-control");
-    $("input[type=password]").addClass("form-control");
-    $("select").addClass("form-control");
+/* add Bootstrap form control to select elements */
+$("input[type=text]").addClass("form-control");
+$("input[type=password]").addClass("form-control");
+$("select").addClass("form-control");
 
-<!-- remove border from main link buttons on click -->
-    $(".main_link").click(function() {
-        $(this).css("border", "none");
-    });
+/* remove border from main link buttons on click */
+$(".main_link").click(function() {
+    $(this).css("border", "none");
+});
 
-<!-- remove top and bottom margins on tables of class .table-->
-    $(document).ready(function() {
-        $('table.table').css('margin-top', '0');
-        $('table.table').css('margin-bottom', '0');
-    });
+/* remove top and bottom margins on tables of class .table */
+$(document).ready(function() {
+    $('table.table').css('margin-top', '0');
+    $('table.table').css('margin-bottom', '0');
+});
 
-<!-- change display format for some things depending on window width -->
-    $(window).ready(function() {
+/* change display format for some things depending on window width */
+$(window).ready(function() {
+    var wi = $(window).width();
+    if (wi <= 480) {
+        $("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+    } else if (wi <= 768) {
+        $("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
+    } else if (wi > 768) {
+        $("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
+    }
+
+    $(window).resize(function() {
         var wi = $(window).width();
         if (wi <= 480) {
             $("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
@@ -100,20 +111,10 @@ $(document).ready(function() {
         } else if (wi > 768) {
             $("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
         }
-
-        $(window).resize(function() {
-            var wi = $(window).width();
-            if (wi <= 480) {
-                $("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-            } else if (wi <= 768) {
-                $("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
-            } else if (wi > 768) {
-                $("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
-            }
-        });
     });
+});
 
-<!-- Smooth scroll for links inside page -->
+/* Smooth scroll for links inside page */
 $(document).ready(function() {
     $(function() {
       $('a[href*=#]:not([href=#])').click(function() {
