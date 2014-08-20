@@ -59,12 +59,18 @@ $(document).ready(function() {
     $('.footnotes > header > h2').after('<hr class="w_line main_divider" />');
     $('.footnotes > header > h2').replaceWith('<h3 class="w_subtitle" style="margin-top: 10px;">Footnotes</h3>');
     /* Highlight corresponding footnote when hoving over a link */
-    $('a[rel="footnote"]').hover(function () {
+    $('a[rel="footnote"]').hover(function() {
         var h = $(this).attr('href');
         $(h).removeClass('text-muted');
     }, function() {
         var h = $(this).attr('href');
         $(h).addClass('text-muted');
+    });
+    /* Highlight corresponding footnote upon click of a link */
+    $('a[rel="footnote"]').click(function() {
+       $('.footnotes > ol > li').removeClass('bg-info');
+       var h = $(this).attr('href');
+       $(h).addClass('bg-info');
     });
 });
 
