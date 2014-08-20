@@ -40,16 +40,11 @@
 
 {% block footer %}
 <div id="edit-info" class="container text-muted">
-    <div class="row">
-    <div class="col-xs-12">
     <hr class="w_line" />
-    Revision {{ revision.pk }},
+    {% if revision.message %}<span title="Revision message">{{ revision.message }}</span>{% else %}<span
+        title="No message with this revision" class="text-danger"><i>No message</i></span>{% endif %},
     {{ revision.created_at|date:"m/d/Y, h:i A" }},
-    <a href="{% url 'member_profile' targetUsername=revision.created_by.username %}">{{ revision.created_by.get_full_name }}</a>{% if revision.message %},
-    {{ revision.message }}
-    {% endif %}
-    </div>
-    </div>
+    <a href="{% url 'member_profile' targetUsername=revision.created_by.username %}">{{ revision.created_by.get_full_name }}</a>
 </div>
 {% endblock %}
 
