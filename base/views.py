@@ -182,7 +182,9 @@ def homepage_view(request, message=None):
         prefix="announce",
         )
 
+    print "announcement form"
     if announcement_form.is_valid():
+        print "Valid announcement form"
         announcement_form.save()
         return HttpResponseRedirect(reverse('homepage'))
 
