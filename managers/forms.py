@@ -201,14 +201,16 @@ class AnnouncementForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
-        self.manager_positions = Manager.objects.filter(incumbent=self.profile)
+        self.manager_positions = Manager.objects.filter(incumbent=self.profile, active=True)
         super(AnnouncementForm, self).__init__(*args, **kwargs)
         if self.manager_positions:
             self.fields["manager"].queryset = self.manager_positions
             self.fields["manager"].initial = self.manager_positions[0].pk
+            self.fields["manager"].empty_label = None
         else:
             self.fields["manager"].widget = forms.HiddenInput()
             self.fields["manager"].queryset = Manager.objects.none()
+        
 
     def is_valid(self):
         if not super(AnnouncementForm, self).is_valid():
