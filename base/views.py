@@ -627,7 +627,7 @@ def custom_modify_user_view(request, targetUsername):
 
     if "pinax-wiki" in settings.INSTALLED_APPS:
         from wiki.models import Revision
-        template_dict["wiki_count"] = \
+        template_dict["revision_count"] = \
           Revision.objects.filter(created_by=targetUser).count()
 
     template_dict['thread_count'] = \
@@ -642,8 +642,6 @@ def custom_modify_user_view(request, targetUsername):
       Announcement.objects.filter(incumbent=targetProfile).count()
     template_dict['event_count'] = \
       Event.objects.filter(owner=targetProfile).count()
-    template_dict['revision_count'] = \
-      Revision.objects.filter(created_by=targetUser).count()
 
     return render_to_response(
         'custom_modify_user.html',
