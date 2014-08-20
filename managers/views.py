@@ -530,7 +530,7 @@ def announcements_view(request):
     manager_positions = Manager.objects.filter(incumbent=userProfile)
     if manager_positions:
         announcement_form = AnnouncementForm(
-            request.POST if "post_announcement"in request.POST else None,
+            request.POST if "post_announcement" in request.POST else None,
             profile=userProfile,
             )
     if announcement_form and announcement_form.is_valid():

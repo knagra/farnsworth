@@ -176,13 +176,16 @@ def homepage_view(request, message=None):
                 return HttpResponseRedirect(reverse('homepage'))
         announcements_dict.append((a, pin_form))
 
-    announcement_form = AnnouncementForm(
-        request.POST if "post_announcement" in request.POST else None,
-        profile=userProfile,
-        prefix="announce",
-        )
+    if Manager.objects.filter(incumbent=userProfile, active=True).count():
+        announcement_form = AnnouncementForm(
+            request.POST if "post_announcement" in request.POST else None,
+            profile=userProfile,
+            prefix="announce",
+            )
+    else:
+        announcement_form = None
 
-    if announcement_form.is_valid():
+    if announcement_form and announcement_form.is_valid():
         announcement_form.save()
         return HttpResponseRedirect(reverse('homepage'))
 
