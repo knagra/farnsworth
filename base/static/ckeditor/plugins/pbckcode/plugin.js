@@ -34,12 +34,12 @@ CKEDITOR.plugins.add('pbckcode', {
             ],
             theme    : 'textmate',
             tab_size : 4,
-            js       : "//cdn.jsdelivr.net//ace/1.1.4/noconflict///"
+            js       : "/static/js/ace/src-min/"
         };
 
         // merge user settings with default settings
         editor.settings = CKEDITOR.tools.extend(DEFAULT_SETTINGS, editor.config.pbckcode, true);
-        editor.settings.js = normalizeJsUrl(editor.settings.js);
+        //editor.settings.js = normalizeJsUrl(editor.settings.js);
 
         // load CSS for the dialog
         editor.on('instanceReady', function () {
