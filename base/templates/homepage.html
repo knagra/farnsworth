@@ -125,25 +125,25 @@
   <div class="col-md-12">
     <div class="announcements">
       {% if announcement_form %}
-      <button class="btn btn-primary pull-right" type="button" id="show_announcement_form"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Announcement</span></button>
+      <button class="btn btn-primary pull-right" type="button" id="show_announcement_form">
+		<span class="glyphicon glyphicon-pencil"></span>
+		<span class="hidden-xs"> New Announcement</span>
+	  </button>
       {% endif %}
       <h1 class="w_title">Recent Announcements</h1>
       <hr class="w_line" />
       {% if announcement_form %}
-      <form id="new_announcement_form" class="main_form" method="post" action="">
+      <form id="new_announcement_form" class="main_form" method="post">
         {% csrf_token %}
-        <div class="form-group">
-          <label class="control-label" for="id_as_manager">As Manager</label>
-          {{ announcement_form.manager }}
-        </div>
-        <div class="form-group">
-          <label class="control-label" for="id_announcement_body">Body</label>
-          <textarea id="id_announcement_body" name="body"></textarea>
-        </div>
+		{{ announcement_form|boostrap }}
         <div class="text-center">
           <div class="btn-group">
-            <button type="submit" class="btn btn-success" name="post_announcement"><span class="glyphicon glyphicon-bullhorn"></span> Announce</button>
-            <button type="button" class="btn btn-default" name="cancel_announcement" id="hide_announcement_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+            <button type="submit" class="btn btn-success" name="post_announcement">
+			  <span class="glyphicon glyphicon-bullhorn"></span> Announce
+			</button>
+            <button type="button" class="btn btn-default" name="cancel_announcement" id="hide_announcement_form">
+			  <span class="glyphicon glyphicon-collapse-up"></span> Hide
+			</button>
           </div> <!-- .btn-group -->
         </div> <!-- .text-center -->
       </form>
