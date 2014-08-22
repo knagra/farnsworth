@@ -270,7 +270,7 @@ class Response(models.Model):
     NONE = 'N'
     ACTION_CHOICES = (
         (NONE, "None"),
-        (CLOSED, "Mark closed"),
+        (CLOSED, "Mark closed (won't fill)"),
         (REOPENED, "Mark open"),
         (FILLED, "Mark filled"),
         (EXPIRED, "Mark expired"),
