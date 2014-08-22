@@ -6,20 +6,7 @@
 CKEDITOR.editorConfig = function( config ) {
     /* Define extra plugins to load */
     config.extraPlugins = 'widget,lineutils,pbckcode,mathjax,leaflet,autolink,codemirror,footnotes,oembed,imagebrowser,symbol,dialog';
-    /*config.toolbarGroups = [
-        { name: 'clipboard', groups: ['undo'] },
-        { name: 'editing', groups: ['find', 'selection', 'spellchecker'] },
-        { name: 'links' },
-        { name: 'insert' },
-        { name: 'tools' },
-        { name: 'others' },
-        { name: 'pbckcode' },
-        { name: 'basicstyles', groups: ['basicstyles', 'cleanup'] },
-        { name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align'] },
-        { name: 'styles' },
-        { name: 'colors' },
-        ];*/
-    
+
     /* Define the toolbar, item by item */
     config.toolbar = [
         { name: 'editing', items: ['Bold', 'Italic', 'Underline','Strike', 'Subscript', 'Superscript', '-', 'Link', 'Unlink', 'Anchor'] },
@@ -30,6 +17,7 @@ CKEDITOR.editorConfig = function( config ) {
         '/',
         { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
         { name: 'colors', items: ['TextColor', 'BGColor' ] },
+        { name: 'justify', items: ['JustifyLeft', 'JustifyCenter', 'JustifyBlock', 'JustifyRight'] },
         ];
     
     /* configure pbckcode */

@@ -2,7 +2,7 @@
 /* Add CKEditor to all textareas */
 $('textarea').addClass('ckeditor');
 
-/* Italicize blockquotes */
+/* Italicize blockquotes and style addresses*/
 $(document).ready(function() {
     $('blockquote').css({
         'font-style': 'italic',
@@ -11,6 +11,11 @@ $(document).ready(function() {
     $('blockquote *').css({
         'font-style': 'italic',
         'font-family': 'Times New Roman'
+    });
+    $('address').css({
+        'margin-bottom': '0px',
+        'margin-left': '20px',
+        'font-style': 'italic'
     });
 });
 
