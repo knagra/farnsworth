@@ -103,6 +103,7 @@ def add_manager_view(request):
         return HttpResponseRedirect(reverse('managers:add_manager'))
     return render_to_response('edit_manager.html', {
         'page_name': "Admin - Add Manager",
+        'managerset': Manager.objects.all(),
         'form': form,
         }, context_instance=RequestContext(request))
 
@@ -287,12 +288,14 @@ def my_requests_view(request):
                     initial={'action': Response.NONE},
                     profile=userProfile,
                     request=req,
+                    prefix="response-{0}".format(req.pk),
                     )
             else:
                 response_form = ResponseForm(
                     request.POST if "add_response-{0}".format(req.pk) in request.POST else None,
                     profile=userProfile,
                     request=req,
+                    prefix="response-{0}".format(req.pk),
                     )
 
             upvote = userProfile in req.upvotes.all()
@@ -301,6 +304,7 @@ def my_requests_view(request):
                 request.POST or None,
                 profile=userProfile,
                 request=req,
+                prefix="vote-{0}",
                 )
 
             if response_form.is_valid():
@@ -315,6 +319,7 @@ def my_requests_view(request):
             request.POST if "submit_request" in request.POST else None,
             profile=userProfile,
             request_type=request_type,
+            prefix="request-{0}".format(request_type.pk),
             )
         if request_form.is_valid():
             request_form.save()
@@ -525,7 +530,7 @@ def announcements_view(request):
     manager_positions = Manager.objects.filter(incumbent=userProfile)
     if manager_positions:
         announcement_form = AnnouncementForm(
-            request.POST if "post_announcement"in request.POST else None,
+            request.POST if "post_announcement" in request.POST else None,
             profile=userProfile,
             )
     if announcement_form and announcement_form.is_valid():

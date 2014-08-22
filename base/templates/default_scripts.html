@@ -1,5 +1,20 @@
 <script>
-<!-- Custom datetime parser -->
+/* Add CKEditor to all textareas */
+$('textarea').addClass('ckeditor');
+
+/* Italicize blockquotes */
+$(document).ready(function() {
+    $('blockquote').css({
+        'font-style': 'italic',
+        'font-family': 'Times New Roman'
+    });
+    $('blockquote *').css({
+        'font-style': 'italic',
+        'font-family': 'Times New Roman'
+    });
+});
+
+/* Custom datetime parser */
 $.tablesorter.addParser({
     id: 'farnsworth_datetime',
     is: function(s) {
@@ -11,9 +26,21 @@ $.tablesorter.addParser({
     type: 'numeric'
 });
 
-<!-- Add highlight.js to pre blocks -->
+/* Custom date parser */
+$.tablesorter.addParser({
+    id: 'farnsworth_date',
+    is: function(s) {
+        return /d{1,2}\/d{1,2}\/d{1,4}/.test(s);
+    },
+    format: function(s) {
+        return Date.parse(s);
+    },
+    type: 'numeric'
+});
+
+/* Add highlight.js to pre blocks */
     $(document).ready(function(){
-        hljs.configure({useBR: true});
+        //hljs.configure({useBR: true});
         $('pre').each(function(i, e) {hljs.highlightBlock(e)});
     });
     <!-- prevent multiple form submissions by disabling submit button on all forms after post -->
@@ -23,24 +50,59 @@ $.tablesorter.addParser({
         });
         return true;
     });
-<!-- add Bootstrap form control to select elements -->
-    $("input[type=text]").addClass("form-control");
-    $("input[type=password]").addClass("form-control");
-    $("select").addClass("form-control");
 
-<!-- remove border from main link buttons on click -->
-    $(".main_link").click(function() {
-        $(this).css("border", "none");
+/* stylize code and footnotes */
+$(document).ready(function() {
+    $('pre').addClass('prettyprint linenums');
+    $('code').addClass('prettyprint');
+    $('.footnotes > header').addClass('text-muted');
+    $('.footnotes > ol > li').addClass('text-muted');
+    $('.footnotes > header > h2').after('<hr class="w_line main_divider" />');
+    $('.footnotes > header > h2').replaceWith('<h3 class="w_subtitle" style="margin-top: 10px;">Footnotes</h3>');
+    /* Highlight corresponding footnote when hoving over a link */
+    $('a[rel="footnote"]').hover(function() {
+        var h = $(this).attr('href');
+        $(h).removeClass('text-muted');
+    }, function() {
+        var h = $(this).attr('href');
+        $(h).addClass('text-muted');
     });
-
-<!-- remove top and bottom margins on tables of class .table-->
-    $(document).ready(function() {
-        $('table.table').css('margin-top', '0');
-        $('table.table').css('margin-bottom', '0');
+    /* Highlight corresponding footnote upon click of a link */
+    $('a[rel="footnote"]').click(function() {
+       $('.footnotes > ol > li').removeClass('bg-info');
+       var h = $(this).attr('href');
+       $(h).addClass('bg-info');
     });
+});
 
-<!-- change display format for some things depending on window width -->
-    $(window).ready(function() {
+/* add Bootstrap form control to select elements */
+$("input[type=text]").addClass("form-control");
+$("input[type=password]").addClass("form-control");
+$("select").addClass("form-control");
+
+/* remove border from main link buttons on click */
+$(".main_link").click(function() {
+    $(this).css("border", "none");
+});
+
+/* remove top and bottom margins on tables of class .table */
+$(document).ready(function() {
+    $('table.table').css('margin-top', '0');
+    $('table.table').css('margin-bottom', '0');
+});
+
+/* change display format for some things depending on window width */
+$(window).ready(function() {
+    var wi = $(window).width();
+    if (wi <= 480) {
+        $("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
+    } else if (wi <= 768) {
+        $("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
+    } else if (wi > 768) {
+        $("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
+    }
+
+    $(window).resize(function() {
         var wi = $(window).width();
         if (wi <= 480) {
             $("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
@@ -49,16 +111,24 @@ $.tablesorter.addParser({
         } else if (wi > 768) {
             $("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
         }
-
-        $(window).resize(function() {
-            var wi = $(window).width();
-            if (wi <= 480) {
-                $("#bottom").html('Click: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">E-mail for support</a>.');
-            } else if (wi <= 768) {
-                $("#bottom").html('For support, click to e-mail: <a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.0 }}</a>.');
-            } else if (wi > 768) {
-                $("#bottom").html('Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.');
-            }
-        });
     });
+});
+
+/* Smooth scroll for links inside page */
+$(document).ready(function() {
+    $(function() {
+      $('a[href*=#]:not([href=#]):not(.carousel-control)').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({
+              scrollTop: target.offset().top
+            }, 1000);
+            return false;
+          }
+        }
+      });
+    });
+});
 </script>

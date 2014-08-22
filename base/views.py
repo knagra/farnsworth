@@ -26,6 +26,8 @@ from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
 
+from wiki.models import Revision
+
 from utils.funcs import form_add_error
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
     APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
@@ -81,6 +83,7 @@ def add_context(request):
         'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
         'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
         'PRESIDENT': PRESIDENT,
+        "WIKI_ENABLED": "farnswiki" in settings.INSTALLED_APPS,
         }
 
 def landing_view(request):
@@ -173,13 +176,16 @@ def homepage_view(request, message=None):
                 return HttpResponseRedirect(reverse('homepage'))
         announcements_dict.append((a, pin_form))
 
-    announcement_form = AnnouncementForm(
-        request.POST if "post_announcement" in request.POST else None,
-        profile=userProfile,
-        prefix="announce",
-        )
+    if Manager.objects.filter(incumbent=userProfile, active=True).count():
+        announcement_form = AnnouncementForm(
+            request.POST if "post_announcement" in request.POST else None,
+            profile=userProfile,
+            prefix="announce",
+            )
+    else:
+        announcement_form = None
 
-    if announcement_form.is_valid():
+    if announcement_form and announcement_form.is_valid():
         announcement_form.save()
         return HttpResponseRedirect(reverse('homepage'))
 
@@ -612,7 +618,7 @@ def custom_modify_user_view(request, targetUsername):
             )
         return HttpResponseRedirect(reverse("custom_manage_users"))
 
-    return render_to_response('custom_modify_user.html', {
+    template_dict = {
         'targetUser': targetUser,
         'targetProfile': targetProfile,
         'page_name': page_name,
@@ -620,13 +626,31 @@ def custom_modify_user_view(request, targetUsername):
         'update_profile_form': update_profile_form,
         'change_user_password_form': change_user_password_form,
         'delete_user_form': delete_user_form,
-        'thread_count': Thread.objects.filter(owner=targetProfile).count(),
-        'message_count': Message.objects.filter(owner=targetProfile).count(),
-        'request_count': Request.objects.filter(owner=targetProfile).count(),
-        'response_count': Response.objects.filter(owner=targetProfile).count(),
-        'announcement_count': Announcement.objects.filter(incumbent=targetProfile).count(),
-        'event_count': Event.objects.filter(owner=targetProfile).count(),
-        }, context_instance=RequestContext(request))
+        }
+
+    if "wiki" in settings.INSTALLED_APPS:
+        from wiki.models import Revision
+        template_dict["revision_count"] = \
+          Revision.objects.filter(created_by=targetUser).count()
+
+    template_dict['thread_count'] = \
+      Thread.objects.filter(owner=targetProfile).count()
+    template_dict['message_count'] = \
+      Message.objects.filter(owner=targetProfile).count()
+    template_dict['request_count'] = \
+      Request.objects.filter(owner=targetProfile).count()
+    template_dict['response_count'] = \
+      Response.objects.filter(owner=targetProfile).count()
+    template_dict['announcement_count'] = \
+      Announcement.objects.filter(incumbent=targetProfile).count()
+    template_dict['event_count'] = \
+      Event.objects.filter(owner=targetProfile).count()
+
+    return render_to_response(
+        'custom_modify_user.html',
+        template_dict,
+        context_instance=RequestContext(request),
+        )
 
 @admin_required
 def custom_add_user_view(request):
@@ -653,13 +677,6 @@ def utilities_view(request):
     return render_to_response('utilities.html', {
         'page_name': "Admin - Site Utilities",
         }, context_instance=RequestContext(request))
-
-@profile_required
-def bylaws_view(request):
-	""" View for bylaws. """
-	return render_to_response('bylaws.html', {
-			'page_name': "House Bylaws",
-			}, context_instance=RequestContext(request))
 
 def reset_pw_view(request):
     """ View to send an e-mail to reset password. """
@@ -711,6 +728,7 @@ def recount_view(request):
         ))
     return HttpResponseRedirect(reverse('utilities'))
 
+@profile_required
 def archives_view(request):
     """ View of the archives page. """
     resident_count = UserProfile.objects.filter(status=UserProfile.RESIDENT).count()
@@ -725,6 +743,10 @@ def archives_view(request):
         'thread_count': Thread.objects.all().count(),
         'message_count': Message.objects.all().count(),
         'request_count': Request.objects.all().count(),
+        'expired_count': Request.objects.filter(status=Request.EXPIRED).count(),
+        'filled_count': Request.objects.filter(status=Request.FILLED).count(),
+        'closed_count': Request.objects.filter(status=Request.CLOSED).count(),
+        'open_count': Request.objects.filter(status=Request.OPEN).count(),
         'response_count': Response.objects.all().count(),
         'announcement_count': Announcement.objects.all().count(),
         'event_count': Event.objects.all().count(),

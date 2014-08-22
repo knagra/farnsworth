@@ -145,11 +145,11 @@ class ManagerResponseForm(ResponseForm):
         super(ManagerResponseForm, self).__init__(*args, **kwargs)
         if self.request.closed:
             self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.CLOSED)
-        if self.request.open:
+        elif self.request.open:
             self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.REOPENED)
-        if self.request.filled:
+        elif self.request.filled:
             self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.FILLED)
-        if self.request.expired:
+        elif self.request.expired:
             self.fields['action'].choices = (choice for choice in Response.ACTION_CHOICES if choice != Response.EXPIRED)
 
     def save(self):
@@ -201,14 +201,16 @@ class AnnouncementForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
-        self.manager_positions = Manager.objects.filter(incumbent=self.profile)
+        self.manager_positions = Manager.objects.filter(incumbent=self.profile, active=True)
         super(AnnouncementForm, self).__init__(*args, **kwargs)
         if self.manager_positions:
             self.fields["manager"].queryset = self.manager_positions
             self.fields["manager"].initial = self.manager_positions[0].pk
+            self.fields["manager"].empty_label = None
         else:
             self.fields["manager"].widget = forms.HiddenInput()
             self.fields["manager"].queryset = Manager.objects.none()
+        
 
     def is_valid(self):
         if not super(AnnouncementForm, self).is_valid():

@@ -89,7 +89,8 @@
         {% endif %} {% comment %} End if user.username == ANONYMOUS_USERNAME, else {% endcomment %}
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <span class="glyphicon glyphicon-tower"></span> Managers <b class="caret"></b>
+            <span class="pull-right"><b class="caret"></b></span>
+            <span class="glyphicon glyphicon-tower"></span> Managers
           </a>
           <ul class="dropdown-menu">
             <li>
@@ -121,85 +122,89 @@
             {% endif %} {% comment %} End if REQUEST_TYPES {% endcomment %}
           </ul> <!-- .dropdown-menu -->
         </li>
-		<li class="dropdown">
-		  <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-			<span class="glyphicon glyphicon-arrow-right"></span> Go<b class="caret"></b>
-		  </a>
-		  <ul class="dropdown-menu">
-			<li>
-			  <a href="{% url 'member_directory' %}">
-				<span class="glyphicon glyphicon-book"></span> Member Directory
-			  </a>
-			</li>
-			<li>
-			  <a href="{% url 'events:list' %}">
-				<span class="glyphicon glyphicon-calendar"></span> Upcoming Events
-			  </a>
-			</li>
-			<li>
-			  <a href="{% url 'rooms:list' %}">
-				<span class="glyphicon glyphicon-home"></span> Room List
-			  </a>
-			</li>
-			{% if WORKSHIFT_PROFILE %}
-			<li class="divider"></li>
-			<li class="dropdown-header">Workshift</li>
-			<li>
-			  <a href="{% url 'workshift:view_semester' %}">
-				<span class="glyphicon glyphicon-list-alt"></span> Workshift Board
-			  </a>
-			</li>
-			<li>
-			  <a href="{% url 'workshift:profiles' %}">
-				<span class="glyphicon glyphicon-tasks"></span> Standings
-			  </a>
-			</li>
-			<li>
-			  <a href="{% url 'workshift:list_types' %}">
-				<span class="glyphicon glyphicon-align-justify"></span> All Shifts
-			  </a>
-			</li>
-			{% endif %}
-			<li class="divider"></li>
-			<li class="dropdown-header">Utilities</li>
-			<li>
-			  <a class="menu_link" href="{% url 'helppage' %}">
-				<span class="glyphicon glyphicon-question-sign"></span> How To
-			  </a>
-			</li>
-			<li>
-			  <a class="menu_link" href="{% url 'bylaws' %}">
-				<span class="glyphicon glyphicon-flag"></span> House Bylaws
-			  </a>
-			</li>
-			<li>
-			  <a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}">
-				<span class="glyphicon glyphicon-map-marker"></span> Site Map
-			  </a>
-			</li>
-			<li>
-			  <a href="{% url 'external' %}">
-				<span class="glyphicon glyphicon-plane"></span> Landing
-			  </a>
-			</li>
-			<li>
-			  <a href="{% url 'archives' %}">
-				<span class="glyphicon glyphicon-hdd"></span> Archives
-			  </a>
-			</li>
-			<li class="divider">
-			</li>
-			<li>
-			  <a href="https://github.com/knagra/farnsworth" target="_blank">
-				<span class="glyphicon glyphicon-info-sign"></span> Source
-			  </a>
-			</li>
-		  </ul> <!-- .dropdown-menu -->
-		</li> <!-- .dropdown -->
-		{% if user.is_superuser or PRESIDENT or WORKSHIFT_MANAGER%}
-		<li class="dropdown">
+        <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <span class="glyphicon glyphicon-cog"></span> Admin <b class="caret"></b>
+            <span class="pull-right"><b class="caret"></b></span>
+            <span class="glyphicon glyphicon-arrow-right"></span> Go
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="{% url 'member_directory' %}">
+                <span class="glyphicon glyphicon-book"></span> Member Directory
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'events:list' %}">
+                <span class="glyphicon glyphicon-calendar"></span> Upcoming Events
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'rooms:list' %}">
+                <span class="glyphicon glyphicon-home"></span> Room List
+              </a>
+            </li>
+        {% if WIKI_ENABLED %}
+            <li>
+              <a href="{% url 'wiki_all' %}">
+                <span class="glyphicon glyphicon-pencil"></span> Wiki
+              </a>
+            </li>
+        {% endif %}
+            {% if WORKSHIFT_PROFILE %}
+            <li class="divider"></li>
+            <li class="dropdown-header">Workshift</li>
+            <li>
+              <a href="{% url 'workshift:view_semester' %}">
+                <span class="glyphicon glyphicon-list-alt"></span> Workshift Board
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'workshift:profiles' %}">
+                <span class="glyphicon glyphicon-tasks"></span> Standings
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'workshift:list_types' %}">
+                <span class="glyphicon glyphicon-align-justify"></span> All Shifts
+              </a>
+            </li>
+            {% endif %}
+            <li class="divider"></li>
+            <li class="dropdown-header">Utilities</li>
+            <li>
+              <a class="menu_link" href="{% url 'helppage' %}">
+                <span class="glyphicon glyphicon-question-sign"></span> How To
+              </a>
+            </li>
+            <li>
+              <a class="menu_link" id="sub_menu_display" href="{% url 'site_map' %}">
+                <span class="glyphicon glyphicon-map-marker"></span> Site Map
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'external' %}">
+                <span class="glyphicon glyphicon-plane"></span> Landing
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'archives' %}">
+                <span class="glyphicon glyphicon-hdd"></span> Archives
+              </a>
+            </li>
+            <li class="divider">
+            </li>
+            <li>
+              <a href="https://github.com/knagra/farnsworth" target="_blank">
+                <span class="glyphicon glyphicon-info-sign"></span> Source
+              </a>
+            </li>
+          </ul> <!-- .dropdown-menu -->
+        </li> <!-- .dropdown -->
+        {% if user.is_superuser or PRESIDENT or WORKSHIFT_MANAGER%}
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="pull-right"><b class="caret"></b></span>
+            <span class="glyphicon glyphicon-cog"></span> Admin
           </a>
           <ul class="dropdown-menu">
             {% if user.is_superuser %}

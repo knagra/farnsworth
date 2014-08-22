@@ -207,10 +207,10 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "add_response-{0}".format(self.req.pk): "",
-            "response-body": "You betcha",
-            "response-action": Response.NONE,
+            "{0}-response-body".format(self.req.pk): "You betcha",
+            "{0}-response-action".format(self.req.pk): Response.NONE,
             }, follow=True)
-        self.assertRedirects(response, url)
+        self.assertEquals(response.status_code, 200)
         self.assertContains(response, "You betcha")
         self.assertNotContains(response, MESSAGES['REQ_CLOSED'])
         self.assertNotContains(response, MESSAGES['REQ_FILLED'])
@@ -219,10 +219,10 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "add_response-{0}".format(self.req.pk): "",
-            "response-body": "You betcha",
-            "response-action": Response.CLOSED,
+            "{0}-response-body".format(self.req.pk): "You betcha",
+            "{0}-response-action".format(self.req.pk): Response.CLOSED,
             }, follow=True)
-        self.assertRedirects(response, url)
+        self.assertEquals(response.status_code, 200)
         # We shouldn't see the request body on the homepage any more when it is
         # filled
         self.assertNotContains(response, "You betcha")
@@ -233,10 +233,10 @@ class TestHomepage(TestCase):
         url = reverse("homepage")
         response = self.client.post(url, {
             "add_response-{0}".format(self.req.pk): "",
-            "response-body": "You betcha",
-            "response-action": Response.FILLED,
+            "{0}-response-body".format(self.req.pk): "You betcha",
+            "{0}-response-action".format(self.req.pk): Response.FILLED,
             }, follow=True)
-        self.assertRedirects(response, url)
+        self.assertEquals(response.status_code, 200)
         # We shouldn't see the request body on the homepage any more when it is
         # filled
         self.assertNotContains(response, "You betcha")
@@ -1207,9 +1207,15 @@ class TestNotifications(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_thread_followers(self):
+        up = UserProfile.objects.get(user=self.u)
         t = Thread.objects.create(
             subject="subject",
-            owner=UserProfile.objects.get(user=self.u),
+            owner=up,
+            )
+        Message.objects.create(
+            thread=t,
+            body="Body",
+            owner=up,
             )
         t.followers = [self.u]
         t.save()

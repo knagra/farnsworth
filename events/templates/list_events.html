@@ -5,18 +5,11 @@
 {% load thread_tags %}
 {% block headers %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/list_events.css' %}" />
-<script>
-    function show_new_event_form() {
-        document.getElementById("new_event_form").style.display="inline";
-    }
-    function hide_new_event_form() {
-        document.getElementById("new_event_form").style.display="none";
-    }
-</script>
 {% endblock %}
 
 {% block content %}
-<button class="btn btn-primary pull-right" onclick="show_new_event_form()" type="button"><span class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Event</span></button>
+<button class="btn btn-primary pull-right" id="show_event_form" type="button"><span
+    class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Event</span></button>
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />
 <div class="events_table">
@@ -27,7 +20,7 @@
       <div class="text-center">
         <div class="btn-group">
           <button type="submit" class="btn btn-success" name="post_event"><span class="glyphicon glyphicon-plus-sign"></span> Add Event</button>
-          <button type="button" class="btn btn-default" name="cancel_event" onclick="hide_new_event_form()"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+          <button type="button" class="btn btn-default" id="hide_event_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
         </div> <!-- .btn-group -->
       </div> <!-- .text-center -->
     </div> <!-- .form-group -->
@@ -36,24 +29,24 @@
   <div class="field_wrapper text-info">No events found.</div>
   {% else %}
   <div class="bordered_div">
-	{% for event, ongoing, rsvpd, rsvp_form in events_dict %}
+    {% for event, ongoing, rsvpd, rsvp_form in events_dict %}
     {% if forloop.counter > 1 %}
     <hr class="main_divider"/>
     {% endif %}
-    <div class="event_row hover_row{% if event_tuple.0.cancelled %} bg-danger" title="Cancelled{% elif event_tuple.1 %} bg-success" title="Happening Now{% elif event_tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
+    <div class="event_row hover_row{% if event.cancelled %} bg-danger" title="Cancelled{% elif ongoing %} bg-success" title="Happening Now{% elif event.as_manager %} bg-info" title="Official House Event{% endif %}">
       <div class="event_owner">
-		{% if event.as_manager %}
+        {% if event.as_manager %}
         <a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=event.as_manager.url_title %}">
-		  {{ event.as_manager }}
-		</a>
+          {{ event.as_manager }}
+        </a>
         (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">
-		  {{ event.owner|display_user:user }}
-		</a>), {{ event.post_date }} (updated {{ event.change_date }}):
-		{% else %}
+          {{ event.owner|display_user:user }}
+        </a>), {{ event.post_date }} (updated {{ event.change_date }}):
+        {% else %}
         <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">
-		  {{ event.owner|display_user:user }}
-		</a>, {{ event.post_date }} (updated {{ event.change_date }}):
-		{% endif %}
+          {{ event.owner|display_user:user }}
+        </a>, {{ event.post_date }} (updated {{ event.change_date }}):
+        {% endif %}
       </div> <!-- .event_owner -->
       <div class="event_body">
         <div class="text-center">
@@ -95,7 +88,7 @@
         </div> <!-- .pull-right -->
       </div> <!-- .event_body -->
     </div> <!-- .event_row -->
-	{% endfor %}
+    {% endfor %}
   </div>
   {% endif %}
 </div> <!-- .events_table -->
@@ -110,7 +103,15 @@
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript">
-    $(function(){$("#id_start_time").datetimepicker();});
-    $(function(){$("#id_end_time").datetimepicker();});
+$(function(){$("#id_start_time").datetimepicker();});
+$(function(){$("#id_end_time").datetimepicker();});
+$(document).ready(function() {
+    $('#show_event_form').click(function() {
+        $('#new_event_form').slideToggle();
+    });
+    $('#hide_event_form').click(function() {
+        $('#new_event_form').slideUp();
+    });
+});
 </script>
 {% endblock %}

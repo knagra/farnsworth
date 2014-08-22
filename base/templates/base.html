@@ -22,8 +22,13 @@
     <link type="text/css" rel="stylesheet" href="{% static 'jquery/tablesorter-master/css/theme.default.css' %}" />
     <link type="text/css" rel="stylesheet" href="{% static 'ui/css/bootstrap-datetimepicker.min.css' %}" />
     <link type="text/css" rel="stylesheet" href="{% static 'jquery-ui/jquery-ui.min.css' %}" />
-    <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>
+    <!--<script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'tinymce/layout.js' %}"></script>-->
+    <!--<script type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://google-code-prettify.googlecode.com/svn/trunk/src/prettify.css" />-->
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/config.js' %}"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% block headers %} {% endblock %}
   </head>
   <body id="html_body">
@@ -32,8 +37,8 @@
     {% for message in messages %}
     <div class="container">
       <div class="alert alert-dismissable {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}" style="margin-top: 0px; margin-bottom: 5px;">
-		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-		{{ message|safe }}
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        {{ message|safe }}
       </div> <!-- .alert -->
     </div> <!-- .container -->
     {% endfor %}
@@ -47,6 +52,7 @@
       </div> <!-- close #content -->
       {% block gallery %}{% endblock %}
     </div> <!-- .container -->
+    {% block footer %}{% endblock %}
     <div id="bottom" class="container-fluid text-center">
       Powered by <a class="footer_link" href="http://www.python.org" target="_blank">Python</a> and <a class="footer_link" href="https://www.djangoproject.com" target="_blank">Django</a>.  Contact {{ ADMIN.0 }} (<a class="footer_link" href="mailto:{{ ADMIN.1 }}">{{ ADMIN.1 }}</a>) for support.
     </div> <!-- #bottom -->

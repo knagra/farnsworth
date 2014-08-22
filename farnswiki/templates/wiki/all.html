@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if can_add %}
+<div class="pull-right">
+  <form id="add_bar" action="{% url 'wiki_add' %}?slug=" style="padding-left: 5px; padding-right: 5px;">
+    <div class="input-group pull-right" style="width: 400px">
+      <input type="search" class="form-control" name="slug" placeholder="Page Name">
+      <span class="input-group-btn">
+        <button title="Edit/Add Page" type="submit" class="btn btn-info">
+          <span class="glyphicon glyphicon-plus"></span>
+        </button>
+      </span>
+    </div> <!-- .input-group -->
+  </form>
+</div>
+{% endif %}
+<h1 class="w_title">
+  {{ page_name }}
+</h1>
+<hr class="w_line" />
+
+{% if not pages %}
+<div class="field_wrapper text-info">
+  No wiki pages have been added yet.
+</div>
+{% else %}
+<table class="table table-striped table-bordered table-condensed table-hover" style="margin: 0px;">
+  <thead>
+    <tr>
+      <th>Page</th>
+      <th>Last Edited</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for page in pages %}
+    <tr>
+      <td>
+    <a href="{{ page.get_absolute_url }}">
+      {{ page.slug }}
+    </a>
+      </td>
+      <td>
+    {{ page.revisions.latest.created_at|date:"m/d/Y, h:i A" }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<div class="page">
+  {{ revision.content_html|safe }}
+</div>
+{% endblock %}
+
+{% block endscripts %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('.table').tablesorter({
+        headers: {
+            1: {
+                sorter: 'farnsworth_datetime',
+            }
+        },
+        sortList: [[1, 1]],
+        widgets: ["resizable", "filter"],
+        widgetOptions: {
+            resizable: true
+        }
+    });
+  });
+</script>
+{% endblock %}
