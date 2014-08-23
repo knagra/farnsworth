@@ -752,8 +752,8 @@ class TestProfilePages(TestCase):
             response, "The two password fields didn't match.".replace("'", "&#39;")
             )
         self.client.logout()
-        self.assertEqualFalse(self.client.login(username="u", password="Jenkins"))
-        self.assertEqualTrue(self.client.login(username="u", password="pwd"))
+        self.assertFalse(self.client.login(username="u", password="Jenkins"))
+        self.assertTrue(self.client.login(username="u", password="pwd"))
 
     def test_visible(self):
         self.oprofile.email_visible = True
