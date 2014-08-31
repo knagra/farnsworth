@@ -84,7 +84,7 @@
         {% if forloop.counter > 1 %}
         <hr class="main_divider" />
         {% endif %}
-        <div class="message_row" id="msg_{{ mesage.pk }}">
+        <div class="message_row" id="msg_{{ message.pk }}">
           <div class="message_owner">
             <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=message.owner.user.username %}" >
               {{ message.owner|display_user:user }}
