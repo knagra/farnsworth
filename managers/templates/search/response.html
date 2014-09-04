@@ -1,5 +1,5 @@
 {% load highlight %}
-<h3 class="result_title"><small>{% if result.object.filled %}Filled{% elif result.object.closed %}Closed{% else %}Open{% endif %}</small>
+<h3 class="result_title"><small>{% if result.object.request.filled %}Filled{% elif result.object.request.closed %}Closed{% elif result.object.request.open %}Open{% elif result.object.request.expired %}Expired{% endif %}</small>
 	{% if result.object.request.request_type.enabled %}
 		<a href="{% url 'managers:view_request' request_pk=result.object.request.pk %}">{{ result.object.request.request_type.name }} Request</a>
 	{% else %}
