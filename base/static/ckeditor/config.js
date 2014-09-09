@@ -54,7 +54,7 @@ CKEDITOR.editorConfig = function( config ) {
             ['PHP'          , 'php'],
             ['Powershell'   , 'powershel1'],
             ['Python'       , 'python'],
-            ['Ruby'            , 'ruby'],
+            ['Ruby'         , 'ruby'],
             ['OpenSCAD'     , 'scad'],
             ['Scala'        , 'scala'],
             ['SCSS/Sass'    , 'scss'],
