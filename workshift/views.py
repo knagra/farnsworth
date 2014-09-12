@@ -702,7 +702,8 @@ def add_workshifter_view(request, semester):
     existing = [
         i.user.pk for i in WorkshiftProfile.objects.filter(semester=semester)
         ]
-    users = User.objects.exclude(pk__in=existing).exclude(is_active=False)
+    users = User.objects.exclude(pk__in=existing).exclude(is_active=False) \
+      .exclude(status=UserProfile.ALUMNUS)
 
     add_workshifter_forms = []
     for user in users:
