@@ -186,7 +186,7 @@ def homepage_view(request, message=None):
         announcement_form = None
 
     if announcement_form and announcement_form.is_valid():
-        announcement_form.save()
+        announcement_form.save(request)
         return HttpResponseRedirect(reverse('homepage'))
 
     ### Events
