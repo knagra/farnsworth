@@ -11,13 +11,19 @@
   <hr class="w_line" />
   <ul class="nav nav-pills" style="margin-bottom: 10px;">
     {% if pools %}
-	<li class="active"><a href="#pools_div" data-toggle="tab">Workshift Pools</a></li>
+	<li class="active">
+	  <a href="#pools_div" data-toggle="tab">Workshift Pools</a>
+	</li>
 	{% endif %}
     {% if workshifters %}
-	<li{% if not pools %} class="active"{% endif %}><a href="#workshifters_div" data-toggle="tab">Workshifters</a></li>
+	<li{% if not pools %} class="active"{% endif %}>
+	  <a href="#workshifters_div" data-toggle="tab">Workshifters</a>
+	</li>
 	{% endif %}
-	{% if semester_form %}
-	<li><a href="#edit_semester_div" data-toggle="tab">Edit Semester Options</a></li>
+	{% if edit_semester_form %}
+	<li>
+	  <a href="#edit_semester_div" data-toggle="tab">Edit Semester Options</a>
+	</li>
 	{% endif %}
   </ul>
 
@@ -63,13 +69,33 @@
 	</div> <!-- #workshifters_div -->
 	{% endif %}
 
-	{% if semester_form %}
+	{% if edit_semester_form %}
 	<div class="tab-pane" id="edit_semester_div">
 	  <form method="post">
 		{% csrf_token %}
-		{{ semester_form|bootstrap }}
+		{{ edit_semester_form|bootstrap }}
+		{% if close_semester_form %}
+		{{ close_semester_form|bootstrap }}
+		{% endif %}
+		{% if open_semester_form %}
+		{{ open_semester_form|bootstrap }}
+		{% endif %}
 		<div class="text-center">
-		  <button type="submit" class="btn btn-success" name="edit_semester"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+		  <div class="btn-group">
+			<button type="submit" class="btn btn-primary" name="edit_semester">
+			  <span class="glyphicon glyphicon-floppy-disk"></span> Save
+			</button>
+			{% if close_semester_form %}
+			<button type="submit" class="btn btn-warning" name="close_semester">
+			  <span class="glyphicon glyphicon-fire"></span> Close
+			</button>
+			{% endif %}
+			{% if open_semester_form %}
+			<button type="submit" class="btn btn-info" name="open_semester">
+			  <span class="glyphicon glyphicon-repeat"></span> Re-Open
+			</button>
+			{% endif %}
+		  </div>
 		</div>
 	  </form>
 	</div> <!-- #edit_semester_div -->
