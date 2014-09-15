@@ -282,8 +282,8 @@ class AnnouncementForm(forms.ModelForm):
                         )
                     except SMTPException as e:
                         failures += 1
-        if self.cleaned_data['email_alumni'] or
-                self.cleaned_data['email_members']):
+        if self.cleaned_data['email_alumni'] or \
+                self.cleaned_data['email_members']:
             messages.add_message(
                 request,
                 messages.SUCCESS if failures == 0 else messages.ERROR,
