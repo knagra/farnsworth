@@ -234,11 +234,11 @@ class AnnouncementForm(forms.ModelForm):
         # If the announcement is being edited, skip rest of function
         if self.editing:
             return announcement
-        url = request.build_absolute_url(reverse(
+        url = request.build_absolute_uri(reverse(
             'managers:view_announcement',
             kwargs={'announcement_pk': announcement.pk},
         ))
-        profile_url = request.build_absolute_url(reverse('base:my_profile'))
+        profile_url = request.build_absolute_uri(reverse('base:my_profile'))
         email_body = ANNOUNCEMENT_EMAIL.format(
             announcement=announcement,
             url=url,
