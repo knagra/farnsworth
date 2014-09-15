@@ -4,13 +4,18 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from smtplib import SMTPException
+
 from django import forms
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 
 from notifications import notify
 
-from utils.variables import ANNOUNCEMENT_EMAIL, MESSAGES
+from utils.variables import ANNOUNCEMENT_SUBJECT, ANNOUNCEMENT_EMAIL, \
+    MESSAGES
 from utils.funcs import convert_to_url, verify_url
 from base.models import UserProfile
 from managers.models import Manager, Announcement, RequestType, Request, Response
@@ -232,8 +237,10 @@ class AnnouncementForm(forms.ModelForm):
         if announcement.pk is None:
             announcement.incumbent = self.profile
         announcement.save()
-        # If the announcement is being edited, skip rest of function
-        if self.editing:
+        # If not sending an e-mail, skip rest of function
+        if self.editing or not settings.SEND_EMAILS \
+                or not self.cleaned_data['email_members'] \
+                and not self.cleaned_data['email_alumni']:
             return announcement
         url = request.build_absolute_uri(reverse(
             'managers:view_announcement',
@@ -245,54 +252,43 @@ class AnnouncementForm(forms.ModelForm):
             url=url,
             profile_url=profile_url,
         )
-        total_attempts = 0
-        failures = 0
+        email_to = []
         if self.cleaned_data['email_members']:
             for member in UserProfile.objects.filter(
                     email_announcement_notifications=True).exclude(
                     status=UserProfile.ALUMNUS):
-                if member is not self.profile:
-                    total_attempts += 1
-                    try:
-                        send_mail(
-                            "Farnsworth - {manager} Announcement".format(
-                                manager=announcement.manager,
-                            ),
-                            email_body,
-                            settings.EMAIL_HOST_USER,
-                            member.user.email,
-                            fail_silently=False,
-                        )
-                    except SMTPException as e:
-                        failures += 1
+                if member != self.profile \
+                        and member.email_announcement_notifications:
+                    email_to.append(member.user.email)
         if self.cleaned_data['email_alumni']:
             for member in UserProfile.objects.filter(
                     email_announcement_notifications=True,
                     status=UserProfile.ALUMNUS):
-                if member is not self.profile:
-                    total_attempts += 1
-                    try:
-                        send_mail(
-                            "Farnsworth - {manager} Announcement".format(
-                                manager=announcement.manager,
-                            ),
-                            email_body,
-                            settings.EMAIL_HOST_USER,
-                            member.user.email,
-                            fail_silently=False,
-                        )
-                    except SMTPException as e:
-                        failures += 1
-        if self.cleaned_data['email_alumni'] or \
-                self.cleaned_data['email_members']:
+                if member != self.profile \
+                        and member.email_announcement_notifications:
+                    email_to.append(member.user.email)
+        try:
+            send_mail(
+                ANNOUNCEMENT_SUBJECT.format(
+                    house=settings.HOUSE,
+                    manager=announcement.manager,
+                ),
+                email_body,
+                settings.EMAIL_HOST_USER,
+                email_to,
+                fail_silently=False,
+                html_message=email_body,
+            )
             messages.add_message(
                 request,
-                messages.SUCCESS if failures == 0 else messages.ERROR,
-                MESSAGES['ANNOUNCEMENT_SUCCESS'] if failures == 0 else
-                MESSAGES['ANNOUNCEMENT_FAIL'].format(
-                    failures=failures,
-                    total=total_attempts,
-                ),
+                messages.SUCCESS,
+                MESSAGES['ANNOUNCEMENT_SUCCESS'],
+            )
+        except SMTPException as e:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                MESSAGES['ANNOUNCEMENT_FAIL'],
             )
         return announcement
 

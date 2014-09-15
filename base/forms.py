@@ -288,8 +288,9 @@ class FullProfileForm(forms.ModelForm):
     ''' Form to modify an existing user and profile. '''
     class Meta:
         model = UserProfile
-        fields = ("email_visible", "phone_number", "phone_visible", "status",
-                  "former_houses")
+        fields = ("email_visible", "phone_number", "phone_visible",
+                  "status", "former_houses",
+                  "email_announcement_notifications")
 
 class ModifyProfileRequestForm(forms.ModelForm):
     ''' Form to modify a profile request. '''
@@ -398,7 +399,8 @@ class UpdateProfileForm(forms.ModelForm):
     ''' Form for a user to update own profile. '''
     class Meta:
         model = UserProfile
-        fields = ("email_visible", "phone_number", "phone_visible", "former_houses")
+        fields = ("email_visible", "phone_number", "phone_visible",
+                  "former_houses", "email_announcement_notifications")
 
     enter_password = forms.CharField(
         required=False,
