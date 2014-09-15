@@ -9,6 +9,7 @@ from django.conf import settings
 
 from notifications import notify
 
+from utils.variables import ANNOUNCEMENT_EMAIL, MESSAGES
 from utils.funcs import convert_to_url, verify_url
 from base.models import UserProfile
 from managers.models import Manager, Announcement, RequestType, Request, Response
@@ -202,6 +203,10 @@ class AnnouncementForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
         self.manager_positions = Manager.objects.filter(incumbent=self.profile, active=True)
+        if 'editing' in kwargs:
+            self.editing = kwargs.pop('editing')
+        else:
+            self.editing = False
         super(AnnouncementForm, self).__init__(*args, **kwargs)
         if self.manager_positions:
             self.fields["manager"].queryset = self.manager_positions
@@ -210,7 +215,9 @@ class AnnouncementForm(forms.ModelForm):
         else:
             self.fields["manager"].widget = forms.HiddenInput()
             self.fields["manager"].queryset = Manager.objects.none()
-        
+        if self.editing:
+            self.fields.pop('email_members')
+            self.fields.pop('email_alumni')
 
     def is_valid(self):
         if not super(AnnouncementForm, self).is_valid():
@@ -219,11 +226,73 @@ class AnnouncementForm(forms.ModelForm):
             self._errors['__all__'] = forms.util.ErrorList([u"You do not have permission to post an announcement."])
         return True
 
-    def save(self):
+    def save(self, request=None):
         announcement = super(AnnouncementForm, self).save(commit=False)
         if announcement.pk is None:
             announcement.incumbent = self.profile
         announcement.save()
+        # If the announcement is being edited, skip rest of function
+        if self.editing:
+            return announcement
+        url = request.build_absolute_uri(reverse(
+            'managers:view_announcement',
+            kwargs={'announcement_pk': announcement.pk},
+        ))
+        profile_url = request.build_absolute_uri(reverse('base:my_profile'))
+        email_body = ANNOUNCEMENT_EMAIL.format(
+            announcement=announcement,
+            url=url,
+            profile_url=profile_url,
+        )
+        total_attempts = 0
+        failures = 0
+        if self.cleaned_data['email_members']:
+            for member in UserProfile.objects.filter(
+                    email_announcement_notifications=True).exclude(
+                    status=UserProfile.ALUMNUS):
+                if member is not self.profile:
+                    total_attempts += 1
+                    try:
+                        send_mail(
+                            "Farnsworth - {manager} Announcement".format(
+                                manager=announcement.manager,
+                            ),
+                            email_body,
+                            settings.EMAIL_HOST_USER,
+                            member.user.email,
+                            fail_silently=False,
+                        )
+                    except SMTPException as e:
+                        failures += 1
+        if self.cleaned_data['email_alumni']:
+            for member in UserProfile.objects.filter(
+                    email_announcement_notifications=True,
+                    status=UserProfile.ALUMNUS):
+                if member is not self.profile:
+                    total_attempts += 1
+                    try:
+                        send_mail(
+                            "Farnsworth - {manager} Announcement".format(
+                                manager=announcement.manager,
+                            ),
+                            email_body,
+                            settings.EMAIL_HOST_USER,
+                            member.user.email,
+                            fail_silently=False,
+                        )
+                    except SMTPException as e:
+                        failures += 1
+        if self.cleaned_data['email_alumni'] or \
+                self.cleaned_data['email_members']:
+            messages.add_message(
+                request,
+                messages.SUCCESS if failures == 0 else messages.ERROR,
+                MESSAGES['ANNOUNCEMENT_SUCCESS'] if failures == 0 else
+                MESSAGES['ANNOUNCEMENT_FAIL'].format(
+                    failures=failures,
+                    total=total_attempts,
+                ),
+            )
         return announcement
 
 class PinForm(forms.ModelForm):

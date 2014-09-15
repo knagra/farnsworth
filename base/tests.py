@@ -253,10 +253,7 @@ class TestHomepage(TestCase):
             "pin-pinned": False,
             }, follow=True)
         self.assertRedirects(response, url)
-        self.assertEqual(
-            False,
-            Announcement.objects.get(pk=self.announce.pk).pinned,
-            )
+        self.assertFalse(Announcement.objects.get(pk=self.announce.pk).pinned)
 
     def test_upvote(self):
         # Upvote
@@ -736,8 +733,8 @@ class TestProfilePages(TestCase):
         self.assertContains(response, "Your password was successfully changed.")
 
         self.client.logout()
-        self.assertEqual(False, self.client.login(username="u", password="pwd"))
-        self.assertEqual(True, self.client.login(username="u", password="Jenkins"))
+        self.assertFalse(self.client.login(username="u", password="pwd"))
+        self.assertTrue(self.client.login(username="u", password="Jenkins"))
 
     def test_confirm_password(self):
         url = reverse("my_profile")
@@ -755,8 +752,8 @@ class TestProfilePages(TestCase):
             response, "The two password fields didn't match.".replace("'", "&#39;")
             )
         self.client.logout()
-        self.assertEqual(False, self.client.login(username="u", password="Jenkins"))
-        self.assertEqual(True, self.client.login(username="u", password="pwd"))
+        self.assertFalse(self.client.login(username="u", password="Jenkins"))
+        self.assertTrue(self.client.login(username="u", password="pwd"))
 
     def test_visible(self):
         self.oprofile.email_visible = True
@@ -887,8 +884,8 @@ class TestModifyUser(TestCase):
         self.assertContains(response,
                             MESSAGES['USER_PW_CHANGED'].format(username=self.u.username))
         self.client.logout()
-        self.assertEqual(False, self.client.login(username="u", password="pwd"))
-        self.assertEqual(True, self.client.login(username="u", password="Leeroy"))
+        self.assertFalse(self.client.login(username="u", password="pwd"))
+        self.assertTrue(self.client.login(username="u", password="Leeroy"))
 
     def test_confirm_user_password(self):
         self.client.login(username="su", password="pwd")
@@ -907,8 +904,8 @@ class TestModifyUser(TestCase):
             response, "The two password fields didn't match.".replace("'", "&#39;")
             )
         self.client.logout()
-        self.assertEqual(False, self.client.login(username="u", password="Leeroy"))
-        self.assertEqual(True, self.client.login(username="u", password="pwd"))
+        self.assertFalse(self.client.login(username="u", password="Leeroy"))
+        self.assertTrue(self.client.login(username="u", password="pwd"))
 
 class TestAdminFunctions(TestCase):
     def setUp(self):

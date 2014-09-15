@@ -12,12 +12,11 @@ CKEDITOR.editorConfig = function( config ) {
         { name: 'editing', items: ['Bold', 'Italic', 'Underline','Strike', 'Subscript', 'Superscript', '-', 'Link', 'Unlink', 'Anchor'] },
         { name: 'document', items: ['Cut', 'Copy', 'Paste', '-', 'Find', 'Replace', 'Scayt', '-', 'Undo', 'Redo'] },
         '/',
-        { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv'] },
+        { name: 'paragraph', items: ['NumberedList', 'BulletedList', 'JustifyLeft', 'JustifyCenter', 'JustifyBlock', 'JustifyRight', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv'] },
         { name: 'others', items: ['Image', 'HorizontalRule', 'Smiley', 'oembed', 'Symbol', '-', 'pbckcode', 'Mathjax', 'leaflet', 'Footnotes'] },
         '/',
         { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
         { name: 'colors', items: ['TextColor', 'BGColor' ] },
-        { name: 'justify', items: ['JustifyLeft', 'JustifyCenter', 'JustifyBlock', 'JustifyRight'] },
         ];
     
     /* configure pbckcode */
@@ -54,7 +53,7 @@ CKEDITOR.editorConfig = function( config ) {
             ['PHP'          , 'php'],
             ['Powershell'   , 'powershel1'],
             ['Python'       , 'python'],
-            ['R'            , 'ruby'],
+            ['Ruby'         , 'ruby'],
             ['OpenSCAD'     , 'scad'],
             ['Scala'        , 'scala'],
             ['SCSS/Sass'    , 'scss'],

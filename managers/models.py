@@ -89,6 +89,9 @@ class Manager(models.Model):
             kwargs.setdefault("url_title", convert_to_url(kwargs["title"]))
         super(Manager, self).__init__(*args, **kwargs)
 
+    class Meta:
+        ordering = ['title']
+
 class RequestType(models.Model):
     '''
     A request type to specify relevant managers and name.
