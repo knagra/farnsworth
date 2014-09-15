@@ -14,8 +14,8 @@
       {{ update_profile_form|bootstrap }}
       <div class="text-center form-group">
         <button type="submit" class="btn btn-success" name="update_user_profile">
-		  <span class="glyphicon glyphicon-floppy-disk"></span> Update User Profile
-		</button>
+          <span class="glyphicon glyphicon-floppy-disk"></span> Update User Profile
+        </button>
       </div>
     </form>
   </div> <!-- .col-md-7 -->
@@ -23,10 +23,10 @@
   <hr class="visible-xs visible-sm" />
   {% if targetUser = user %}
   <div class="col-md-5">
-	<h2 class="sub_subtitle text-center text-primary" style="margin-top: 40px;">
-	  For your own security, you are only able to change your password from the
-	  <a href="{% url 'my_profile' %}">my profile</a> page.
-	</h2>
+    <h2 class="sub_subtitle text-center text-primary" style="margin-top: 40px;">
+      For your own security, you are only able to change your password from the
+      <a href="{% url 'my_profile' %}">my profile</a> page.
+    </h2>
   </div> <!-- .col-md-5 -->
 </div> <!-- .row -->
 {% else %}
@@ -38,8 +38,8 @@
     {{ change_user_password_form|bootstrap }}
     <div class="text-center form-group">
       <button type="submit" class="btn btn-warning" name="change_user_password">
-		<span class="glyphicon glyphicon-flash"></span> Change User Password
-	  </button>
+        <span class="glyphicon glyphicon-flash"></span> Change User Password
+      </button>
     </div>
   </form>
 </div> <!-- .col-md-5 -->
@@ -48,8 +48,8 @@
 <hr />
 <div class="row">
   <div class="col-md-6 col-md-offset-3">
-	<h1 class="w_title">Delete {{ targetUser.username }}</h1>
-	<hr class="w_line" />
+    <h1 class="w_title">Delete {{ targetUser.username }}</h1>
+    <hr class="w_line" />
     <div class="text-danger" style="margin-left: 10px; margin-right: 10px; margin-top: 10px;">
       This will permenantly delete {{ targetUser.username }}'s account, her/his forum posts, requests, events--EVERYTHING!
       This cannot be undone. This user owns the following items, all of which will be deleted:
@@ -85,8 +85,8 @@
       {{ delete_user_form|bootstrap }}
       <div class="text-center form-group">
         <button type="submit" class="btn btn-danger" name="delete_user">
-		  <span class="glyphicon glyphicon-fire"></span> Delete User
-		</button>
+          <span class="glyphicon glyphicon-fire"></span> Delete User
+        </button>
       </div>
     </form>
   </div> <!-- .col-md-6 -->

@@ -26,6 +26,8 @@ from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
 
+from wiki.models import Revision
+
 from utils.funcs import form_add_error
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
     APPROVAL_EMAIL, DELETION_SUBJECT, DELETION_EMAIL, SUBMISSION_SUBJECT, \
@@ -174,14 +176,17 @@ def homepage_view(request, message=None):
                 return HttpResponseRedirect(reverse('homepage'))
         announcements_dict.append((a, pin_form))
 
-    announcement_form = AnnouncementForm(
-        request.POST if "post_announcement" in request.POST else None,
-        profile=userProfile,
-        prefix="announce",
-        )
+    if Manager.objects.filter(incumbent=userProfile, active=True).count():
+        announcement_form = AnnouncementForm(
+            request.POST if "post_announcement" in request.POST else None,
+            profile=userProfile,
+            prefix="announce",
+            )
+    else:
+        announcement_form = None
 
-    if announcement_form.is_valid():
-        announcement_form.save()
+    if announcement_form and announcement_form.is_valid():
+        announcement_form.save(request)
         return HttpResponseRedirect(reverse('homepage'))
 
     ### Events
@@ -623,9 +628,9 @@ def custom_modify_user_view(request, targetUsername):
         'delete_user_form': delete_user_form,
         }
 
-    if "pinax-wiki" in settings.INSTALLED_APPS:
+    if "wiki" in settings.INSTALLED_APPS:
         from wiki.models import Revision
-        template_dict["wiki_count"] = \
+        template_dict["revision_count"] = \
           Revision.objects.filter(created_by=targetUser).count()
 
     template_dict['thread_count'] = \
@@ -644,7 +649,8 @@ def custom_modify_user_view(request, targetUsername):
     return render_to_response(
         'custom_modify_user.html',
         template_dict,
-        context_instance=RequestContext(request))
+        context_instance=RequestContext(request),
+        )
 
 @admin_required
 def custom_add_user_view(request):

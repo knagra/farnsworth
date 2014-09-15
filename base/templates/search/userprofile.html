@@ -6,8 +6,10 @@
   <dt>Status</dt>
   <dd>{% if targetUser.username == ANONYMOUS_USERNAME %}Anonymous user for common space computers.{% else %}{{ result.object.get_status_display }}{% endif %}</dd>
   {% if not result.object.user.username == ANONYMOUS_USERNAME %}
+  {% if result.object.former_houses %}
   <dt>Former Houses</dt>
-  <dd>{{ result.object.former_houses }}&nbsp;</dd>
+  <dd>{{ result.object.former_houses }}</dd>
+  {% endif %}
   {% if result.object.room_set.count %}
   <dt>Current Room</dt>
   <dd>

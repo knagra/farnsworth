@@ -126,7 +126,7 @@ class TestEvent(TestCase):
             self.ev.end_time,
             event.end_time,
             )
-        self.assertEqual(event.cancelled, True)
+        self.assertTrue(event.cancelled)
         self.assertEqual(event.as_manager, self.m)
 
     def test_add_event(self):

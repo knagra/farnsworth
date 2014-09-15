@@ -93,6 +93,27 @@ class StartPoolForm(forms.ModelForm):
 
             utils.make_workshift_pool_hours(pool.semester, pools=[pool])
 
+class CloseSemesterForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop("semester")
+        super(CloseSemesterForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        self.semester.current = False
+        self.semester.save()
+
+class OpenSemesterForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop("semester")
+        super(OpenSemesterForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        for semester in Semester.objects.filter(current=True):
+            semester.current = False
+            semester.save()
+        self.semester.current = True
+        self.semester.save()
+
 class PoolForm(forms.ModelForm):
     class Meta:
         model = WorkshiftPool
@@ -923,4 +944,3 @@ class FineDateForm(forms.Form):
                     )
 
         return fined
-
