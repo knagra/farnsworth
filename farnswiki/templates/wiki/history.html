@@ -15,9 +15,8 @@
 <table class="table table-striped table-bordered table-condensed table-hover" style="margin: 0px;">
   <thead>
     <tr>
-      <th>Revision</th>
+      <th>Action</th>
       <th>Editor</th>
-      <th>Message</th>
       <th>Time</th>
     </tr>
   </thead>
@@ -26,16 +25,13 @@
     <tr>
       <td>
     <a href="{{ page.get_absolute_url }}?rev={{ rev.pk }}">
-      {{ rev.pk }}
+      {% if rev.message %}{{ rev.message }}{% else %}<i>No message</i>{% endif %}
     </a>
       </td>
       <td>
     <a href="{% url 'member_profile' targetUsername=rev.created_by.username %}">
       {{ rev.created_by.get_full_name }}
     </a>
-      </td>
-      <td>
-    {{ rev.message }}
       </td>
       <td>
     {{ rev.created_at|date:"m/d/Y, h:i A" }}

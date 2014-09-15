@@ -509,9 +509,10 @@ def edit_announcement_view(request, announcement_pk):
         request.POST or None,
         instance=announce,
         profile=profile,
+        editing=True,
         )
     if announcement_form.is_valid():
-        announcement_form.save()
+        announcement_form.save(request)
         return HttpResponseRedirect(
             reverse('managers:view_announcement', kwargs={"announcement_pk": announcement_pk}),
             )
@@ -530,7 +531,7 @@ def announcements_view(request):
     manager_positions = Manager.objects.filter(incumbent=userProfile)
     if manager_positions:
         announcement_form = AnnouncementForm(
-            request.POST if "post_announcement"in request.POST else None,
+            request.POST if "post_announcement" in request.POST else None,
             profile=userProfile,
             )
     if announcement_form and announcement_form.is_valid():

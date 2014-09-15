@@ -6,26 +6,13 @@
 CKEDITOR.editorConfig = function( config ) {
     /* Define extra plugins to load */
     config.extraPlugins = 'widget,lineutils,pbckcode,mathjax,leaflet,autolink,codemirror,footnotes,oembed,imagebrowser,symbol,dialog';
-    /*config.toolbarGroups = [
-        { name: 'clipboard', groups: ['undo'] },
-        { name: 'editing', groups: ['find', 'selection', 'spellchecker'] },
-        { name: 'links' },
-        { name: 'insert' },
-        { name: 'tools' },
-        { name: 'others' },
-        { name: 'pbckcode' },
-        { name: 'basicstyles', groups: ['basicstyles', 'cleanup'] },
-        { name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align'] },
-        { name: 'styles' },
-        { name: 'colors' },
-        ];*/
-    
+
     /* Define the toolbar, item by item */
     config.toolbar = [
         { name: 'editing', items: ['Bold', 'Italic', 'Underline','Strike', 'Subscript', 'Superscript', '-', 'Link', 'Unlink', 'Anchor'] },
         { name: 'document', items: ['Cut', 'Copy', 'Paste', '-', 'Find', 'Replace', 'Scayt', '-', 'Undo', 'Redo'] },
         '/',
-        { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv'] },
+        { name: 'paragraph', items: ['NumberedList', 'BulletedList', 'JustifyLeft', 'JustifyCenter', 'JustifyBlock', 'JustifyRight', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv'] },
         { name: 'others', items: ['Image', 'HorizontalRule', 'Smiley', 'oembed', 'Symbol', '-', 'pbckcode', 'Mathjax', 'leaflet', 'Footnotes'] },
         '/',
         { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
@@ -66,7 +53,7 @@ CKEDITOR.editorConfig = function( config ) {
             ['PHP'          , 'php'],
             ['Powershell'   , 'powershel1'],
             ['Python'       , 'python'],
-            ['R'            , 'ruby'],
+            ['Ruby'         , 'ruby'],
             ['OpenSCAD'     , 'scad'],
             ['Scala'        , 'scala'],
             ['SCSS/Sass'    , 'scss'],

@@ -29,7 +29,8 @@ from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
     WorkshiftRatingForm, TimeBlockFormSet, ProfileNoteForm, \
     RegularWorkshiftFormSet, SwitchSemesterForm, EditHoursForm, \
     AutoAssignShiftForm, RandomAssignInstancesForm, ClearAssignmentsForm, \
-    WorkshiftPoolHoursForm, FineDateForm, NoteForm
+    WorkshiftPoolHoursForm, FineDateForm, NoteForm, \
+    CloseSemesterForm, OpenSemesterForm
 from workshift import utils
 from workshift.templatetags.workshift_tags import wurl
 
@@ -542,7 +543,9 @@ def manage_view(request, semester, profile=None):
     page_name = "Manage Workshift"
     pools = WorkshiftPool.objects.filter(semester=semester)
     full_management = utils.can_manage(request.user, semester=semester)
-    semester_form = None
+    edit_semester_form = None
+    close_semester_form = None
+    open_semester_form = None
 
     if not full_management:
         pools = pools.filter(managers__incumbent__user=request.user)
@@ -551,15 +554,38 @@ def manage_view(request, semester, profile=None):
                                  MESSAGES['ADMINS_ONLY'])
             return HttpResponseRedirect(semester.get_view_url())
     else:
-        semester_form = FullSemesterForm(
+        edit_semester_form = FullSemesterForm(
             request.POST if "edit_semester" in request.POST else None,
             instance=semester,
             )
+        if semester.current:
+            close_semester_form = CloseSemesterForm(
+                request.POST if "close_semester" in request.POST else None,
+                semester=semester,
+                )
+        else:
+            open_semester_form = OpenSemesterForm(
+                request.POST if "open_semester" in request.POST else None,
+                semester=semester
+                )
 
-    if semester_form and semester_form.is_valid():
-        semester = semester_form.save()
+
+    if edit_semester_form and edit_semester_form.is_valid():
+        semester = edit_semester_form.save()
         messages.add_message(request, messages.INFO, "Semester successfully updated.")
         return HttpResponseRedirect(wurl('workshift:manage',
+                                         sem_url=semester.sem_url))
+
+    if close_semester_form and close_semester_form.is_valid():
+        close_semester_form.save()
+        messages.add_message(request, messages.INFO, "Semester closed.")
+        return HttpResponseRedirect(wurl("workshift:manage",
+                                         sem_url=semester.sem_url))
+
+    if open_semester_form and open_semester_form.is_valid():
+        open_semester_form.save()
+        messages.add_message(request, messages.INFO, "Semester reopened.")
+        return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
 
     pools = pools.order_by('-is_primary', 'title')
@@ -572,7 +598,9 @@ def manage_view(request, semester, profile=None):
         "page_name": page_name,
         "pools": pools,
         "full_management": full_management,
-        "semester_form": semester_form,
+        "edit_semester_form": edit_semester_form,
+        "close_semester_form": close_semester_form,
+        "open_semester_form": open_semester_form,
         "workshifters": zip(workshifters, pool_hours),
     }, context_instance=RequestContext(request))
 
@@ -674,7 +702,8 @@ def add_workshifter_view(request, semester):
     existing = [
         i.user.pk for i in WorkshiftProfile.objects.filter(semester=semester)
         ]
-    users = User.objects.exclude(pk__in=existing).exclude(is_active=False)
+    users = User.objects.exclude(pk__in=existing).exclude(is_active=False) \
+      .exclude(userprofile__status=UserProfile.ALUMNUS)
 
     add_workshifter_forms = []
     for user in users:

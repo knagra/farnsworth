@@ -1,5 +1,36 @@
 {% extends "base.html" %}
 
+{% block headers %}
+<style>
+#edit-info {
+    padding-top: 20px;
+    bottom: 40px;
+    font-size: 9pt;
+    padding-bottom: 40px;
+}
+#table-of-contents {
+    width: 400px;
+    border: 1px solid #e7e7e7;
+    border-radius: 4px;
+    background-color: #fafafa;
+    display: inline-block;
+}
+#table-of-contents h2 {
+    margin-top: 5px;
+    margin-bottom: 0px;
+    margin-left: 10px;
+}
+#table-of-contents hr {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+#table-of-contents ul {
+    list-style: none;
+    padding-left: 10px;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="pull-right">
   <a class="btn btn-default" href="{% url 'wiki_all' %}">
@@ -25,4 +56,22 @@
 <div class="page">
   {{ revision.content_html|safe }}
 </div>
+{% endblock %}
+
+{% block footer %}
+<div id="edit-info" class="container text-muted">
+    <hr class="w_line" />
+    {% if revision.message %}<span title="Revision message">{{ revision.message }}</span>{% else %}<span
+        title="No message with this revision" class="text-danger"><i>No message</i></span>{% endif %},
+    {{ revision.created_at|date:"m/d/Y, h:i A" }},
+    <a href="{% url 'member_profile' targetUsername=revision.created_by.username %}">{{ revision.created_by.get_full_name }}</a>
+</div>
+{% endblock %}
+
+{% block endscripts %}
+<script>
+$(document).ready(function() {
+    $('#body').css('padding-bottom', '0px');
+});
+</script>
 {% endblock %}

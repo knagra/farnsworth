@@ -89,6 +89,9 @@ class Manager(models.Model):
             kwargs.setdefault("url_title", convert_to_url(kwargs["title"]))
         super(Manager, self).__init__(*args, **kwargs)
 
+    class Meta:
+        ordering = ['title']
+
 class RequestType(models.Model):
     '''
     A request type to specify relevant managers and name.
@@ -270,7 +273,7 @@ class Response(models.Model):
     NONE = 'N'
     ACTION_CHOICES = (
         (NONE, "None"),
-        (CLOSED, "Mark closed"),
+        (CLOSED, "Mark closed (won't fill)"),
         (REOPENED, "Mark open"),
         (FILLED, "Mark filled"),
         (EXPIRED, "Mark expired"),
