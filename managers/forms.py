@@ -6,6 +6,7 @@ Author: Karandeep Singh Nagra
 
 from django import forms
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from notifications import notify
 
@@ -238,7 +239,7 @@ class AnnouncementForm(forms.ModelForm):
             'managers:view_announcement',
             kwargs={'announcement_pk': announcement.pk},
         ))
-        profile_url = request.build_absolute_uri(reverse('base:my_profile'))
+        profile_url = request.build_absolute_uri(reverse('my_profile'))
         email_body = ANNOUNCEMENT_EMAIL.format(
             announcement=announcement,
             url=url,
