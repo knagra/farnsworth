@@ -1,6 +1,7 @@
 """
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
+Project: Farnsworth
+
+Authors: Karandeep Singh Nagra and Nader Morshed
 """
 
 from datetime import date, timedelta
