@@ -722,6 +722,7 @@ class TestViews(TestCase):
             reverse("workshift:view_shift", kwargs={"pk": self.shift.pk}),
             reverse("workshift:view_instance", kwargs={"pk": self.instance.pk}),
             reverse("workshift:view_instance", kwargs={"pk": self.once.pk}),
+            reverse("workshift:view_open")
             ]
         for url in urls:
             response = self.client.get(url)
@@ -753,6 +754,7 @@ class TestViews(TestCase):
             ("workshift:edit_instance", {"pk": self.instance.pk}),
             ("workshift:view_instance", {"pk": self.once.pk}),
             ("workshift:edit_instance", {"pk": self.once.pk}),
+            ("workshift:view_open", {})
             ]
         for name, kwargs in urls:
             url = reverse(name, kwargs=kwargs)
