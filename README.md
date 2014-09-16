@@ -12,7 +12,7 @@
 
 An online gathering place for each house in the BSC.  Scalable and modular, intended to be used as an instance at each house.
 
-No authorship claim is made to the contents of the subdirectories tinymce, jquery, and bootstrap of directory static, with the exception of the file static/tinymce/layout.js.  Please consult the relevant licenses before distributing or using those portions of this software.
+No authorship claim is made to the contents of the subdirectories ckeditor, tinymce, jquery, jquery-ui, and bootstrap of directory /base/static, with the exception of the file /base/static/ckeditor/config.js.  Please consult the relevant licenses before distributing or using those portions of this software.
 
 Logos included in the /static/ui/images/oauth are property and copyright of the
 respective companies.
