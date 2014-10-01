@@ -152,28 +152,28 @@
       <div class="field_wrapper">No recent announcements.</div>
       {% else %}
       <div class="bordered_div">
-        {% for tuple in announcements_dict %}
+        {% for announcement, unpin_form in announcements_dict %}
         {% if forloop.counter > 1 %}
         <hr class="main_divider" />
         {% endif %}
         <div class="main_row hover_row">
           <div class="announcement_owner">
-            <a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=tuple.0.manager.url_title %}">{{ tuple.0.manager }}</a>
-            (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.incumbent.user.username %}">{{ tuple.0.incumbent|display_user:user }}</a>),
-            {{ tuple.0.post_date }}:
+            <a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=announcement.manager.url_title %}">{{ announcement.manager }}</a>
+            (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=announcement.incumbent.user.username %}">{{ announcement.incumbent|display_user:user }}</a>),
+            {{ announcement.post_date }}:
           </div> <!-- .announcement_owner -->
-          <div class="announcement_body">{{ tuple.0.body|safe }}
-            {% if tuple.1 %}
+          <div class="announcement_body">{{ announcement.body|safe }}
+            {% if unpin_form %}
             <form class="pull-right" method="post" action="">
               {% csrf_token %}
-              {{ tuple.1 }}
-              {% if tuple.0.pinned %}
+              {{ unpin_form }}
+              {% if announcement.pinned %}
               <button type="submit" class="main_link warning_link" name="unpin" title="Unpin from homepage">Unpin</button>
               {% else %}
               <button type="submit" class="main_link success_link" name="unpin" title="Pin to homepage">Pin</button>
               {% endif %}
             </form>
-            <form class="pull-right" action="{% url 'managers:edit_announcement' announcement_pk=tuple.0.pk %}">
+            <form class="pull-right" action="{% url 'managers:edit_announcement' announcement_pk=announcement.pk %}">
               <button type="submit" class="main_link primary_link" title="Edit this announcement">Edit</button>
             </form>
             {% endif %}
