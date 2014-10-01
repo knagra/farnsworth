@@ -264,33 +264,33 @@
       </div>
       {% else %}
       <div class="bordered_div">
-        {% for tuple in events_dict %}
+        {% for event, ongoing, rsvpd, rsvp_form in events_dict %}
         {% if forloop.counter > 1 %}
         <hr class="main_divider">
         {% endif %}
-        <div class="main_row hover_row{% if tuple.0.cancelled %} bg-danger" title="Cancelled{% elif tuple.1 %} bg-success" title="Happening Now{% elif tuple.0.as_manager %} bg-info" title="Official House Event{% endif %}">
+        <div class="main_row hover_row{% if event.cancelled %} bg-danger" title="Cancelled{% elif ongoing %} bg-success" title="Happening Now{% elif event.as_manager %} bg-info" title="Official House Event{% endif %}">
           <div class="main_owner">
-            {% if tuple.0.as_manager %}
-            <a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=tuple.0.as_manager.url_title %}">{{ tuple.0.as_manager }}</a>
-            (<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>):
+            {% if event.as_manager %}
+            <a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=event.as_manager.url_title %}">{{ event.as_manager }}</a>
+            (<a class="page_link" title="View Profile" href="{ url 'member_profile targetUsername=event.owner.user.username %}">{{ event.owner|display_user:user }}</a>):
             {% else %}
-            <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=tuple.0.owner.user.username %}">{{ tuple.0.owner|display_user:user }}</a>:
+            <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">{{ event.owner|display_user:user }}</a>:
             {% endif %}
           </div> <!-- .main_owner -->
           <div class="event_body">
             <div class="text-center">
-              <h4 class="event_header">{{ tuple.0.title }}{% if tuple.0.cancelled %}
+              <h4 class="event_header">{{ event.title }}{% if event.cancelled %}
                 <small class="text-danger">CANCELLED</small>{% endif %}
                 <br />
-                <small>{{ tuple.0.location }}</small>
+                <small>{{ event.location }}</small>
                 <br />
-                <small>{{ tuple.0.start_time }} to {{ tuple.0.end_time }}</small></h4>
+                <small>{{ event.start_time }} to {{ event.end_time }}</small></h4>
               <hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;">
             </div> <!-- .text-center -->
-            {{ tuple.0.description|safe }}
+            {{ event.description|safe }}
             <hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;" />
-            {% if tuple.0.rsvps.all %}
-            RSVPs: {% for member in tuple.0.rsvps.all %}{% if forloop.counter > 1 %},
+            {% if event.rsvps.all %}
+            RSVPs: {% for member in event.rsvps.all %}{% if forloop.counter > 1 %},
             {% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
             {% else %}
             No RSVPs.
@@ -299,16 +299,16 @@
               {% if user.username != ANONYMOUS_USERNAME %}
               <form class="pull-right" method="post" action="">
                 {% csrf_token %}
-                {{ tuple.3 }}
-                {% if tuple.2 %}
+                {{ rsvp_form }}
+                {% if rsvpd %}
                 <button type="submit" class="main_link warning_link" name="rsvp" title="Un-RSVP to this event">Un-RSVP</button>
                 {% else %}
                 <button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
                 {% endif %}
               </form>
               {% endif %}
-              {% if tuple.0.owner.user == user or user.is_superuser %}
-              <form class="pull-right" action="{% url 'events:edit' event_pk=tuple.0.pk %}">
+              {% if event.owner.user == user or user.is_superuser %}
+              <form class="pull-right" action="{% url 'events:edit' event_pk=event.pk %}">
                 <button class="main_link primary_link" title="Edit this event">Edit</button>
               </form>
               {% endif %}
