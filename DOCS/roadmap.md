@@ -9,11 +9,16 @@
 
 ## 2.1.0
 
+* CKEditor
+* E-mail announcements
+
+## 2.2.0
+
 * Elections and petitions
 * Workshift fines + finalizing workshift semesters
 * Email notifications
 
-## 2.2.0
+## 2.3.0
 
 * Generic manager permissions
 * File uploads
