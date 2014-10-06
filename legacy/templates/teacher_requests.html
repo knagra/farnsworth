@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block header %}
+<style>
+.request_body {
+    margin: 5px auto;
+    width: 75%;
+    border: 1px solid #888;
+    padding-bottom: 2px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bordered_div">
+    {% for request, responses in requests_dict %}
+    {% if not forloop.first %}<hr class="main_divider" />{% endif %}
+    <div class="request_body">
+        <div class="text-center"><b>{{ request.name }}</b>,
+            <span class="text-muted">{{ request.timestamp }}</span>:</div>
+        {{ request.body }}
+    </div>
+    {% for response in responses %}
+    {% if not forloop.first %}<hr class="main_divider" />{% endif %}
+    <div class="hover_row">
+        <b>{{ response.name }}</b>,
+        <span class="text-muted">{{ response.timestamp }}</span>:
+        {{ response.body }}
+    </div>
+    {% endfor %}
+    {% endfor %}
+</div>
+{% endblock %}

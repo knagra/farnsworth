@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bordered_div">
+    {% for event in events %}
+    {% if not forloop.first %}<hr class="main_divider" />{% endif %}
+    <div class="hover_row" style="padding: 5px;">
+        <b>{{ event.date }}</b>:
+        {{ event.description }}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

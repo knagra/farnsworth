@@ -47,3 +47,15 @@ def legacy_requests_view(request, rtype):
     """
     if not rtype in ['food', 'maintenance']:
         raise Http404
+    requests_dict = [] # [(req, [req_responses]), (req2, [req2_responses]), ...]
+    for req in TeacherRequest.objects.filter(request_type=rtype):
+        requests_dict.append(
+            req,
+            TeacherResponse.objects.filter(request=req),
+        )
+    return render_to_response(
+        'legacy_requests.html',
+        {'page_name': "Legacy {rtype} Requests".format(rtype=rtype.title()),
+         'requests_dict': requests_dict,},
+        context_instance=RequestContext(request)
+    )
