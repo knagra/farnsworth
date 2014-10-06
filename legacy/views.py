@@ -21,7 +21,7 @@ def legacy_notes_view(request):
     View to see legacy notes.
     """
     return render_to_response(
-        'legacy_notes.html',
+        'teacher_notes.html',
         {'page_name': "Legacy Notes",
          'notes': TeacherNote.objects.all(),},
         context_instance=RequestContext(request)
@@ -33,7 +33,7 @@ def legacy_events_view(request):
     View to see legacy events.
     """
     return render_to_response(
-        'legacy_events.html',
+        'teacher_events.html',
         {'page_name': "Legacy Events",
          'events': TeacherEvent.objects.all(),},
         context_instance=RequestContext(request)
@@ -54,7 +54,7 @@ def legacy_requests_view(request, rtype):
             TeacherResponse.objects.filter(request=req),
         )
     return render_to_response(
-        'legacy_requests.html',
+        'teacher_requests.html',
         {'page_name': "Legacy {rtype} Requests".format(rtype=rtype.title()),
          'requests_dict': requests_dict,},
         context_instance=RequestContext(request)
