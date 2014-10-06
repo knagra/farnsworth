@@ -15,7 +15,7 @@ from legacy.models import TeacherRequest, TeacherResponse, TeacherNote, \
     TeacherEvent
 
 
-@login_required
+@profile_required
 def legacy_notes_view(request):
     """
     View to see legacy notes.
@@ -27,7 +27,7 @@ def legacy_notes_view(request):
         context_instance=RequestContext(request)
     )
 
-@login_required
+@profile_required
 def legacy_events_view(request):
     """
     View to see legacy events.
@@ -39,7 +39,7 @@ def legacy_events_view(request):
         context_instance=RequestContext(request)
     )
 
-@login_required
+@profile_required
 def legacy_requests_view(request, rtype):
     """
     View to see legacy requests of rtype request type, which should be either
