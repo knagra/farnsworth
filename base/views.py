@@ -48,6 +48,7 @@ from events.forms import RsvpForm
 from rooms.models import Room, PreviousResident
 from workshift.models import Semester, WorkshiftProfile, ShiftLogEntry, \
     WorkshiftInstance
+from legacy.models import TeacherNote, TeacherEvent, TeacherRequest
 
 def add_context(request):
     ''' Add variables to all dictionaries passed to templates. '''
@@ -754,4 +755,10 @@ def archives_view(request):
         'workshift_profile_count': WorkshiftProfile.objects.all().count(),
         'shift_log_entry_count': ShiftLogEntry.objects.all().count(),
         'workshift_instance_count': WorkshiftInstance.objects.all().count(),
+        'legacy_note_count': TeacherNote.objects.all().count(),
+        'legacy_event_count': TeacherEvent.objects.all().count(),
+        'legacy_food_count': TeacherRequest.objects.filter(request_type="food")\
+            .count(),
+        'legacy_maint_count': TeacherRequest.objects.filter(request_type="maintenance")\
+            .count(),
         }, context_instance=RequestContext(request))
