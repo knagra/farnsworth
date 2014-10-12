@@ -82,7 +82,7 @@ class TeacherResponse(models.Model):
         )
 
     class Meta:
-        ordering = ['-timestamp']
+        ordering = ['timestamp']
 
 
 class TeacherNote(models.Model):

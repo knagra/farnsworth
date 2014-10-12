@@ -1,14 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1 class="w_title">Legacy Notes</h1>
+<hr class="w_line" />
+{% include "legacy.html" %}
+{% if not notes %}
+<div class="field_wrapper text-info">No legacy notes.</div>
+{% else %}
 <div class="bordered_div">
     {% for note in notes %}
-    {% if not forloop.first %}<hr class="main_divider" />{% endif %}
-    <div class="hover_row" style="padding: 5px;">
-        <b>{{ note.name }}</b>,
-        <span class="text-muted">{{ note.timestamp }}</span>:
-        {{ note.body }}
-    </div>
+        {% if not forloop.first %}<hr class="main_divider" />{% endif %}
+        <div class="hover_row" style="padding: 5px;">
+            <b>{{ note.name|safe }}</b>,
+            <span class="text-muted">{{ note.timestamp|date:"m/d/Y, h:i A" }}</span>:
+            {{ note.body|safe }}
+        </div>
     {% endfor %}
+    <div class="field_wrapper text-info">
+        {{ note_count }} total legacy notes in database.
+    </div>
+    <div class="field_wrapper">
+        {% if notes.has_previous %}
+            <a href="?page={{ notes.previous_page_number }}"><span
+                class="glyphicon glyphicon-chevron-left"></span>
+                Previous</a>
+        {% else %}
+            <span class="glyphicon glyphicon-chevron-left"></span>
+            Previous
+        {% endif %}
+
+        |
+
+        <span class="current">
+            Page {{ notes.number }} of {{ notes.paginator.num_pages }}.
+        </span>
+
+        |
+
+        {% if notes.has_next %}
+            <a href="?page={{ notes.next_page_number }}">Next
+                <span class="glyphicon glyphicon-chevron-right"></span>
+        {% else %}
+            Next <span class="glyphicon glyphicon-chevron-right"></span>
+        {% endif %}
+    </div>
 </div>
+{% endif %}
 {% endblock %}

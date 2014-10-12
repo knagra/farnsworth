@@ -7,8 +7,10 @@ Legacy Kingman site views.
 """
 
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404
 from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 from base.decorators import profile_required
 from legacy.models import TeacherRequest, TeacherResponse, TeacherNote, \
@@ -20,10 +22,22 @@ def legacy_notes_view(request):
     """
     View to see legacy notes.
     """
+    notes = TeacherNote.objects.all()
+    note_count = notes.count()
+    paginator = Paginator(notes, 100)
+
+    page = request.GET.get('page')
+    try:
+        notes = paginator.page(page)
+    except PageNotAnInteger:
+        notes = paginator.page(1)
+    except EmptyPage:
+        notes = paginator.page(paginator.num_pages)
     return render_to_response(
         'teacher_notes.html',
         {'page_name': "Legacy Notes",
-         'notes': TeacherNote.objects.all(),},
+         'notes': notes,
+         'note_count': note_count,},
         context_instance=RequestContext(request)
     )
 
@@ -32,10 +46,22 @@ def legacy_events_view(request):
     """
     View to see legacy events.
     """
+    events = TeacherEvent.objects.all()
+    event_count = events.count()
+    paginator = Paginator(events, 100)
+
+    page = request.GET.get('page')
+    try:
+        events = paginator.page(page)
+    except PageNotAnInteger:
+        events = paginator.page(1)
+    except EmptyPage:
+        events = paginator.page(paginator.num_pages)
     return render_to_response(
         'teacher_events.html',
         {'page_name': "Legacy Events",
-         'events': TeacherEvent.objects.all(),},
+         'events': events,
+         'event_count': event_count,},
         context_instance=RequestContext(request)
     )
 
@@ -48,14 +74,27 @@ def legacy_requests_view(request, rtype):
     if not rtype in ['food', 'maintenance']:
         raise Http404
     requests_dict = [] # [(req, [req_responses]), (req2, [req2_responses]), ...]
-    for req in TeacherRequest.objects.filter(request_type=rtype):
+    requests = TeacherRequest.objects.filter(request_type=rtype)
+    request_count = requests.count()
+    paginator = Paginator(requests, 50)
+
+    page = request.GET.get('page')
+    try:
+        requests = paginator.page(page)
+    except PageNotAnInteger:
+        requests = paginator.page(1)
+    except EmptyPage:
+        requests = paginator.page(paginator.num_pages)
+    for req in requests:
         requests_dict.append(
-            req,
-            TeacherResponse.objects.filter(request=req),
+            (req, TeacherResponse.objects.filter(request=req),)
         )
     return render_to_response(
         'teacher_requests.html',
         {'page_name': "Legacy {rtype} Requests".format(rtype=rtype.title()),
-         'requests_dict': requests_dict,},
+         'requests_dict': requests_dict,
+         'requests': requests,
+         'request_type': rtype.title(),
+         'request_count': request_count,},
         context_instance=RequestContext(request)
     )
