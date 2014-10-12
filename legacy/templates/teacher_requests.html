@@ -39,9 +39,6 @@
         </div>
         {% endfor %}
     {% endfor %}
-    <div class="field_wrapper text-info">
-        {{ request_count }} total legacy {{ request_type.lower }} requests in database.
-    </div>
     <div class="field_wrapper">
         {% if requests.has_previous %}
             <a href="?page={{ requests.previous_page_number }}"><span
@@ -62,10 +59,13 @@
 
         {% if requests.has_next %}
             <a href="?page={{ requests.next_page_number }}">Next
-                <span class="glyphicon glyphicon-chevron-right"></span>
+                <span class="glyphicon glyphicon-chevron-right"></span></a>
         {% else %}
             Next <span class="glyphicon glyphicon-chevron-right"></span>
         {% endif %}
+    </div>
+    <div class="field_wrapper text-info">
+        {{ request_count }} total legacy {{ request_type.lower }} requests in database.
     </div>
 </div>
 {% endif %}

@@ -16,9 +16,6 @@
             {{ note.body|safe }}
         </div>
     {% endfor %}
-    <div class="field_wrapper text-info">
-        {{ note_count }} total legacy notes in database.
-    </div>
     <div class="field_wrapper">
         {% if notes.has_previous %}
             <a href="?page={{ notes.previous_page_number }}"><span
@@ -39,10 +36,13 @@
 
         {% if notes.has_next %}
             <a href="?page={{ notes.next_page_number }}">Next
-                <span class="glyphicon glyphicon-chevron-right"></span>
+                <span class="glyphicon glyphicon-chevron-right"></span></a>
         {% else %}
             Next <span class="glyphicon glyphicon-chevron-right"></span>
         {% endif %}
+    </div>
+    <div class="field_wrapper text-info">
+        {{ note_count }} total legacy notes in database.
     </div>
 </div>
 {% endif %}

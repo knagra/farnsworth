@@ -16,9 +16,6 @@
             {{ event.description|safe }}
         </div>
     {% endfor %}
-    <div class="field_wrapper text-info">
-        {{ event_count }} total legacy events in database.
-    </div>
     <div class="field_wrapper">
         {% if events.has_previous %}
             <a href="?page={{ events.previous_page_number }}"><span
@@ -39,10 +36,13 @@
 
         {% if events.has_next %}
             <a href="?page={{ events.next_page_number }}">Next
-                <span class="glyphicon glyphicon-chevron-right"></span>
+                <span class="glyphicon glyphicon-chevron-right"></span></a>
         {% else %}
             Next <span class="glyphicon glyphicon-chevron-right"></span>
         {% endif %}
+    </div>
+    <div class="field_wrapper text-info">
+        {{ event_count }} total legacy events in database.
     </div>
 </div>
 {% endif %}
