@@ -137,7 +137,7 @@ $(document).ready(function() {
     });
 });
 
-/* Retrieve requests, profile, requests, and notifications. */
+/* Retrieve requests, profile requests, and notifications. */
 $(document).ready(function() {
     setInterval(function() {
         $.getJSON(
@@ -148,6 +148,14 @@ $(document).ready(function() {
                 }
                 if (data.hasOwnProperty('notifications')) {
                     $('#notifications_link').html(data['notifications']);
+                }
+                if (data.hasOwnProperty('profile_dropdown')) {
+                    $('#profile_dropdown_link').html(data['profile_dropdown']);
+                }
+                if (data.hasOwnProperty('requests_dict')) {
+                    for (var key in data['requests_dict']) {
+                        $('#' + key).html(data['requests_dict'][key]);
+                    }
                 }
             }
         );

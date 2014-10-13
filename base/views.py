@@ -22,7 +22,7 @@ from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
@@ -761,7 +761,7 @@ def archives_view(request):
 def get_updates_view(request):
     """Return a user's updates. AJAX."""
     if not request.is_ajax():
-        return HttpResponseRedirect(reverse('homepage'))
+        raise Http404
     response = dict()
     if request.user.is_superuser:
         num_of_profile_requests = ProfileRequest.objects.all().count()
@@ -791,6 +791,12 @@ def get_updates_view(request):
             Notifications
         '''
 
+        response['profile_dropdown'] = '''
+            <span><span class="pull-right"><b class="caret"></b></span>
+            <span class="glyphicon glyphicon-user"></span>
+            {first_name}&nbsp;</span>
+        '''.format(first_name=request.user.first_name)
+
     else:
         response['notifications'] = """
             <span title="{n_num} unread notification{mult}"
@@ -801,6 +807,54 @@ def get_updates_view(request):
             n_num=notification_count,
             mult='s' if notification_count > 1 else '',
         )
+
+        response['profile_dropdown'] = '''
+            <span><span class="pull-right"><b class="caret"></b></span><span
+            title="You have {n_num} unread notification{mult}."
+            class="badge pull-right">{n_num}</span>
+            <span class="glyphicon glyphicon-user"></span>
+            {first_name}&nbsp;</span>
+        '''.format(
+            n_num=notification_count,
+            mult='s' if notification_count > 1 else '',
+            first_name=request.user.first_name,
+        )
+
+    req_dict = dict()
+    for req_type in RequestType.objects.filter(enabled=True):
+        open_reqs = Request.objects.filter(request_type=req_type,
+                                          status=Request.OPEN)
+        if not req_type.managers.filter(incumbent__user=request.user):
+            open_reqs = open_reqs.exclude(
+                ~Q(owner__user=request.user), private=True,
+                )
+        num_open = open_reqs.count()
+        if num_open == 0:
+            req_dict['{rtype}_requests_link'.format(rtype=req_type.url_name)] \
+                = """
+                    <span class="glyphicon glyphicon-{icon}"></span>
+                    {name}
+                """.format(
+                    icon=req_type.glyphicon if req_type.glyphicon else 'inbox',
+                    name=req_type.name
+                )
+
+        else:
+            req_dict['{rtype}_requests_link'.format(rtype=req_type.url_name)] \
+                = """
+                    <span title="{num} open request{mult}"
+                        class="badge pull-right">{num}</span>
+                    <span class="glyphicon glyphicon-{icon}"></span>
+                    {name}
+                """.format(
+                    num=num_open,
+                    mult='s' if num_open > 1 else '',
+                    icon=req_type.glyphicon if req_type.glyphicon else 'inbox',
+                    name=req_type.name,
+                )
+
+    if req_dict.keys():
+        response['requests_dict'] = req_dict
 
     return HttpResponse(json.dumps(response),
                         content_type="application/json")
