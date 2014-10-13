@@ -10,6 +10,7 @@ Views for base application.
 from datetime import timedelta
 import time
 from smtplib import SMTPException
+import json
 
 from django.conf import settings
 from django.contrib import messages
@@ -21,7 +22,7 @@ from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
@@ -755,3 +756,51 @@ def archives_view(request):
         'shift_log_entry_count': ShiftLogEntry.objects.all().count(),
         'workshift_instance_count': WorkshiftInstance.objects.all().count(),
         }, context_instance=RequestContext(request))
+
+@profile_required
+def get_updates_view(request):
+    """Return a user's updates. AJAX."""
+    if not request.is_ajax():
+        return HttpResponseRedirect(reverse('homepage'))
+    response = dict()
+    if request.user.is_superuser:
+        num_of_profile_requests = ProfileRequest.objects.all().count()
+
+        if num_of_profile_requests == 0:
+            response['profile_requests'] = '''
+                <span class="glyphicon glyphicon-inbox"></span>
+                Profile Requests
+            '''
+
+        else:
+            response['profile_requests'] = """
+                <span title="{req_num} open profile request{mult}"
+                    class="badge pull-right">{req_num}</span>
+                <span class="glyphicon glyphicon-inbox"></span>
+                Profile Requests
+            """.format(
+                req_num=num_of_profile_requests,
+                mult='s' if num_of_profile_requests > 1 else '',
+            )
+
+    notification_count = request.user.notifications.unread().count()
+
+    if notification_count == 0:
+        response['notifications'] = '''
+            <span class="glyphicon glyphicon-bell"></span>
+            Notifications
+        '''
+
+    else:
+        response['notifications'] = """
+            <span title="{n_num} unread notification{mult}"
+                class="badge pull-right">{n_num}</span>
+            <span class="glyphicon glyphicon-bell"></span>
+            Notifications
+        """.format(
+            n_num=notification_count,
+            mult='s' if notification_count > 1 else '',
+        )
+
+    return HttpResponse(json.dumps(response),
+                        content_type="application/json")

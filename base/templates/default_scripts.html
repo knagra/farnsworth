@@ -136,4 +136,21 @@ $(document).ready(function() {
       });
     });
 });
+
+/* Retrieve requests, profile, requests, and notifications. */
+$(document).ready(function() {
+    setInterval(function() {
+        $.getJSON(
+            "{% url 'get_updates' %}",
+            function(data) {
+                if (data.hasOwnProperty('profile_requests')) {
+                    $('#profile_requests_link').html(data['profile_requests']);
+                }
+                if (data.hasOwnProperty('notifications')) {
+                    $('#notifications_link').html(data['notifications']);
+                }
+            }
+        );
+    }, 5000);
+})
 </script>

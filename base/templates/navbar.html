@@ -70,7 +70,7 @@
               </a>
             </li>
             <li>
-              <a href="{% url 'notifications' %}"
+              <a id="notifications_link" href="{% url 'notifications' %}"
                  title="{{ unread_count }} unread notification{{ unread_count|pluralize }}">
                 {% if unread_count > 0 %}
                 <span class="badge pull-right">{{ unread_count }}</span>
@@ -220,11 +220,10 @@
               </a>
             </li>
             <li>
-              <a href="{% url 'manage_profile_requests' %}">
+              <a id="profile_requests_link" href="{% url 'manage_profile_requests' %}">
                 {% if NUM_OF_PROFILE_REQUESTS > 0 %}
-                <span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}" class="badge pull-right">
-                  {{ NUM_OF_PROFILE_REQUESTS }}
-                </span>
+                <span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}"
+                  class="badge pull-right">{{ NUM_OF_PROFILE_REQUESTS }}</span>
                 {% endif %}
                 <span class="glyphicon glyphicon-inbox"></span> Profile Requests
               </a>
