@@ -39,6 +39,8 @@ class ProfileRequestForm(forms.ModelForm):
         keys = [i for i in self.fields if i != "confirm_password"]
         keys.insert(keys.index("password") + 1, "confirm_password")
         self.fields = OrderedDict((i, self.fields[i]) for i in keys)
+        self.fields['password'].widget = \
+            forms.PasswordInput(attrs={'size':'50'})
 
     def clean_username(self):
         username = self.cleaned_data["username"]

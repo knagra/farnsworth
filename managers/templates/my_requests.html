@@ -23,8 +23,8 @@
   {% if request_type.enabled %}
   <button class="btn btn-primary pull-right show_request_form"
           type="button">
-	<span class="glyphicon glyphicon-pencil"></span>
-	<span class="hidden-xs"> New Request</span>
+    <span class="glyphicon glyphicon-pencil"></span>
+    <span class="hidden-xs"> New Request</span>
   </button>
   {% endif %}
   <h1 class="w_title">My {{ request_type.name }} Requests</h1>
@@ -33,16 +33,16 @@
   <form class="new_request_form" method="post">
     {% csrf_token %}
     <div class="form-group">
-	  {{ request_form|bootstrap }}
+      {{ request_form|bootstrap }}
     </div>
     <div class="text-center">
       <div class="btn-group">
         <button type="submit" class="btn btn-success" name="submit_request">
-		  <span class="glyphicon glyphicon-inbox"></span> Submit Request
-		</button>
+          <span class="glyphicon glyphicon-inbox"></span> Submit Request
+        </button>
         <button type="button" class="btn btn-default hide_request_form">
-		  <span class="glyphicon glyphicon-collapse-up"></span> Hide
-		</button>
+          <span class="glyphicon glyphicon-collapse-up"></span> Hide
+        </button>
       </div> <!-- .btn-group -->
     </div> <!-- .text-center -->
   </form>
@@ -75,60 +75,60 @@
       {% endif %}
 
       <div class="requests_row">
-		<div class="request_name bg-{% if request.filled %}success{% elif request.closed %}danger{% elif request.expired %}expired{% else %}warning{% endif %}" title="{{ request.get_status_display }}">
-		  <div class="request_owner">
-			<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=request.owner.user.username %}" >{{ request.owner|display_user:user }}</a>
-			({{ request.post_date }}):
-		  </div> <!-- request_owner -->
-		  <div class="request_body">{{ request.body|safe }}</div>
-		</div> <!-- request_name -->
+        <div class="request_name bg-{% if request.filled %}success{% elif request.closed %}danger{% elif request.expired %}expired{% else %}warning{% endif %}" title="{{ request.get_status_display }}">
+          <div class="request_owner">
+            <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=request.owner.user.username %}" >{{ request.owner|display_user:user }}</a>
+            ({{ request.post_date }}):
+          </div> <!-- request_owner -->
+          <div class="request_body">{{ request.body|safe }}</div>
+        </div> <!-- request_name -->
 
-		<div class="request_responses">
-		  <div class="response_table">
-			{% for response in responses_list %}
-			{% if forloop.counter > 1 %}
-			<hr class="main_divider" />
-			{% endif %}
-			<div class="response_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
-			  <div class="response_owner">
-				<a href="{% url 'managers:view_request' request_pk=request.pk %}" class="btn btn-xs btn-info"
-				   title="Permanent link to this request">
-				  <span class="glyphicon glyphicon-link"></span>
-				</a>
-				<a class="page_link" title="View Profile"
-				   href="{% url 'member_profile' targetUsername=response.owner.user.username %}">{{ response.owner|display_user:user }}</a>
-				({{ response.post_date }}):
-			  </div> <!-- response_owner -->
-			  <div class="response_body">
-				{{ response.body|safe }}
-				{{ response.display_action|safe }}
-			  </div> <!-- response_body -->
-			</div> <!-- response_row -->
-			{% endfor %}
+        <div class="request_responses">
+          <div class="response_table">
+            {% for response in responses_list %}
+            {% if forloop.counter > 1 %}
+            <hr class="main_divider" />
+            {% endif %}
+            <div class="response_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
+              <div class="response_owner">
+                <a href="{% url 'managers:view_request' request_pk=request.pk %}" class="btn btn-xs btn-info"
+                   title="Permanent link to this request">
+                  <span class="glyphicon glyphicon-link"></span>
+                </a>
+                <a class="page_link" title="View Profile"
+                   href="{% url 'member_profile' targetUsername=response.owner.user.username %}">{{ response.owner|display_user:user }}</a>
+                ({{ response.post_date }}):
+              </div> <!-- response_owner -->
+              <div class="response_body">
+                {{ response.body|safe }}
+                {{ response.display_action|safe }}
+              </div> <!-- response_body -->
+            </div> <!-- response_row -->
+            {% endfor %}
 
-			<div class="text-center">
-			  <button class="btn btn-primary show_response_form" type="button">
-				<span class="glyphicon glyphicon-paperclip"></span> Add Response
-			  </button>
-			</div> <!-- text-center -->
-			<form class="new_response_form add_response" id="{{ response_form_id }}" method="post">
-			  {% csrf_token %}
-			  <div class="form-group">
-				{{ response_form|bootstrap }}
-			  </div> <!-- form-group -->
-			  <div class="text-center">
-				<div class="btn-group">
-				  <button type="submit" class="btn btn-success" name="add_response">
-					<span class="glyphicon glyphicon-send"></span> Post Message
-				  </button>
-				  <button type="button" class="btn btn-default hide_response_form">
-					<span class="glyphicon glyphicon-collapse-up"></span> Hide
-				  </button>
-				</div> <!-- .btn-group -->
-			  </div> <!-- .text-center -->
-			</form>
-		  </div> <!-- response_row -->
-		</div> <!-- response_table -->
+            <div class="text-center">
+              <button class="btn btn-primary show_response_form" type="button">
+                <span class="glyphicon glyphicon-paperclip"></span> Add Response
+              </button>
+            </div> <!-- text-center -->
+            <form class="new_response_form add_response" id="{{ response_form_id }}" method="post">
+              {% csrf_token %}
+              <div class="form-group">
+                {{ response_form|bootstrap }}
+              </div> <!-- form-group -->
+              <div class="text-center">
+                <div class="btn-group">
+                  <button type="submit" class="btn btn-success" name="add_response">
+                    <span class="glyphicon glyphicon-send"></span> Post Message
+                  </button>
+                  <button type="button" class="btn btn-default hide_response_form">
+                    <span class="glyphicon glyphicon-collapse-up"></span> Hide
+                  </button>
+                </div> <!-- .btn-group -->
+              </div> <!-- .text-center -->
+            </form>
+          </div> <!-- response_row -->
+        </div> <!-- response_table -->
       </div> <!-- request_name -->
       {% endfor %}
     </div>

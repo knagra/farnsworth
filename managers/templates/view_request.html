@@ -37,11 +37,14 @@
           {% csrf_token %}
           {{ vote_form }}
           {% if upvote %}
-          <button type="submit" class="btn btn-xs" name="upvote" title="Remove upvote">
+          <button type="submit" class="btn btn-xs btn-success" name="upvote"
+            id="vote_button_{{ relevant_request.pk }}" title="Remove upvote">
             <span class="glyphicon glyphicon-star"></span>
           </button>
           {% else %}
-          <button type="submit" class="btn btn-xs" name="upvote" title="Upvote to express approval">
+          <button type="submit" class="btn btn-xs" name="upvote"
+            id="vote_button_{{ relevant_request.pk }}"
+            title="Upvote to express approval">
             <span class="glyphicon glyphicon-star-empty"></span>
           </button>
           {% endif %}
