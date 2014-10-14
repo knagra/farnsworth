@@ -25,6 +25,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.utils.timezone import now
 
 from wiki.models import Revision
@@ -757,7 +758,7 @@ def archives_view(request):
         'workshift_instance_count': WorkshiftInstance.objects.all().count(),
         }, context_instance=RequestContext(request))
 
-@profile_required
+
 def get_updates_view(request):
     """Return a user's updates. AJAX."""
     if not request.is_ajax():
@@ -852,6 +853,29 @@ def get_updates_view(request):
                     icon=req_type.glyphicon if req_type.glyphicon else 'inbox',
                     name=req_type.name,
                 )
+
+    request_pk_list = request.GET.get('request_pk_list', False)
+    if request_pk_list:
+        request_pk_list = request_pk_list.split(',')
+        for request_pk in request_pk_list:
+            try:
+                vote_count_request = Request.objects.get(pk=request_pk)
+
+            except Request.DoesNotExist:
+                pass
+
+            else:
+                vote_list = render_to_string('vote_list.html',
+                                   {'vote_count_request': vote_count_request,
+                                    'user': request.user})
+                vote_list = vote_list[:vote_list.find('<script>')]
+
+                response['vote_list_{pk}'.format(pk=request_pk)] = vote_list
+                if UserProfile.objects.get(user=request.user) \
+                        in vote_count_request.upvotes.all():
+                    response['in_votes_{pk}'.format(pk=request_pk)] = True
+                else:
+                    response['in_votes_{pk}'.format(pk=request_pk)] = False
 
     if req_dict.keys():
         response['requests_dict'] = req_dict

@@ -19,35 +19,5 @@
 ({{ vote_count_request.post_date }}):
 </span>
 <script>
-$(document).ready(function() {
-    setInterval(function() {
-        $.getJSON(
-            "{% url 'managers:view_request' request_pk=vote_count_request.pk %}",
-            function(data) {
-                if (data.hasOwnProperty('vote_list_{{ vote_count_request.pk }}')) {
-                    $('#vote_list_{{ vote_count_request.pk }}').html(
-                        data['vote_list_{{ vote_count_request.pk }}']
-                    );
-                }
-                if (data.hasOwnProperty('in_votes_{{ vote_count_request.pk }}')) {
-                    if (data['in_votes_{{ vote_count_request.pk }}'] == true) {
-                        $('#vote_button_{{ vote_count_request.pk }}').addClass(
-                            'btn-success'
-                        );
-                        $('#vote_button_{{ vote_count_request.pk }}').html(
-                            '<span class="glyphicon glyphicon-star"></span>'
-                        );
-                    } else {
-                        $('#vote_button_{{ vote_count_request.pk }}').removeClass(
-                            'btn-success'
-                        );
-                        $('#vote_button_{{ vote_count_request.pk }}').html(
-                            '<span class="glyphicon glyphicon-star-empty"></span>'
-                        );
-                    }
-                }
-            }
-        );
-    }, 5000);
-});
+window.request_pk_list.push({{ vote_count_request.pk }});
 </script>

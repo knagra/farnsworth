@@ -5,7 +5,6 @@ Author: Karandeep Singh Nagra
 '''
 
 from datetime import timedelta
-import json
 
 from django.conf import settings
 from django.contrib import messages
@@ -13,10 +12,9 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.template.loader import render_to_string
 from django.utils.timezone import now
 
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
@@ -419,28 +417,6 @@ def request_view(request, request_pk):
     '''
     The view of a single request.
     '''
-    if request.is_ajax():
-        try:
-            vote_count_request = Request.objects.get(pk=request_pk)
-
-        except Request.DoesNotExist:
-            return HttpResponse(json.dumps(dict()),
-                                content_type="application/json")
-
-        vote_list = render_to_string('vote_list.html',
-                           {'vote_count_request': vote_count_request,
-                            'user': request.user})
-        vote_list = vote_list[:vote_list.find('<script>')]
-
-        response = {'vote_list_{pk}'.format(pk=request_pk): vote_list}
-        if UserProfile.objects.get(user=request.user) \
-                in vote_count_request.upvotes.all():
-            response['in_votes_{pk}'.format(pk=request_pk)] = True
-        else:
-            response['in_votes_{pk}'.format(pk=request_pk)] = False
-        return HttpResponse(json.dumps(response),
-                            content_type="application/json")
-
     relevant_request = get_object_or_404(Request, pk=request_pk)
 
     if relevant_request.private:
