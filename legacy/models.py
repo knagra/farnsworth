@@ -32,7 +32,7 @@ class TeacherRequest(models.Model):
         help_text="Date and time when this request was posted."
     )
     name = models.CharField(
-        max_length=56,
+        max_length=255,
         null=True,
         blank=True,
         help_text="The name given by the user who posted this request."
@@ -64,7 +64,7 @@ class TeacherResponse(models.Model):
         help_text="Date and time when this response was posted."
     )
     name = models.CharField(
-        max_length=56,
+        max_length=255,
         null=True,
         blank=True,
         help_text="The name given by the user who posted this request."
@@ -95,7 +95,7 @@ class TeacherNote(models.Model):
         help_text="Date and time when this note was posted."
     )
     name = models.CharField(
-        max_length=56,
+        max_length=255,
         null=True,
         blank=True,
         help_text="The name given by the user who posted this request."
@@ -126,7 +126,7 @@ class TeacherEvent(models.Model):
         help_text="Date of this event."
     )
     title = models.CharField(
-        max_length=56,
+        max_length=255,
         null=True,
         blank=True,
         help_text="The title of this event."
