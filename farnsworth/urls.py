@@ -56,4 +56,5 @@ urlpatterns += patterns('base.views',
         'reset_pw_confirm_view', name='reset_pw_confirm'),
     url(r'^recount/$', "recount_view", name="recount"),
     url(r'^archives/$', 'archives_view', name='archives'),
+    url(r'^get_updates/$', 'get_updates_view', name='get_updates'),
 )

@@ -446,8 +446,8 @@ def request_view(request, request_pk):
             )
     upvote = userProfile in relevant_request.upvotes.all()
     vote_form = VoteForm(
-        request.POST if "vote" in request.POST else None,
-        profile=UserProfile,
+        request.POST if "upvote" in request.POST else None,
+        profile=userProfile,
         request=relevant_request,
         )
     if response_form.is_valid():
@@ -456,7 +456,7 @@ def request_view(request, request_pk):
             'request_pk': relevant_request.pk,
             }))
     if vote_form.is_valid():
-        vote_form.save(pk=request_pk)
+        vote_form.save()
         return HttpResponseRedirect(reverse('managers:view_request', kwargs={
             'request_pk': relevant_request.pk,
             }))
