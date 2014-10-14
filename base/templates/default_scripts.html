@@ -136,4 +136,54 @@ $(document).ready(function() {
       });
     });
 });
+
+/* Retrieve requests, profile requests, and notifications. */
+$(document).ready(function() {
+    setInterval(function() {
+        $.getJSON(
+            "{% url 'get_updates' %}",
+            {request_pk_list: String(window.request_pk_list)},
+            function(data) {
+                if (data.hasOwnProperty('profile_requests')) {
+                    $('#profile_requests_link').html(data['profile_requests']);
+                }
+                if (data.hasOwnProperty('notifications')) {
+                    $('#notifications_link').html(data['notifications']);
+                }
+                if (data.hasOwnProperty('profile_dropdown')) {
+                    $('#profile_dropdown_link').html(data['profile_dropdown']);
+                }
+                if (data.hasOwnProperty('requests_dict')) {
+                    for (var key in data['requests_dict']) {
+                        $('#' + key).html(data['requests_dict'][key]);
+                    }
+                }
+                for (var pk in window.request_pk_list) {
+                    if (data.hasOwnProperty('vote_list_' + String(request_pk_list[pk]))) {
+                        $('#vote_list_' + String(request_pk_list[pk])).html(
+                            data['vote_list_' + String(request_pk_list[pk])]
+                        );
+                    }
+                    if (data.hasOwnProperty('in_votes_' + String(request_pk_list[pk]))) {
+                        if (data['in_votes_' + String(request_pk_list[pk])] == true) {
+                            $('#vote_button_' + String(request_pk_list[pk])).addClass(
+                                'btn-success'
+                            );
+                            $('#vote_button_' + String(request_pk_list[pk])).html(
+                                '<span class="glyphicon glyphicon-star"></span>'
+                            );
+                        } else {
+                            $('#vote_button_' + String(request_pk_list[pk])).removeClass(
+                                'btn-success'
+                            );
+                            $('#vote_button_' + String(request_pk_list[pk])).html(
+                                '<span class="glyphicon glyphicon-star-empty"></span>'
+                            );
+                        }
+                    }
+                }
+            }
+        );
+    }, 10000);
+});
 </script>

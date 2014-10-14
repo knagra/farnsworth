@@ -10,6 +10,7 @@ Views for base application.
 from datetime import timedelta
 import time
 from smtplib import SMTPException
+import json
 
 from django.conf import settings
 from django.contrib import messages
@@ -21,9 +22,10 @@ from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.utils.timezone import now
 
 from wiki.models import Revision
@@ -759,3 +761,127 @@ def archives_view(request):
 def house_map_view(request):
     ''' Show the house map to a visitor. '''
     return render_to_response('house_map.html', {'page_name': "House Map"}, context_instance=RequestContext(request))
+
+def get_updates_view(request):
+    """Return a user's updates. AJAX."""
+    if not request.is_ajax():
+        raise Http404
+    response = dict()
+    if request.user.is_superuser:
+        num_of_profile_requests = ProfileRequest.objects.all().count()
+
+        if num_of_profile_requests == 0:
+            response['profile_requests'] = '''
+                <span class="glyphicon glyphicon-inbox"></span>
+                Profile Requests
+            '''
+
+        else:
+            response['profile_requests'] = """
+                <span title="{req_num} open profile request{mult}"
+                    class="badge pull-right">{req_num}</span>
+                <span class="glyphicon glyphicon-inbox"></span>
+                Profile Requests
+            """.format(
+                req_num=num_of_profile_requests,
+                mult='s' if num_of_profile_requests > 1 else '',
+            )
+
+    notification_count = request.user.notifications.unread().count()
+
+    if notification_count == 0:
+        response['notifications'] = '''
+            <span class="glyphicon glyphicon-bell"></span>
+            Notifications
+        '''
+
+        response['profile_dropdown'] = '''
+            <span><span class="pull-right"><b class="caret"></b></span>
+            <span class="glyphicon glyphicon-user"></span>
+            {first_name}&nbsp;</span>
+        '''.format(first_name=request.user.first_name)
+
+    else:
+        response['notifications'] = """
+            <span title="{n_num} unread notification{mult}"
+                class="badge pull-right">{n_num}</span>
+            <span class="glyphicon glyphicon-bell"></span>
+            Notifications
+        """.format(
+            n_num=notification_count,
+            mult='s' if notification_count > 1 else '',
+        )
+
+        response['profile_dropdown'] = '''
+            <span><span class="pull-right"><b class="caret"></b></span><span
+            title="You have {n_num} unread notification{mult}."
+            class="badge pull-right">{n_num}</span>
+            <span class="glyphicon glyphicon-user"></span>
+            {first_name}&nbsp;</span>
+        '''.format(
+            n_num=notification_count,
+            mult='s' if notification_count > 1 else '',
+            first_name=request.user.first_name,
+        )
+
+    req_dict = dict()
+    for req_type in RequestType.objects.filter(enabled=True):
+        open_reqs = Request.objects.filter(request_type=req_type,
+                                          status=Request.OPEN)
+        if not req_type.managers.filter(incumbent__user=request.user):
+            open_reqs = open_reqs.exclude(
+                ~Q(owner__user=request.user), private=True,
+                )
+        num_open = open_reqs.count()
+        if num_open == 0:
+            req_dict['{rtype}_requests_link'.format(rtype=req_type.url_name)] \
+                = """
+                    <span class="glyphicon glyphicon-{icon}"></span>
+                    {name}
+                """.format(
+                    icon=req_type.glyphicon if req_type.glyphicon else 'inbox',
+                    name=req_type.name
+                )
+
+        else:
+            req_dict['{rtype}_requests_link'.format(rtype=req_type.url_name)] \
+                = """
+                    <span title="{num} open request{mult}"
+                        class="badge pull-right">{num}</span>
+                    <span class="glyphicon glyphicon-{icon}"></span>
+                    {name}
+                """.format(
+                    num=num_open,
+                    mult='s' if num_open > 1 else '',
+                    icon=req_type.glyphicon if req_type.glyphicon else 'inbox',
+                    name=req_type.name,
+                )
+
+    request_pk_list = request.GET.get('request_pk_list', False)
+    if request_pk_list:
+        request_pk_list = request_pk_list.split(',')
+        for request_pk in request_pk_list:
+            try:
+                vote_count_request = Request.objects.get(pk=request_pk)
+
+            except Request.DoesNotExist:
+                pass
+
+            else:
+                vote_list = render_to_string('vote_list.html',
+                                   {'vote_count_request': vote_count_request,
+                                    'user': request.user})
+                vote_list = vote_list[:vote_list.find('<script>')]
+
+                response['vote_list_{pk}'.format(pk=request_pk)] = vote_list
+                if UserProfile.objects.get(user=request.user) \
+                        in vote_count_request.upvotes.all():
+                    response['in_votes_{pk}'.format(pk=request_pk)] = True
+                else:
+                    response['in_votes_{pk}'.format(pk=request_pk)] = False
+
+    if req_dict.keys():
+        response['requests_dict'] = req_dict
+
+    return HttpResponse(json.dumps(response),
+                        content_type="application/json")

@@ -56,4 +56,5 @@ urlpatterns += patterns('base.views',
     url(r'^recount/$', "recount_view", name="recount"),
     url(r'^archives/$', 'archives_view', name='archives'),
     url(r'^house_map/$', 'house_map_view', name='house_map'),
+    url(r'^get_updates/$', 'get_updates_view', name='get_updates'),
 )
