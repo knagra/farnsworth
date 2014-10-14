@@ -770,7 +770,13 @@ def get_updates_view(request):
     """Return a user's updates. AJAX."""
     if not request.is_ajax():
         raise Http404
+
+    if not request.user.is_authenticated():
+        return HttpResponse(json.dumps(dict()),
+                            content_type="application/json")
+
     response = dict()
+
     if request.user.is_superuser:
         num_of_profile_requests = ProfileRequest.objects.all().count()
 
