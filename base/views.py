@@ -25,7 +25,6 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
-from django.template.loader import render_to_string
 from django.utils.timezone import now
 
 from wiki.models import Revision
@@ -872,23 +871,27 @@ def get_updates_view(request):
         request_pk_list = request_pk_list.split(',')
         for request_pk in request_pk_list:
             try:
-                vote_count_request = Request.objects.get(pk=request_pk)
+                req = Request.objects.get(pk=request_pk)
 
             except Request.DoesNotExist:
-                pass
+                continue
 
+            response['vote_count_{pk}'.format(pk=req.pk)] = req.upvotes.all().count()
+
+            vote_list = ''
+            for profile in req.upvotes.all():
+                vote_list += \
+                    '<li><a title="View Profile" href="{url}">{name}</a></li>'.format(
+                        url=reverse('member_profile', kwargs={'targetUsername': profile.user.username}),
+                        name='You' if profile.user == request.user else profile.user.get_full_name(),
+                    )
+
+            response['vote_list_{pk}'.format(pk=request_pk)] = vote_list
+            if UserProfile.objects.get(user=request.user) \
+                    in req.upvotes.all():
+                response['in_votes_{pk}'.format(pk=request_pk)] = True
             else:
-                vote_list = render_to_string('vote_list.html',
-                                   {'vote_count_request': vote_count_request,
-                                    'user': request.user})
-                vote_list = vote_list[:vote_list.find('<script>')]
-
-                response['vote_list_{pk}'.format(pk=request_pk)] = vote_list
-                if UserProfile.objects.get(user=request.user) \
-                        in vote_count_request.upvotes.all():
-                    response['in_votes_{pk}'.format(pk=request_pk)] = True
-                else:
-                    response['in_votes_{pk}'.format(pk=request_pk)] = False
+                response['in_votes_{pk}'.format(pk=request_pk)] = False
 
     if req_dict.keys():
         response['requests_dict'] = req_dict

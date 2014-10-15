@@ -144,25 +144,44 @@ $(document).ready(function() {
             "{% url 'get_updates' %}",
             {request_pk_list: String(window.request_pk_list)},
             function(data) {
-                if (data.hasOwnProperty('profile_requests')) {
+                if (data.hasOwnProperty('profile_requests') && $('#profile_requests_link').html() != data['profile_requests']) {
                     $('#profile_requests_link').html(data['profile_requests']);
                 }
-                if (data.hasOwnProperty('notifications')) {
+                if (data.hasOwnProperty('notifications') && $('#notifications_link').html() != data['notifications']) {
                     $('#notifications_link').html(data['notifications']);
                 }
-                if (data.hasOwnProperty('profile_dropdown')) {
+                if (data.hasOwnProperty('profile_dropdown') && $('#profile_dropdown_link').html() != data['profile_dropdown']) {
                     $('#profile_dropdown_link').html(data['profile_dropdown']);
                 }
                 if (data.hasOwnProperty('requests_dict')) {
                     for (var key in data['requests_dict']) {
-                        $('#' + key).html(data['requests_dict'][key]);
+                        if ($('#' + key).html != data['requests_dict'][key]) {
+                            $('#' + key).html(data['requests_dict'][key]);
+                        }
                     }
                 }
                 for (var pk in window.request_pk_list) {
-                    if (data.hasOwnProperty('vote_list_' + String(request_pk_list[pk]))) {
-                        $('#vote_list_' + String(request_pk_list[pk])).html(
-                            data['vote_list_' + String(request_pk_list[pk])]
-                        );
+                    list_string = 'vote_list_' + String(request_pk_list[pk]);
+                    link_string = 'vote_count_' + String(request_pk_list[pk]);
+                    if (data.hasOwnProperty(list_string)) {
+                        if ($('#' + list_string).html != data[list_string]) {
+                            $('#' + list_string).html(data[list_string]);
+                        }
+                    }
+                    if (data.hasOwnProperty(link_string)) {
+                        if ($('#' + link_string).html != data[link_string]) {
+                            $('#' + link_string).html(data[link_string]);
+                        }
+                        if (data[link_string] == 0) {
+                            $('#' + link_string).parent().removeAttr('href');
+                            $('#' + link_string).parent().removeAttr('data-toggle');
+                            $('#' + link_string).parent().removeAttr('title');
+                            $('#' + link_string).parent().parent().removeClass('open');
+                        } else {
+                            $('#' + link_string).parent().attr('href', '#');
+                            $('#' + link_string).parent().attr('data-toggle', 'dropdown');
+                            $('#' + link_string).parent().attr('title', 'Show Votes');
+                        }
                     }
                     if (data.hasOwnProperty('in_votes_' + String(request_pk_list[pk]))) {
                         if (data['in_votes_' + String(request_pk_list[pk])] == true) {
