@@ -10,7 +10,7 @@ from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 
 from notifications import notify
 
@@ -268,17 +268,17 @@ class AnnouncementForm(forms.ModelForm):
                         and member.email_announcement_notifications:
                     email_to.append(member.user.email)
         try:
-            send_mail(
-                ANNOUNCEMENT_SUBJECT.format(
+            email_msg = EmailMultiAlternatives(
+                subject=ANNOUNCEMENT_SUBJECT.format(
                     house=settings.HOUSE,
                     manager=announcement.manager,
                 ),
-                email_body,
-                settings.EMAIL_HOST_USER,
-                email_to,
-                fail_silently=False,
-                html_message=email_body,
+                body=email_body,
+                from_email=settings.EMAIL_HOST_USER,
+                bcc=email_to,
             )
+            email_msg.attach_alternative(html_content, email_body)
+            email_msg.send(fail_silently=False,)
             messages.add_message(
                 request,
                 messages.SUCCESS,
