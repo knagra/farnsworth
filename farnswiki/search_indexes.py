@@ -3,7 +3,10 @@ Project: Farnsworth
 
 Authors: Karandeep Singh Nagra and Nader Morshed
 
-Search indexes for the workshift app.
+Search indexes for the wiki app.
+
+XXX:
+This module is deprecated and marked for replacement.
 """
 
 from haystack import indexes
