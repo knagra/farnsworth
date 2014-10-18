@@ -1,3 +1,8 @@
+"""
+XXX:
+This module is deprecated and marked for replacement.
+"""
+
 
 from django.conf.urls import url, patterns
 

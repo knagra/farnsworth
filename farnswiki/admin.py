@@ -2,6 +2,9 @@
 Project: Farnsworth
 
 Authors: Karandeep Singh Nagra and Nader Morshed
+
+XXX:
+This module is deprecated and marked for replacement.
 '''
 
 from django.contrib import admin
@@ -24,7 +27,6 @@ class RevisionAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ('created_at',)
     ordering = ('-created_at',)
-    readonly_fields = ('created_ip', 'created_at', 'created_by',
-                       'content_html')
+    readonly_fields = ('created_ip', 'created_at', 'created_by',)
 
 admin.site.register(Revision, RevisionAdmin)

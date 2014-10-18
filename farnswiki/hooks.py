@@ -1,4 +1,7 @@
-
+"""
+XXX:
+This module is deprecated and marked for replacement.
+"""
 from wiki.hooks import WikiDefaultHookset
 
 from utils.variables import ANONYMOUS_USERNAME
