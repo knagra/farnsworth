@@ -2,6 +2,9 @@
 Project: Farnsworth
 
 Authors: Karandeep Singh Nagra and Nader Morshed
+
+XXX:
+This module is deprecated and marked for replacement.
 """
 
 from datetime import datetime
