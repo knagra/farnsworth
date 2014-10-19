@@ -196,7 +196,7 @@ $(document).ready(function() {
                     }
                 }
 
-                for (var i=0; i<window.request_pk_list.legth; i++) {
+                for (var i=0; i<window.request_pk_list.length; i++) {
                     element_names.push('vote_list_' + String(window.request_pk_list[i]));
                     link_string = 'vote_count_' + String(window.request_pk_list[i]);
 
@@ -216,18 +216,18 @@ $(document).ready(function() {
                         }
                     }
 
-                    if (data.hasOwnProperty('in_votes_' + String(request_pk_list[pk]))) {
-                        if (data['in_votes_' + String(request_pk_list[pk])] == true) {
-                            $('#vote_button_' + String(request_pk_list[pk])).addClass(
+                    if (data.hasOwnProperty('in_votes_' + String(request_pk_list[i]))) {
+                        if (data['in_votes_' + String(request_pk_list[i])] == true) {
+                            $('#vote_button_' + String(request_pk_list[i])).addClass(
                                 'btn-success'
                             );
-                            update_html('#vote_button_' + String(request_pk_list[pk]), '<span class="glyphicon glyphicon-star"></span>');
+                            update_html('#vote_button_' + String(request_pk_list[i]), '<span class="glyphicon glyphicon-star"></span>');
 
                         } else {
-                            $('#vote_button_' + String(request_pk_list[pk])).removeClass(
+                            $('#vote_button_' + String(request_pk_list[i])).removeClass(
                                 'btn-success'
                             );
-                            update_html('#vote_button_' + String(request_pk_list[pk]), '<span class="glyphicon glyphicon-star-empty"></span>');
+                            update_html('#vote_button_' + String(request_pk_list[i]), '<span class="glyphicon glyphicon-star-empty"></span>');
                         }
                     }
                 }
@@ -238,48 +238,119 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-    for (i=0; i<window.event_pk_list.length; i++) {
-        var pk_string = String(window.event_pk_list[i]);
-        var form = $('#rsvp_form_' + pk_string);
-        form.submit(function(e) {
-            link_string = 'rsvp_link_' + pk_string;
-            list_string = 'rsvp_list_' + pk_string;
-            link_id = '#' + link_string;
-            list_id = '#' + list_string;
-            var previous_html = $(link_id).html();
-            $(link_id).html('');
-            $.ajax({
-                type: form.attr('method'),
-                url: form.attr('action'),
-                data: form.serialize() + '&rsvp=true',
-                dataType: "json",
-                success: function(data) {
-                    if (data.hasOwnProperty(list_string)) {
-                        update_html(list_id, data[list_string]);
-                    }
-
-                    if (data.hasOwnProperty(link_string)) {
-                        if (data[link_string] == true) {
-                            update_html(link_id, 'Un-RSVP');
-                            $(link_id).addClass('warning_link');
-                            $(link_id).removeClass('success_link');
-                            $(link_id).attr('title', 'Un-RSVP to this event');
-
-                        } else {
-                            update_html(link_id, 'RSVP');
-                            $(link_id).addClass('success_link');
-                            $(link_id).removeClass('warning_link');
-                            $(link_id).attr('title', 'RSVP to this event');
+    for (var i=0; i<window.event_pk_list.length; i++) {
+        if ($('#rsvp_form_' + String(window.event_pk_list[i])).length) {
+            var form = $('#rsvp_form_' + String(window.event_pk_list[i]));
+            form.submit(function(e) {
+                id_split = String($(this).attr('id')).split('_');
+                pk_string = id_split[id_split.length-1];
+                link_string = 'rsvp_link_' + pk_string;
+                list_string = 'rsvp_list_' + pk_string;
+                link_id = '#' + link_string;
+                list_id = '#' + list_string;
+                form = $(this);
+                $(link_id).fadeOut('slow');
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize() + '&rsvp=true',
+                    dataType: "json",
+                    success: function(data) {
+                        if (data.hasOwnProperty(list_string)) {
+                            update_html(list_id, data[list_string]);
                         }
+
+                        if (data.hasOwnProperty(link_string)) {
+                            if (data[link_string] == true) {
+                                update_html(link_id, 'Un-RSVP');
+                                $(link_id).addClass('warning_link');
+                                $(link_id).removeClass('success_link');
+                                $(link_id).attr('title', 'Un-RSVP to this event');
+
+                            } else {
+                                update_html(link_id, 'RSVP');
+                                $(link_id).addClass('success_link');
+                                $(link_id).removeClass('warning_link');
+                                $(link_id).attr('title', 'RSVP to this event');
+                            }
+                        }
+                    },
+                    error: function(data) {
+                        alert("RSVP failed.  Try again or contact us.");
+                        $(link_id).fadeIn('slow');
                     }
-                },
-                error: function(data) {
-                    $(link_id).html(previous_html);
-                    alert("RSVP failed.  Try again or contact us.");
-                }
+                });
+                e.preventDefault();
+                $(link_id).fadeIn('slow');
             });
-            e.preventDefault();
-        });
+        }
+    }
+});
+
+$(document).ready(function() {
+    for (var i=0; i<window.request_pk_list.length; i++) {
+        if ($('#vote_form_' + String(window.request_pk_list[i])).length) {
+            var form = $('#vote_form_' + String(window.request_pk_list[i]));
+            form.submit(function(e) {
+                id_split = String($(this).attr('id')).split('_');
+                pk_string = id_split[id_split.length-1];
+                link_string = 'vote_count_' + pk_string;
+                list_string = 'vote_list_' + pk_string;
+                button_id = '#vote_button_' + pk_string;
+                link_id = '#' + link_string;
+                list_id = '#' + list_string;
+                form = $(this);
+                $(button_id).fadeOut('slow');
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize() + '&upvote=true',
+                    dataType: "json",
+                    success: function(data) {
+                        if (data.hasOwnProperty(list_string)) {
+                            update_html(list_id, data[list_string]);
+                        }
+
+                        if (data.hasOwnProperty(link_string)) {
+                            update_html('#' + link_string, data[link_string]);
+
+                            if (data[link_string] == 0) {
+                                $(link_id).parent().removeAttr('href');
+                                $(link_id).parent().removeAttr('data-toggle');
+                                $(link_id).parent().removeAttr('title');
+                                $(link_id).parent().parent().removeClass('open');
+
+                            } else {
+                                $(link_id).parent().attr('href', '#');
+                                $(link_id).parent().attr('data-toggle', 'dropdown');
+                                $(link_id).parent().attr('title', 'Show Votes');
+                            }
+                        }
+
+                        if (data.hasOwnProperty('in_votes_' + pk_string)) {
+                            if (data['in_votes_' + pk_string] == true) {
+                                $(button_id).addClass(
+                                    'btn-success'
+                                );
+                                update_html(button_id, '<span class="glyphicon glyphicon-star"></span>');
+
+                            } else {
+                                $(button_id).removeClass(
+                                    'btn-success'
+                                );
+                                update_html(button_id, '<span class="glyphicon glyphicon-star-empty"></span>');
+                            }
+                        }
+                        $(button_id).fadeIn('slow');
+                    },
+                    error: function(data) {
+                        alert("Vote failed.  Try again or contact us.");
+                        $(button_id).fadeIn('slow');
+                    }
+                });
+                e.preventDefault();
+            });
+        }
     }
 });
 </script>

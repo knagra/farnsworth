@@ -12,6 +12,7 @@
   document.getElementById("new_event_form").style.display="none";
   }
 </script>
+<link type="text/css" rel="stylesheet" href="{% static 'ui/css/list_events.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -31,9 +32,8 @@
     <a class="page_link" title="View Details"
       href="{% url 'managers:view_manager' managerTitle=event.as_manager.url_title %}">{{ event.as_manager }}</a>
     (<a class="page_link" title="View Profile"
-      href="{% url 'member_profile' targetUsername=event.owner.user.username %}">
-      {{ event.owner|display_user:user }}</a>), {{ event.post_date }}
-      (updated {{ event.change_date }}):
+      href="{% url 'member_profile' targetUsername=event.owner.user.username %}">{{ event.owner|display_user:user }}</a>),
+      {{ event.post_date }} (updated {{ event.change_date }}):
     {% else %}
     <a class="page_link" title="View Profile"
       href="{% url 'member_profile' targetUsername=event.owner.user.username %}">{{ event.owner|display_user:user }}</a>,
