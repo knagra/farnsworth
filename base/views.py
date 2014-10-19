@@ -44,8 +44,10 @@ from threads.models import Thread, Message
 from threads.forms import ThreadForm
 from managers.models import RequestType, Manager, Request, Response, Announcement
 from managers.forms import AnnouncementForm, ManagerResponseForm, VoteForm, PinForm
+from managers.ajax import build_ajax_votes
 from events.models import Event
 from events.forms import RsvpForm
+from events.ajax import build_ajax_rsvps
 from rooms.models import Room, PreviousResident
 from workshift.models import Semester, WorkshiftProfile, ShiftLogEntry, \
     WorkshiftInstance
@@ -881,19 +883,14 @@ def get_updates_view(request):
 
             response['vote_count_{pk}'.format(pk=req.pk)] = req.upvotes.all().count()
 
-            vote_list = ''
-            for profile in req.upvotes.all():
-                vote_list += \
-                    '<li><a title="View Profile" href="{url}">{name}</a></li>'.format(
-                        url=reverse('member_profile', kwargs={'targetUsername': profile.user.username}),
-                        name='You' if profile.user == request.user else profile.user.get_full_name(),
-                    )
-
-            response['vote_list_{pk}'.format(pk=request_pk)] = vote_list
-            if user_profile in req.upvotes.all():
-                response['in_votes_{pk}'.format(pk=request_pk)] = True
-            else:
-                response['in_votes_{pk}'.format(pk=request_pk)] = False
+            list_string = 'vote_list_{pk}'.format(pk=request_pk)
+            vote_string = 'in_votes_{pk}'.format(pk=request_pk)
+            count_string = 'vote_count_{pk}'.format(pk=request_pk)
+            response[list_string], response[vote_string], \
+                response[count_string] = build_ajax_votes(
+                    req,
+                    user_profile
+                )
 
     event_pk_list = request.GET.get('event_pk_list', False)
     if event_pk_list:
@@ -907,24 +904,10 @@ def get_updates_view(request):
 
             link_string = 'rsvp_link_{pk}'.format(pk=event.pk)
             list_string = 'rsvp_list_{pk}'.format(pk=event.pk)
-            if user_profile in event.rsvps.all():
-                response[link_string] = True
-            else:
-                response[link_string] = False
-
-            if not event.rsvps.all().count():
-                response[list_string] = 'No RSVPs.'
-            else:
-                response[list_string] = 'RSVPs:'
-                for counter, profile in enumerate(event.rsvps.all()):
-                    if counter > 0:
-                        response[list_string] += ','
-
-                    response[list_string] += \
-                        ' <a class="page_link" title="View Profile" href="{url}">{name}</a>'.format(
-                            url=reverse('member_profile', kwargs={'targetUsername': profile.user.username}),
-                            name='You' if profile.user == request.user else profile.user.get_full_name(),
-                        )
+            response[link_string], response[list_string] = build_ajax_rsvps(
+                event,
+                user_profile
+            )
 
     return HttpResponse(json.dumps(response),
                         content_type="application/json")

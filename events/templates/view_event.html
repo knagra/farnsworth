@@ -56,13 +56,13 @@
     <hr style="width: 75%;" />
     <span class="pull-right">
     {% if user.username != ANONYMOUS_USERNAME %}
-    <form class="pull-right" method="post" action="">
+    <form class="pull-right" id="rsvp_form_{{ event.pk }}" method="post" action="">
       {% csrf_token %}
       {{ rsvp_form }}
       {% if not already_passed %}
         {% if rsvpd %}
             <button id="rsvp_link_{{ event.pk }}" type="submit"
-                class="main_link warning_link" name="rsvp"
+                class="main_link warning_link" name="rsvp-{{ event.pk }}"
                 title="Remove yourself from the RSVPs for this event">Un-RSVP</button>
         {% else %}
             <button id="rsvp_link_{{ event.pk }}" type="submit"
