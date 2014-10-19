@@ -39,9 +39,8 @@
         <a class="page_link" title="View Details" href="{% url 'managers:view_manager' managerTitle=event.as_manager.url_title %}">
           {{ event.as_manager }}
         </a>
-        (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">
-          {{ event.owner|display_user:user }}
-        </a>), {{ event.post_date }} (updated {{ event.change_date }}):
+        (<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">{{ event.owner|display_user:user }}</a>),
+        {{ event.post_date }} (updated {{ event.change_date }}):
         {% else %}
         <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=event.owner.user.username %}">
           {{ event.owner|display_user:user }}

@@ -39,7 +39,9 @@
             <div class="request_owner">
               {% if not request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
               {% if vote_form %}
-              <form style="display:inline" method="POST">
+              <form style="display:inline" method="post"
+                id="vote_form_{{ request.pk }}"
+                action="{% url 'managers:view_request' request_pk=request.pk %}">
                 {% csrf_token %}
                 {{ vote_form|bootstrap }}
                 {% if upvote %}
