@@ -268,7 +268,7 @@ def my_requests_view(request):
     '''
     Show user his/her requests, sorted by request_type.
     '''
-    page_name = "My Requests"
+    page_name = "Your Requests"
     userProfile = UserProfile.objects.get(user=request.user)
     my_requests = Request.objects.filter(owner=userProfile)
     # A pseudo dictionary, actually a list with items of form
@@ -343,7 +343,7 @@ def list_my_requests_view(request):
     userProfile = UserProfile.objects.get(user=request.user)
     requests = Request.objects.filter(owner=userProfile)
     return render_to_response('list_requests.html', {
-        'page_name': "My Requests",
+        'page_name': "Your Requests",
         'requests': requests,
         }, context_instance=RequestContext(request))
 

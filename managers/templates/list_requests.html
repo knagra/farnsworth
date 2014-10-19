@@ -4,7 +4,7 @@
 {% load request_tags %}
 
 {% block content %}
-{% if page_name == 'My Requests' %}
+{% if page_name == 'Your Requests' %}
     <form action="{% url 'managers:my_requests' %}" class="pull-right">
     <button class="btn btn-info" type="submit"><span class="glyphicon glyphicon-fullscreen"></span><span class="hidden-xs"> Expanded View</span></button>
     </form>

@@ -274,6 +274,7 @@ $(document).ready(function() {
                                 $(link_id).attr('title', 'RSVP to this event');
                             }
                         }
+                        $(link_id).fadeIn('slow');
                     },
                     error: function(data) {
                         alert("RSVP failed.  Try again or contact us.");
@@ -281,7 +282,6 @@ $(document).ready(function() {
                     }
                 });
                 e.preventDefault();
-                $(link_id).fadeIn('slow');
             });
         }
     }
