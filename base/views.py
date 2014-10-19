@@ -213,7 +213,7 @@ def homepage_view(request, message=None):
 
         if rsvp_form.is_valid():
             rsvpd = rsvp_form.save()
-            if rsvpd:
+            if not rsvpd:
                 message = MESSAGES['RSVP_REMOVE'].format(event=event.title)
                 messages.add_message(request, messages.SUCCESS, message)
             else:
@@ -767,19 +767,26 @@ def get_updates_view(request):
         return HttpResponse(json.dumps(dict()),
                             content_type="application/json")
 
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+
+    except UserProfile.DoesNotExist:
+        return HttpResponse(json.dumps(dict()),
+                            content_type="application/json")
+
     response = dict()
 
     if request.user.is_superuser:
         num_of_profile_requests = ProfileRequest.objects.all().count()
 
         if num_of_profile_requests == 0:
-            response['profile_requests'] = '''
+            response['profile_requests_link'] = '''
                 <span class="glyphicon glyphicon-inbox"></span>
                 Profile Requests
             '''
 
         else:
-            response['profile_requests'] = """
+            response['profile_requests_link'] = """
                 <span title="{req_num} open profile request{mult}"
                     class="badge pull-right">{req_num}</span>
                 <span class="glyphicon glyphicon-inbox"></span>
@@ -792,19 +799,19 @@ def get_updates_view(request):
     notification_count = request.user.notifications.unread().count()
 
     if notification_count == 0:
-        response['notifications'] = '''
+        response['notifications_link'] = '''
             <span class="glyphicon glyphicon-bell"></span>
             Notifications
         '''
 
-        response['profile_dropdown'] = '''
+        response['profile_dropdown_link'] = '''
             <span><span class="pull-right"><b class="caret"></b></span>
             <span class="glyphicon glyphicon-user"></span>
             {first_name}&nbsp;</span>
         '''.format(first_name=request.user.first_name)
 
     else:
-        response['notifications'] = """
+        response['notifications_link'] = """
             <span title="{n_num} unread notification{mult}"
                 class="badge pull-right">{n_num}</span>
             <span class="glyphicon glyphicon-bell"></span>
@@ -814,7 +821,7 @@ def get_updates_view(request):
             mult='s' if notification_count > 1 else '',
         )
 
-        response['profile_dropdown'] = '''
+        response['profile_dropdown_link'] = '''
             <span><span class="pull-right"><b class="caret"></b></span><span
             title="You have {n_num} unread notification{mult}."
             class="badge pull-right">{n_num}</span>
@@ -859,6 +866,9 @@ def get_updates_view(request):
                     name=req_type.name,
                 )
 
+    if req_dict.keys():
+        response['requests_dict'] = req_dict
+
     request_pk_list = request.GET.get('request_pk_list', False)
     if request_pk_list:
         request_pk_list = request_pk_list.split(',')
@@ -880,14 +890,41 @@ def get_updates_view(request):
                     )
 
             response['vote_list_{pk}'.format(pk=request_pk)] = vote_list
-            if UserProfile.objects.get(user=request.user) \
-                    in req.upvotes.all():
+            if user_profile in req.upvotes.all():
                 response['in_votes_{pk}'.format(pk=request_pk)] = True
             else:
                 response['in_votes_{pk}'.format(pk=request_pk)] = False
 
-    if req_dict.keys():
-        response['requests_dict'] = req_dict
+    event_pk_list = request.GET.get('event_pk_list', False)
+    if event_pk_list:
+        event_pk_list = event_pk_list.split(',')
+        for event_pk in event_pk_list:
+            try:
+                event = Event.objects.get(pk=event_pk)
+
+            except Event.DoesNotExist:
+                continue
+
+            link_string = 'rsvp_link_{pk}'.format(pk=event.pk)
+            list_string = 'rsvp_list_{pk}'.format(pk=event.pk)
+            if user_profile in event.rsvps.all():
+                response[link_string] = True
+            else:
+                response[link_string] = False
+
+            if not event.rsvps.all().count():
+                response[list_string] = 'No RSVPs.'
+            else:
+                response[list_string] = 'RSVPs:'
+                for counter, profile in enumerate(event.rsvps.all()):
+                    if counter > 0:
+                        response[list_string] += ','
+
+                    response[list_string] += \
+                        ' <a class="page_link" title="View Profile" href="{url}">{name}</a>'.format(
+                            url=reverse('member_profile', kwargs={'targetUsername': profile.user.username}),
+                            name='You' if profile.user == request.user else profile.user.get_full_name(),
+                        )
 
     return HttpResponse(json.dumps(response),
                         content_type="application/json")
