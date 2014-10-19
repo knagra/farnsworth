@@ -27,14 +27,14 @@
         {% if not forloop.first %}<hr class="main_divider" />{% endif %}
         <div class="request_body bg-expired">
             <div class="text-center"><b>{{ request.name|safe }}</b>
-                <span class="text-muted">({{ request.timestamp|date:"m/d/Y, h:i A" }}):</span></div>
+                <span style="color: #7e7e7e;">({{ request.timestamp|date:"m/d/Y, h:i A" }}):</span></div>
             {{ request.body|safe }}
         </div>
         {% for response in responses %}
         {% if not forloop.first %}<hr class="main_divider" />{% endif %}
         <div class="hover_row response_body">
             <b>{{ response.name|safe }}</b>
-            <span class="text-muted">({{ response.timestamp|date:"m/d/Y, h:i A" }}):</span>
+            <span style="color: #7e7e7e;">({{ response.timestamp|date:"m/d/Y, h:i A" }}):</span>
             {{ response.body|safe }}
         </div>
         {% endfor %}

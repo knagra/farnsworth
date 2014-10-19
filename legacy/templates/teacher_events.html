@@ -12,7 +12,7 @@
         {% if not forloop.first %}<hr class="main_divider" />{% endif %}
         <div class="hover_row" style="padding: 5px;">
             <b>{{ event.title }}</b>
-            <span class="text-muted">({{ event.date|date:"m/d/Y" }}):</span>
+            <span style="color: #7e7e7e;">({{ event.date|date:"m/d/Y" }}):</span>
             {{ event.description|safe }}
         </div>
     {% endfor %}
