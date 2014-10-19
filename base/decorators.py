@@ -15,6 +15,10 @@ from managers.models import Manager
 def profile_required(function=None, redirect_no_user='login', redirect_profile=red_home):
     def real_decorator(view_func):
         def wrap(request, *args, **kwargs):
+            ajax_capable = getattr(view_func, 'is_ajax_capable', False)
+            if request.is_ajax() and ajax_capable:
+                return view_func(request, *args, **kwargs)
+
             if not request.user.is_authenticated():
                 redirect_to = reverse(redirect_no_user)
                 if redirect_no_user == "login":
@@ -26,6 +30,14 @@ def profile_required(function=None, redirect_no_user='login', redirect_profile=r
                 return redirect_profile(request, MESSAGES['NO_PROFILE'])
             return view_func(request, *args, **kwargs)
         return wrap
+    if function:
+        return real_decorator(function)
+    return real_decorator
+
+def ajax_capable(function=None):
+    def real_decorator(view_func):
+        function.is_ajax_capable = True
+        return function
     if function:
         return real_decorator(function)
     return real_decorator

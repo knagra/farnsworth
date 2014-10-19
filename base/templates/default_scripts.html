@@ -137,21 +137,23 @@ $(document).ready(function() {
     });
 });
 
+function update_html(element_id, html_string) {
+    if ($(element_id).html() != html_string) {
+        $(element_id).html(html_string);
+    }
+}
+
+
+function update_page(element_names, data_dict) {
+    for (var i=0; i<element_names.length; i++) {
+        if (data_dict.hasOwnProperty(element_names[i])) {
+            update_html('#' + element_names[i], data_dict[element_names[i]]);
+        }
+    }
+}
+
 /* Retrieve requests, profile requests, and notifications. */
 $(document).ready(function() {
-    function update_html(element_id, html_string) {
-        if ($(element_id).html() != html_string) {
-            $(element_id).html(html_string);
-        }
-    }
-
-    function update_page(element_names, data_dict) {
-        for (var i=0; i<element_names.length; i++) {
-            if (data_dict.hasOwnProperty(element_names[i])) {
-                update_html('#' + element_names[i], data_dict[element_names[i]]);
-            }
-        }
-    }
 
     setInterval(function() {
         $.getJSON(
@@ -233,5 +235,51 @@ $(document).ready(function() {
             }
         );
     }, 5000);
+});
+
+$(document).ready(function() {
+    for (i=0; i<window.event_pk_list.length; i++) {
+        var pk_string = String(window.event_pk_list[i]);
+        var form = $('#rsvp_form_' + pk_string);
+        form.submit(function(e) {
+            link_string = 'rsvp_link_' + pk_string;
+            list_string = 'rsvp_list_' + pk_string;
+            link_id = '#' + link_string;
+            list_id = '#' + list_string;
+            var previous_html = $(link_id).html();
+            $(link_id).html('');
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize() + '&rsvp=true',
+                dataType: "json",
+                success: function(data) {
+                    if (data.hasOwnProperty(list_string)) {
+                        update_html(list_id, data[list_string]);
+                    }
+
+                    if (data.hasOwnProperty(link_string)) {
+                        if (data[link_string] == true) {
+                            update_html(link_id, 'Un-RSVP');
+                            $(link_id).addClass('warning_link');
+                            $(link_id).removeClass('success_link');
+                            $(link_id).attr('title', 'Un-RSVP to this event');
+
+                        } else {
+                            update_html(link_id, 'RSVP');
+                            $(link_id).addClass('success_link');
+                            $(link_id).removeClass('warning_link');
+                            $(link_id).attr('title', 'RSVP to this event');
+                        }
+                    }
+                },
+                error: function(data) {
+                    $(link_id).html(previous_html);
+                    alert("RSVP failed.  Try again or contact us.");
+                }
+            });
+            e.preventDefault();
+        });
+    }
 });
 </script>

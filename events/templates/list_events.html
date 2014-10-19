@@ -71,7 +71,8 @@
         <div class="pull-right">
           {% if user.username != ANONYMOUS_USERNAME %}
           {% if rsvp_form %}
-          <form class="pull-right" method="post" action="">
+          <form class="pull-right" id="rsvp_form_{{ event.pk }}" method="post"
+              action="{% url 'events:view' event_pk=event.pk %}">
             {% csrf_token %}
             {{ rsvp_form|bootstrap }}
             {% if rsvpd %}
