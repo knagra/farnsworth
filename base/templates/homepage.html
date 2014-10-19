@@ -293,32 +293,39 @@
             </div> <!-- .text-center -->
             {{ event.description|safe }}
             <hr style="width: 75%; margin-top: 3px; margin-bottom: 3px;" />
+            <span class="pull-right">
+              {% if user.username != ANONYMOUS_USERNAME %}
+              <form class="pull-right" method="post" action="">
+                {% csrf_token %}
+                {{ rsvp_form }}
+                {% if rsvpd %}
+                <button id="rsvp_link_{{ event.pk }}" type="submit"
+                    class="main_link warning_link" name="rsvp-{{ event.pk }}"
+                    title="Un-RSVP to this event">Un-RSVP</button>
+                {% else %}
+                <button id="rsvp_link_{{ event.pk }}" type="submit"
+                    class="main_link success_link" name="rsvp-{{ event.pk }}"
+                    title="RSVP to this event">RSVP</button>
+                {% endif %}
+              </form>
+              {% endif %}
+              {% if event.owner.user == user or user.is_superuser %}
+              <a href="{% url 'events:edit' event_pk=event.pk %}"
+                class="main_link primary_link"
+                title="Edit this event">Edit</a>
+              {% endif %}
+            </span> <!-- .pull-right -->
+            <span id="rsvp_list_{{ event.pk }}">
             {% if event.rsvps.all %}
             RSVPs: {% for member in event.rsvps.all %}{% if forloop.counter > 1 %},
             {% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
             {% else %}
             No RSVPs.
             {% endif %}
-            <div class="pull-right">
-              {% if user.username != ANONYMOUS_USERNAME %}
-              <form class="pull-right" method="post" action="">
-                {% csrf_token %}
-                {{ rsvp_form }}
-                {% if rsvpd %}
-                <button type="submit" class="main_link warning_link" name="rsvp" title="Un-RSVP to this event">Un-RSVP</button>
-                {% else %}
-                <button type="submit" class="main_link success_link" name="rsvp" title="RSVP to this event">RSVP</button>
-                {% endif %}
-              </form>
-              {% endif %}
-              {% if event.owner.user == user or user.is_superuser %}
-              <form class="pull-right" action="{% url 'events:edit' event_pk=event.pk %}">
-                <button class="main_link primary_link" title="Edit this event">Edit</button>
-              </form>
-              {% endif %}
-            </div> <!-- .pull-right -->
+            </span>
           </div> <!-- .event_body -->
         </div> <!-- .main_row -->
+        <script>window.event_pk_list.push({{ event.pk }});</script>
         {% endfor %}
       </div> <!-- .bordered_div -->
       {% endif %}

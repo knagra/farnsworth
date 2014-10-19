@@ -139,70 +139,99 @@ $(document).ready(function() {
 
 /* Retrieve requests, profile requests, and notifications. */
 $(document).ready(function() {
+    function update_html(element_id, html_string) {
+        if ($(element_id).html() != html_string) {
+            $(element_id).html(html_string);
+        }
+    }
+
+    function update_page(element_names, data_dict) {
+        for (var i=0; i<element_names.length; i++) {
+            if (data_dict.hasOwnProperty(element_names[i])) {
+                update_html('#' + element_names[i], data_dict[element_names[i]]);
+            }
+        }
+    }
+
     setInterval(function() {
         $.getJSON(
             "{% url 'get_updates' %}",
-            {request_pk_list: String(window.request_pk_list)},
+            {request_pk_list: String(window.request_pk_list),
+             event_pk_list: String(window.event_pk_list)},
             function(data) {
-                if (data.hasOwnProperty('profile_requests') && $('#profile_requests_link').html() != data['profile_requests']) {
-                    $('#profile_requests_link').html(data['profile_requests']);
-                }
-                if (data.hasOwnProperty('notifications') && $('#notifications_link').html() != data['notifications']) {
-                    $('#notifications_link').html(data['notifications']);
-                }
-                if (data.hasOwnProperty('profile_dropdown') && $('#profile_dropdown_link').html() != data['profile_dropdown']) {
-                    $('#profile_dropdown_link').html(data['profile_dropdown']);
-                }
+                var element_names = new Array(
+                    'profile_requests_link',
+                    'notifications_link',
+                    'profile_dropdown_link'
+                );
+
                 if (data.hasOwnProperty('requests_dict')) {
+                    var request_types = new Array();
                     for (var key in data['requests_dict']) {
-                        if ($('#' + key).html != data['requests_dict'][key]) {
-                            $('#' + key).html(data['requests_dict'][key]);
+                        request_types.push(key);
+                    }
+                    update_page(request_types, data['requests_dict']);
+                }
+
+                for (var i=0; i<window.event_pk_list.length; i++) {
+                    element_names.push('rsvp_list_' + String(window.event_pk_list[i]));
+                    link_string = 'rsvp_link_' + String(window.event_pk_list[i]);
+                    link_id = '#' + link_string;
+
+                    if (data.hasOwnProperty(link_string)) {
+                        if (data[link_string] == true) {
+                            update_html(link_id, 'Un-RSVP');
+                            $(link_id).addClass('warning_link');
+                            $(link_id).removeClass('success_link');
+                            $(link_id).attr('title', 'Un-RSVP to this event');
+
+                        } else {
+                            update_html(link_id, 'RSVP');
+                            $(link_id).addClass('success_link');
+                            $(link_id).removeClass('warning_link');
+                            $(link_id).attr('title', 'RSVP to this event');
                         }
                     }
                 }
-                for (var pk in window.request_pk_list) {
-                    list_string = 'vote_list_' + String(request_pk_list[pk]);
-                    link_string = 'vote_count_' + String(request_pk_list[pk]);
-                    if (data.hasOwnProperty(list_string)) {
-                        if ($('#' + list_string).html != data[list_string]) {
-                            $('#' + list_string).html(data[list_string]);
-                        }
-                    }
+
+                for (var i=0; i<window.request_pk_list.legth; i++) {
+                    element_names.push('vote_list_' + String(window.request_pk_list[i]));
+                    link_string = 'vote_count_' + String(window.request_pk_list[i]);
+
                     if (data.hasOwnProperty(link_string)) {
-                        if ($('#' + link_string).html != data[link_string]) {
-                            $('#' + link_string).html(data[link_string]);
-                        }
+                        update_html('#' + link_string, data[link_string]);
+
                         if (data[link_string] == 0) {
                             $('#' + link_string).parent().removeAttr('href');
                             $('#' + link_string).parent().removeAttr('data-toggle');
                             $('#' + link_string).parent().removeAttr('title');
                             $('#' + link_string).parent().parent().removeClass('open');
+
                         } else {
                             $('#' + link_string).parent().attr('href', '#');
                             $('#' + link_string).parent().attr('data-toggle', 'dropdown');
                             $('#' + link_string).parent().attr('title', 'Show Votes');
                         }
                     }
+
                     if (data.hasOwnProperty('in_votes_' + String(request_pk_list[pk]))) {
                         if (data['in_votes_' + String(request_pk_list[pk])] == true) {
                             $('#vote_button_' + String(request_pk_list[pk])).addClass(
                                 'btn-success'
                             );
-                            $('#vote_button_' + String(request_pk_list[pk])).html(
-                                '<span class="glyphicon glyphicon-star"></span>'
-                            );
+                            update_html('#vote_button_' + String(request_pk_list[pk]), '<span class="glyphicon glyphicon-star"></span>');
+
                         } else {
                             $('#vote_button_' + String(request_pk_list[pk])).removeClass(
                                 'btn-success'
                             );
-                            $('#vote_button_' + String(request_pk_list[pk])).html(
-                                '<span class="glyphicon glyphicon-star-empty"></span>'
-                            );
+                            update_html('#vote_button_' + String(request_pk_list[pk]), '<span class="glyphicon glyphicon-star-empty"></span>');
                         }
                     }
                 }
+                update_page(element_names, data);
             }
         );
-    }, 10000);
+    }, 5000);
 });
 </script>
