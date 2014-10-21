@@ -778,13 +778,11 @@ def get_updates_view(request):
 
     try:
         user_profile = UserProfile.objects.get(user=request.user)
-
     except UserProfile.DoesNotExist:
         return HttpResponse(json.dumps(dict()),
                             content_type="application/json")
 
     response = dict()
-
     if request.user.is_superuser:
         num_of_profile_requests = ProfileRequest.objects.all().count()
 
@@ -884,7 +882,6 @@ def get_updates_view(request):
         for request_pk in request_pk_list:
             try:
                 req = Request.objects.get(pk=request_pk)
-
             except Request.DoesNotExist:
                 continue
 
@@ -905,7 +902,6 @@ def get_updates_view(request):
         for event_pk in event_pk_list:
             try:
                 event = Event.objects.get(pk=event_pk)
-
             except Event.DoesNotExist:
                 continue
 
@@ -915,6 +911,16 @@ def get_updates_view(request):
                 event,
                 user_profile
             )
+
+    thread_pk = request.GET.get('thread_pk', False)
+    if thread_pk:
+        try:
+            thread = Thread.objects.get(pk=thread_pk)
+        except Thread.DoesNotExist:
+            pass
+        else:
+            response['following'] = user_profile in thread.followers.all()
+            response['num_of_followers'] = thread.followers.all().count()
 
     return HttpResponse(json.dumps(response),
                         content_type="application/json")

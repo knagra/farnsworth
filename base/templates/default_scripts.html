@@ -159,7 +159,8 @@ $(document).ready(function() {
         $.getJSON(
             "{% url 'get_updates' %}",
             {request_pk_list: String(window.request_pk_list),
-             event_pk_list: String(window.event_pk_list)},
+             event_pk_list: String(window.event_pk_list){% if thread %},
+             thread_pk: String({{ thread.pk }}){% endif %}},
             function(data) {
                 var element_names = new Array(
                     'profile_requests_link',
@@ -231,10 +232,41 @@ $(document).ready(function() {
                         }
                     }
                 }
+                if (data.hasOwnProperty('following')) {
+                    if (data['following'] == true) {
+                        $('#follow_button').children('span').first().addClass(
+                            'glyphicon-minus-sign'
+                        );
+                        $('#follow_button').children('span').first().removeClass(
+                            'glyphicon-plus-sign'
+                        );
+                        if ($('#follow_button').children('span').eq(1).html() != 'Unfollow') {
+                            $('#follow_button').children('span').eq(1).html('Unfollow');
+                        }
+
+                    } else {
+                        $('#follow_button').children('span').first().addClass(
+                            'glyphicon-plus-sign'
+                        );
+                        $('#follow_button').children('span').first().removeClass(
+                            'glyphicon-minus-sign'
+                        );
+                        if ($('#follow_button').children('span').eq(1).html() != 'Follow') {
+                            $('#follow_button').children('span').eq(1).html('Follow');
+                        }
+                    }
+                }
+                if (data.hasOwnProperty('num_of_followers')) {
+                    if (data['num_of_followers'] == 1) {
+                        update_html('#followers', 'Followed by 1 member.');
+                    } else {
+                        update_html('#followers', 'Followed by ' + String(data['num_of_followers']) + ' members.');
+                    }
+                }
                 update_page(element_names, data);
             }
         );
-    }, 5000);
+    }, 4000);
 });
 
 $(document).ready(function() {

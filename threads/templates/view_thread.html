@@ -20,10 +20,12 @@
 <div class="">
   <div class="pull-right">
     {% if follow_form %}
-    <form method="POST" style="display:inline">
+    <form method="POST" style="display:inline" id="follow_form"
+      action="{% url 'threads:view_thread' pk=thread.pk %}">
       {% csrf_token %}
       {{ follow_form|bootstrap }}
-      <button class="btn btn-default header_button" name="follow_thread" type="submit">
+      <button class="btn btn-default header_button" name="follow_thread"
+        id="follow_button" type="submit">
         {% if following %}
         <span class="glyphicon glyphicon-minus-sign"></span>
         <span class="hidden-xs"> Unfollow</span>
@@ -171,7 +173,8 @@
 <div class="text-center text-info" style="margin-top: 10px;">
   Showing {{ messages_list|length }} message{{ messages_list|length|pluralize }}.
   Viewed {{ thread.views }} time{{ thread.views|pluralize }}.
-  {% if thread.followers.count %}Followed by {{ thread.followers.count }} member{{ thread.followers.count|pluralize }}.{% endif %}
+  <span id="followers">Followed by {{ thread.followers.count }}
+  member{{ thread.followers.count|pluralize }}.</span>
 </div>
 {% endblock %}
 
@@ -194,6 +197,54 @@ $(document).ready(function() {
   $('#hide_form').click(function() {
     $('#add_message_form').slideUp();
     $('#show_add_form').fadeIn();
+  });
+  $('#follow_form').submit(function(e) {
+    $('#follow_button').fadeOut('slow');
+    $.ajax({
+      type: $('#follow_form').attr('method'),
+      url: $('#follow_form').attr('action'),
+      data: $('#follow_form').serialize() + '&follow_thread=true',
+      dataType: "json",
+      success: function(data) {
+        if (data.hasOwnProperty('following')) {
+          if (data['following'] == true) {
+            $('#follow_button').children('span').first().addClass(
+              'glyphicon-minus-sign'
+            );
+            $('#follow_button').children('span').first().removeClass(
+              'glyphicon-plus-sign'
+            );
+            if ($('#follow_button').children('span').eq(1).html() != 'Unfollow') {
+              $('#follow_button').children('span').eq(1).html('Unfollow');
+            }
+
+          } else {
+            $('#follow_button').children('span').first().addClass(
+              'glyphicon-plus-sign'
+            );
+            $('#follow_button').children('span').first().removeClass(
+              'glyphicon-minus-sign'
+            );
+            if ($('#follow_button').children('span').eq(1).html() != 'Follow') {
+              $('#follow_button').children('span').eq(1).html('Follow');
+            }
+          }
+        }
+        if (data.hasOwnProperty('num_of_followers')) {
+          if (data['num_of_followers'] == 1) {
+            update_html('#followers', 'Followed by 1 member.');
+          } else {
+            update_html('#followers', 'Followed by ' + String(data['num_of_followers']) + ' members.');
+          }
+        }
+        $('#follow_button').fadeIn('slow');
+      },
+      error: function(data) {
+        alert('Follow failed.  Try again or contact us.');
+        $('#follow_button').fadeIn('slow');
+      }
+    });
+    e.preventDefault();
   });
 });
 </script>
