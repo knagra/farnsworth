@@ -77,10 +77,12 @@
             {% if rsvpd %}
             <button type="submit" id="rsvp_link_{{ event.pk }}"
               class="main_link warning_link" name="rsvp-{{ event.pk }}"
-              title="Remove yourself from the RSVPs for this event">Un-RSVP</button>
+              style="padding-top: 0px; padding-bottom: 0px;"
+              title="Un-RSVP to this event">Un-RSVP</button>
             {% else %}
             <button type="submit" id="rsvp_link_{{ event.pk }}"
               class="main_link success_link" name="rsvp-{{ event.pk }}"
+              style="padding-top: 0px; padding-bottom: 0px;"
               title="RSVP to this event">RSVP</button>
             {% endif %}
           </form>
