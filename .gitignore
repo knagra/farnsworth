@@ -5,16 +5,7 @@
 *.kate-swp
 *.sublime-workspace
 .#*
-static/admin/
-static/bootstrap/
-static/jquery/
-static/jquery-ui/
-static/js/
-static/tinymce/
-static/ui/css/
-static/ui/images/
-static/ui/js/
-static/ckeditor/
+static/
 *.swp
 *.tmp
 .svn/
