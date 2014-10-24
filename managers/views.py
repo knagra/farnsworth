@@ -584,7 +584,7 @@ def announcements_view(request):
             profile=userProfile,
             )
     if announcement_form and announcement_form.is_valid():
-        announcement_form.save()
+        announcement_form.save(request)
         return HttpResponseRedirect(reverse('managers:announcements'))
 
     # A pseudo-dictionary, actually a list with items of form:
