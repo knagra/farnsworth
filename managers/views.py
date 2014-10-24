@@ -256,7 +256,7 @@ def requests_view(request, requestType):
             break
     return render_to_response('requests.html', {
         'manager': manager,
-        'request_type': request_type.name.title(),
+        'request_type': request_type,
         'page_name': page_name,
         'request_form': request_form,
         'requests_dict': requests_dict,
