@@ -40,7 +40,7 @@
 
   <div class="requests_table">
     {% if relevant_managers %}
-    <div class="field_wrapper text-info">{{ request_type.capitalize }} requests are made to:
+    <div class="field_wrapper text-info">{{ request_type.name.capitalize }} requests are made to:
       {% for pos in relevant_managers %}
       {% if forloop.counter > 1 %}, {% endif %}
       <a title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}">
@@ -56,12 +56,12 @@
     </div> <!-- .field_wrapper -->
     {% else %}
     <div class="field_wrapper text-danger">
-      No active managers are currently responsible for addressing {{ request_type.lower }} requests.
+      No active managers are currently responsible for addressing {{ request_type|lower }} requests.
     </div>
     {% endif %}
     {% if not requests_dict %}
     <div class="field_wrapper text-info">
-      No {{ request_type.lower }} requests found.
+      No {{ request_type|lower }} requests found.
     </div>
     {% else %}
     <div class="bordered_div">
@@ -147,6 +147,7 @@
       </div> <!-- requests_row -->
       {% endfor %}
     </div> <!-- .bordered_div -->
+    <div align="center"><a href="{% url 'managers:list_all_requests' requestType=request_type.url_name %}">See all {{ request_type|lower }} requests</a></div>
     {% endif %}
   </div> <!-- .requests_table -->
 </div> <!-- .requests -->
