@@ -27,7 +27,7 @@
     <span class="hidden-xs"> New Request</span>
   </button>
   {% endif %}
-  <h1 class="w_title">My {{ request_type.name }} Requests</h1>
+  <h1 class="w_title">Your {{ request_type.name }} Requests</h1>
   <hr class="w_line" />
   {% if request_type.enabled %}
   <form class="new_request_form" method="post">
@@ -77,8 +77,13 @@
       <div class="requests_row">
         <div class="request_name bg-{% if request.filled %}success{% elif request.closed %}danger{% elif request.expired %}expired{% else %}warning{% endif %}" title="{{ request.get_status_display }}">
           <div class="request_owner">
-            <a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=request.owner.user.username %}" >{{ request.owner|display_user:user }}</a>
-            ({{ request.post_date }}):
+            <a href="{% url 'managers:view_request' request_pk=request.pk %}" class="btn btn-xs btn-info"
+               title="Permanent link to this request">
+              <span class="glyphicon glyphicon-link"></span>
+            </a>
+            {% with vote_count_request=request %}
+            {% include "vote_list.html" %}
+            {% endwith %}
           </div> <!-- request_owner -->
           <div class="request_body">{{ request.body|safe }}</div>
         </div> <!-- request_name -->
@@ -91,10 +96,6 @@
             {% endif %}
             <div class="response_row{% if response.manager %} bg-info" title="Manager Response{% endif %}">
               <div class="response_owner">
-                <a href="{% url 'managers:view_request' request_pk=request.pk %}" class="btn btn-xs btn-info"
-                   title="Permanent link to this request">
-                  <span class="glyphicon glyphicon-link"></span>
-                </a>
                 <a class="page_link" title="View Profile"
                    href="{% url 'member_profile' targetUsername=response.owner.user.username %}">{{ response.owner|display_user:user }}</a>
                 ({{ response.post_date }}):

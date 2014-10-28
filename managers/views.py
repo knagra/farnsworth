@@ -6,24 +6,28 @@ Author: Karandeep Singh Nagra
 
 from datetime import timedelta
 
+import json
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
 
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
-from base.decorators import admin_required, profile_required, president_admin_required
+from base.decorators import admin_required, profile_required, \
+    president_admin_required, ajax_capable
 from base.models import UserProfile
 from base.redirects import red_home
 from managers.models import Manager, RequestType, Request, Response, Announcement
 from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseForm, \
-     ManagerResponseForm, VoteForm, AnnouncementForm, PinForm
+    ManagerResponseForm, VoteForm, AnnouncementForm, PinForm
+from managers.ajax import build_ajax_votes
 from threads.models import Thread, Message
 
 @admin_required
@@ -252,7 +256,7 @@ def requests_view(request, requestType):
             break
     return render_to_response('requests.html', {
         'manager': manager,
-        'request_type': request_type.name.title(),
+        'request_type': request_type,
         'page_name': page_name,
         'request_form': request_form,
         'requests_dict': requests_dict,
@@ -264,7 +268,7 @@ def my_requests_view(request):
     '''
     Show user his/her requests, sorted by request_type.
     '''
-    page_name = "My Requests"
+    page_name = "Your Requests"
     userProfile = UserProfile.objects.get(user=request.user)
     my_requests = Request.objects.filter(owner=userProfile)
     # A pseudo dictionary, actually a list with items of form
@@ -339,7 +343,7 @@ def list_my_requests_view(request):
     userProfile = UserProfile.objects.get(user=request.user)
     requests = Request.objects.filter(owner=userProfile)
     return render_to_response('list_requests.html', {
-        'page_name': "My Requests",
+        'page_name': "Your Requests",
         'requests': requests,
         }, context_instance=RequestContext(request))
 
@@ -413,10 +417,55 @@ def list_all_requests_view(request, requestType):
         }, context_instance=RequestContext(request))
 
 @profile_required
+@ajax_capable
 def request_view(request, request_pk):
     '''
     The view of a single request.
     '''
+    print "NOT AJAX REQUEST"
+    if request.is_ajax():
+        print "AJAX REQUEST"
+        if not request.user.is_authenticated():
+            return HttpResponse(json.dumps(dict()),
+                                content_type="application/json")
+
+        try:
+            relevant_request = Request.objects.get(pk=request_pk)
+        except Request.DoesNotExist:
+            return HttpResponse(json.dumps(dict()),
+                                content_type="application/json")
+
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            return HttpResponse(json.dumps(dict()),
+                                content_type="application/json")
+
+        upvote = user_profile in relevant_request.upvotes.all()
+        vote_form = VoteForm(
+            request.POST if "upvote" in request.POST else None,
+            profile=user_profile,
+            request=relevant_request,
+            )
+        if vote_form.is_valid():
+            vote_form.save()
+            response = dict()
+            response['vote_count_{pk}'.format(pk=request_pk)] = \
+                relevant_request.upvotes.all().count()
+
+            list_string = 'vote_list_{pk}'.format(pk=request_pk)
+            vote_string = 'in_votes_{pk}'.format(pk=request_pk)
+            count_string = 'vote_count_{pk}'.format(pk=request_pk)
+            response[list_string], response[vote_string], \
+                response[count_string] = build_ajax_votes(
+                    relevant_request,
+                    user_profile
+                )
+            return HttpResponse(json.dumps(response),
+                                content_type="application/json")
+        return HttpResponse(json.dumps(dict()),
+                            content_type="application/json")
+
     relevant_request = get_object_or_404(Request, pk=request_pk)
 
     if relevant_request.private:
@@ -535,7 +584,7 @@ def announcements_view(request):
             profile=userProfile,
             )
     if announcement_form and announcement_form.is_valid():
-        announcement_form.save()
+        announcement_form.save(request)
         return HttpResponseRedirect(reverse('managers:announcements'))
 
     # A pseudo-dictionary, actually a list with items of form:

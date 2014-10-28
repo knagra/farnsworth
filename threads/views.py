@@ -4,19 +4,21 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+import json
+
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
 from base.models import UserProfile
 from utils.variables import MESSAGES
-from base.decorators import profile_required
+from base.decorators import profile_required, ajax_capable
 from threads.models import Thread, Message
 from threads.forms import ThreadForm, MessageForm, EditMessageForm, \
-     EditThreadForm, DeleteMessageForm, FollowThreadForm
+    EditThreadForm, DeleteMessageForm, FollowThreadForm
 
 @profile_required
 def list_all_threads_view(request):
@@ -42,8 +44,37 @@ def list_all_threads_view(request):
         }, context_instance=RequestContext(request))
 
 @profile_required
+@ajax_capable
 def thread_view(request, pk):
     ''' View an individual thread. '''
+    if request.is_ajax():
+        if not request.user.is_authenticated():
+            return HttpResponse(json.dumps(dict()),
+                                content_type="application/json")
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            return HttpResponse(json.dumps(dict()),
+                                content_type="application/json")
+        try:
+            thread = Thread.objects.get(pk=pk)
+        except Thread.DoesNotExist:
+            return HttpResponse(json.dumps(dict()),
+                                content_type="application/json")
+        follow_form = FollowThreadForm(
+            request.POST if "follow_thread" in request.POST else None,
+            instance=thread,
+            profile=user_profile,
+        )
+        if follow_form.is_valid():
+            following = follow_form.save()
+            response = dict(
+                following=following,
+                num_of_followers=thread.followers.all().count()
+            )
+            return HttpResponse(json.dumps(response),
+                                content_type="application/json")
+        raise Http404
     userProfile = UserProfile.objects.get(user=request.user)
     thread = get_object_or_404(Thread, pk=pk)
     messages_list = Message.objects.filter(thread=thread)
