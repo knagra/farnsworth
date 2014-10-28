@@ -4,18 +4,21 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+import json
+
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
 
 from utils.variables import MESSAGES
-from base.decorators import profile_required
+from base.decorators import profile_required, ajax_capable
 from base.models import UserProfile
 from events.models import Event
 from events.forms import EventForm, RsvpForm
+from events.ajax import build_ajax_rsvps
 
 @profile_required
 def list_events_view(request):
@@ -117,7 +120,12 @@ def list_all_events_view(request):
         }, context_instance=RequestContext(request))
 
 @profile_required
+@ajax_capable
 def event_view(request, event_pk):
+    if not request.user.is_authenticated():
+        return HttpResponse(json.dumps(dict()),
+                            content_type="application/json")
+
     event = get_object_or_404(Event, pk=event_pk)
     profile = UserProfile.objects.get(user=request.user)
 
@@ -129,6 +137,17 @@ def event_view(request, event_pk):
 
     if rsvp_form.is_valid():
         rsvpd = rsvp_form.save()
+        if request.is_ajax():
+            link_string = 'rsvp_link_{pk}'.format(pk=event.pk)
+            list_string = 'rsvp_list_{pk}'.format(pk=event.pk)
+            response = dict()
+            response[link_string], response[list_string] = build_ajax_rsvps(
+                event,
+                profile
+            )
+            return HttpResponse(json.dumps(response),
+                                content_type="application/json")
+
         if rsvpd:
             message = MESSAGES['RSVP_ADD'].format(event=event.title)
         else:
@@ -136,7 +155,10 @@ def event_view(request, event_pk):
         messages.add_message(request, messages.SUCCESS, message)
         return HttpResponseRedirect(
             reverse('events:view', kwargs={"event_pk": event_pk}),
-            )
+        )
+
+    elif request.is_ajax():
+        raise Http404
 
     if request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES["EVENT_ERROR"])

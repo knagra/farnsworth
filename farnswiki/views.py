@@ -1,3 +1,8 @@
+"""
+XXX:
+This module is deprecated and marked for replacement.
+"""
+
 
 from django.conf import settings
 from django.core.urlresolvers import reverse

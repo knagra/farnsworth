@@ -33,7 +33,8 @@
     <div class="request_name bg-{% if relevant_request.filled %}success{% elif relevant_request.closed %}danger{% elif relevant_request.expired %}expired{% else %}warning{% endif %}" title="{{ relevant_request.get_status_display }}">
         <div class="request_owner">
         {% if not relevant_request.owner.user = user and user.username != ANONYMOUS_USERNAME %}
-        <form style="display:inline" method="POST" action="">
+        <form style="display:inline" method="post" id="vote_form_{{ relevant_request.pk }}"
+          action="{% url 'managers:view_request' request_pk=relevant_request.pk %}">
           {% csrf_token %}
           {{ vote_form }}
           {% if upvote %}

@@ -1,23 +1,20 @@
 {% load request_tags %}
 {% load thread_tags %}
-<span id="vote_list_{{ vote_count_request.pk }}">
 {% with vote_count=vote_count_request|count_votes %}
-<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=vote_count_request.owner.user.username %}">{{ vote_count_request.owner|display_user:user }}</a>
-{% if vote_count > 0 %}
-    <ul class="vote_list"><li class="dropdown hover_dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown" title="Show Votes" href="#">+{{ vote_count }}</a>
-        <ul class="dropdown-menu">
-        {% for voter in vote_count_request.upvotes.all %}
-            <li><a title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">{{ voter|display_user:user }}</a></li>
-        {% endfor %}
-        </ul>
-    </li></ul>
-{% else %}
-    <span title="No Votes">+0</span>
-{% endif %}
+<a class="page_link" title="View Profile"
+    href="{% url 'member_profile' targetUsername=vote_count_request.owner.user.username %}">{{ vote_count_request.owner|display_user:user }}</a>
+<ul class="vote_list"><li class="dropdown hover_dropdown">
+    <a class="dropdown-toggle" {% if vote_count > 0 %}href="#"
+        data-toggle="dropdown" title="Show Votes"{% endif %}>+<span
+            id="vote_count_{{ vote_count_request.pk }}">{{ vote_count }}</span></a>
+    <ul class="dropdown-menu" id="vote_list_{{ vote_count_request.pk }}">
+    {% for voter in vote_count_request.upvotes.all %}
+        <li><a title="View profile" href="{% url 'member_profile' targetUsername=voter.user.username %}">{{ voter|display_user:user }}</a></li>
+    {% endfor %}
+    </ul>
+</li></ul>
 {% endwith %}
 ({{ vote_count_request.post_date }}):
-</span>
 <script>
 window.request_pk_list.push({{ vote_count_request.pk }});
 </script>

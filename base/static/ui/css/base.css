@@ -200,6 +200,10 @@ form > .form-group {
     font-size: 14px;
 }
 
+.main_owner {
+    color: #7e7e7e;
+}
+
 .main_link:hover {
     text-decoration: underline;
 }
