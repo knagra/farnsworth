@@ -157,7 +157,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
     u"Dictated but not read.",
     u"(or similar product)",
     u"Featuring Sparky, the invisible elf.",
-    u"Others ask, \"What if?\" We ask, \"Why if.\"",
+    u"Others ask, \"What if?\" We ask, \"Why if?\"",
     u"We are following you, but not on Twitter.",
     u"Made from 100% recycled pixels.",
     u"50% more colors than bargain-brand 404 page.",
