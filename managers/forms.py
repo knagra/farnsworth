@@ -277,7 +277,7 @@ class AnnouncementForm(forms.ModelForm):
                 from_email=settings.EMAIL_HOST_USER,
                 bcc=email_to,
             )
-            email_msg.attach_alternative(html_content, email_body)
+            email_msg.attach_alternative(email_body, 'text/html')
             email_msg.send(fail_silently=False,)
             messages.add_message(
                 request,
