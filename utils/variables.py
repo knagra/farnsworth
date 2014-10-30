@@ -151,7 +151,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
     u"Apply directly to the eyes.",
     u"The flames in your screen are not part of the website.",
     u"Collect all fifty billion!",
-    u"Now available without a prescription",
+    u"Now available without a prescription.",
     u"There will be a test.",
     u"Put on 3-D monocle now.",
     u"Dictated but not read.",
