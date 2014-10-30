@@ -14,11 +14,15 @@
 
 ## 2.2.0
 
+* AJAX for various small transactions
+
+## 2.3.0
+
 * Elections and petitions
 * Workshift fines + finalizing workshift semesters
 * Email notifications
 
-## 2.3.0
+## 2.4.0
 
 * Generic manager permissions
 * File uploads
