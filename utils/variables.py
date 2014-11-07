@@ -164,6 +164,7 @@ SUBTEXTS_404 = (u"The number you have dialed has crashed into a planet.  Please 
     u"WARNING: Do not show to horses.",
     u"Tell your parents it's educational.",
     u"Put on 2-D glasses now.",
+    u"A man can dream, though.  A man can dream.",
     )
 
 # Standard messages sent to clients on errors.
