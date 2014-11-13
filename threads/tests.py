@@ -156,6 +156,10 @@ class VerifyThread(TestCase):
             0,
             Message.objects.filter(pk=self.message.pk).count(),
             )
+        self.assertEqual(
+            0,
+            Thread.objects.filter(pk=self.thread.pk).count(),
+            )
 
     def test_edit_message(self):
         url = reverse("threads:view_thread", kwargs={"pk": self.thread.pk})
