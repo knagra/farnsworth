@@ -110,7 +110,7 @@ def post_save_thread(sender, instance, created, **kwargs):
     if not created and thread.number_of_messages == 0:
         thread.delete()
 
-def update_message(sender, instance, created, **kwargs):
+def post_save_message(sender, instance, created, **kwargs):
     message = instance
     thread = message.thread
 
@@ -119,13 +119,13 @@ def update_message(sender, instance, created, **kwargs):
 
     thread.save()
 
-def delete_message(sender, instance, **kwargs):
+def post_delete_message(sender, instance, **kwargs):
     message = instance
     message.thread.save()
 
 # Connect signals with their respective functions from above.
 # When a message is created, update that message's thread's change_date to the post_date of that message.
-models.signals.post_save.connect(update_message, sender=Message)
-models.signals.post_delete.connect(delete_message, sender=Message)
+models.signals.post_save.connect(post_save_message, sender=Message)
+models.signals.post_delete.connect(post_delete_message, sender=Message)
 models.signals.pre_save.connect(pre_save_thread, sender=Thread)
 models.signals.post_save.connect(post_save_thread, sender=Thread)
