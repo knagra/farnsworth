@@ -363,7 +363,7 @@ class PollRanks(models.Model):
             current = ranking_tuples.pop(0)
             normalized.append((
                 current[0],
-                normalized[-1][1] if current[1] = normalized[-1][1] \
+                normalized[-1][1] if current[1] == normalized[-1][1] \
                     else normalized[-1][1] + 1,
                 ))
         return normalized
