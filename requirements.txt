@@ -6,7 +6,7 @@ psycopg2
 django-haystack
 pypandoc
 django-cron
-git+git://github.com/naderm/django-phonenumber-field.git@develop
+django-phonenumber-field
 bcrypt
 pytz
 git+git://github.com/naderm/django-notifications@master
