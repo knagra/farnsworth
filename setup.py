@@ -17,10 +17,10 @@ required = [
     "django-haystack",
     "pypandoc",
     "django-cron",
-    "git+git://github.com/naderm/django-phonenumber-field.git@develop",
+    "django-phonenumber-field",
     "bcrypt",
     "pytz",
-    "git+git://github.com/naderm/django-notifications@master",
+    "django-notifications",
     "pinax-wiki",
     ]
 
@@ -53,6 +53,10 @@ setup(
         # "Programming Language :: Python :: 3.4",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        ],
+    dependency_links=[
+        "git://github.com/naderm/django-phonenumber-field.git#egg=django_phonenumber_field-develop",
+        "git://github.com/naderm/django-notifications.git#egg=django_notifications-master",
         ],
     extras_require={
         "PostgreSQL": ["psycopg2"],
