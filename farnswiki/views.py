@@ -7,14 +7,12 @@ This module is deprecated and marked for replacement.
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
-from django.shortcuts import render_to_response, render, get_object_or_404
+from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.views import static
-from django.views.decorators.http import require_POST
 
 from wiki.forms import RevisionForm
 from wiki.hooks import hookset
-from wiki.models import Page, Revision, MediaFile
+from wiki.models import Page, Revision
 
 from base.decorators import profile_required
 
