@@ -10,26 +10,30 @@
 
 {% block title %}
 <div id="title">
-    <h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
-    <h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
-    <br />
+  <h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
+  <h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
+  <br />
 </div> <!-- close "title" -->
 {% endblock %}
 
 {% block content %}
 <div class="container_fluid">
-<p>
+  {% if revision %}
+  {{ revision.content_html|safe }}
+  {% else %}
+  <p>
     We are a member house of the <a href="//bsc.coop">Berkeley Student Cooperative</a>.
     Please check there for more information on our house and how to apply to board or live in {{ HOUSE }}.
     Questions and tour requests are always welcome.  Please contact us at the e-mail address below to arrange a tour.
-</p>
-<p>
+  </p>
+  <p>
     If you are a new member, please request an account from the <a href="{% url 'request_profile' %}">request profile</a> page.
     If you already have an account, you may login from the <a href="{% url 'login' %}">login</a> page.
-</p>
-<p>
+  </p>
+  <p>
     Please check the <a href="{% url 'helppage' %}">help</a> page for more information about this web site.
-</p>
+  </p>
+  {% endif %}
 </div>
 {% endblock %}
 {% block endscripts %}
