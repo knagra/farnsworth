@@ -14,11 +14,14 @@ class ProjectWikiHookset(WikiDefaultHookset):
           user.is_active and \
           user.username != ANONYMOUS_USERNAME
 
-    def _check_landing(self, slug, user):
-        return slug != "landing" or \
-          Manager.objects.filter(incumbent__user=user).count() > 0 or \
+    def _manager_check(self, user):
+        return Manager.objects.filter(incumbent__user=user).count() > 0 or \
           user.is_staff or \
           user.is_superuser
+
+    def _check_landing(self, slug, user):
+        return slug != "landing" or \
+          self._manager_check(user)
 
     def can_create_page(self, wiki, user, slug=None):
         return self._perm_check(wiki, user) and \
@@ -30,7 +33,7 @@ class ProjectWikiHookset(WikiDefaultHookset):
 
     def can_delete_page(self, page, user):
         return self._perm_check(page.wiki, user) and \
-          (user.is_staff or user.is_superuser)
+          self._manager_check(user)
 
     def can_view_page(self, page, user):
         return True
