@@ -20,7 +20,7 @@ required = [
     "django-phonenumber-field",
     "bcrypt",
     "pytz",
-    "django-notifications",
+    "django-notifications-hq",
     "pinax-wiki",
     ]
 
