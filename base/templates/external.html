@@ -34,6 +34,13 @@
     Please check the <a href="{% url 'helppage' %}">help</a> page for more information about this web site.
   </p>
   {% endif %}
+  {% if can_edit %}
+  <p>
+	<a href="{{ edit_url }}">
+	  As a manager, you may edit the contents of this page via the wiki.
+	</a>
+  </p>
+  {% endif %}
 </div>
 {% endblock %}
 {% block endscripts %}
