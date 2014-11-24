@@ -49,6 +49,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='phone_number',
-            field=phonenumber_field.modelfields.PhoneNumberField(default='', max_length=128, null=True, blank=True),
+            field=phonenumber_field.modelfields.PhoneNumberField(max_length=128, null=True, blank=True),
         ),
     ]

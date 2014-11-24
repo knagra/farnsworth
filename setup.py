@@ -12,15 +12,21 @@ except (ImportError, OSError):
     README = open("README.md", 'r').read()
 
 required = [
-    "Django>=1.6",
-    "django-bootstrap-form>=3.1",
+    "Django>=1.7",
+    "django-bootstrap-form",
     "django-haystack",
-    "elasticsearch==1.0.0",
+    "pypandoc",
+    "django-cron",
+    "django-phonenumber-field",
+    "bcrypt",
+    "pytz",
+    "django-notifications-hq",
+    "pinax-wiki",
     ]
 
 setup(
     name="Farnsworth",
-    version="2.2.0",
+    version="2.2.1",
     author="Karandeep Nagra",
     url="https://github.com/knagra/farnsworth",
     author_email="karandeepsnagra@gmail.com",
@@ -28,7 +34,7 @@ setup(
     include_package_data=True,
     description="Website for BSC houses.",
     long_description=README,
-    install_requires=required +  ["elasticsearch>=1.0.0"],
+    install_requires=required +  ["elasticsearch==1.0.0"],
     tests_require=required,
     test_suite="runtests.runtests",
     package_data={
@@ -43,14 +49,14 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
+        # "Programming Language :: Python :: 3.3",
+        # "Programming Language :: Python :: 3.4",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         ],
     dependency_links=[
-        "git://github.com/toastdriven/django-haystack.git#egg=django_haystack-master",
-        # "git://github.com/django/django.git#egg=django-1.7c1",
+        "git://github.com/naderm/django-phonenumber-field.git#egg=django_phonenumber_field-develop",
+        "git://github.com/naderm/django-notifications.git#egg=django_notifications-master",
         ],
     extras_require={
         "PostgreSQL": ["psycopg2"],

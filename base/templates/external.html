@@ -10,17 +10,20 @@
 
 {% block title %}
 <div id="title">
-    <h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
-    <h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
-    <br />
+  <h1 id="page_title" class="hidden-xs">Welcome to {{ HOUSE }}</h1>
+  <h1 class="visible-xs sub_title" style="margin: 0;">{{ HOUSE }}</h1>
+  <br />
 </div> <!-- close "title" -->
 {% endblock %}
 
 {% block content %}
 <div class="container_fluid">
+  {% if revision %}
+  {{ revision.content_html|safe }}
+  {% else %}
   <p>
 	Kingman Hall is one of the houses of the <a class="page_link" href="http://www.bsc.coop" target="_blank">Berkeley
-	  Student Cooperative</a> in Berkeley, California.
+	Student Cooperative</a> in Berkeley, California.
 	The building houses 50 students every semester.
 	The house phone number is 1-510-900-2179.
 	We are located at 1730 La Loma Avenue, just a few steps north of the Ridge Road and La Loma Avenue intersection,
@@ -78,41 +81,44 @@
 			src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3149.2712727301296!2d-122.25850047364789!3d37.87733822178231!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80857c2250585659%3A0x211221b4592e74dd!2s1730+La+Loma+Ave!5e0!3m2!1sen!2sus!4v1396782313453&wmode=opaque" width="400" height="300" frameborder="0" style="border:0" wmode="opaque"></iframe>
   </div>
 </div>
+{% endif %}
+</div>
 {% endblock %}
 
 {% block gallery %}
 <div class="slider-wrapper theme-default">
-	<div class="ribbon"></div>
-	<div id="slider" class="nivoSlider">
-		<img class="page_image" src="{% static 'ui/images/IMG_0107.jpg' %}" />
-		<img class="page_image" src="{% static 'ui/images/IMG_0108.jpg' %}" />
-		<img class="page_image" src="{% static 'ui/images/IMG_0109.jpg' %}" />
-		<img class="page_image" src="{% static 'ui/images/IMG_0110.jpg' %}" />
-		<img class="page_image" src="{% static 'ui/images/IMG_0111.jpg' %}" />
-		<img class="page_image" src="{% static 'ui/images/IMG_0112.jpg' %}" />
-		<img class="page_image" src="{% static 'ui/images/IMG_0113.jpg' %}" />
-		<img class="page_image" src="{% static 'ui/images/IMG_0114.jpg' %}" />
-		<img class="page_image" src="{% static 'ui/images/IMG_0116.jpg' %}" />
-		<img class="page_image" src="{% static 'ui/images/IMG_0117.jpg' %}" />
-	</div>
+  <div class="ribbon"></div>
+  <div id="slider" class="nivoSlider">
+	<img class="page_image" src="{% static 'ui/images/IMG_0107.jpg' %}" />
+	<img class="page_image" src="{% static 'ui/images/IMG_0108.jpg' %}" />
+	<img class="page_image" src="{% static 'ui/images/IMG_0109.jpg' %}" />
+	<img class="page_image" src="{% static 'ui/images/IMG_0110.jpg' %}" />
+	<img class="page_image" src="{% static 'ui/images/IMG_0111.jpg' %}" />
+	<img class="page_image" src="{% static 'ui/images/IMG_0112.jpg' %}" />
+	<img class="page_image" src="{% static 'ui/images/IMG_0113.jpg' %}" />
+	<img class="page_image" src="{% static 'ui/images/IMG_0114.jpg' %}" />
+	<img class="page_image" src="{% static 'ui/images/IMG_0116.jpg' %}" />
+	<img class="page_image" src="{% static 'ui/images/IMG_0117.jpg' %}" />
+  </div>
 </div>
 {% endblock %}
+
 {% block endscripts %}
 <script type="text/javascript" src="{% static 'jquery/nivo/jquery.nivo.slider.js' %}"></script>
 <script type="text/javascript">
-	$(window).load(function() {
-		$('#slider').nivoSlider({
-			effect: 'fade',
-			animSpeed: 700,
-			pauseTime: 5000,
-			startSlide: 0,
-			directionNav: true,
-			controlNav: true,
-			pauseOnHover: true,
-			prevText: '<',
-			nextText: '>',
+ $(window).load(function() {
+   $('#slider').nivoSlider({
+	 effect: 'fade',
+	 animSpeed: 700,
+	 pauseTime: 5000,
+	 startSlide: 0,
+	 directionNav: true,
+	 controlNav: true,
+	 pauseOnHover: true,
+	 prevText: '<',
+	 nextText: '>',
 
-		});
-	});
+   });
+ });
 </script>
 {% endblock %}

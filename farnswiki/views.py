@@ -5,16 +5,16 @@ This module is deprecated and marked for replacement.
 
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
-from django.shortcuts import render_to_response, render, get_object_or_404
+from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.views import static
-from django.views.decorators.http import require_POST
+from django.utils.timezone import now
 
 from wiki.forms import RevisionForm
 from wiki.hooks import hookset
-from wiki.models import Page, Revision, MediaFile
+from wiki.models import Page, Revision
 
 from base.decorators import profile_required
 
@@ -49,11 +49,14 @@ def edit(request, slug, binder, *args, **kwargs):
             page = wiki.pages.get(slug=slug)
         else:
             page = Page.objects.get(slug=slug)
-        rev = page.revisions.latest()
-        if not hookset.can_edit_page(page, request.user):
-            return HttpResponseForbidden()
     except Page.DoesNotExist:
         return HttpResponseRedirect(reverse("wiki_add") + "?slug=" + slug)
+    else:
+        if not hookset.can_edit_page(page, request.user):
+            messages.add_message(request, messages.ERROR,
+                                 "You do not have permission to edit this page.")
+            return HttpResponseRedirect(reverse("wiki_all"))
+        rev = page.revisions.latest()
 
     form = RevisionForm(
         request.POST if "edit" in request.POST else None,
@@ -103,8 +106,10 @@ def add_page_view(request, binder, *args, **kwargs):
     else:
         return HttpResponseRedirect(page.get_edit_url())
 
-    if not hookset.can_create_page(wiki, request.user):
-        raise Http404()
+    if not hookset.can_create_page(wiki, request.user, slug=slug):
+        messages.add_message(request, messages.ERROR,
+                             "You do not have permission to create this page.")
+        return HttpResponseRedirect(reverse("wiki_all"))
 
     form = RevisionForm(
         request.POST if "edit" in request.POST else None,

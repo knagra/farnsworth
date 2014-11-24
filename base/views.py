@@ -92,8 +92,20 @@ def add_context(request):
 
 def landing_view(request):
     ''' The external landing.'''
+    revision = None
+
+    if "farnswiki" in settings.INSTALLED_APPS:
+        from wiki.models import Page
+        try:
+            page = Page.objects.get(slug="landing")
+        except (Page.DoesNotExist, Page.MultipleObjectsReturned):
+            pass
+        else:
+            revision = page.revisions.latest()
+
     return render_to_response('external.html', {
-        'page_name': "Landing",
+        "page_name": "Landing",
+        "revision": revision,
         }, context_instance=RequestContext(request))
 
 @profile_required(redirect_no_user='external', redirect_profile=red_ext)

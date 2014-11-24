@@ -9,8 +9,8 @@ This module is deprecated and marked for replacement.
 
 from datetime import datetime
 
-from django.test import TestCase
 from django.conf import settings
+from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from wiki.models import Wiki, Page, Revision, MediaFile
@@ -20,10 +20,9 @@ class TestListPage(TestCase):
     """ Test list page. """
 
     def setUp(self):
-        self.u = User.objects.create_user(username="u", first_name="John",
-                                          last_name="Smith", password="pwd")
+        self.u = User.objects.create_user(username="u", password="pwd")
         self.su = User.objects.create_user(username="su", password="pwd")
-        self.su.superuser = True
+        self.su.is_superuser = True
         self.su.save()
 
         self.addr = reverse('wiki_all')
@@ -50,16 +49,13 @@ class TestListPage(TestCase):
         for x in ('Page', 'Last Edited', 'page'):
             self.assertContains(response, x)
 
-
 class TestAddPage(TestCase):
     """ Test the add page. """
 
     def setUp(self):
-        self.u = User.objects.create_user(username="u", first_name="A",
-                                          last_name="B", password="pwd")
-        self.su = User.objects.create_user(username="su", first_name="C",
-                                           last_name="D", password="pwd")
-        self.su.superuser = True
+        self.u = User.objects.create_user(username="u", password="pwd")
+        self.su = User.objects.create_user(username="su", password="pwd")
+        self.su.is_superuser = True
         self.su.save()
 
         self.addr = reverse('wiki_add')
@@ -73,3 +69,57 @@ class TestAddPage(TestCase):
         response = self.client.get(self.full_addr, follow=True)
         for x in ('Add page', 'Back', 'Message', 'Save'):
             self.assertContains(response, x)
+
+class TestLanding(TestCase):
+
+    def setUp(self):
+        self.u = User.objects.create_user(username="u", password="pwd")
+        self.su = User.objects.create_user(username="su", password="pwd")
+        self.su.is_superuser = True
+        self.su.save()
+
+    def test_no_landing(self):
+        response = self.client.get(reverse("external"))
+        self.assertContains(
+            response,
+            'We are a member house of the <a href="//bsc.coop">Berkeley Student Co',
+            )
+
+    def test_add_landing(self):
+        url = reverse("wiki_add") + "?slug=landing"
+
+        self.client.login(username="u", password="pwd")
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            reverse("wiki_all"),
+            )
+        self.assertContains(response, "You do not have permission to create this page.")
+
+        self.client.logout()
+        self.client.login(username="su", password="pwd")
+
+        content = "New homepage content"
+        message = "Created homepage"
+
+        response = self.client.post(url, {
+            "edit": "",
+            "content": content,
+            "message": message,
+            }, follow=True)
+        self.assertRedirects(
+            response,
+            reverse(settings.WIKI_BINDERS[0].page_url_name, kwargs={"slug": "landing"}),
+            )
+
+        self.assertEqual(
+            Revision.objects.filter(content=content, message=message,
+                                    page__slug="landing").count(),
+            1,
+            )
+
+        response = self.client.get(reverse("external"))
+        self.assertContains(
+            response,
+            content,
+            )
