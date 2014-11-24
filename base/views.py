@@ -93,19 +93,32 @@ def add_context(request):
 def landing_view(request):
     ''' The external landing.'''
     revision = None
+    can_edit = False
+    edit_url = None
 
     if "farnswiki" in settings.INSTALLED_APPS:
         from wiki.models import Page
+        from wiki.hooks import hookset
+        binder = settings.WIKI_BINDERS[0]
+        wiki = binder.lookup()
         try:
-            page = Page.objects.get(slug="landing")
+            if wiki:
+                page = wiki.pages.get(slug="landing")
+            else:
+                page = Page.objects.get(slug="landing")
         except (Page.DoesNotExist, Page.MultipleObjectsReturned):
-            pass
+            can_edit = hookset.can_create_page(wiki, request.user, slug="landing")
+            edit_url = binder.page_url(wiki, "landing")
         else:
             revision = page.revisions.latest()
+            can_edit = hookset.can_edit_page(page, request.user)
+            edit_url = page.get_edit_url()
 
     return render_to_response('external.html', {
         "page_name": "Landing",
         "revision": revision,
+        "can_edit": can_edit,
+        "edit_url": edit_url,
         }, context_instance=RequestContext(request))
 
 @profile_required(redirect_no_user='external', redirect_profile=red_ext)
