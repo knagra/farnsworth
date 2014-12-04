@@ -5,7 +5,7 @@
  
 CKEDITOR.editorConfig = function( config ) {
     /* Define extra plugins to load */
-    config.extraPlugins = 'widget,lineutils,pbckcode,mathjax,leaflet,autolink,codemirror,footnotes,oembed,imagebrowser,symbol,dialog';
+    config.extraPlugins = 'widget,lineutils,pbckcode,mathjax,leaflet,autolink,codemirror,footnotes,oembed,imagebrowser,symbol,dialog,slideshow';
 
     /* Define the toolbar, item by item */
     config.toolbar = [
