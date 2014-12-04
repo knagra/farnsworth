@@ -13,7 +13,7 @@ CKEDITOR.editorConfig = function( config ) {
         { name: 'document', items: ['Cut', 'Copy', 'Paste', '-', 'Find', 'Replace', 'Scayt', '-', 'Undo', 'Redo'] },
         '/',
         { name: 'paragraph', items: ['NumberedList', 'BulletedList', 'JustifyLeft', 'JustifyCenter', 'JustifyBlock', 'JustifyRight', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv'] },
-        { name: 'others', items: ['Image', 'SlideShow', 'HorizontalRule', 'Smiley', 'oembed', 'Symbol', '-', 'pbckcode', 'Mathjax', 'leaflet', 'Footnotes'] },
+        { name: 'others', items: ['Image', 'Slideshow', 'HorizontalRule', 'Smiley', 'oembed', 'Symbol', '-', 'pbckcode', 'Mathjax', 'leaflet', 'Footnotes'] },
         '/',
         { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
         { name: 'colors', items: ['TextColor', 'BGColor' ] },
