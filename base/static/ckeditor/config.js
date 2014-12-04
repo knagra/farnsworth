@@ -2,7 +2,7 @@
  * Project: Farnsworth
  * Authors: Karandeep Singh Nagra and Nader Morshed
  */
- 
+
 CKEDITOR.editorConfig = function( config ) {
     /* Define extra plugins to load */
     config.extraPlugins = 'widget,lineutils,pbckcode,mathjax,leaflet,autolink,codemirror,footnotes,oembed,imagebrowser,symbol,dialog,slideshow';
@@ -13,12 +13,12 @@ CKEDITOR.editorConfig = function( config ) {
         { name: 'document', items: ['Cut', 'Copy', 'Paste', '-', 'Find', 'Replace', 'Scayt', '-', 'Undo', 'Redo'] },
         '/',
         { name: 'paragraph', items: ['NumberedList', 'BulletedList', 'JustifyLeft', 'JustifyCenter', 'JustifyBlock', 'JustifyRight', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv'] },
-        { name: 'others', items: ['Image', 'HorizontalRule', 'Smiley', 'oembed', 'Symbol', '-', 'pbckcode', 'Mathjax', 'leaflet', 'Footnotes'] },
+        { name: 'others', items: ['Image', 'SlideShow', 'HorizontalRule', 'Smiley', 'oembed', 'Symbol', '-', 'pbckcode', 'Mathjax', 'leaflet', 'Footnotes'] },
         '/',
         { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
         { name: 'colors', items: ['TextColor', 'BGColor' ] },
         ];
-    
+
     /* configure pbckcode */
     config.pbckcode = {
         modes: [
