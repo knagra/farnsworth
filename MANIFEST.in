@@ -1,19 +1,23 @@
 include LICENSE README.md
 include farnsworth/house_settings.py.example
 
+
 recursive-include base/static *
 recursive-include base/templates *
-recursive-include threads/static *
-recursive-include threads/templates *
-recursive-include events/static *
-recursive-include events/templates *
-recursive-include managers/static *
-recursive-include managers/templates *
-recursive-include workshift/static *
-recursive-include workshift/templates *
 recursive-include electionss/static *
 recursive-include elections/templates *
+recursive-include events/static *
+recursive-include events/templates *
+recursive-include farnswiki/static *
+recursive-include farnswiki/templates *
+recursive-include farnsworth *
+recursive-include managers/static *
+recursive-include managers/templates *
 recursive-include rooms/static *
 recursive-include rooms/templates *
+recursive-include threads/static *
+recursive-include threads/templates *
+recursive-include workshift/static *
+recursive-include workshift/templates *
 
 global-exclude .DS_Store
