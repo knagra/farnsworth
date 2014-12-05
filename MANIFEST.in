@@ -1,4 +1,4 @@
-include LICENSE README.txt
+include LICENSE README.md
 include farnsworth/house_settings.py.example
 
 recursive-include base/static *
