@@ -1,15 +1,19 @@
 
 import os
 from setuptools import setup, find_packages
+from __future__ import print_function
 
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-try:
-    from pypandoc import convert
-    README = convert("README.md", 'rst')
-except (ImportError, OSError):
-    print("warning: pypandoc module not found, could not convert Markdown to RST")
-    README = open("README.md", 'r').read()
+if os.path.exists("README.md"):
+    README = "Website for BSC houses"
+
+    try:
+        from pypandoc import convert
+        README = convert("README.md", 'rst')
+    except (ImportError, OSError):
+        print("warning: pypandoc module not found, could not convert Markdown to RST")
+        README = open("README.md", 'r').read()
 
 required = [
     "Django>=1.7",
@@ -34,7 +38,7 @@ setup(
     include_package_data=True,
     description="Website for BSC houses.",
     long_description=README,
-    install_requires=required +  ["elasticsearch==1.0.0"],
+    install_requires=required +  ["elasticsearch==1.0.0", "pypandoc"],
     tests_require=required,
     test_suite="runtests.runtests",
     package_data={
