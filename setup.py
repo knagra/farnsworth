@@ -1,7 +1,8 @@
 
+from __future__ import print_function
+
 import os
 from setuptools import setup, find_packages
-from __future__ import print_function
 
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
