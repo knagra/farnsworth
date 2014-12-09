@@ -1,5 +1,6 @@
 include LICENSE README.md
 include farnsworth/house_settings.py.example
+exclude farnsworth/house_settings.py farnsworth/local_settings.py
 
 
 recursive-include base/static *
