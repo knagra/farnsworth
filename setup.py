@@ -31,7 +31,7 @@ required = [
 
 setup(
     name="Farnsworth",
-    version="2.3.1",
+    version="2.3.2",
     author="Karandeep Nagra",
     url="https://github.com/knagra/farnsworth",
     author_email="karandeepsnagra@gmail.com",
