@@ -221,7 +221,6 @@ INSTALLED_APPS = (
     'base',
     'threads',
     'events',
-    'requests',
     'managers',
     'workshift',
     'rooms',
