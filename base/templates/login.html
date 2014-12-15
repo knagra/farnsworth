@@ -31,8 +31,8 @@
   <div class="col-sm-4">
     <h1 class="w_title">OAuth Login</h1>
     <hr class="w_line" />
-      {% for provider in oauth_providers %}
-      <a class="list-group-item" {% if forloop.first or forloop.last %}style="border-radius: 0;" {% endif %}title="{{ provider.1 }}" href="{% url 'social:begin' provider.0 %}?next={{ redirect_to }}"><img height="30" width="30" src="{% static 'ui/images/oauth/' %}{{ provider.2 }}"> {{ provider.1 }}</a>
+      {% for backend_name, full_name, icon in oauth_providers %}
+      <a class="list-group-item" {% if forloop.first or forloop.last %}style="border-radius: 0;" {% endif %}title="{{ full_name }}" href="{% url 'social:begin' backend_name %}?next={{ redirect_to }}"><img height="30" width="30" src="{% static 'ui/images/oauth/' %}{{ icon }}"> {{ full_name }}</a>
       {% endfor %}
   </div> <!-- .col-sm-4 -->
   {% endif %}
