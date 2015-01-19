@@ -308,7 +308,7 @@ class TestAssignment(TestCase):
         users = []
         for i in range(1, 50):
             users.append(User.objects.create_user(username="u{0}".format(i)))
-        pre_fill.main([], verbose=False)
+        pre_fill.main(["--managers", "--workshift"])
         utils.make_workshift_pool_hours(semester=self.semester)
         # Assign manager shifts beforehand
         for user, manager in zip(users, Manager.objects.all()):
@@ -324,7 +324,7 @@ class TestAssignment(TestCase):
         """
         for i in range(1, 50):
             user = User.objects.create_user(username="u{0}".format(i))
-        pre_fill.main([], verbose=False)
+        pre_fill.main(["--managers", "--workshift"])
         utils.make_workshift_pool_hours(semester=self.semester)
         # Assign manager shifts beforehand
         manager_shifts = RegularWorkshift.objects.filter(
