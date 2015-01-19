@@ -24,5 +24,64 @@
   <h3>Quick Tips</h3>
   <p>{{ shift.quick_tips|safe }}</p>
   {% endif %}
+
+  {% if regular_shifts %}
+  <h2>Regular Shifts</h2>
+  <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
+	<thead>
+	  <tr>
+		<th>Day</th>
+		<th>Time</th>
+		<th>Hours</th>
+		<th>Workshifter</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for shift in regular_shifts %}
+	  <tr>
+		<td>
+		  <a href="{% wurl 'workshift:view_shift sem_url=shift.pool.semester.sem_url pk=shift.pk %">
+			{% if shift.day %}
+			{{ shift.get_day_display }}
+			{% else %}
+			Week long
+			{% endif %}
+		  </a>
+		</td>
+		<td>
+		  {{ shift.start_time }}
+          {% if shift.end_time and shift.end_time %} - {% endif %}
+          {{ shift.end_time }}
+		</td>
+		<td>{{ shift.hours }}</td>
+		<td>
+		  {% for assignee in shift.current_assignees.all %}{% if not forloop.first %},
+		  {% endif %}<a href="{% wurl 'workshift:profile' sem_url=assignee.semester.sem_url targetUsername=assignee.get_user %}">{{ assignee.get_full_name }}</a>
+		  {% endfor %}
+		</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
 </div> <!-- .instance_container -->
+{% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('table').tablesorter({
+        sortList: [[0, 0], [1, 0]],
+        widgets: ["filter", "resizable"],
+        widgetOptions: {
+            resizable: true
+        }
+    }).tablesorterPager({
+        container: "#instances_pager",
+        cssGoto: "#instances_goto"
+    });
+});
+</script>
+<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
 {% endblock %}
