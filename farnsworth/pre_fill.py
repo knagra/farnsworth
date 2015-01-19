@@ -18,10 +18,9 @@ import django
 if hasattr(django, "setup"):
     django.setup()
 
-from base.models import UserProfile
 from managers.models import Manager, RequestType
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
-    RegularWorkshift, WorkshiftProfile
+    RegularWorkshift
 from workshift.utils import get_year_season, make_instances, \
     get_semester_start_end, make_workshift_pool_hours, \
     make_manager_workshifts
@@ -316,47 +315,64 @@ HUMOR_WORKSHIFTS = [
 
 # TODO: Bathroom shifts
 
-def main(args, verbose=True):
-    # Add Managers
-    managers = 0
-    for title, compensation, hours, email, duties in MANAGERS:
-        created = Manager.objects.get_or_create(
-            title=title,
-            defaults=dict(
-                compensation=compensation,
-                semester_hours=hours,
-                summer_hours=hours,
-                duties=duties,
-                email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
-                president="president" in title.lower(),
-                workshift_manager="workshift" in title.lower(),
-                ),
-            )[1]
-        if created:
-            managers += 1
+def _parse_args(args):
+    import argparse
 
-    if verbose:
-        print("Created {0} managers".format(managers))
+    parser = argparse.ArgumentParser(
+        description="Fill the database with basic information, such as the "
+        "manager position and workshifts",
+        )
+    parser.add_argument('--verbose', action='store_true')
+    parser.add_argument('--managers', action='store_true')
+    parser.add_argument('--requests', action='store_true')
+    parser.add_argument('--workshift', action='store_true')
+
+    return parser.parse_args(args=args)
+
+def main(args):
+    args = _parse_args(args)
+    # Add Managers
+    if args.managers:
+        managers = 0
+        for title, compensation, hours, email, duties in MANAGERS:
+            created = Manager.objects.get_or_create(
+                title=title,
+                defaults=dict(
+                    compensation=compensation,
+                    semester_hours=hours,
+                    summer_hours=hours,
+                    duties=duties,
+                    email="{0}{1}@bsc.coop".format(settings.HOUSE_ABBREV, email) if email else "",
+                    president="president" in title.lower(),
+                    workshift_manager="workshift" in title.lower(),
+                    ),
+                )[1]
+            if created:
+                managers += 1
+
+        if args.verbose:
+            print("Created {0} managers".format(managers))
 
     # Add Requests
-    requests = 0
-    for name, managers, glyphicon in REQUESTS:
-        r, created = RequestType.objects.get_or_create(
-            name=name,
-            defaults=dict(
-                glyphicon=glyphicon,
-                ),
-            )
+    if args.requests:
+        requests = 0
+        for name, managers, glyphicon in REQUESTS:
+            r, created = RequestType.objects.get_or_create(
+                name=name,
+                defaults=dict(
+                    glyphicon=glyphicon,
+                    ),
+                )
 
-        if created:
-            r.managers = [Manager.objects.get(title=i) for i in managers]
-            r.save()
-            requests += 1
+            if created:
+                r.managers = [Manager.objects.get(title=i) for i in managers]
+                r.save()
+                requests += 1
 
-    if verbose:
-        print("Created {0} request types".format(requests))
+        if args.verbose:
+            print("Created {0} request types".format(requests))
 
-    if "workshift" in settings.INSTALLED_APPS:
+    if args.workshift and "workshift" in settings.INSTALLED_APPS:
         # Start the Workshift Semester
         year, season = get_year_season()
         start_date, end_date = get_semester_start_end(year, season)
@@ -371,7 +387,7 @@ def main(args, verbose=True):
         else:
             created = False
 
-        if created and verbose:
+        if created and args.verbose:
             print("Started a new workshift semester")
 
         # Regular Weekly Workshift Hours
