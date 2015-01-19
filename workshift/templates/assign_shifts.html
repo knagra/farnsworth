@@ -17,45 +17,19 @@
 <div id="assign_container">
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
-  {% if auto_assign_shifts_form %}
+  {% for form in forms %}
   <div class="col-xs-4">
 	<form method="post">
       {% csrf_token %}
-	  {{ auto_assign_shifts_form|bootstrap }}
+	  {{ form|bootstrap }}
       <div class="text-center">
-		<button type="submit" class="btn btn-primary" name="auto_assign_shifts">
-		  Auto assign shifts
+		<button type="submit" class="btn btn-primary" name="{{ form.name }}">
+		  {{ form.text }}
 		</button>
       </div>
 	</form>
   </div>
-  {% endif %}
-  {% if random_assign_instances_form %}
-  <div class="col-xs-4">
-	<form method="post">
-      {% csrf_token %}
-	  {{ random_assign_instances_form|bootstrap }}
-      <div class="text-center">
-		<button type="submit" class="btn btn-primary" name="random_assign_instances">
-		  Randomly assign shift instances
-		</button>
-      </div>
-	</form>
-  </div>
-  {% endif %}
-  {% if clear_assign_form %}
-  <div class="col-xs-4">
-	<form method="post">
-      {% csrf_token %}
-	  {{ clear_assign_form|bootstrap }}
-      <div class="text-center">
-		<button type="submit" class="btn btn-primary" name="clear_assignments">
-		  Clear all shift assignments
-		</button>
-      </div>
-	</form>
-  </div>
-  {% endif %}
+  {% endfor %}
   <hr class="w_line" />
   <h3 class="w_title">Assign individual shifts</h3>
   <form method="post">

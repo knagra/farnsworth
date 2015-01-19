@@ -16,6 +16,7 @@ urlpatterns = [
     #: Maybe get rid of add_workshifter and allow anyone who is Resident or Boarder to create a workshift profile when accessing a workshift_profile_required view for current semester
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/add_workshifter/$", views.add_workshifter_view, name="add_workshifter"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/add_pool/$", views.add_pool_view, name="add_pool"),
+    url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/easy_fill/$", views.easy_fill_view, name="easy_fill"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/add_shift/$", views.add_shift_view, name="add_shift"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/fine_date/$", views.fine_date_view, name="fine_date"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/pool/(?P<pk>\d+)/$", views.pool_view, name="view_pool"),

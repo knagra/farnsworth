@@ -577,7 +577,47 @@ class AddWorkshifterForm(forms.Form):
 
             return profile
 
+class FillShiftsForm(forms.Form):
+    pk = forms.IntegerField(widget=forms.HiddenInput())
+
+    def __init__(self, *args, **kwargs):
+        if len(args) > 0 and "fill_{}_shifts".form(self.name) not in args[0]:
+            args[0] = None
+
+        super(FillShiftsForm, self).__init__(*args, **kwargs)
+
+class FillRegularShiftsForm(FillShiftsForm):
+    shift_name = "regular"
+
+    def save(self):
+        from workshift.fill import fill_regular_shifts
+        fill_regular_shifts()
+
+class FillSocialShiftsForm(FillShiftsForm):
+    shift_name = "social"
+
+    def save(self):
+        from workshift.fill import fill_social_shifts
+        fill_social_shifts()
+
+class FillHumorShiftsForm(FillShiftsForm):
+    shift_name = "humor"
+
+    def save(self):
+        from workshift.fill import fill_humor_shifts
+        fill_humor_shifts()
+
+class FillHIShiftsForm(FillShiftsForm):
+    shift_name = "HI"
+
+    def save(self):
+        from workshift.fill import fill_hi_shifts
+        fill_hi_shifts()
+
 class AutoAssignShiftForm(forms.Form):
+    name = "auto_assign_shifts"
+    text = "Auto assign shifts"
+
     pool = forms.ModelChoiceField(
         required=True,
         queryset=WorkshiftPool.objects.filter(semester__current=True),
@@ -603,11 +643,15 @@ class AutoAssignShiftForm(forms.Form):
         return unfinished
 
 class RandomAssignInstancesForm(forms.Form):
+    name = "random_assign_instances"
+    text = "Randomly assign shift instances"
+
     pool = forms.ModelChoiceField(
         required=True,
         queryset=WorkshiftPool.objects.filter(semester__current=True),
         help_text="Randomly assign all single instances of workshifts for this pool.",
         )
+
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop('semester')
         super(RandomAssignInstancesForm, self).__init__(*args, **kwargs)
@@ -625,11 +669,15 @@ class RandomAssignInstancesForm(forms.Form):
         return unfinished
 
 class ClearAssignmentsForm(forms.Form):
+    name = "clear_assignments"
+    text = "Clear all shift assignments"
+
     pool = forms.ModelChoiceField(
         required=True,
         queryset=WorkshiftPool.objects.filter(semester__current=True),
         help_text="Clear all recurring workshift assignments for this pool.",
         )
+
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop('semester')
         super(ClearAssignmentsForm, self).__init__(*args, **kwargs)

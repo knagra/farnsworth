@@ -153,7 +153,7 @@ def _get_semester():
 
     return semester
 
-def fill_workshift_types():
+def _fill_workshift_types():
     # Workshift Types
     for title, description, quick_tips, rateable in WORKSHIFT_TYPES:
         WorkshiftType.objects.get_or_create(
@@ -167,6 +167,8 @@ def fill_workshift_types():
 
 def fill_regular_shifts(regular_hours=5):
     semester = _get_semester()
+
+    _fill_workshift_types()
 
     # Regular Weekly Workshift Hours
     pool, created = WorkshiftPool.objects.get_or_create(

@@ -1,0 +1,26 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<div id="easy_fill_container">
+  <h1 class="w_title">{{ page_name }}</h1>
+  <hr class="w_line" />
+  {% for form in forms %}
+  <div class="col-xs-3">
+	<form method="post">
+	  {% csrf_token %}
+	  {{ form|bootstrap }}
+	  <div class="text-center">
+		<button type="submit" class="btn btn-primary" name="{{ form.name }}">
+		  Fill in {{ form.name }} shifts
+		</button>
+	  </div>
+	</form>
+  </div>
+  {% endfor %}
+</div> <!-- #assign_container -->
+{% endblock %}

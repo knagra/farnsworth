@@ -22,15 +22,7 @@ from managers.models import Manager
 from workshift.decorators import get_workshift_profile, \
     workshift_manager_required, semester_required
 from workshift.models import *
-from workshift.forms import FullSemesterForm, SemesterForm, StartPoolForm, \
-    PoolForm, WorkshiftInstanceForm, VerifyShiftForm, \
-    BlownShiftForm, SignInForm, SignOutForm, AddWorkshifterForm, \
-    AssignShiftForm, RegularWorkshiftForm, WorkshiftTypeForm, \
-    WorkshiftRatingForm, TimeBlockFormSet, ProfileNoteForm, \
-    RegularWorkshiftFormSet, SwitchSemesterForm, EditHoursForm, \
-    AutoAssignShiftForm, RandomAssignInstancesForm, ClearAssignmentsForm, \
-    WorkshiftPoolHoursForm, FineDateForm, NoteForm, \
-    CloseSemesterForm, OpenSemesterForm
+from workshift.forms import *
 from workshift import utils
 from workshift.templatetags.workshift_tags import wurl
 
@@ -619,17 +611,20 @@ def assign_shifts_view(request, semester):
 
     if WorkshiftPool.objects.filter(semester=semester).count():
         auto_assign_shifts_form = AutoAssignShiftForm(
-            request.POST if "auto_assign_shifts" in request.POST else None,
+            request.POST if AutoAssignShiftForm.name in request.POST else None,
             semester=semester,
             )
         random_assign_instances_form = RandomAssignInstancesForm(
-            request.POST if "random_assign_instances" in request.POST else None,
+            request.POST if RandomAssignInstancesForm.name in request.POST else None,
             semester=semester,
             )
         clear_assign_form = ClearAssignmentsForm(
-            request.POST if "clear_assignments" in request.POST else None,
+            request.POST if ClearAssignmentsForm.name in request.POST else None,
             semester=semester,
             )
+
+    forms = [auto_assign_shifts_form, random_assign_instances_form,
+             clear_assign_form]
 
     if auto_assign_shifts_form and auto_assign_shifts_form.is_valid():
         unassigned_profiles = auto_assign_shifts_form.save()
@@ -685,9 +680,7 @@ def assign_shifts_view(request, semester):
                                          sem_url=semester.sem_url))
     return render_to_response("assign_shifts.html", {
         "page_name": page_name,
-        "auto_assign_shifts_form": auto_assign_shifts_form,
-        "random_assign_instances_form": random_assign_instances_form,
-        "clear_assign_form": clear_assign_form,
+        "forms": forms,
         "assign_forms": assign_forms,
     }, context_instance=RequestContext(request))
 
@@ -749,6 +742,47 @@ def add_pool_view(request, semester):
         "page_name": page_name,
         "add_pool_form": add_pool_form,
         }, context_instance=RequestContext(request))
+
+@semester_required
+@workshift_manager_required
+def easy_fill_view(request, semester):
+    """
+    Quickly add shifts from the web the same way as is done through pre_fill.py.
+    """
+    page_name = "Easy Fill"
+
+    fill_regular_shifts_form = FillRegularShiftsForm(
+        request.POST if FillRegularShiftsForm.name in request.POST else None,
+        semester=semester,
+        )
+    fill_social_shifts_form = FillSocialShiftsForm(
+        request.POST if FillSocialShiftsForm.name in request.POST else None,
+        semester=semester,
+        )
+    fill_humor_shifts_form = FillHumorShiftsForm(
+        request.POST if FillHumorShiftsForm.name in request.POST else None,
+        semester=semester,
+        )
+    fill_hi_shifts_form = FillHIShiftsForm(
+        request.POST if FillHIShiftsForm.name in request.POST else None,
+        semester=semester,
+        )
+
+    forms = [fill_regular_shifts_form, fill_social_shifts_form,
+             fill_humor_shifts_form, fill_hi_shifts_form]
+
+    for form in forms:
+        if form.is_valid():
+            form.save()
+            message = "Created {} workshifts".format(form.shift_name)
+            messages.add_message(request, messages.INFO, message)
+            return HttpResponseRedirect(wurl('workshift:easy_fill',
+                                             sem_url=semester.sem_url))
+
+    return render_to_response("easy_fill.html", {
+        "page_name": page_name,
+        "forms": forms,
+    }, context_instance=RequestContext(request))
 
 @semester_required
 @workshift_manager_required

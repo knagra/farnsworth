@@ -48,8 +48,7 @@ def main(args):
 
     if args.workshift and "workshift" in settings.INSTALLED_APPS:
         from workshift.fill import fill_regular_shifts, fill_humor_shifts, \
-            fill_social_shifts, fill_workshift_types
-        fill_workshift_types()
+            fill_social_shifts
         fill_regular_shifts()
         fill_humor_shifts()
         fill_social_shifts()
