@@ -1105,9 +1105,13 @@ def type_view(request, pk):
     """
     wtype = get_object_or_404(WorkshiftType, pk=pk)
     page_name = wtype.title
+    regular_shifts = RegularWorkshift.objects.filter(
+        workshift_type=wtype, pool__semester__current=True,
+        )
     return render_to_response("view_type.html", {
         "page_name": page_name,
-        "shift": wtype,
+        "wtype": wtype,
+        "regular_shifts": regular_shifts,
         "can_edit": utils.can_manage(request.user),
     }, context_instance=RequestContext(request))
 

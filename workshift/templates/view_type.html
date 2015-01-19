@@ -8,7 +8,7 @@
 {% block w_content %}
 <div class="type_container">
   {% if can_edit %}
-  <form action="{% wurl 'workshift:edit_type' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
+  <form action="{% wurl 'workshift:edit_type' pk=wtype.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
     <button class="btn btn-warning" type="submit">
       <span class="glyphicon glyphicon-edit"></span>
       <span class="hidden-xs">Edit</span>
@@ -16,13 +16,13 @@
   </form>
   {% endif %}
   <h1 class="w_title">{{ page_name }}</h1>
-  {% if shift.description %}
+  {% if wtype.description %}
   <h3>Description</h3>
-  <p>{{ shift.description|safe }}</p>
+  <p>{{ wtype.description|safe }}</p>
   {% endif %}
-  {% if shifts.quick_tips %}
+  {% if wtypes.quick_tips %}
   <h3>Quick Tips</h3>
-  <p>{{ shift.quick_tips|safe }}</p>
+  <p>{{ wtype.quick_tips|safe }}</p>
   {% endif %}
 
   {% if regular_shifts %}
