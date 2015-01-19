@@ -29,6 +29,7 @@ urlpatterns = patterns('',
     url(r'', include('events.urls', namespace='events')),
     url(r'', include('managers.urls', namespace='managers')),
     url(r'', include('farnswiki.urls')),
+    url(r'', include('legacy.urls', namespace='legacy')),
 )
 
 urlpatterns += patterns('base.views',
