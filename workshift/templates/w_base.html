@@ -62,21 +62,37 @@
         {% endfor %}
       </div> <!-- #upcoming_shifts -->
       {% endif %}
-      <h4><a href="{% wurl 'workshift:view_open' sem_url=SEMESTER.sem_url %}">Open Shifts</a></h4>
+	  {% if CURRENT_SEMESTER %}
+      <h4>
+		<a href="{% wurl 'workshift:view_open' sem_url=CURRENT_SEMESTER.sem_url %}">
+		  Open Shifts
+		</a>
+	  </h4>
+	  {% endif %}
       <div class="row">
 		{% if WORKSHIFT_PROFILE %}
 		<div class="col-md-12 col-lg-12{% if WORKSHIFT_MANAGER %} col-sm-6 col-xs-6{% endif %}">
-		  <h4 class="w_subtitle"><a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">My Profile</a></h4>
+		  <h4 class="w_subtitle">
+			<a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">
+			  My Profile
+			</a>
+		  </h4>
 		  <ul class="sidebar_list">
-			<li><a href="{% wurl 'workshift:preferences' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">Edit My Preferences</a></li>
+			<li>
+			  <a href="{% wurl 'workshift:preferences' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">
+				Edit My Preferences
+			  </a>
+			</li>
 		  </ul>
-		  {% else %}
-
-		  {% endif %}
 		</div> <!-- .col-md-12 -->
+		{% endif %}
 		{% if WORKSHIFT_MANAGER %}
 		<div class="col-md-12 col-lg-12 col-sm-6 col-xs-6">
-		  <h4 class="w_subtitle"><a href="{% wurl 'workshift:manage' sem_url=SEMESTER.sem_url %}">Manage Workshift</a></h4>
+		  <h4 class="w_subtitle">
+			<a href="{% wurl 'workshift:manage' sem_url=SEMESTER.sem_url %}">
+			  Manage Workshift
+			</a>
+		  </h4>
 		  <ul class="sidebar_list">
 			<li>
 			  <a href="{% wurl 'workshift:easy_fill' sem_url=SEMESTER.sem_url %}">
@@ -109,7 +125,7 @@
 			  </a>
 			</li>
 			<li>
-			  <a href="{% wurl 'workshift:fine_date' %}">
+			  <a href="{% wurl 'workshift:fine_date' sem_url=SEMESTER.sem_url %}">
 				Calculate Workshift Fines
 			  </a>
 			</li>
@@ -117,8 +133,18 @@
 		</div> <!-- .col-md-12 -->
 		{% endif %}
       </div> <!-- .row -->
-	  <h4><a href="{% wurl 'workshift:list_types' %}">All Shifts</a></h4>
-	  <h4><a href="{% wurl 'workshift:profiles' sem_url=SEMESTER.sem_url %}">All Workshifters</a></h4>
+	  <h4>
+		<a href="{% wurl 'workshift:list_types' %}">
+		  All Shifts
+		</a>
+	  </h4>
+	  {% if SEMESTER %}
+	  <h4>
+		<a href="{% wurl 'workshift:profiles' sem_url=SEMESTER.sem_url %}">
+		  All Workshifters
+		</a>
+	  </h4>
+	  {% endif %}
       {% block sidebarbottom %}{% endblock %}
     </div> <!-- #side_bar -->
   </div> <!-- .row -->
