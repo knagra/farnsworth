@@ -16,8 +16,13 @@
   </form>
   {% endif %}
   <h1 class="w_title">{{ page_name }}</h1>
-  <p>{{ shift.hours }}</p>
-  <p>{{ shift.quick_tips|safe }}</p>
+  {% if shift.description %}
+  <h3>Description</h3>
   <p>{{ shift.description|safe }}</p>
+  {% endif %}
+  {% if shifts.quick_tips %}
+  <h3>Quick Tips</h3>
+  <p>{{ shift.quick_tips|safe }}</p>
+  {% endif %}
 </div> <!-- .instance_container -->
 {% endblock %}
