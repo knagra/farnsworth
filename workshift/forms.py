@@ -581,7 +581,9 @@ class FillShiftsForm(forms.Form):
     pk = forms.IntegerField(widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
-        if len(args) > 0 and "fill_{}_shifts".form(self.name) not in args[0]:
+        self.name = "fill_{}_shifts".format(self.shift_name)
+
+        if len(args) > 0 and self.name not in args[0]:
             args[0] = None
 
         super(FillShiftsForm, self).__init__(*args, **kwargs)
