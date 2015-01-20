@@ -584,7 +584,7 @@ class FillShiftsForm(forms.Form):
         self.name = "fill_{}_shifts".format(self.shift_name)
 
         if len(args) > 0 and self.name not in args[0]:
-            args[0] = None
+            args = (None,) + tuple(args[1:])
 
         self.semester = kwargs.pop("semester")
 
