@@ -745,11 +745,12 @@ def add_pool_view(request, semester):
 
 @semester_required
 @workshift_manager_required
-def easy_fill_view(request, semester):
+def fill_shifts_view(request, semester):
     """
-    Quickly add shifts from the web the same way as is done through pre_fill.py.
+    Allows managers to quickly fill in the default workshifts for a few given
+    workshift pools.
     """
-    page_name = "Easy Fill"
+    page_name = "Fill Shifts"
 
     fill_regular_shifts_form = FillRegularShiftsForm(
         request.POST if FillRegularShiftsForm.name in request.POST else None,
@@ -776,10 +777,10 @@ def easy_fill_view(request, semester):
             form.save()
             message = "Created {} workshifts".format(form.shift_name)
             messages.add_message(request, messages.INFO, message)
-            return HttpResponseRedirect(wurl('workshift:easy_fill',
+            return HttpResponseRedirect(wurl('workshift:fill_shifts',
                                              sem_url=semester.sem_url))
 
-    return render_to_response("easy_fill.html", {
+    return render_to_response("fill_shifts.html", {
         "page_name": page_name,
         "forms": forms,
     }, context_instance=RequestContext(request))
