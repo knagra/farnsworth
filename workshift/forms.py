@@ -586,6 +586,8 @@ class FillShiftsForm(forms.Form):
         if len(args) > 0 and self.name not in args[0]:
             args[0] = None
 
+        self.semester = kwargs.pop("semester")
+
         super(FillShiftsForm, self).__init__(*args, **kwargs)
 
 class FillRegularShiftsForm(FillShiftsForm):
@@ -593,28 +595,28 @@ class FillRegularShiftsForm(FillShiftsForm):
 
     def save(self):
         from workshift.fill import fill_regular_shifts
-        fill_regular_shifts()
+        fill_regular_shifts(semester=self.semester)
 
 class FillSocialShiftsForm(FillShiftsForm):
     shift_name = "social"
 
     def save(self):
         from workshift.fill import fill_social_shifts
-        fill_social_shifts()
+        fill_social_shifts(semester=self.semester)
 
 class FillHumorShiftsForm(FillShiftsForm):
     shift_name = "humor"
 
     def save(self):
         from workshift.fill import fill_humor_shifts
-        fill_humor_shifts()
+        fill_humor_shifts(semester=self.semester)
 
 class FillHIShiftsForm(FillShiftsForm):
     shift_name = "HI"
 
     def save(self):
         from workshift.fill import fill_hi_shifts
-        fill_hi_shifts()
+        fill_hi_shifts(semester=self.semester)
 
 class AutoAssignShiftForm(forms.Form):
     name = "auto_assign_shifts"

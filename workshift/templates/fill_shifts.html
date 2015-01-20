@@ -10,6 +10,7 @@
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
   {% for form in forms %}
+  {% if form %}
   <div class="col-xs-3">
 	<form method="post">
 	  {% csrf_token %}
@@ -21,6 +22,7 @@
 	  </div>
 	</form>
   </div>
+  {% endif %}
   {% endfor %}
 </div> <!-- #assign_container -->
 {% endblock %}

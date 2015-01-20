@@ -165,8 +165,9 @@ def _fill_workshift_types():
                 ),
             )
 
-def fill_regular_shifts(regular_hours=5):
-    semester = _get_semester()
+def fill_regular_shifts(regular_hours=5, semester=None):
+    if semester is None:
+        semester = _get_semester()
 
     _fill_workshift_types()
 
@@ -217,8 +218,9 @@ def fill_regular_shifts(regular_hours=5):
     make_instances(semester=semester)
     make_manager_workshifts(semester)
 
-def fill_hi_shifts(hi_hours=5):
-    semester = _get_semester()
+def fill_hi_shifts(hi_hours=5, semester=None):
+    if semester is None:
+        semester = _get_semester()
 
     # HI Hours
     hi_pool, created = WorkshiftPool.objects.get_or_create(
@@ -232,8 +234,9 @@ def fill_hi_shifts(hi_hours=5):
 
     make_workshift_pool_hours(semester, pools=[hi_pool])
 
-def fill_social_shifts(social_hours=1):
-    semester = _get_semester()
+def fill_social_shifts(social_hours=1, semester=None):
+    if semester is None:
+        semester = _get_semester()
 
     # Social Hours
     social_pool, created = WorkshiftPool.objects.get_or_create(
@@ -248,8 +251,9 @@ def fill_social_shifts(social_hours=1):
 
     make_workshift_pool_hours(semester, pools=[social_pool])
 
-def fill_humor_shifts(humor_hours=2):
-    semester = _get_semester()
+def fill_humor_shifts(humor_hours=2, semester=None):
+    if semester is None:
+        semester = _get_semester()
 
     # Humor Shift
     humor_pool, created = WorkshiftPool.objects.get_or_create(

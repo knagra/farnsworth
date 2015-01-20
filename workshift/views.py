@@ -636,6 +636,7 @@ def assign_shifts_view(request, semester):
         messages.add_message(request, messages.INFO, message)
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
                                          sem_url=semester.sem_url))
+
     if random_assign_instances_form and random_assign_instances_form.is_valid():
         unassigned_profiles, unassigned_shifts = \
           random_assign_instances_form.save()
@@ -648,6 +649,7 @@ def assign_shifts_view(request, semester):
         messages.add_message(request, messages.INFO, message)
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
                                          sem_url=semester.sem_url))
+
     if clear_assign_form and clear_assign_form.is_valid():
         clear_assign_form.save()
         message = "Cleared all workshifters from their regular workshift " \
@@ -672,12 +674,14 @@ def assign_shifts_view(request, semester):
             semester=semester,
             )
         assign_forms.append(form)
+
     if all(i.is_valid() for i in assign_forms):
         for form in assign_forms:
             form.save()
         messages.add_message(request, messages.INFO, "Workshift assignments saved.")
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
                                          sem_url=semester.sem_url))
+
     return render_to_response("assign_shifts.html", {
         "page_name": page_name,
         "forms": forms,
@@ -752,28 +756,43 @@ def fill_shifts_view(request, semester):
     """
     page_name = "Fill Shifts"
 
-    fill_regular_shifts_form = FillRegularShiftsForm(
-        request.POST if FillRegularShiftsForm.name in request.POST else None,
-        semester=semester,
-        )
-    fill_social_shifts_form = FillSocialShiftsForm(
-        request.POST if FillSocialShiftsForm.name in request.POST else None,
-        semester=semester,
-        )
-    fill_humor_shifts_form = FillHumorShiftsForm(
-        request.POST if FillHumorShiftsForm.name in request.POST else None,
-        semester=semester,
-        )
-    fill_hi_shifts_form = FillHIShiftsForm(
-        request.POST if FillHIShiftsForm.name in request.POST else None,
-        semester=semester,
-        )
+    fill_regular_shifts_form = None
+    fill_social_shifts_form = None
+    fill_humor_shifts_form = None
+    fill_hi_shifts_form = None
+
+    managers = Manager.objects.filter(incumbent__user=request.user)
+    admin = request.user.is_superuser or request.user.is_staff or \
+      managers.filter(workshift_manager=True)
+
+    if admin:
+        fill_regular_shifts_form = FillRegularShiftsForm(
+            request.POST,
+            semester=semester,
+            )
+        fill_humor_shifts_form = FillHumorShiftsForm(
+            request.POST,
+            semester=semester,
+            )
+    # XXX: BAD! We should filter by pool owners? By Manager bool flags? By
+    # arbitrary django permissions?
+    if admin or managers.filter(title="Social Manager"):
+        fill_social_shifts_form = FillSocialShiftsForm(
+            request.POST,
+            semester=semester,
+            )
+    # XXX: See above
+    if admin or managers.filter(title="Maintenance Manager"):
+        fill_hi_shifts_form = FillHIShiftsForm(
+            request.POST,
+            semester=semester,
+            )
 
     forms = [fill_regular_shifts_form, fill_social_shifts_form,
              fill_humor_shifts_form, fill_hi_shifts_form]
 
     for form in forms:
-        if form.is_valid():
+        if form and form.is_valid():
             form.save()
             message = "Created {} workshifts".format(form.shift_name)
             messages.add_message(request, messages.INFO, message)

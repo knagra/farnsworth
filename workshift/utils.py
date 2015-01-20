@@ -518,7 +518,7 @@ def update_standings(semester=None):
         if pool_hours.pool.weeks_per_period == 0:
             periods = 1
         else:
-            # Note, this will give periods > 0 on weeks starting on start_date's day, 
+            # Note, this will give periods > 0 on weeks starting on start_date's day,
             # rather than explicitly Sunday
             if not pool_hours.last_updated:
                 last_weeks = 0
@@ -532,6 +532,3 @@ def update_standings(semester=None):
             pool_hours.standing -= pool_hours.hours * periods
             pool_hours.last_updated = now()
             pool_hours.save()
-
-
-
