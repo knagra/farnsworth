@@ -226,7 +226,6 @@ INSTALLED_APPS = (
     'rooms',
     "django_cron",
     # 'elections',
-    'legacy',
     "wiki",
     "farnswiki",
     "notifications",

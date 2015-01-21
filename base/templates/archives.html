@@ -66,27 +66,4 @@
             All Events</a>
     </ul>
 </div> <!-- .bordered-div -->
-<br />
-<div class="bordered_div">
-<div class="field_wrapper">To see records from the previous Kingman website,
-    please choose the appropriate link below:</div>
-    <ul class="list-group link_list">
-        <a href="{% url 'legacy:notes' %}"
-            class="list-group-item"><span
-            class="badge pull-right">{{ legacy_note_count }}</span>
-            Legacy Notes</a>
-        <a href="{% url 'legacy:events' %}"
-            class="list-group-item"><span
-            class="badge pull-right">{{ legacy_event_count }}</span>
-            Legacy Events</a>
-        <a href="{% url 'legacy:requests' rtype="food" %}"
-            class="list-group-item"><span
-            class="badge pull-right">{{ legacy_food_count }}</span>
-            Legacy Food Requests</a>
-        <a href="{% url 'legacy:requests' rtype="maintenance" %}"
-            class="list-group-item"><span
-            class="badge pull-right">{{ legacy_maint_count }}</span>
-            Legacy Maintenance Requests</a>
-    </ul>
-</div> <!-- .bordered-div -->
 {% endblock %}
