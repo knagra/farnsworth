@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block headers %}
+<style>
+.request_body {
+    margin: 5px auto;
+    width: 75%;
+    border: 1px solid #888;
+    padding: 2px;
+}
+
+.response_body {
+    padding: 2px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="w_title">Legacy {{ request_type }} Requests</h1>
+<hr class="w_line" />
+{% include "legacy.html" %}
+{% if not requests_dict %}
+<div class="field_wrapper text-info">El zilcho.</div>
+{% else %}
+<div class="bordered_div">
+    {% for request, responses in requests_dict %}
+        {% if not forloop.first %}<hr class="main_divider" />{% endif %}
+        <div class="request_body bg-expired">
+            <div class="text-center"><b>{{ request.name|safe }}</b>
+                <span style="color: #7e7e7e;">({{ request.timestamp|date:"m/d/Y, h:i A" }}):</span></div>
+            {{ request.body|safe }}
+        </div>
+        {% for response in responses %}
+        {% if not forloop.first %}<hr class="main_divider" />{% endif %}
+        <div class="hover_row response_body">
+            <b>{{ response.name|safe }}</b>
+            <span style="color: #7e7e7e;">({{ response.timestamp|date:"m/d/Y, h:i A" }}):</span>
+            {{ response.body|safe }}
+        </div>
+        {% endfor %}
+    {% endfor %}
+    <div class="field_wrapper">
+        {% if requests.has_previous %}
+            <a href="?page={{ requests.previous_page_number }}"><span
+                class="glyphicon glyphicon-chevron-left"></span>
+                Previous</a>
+        {% else %}
+            <span class="glyphicon glyphicon-chevron-left"></span>
+            Previous
+        {% endif %}
+
+        |
+
+        <span class="current">
+            Page {{ requests.number }} of {{ requests.paginator.num_pages }}.
+        </span>
+
+        |
+
+        {% if requests.has_next %}
+            <a href="?page={{ requests.next_page_number }}">Next
+                <span class="glyphicon glyphicon-chevron-right"></span></a>
+        {% else %}
+            Next <span class="glyphicon glyphicon-chevron-right"></span>
+        {% endif %}
+    </div>
+    <div class="field_wrapper text-info">
+        {{ request_count }} total legacy {{ request_type.lower }} requests in database.
+    </div>
+</div>
+{% endif %}
+{% endblock %}
