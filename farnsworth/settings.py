@@ -423,11 +423,6 @@ EMAIL_TARGET = "...@bsc.coop"
 
 ########################################################################
 
-try:
-    from farnsworth.local_settings import *
-except ImportError:
-    pass
-
 if "test" in sys.argv:
     PASSWORD_HASHERS = (
         "django.contrib.auth.hashers.MD5PasswordHasher",
