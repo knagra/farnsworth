@@ -7,16 +7,20 @@ This module is deprecated and marked for replacement.
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.utils.timezone import now
 
 from wiki.forms import RevisionForm
 from wiki.hooks import hookset
 from wiki.models import Page, Revision
 
 from base.decorators import profile_required
+
+def add_wiki_context(request):
+    return {
+        "WIKI_ENABLED": True,
+        }
 
 @profile_required
 def page(request, slug, binder, *args, **kwargs):

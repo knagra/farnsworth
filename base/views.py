@@ -8,13 +8,12 @@ Views for base application.
 """
 
 from datetime import timedelta
-import time
 from smtplib import SMTPException
 import json
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import logout, login, authenticate
+from django.contrib.auth import logout, login
 from django.contrib.auth.forms import PasswordChangeForm, \
     AdminPasswordChangeForm
 from django.contrib.auth.models import User
@@ -26,8 +25,6 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
-
-from wiki.models import Revision
 
 from utils.funcs import form_add_error
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
@@ -49,9 +46,6 @@ from events.models import Event
 from events.forms import RsvpForm
 from events.ajax import build_ajax_rsvps
 from rooms.models import Room, PreviousResident
-from workshift.models import Semester, WorkshiftProfile, ShiftLogEntry, \
-    WorkshiftInstance
-from legacy.models import TeacherNote, TeacherEvent, TeacherRequest
 
 def add_context(request):
     ''' Add variables to all dictionaries passed to templates. '''
@@ -87,7 +81,6 @@ def add_context(request):
         'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
         'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
         'PRESIDENT': PRESIDENT,
-        "WIKI_ENABLED": "farnswiki" in settings.INSTALLED_APPS,
         }
 
 def landing_view(request):
@@ -762,34 +755,57 @@ def archives_view(request):
     """ View of the archives page. """
     resident_count = UserProfile.objects.filter(status=UserProfile.RESIDENT).count()
     boarder_count = UserProfile.objects.filter(status=UserProfile.BOARDER).count()
-    alumni_count = UserProfile.objects.filter(status=UserProfile.ALUMNUS).exclude(user__username=ANONYMOUS_USERNAME).count()
-    return render_to_response('archives.html', {
+    alumni_count = UserProfile.objects.filter(status=UserProfile.ALUMNUS) \
+      .exclude(user__username=ANONYMOUS_USERNAME).count()
+    template_dict = {
         'page_name': "Archives",
         'resident_count': resident_count,
         'boarder_count': boarder_count,
         'alumni_count': alumni_count,
         'member_count': resident_count + boarder_count + alumni_count,
-        'thread_count': Thread.objects.all().count(),
-        'message_count': Message.objects.all().count(),
-        'request_count': Request.objects.all().count(),
-        'expired_count': Request.objects.filter(status=Request.EXPIRED).count(),
-        'filled_count': Request.objects.filter(status=Request.FILLED).count(),
-        'closed_count': Request.objects.filter(status=Request.CLOSED).count(),
-        'open_count': Request.objects.filter(status=Request.OPEN).count(),
-        'response_count': Response.objects.all().count(),
-        'announcement_count': Announcement.objects.all().count(),
-        'event_count': Event.objects.all().count(),
-        'semester_count': Semester.objects.all().count(),
-        'workshift_profile_count': WorkshiftProfile.objects.all().count(),
-        'shift_log_entry_count': ShiftLogEntry.objects.all().count(),
-        'workshift_instance_count': WorkshiftInstance.objects.all().count(),
-        'legacy_note_count': TeacherNote.objects.all().count(),
-        'legacy_event_count': TeacherEvent.objects.all().count(),
-        'legacy_food_count': TeacherRequest.objects.filter(request_type="food")\
-            .count(),
-        'legacy_maint_count': TeacherRequest.objects.filter(request_type="maintenance")\
-            .count(),
-        }, context_instance=RequestContext(request))
+        }
+    if "threads" in settings.INSTALLED_APPS:
+        template_dict.update({
+            'thread_count': Thread.objects.all().count(),
+            'message_count': Message.objects.all().count(),
+            })
+    if "events" in settings.INSTALLED_APPS:
+        template_dict.update({
+            'event_count': Event.objects.all().count(),
+            })
+    if "managers" in settings.INSTALLED_APPS:
+        template_dict.update({
+            'request_count': Request.objects.all().count(),
+            'expired_count': Request.objects.filter(status=Request.EXPIRED).count(),
+            'filled_count': Request.objects.filter(status=Request.FILLED).count(),
+            'closed_count': Request.objects.filter(status=Request.CLOSED).count(),
+            'open_count': Request.objects.filter(status=Request.OPEN).count(),
+            'response_count': Response.objects.all().count(),
+            'announcement_count': Announcement.objects.all().count(),
+            })
+    if "workshift" in settings.INSTALLED_APPS:
+        from workshift.models import Semester, WorkshiftProfile, ShiftLogEntry, \
+                                     WorkshiftInstance
+        template_dict.update({
+            'semester_count': Semester.objects.all().count(),
+            'workshift_profile_count': WorkshiftProfile.objects.all().count(),
+            'shift_log_entry_count': ShiftLogEntry.objects.all().count(),
+            'workshift_instance_count': WorkshiftInstance.objects.all().count(),
+            })
+    if "legacy" in settings.INSTALLED_APPS:
+        from legacy.models import TeacherNote, TeacherEvent, TeacherRequest
+        template_dict.update({
+            'legacy_note_count': TeacherNote.objects.all().count(),
+            'legacy_event_count': TeacherEvent.objects.all().count(),
+            'legacy_food_count': TeacherRequest.objects
+                                 .filter(request_type="food").count(),
+            'legacy_maint_count': TeacherRequest.objects
+                                  .filter(request_type="maintenance").count(),
+            })
+    return render_to_response(
+        'archives.html', template_dict,
+        context_instance=RequestContext(request),
+        )
 
 
 def get_updates_view(request):

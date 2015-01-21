@@ -4,6 +4,7 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
@@ -18,7 +19,8 @@ admin.autodiscover()
 
 sqs = SearchQuerySet().facet('exact_user').facet('exact_location').facet('exact_manager').facet('exact_status')
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^search/$', login_required(FacetedSearchView(form_class=FacetedSearchForm, searchqueryset=sqs)), name='haystack_search'),
@@ -29,10 +31,17 @@ urlpatterns = patterns('',
     url(r'', include('events.urls', namespace='events')),
     url(r'', include('managers.urls', namespace='managers')),
     url(r'', include('farnswiki.urls')),
-    url(r'', include('legacy.urls', namespace='legacy')),
-)
+    )
 
-urlpatterns += patterns('base.views',
+if "legacy" in settings.INSTALLED_APPS:
+    urlpatterns += patterns(
+        '',
+        url(r'', include('legacy.urls', namespace='legacy')),
+        )
+
+
+urlpatterns += patterns(
+    'base.views',
     url(r'^inbox/notifications/$', "notifications_view", name="notifications"),
     url(r'^$', 'homepage_view', name='homepage'),
     url(r'^landing/$', 'landing_view', name='external'),

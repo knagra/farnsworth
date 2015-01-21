@@ -16,6 +16,10 @@ from base.decorators import profile_required
 from legacy.models import TeacherRequest, TeacherResponse, TeacherNote, \
     TeacherEvent
 
+def add_legacy_context(request):
+    return {
+        "LEGACY_ENABLED": True,
+        }
 
 @profile_required
 def legacy_notes_view(request):
