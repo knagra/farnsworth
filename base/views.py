@@ -778,10 +778,10 @@ def archives_view(request):
     for add_context_str in settings.BASE_ARCHIVE_FUNCTIONS:
         module, fun = add_context_str.rsplit(".", 1)
         add_context_fun = getattr(import_module(module), fun)
-        # add_context should return list of (icon, url, title, number)
+        # add_context should return list of (title, url icon, number)
         node_lst, icon_list = add_context_fun(request)
         nodes += node_lst
-        render_list += lst
+        render_list += icon_list
 
     return render_to_response('archives.html', {
         "page_name": page_name,
