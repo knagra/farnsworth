@@ -34,7 +34,7 @@ first introducing yourself to Farnsworth, and how to develop the site further.
 To install all of the dependencies of CentOS, run the following as root:
 
 ```
-# yum install postgres python python-devel python-virtualenv gcc mod_wsgi mercurial git libffi-devel postgresql-devel
+# yum install postgres python python-devel python-virtualenv gcc mod_wsgi git libffi-devel postgresql-devel
 ```
 
 #### SELinux
@@ -51,7 +51,7 @@ CentOS comes pre-packaged with SELinux for increased security. To enable the use
 To install all of the dependencies of Debian, run the following as root:
 
 ```
-# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3 mercurial git libffi-dev
+# apt-get install postgresql python python-dev python-virtualenv gcc libapache2-mod-wsgi libpq-dev sqlite3 git libffi-dev
 ```
 
 ### elasticsearch
@@ -157,19 +157,11 @@ Then run the following as a user with write access to the farnsworth directory:
 ```
 $ cd /path/to/farnsworth
 $ source bin/activate
-$ ./manage.py syncdb
 $ ./manage.py collectstatic
-```
-
-There will be a prompt to create a superuser, if you mistakenly close the prompt before the user is created, you can get back to it with: `./manage.py createsuperuser`.
-
-If you are running Django 1.7 instead of Django 1.6, rather than running `syncdb`, you should enter the command:
-
-```
 $ ./manage.py migrate
 ```
 
-This will allow older deployments to update their databases, migrating data from previous versions of Farnsworth and creating new tables, columns, and filling in their default values.
+There will be a prompt to create a superuser, if you mistakenly close the prompt before the user is created, you can get back to it with: `./manage.py createsuperuser`.
 
 Once you have the site up and running, navigate to /admin/sites/site/ and update the example.com site to have your domain.  Django grabs this domain when sending e-mails, etc. to create links to your site.
 
