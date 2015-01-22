@@ -13,12 +13,30 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
 
+import inflect
+p = inflect.engine()
+
 from utils.variables import MESSAGES
 from base.decorators import profile_required, ajax_capable
 from base.models import UserProfile
 from events.models import Event
 from events.forms import EventForm, RsvpForm
 from events.ajax import build_ajax_rsvps
+
+def add_archive_context(request):
+    event_count = Event.objects.all().count()
+    nodes = [
+        "{} {}".format(event_count, p.plural("event", event_count)),
+        ]
+    render_list = [
+        (
+            "All Events",
+            reverse("events:all"),
+            "glyphicon-comment",
+            event_count,
+        ),
+        ]
+    return nodes, render_list
 
 @profile_required
 def list_events_view(request):

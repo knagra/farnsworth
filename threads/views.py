@@ -13,12 +13,32 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
+import inflect
+p = inflect.engine()
+
 from base.models import UserProfile
 from utils.variables import MESSAGES
 from base.decorators import profile_required, ajax_capable
 from threads.models import Thread, Message
 from threads.forms import ThreadForm, MessageForm, EditMessageForm, \
     EditThreadForm, DeleteMessageForm, FollowThreadForm
+
+def add_archive_context(request):
+    thread_count = Thread.objects.all().count()
+    message_count = Message.objects.all().count()
+    nodes = [
+        "{} {}".format(thread_count, p.plural("thread", thread_count)),
+        "{} {}".format(message_count, p.plural("message", message_count)),
+    ]
+    render_list = [
+        (
+            "All Threads",
+            reverse("threads:list_all_threads"),
+            "glyphicon-comment",
+            Thread.objects.all().count()
+        ),
+    ]
+    return nodes, render_list
 
 @profile_required
 def list_all_threads_view(request):

@@ -16,6 +16,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
+import inflect
+p = inflect.engine()
+
 from utils.variables import MESSAGES, date_formats
 from base.models import User
 from managers.models import Manager
@@ -25,6 +28,21 @@ from workshift.models import *
 from workshift.forms import *
 from workshift import utils
 from workshift.templatetags.workshift_tags import wurl
+
+def add_archive_context(request):
+    semester_count = Semester.objects.all().count()
+    workshift_profile_count = WorkshiftProfile.objects.all().count()
+    shift_log_entry_count = ShiftLogEntry.objects.all().count()
+    workshift_instance_count = WorkshiftInstance.objects.all().count()
+    nodes = [
+        [
+            "{} {}".format(semester_count, p.plural("semester", semester_count)),
+            "{} workshift {}".format(workshift_profile_count, p.plural("profile", workshift_profile_count)),
+            "{} workshift {}".format(workshift_instance_count, p.plural("instance", workshift_instance_count)),
+            "{} workshift instance log {}".format(shift_log_entry_count, p.plural("entries", shift_log_entry_count)),
+        ]
+    ]
+    return nodes, []
 
 def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
     """ Given a workshift pool and a workshift profile,

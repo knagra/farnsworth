@@ -8,9 +8,13 @@ Legacy Kingman site views.
 
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+
+import inflect
+p = inflect.engine
 
 from base.decorators import profile_required
 from legacy.models import TeacherRequest, TeacherResponse, TeacherNote, \
@@ -20,6 +24,49 @@ def add_legacy_context(request):
     return {
         "LEGACY_ENABLED": True,
         }
+
+def add_archive_context(request):
+    note_count = TeacherNote.objects.all().count()
+    event_count = TeacherEvent.objects.all().count()
+    food_count = TeacherRequest.objects \
+      .filter(request_type="food").count()
+    maint_count = TeacherRequest.objects \
+     .filter(request_type="maintenance").count()
+    nodes = [
+        [
+            "{} legacy {}".format(note_count, p.plural("note", event_count)),
+            "{} legacy {}".format(event_count, p.plural("event", event_count)),
+            "{} legacy food {}".format(event_count, p.plural("requests", food_count)),
+            "{} legacy maintenance {}".format(event_count, p.plural("request", maint_count)),
+        ]
+    ]
+    render_list = [
+        (
+            "Legacy Notes",
+            reverse("legacy:notes"),
+            "glyphicon-comments",
+            note_count,
+        ),
+        (
+            "Legacy Events",
+            reverse("legacy:events"),
+            "glyphicon-calendar",
+            event_count,
+        ),
+        (
+            "Legacy Food Requests",
+            reverse("legacy:requests", kwargs={"rtype": "food"}),
+            "glyphicon-inbox",
+            food_count,
+        ),
+        (
+            "Legacy Maintenance Requests",
+            reverse("legacy:requests", kwargs={"rtype": "maintenance"}),
+            "glyphicon-inbox",
+            maint_count,
+        ),
+        ]
+    return render_list, nodes
 
 @profile_required
 def legacy_notes_view(request):

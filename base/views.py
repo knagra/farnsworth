@@ -8,6 +8,7 @@ Views for base application.
 """
 
 from datetime import timedelta
+from importlib import import_module
 from smtplib import SMTPException
 import json
 
@@ -25,6 +26,9 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
+
+import inflect
+p = inflect.engine()
 
 from utils.funcs import form_add_error
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES, APPROVAL_SUBJECT, \
@@ -750,63 +754,40 @@ def recount_view(request):
         ))
     return HttpResponseRedirect(reverse('utilities'))
 
-@profile_required
-def archives_view(request):
-    """ View of the archives page. """
+def add_archive_context(request):
     resident_count = UserProfile.objects.filter(status=UserProfile.RESIDENT).count()
     boarder_count = UserProfile.objects.filter(status=UserProfile.BOARDER).count()
     alumni_count = UserProfile.objects.filter(status=UserProfile.ALUMNUS) \
       .exclude(user__username=ANONYMOUS_USERNAME).count()
-    template_dict = {
-        'page_name': "Archives",
-        'resident_count': resident_count,
-        'boarder_count': boarder_count,
-        'alumni_count': alumni_count,
-        'member_count': resident_count + boarder_count + alumni_count,
-        }
-    if "threads" in settings.INSTALLED_APPS:
-        template_dict.update({
-            'thread_count': Thread.objects.all().count(),
-            'message_count': Message.objects.all().count(),
-            })
-    if "events" in settings.INSTALLED_APPS:
-        template_dict.update({
-            'event_count': Event.objects.all().count(),
-            })
-    if "managers" in settings.INSTALLED_APPS:
-        template_dict.update({
-            'request_count': Request.objects.all().count(),
-            'expired_count': Request.objects.filter(status=Request.EXPIRED).count(),
-            'filled_count': Request.objects.filter(status=Request.FILLED).count(),
-            'closed_count': Request.objects.filter(status=Request.CLOSED).count(),
-            'open_count': Request.objects.filter(status=Request.OPEN).count(),
-            'response_count': Response.objects.all().count(),
-            'announcement_count': Announcement.objects.all().count(),
-            })
-    if "workshift" in settings.INSTALLED_APPS:
-        from workshift.models import Semester, WorkshiftProfile, ShiftLogEntry, \
-                                     WorkshiftInstance
-        template_dict.update({
-            'semester_count': Semester.objects.all().count(),
-            'workshift_profile_count': WorkshiftProfile.objects.all().count(),
-            'shift_log_entry_count': ShiftLogEntry.objects.all().count(),
-            'workshift_instance_count': WorkshiftInstance.objects.all().count(),
-            })
-    if "legacy" in settings.INSTALLED_APPS:
-        from legacy.models import TeacherNote, TeacherEvent, TeacherRequest
-        template_dict.update({
-            'legacy_note_count': TeacherNote.objects.all().count(),
-            'legacy_event_count': TeacherEvent.objects.all().count(),
-            'legacy_food_count': TeacherRequest.objects
-                                 .filter(request_type="food").count(),
-            'legacy_maint_count': TeacherRequest.objects
-                                  .filter(request_type="maintenance").count(),
-            })
-    return render_to_response(
-        'archives.html', template_dict,
-        context_instance=RequestContext(request),
-        )
+    member_count = resident_count + boarder_count + alumni_count
+    nodes = [
+        "{} {}".format(member_count, p.plural("total members", member_count)),
+        [
+            "{} {}".format(resident_count, p.plural("resident", resident_count)),
+            "{} {}".format(boarder_count, p.plural("boarder", boarder_count)),
+            "{} {}".format(alumni_count, p.plural("alumni", alumni_count)),
+        ],
+    ]
+    return nodes, []
 
+@profile_required
+def archives_view(request):
+    """ View of the archives page. """
+    page_name = "Archives"
+    nodes, render_list = [], []
+    for add_context_str in settings.BASE_ARCHIVE_FUNCTIONS:
+        module, fun = add_context_str.rsplit(".", 1)
+        add_context_fun = getattr(import_module(module), fun)
+        # add_context should return list of (icon, url, title, number)
+        node_lst, icon_list = add_context_fun(request)
+        nodes += node_lst
+        render_list += lst
+
+    return render_to_response('archives.html', {
+        "page_name": page_name,
+        "render_list": render_list,
+        "nodes": nodes,
+        }, context_instance=RequestContext(request))
 
 def get_updates_view(request):
     """Return a user's updates. AJAX."""

@@ -11,3 +11,4 @@ bcrypt
 pytz
 git+git://github.com/naderm/django-notifications@master
 pinax-wiki
+inflect

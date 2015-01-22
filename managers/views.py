@@ -14,10 +14,13 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.timezone import now
+
+import inflect
+p = inflect.engine()
 
 from utils.variables import ANONYMOUS_USERNAME, MESSAGES
 from base.decorators import admin_required, profile_required, \
@@ -29,6 +32,41 @@ from managers.forms import ManagerForm, RequestTypeForm, RequestForm, ResponseFo
     ManagerResponseForm, VoteForm, AnnouncementForm, PinForm
 from managers.ajax import build_ajax_votes
 from threads.models import Thread, Message
+
+def add_archive_context(request):
+    request_count = Request.objects.all().count()
+    expired_count = Request.objects.filter(status=Request.EXPIRED).count()
+    filled_count = Request.objects.filter(status=Request.FILLED).count()
+    closed_count = Request.objects.filter(status=Request.CLOSED).count()
+    open_count = Request.objects.filter(status=Request.OPEN).count()
+    response_count = Response.objects.all().count()
+    announcement_count = Announcement.objects.all().count()
+    nodes = [
+        "{} total {}".format(request_count, p.plural("request", request_count)),
+        [
+            "{} {}".format(expired_count, p.plural("expired", expired_count)),
+            "{} {}".format(filled_count, p.plural("filled", filled_count)),
+            "{} {}".format(closed_count, p.plural("closed", closed_count)),
+            "{} {}".format(open_count, p.plural("open", open_count)),
+        ],
+        "{} {}".format(response_count, p.plural("response", response_count)),
+        "{} {}".format(announcement_count, p.plural("announcement", announcement_count)),
+    ]
+    render_list = [
+        (
+            "All Requests",
+            reverse("managers:all_requests"),
+            "glyphicon-inbox",
+            Request.objects.all().count(),
+        ),
+        (
+            "All Announcements",
+            reverse("managers:all_announcements"),
+            "glyphicon-bullhorn",
+            Announcement.objects.all().count(),
+        ),
+    ]
+    return nodes, render_list
 
 @admin_required
 def anonymous_login_view(request):

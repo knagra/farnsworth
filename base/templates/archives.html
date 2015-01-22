@@ -1,94 +1,68 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
+{% load nested %}
 
 {% block headers %}
 <style>
-    .stats_list {
-        list-style: none;
-    }
-    .stats_list ul {
-        list-style: none;
-        padding-left: 20px;
-    }
-    p {
-        margin-left: 5px;
-        margin-right: 5px;
-        margin-top: 5px;
-        marging-bottom: 5px;
-    }
-    .link_list {
-        margin-left: 10px;
-        margin-right: 10px;
-    }
+ .stats_list {
+   list-style: none;
+ }
+ .stats_list ul {
+   list-style: none;
+   padding-left: 20px;
+ }
+ p {
+   margin-left: 5px;
+   margin-right: 5px;
+   margin-top: 5px;
+   marging-bottom: 5px;
+ }
+ .link_list {
+   margin-left: 10px;
+   margin-right: 10px;
+ }
 </style>
 {% endblock %}
 
 {% block content %}
 <h1 class="w_title">Archives</h1>
 <hr class="w_line"/>
-<p>Welcome to the archives! You can find really old (and recent) threads, requests, announcements, and events here.</p>
-<p>If you're curious, here are some basic statistics on the database:</p>
-    <ul class="stats_list">
-        <li>{{ member_count }} total member{{ member_count|pluralize }}
-            <ul>
-            <li>{{ resident_count }} resident{{ resident_count|pluralize }}</li>
-            <li>{{ boarder_count }} boarder{{ boarder_count|pluralize }}</li>
-            <li>{{ alumni_count }} alumn{{ alumni_count|pluralize:"a/alumnus,i" }}</li>
-            </ul></li>
-        <li>{{ thread_count }} thread{{ thread_count|pluralize }}</li>
-        <li>{{ message_count }} message{{ message_count|pluralize }}</li>
-        <li>{{ request_count }} total request{{ request_count|pluralize }}
-            <ul>
-            <li>{{ open_count }} open</li>
-            <li>{{ filled_count }} filled</li>
-            <li>{{ closed_count }} closed</li>
-            <li>{{ expired_count }} expired</li>
-            </ul></li>
-        <li>{{ response_count }} response{{ response_count|pluralize }}</li>
-        <li>{{ announcement_count }} announcement{{ announcement_count|pluralize }}</li>
-        <li>{{ event_count }} event{{ event_count|pluralize }}</li>
-        <li>{{ semester_count }} semester{{ semester_count|pluralize }}</li>
-        <li>{{ workshift_profile_count }} workshift profile{{ workshift_profile_count|pluralize }}</li>
-        <li>{{ workshift_instance_count }} workshift instance{{ workshift_instance_count|pluralize }}</li>
-        <li>{{ shift_log_entry_count }} workshift instance log entr{{ shift_log_entry_count|pluralize:"y,ies" }}</li>
-    </ul>
+<p>
+  Welcome to the archives! You can find old, really old, and recent content from
+  the site here.
+</p>
+{% if nodes %}
 <div class="bordered_div">
-<div class="field_wrapper">Please choose from the links below:</div>
-    <ul class="list-group link_list">
-        <a href="{% url 'threads:list_all_threads' %}" class="list-group-item"><span class="badge pull-right">{{ thread_count }}</span><span class="glyphicon glyphicon-comment"></span>
-            All Threads</a>
-        <a href="{% url 'managers:all_requests' %}" class="list-group-item"><span class="badge pull-right">{{ request_count }}</span><span class="glyphicon glyphicon-inbox"></span>
-            All Requests</a>
-        <a href="{% url 'managers:all_announcements' %}" class="list-group-item"><span class="badge pull-right">{{ announcement_count }}</span><span class="glyphicon glyphicon-bullhorn"></span>
-            All Announcements</a>
-        <a href="{% url 'events:all' %}" class="list-group-item"><span class="badge pull-right">{{ event_count }}</span><span class="glyphicon glyphicon-calendar"></span>
-            All Events</a>
-    </ul>
-</div> <!-- .bordered-div -->
-{% if LEGACY_ENABLED %}
-<br />
+  <div class="field wrapper">
+	If you're curious, here are some basic statistics on the database:
+  </div>
+  {% for x in nodes|nested_to_flat %}
+  {% if x.start_nodes %}<ul>{% endif %}
+	{% if x.end_nodes %}</ul>{% endif %}
+  {% if x.start_node %}<li>{% endif %}
+	{% if x.end_node %}</li>{% endif %}
+  {% if x.is_data %}{{ x.data }}{% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+{% if render_list %}
 <div class="bordered_div">
-<div class="field_wrapper">To see records from the previous Kingman website,
-    please choose the appropriate link below:</div>
-    <ul class="list-group link_list">
-        <a href="{% url 'legacy:notes' %}"
-            class="list-group-item"><span
-            class="badge pull-right">{{ legacy_note_count }}</span>
-            Legacy Notes</a>
-        <a href="{% url 'legacy:events' %}"
-            class="list-group-item"><span
-            class="badge pull-right">{{ legacy_event_count }}</span>
-            Legacy Events</a>
-        <a href="{% url 'legacy:requests' rtype="food" %}"
-            class="list-group-item"><span
-            class="badge pull-right">{{ legacy_food_count }}</span>
-            Legacy Food Requests</a>
-        <a href="{% url 'legacy:requests' rtype="maintenance" %}"
-            class="list-group-item"><span
-            class="badge pull-right">{{ legacy_maint_count }}</span>
-            Legacy Maintenance Requests</a>
-    </ul>
-</div> <!-- .bordered-div -->
+  <div class="field_wrapper">
+	Please choose from the links below:
+  </div>
+  <ul>
+	{% for title, url, icon, number in render_list %}
+	<a href={{ url }} class="list-group-item">
+	  <span class="badge pull-right">
+		{{ number }}
+	  </span>
+	  <span class="glyphicon {{ icon }}"></span>
+	  {{ title }}
+	</a>
+	{% endif %}
+  </ul>
+</div>
+{% endif %}
 {% endif %}
 {% endblock %}

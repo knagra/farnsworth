@@ -22,6 +22,10 @@ def add_wiki_context(request):
         "WIKI_ENABLED": True,
         }
 
+def add_archive_context(request):
+    return {
+        }
+
 @profile_required
 def page(request, slug, binder, *args, **kwargs):
     wiki = binder.lookup(*args, **kwargs)

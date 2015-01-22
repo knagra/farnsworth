@@ -248,6 +248,19 @@ CRON_CLASSES = [
 WIKI_HOOKSET = "farnswiki.hooks.ProjectWikiHookset"
 WIKI_PARSE = "farnswiki.hooks.parse"
 
+### Farnsworth-specific hooks
+BASE_ARCHIVE_FUNCTIONS = (
+    "base.views.add_archive_context",
+    "threads.views.add_archive_context",
+    "events.views.add_archive_context",
+    "farnswiki.views.add_archive_context",
+    "managers.views.add_archive_context",
+    "workshift.views.add_archive_context",
+    # "legacy.views.add_archive_context",
+    )
+
+###
+
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
