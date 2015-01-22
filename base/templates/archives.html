@@ -33,10 +33,10 @@
   the site here.
 </p>
 {% if nodes %}
-<div class="bordered_div">
-  <div class="field wrapper">
+<div class="nodes">
+  <p>
 	If you're curious, here are some basic statistics on the database:
-  </div>
+  </p>
   {% for x in nodes|nested_to_flat %}
   {% if x.start_nodes %}<ul>{% endif %}
 	{% if x.end_nodes %}</ul>{% endif %}
@@ -45,6 +45,9 @@
   {% if x.is_data %}{{ x.data }}{% endif %}
   {% endfor %}
 </div>
+{% endif %}
+{% if nodes and render_list %}
+<hr class="w_line"/>
 {% endif %}
 {% if render_list %}
 <div class="bordered_div">
