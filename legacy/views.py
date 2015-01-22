@@ -20,11 +20,6 @@ from base.decorators import profile_required
 from legacy.models import TeacherRequest, TeacherResponse, TeacherNote, \
     TeacherEvent
 
-def add_legacy_context(request):
-    return {
-        "LEGACY_ENABLED": True,
-        }
-
 def add_archive_context(request):
     note_count = TeacherNote.objects.all().count()
     event_count = TeacherEvent.objects.all().count()

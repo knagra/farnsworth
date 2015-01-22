@@ -71,7 +71,6 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     "base.views.add_context",
     "workshift.views.add_workshift_context",
     "farnswiki.views.add_wiki_context",
-    # "legacy.views.add_legacy_context",
     )
 
 try:
