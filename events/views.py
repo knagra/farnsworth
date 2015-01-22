@@ -27,7 +27,7 @@ def add_archive_context(request):
     event_count = Event.objects.all().count()
     nodes = [
         "{} {}".format(event_count, p.plural("event", event_count)),
-        ]
+    ]
     render_list = [
         (
             "All Events",
@@ -35,7 +35,7 @@ def add_archive_context(request):
             "glyphicon-comment",
             event_count,
         ),
-        ]
+    ]
     return nodes, render_list
 
 @profile_required

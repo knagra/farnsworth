@@ -11,6 +11,9 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+import inflect
+p = inflect.engine()
+
 from wiki.forms import RevisionForm
 from wiki.hooks import hookset
 from wiki.models import Page, Revision
@@ -23,8 +26,14 @@ def add_wiki_context(request):
         }
 
 def add_archive_context(request):
-    return {
-        }
+    page_count = Page.objects.all().count()
+    revision_count = Revision.objects.all().count()
+    nodes = [
+        "{} wiki {}".format(page_count, p.plural("page", page_count)),
+        "{} wiki {}".format(revision_count, p.plural("revision", revision_count)),
+    ]
+    render_list = []
+    return nodes, render_list
 
 @profile_required
 def page(request, slug, binder, *args, **kwargs):
