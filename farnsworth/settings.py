@@ -88,30 +88,17 @@ try:
 except NameError:
     POSTGRES_PASSWORD = None
 
-if POSTGRES_PASSWORD:
-    # PostgreSQL setup
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql_psycopg2",
-            "NAME": SHORT_HOUSE_NAME.lower(),
-            "USER": SHORT_HOUSE_NAME.lower() + "_admin",
-            "PASSWORD": POSTGRES_PASSWORD,
-            "HOST": "localhost",
-            "PORT": "",
-        },
-    }
-else:
-    # SQLite3 setup
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(os.path.dirname(__file__), "farnsworth.db").replace("\\", "/"),
-            "USER": "",
-            "PASSWORD": "",
-            "HOST": "",
-            "PORT": "",
-        },
-    }
+# SQLite3
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(os.path.dirname(__file__), "farnsworth.db").replace("\\", "/"),
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "",
+        "PORT": "",
+    },
+}
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
@@ -365,9 +352,7 @@ LOGGING = {
 # Haystack search backend setting.
 HAYSTACK_CONNECTIONS = {
     "default": {
-        "ENGINE": "haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine",
-        "URL": "http://localhost:9200/",
-        "INDEX_NAME": SHORT_HOUSE_NAME.lower(),
+        "ENGINE": "haystack.backends.simple_backend.SimpleEngine",
     },
 }
 
@@ -439,9 +424,3 @@ if "test" in sys.argv:
     PASSWORD_HASHERS = (
         "django.contrib.auth.hashers.MD5PasswordHasher",
     )
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.sqlite3",
-        }
-    HAYSTACK_CONNECTIONS["default"] = {
-        "ENGINE": "haystack.backends.simple_backend.SimpleEngine",
-        }

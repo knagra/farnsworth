@@ -27,17 +27,6 @@ HOUSE_ABBREV = "exa"
 
 # SITE_DOMAIN = ""
 
-### Password to PostgreSQL database. If unset, a SQLite database will be used instead.
-#
-### The username is expected to be SHORT_HOUSE_NAME.lower() + "_admin"
-### The user should have all privileges over the SHORT_HOUSE.lower() database.
-###
-### Both of these defaults can be overriden within local_settings.py
-###
-### Django also supports other database backends, including SQLite and MySQL
-
-# POSTGRES_PASSWORD = ""
-
 ### Password to house network manager email account (i.e. "kngnm@bsc.coop")
 ###
 ### This is used to send out emails for account-related communications. If it is
