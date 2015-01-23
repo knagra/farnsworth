@@ -41,7 +41,7 @@ def add_archive_context(request):
         (
             "Legacy Notes",
             reverse("legacy:notes"),
-            "glyphicon-comments",
+            "glyphicon-comment",
             note_count,
         ),
         (
