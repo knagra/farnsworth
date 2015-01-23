@@ -22,3 +22,4 @@ src/
 dist/
 *.egg-info
 flycheck_*
+share/
