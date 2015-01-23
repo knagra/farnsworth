@@ -145,15 +145,21 @@ MEDIA_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "media/").
 # Examples: "http://example.com/media/", "http://media.example.com/"
 MEDIA_URL = BASE_URL + "/media/"
 
+# URL prefix for static files.
+# Example: "http://example.com/static/", "http://static.example.com/"
+STATIC_URL = BASE_URL + "/static/"
+
+LOGIN_URL = BASE_URL + "/login/"
+LOGOUT_URL = BASE_URL + "/logout/"
+LOGIN_REDIRECT_URL = BASE_URL
+LOGIN_ERROR_URL = BASE_URL
+
+
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
 STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static/").replace("\\", "/")
-
-# URL prefix for static files.
-# Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = BASE_URL + "/static/"
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -278,11 +284,6 @@ if ENABLE_OAUTH:
 SOCIAL_AUTH_FACEBOOK_SCOPE = ["email", "public_profile"]
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ["email"]
-
-LOGIN_URL = BASE_URL + "/login/"
-LOGOUT_URL = BASE_URL + "/logout/"
-LOGIN_REDIRECT_URL = BASE_URL
-LOGIN_ERROR_URL = BASE_URL
 
 APPEND_SLASH = True
 
