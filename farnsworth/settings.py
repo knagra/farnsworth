@@ -27,7 +27,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-BASE_URL = "/" + SHORT_HOUSE_NAME.lower()
+BASE_URL = ""
 
 # Name of the house
 HOUSE = HOUSE_NAME
