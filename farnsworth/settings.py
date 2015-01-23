@@ -15,8 +15,8 @@ try:
 except ImportError:
     pass
 
-DEBUG = False
-# TEMPLATE_DEBUG = DEBUG
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # This top admin is used on all pages as the support contact.
