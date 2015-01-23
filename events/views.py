@@ -32,7 +32,7 @@ def add_archive_context(request):
         (
             "All Events",
             reverse("events:all"),
-            "glyphicon-comment",
+            "glyphicon-calendar",
             event_count,
         ),
     ]
