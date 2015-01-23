@@ -31,10 +31,10 @@ def add_archive_context(request):
     nodes = [
         "{} legacy {}".format(total_count, p.plural("post", total_count)),
         [
-            "{} legacy {}".format(note_count, p.plural("note", event_count)),
+            "{} legacy {}".format(note_count, p.plural("note", note_count)),
             "{} legacy {}".format(event_count, p.plural("event", event_count)),
-            "{} legacy food {}".format(event_count, p.plural("requests", food_count)),
-            "{} legacy maintenance {}".format(event_count, p.plural("request", maint_count)),
+            "{} legacy food {}".format(food_count, p.plural("request", food_count)),
+            "{} legacy maintenance {}".format(maint_count, p.plural("request", maint_count)),
         ]
     ]
     render_list = [
