@@ -27,7 +27,9 @@ def add_archive_context(request):
       .filter(request_type="food").count()
     maint_count = TeacherRequest.objects \
      .filter(request_type="maintenance").count()
+    total_count = note_count + event_count + food_count + maint_count
     nodes = [
+        "{} legacy {}".format(total_count, p.plural("post", total_count)),
         [
             "{} legacy {}".format(note_count, p.plural("note", event_count)),
             "{} legacy {}".format(event_count, p.plural("event", event_count)),
