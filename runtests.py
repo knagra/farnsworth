@@ -3,7 +3,7 @@
 import os
 import sys
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "farnsworth.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "farnsworth.local_settings")
 this_dir = os.path.abspath(os.path.dirname(__file__))
 if this_dir not in sys.path:
     sys.path.insert(0, this_dir)
