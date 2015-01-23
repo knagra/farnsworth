@@ -62,8 +62,8 @@ def add_archive_context(request):
             "glyphicon-inbox",
             maint_count,
         ),
-        ]
-    return render_list, nodes
+    ]
+    return nodes, render_list
 
 @profile_required
 def legacy_notes_view(request):
