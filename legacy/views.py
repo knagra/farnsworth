@@ -14,7 +14,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 import inflect
-p = inflect.engine
+p = inflect.engine()
 
 from base.decorators import profile_required
 from legacy.models import TeacherRequest, TeacherResponse, TeacherNote, \
