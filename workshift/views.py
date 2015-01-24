@@ -118,7 +118,7 @@ def add_workshift_context(request):
 
     try:
         workshift_profile = WorkshiftProfile.objects.get(
-            semester=SEMESTER,
+            semester=semester,
             user=request.user,
             )
     except WorkshiftProfile.DoesNotExist:
