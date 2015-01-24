@@ -29,10 +29,10 @@ def can_manage(user, semester=None):
     """
     if semester and user in semester.workshift_managers.all():
         return True
-    if Manager and Manager.objects.filter(incumbent__user=user) \
-      .filter(workshift_manager=True).count() > 0:
+    if Manager and Manager.objects.filter(
+        incumbent__user=user, workshift_manager=True).count() > 0:
         return True
-    return user.is_superuser
+    return user.is_superuser or user.is_staff
 
 def get_year_season(day=None):
     """
