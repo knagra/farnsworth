@@ -150,7 +150,7 @@ def add_workshift_context(request):
         ]
 
     if workshift_profile:
-        try:
+n        try:
             standing = workshift_profile.pool_hours.get(pool__is_primary=True).standing
         except (PoolHours.DoesNotExist, PoolHours.MultipleObjectsReturned):
             pass
@@ -164,7 +164,7 @@ def add_workshift_context(request):
         "STANDING": standing,
         "DAYS_PASSED": days_passed,
         "TOTAL_DAYS": total_days,
-        "SEMESTER_PERCENTAGE": semester_percent,
+        "SEMESTER_PERCENTAGE": semester_percentage,
         "UPCOMING_SHIFTS": zip(upcoming_shifts, happening_now),
         }
 
