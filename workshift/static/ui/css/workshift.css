@@ -1,5 +1,5 @@
 /* Project: Farnsworth
- * 
+ *
  * Authors: Karandeep Singh Nagra and Nader Morshed
  */
 
@@ -8,7 +8,7 @@
 }
 
 #sidebar {
-    
+
 }
 
 .sidebar_list {
@@ -16,10 +16,14 @@
     padding-left: 10px;
 }
 .sidebar_list > li {
-    
+
 }
 
 .alert {
     margin-top: 10px !important;
     margin-bottom: 0px !important;
+}
+
+#switch_form span div label {
+	display: none;
 }
