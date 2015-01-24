@@ -160,7 +160,6 @@
 {% if switch_form %}
 <form class="inline-form">
   <span class="input-group">
-	{% csrf_token %}
 	{{ switch_form|bootstrap }}
     <span class="input-group-btn">
       <button type="submit" title="Switch semester" class="btn btn-default">
