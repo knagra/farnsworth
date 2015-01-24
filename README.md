@@ -34,7 +34,8 @@ first introducing yourself to Farnsworth, and how to develop the site further.
 To install all of the dependencies of CentOS, run the following as root:
 
 ```
-# yum install postgres python python-devel python-virtualenv gcc mod_wsgi git libffi-devel postgresql-devel
+# yum install epel-release
+# yum install postgres python python-devel python-virtualenv gcc mod_wsgi git libffi-devel postgresql-devel pandoc
 ```
 
 #### SELinux
