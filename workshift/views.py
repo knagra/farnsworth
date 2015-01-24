@@ -100,6 +100,8 @@ def add_workshift_context(request):
                 workshift_emails=workshift_email_str,
                 ))
 
+    today = now().date()
+
     if current_semester:
         # number of days passed in this semester
         days_passed = (today - current_semester.start_date).days
@@ -123,8 +125,6 @@ def add_workshift_context(request):
         workshift_profile = None
 
     workshift_manager = utils.can_manage(request.user, semester=SEMESTER)
-
-    today = now().date()
 
     # TODO figure out how to get pool standing out to the template
     upcoming_shifts = WorkshiftInstance.objects.filter(
