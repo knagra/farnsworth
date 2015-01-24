@@ -88,7 +88,7 @@ def add_workshift_context(request):
                 workshift_emails.append(pos.incumbent.user.email)
         if workshift_emails:
             workshift_email_str = " ({0})".format(
-                ", ".join(["<a href="mailto:{0}">{0}</a>".format(i)
+                ", ".join(["<a href=\"mailto:{}\">{0}</a>".format(i)
                            for i in workshift_emails])
                 )
         else:
