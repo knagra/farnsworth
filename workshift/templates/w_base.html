@@ -15,20 +15,20 @@
     <div class="col-xs-12">
       <div class="row">
         <h5 class="col-xs-3 text-left">
-		  <a href="{% wurl 'workshift:view_semester' %}?day={{ CURRENT_SEMESTER.start_date|date:'Y-m-d' }}" title="Jump to date">
-			{{ CURRENT_SEMESTER.start_date|date:"N d" }}<span class="hidden-xs">, {{ CURRENT_SEMESTER.start_date|date:"Y" }}</span>
-		  </a>
-		</h5>
+          <a href="{% wurl 'workshift:view_semester' %}?day={{ CURRENT_SEMESTER.start_date|date:'Y-m-d' }}" title="Jump to date">
+            {{ CURRENT_SEMESTER.start_date|date:"N d" }}<span class="hidden-xs">, {{ CURRENT_SEMESTER.start_date|date:"Y" }}</span>
+          </a>
+        </h5>
         <a href="{% wurl 'workshift:view_semester' sem_url=CURRENT_SEMESTER.sem_url %}">
           <h4 class="col-xs-6 text-center" id="current_semester">
-			<span class="hidden-xs">Current Semester - </span>{{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}
-		  </h4>
+            <span class="hidden-xs">Current Semester - </span>{{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}
+          </h4>
         </a>
         <h5 class="col-xs-3 text-right">
-		  <a href="{% wurl 'workshift:view_semester' %}?day={{ CURRENT_SEMESTER.end_date|date:'Y-m-d' }}" title="Jump to date">
-			{{ CURRENT_SEMESTER.end_date|date:"N d" }}<span class="hidden-xs">, {{ CURRENT_SEMESTER.end_date|date:"Y" }}</span>
-		  </a>
-		</h5>
+          <a href="{% wurl 'workshift:view_semester' %}?day={{ CURRENT_SEMESTER.end_date|date:'Y-m-d' }}" title="Jump to date">
+            {{ CURRENT_SEMESTER.end_date|date:"N d" }}<span class="hidden-xs">, {{ CURRENT_SEMESTER.end_date|date:"Y" }}</span>
+          </a>
+        </h5>
       </div> <!-- .row -->
       <div title="{{ DAYS_PASSED }} day{{ days_passed|pluralize }} of {{ TOTAL_DAYS }} in semester passed ({{ semester_percent}}%)" class="progress">
         <div class="progress-bar" role="progressbar" aria-valuenow="{{ DAYS_PASSED }}" aria-valuemin="0" aria-valuemax="{{ TOTAL_DAYS }}" style="width: {{ SEMESTER_PERCENT }}%;">
@@ -54,7 +54,7 @@
         {% for shift, happening in upcoming_shifts %}
         <a title="See shift info" href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="list-group-item">
           <span title="Worth {{ shift.hours }} hour{{ shift.hours|pluralize }}"
-				class="badge">{{ shift.hours }}</span>{{ shift.title }}{% if not shift.week_long %}, {{ shift.date|date:"l" }}{% endif %}
+            class="badge">{{ shift.hours }}</span>{{ shift.title }}{% if not shift.week_long %}, {{ shift.date|date:"l" }}{% endif %}
           {{ shift.start_time }}
           {% if shift.end_time and shift.end_time %} - {% endif %}
           {{ shift.end_time }}
@@ -62,84 +62,85 @@
         {% endfor %}
       </div> <!-- #upcoming_shifts -->
       {% endif %}
-	  {% if CURRENT_SEMESTER %}
+      {% if CURRENT_SEMESTER %}
       <h4>
-		<a href="{% wurl 'workshift:view_open' sem_url=CURRENT_SEMESTER.sem_url %}">
-		  Open Shifts
-		</a>
-	  </h4>
-	  {% endif %}
+        <a href="{% wurl 'workshift:view_open' sem_url=CURRENT_SEMESTER.sem_url %}">
+          Open Shifts
+        </a>
+      </h4>
+      {% endif %}
       <div class="row">
-		{% if WORKSHIFT_PROFILE %}
-		<div class="col-md-12 col-lg-12{% if WORKSHIFT_MANAGER %} col-sm-6 col-xs-6{% endif %}">
-		  <h4 class="w_subtitle">
-			<a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">
-			  My Profile
-			</a>
-		  </h4>
-		  <ul class="sidebar_list">
-			<li>
-			  <a href="{% wurl 'workshift:preferences' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">
-				Edit My Preferences
-			  </a>
-			</li>
-		  </ul>
-		</div> <!-- .col-md-12 -->
-		{% endif %}
-		{% if WORKSHIFT_MANAGER %}
-		<div class="col-md-12 col-lg-12 col-sm-6 col-xs-6">
-		  <h4 class="w_subtitle">
-			<a href="{% wurl 'workshift:manage' sem_url=SEMESTER.sem_url %}">
-			  Manage Workshift
-			</a>
-		  </h4>
-		  <ul class="sidebar_list">
-			<li>
-			  <a href="{% wurl 'workshift:fill_shifts' sem_url=SEMESTER.sem_url %}">
-				Easy Fill
-			  </a>
-			</li>
-			<li>
-			  <a href="{% wurl 'workshift:add_shift' sem_url=SEMESTER.sem_url %}">
-				Add Shift
-			  </a>
-			</li>
-			<li>
-			  <a href="{% wurl 'workshift:assign_shifts' sem_url=SEMESTER.sem_url %}">
-				Assign Shifts
-			  </a>
-			</li>
-			<li>
-			  <a href="{% wurl 'workshift:add_pool' sem_url=SEMESTER.sem_url %}">
-				Add Workshift Pool
-			  </a>
-			</li>
-			<li>
-			  <a href="{% wurl 'workshift:add_workshifter' sem_url=SEMESTER.sem_url %}">
-				Add Workshifters
-			  </a>
-			</li>
-			<li>
-			  <a href="{% wurl 'workshift:fine_date' sem_url=SEMESTER.sem_url %}">
-				Calculate Workshift Fines
-			  </a>
-			</li>
-		  </ul>
-		</div> <!-- .col-md-12 -->
-		{% endif %}
+        {% if WORKSHIFT_PROFILE %}
+        <div class="col-md-12 col-lg-12{% if WORKSHIFT_MANAGER %} col-sm-6 col-xs-6{% endif %}">
+          <h4 class="w_subtitle">
+            <a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">
+              My Profile
+            </a>
+          </h4>
+          <ul class="sidebar_list">
+            <li>
+              <a href="{% wurl 'workshift:preferences' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">
+                Edit My Preferences
+              </a>
+            </li>
+          </ul>
+        </div> <!-- .col-md-12 -->
+        {% endif %}
+        {% if WORKSHIFT_MANAGER %}
+        <div class="col-md-12 col-lg-12 col-sm-6 col-xs-6">
+          <h4 class="w_subtitle">
+            <a href="{% wurl 'workshift:manage' sem_url=SEMESTER.sem_url %}">
+              Manage Workshift
+            </a>
+          </h4>
+          <ul class="sidebar_list">
+            <li>
+              <a href="{% wurl 'workshift:fill_shifts' sem_url=SEMESTER.sem_url %}"
+                 title="Create workshift from a pre-made list of default shifts and times">
+                Create default shifts
+              </a>
+            </li>
+            <li>
+              <a href="{% wurl 'workshift:add_shift' sem_url=SEMESTER.sem_url %}">
+                Add Shift
+              </a>
+            </li>
+            <li>
+              <a href="{% wurl 'workshift:assign_shifts' sem_url=SEMESTER.sem_url %}">
+                Assign Shifts
+              </a>
+            </li>
+            <li>
+              <a href="{% wurl 'workshift:add_pool' sem_url=SEMESTER.sem_url %}">
+                Add Workshift Pool
+              </a>
+            </li>
+            <li>
+              <a href="{% wurl 'workshift:add_workshifter' sem_url=SEMESTER.sem_url %}">
+                Add Workshifters
+              </a>
+            </li>
+            <li>
+              <a href="{% wurl 'workshift:fine_date' sem_url=SEMESTER.sem_url %}">
+                Calculate Workshift Fines
+              </a>
+            </li>
+          </ul>
+        </div> <!-- .col-md-12 -->
+        {% endif %}
       </div> <!-- .row -->
-	  <h4>
-		<a href="{% wurl 'workshift:list_types' %}">
-		  All Shifts
-		</a>
-	  </h4>
-	  {% if SEMESTER %}
-	  <h4>
-		<a href="{% wurl 'workshift:profiles' sem_url=SEMESTER.sem_url %}">
-		  All Workshifters
-		</a>
-	  </h4>
-	  {% endif %}
+      <h4>
+        <a href="{% wurl 'workshift:list_types' %}">
+          All Shifts
+        </a>
+      </h4>
+      {% if SEMESTER %}
+      <h4>
+        <a href="{% wurl 'workshift:profiles' sem_url=SEMESTER.sem_url %}">
+          All Workshifters
+        </a>
+      </h4>
+      {% endif %}
       {% block sidebarbottom %}{% endblock %}
     </div> <!-- #side_bar -->
   </div> <!-- .row -->
@@ -148,10 +149,10 @@
 
 {% block endscripts %}
 <script>
-    $(document).ready(function() {
-        $('.navbar').css('margin-bottom', '0');
-        $('.alert').css('margin-top', '10');
-    });
+ $(document).ready(function() {
+   $('.navbar').css('margin-bottom', '0');
+   $('.alert').css('margin-top', '10');
+ });
 </script>
 {% block w_endscripts %}{% endblock %}
 {% endblock %}
