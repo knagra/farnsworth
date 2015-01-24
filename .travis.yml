@@ -8,8 +8,7 @@ services:
   - elasticsearch
 
 env:
-  - DJANGO="Django==1.6.5"
-  - DJANGO="Django==1.7"
+  - DJANGO="Django==1.7.3"
 
 # command to install dependencies
 install:
