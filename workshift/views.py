@@ -150,7 +150,7 @@ def add_workshift_context(request):
         ]
 
     if workshift_profile:
-n        try:
+        try:
             standing = workshift_profile.pool_hours.get(pool__is_primary=True).standing
         except (PoolHours.DoesNotExist, PoolHours.MultipleObjectsReturned):
             pass
