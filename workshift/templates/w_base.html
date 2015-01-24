@@ -30,9 +30,9 @@
 		  </a>
 		</h5>
       </div> <!-- .row -->
-      <div title="{{ days_passed }} day{{ days_passed|pluralize }} of {{ total_days }} in semester passed ({{ semester_percent}}%)" class="progress">
-        <div class="progress-bar" role="progressbar" aria-valuenow="{{ days_passed }}" aria-valuemin="0" aria-valuemax="{{ total_days }}" style="width: {{ semester_percent }}%;">
-          <span class="sr-only">{{ semester_percent }}%</span>
+      <div title="{{ DAYS_PASSED }} day{{ days_passed|pluralize }} of {{ TOTAL_DAYS }} in semester passed ({{ semester_percent}}%)" class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="{{ DAYS_PASSED }}" aria-valuemin="0" aria-valuemax="{{ TOTAL_DAYS }}" style="width: {{ SEMESTER_PERCENT }}%;">
+          <span class="sr-only">{{ SEMESTER_PERCENT }}%</span>
         </div> <!-- .progress-bar -->
       </div> <!-- .progress -->
     </div> <!-- .col-xs-12 -->

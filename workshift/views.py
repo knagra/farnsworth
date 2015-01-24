@@ -68,15 +68,18 @@ def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
 def add_workshift_context(request):
     """ Add workshift variables to all dictionaries passed to templates. """
     if not request.user.is_authenticated():
-        return dict()
+        return {}
+
+    if Semester.objects.all().count() < 1:
+        return {"WORKSHIFT_ENABLED": False}
 
     # Current semester is for navbar notifications
     try:
-        CURRENT_SEMESTER = Semester.objects.get(current=True)
+        current_semester = Semester.objects.get(current=True)
     except Semester.DoesNotExist:
-        return {'WORKSHIFT_ENABLED': False}
+        current_semester = None
     except Semester.MultipleObjectsReturned:
-        CURRENT_SEMESTER = Semester.objects.filter(current=True).latest('start_date')
+        current_semester = Semester.objects.filter(current=True).latest("start_date")
         workshift_emails = []
         for pos in Manager.objects.filter(workshift_manager=True, active=True):
             if pos.email:
@@ -85,40 +88,43 @@ def add_workshift_context(request):
                 workshift_emails.append(pos.incumbent.user.email)
         if workshift_emails:
             workshift_email_str = " ({0})".format(
-                ", ".join(['<a href="mailto:{0}">{0}</a>'.format(i)
+                ", ".join(["<a href="mailto:{0}">{0}</a>".format(i)
                            for i in workshift_emails])
                 )
         else:
             workshift_email_str = ""
         messages.add_message(
             request, messages.WARNING,
-            MESSAGES['MULTIPLE_CURRENT_SEMESTERS'].format(
+            MESSAGES["MULTIPLE_CURRENT_SEMESTERS"].format(
                 admin_email=settings.ADMINS[0][1],
                 workshift_emails=workshift_email_str,
                 ))
 
+    if current_semester:
+        # number of days passed in this semester
+        days_passed = (today - current_semester.start_date).days
+
+        # total number of days in this semester
+        total_days = (current_semester.end_date - current_semester.start_date).days
+        semester_percentage = round((days_passed / total_days) * 100, 2)
+
     # Semester is for populating the current page
     try:
-        SEMESTER = request.semester
+        semester = request.semester
     except AttributeError:
-        SEMESTER = CURRENT_SEMESTER
+        semester = current_semester
+
     try:
         workshift_profile = WorkshiftProfile.objects.get(
             semester=SEMESTER,
             user=request.user,
             )
     except WorkshiftProfile.DoesNotExist:
-        return {'WORKSHIFT_ENABLED': False}
-    WORKSHIFT_MANAGER = utils.can_manage(request.user, semester=SEMESTER)
+        workshift_profile = None
+
+    workshift_manager = utils.can_manage(request.user, semester=SEMESTER)
 
     today = now().date()
-
-    # number of days passed in this semester
-    days_passed = (today - CURRENT_SEMESTER.start_date).days
-
-    # total number of days in this semester
-    total_days = (CURRENT_SEMESTER.end_date - CURRENT_SEMESTER.start_date).days
-    semester_percent = round((days_passed / total_days) * 100, 2)
 
     # TODO figure out how to get pool standing out to the template
     upcoming_shifts = WorkshiftInstance.objects.filter(
@@ -127,6 +133,7 @@ def add_workshift_context(request):
         date__gte=today,
         date__lte=today + timedelta(days=2),
         )
+
     # TODO: Add a fudge factor of an hour to this?
     time = now().time()
     happening_now = [
@@ -137,22 +144,26 @@ def add_workshift_context(request):
          (time > shift.start_time and time < shift.end_time))
         for shift in upcoming_shifts
         ]
-    try:
-        standing = workshift_profile.pool_hours.get(pool__is_primary=True).standing
-    except (PoolHours.DoesNotExist, PoolHours.MultipleObjectsReturned):
+
+    if workshift_profile:
+        try:
+            standing = workshift_profile.pool_hours.get(pool__is_primary=True).standing
+        except (PoolHours.DoesNotExist, PoolHours.MultipleObjectsReturned):
+            standing = None
+    else:
         standing = None
 
     return {
-        'WORKSHIFT_ENABLED': True,
-        'SEMESTER': SEMESTER,
-        'CURRENT_SEMESTER': CURRENT_SEMESTER,
-        'WORKSHIFT_MANAGER': WORKSHIFT_MANAGER,
-        'WORKSHIFT_PROFILE': workshift_profile,
+        "WORKSHIFT_ENABLED": True,
+        "SEMESTER": semester,
+        "CURRENT_SEMESTER": current_semester,
+        "WORKSHIFT_MANAGER": workshift_manager,
+        "WORKSHIFT_PROFILE": workshift_profile,
         "STANDING": standing,
-        'days_passed': days_passed,
-        'total_days': total_days,
-        'semester_percent': semester_percent,
-        'upcoming_shifts': zip(upcoming_shifts, happening_now),
+        "DAYS_PASSED": days_passed,
+        "TOTAL_DAYS": total_days,
+        "SEMESTER_PERCENTAGE": semester_percent,
+        "UPCOMING_SHIFTS": zip(upcoming_shifts, happening_now),
         }
 
 @workshift_manager_required
