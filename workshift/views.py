@@ -115,12 +115,14 @@ def add_workshift_context(request):
     WORKSHIFT_MANAGER = utils.can_manage(request.user, semester=SEMESTER)
 
     today = now().date()
+
     # number of days passed in this semester
-    days_passed = (today - SEMESTER.start_date).days
+    days_passed = (today - CURRENT_SEMESTER.start_date).days
+
     # total number of days in this semester
-    total_days = (SEMESTER.end_date - SEMESTER.start_date).days
+    total_days = (CURRENT_SEMESTER.end_date - CURRENT_SEMESTER.start_date).days
     semester_percent = round((days_passed / total_days) * 100, 2)
-    pool_standings = list() # with items of form (workshift_pool, standing_in_pool)
+
     # TODO figure out how to get pool standing out to the template
     upcoming_shifts = WorkshiftInstance.objects.filter(
         workshifter=workshift_profile,
