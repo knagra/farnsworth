@@ -70,7 +70,7 @@ def add_workshift_context(request):
     if not request.user.is_authenticated():
         return dict()
     to_return = dict()
-	if Manager.objects.filter(workshift_manager=True,
+    if Manager.objects.filter(workshift_manager=True,
                               incumbent__user=request.user).count() > 0 or \
       request.user.is_staff or request.user.is_superuser:
 	    to_return['WORKSHIFT_MANAGER'] = True
