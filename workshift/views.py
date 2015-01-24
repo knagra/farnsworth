@@ -249,7 +249,9 @@ def view_semester(request, semester, profile=None):
         template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
 
     if Semester.objects.count() > 1:
-        switch_form = SwitchSemesterForm()
+        switch_form = SwitchSemesterForm(
+			request.POST if "switch_semester" in request.POST else None
+		)
         template_dict["switch_form"] = switch_form
 
         if switch_form.is_valid():

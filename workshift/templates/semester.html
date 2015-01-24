@@ -158,11 +158,13 @@
   </span>
 </form>
 {% if switch_form %}
-<form class="inline-form">
+<form class="inline-form" method="post" id="switch_form">
   <span class="input-group">
+	{% csrf_token %}
 	{{ switch_form|bootstrap }}
     <span class="input-group-btn">
-      <button type="submit" title="Switch semester" class="btn btn-default">
+		<button type="submit" title="Switch semester" class="btn btn-default"
+				name="switch_semester">
 		<span class="glyphicon glyphicon-th"></span>
 	  </button>
     </span>
