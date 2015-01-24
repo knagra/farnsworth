@@ -102,6 +102,11 @@ def add_workshift_context(request):
 
     today = now().date()
 
+    days_passed = None
+    total_days = None
+    semester_percentage = None
+    standing = None
+
     if current_semester:
         # number of days passed in this semester
         days_passed = (today - current_semester.start_date).days
@@ -126,7 +131,6 @@ def add_workshift_context(request):
 
     workshift_manager = utils.can_manage(request.user, semester=semester)
 
-    # TODO figure out how to get pool standing out to the template
     upcoming_shifts = WorkshiftInstance.objects.filter(
         workshifter=workshift_profile,
         closed=False,
@@ -149,9 +153,7 @@ def add_workshift_context(request):
         try:
             standing = workshift_profile.pool_hours.get(pool__is_primary=True).standing
         except (PoolHours.DoesNotExist, PoolHours.MultipleObjectsReturned):
-            standing = None
-    else:
-        standing = None
+            pass
 
     return {
         "WORKSHIFT_ENABLED": True,
