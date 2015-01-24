@@ -42,9 +42,9 @@ class SemesterForm(forms.ModelForm):
         semester = super(SemesterForm, self).save()
 
         # Set current to false for previous semesters
-        for semester in Semester.objects.all():
-            semester.current = False
-            semester.save()
+        for prev_semester in Semester.objects.all():
+            prev_semester.current = False
+            prev_semester.save()
 
         semester.workshift_managers = \
           [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
