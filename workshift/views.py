@@ -70,10 +70,10 @@ def add_workshift_context(request):
     if not request.user.is_authenticated():
         return dict()
     to_return = dict()
-    for pos in Manager.objects.filter(workshift_manager=True):
-        if pos.incumbent and pos.incumbent.user == request.user:
-            to_return['WORKSHIFT_MANAGER'] = True
-            break
+	if Manager.objects.filter(workshift_manager=True,
+                              incumbent__user=request.user).count() > 0 or \
+      request.user.is_staff or request.user.is_superuser:
+	    to_return['WORKSHIFT_MANAGER'] = True
     # Current semester is for navbar notifications
     try:
         CURRENT_SEMESTER = Semester.objects.get(current=True)
