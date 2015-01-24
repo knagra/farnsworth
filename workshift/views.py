@@ -69,11 +69,7 @@ def add_workshift_context(request):
     """ Add workshift variables to all dictionaries passed to templates. """
     if not request.user.is_authenticated():
         return dict()
-    to_return = dict()
-    if Manager.objects.filter(workshift_manager=True,
-                              incumbent__user=request.user).count() > 0 or \
-      request.user.is_staff or request.user.is_superuser:
-	    to_return['WORKSHIFT_MANAGER'] = True
+
     # Current semester is for navbar notifications
     try:
         CURRENT_SEMESTER = Semester.objects.get(current=True)
@@ -100,6 +96,7 @@ def add_workshift_context(request):
                 admin_email=settings.ADMINS[0][1],
                 workshift_emails=workshift_email_str,
                 ))
+
     # Semester is for populating the current page
     try:
         SEMESTER = request.semester
