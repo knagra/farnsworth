@@ -68,7 +68,6 @@
           Open Shifts
         </a>
       </h4>
-      {% endif %}
       <div class="row">
         {% if WORKSHIFT_PROFILE %}
         <div class="col-md-12 col-lg-12{% if WORKSHIFT_MANAGER %} col-sm-6 col-xs-6{% endif %}">
@@ -129,6 +128,7 @@
         </div> <!-- .col-md-12 -->
         {% endif %}
       </div> <!-- .row -->
+      {% endif %}
       <h4>
         <a href="{% wurl 'workshift:list_types' %}">
           All Shifts
