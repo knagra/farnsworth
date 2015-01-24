@@ -124,7 +124,7 @@ def add_workshift_context(request):
     except WorkshiftProfile.DoesNotExist:
         workshift_profile = None
 
-    workshift_manager = utils.can_manage(request.user, semester=SEMESTER)
+    workshift_manager = utils.can_manage(request.user, semester=semester)
 
     # TODO figure out how to get pool standing out to the template
     upcoming_shifts = WorkshiftInstance.objects.filter(
