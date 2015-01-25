@@ -2215,6 +2215,9 @@ class TestSemester(TestCase):
             )
 
         self.wu = User.objects.create_user(username="wu", password="pwd")
+        self.wu.first_name = "Workshift"
+        self.wu.last_name = "User"
+        self.wu.save()
         self.wp = UserProfile.objects.get(user=self.wu)
 
         self.wm = Manager.objects.create(
@@ -2232,6 +2235,49 @@ class TestSemester(TestCase):
         self.wprofile = WorkshiftProfile.objects.get(user=self.wu, semester=self.s1)
 
         self.client.login(username="wu", password="pwd")
+
+    def test_new_semester(self):
+        url = reverse("workshift:start_semester")
+        response = self.client.post(url, {
+            "semester-year": 2015,
+            "semester-season": Semester.SPRING,
+            "semester-rate": 14.00,
+            "semester-policy": "http://bsc.coop",
+            "semester-start_date": date(2015, 1, 25),
+            "semester-end_date": date(2015, 5, 30),
+        }, follow=True)
+
+        self.assertRedirects(response, reverse("workshift:manage"))
+        self.assertEqual(
+            Semester.objects.filter(current=True).count(),
+            1,
+        )
+        s = Semester.objects.get(current=True)
+        self.assertEqual(
+            s.year,
+            2015,
+        )
+        self.assertEqual(
+            WorkshiftProfile.objects.filter(semester=s).count(),
+            1,
+        )
+        self.assertEqual(
+            RegularWorkshift.objects.filter(pool__semester=s).count(),
+            1,
+        )
+        self.assertEqual(
+            WorkshiftProfile.objects.filter(user=self.wu, semester=s).count(),
+            1,
+        )
+        shift = RegularWorkshift.objects.get(pool__semester=s)
+        self.assertEqual(
+            [i.pk for i in shift.current_assignees.all()],
+            [i.pk for i in WorkshiftProfile.objects.filter(user=self.wu, semester=s)],
+        )
+        self.assertEqual(
+            WorkshiftInstance.objects.filter(weekly_workshift=shift).count(),
+            18,
+        )
 
     def test_no_current(self):
         self.s1.current = False
