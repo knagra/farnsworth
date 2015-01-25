@@ -709,7 +709,7 @@ def assign_shifts_view(request, semester):
             )
         assign_forms.append(form)
 
-    if all(i.is_valid() for i in assign_forms):
+    if assign_forms and all(i.is_valid() for i in assign_forms):
         for form in assign_forms:
             form.save()
         messages.add_message(request, messages.INFO, "Workshift assignments saved.")
