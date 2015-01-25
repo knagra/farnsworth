@@ -384,7 +384,7 @@ def _is_preferred(instance, profile):
     """
     if not instance.weekly_workshift:
         return False
-    if profile.ratings.filter(
+    if profile and profile.ratings.filter(
         workshift_type=instance.weekly_workshift.workshift_type,
         rating=WorkshiftRating.LIKE,
         ).count() == 0:
