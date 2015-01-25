@@ -475,6 +475,12 @@ class TestUtilities(TestCase):
         self.su.is_staff, self.su.is_superuser = True, True
         self.su.save()
 
+    def test_archive_view(self):
+        self.client.login(username="u", password="pwd")
+
+        response = self.client.get(reverse("archives"))
+        self.assertEqual(response.status_code, 200)
+
     def test_site_map(self):
         response = self.client.get(reverse("site_map"))
         self.assertEqual(response.status_code, 200)
