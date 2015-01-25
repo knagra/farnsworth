@@ -30,6 +30,7 @@
 	</form>
   </div>
   {% endfor %}
+  {% if assign_forms %}
   <hr class="w_line" />
   <h3 class="w_title">Assign individual shifts</h3>
   <form method="post">
@@ -58,5 +59,6 @@
 	  </button>
 	</div>
   </form>
+  {% endif %}
 </div> <!-- #assign_container -->
 {% endblock %}
