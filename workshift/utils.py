@@ -186,6 +186,7 @@ def make_manager_workshifts(semester=None, managers=None):
         if manager.incumbent:
             shift.current_assignees = WorkshiftProfile.objects.filter(
                 user=manager.incumbent.user,
+                semester=semester,
                 )
         shift.active = manager.active
         shift.save()
