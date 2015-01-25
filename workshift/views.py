@@ -185,7 +185,9 @@ def start_semester_view(request):
             "season": season,
             "start_date": start_date.strftime(date_formats[0]),
             "end_date": end_date.strftime(date_formats[0]),
-            })
+        },
+        prefix="semester",
+    )
 
     pool_forms = []
     try:
@@ -199,9 +201,9 @@ def start_semester_view(request):
                 initial={
                     "title": pool.title,
                     "hours": pool.hours,
-                    },
+                },
                 prefix="pool-{0}".format(pool.pk),
-                )
+            )
             pool_forms.append(form)
 
     if semester_form.is_valid() and all(i.is_valid() for i in pool_forms):
@@ -216,7 +218,7 @@ def start_semester_view(request):
         "page_name": page_name,
         "semester_form": semester_form,
         "pool_forms": pool_forms,
-        }, context_instance=RequestContext(request))
+    }, context_instance=RequestContext(request))
 
 @get_workshift_profile
 def view_semester(request, semester, profile=None):

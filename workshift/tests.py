@@ -58,12 +58,12 @@ class TestStart(TestCase):
     def test_start(self):
         url = reverse("workshift:start_semester")
         response = self.client.post(url, {
-            "season": Semester.SUMMER,
-            "year": 2014,
-            "rate": 13.30,
-            "policy": "http://bsc.coop",
-            "start_date": date(2014, 5, 22),
-            "end_date": date(2014, 8, 15),
+            "semester-season": Semester.SUMMER,
+            "semester-year": 2014,
+            "semester-rate": 13.30,
+            "semester-policy": "http://bsc.coop",
+            "semester-start_date": date(2014, 5, 22),
+            "semester-end_date": date(2014, 8, 15),
         }, follow=True)
 
         self.assertRedirects(response, reverse("workshift:manage"))
@@ -1666,12 +1666,12 @@ class TestWorkshifters(TestCase):
 
         url = reverse("workshift:start_semester")
         response = self.client.post(url, {
-            "season": Semester.SUMMER,
-            "year": 2014,
-            "rate": 13.30,
-            "policy": "http://bsc.coop",
-            "start_date": date(2014, 5, 22),
-            "end_date": date(2014, 8, 15),
+            "semester-season": Semester.SUMMER,
+            "semester-year": 2014,
+            "semester-rate": 13.30,
+            "semester-policy": "http://bsc.coop",
+            "semester-start_date": date(2014, 5, 22),
+            "semester-end_date": date(2014, 8, 15),
         }, follow=True)
 
         self.assertRedirects(response, reverse("workshift:manage"))
