@@ -852,7 +852,7 @@ class AddRegularWorkshiftForm(forms.ModelForm):
             }
 
     def clean(self):
-        cleaned_data = super(TimeBlockForm, self).clean()
+        cleaned_data = super(AddRegularWorkshiftForm, self).clean()
         if 'start_time' in cleaned_data and \
           'end_time' in cleaned_data and \
           cleaned_data['start_time'] > cleaned_data['end_time']:
