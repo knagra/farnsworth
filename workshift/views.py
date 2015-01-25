@@ -796,8 +796,7 @@ def fill_shifts_view(request, semester):
     fill_hi_shifts_form = None
 
     managers = Manager.objects.filter(incumbent__user=request.user)
-    admin = request.user.is_superuser or request.user.is_staff or \
-      managers.filter(workshift_manager=True)
+    admin = utils.can_manage(request.user, semester=semester)
 
     if admin:
         fill_regular_shifts_form = FillRegularShiftsForm(
