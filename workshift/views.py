@@ -548,15 +548,15 @@ def preferences_view(request, semester, targetUsername, profile=None):
 @get_workshift_profile
 def profiles_view(request, semester, profile=None):
     page_name = "Workshift Profiles"
-    profiles = WorkshiftProfile.objects.filter(semester=semester)
+    wprofiles = WorkshiftProfile.objects.filter(semester=semester)
     pools = WorkshiftPool.objects.filter(semester=semester)
     pool_hours = [
-        [profile.pool_hours.get(pool=pool) for pool in pools]
-        for profile in profiles
+        [wprofile.pool_hours.get(pool=pool) for pool in pools]
+        for wprofile in wprofiles
         ]
     return render_to_response("profiles.html", {
         "page_name": page_name,
-        "workshifter_tuples": zip(profiles, pool_hours),
+        "workshifter_tuples": zip(wprofiles, pool_hours),
         "pools": pools,
     }, context_instance=RequestContext(request))
 
