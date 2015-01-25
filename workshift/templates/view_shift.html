@@ -27,12 +27,24 @@
     </dd>
     <dt>Hours</dt>
     <dd>{{ shift.hours }}</dd>
+	{% if shift.workshift_type.quick_tips %}
     <dt>Quick Tips</dt>
-    <dd>{{ shift.workshift_type.quick_tips|safe }}&nbsp;</dd>
+    <dd>
+	  {{ shift.workshift_type.quick_tips|safe }}
+	</dd>
+	{% endif %}
+	{% if shift.workshift_type.description %}
     <dt>Description</dt>
-    <dd>{{ shift.workshift_type.description|safe }}</dd>
+    <dd>
+	  {{ shift.workshift_type.description|safe }}
+	</dd>
+	{% endif %}
     <dt>Workshift Pool</dt>
-    <dd><a href="{% wurl 'workshift:view_pool' pk=shift.pool.pk sem_url=SEMESTER.sem_url %}">{{ shift.pool.title }}</a></dd>
+    <dd>
+	  <a href="{% wurl 'workshift:view_pool' pk=shift.pool.pk sem_url=SEMESTER.sem_url %}">
+		{{ shift.pool.title }}
+	  </a>
+	</dd>
     {% if shift.current_assignees.count %}
     <dt>Assignee{{ shift.current_assignees.count|pluralize }}</dt>
     <dd>{% for assignee in shift.current_assignees.all %}{% if not forloop.first %},
