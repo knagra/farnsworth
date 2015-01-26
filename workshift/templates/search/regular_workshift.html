@@ -15,7 +15,7 @@
         {% endif %}<a
         href="{% wurl 'workshift:profile' sem_url=assignee.semester.sem_url targetUsername=assignee.get_user %}">{{ assignee.get_full_name }}</a>{% empty %}&nbsp;{% endfor %}</dd>
     <dt>Start Time</dt>
-    <dd>{{ result.object.start_time }}&nbsp;</dd>
+    <dd>{{ result.object.get_start_time }}&nbsp;</dd>
     <dt>End Time</dt>
-    <dd>{{ result.object.end_time }}&nbsp;</dd>
+    <dd>{{ result.object.get_end_time }}&nbsp;</dd>
 </dl>

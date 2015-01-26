@@ -49,9 +49,7 @@
 		  </a>
 		</td>
 		<td>
-		  {{ shift.start_time }}
-          {% if shift.end_time and shift.end_time %} - {% endif %}
-          {{ shift.end_time }}
+		  {{ shift.get_time_range }}
 		</td>
 		<td>{{ shift.hours }}</td>
 		<td>

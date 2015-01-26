@@ -32,8 +32,12 @@
 			{{ shift.title }}
 		  </a>
         </td>
-		<td>{{ shift.start_time }}</td>
-		<td>{{ shift.end_time }}</td>
+		<td>
+		  {{ shift.get_start_time }}
+		</td>
+		<td>
+		  {{ shift.get_end_time }}
+		</td>
         <td>
           {% if shift.intended_hours == shift.hours %}
           {{ shift.hours }}

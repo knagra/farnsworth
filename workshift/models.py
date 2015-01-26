@@ -541,10 +541,27 @@ class RegularWorkshift(models.Model):
             ret = self.get_day_display()
         else:
             ret = "Week long"
+        ret += " " + self.get_time_range()
+        return ret
+
+    def get_start_time(self):
+        if self.start_time is None:
+            return ""
+        return "{}".format(self.start_time)
+
+    def get_end_time(self):
+        if self.end_time is None:
+            return ""
+        return "{}".format(self.end_time)
+
+    def get_time_range(self):
+        ret = ""
         if self.start_time is not None:
-            ret += " {0}".format(self.start_time.strftime("%I:%M %p"))
+            ret += "{}".format(self.start_time)
+            if self.end_time is not None:
+                ret += " - "
         if self.end_time is not None:
-            ret += " - {0}".format(self.end_time.strftime("%I:%M %p"))
+            ret += "{}".format(self.end_time)
         return ret
 
     def is_regular_workshift(self):
@@ -777,11 +794,26 @@ class WorkshiftInstance(models.Model):
         return "{0}, {1}".format(self.title, self.date)
 
     def display_time(self):
-        ret = str(self.date)
+        return "{} {}".format(self.date, self.get_time_range())
+
+    def get_start_time(self):
+        if self.start_time is None:
+            return ""
+        return "{}".format(self.start_time)
+
+    def get_end_time(self):
+        if self.end_time is None:
+            return ""
+        return "{}".format(self.end_time)
+
+    def get_time_range(self):
+        ret = ""
         if self.start_time is not None:
-            ret += " {0}".format(self.start_time.strftime("%I:%M %p"))
+            ret += "{}".format(self.start_time)
+            if self.end_time is not None:
+                ret += " - "
         if self.end_time is not None:
-            ret += " - {0}".format(self.end_time.strftime("%I:%M %p"))
+            ret += "{}".format(self.end_time)
         return ret
 
     def is_workshift_instance(self):

@@ -37,9 +37,7 @@
           {% else %}
           {{ shift.get_day_display }}
           {% endif %}
-          {{ shift.start_time }}
-          {% if shift.start_time and shift.end_time %} - {% endif %}
-          {{ shift.end_time }}
+		  {{ shift.get_time_range }}
         </td>
         <td>{{ shift.hours }} hour{{ shift.hours|pluralize }}</td>
       </tr>
@@ -54,21 +52,25 @@
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="assigned_instances_table">
     <thead>
       <tr>
-	<th>Pool</th>
-	<th>Title</th>
-	<th>Date</th>
-	<th>Start</th>
-	<th>End</th>
+		<th>Pool</th>
+		<th>Title</th>
+		<th>Date</th>
+		<th>Start</th>
+		<th>End</th>
       </tr>
     </thead>
     <tbody>
       {% for instance in assigned_instances %}
       <tr>
-	<td><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool }}</a></td>
-	<td><a href="{% wurl 'workshift:view_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}">{{ instance.title }}</a></td>
-	<td>{{ instance.date }}</td>
-	<td>{% if instance.start_time %}{{ instance.start_time }}{% endif %}</td>
-	<td>{% if instance.end_time %}{{ instance.end_time }}{% endif %}</td>
+		<td><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool }}</a></td>
+		<td><a href="{% wurl 'workshift:view_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}">{{ instance.title }}</a></td>
+		<td>{{ instance.date }}</td>
+		<td>
+		  {{ instance.get_start_time }}
+		</td>
+		<td>
+		  {{ instance.get_end_time }}
+		</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -147,14 +149,14 @@
 
 {% block w_endscripts %}
 <script>
-  $(document).ready(function() {
-     $('table').tablesorter({
-        sortList: [[0,0]],
-        widgets: ["resizable"],
-        widgetOptions: {
-            resizable: true
-        }
-     });
-  });
+ $(document).ready(function() {
+   $('table').tablesorter({
+     sortList: [[0,0]],
+     widgets: ["resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+ });
 </script>
 {% endblock %}

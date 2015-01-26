@@ -23,34 +23,34 @@
   <hr class="w_line" />
   <h3 class="w_subtitle">Details</h3>
   <dl id="information_table" class="dl-horizontal">
-  {% if pool.managers.count %}
-  <dt>Managers</dt>
-  <dd>
-  {% for pos in pool.managers.all %}
-  {% if not forloop.first %}, {% endif %}
-  <a {% if pos.active %}title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{% url 'managers:edit_manager' managerTitle=pos.url_title %}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
-  {% if pos.incumbent %}
-  (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
-  {% else %}
-  <span title="There is currently no incumbent for this position." class="text-danger">(No incumbent)</span>
-  {% endif %}
-  {% endfor %}
-  </dd>
-  {% endif %}
-  <dt>Hour Requirements</dt>
-  <dd>{{ pool.show_hours }}&nbsp;</dd>
-  {% if pool.first_fine_date %}
-  <dt>First Fine Date</dt>
-  <dd>{{ pool.first_fine_date }}</dd>
-  {% endif %}
-  {% if pool.second_fine_date %}
-  <dt>Second Fine Date</dt>
-  <dd>{{ pool.second_fine_date }}</dd>
-  {% endif %}
-  {% if pool.third_fine_date %}
-  <dt>Third Fine Date</dt>
-  <dd>{{ pool.third_fine_date }}</dd>
-  {% endif %}
+	{% if pool.managers.count %}
+	<dt>Managers</dt>
+	<dd>
+	  {% for pos in pool.managers.all %}
+	  {% if not forloop.first %}, {% endif %}
+	  <a {% if pos.active %}title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{% url 'managers:edit_manager' managerTitle=pos.url_title %}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+	  {% if pos.incumbent %}
+	  (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
+	  {% else %}
+	  <span title="There is currently no incumbent for this position." class="text-danger">(No incumbent)</span>
+	  {% endif %}
+	  {% endfor %}
+	</dd>
+	{% endif %}
+	<dt>Hour Requirements</dt>
+	<dd>{{ pool.show_hours }}&nbsp;</dd>
+	{% if pool.first_fine_date %}
+	<dt>First Fine Date</dt>
+	<dd>{{ pool.first_fine_date }}</dd>
+	{% endif %}
+	{% if pool.second_fine_date %}
+	<dt>Second Fine Date</dt>
+	<dd>{{ pool.second_fine_date }}</dd>
+	{% endif %}
+	{% if pool.third_fine_date %}
+	<dt>Third Fine Date</dt>
+	<dd>{{ pool.third_fine_date }}</dd>
+	{% endif %}
   </dl>
   {% if shifts %}
   <hr />
@@ -71,15 +71,21 @@
       <tr>
         <td><a href="{% wurl 'workshift:view_shift' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.workshift_type.title }}</a></td>
         <td>
-	  {% if shift.week_long %}
-	  Week long
-	  {% else %}
-	  {{ shift.get_day_display }}
-	  {% endif %}
-	</td>
-        <td>{% if shift.start_time %}{{ shift.start_time }}{% endif %}</td>
-        <td>{% if shift.end_time %}{{ shift.end_time }}{% endif %}</td>
-        <td>{{ shift.hours }}</td>
+		  {% if shift.week_long %}
+		  Week long
+		  {% else %}
+		  {{ shift.get_day_display }}
+		  {% endif %}
+		</td>
+		<td>
+		  {{ shift.get_start_time }}
+		</td>
+        <td>
+		  {{ shift.get_end_time }}
+		</td>
+        <td>
+		  {{ shift.hours }}
+		</td>
         <td>
           {% if shift.current_assignee %}
           {% for assignee in shift.current_assignees.all %}{% if not forloop.first %}, {% endif %}<a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.current_assignee.user.username %}">{{ shift.current_assignee.user.get_full_name }}</a>{% endfor %}
@@ -90,9 +96,9 @@
     </tbody>
   </table>
   {% if shifts.count > 10 %}
-    {% with id_prefix="recurring" %}
-        {% include "pager.html" %}
-    {% endwith %}
+  {% with id_prefix="recurring" %}
+  {% include "pager.html" %}
+  {% endwith %}
   {% endif %}
   {% endif %}
   {% if upcoming_pool_shifts %}
@@ -111,22 +117,39 @@
     <tbody>
       {% for shift, form in upcoming_pool_shifts %}
       <tr>
-        <td><a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.title }}</a></td>
-        <td>{{ shift.date }}</td>
-        <td>{{ shift.start_time }}</td>
-        <td>{{ shift.end_time }}</td>
-        <td><form class="inline-form" method="POST">{% csrf_token %}{{ form }}<button
+        <td>
+		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">
+			{{ shift.title }}
+		  </a>
+		</td>
+        <td>
+		  {{ shift.date }}
+		</td>
+        <td>
+		  {{ shift.get_start_time }}
+		</td>
+        <td>
+		  {{ shift.get_end_time }}
+		</td>
+        <td>
+		  <form class="inline-form" method="POST">
+			{% csrf_token %}
+			{{ form }}
+			<button
             type="submit" name="{{ form.action_name }}"
             class="btn btn-xs btn-primary">{{ form.title_short|safe }}
-            <span class="hidden-xs">{{ form.title_long }}</span></button></form></td>
+			  <span class="hidden-xs">{{ form.title_long }}</span>
+			</button>
+		  </form>
+		</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   {% if upcoming_pool_shifts|length > 10 %}
-    {% with id_prefix="vacant" %}
-        {% include "pager.html" %}
-    {% endwith %}
+  {% with id_prefix="vacant" %}
+  {% include "pager.html" %}
+  {% endwith %}
   {% endif %}
   {% endif %}
 </div> <!-- .pool_container -->
@@ -134,32 +157,32 @@
 
 {% block w_endscripts %}
 <script>
-$(document).ready(function() {
+ $(document).ready(function() {
    $('#recurring_shifts').tablesorter({
-       sortList: [[0,0], [1, 0]],
-       widgets: ["filter", "resizable"],
-       widgetOptions: {
-           resizable: true
-       }
-    }).tablesorterPager({
-       container: "#recurring_pager",
-       cssGoto: '#recurring_goto'
-    });
-   $('#vacant_shifts').tablesorter({
-       headers: {
-           1: {
-               sorter: 'farnsworth_datetime'
-           }
-       },
-       sortList: [[0,0], [1, 0]],
-       widgets: ["filter", "resizable"],
-       widgetOptions: {
-           resizable: true
-       }
+     sortList: [[0,0], [1, 0]],
+     widgets: ["filter", "resizable"],
+     widgetOptions: {
+       resizable: true
+     }
    }).tablesorterPager({
-       container: "#vacant_pager",
-       cssGoto: '#vacant_goto'
-    });
-});
+     container: "#recurring_pager",
+     cssGoto: '#recurring_goto'
+   });
+   $('#vacant_shifts').tablesorter({
+     headers: {
+       1: {
+         sorter: 'farnsworth_datetime'
+       }
+     },
+     sortList: [[0,0], [1, 0]],
+     widgets: ["filter", "resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   }).tablesorterPager({
+     container: "#vacant_pager",
+     cssGoto: '#vacant_goto'
+   });
+ });
 </script>
 {% endblock %}
