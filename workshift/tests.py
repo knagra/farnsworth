@@ -2268,6 +2268,10 @@ class TestSemester(TestCase):
             Manager.objects.all().count(),
         )
 
+    def test_clear_semester(self):
+        utils.clear_semester(self.s1)
+        utils.clear_semester(self.s2)
+
     def test_new_semester(self):
         url = reverse("workshift:start_semester")
         response = self.client.post(url, {

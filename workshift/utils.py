@@ -17,9 +17,7 @@ from django.utils.timezone import now, utc
 from notifications import notify
 
 from managers.models import Manager
-from workshift.models import TimeBlock, ShiftLogEntry, WorkshiftInstance, \
-     Semester, PoolHours, WorkshiftProfile, WorkshiftPool, \
-     WorkshiftType, RegularWorkshift, AUTO_VERIFY, WorkshiftRating
+from workshift.models import *
 
 def can_manage(user, semester=None):
     """
@@ -88,7 +86,7 @@ def make_instances(semester, shifts=None, start=None):
         # Delete all old instances of this shift
         WorkshiftInstance.objects.filter(
             weekly_workshift=shift, closed=False,
-            ).delete()
+        ).delete()
 
         # Figure out the day to start from for this shift
         if shift.day is None or shift.week_long:
@@ -159,11 +157,13 @@ def make_manager_workshifts(semester=None, managers=None):
         pool = WorkshiftPool.objects.get(
             semester=semester,
             is_primary=True,
-            )
+        )
     except WorkshiftPool.DoesNotExist:
         return []
+
     if managers is None:
         managers = Manager.objects.filter(active=True)
+
     shifts = []
     for manager in managers:
         if semester.season == Semester.SUMMER:
@@ -173,7 +173,7 @@ def make_manager_workshifts(semester=None, managers=None):
         wtype, new = WorkshiftType.objects.get_or_create(
             title=manager.title,
             defaults=dict(rateable=False, assignment=WorkshiftType.NO_ASSIGN),
-            )
+        )
         wtype.description = manager.duties
         wtype.hours = hours
         wtype.save()
@@ -181,16 +181,21 @@ def make_manager_workshifts(semester=None, managers=None):
             workshift_type=wtype,
             pool=pool,
             defaults=dict(week_long=True, verify=AUTO_VERIFY),
-            )
+        )
+        if not new:
+            WorkshiftInstance.objects.filter(
+                weekly_workshift=shift, closed=False,
+            ).delete()
         shift.hours = wtype.hours
         if manager.incumbent:
             shift.current_assignees = WorkshiftProfile.objects.filter(
                 user=manager.incumbent.user,
                 semester=semester,
-                )
+            )
         shift.active = manager.active
         shift.save()
         shifts.append(shift)
+
     return shifts
 
 def past_verify(instance, moment=None):
@@ -533,3 +538,16 @@ def update_standings(semester=None):
             pool_hours.standing -= pool_hours.hours * periods
             pool_hours.last_updated = now()
             pool_hours.save()
+
+def clear_semester(semester):
+    """
+    Removes all traces of Semester from the database.
+    """
+    ShiftLogEntry.objects.filter(person__semester=semester).delete()
+    WorkshiftInstance.objects.filter(semester=semester).delete()
+    InstanceInfo.objects.filter(pool__semester=semester).delete()
+    RegularWorkshift.objects.filter(pool__semester=semester).delete()
+    PoolHours.objects.filter(pool__semester=semester).delete()
+    WorkshiftProfile.objects.filter(semester=semester).delete()
+    WorkshiftPool.objects.filter(semester=semester).delete()
+    semester.delete()

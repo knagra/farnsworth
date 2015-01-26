@@ -836,12 +836,12 @@ def create_workshift_profile(sender, instance, created, **kwargs):
         profile, created = WorkshiftProfile.objects.get_or_create(
             user=instance.user,
             semester=semester,
-            )
+        )
         if created:
             utils.make_workshift_pool_hours(
                 semester=semester,
                 profiles=[profile],
-                )
+            )
 
 def create_workshift_pool_hours(sender, instance, **kwargs):
     pool = instance
@@ -849,19 +849,20 @@ def create_workshift_pool_hours(sender, instance, **kwargs):
     utils.make_workshift_pool_hours(
         semester=pool.semester,
         pools=[pool],
-        )
+    )
     utils.make_manager_workshifts(
         semester=pool.semester,
-        )
+    )
 
 def create_manager_workshifts(sender, instance, created, **kwargs):
+    manager = instance
     try:
         semester = Semester.objects.get(current=True)
     except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
         pass
     else:
         from workshift import utils
-        utils.make_manager_workshifts(semester=semester, managers=[instance])
+        utils.make_manager_workshifts(semester=semester, managers=[manager])
 
 def create_workshift_instances(sender, instance, created, **kwargs):
     shift = instance
