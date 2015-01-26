@@ -2271,6 +2271,10 @@ class TestSemester(TestCase):
     def test_clear_semester(self):
         utils.clear_semester(self.s1)
         utils.clear_semester(self.s2)
+        self.assertEqual(
+            Semester.objects.all().count(),
+            0,
+        )
 
     def test_new_semester(self):
         url = reverse("workshift:start_semester")
