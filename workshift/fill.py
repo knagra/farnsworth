@@ -214,7 +214,6 @@ def fill_regular_shifts(regular_hours=5, semester=None):
                 ),
             )
 
-
     make_instances(semester=semester)
     make_manager_workshifts(semester)
 

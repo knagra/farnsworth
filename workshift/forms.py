@@ -578,8 +578,6 @@ class AddWorkshifterForm(forms.Form):
             return profile
 
 class FillShiftsForm(forms.Form):
-    pk = forms.IntegerField(widget=forms.HiddenInput())
-
     def __init__(self, *args, **kwargs):
         self.name = "fill_{}_shifts".format(self.shift_name)
 

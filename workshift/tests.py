@@ -12,6 +12,7 @@ from base.models import User, UserProfile, ProfileRequest
 from farnsworth import pre_fill
 from managers.models import Manager
 from utils.variables import MESSAGES
+from workshift.fill import REGULAR_WORKSHIFTS, WEEK_LONG
 from workshift.models import *
 from workshift.forms import *
 from workshift.fields import DAY_CHOICES
@@ -2243,9 +2244,9 @@ class TestSemester(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        self.assertLess(
+        self.assertEqual(
             RegularWorkshift.objects.all().count(),
-            50,
+            0,
         )
 
         response = self.client.post(url, {
@@ -2253,9 +2254,11 @@ class TestSemester(TestCase):
         }, follow=True)
 
         self.assertRedirects(response, reverse("workshift:fill_shifts"))
-        self.assertGreater(
+        # Check we created the correct number of shifts (no duplicates across semesters)
+        self.assertEqual(
             RegularWorkshift.objects.all().count(),
-            50,
+            sum(len(i[2]) for i in REGULAR_WORKSHIFTS) + len(WEEK_LONG) +
+            Manager.objects.all().count(),
         )
 
     def test_new_semester(self):
