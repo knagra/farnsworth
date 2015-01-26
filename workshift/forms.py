@@ -739,7 +739,7 @@ class RegularWorkshiftForm(forms.ModelForm):
 
     class Meta:
         model = RegularWorkshift
-        fields = "__all__"
+        exclude = ("week_long",)
 
     def __init__(self, *args, **kwargs):
         self.pools = kwargs.pop('pools', None)
@@ -824,7 +824,6 @@ TimeBlockFormSet = modelformset_factory(
     help_texts=dict(preference="", day="", start_time="", end_time=""),
     )
 
-# TODO: Set week_long = True if day is unset
 class AddRegularWorkshiftForm(forms.ModelForm):
     start_time = forms.TimeField(
         widget=forms.TimeInput(format='%I:%M %p'),

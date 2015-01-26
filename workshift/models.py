@@ -865,6 +865,10 @@ def delete_workshift_instances(sender, instance, **kwargs):
         else:
             instance.delete()
 
+def set_week_long(sender, instance, **kwargs):
+    shift = instance
+    shift.week_long = shift.day is None
+
 # Connect signals with their respective functions from above.
 # When a user is created, create a user profile associated with that user.
 models.signals.post_save.connect(create_workshift_profile, sender=UserProfile)
@@ -872,5 +876,6 @@ models.signals.post_save.connect(create_workshift_pool_hours, sender=WorkshiftPo
 models.signals.post_save.connect(create_manager_workshifts, sender=Manager)
 models.signals.post_save.connect(create_workshift_instances, sender=RegularWorkshift)
 models.signals.pre_delete.connect(delete_workshift_instances, sender=RegularWorkshift)
+models.signals.pre_save.connect(set_week_long, sender=RegularWorkshift)
 # TODO: Auto-notify manager and workshifter when they are >= 10 hours down
 # TODO: Auto-email central when workshifters are >= 15 hours down?
