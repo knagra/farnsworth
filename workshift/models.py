@@ -9,6 +9,7 @@ from __future__ import unicode_literals, absolute_import
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
+from django.utils.dateformat import time_format
 
 from base.models import UserProfile
 from utils.variables import ANONYMOUS_USERNAME
@@ -547,22 +548,19 @@ class RegularWorkshift(models.Model):
     def get_start_time(self):
         if self.start_time is None:
             return ""
-        return "{}".format(self.start_time)
+        return time_format(self.start_time, "P")
 
     def get_end_time(self):
         if self.end_time is None:
             return ""
-        return "{}".format(self.end_time)
+        return time_format(self.end_time, "P")
 
     def get_time_range(self):
-        ret = ""
-        if self.start_time is not None:
-            ret += "{}".format(self.start_time)
-            if self.end_time is not None:
-                ret += " - "
-        if self.end_time is not None:
-            ret += "{}".format(self.end_time)
-        return ret
+        return "{}{}{}".format(
+            self.get_start_time(),
+            " - " if self.start_time is not None and self.end_time is not None else "",
+            self.get_end_time(),
+        )
 
     def is_regular_workshift(self):
         return True
@@ -799,22 +797,19 @@ class WorkshiftInstance(models.Model):
     def get_start_time(self):
         if self.start_time is None:
             return ""
-        return "{}".format(self.start_time)
+        return time_format(self.start_time, "P")
 
     def get_end_time(self):
         if self.end_time is None:
             return ""
-        return "{}".format(self.end_time)
+        return time_format(self.end_time, "P")
 
     def get_time_range(self):
-        ret = ""
-        if self.start_time is not None:
-            ret += "{}".format(self.start_time)
-            if self.end_time is not None:
-                ret += " - "
-        if self.end_time is not None:
-            ret += "{}".format(self.end_time)
-        return ret
+        return "{}{}{}".format(
+            self.get_start_time(),
+            " - " if self.start_time is not None and self.end_time is not None else "",
+            self.get_end_time(),
+        )
 
     def is_workshift_instance(self):
         return True
