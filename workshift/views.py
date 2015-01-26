@@ -106,6 +106,9 @@ def add_workshift_context(request):
     total_days = None
     semester_percentage = None
     standing = None
+    happening_now = None
+    workshift_profile = None
+    
 
     if current_semester:
         # number of days passed in this semester
@@ -140,14 +143,29 @@ def add_workshift_context(request):
 
     # TODO: Add a fudge factor of an hour to this?
     time = now().time()
-    happening_now = [
-        shift.week_long or
-        (shift.date == today and
-         not shift.start_time or
-         not shift.end_time or
-         (time > shift.start_time and time < shift.end_time))
-        for shift in upcoming_shifts
-        ]
+    happening_now = []
+    for shift in upcoming_shifts:
+        if shift.week_long:
+            happening_now.append(shift)
+            continue
+        if shift.date != today:
+            continue
+        if not shift.start_time:
+            if shift.end_time:
+                if time < shift.end_time:
+                    happening_now.append(shift)
+            else:
+                happening_now.append(shift)
+            continue
+        if not shift.end_time:
+            if shift.start_time:
+                if time > shift.start_time:
+                    happening_now.append(shift)
+            else:
+                happening_now.append(shift)
+            continue
+        if time > shift.start_time and time < shift.end_time:
+            happening_now.append(shift)
 
     if workshift_profile:
         try:
