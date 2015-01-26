@@ -2236,6 +2236,28 @@ class TestSemester(TestCase):
 
         self.client.login(username="wu", password="pwd")
 
+    def test_fill_shifts(self):
+        url = reverse("workshift:fill_shifts")
+        response = self.client.post(url, {
+        }, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertLess(
+            RegularWorkshift.objects.all().count(),
+            50,
+        )
+
+        response = self.client.post(url, {
+            "fill_regular_shifts": "",
+        }, follow=True)
+
+        self.assertRedirects(response, reverse("workshift:fill_shifts"))
+        self.assertGreater(
+            RegularWorkshift.objects.all().count(),
+            50,
+        )
+
     def test_new_semester(self):
         url = reverse("workshift:start_semester")
         response = self.client.post(url, {
