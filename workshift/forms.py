@@ -853,6 +853,8 @@ class AddRegularWorkshiftForm(forms.ModelForm):
         cleaned_data = super(AddRegularWorkshiftForm, self).clean()
         if 'start_time' in cleaned_data and \
           'end_time' in cleaned_data and \
+          cleaned_data['start_time'] is not None and \
+          cleaned_data['end_time'] is not None and \
           cleaned_data['start_time'] > cleaned_data['end_time']:
             self.add_error('start_time', u"Start time later than end time.")
             self.add_error('end_time', u"Start time later than end time.")
