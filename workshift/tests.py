@@ -1866,6 +1866,7 @@ class TestWorkshifts(TestCase):
         self.shift = RegularWorkshift.objects.create(
             workshift_type=self.type,
             pool=self.pool,
+            day=DAY_CHOICES[0][0],
             start_time=time(16, 0, 0),
             end_time=time(18, 0, 0)
             )
@@ -2102,7 +2103,6 @@ class TestWorkshifts(TestCase):
             "edit": "",
             "workshift_type": self.type.pk,
             "pool": self.pool.pk,
-            "day": 6,
             "hours": 42,
             "count": 4,
             "active": False,
@@ -2110,7 +2110,6 @@ class TestWorkshifts(TestCase):
             "start_time": "4:00 PM",
             "end_time": "6:00 PM",
             "verify": AUTO_VERIFY,
-            "week_long": True,
             "addendum": "Edited addendum",
             }, follow=True)
 
@@ -2120,7 +2119,6 @@ class TestWorkshifts(TestCase):
         shift = RegularWorkshift.objects.get(pk=self.shift.pk)
         self.assertEqual(self.type, shift.workshift_type)
         self.assertEqual(self.pool, shift.pool)
-        self.assertEqual(6, shift.day)
         self.assertEqual(shift.hours, 42)
         self.assertEqual(4, shift.count)
         self.assertEqual(False, shift.active)
