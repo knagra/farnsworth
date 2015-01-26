@@ -486,9 +486,11 @@ def profile_view(request, semester, targetUsername, profile=None):
       any(pool_hours.first_date_standing for pool_hours in wprofile.pool_hours.all()), \
       any(pool_hours.second_date_standing for pool_hours in wprofile.pool_hours.all()), \
       any(pool_hours.third_date_standing for pool_hours in wprofile.pool_hours.all())
+    view_note = wprofile == profile or utils.can_manage(request.user, semester=semester)
     return render_to_response("profile.html", {
         "page_name": page_name,
         "profile": wprofile,
+        "view_note": view_note,
         "past_shifts": past_shifts,
         "regular_shifts": regular_shifts,
         "assigned_instances": assigned_instances,
@@ -571,7 +573,7 @@ def profiles_view(request, semester, profile=None):
     pool_hours = [
         [wprofile.pool_hours.get(pool=pool) for pool in pools]
         for wprofile in wprofiles
-        ]
+    ]
     return render_to_response("profiles.html", {
         "page_name": page_name,
         "workshifter_tuples": zip(wprofiles, pool_hours),

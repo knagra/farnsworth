@@ -13,10 +13,10 @@
     <span class="hidden-xs">Edit</span>
   </button>
 </form>
+{% endif %}
 <h1 class="w_title">{{ page_name }}</h1>
 <hr class="w_line" />
 <div class="instance_container">
-  {% endif %}
   {% if regular_shifts %}
   <h3 class="w_subtitle">Regular Shifts</h3>
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="regular_shifts_table">
@@ -46,8 +46,11 @@
   </table>
   {% endif %}
 
-  {% if assigned_instances %}
+  {% if regular_shifts and assigned_instances %}
   <hr class="w_line" />
+  {% endif %}
+
+  {% if assigned_instances %}
   <h3 class="w_subtitle">Assigned Singular Workshifts</h3>
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="assigned_instances_table">
     <thead>
@@ -77,8 +80,11 @@
   </table>
   {% endif %}
 
-  {% if past_shifts %}
+  {% if assigned_instances and past_shifts %}
   <hr class="w_line" />
+  {% endif %}
+
+  {% if past_shifts %}
   <h3 class="w_subtitle">Past Shifts</h3>
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="past_shifts_table">
     <thead>
@@ -101,6 +107,11 @@
     </tbody>
   </table>
   {% endif %}
+
+  {% if past_shifts and profile.pool_hours.all %}
+  <hr class="w_line" />
+  {% endif %}
+
   {% if profile.pool_hours.all %}
   <h3 class="w_subtitle">Workshift Requirements</h3>
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="pool_hours_table">
@@ -140,9 +151,18 @@
     </tbody>
   </table>
   {% endif %}
-  {% if profile.note %}
-  <h3 class="w_subtitle">Profile notes</h3>
-  <p>{{ profile.note|safe }}</p>
+
+  {% if profile.pool_hours.all and view_note and profile.note %}
+  <hr class="w_line" />
+  {% endif %}
+
+  {% if view_note and profile.note %}
+  <h3 class="w_subtitle">
+	Profile notes
+  </h3>
+  <p>
+	{{ profile.note|safe }}
+  </p>
   {% endif %}
 </div> <!-- .instance_container -->
 {% endblock %}
