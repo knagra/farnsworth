@@ -6,18 +6,18 @@
 
 {% block w_headers %}
 <style>
-    .shifts_formset_row td {
-        padding-right: 5px;
-        padding-bottom: 5px;
-        border-top: none !important;
-        border-bottom: 1px solid #e4e4e4;
-    }
-    .shifts_formset_row td div {
-        margin: 0px;
-    }
-    .shifts_formset_row td div label {
-        display: none;
-    }
+ .shifts_formset_row td {
+     padding-right: 5px;
+     padding-bottom: 5px;
+     border-top: none !important;
+     border-bottom: 1px solid #e4e4e4;
+ }
+ .shifts_formset_row td div {
+     margin: 0px;
+ }
+ .shifts_formset_row td div label {
+     display: none;
+ }
 </style>
 {% endblock %}
 
@@ -30,7 +30,8 @@
     {{ edit_form|bootstrap }}
 	{% endif %}
 	{% if shifts_formset %}
-    <table id="shifts" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
+    <table id="shifts" class="table table-condensed table-striped"
+		   border="0" cellpadding="0" cellspacing="0">
       <thead>
 		<tr>
 		  <th>Pool</th>
@@ -85,20 +86,20 @@
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
-  function renewDatePickers(row) {
-    $("[id$=time]", row || null).datetimepicker({
-      pickDate: false,
-      pick12HourFormat: true,
-    });
-  };
-  $(document).ready(function() {
-    $(function() {
-      $(".shifts_formset_row").formset({
-        prefix: "{{ shifts_formset.prefix }}",
-        added: renewDatePickers,
-      });
-      renewDatePickers();
-    });
-  });
+ function renewDatePickers(row) {
+   $("[id$=time]", row || null).datetimepicker({
+     pickDate: false,
+     pick12HourFormat: true,
+   });
+ };
+ $(document).ready(function() {
+   $(function() {
+     $(".shifts_formset_row").formset({
+       prefix: "{{ shifts_formset.prefix }}",
+       added: renewDatePickers,
+     });
+     renewDatePickers();
+   });
+ });
 </script>
 {% endblock %}
