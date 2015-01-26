@@ -2270,6 +2270,11 @@ class TestSemester(TestCase):
 
     def test_clear_semester(self):
         utils.clear_semester(self.s1)
+        self.assertEqual(
+            Semester.objects.all().count(),
+            1,
+        )
+
         utils.clear_semester(self.s2)
         self.assertEqual(
             Semester.objects.all().count(),
