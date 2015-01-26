@@ -65,12 +65,26 @@
 	<dt>Event</dt>
 	<dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.liable.user.username %}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of this shift and is still expected to complete the shift if it is not filled by another person.</dd>
 	{% endif %}
-	{% if instance.weekly_workshift %}
+	{% if instance.weekly_workshift.workshift_type.quick_tips %}
 	<dt>Quick Tips</dt>
-	<dd>{{ instance.weekly_workshift.workshift_type.quick_tips }}&nbsp;</dd>
+	<dd>
+	  {{ instance.weekly_workshift.workshift_type.quick_tips|safe }}
+	</dd>
 	{% endif %}
+	{% if instance.description or instance.addendum %}
 	<dt>Description</dt>
-	<dd>{{ instance.description|safe }}<br />{% if instance.addendum %}{{ instance.addendum|safe }}{% endif %}</dd>
+	<dd>
+	  {% if instance.description %}
+	  {{ instance.description|safe }}
+	  {% endif %}
+	  {% if instance.description and instance.addendum %}
+	  <br />
+	  {% endif %}
+	  {% if instance.addendum %}
+	  {{ instance.addendum|safe }}
+	  {% endif %}
+	</dd>
+	{% endif %}
   </dl>
   {% if instance.logs.all %}
   <hr />
