@@ -159,10 +159,10 @@ WEEK_LONG = (
     ("Mail Sort / Forward", 1, 1),
 )
 
-# (type_title, hours, days, start, end)
+# (type_title, hours, days, count, start, end)
 HUMOR_WORKSHIFTS = [
-    ("Pots", 2, [4, 5], time(20), time(0)),
-    ("Sweep & Mop", 2, [4, 5], time(20), time(0)),
+    ("Pots", 2, [4, 5], 2, time(20), time(0)),
+    ("Sweep & Mop", 2, [4, 5], 1, time(20), time(0)),
 ]
 
 # TODO: Bathroom shifts
@@ -312,7 +312,7 @@ def fill_humor_shifts(humor_hours=2, semester=None):
     make_workshift_pool_hours(semester, pools=[humor_pool])
 
     # Humor Workshifts
-    for type_title, hours, days, start, end in HUMOR_WORKSHIFTS:
+    for type_title, hours, days, count, start, end in HUMOR_WORKSHIFTS:
         wtype = WorkshiftType.objects.get(title=type_title)
         for day in days:
             RegularWorkshift.objects.get_or_create(
@@ -323,5 +323,6 @@ def fill_humor_shifts(humor_hours=2, semester=None):
                     start_time=start,
                     end_time=end,
                     hours=hours,
+                    count=count,
                 ),
             )
