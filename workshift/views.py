@@ -150,15 +150,15 @@ def add_workshift_context(request):
             continue
         if shift.date != today:
             continue
-        if not shift.start_time:
-            if shift.end_time:
+        if shift.start_time is None:
+            if shift.end_time is not None:
                 if time < shift.end_time:
                     happening_now.append(shift)
             else:
                 happening_now.append(shift)
             continue
-        if not shift.end_time:
-            if shift.start_time:
+        if shift.end_time is None:
+            if shift.start_time is not None:
                 if time > shift.start_time:
                     happening_now.append(shift)
             else:
