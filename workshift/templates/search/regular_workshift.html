@@ -1,21 +1,55 @@
 {% load workshift_tags %}
-<h3 class="result_title"><a href="{% wurl 'workshift:view_shift' sem_url=result.object.pool.semester.sem_url pk=result.object.pk %}">{{ result.object.title }}</a>
-    <small>Regular Workshift</small></h3>
+<h3 class="result_title">
+  <a href="{% wurl 'workshift:view_shift' sem_url=result.object.pool.semester.sem_url pk=result.object.pk %}">
+	{{ result.object.title }}
+  </a>
+  <small>Regular Workshift</small>
+</h3>
 <dl class="result_description dl-horizontal">
-    <dt>Workshift Type</dt>
-    <dd><a href="{% wurl 'workshift:view_type' pk=result.object.workshift_type.pk %}">{{ result.object.workshift_type.title }}</a></dd>
-    <dt>Workshift Pool</dt>
-    <dd><a href="{% wurl 'workshift:view_pool' sem_url=result.object.pool.semester.sem_url pk=result.object.pool.pk %}">{{ result.object.pool }}</a></dd>
-    <dt>Days</dt>
-    <dd>{{ result.object.get_days_display }}&nbsp;</dd>
-    <dt>Hours</dt>
-    <dd>{{ result.object.hours }}&nbsp;</dd>
-    <dt>Assignees</dt>
-    <dd>{% for assignee in result.object.current_assignees.all %}{% if forloop.counter > 1 %},
-        {% endif %}<a
-        href="{% wurl 'workshift:profile' sem_url=assignee.semester.sem_url targetUsername=assignee.get_user %}">{{ assignee.get_full_name }}</a>{% empty %}&nbsp;{% endfor %}</dd>
-    <dt>Start Time</dt>
-    <dd>{{ result.object.get_start_time }}&nbsp;</dd>
-    <dt>End Time</dt>
-    <dd>{{ result.object.get_end_time }}&nbsp;</dd>
+  <dt>
+	Workshift Type
+  </dt>
+  <dd>
+	<a href="{% wurl 'workshift:view_type' pk=result.object.workshift_type.pk %}">
+	  {{ result.object.workshift_type.title }}
+	</a>
+  </dd>
+  <dt>
+	Workshift Pool
+  </dt>
+  <dd>
+	<a href="{% wurl 'workshift:view_pool' sem_url=result.object.pool.semester.sem_url pk=result.object.pool.pk %}">
+	  {{ result.object.pool }}
+	</a>
+  </dd>
+  <dt>Day</dt>
+  <dd>
+	{% if result.object.day != None %}
+	{{ result.object.get_day_display }}
+	{% else %}
+	Week long
+	{% endif %}
+  </dd>
+  <dt>
+	Hours
+  </dt>
+  <dd>
+	{{ result.object.hours }}
+	&nbsp;
+  </dd>
+  <dt>
+	Assignees
+  </dt>
+  <dd>
+	{% for assignee in result.object.current_assignees.all %}{% if forloop.counter > 1 %},
+    {% endif %}<a
+        href="{% wurl 'workshift:profile' sem_url=assignee.semester.sem_url targetUsername=assignee.get_user %}">{{ assignee.get_full_name }}</a>{% empty %}
+	&nbsp;
+	{% endfor %}
+  </dd>
+  <dt>Time</dt>
+  <dd>
+	{{ result.object.get_time_range }}
+	&nbsp;
+  </dd>
 </dl>
