@@ -10,7 +10,7 @@
 	Day
   </dt>
   <dd>
-	<a href="{% wurl 'workshift:view_shift' sem_url=result.object.pool.semester.sem_url pk=result.object.workshift_type.pk %}">
+	<a href="{% wurl 'workshift:view_shift' sem_url=result.object.pool.semester.sem_url pk=result.object.pk %}">
 	  {% if result.object.day != None %}
 	  {{ result.object.get_day_display }}
 	  {% else %}
