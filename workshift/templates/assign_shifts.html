@@ -49,7 +49,7 @@
       {% if unassigned_shifts %}
       <div id="unassigned_shifts" class="col-md-6">
         <h2>
-          Unassigned workshifts
+          Workshifts
         </h2>
         <hr class="w_line" />
         <p>
@@ -70,9 +70,6 @@
                 Workshift
               </th>
               <th>
-                Assignees
-              </th>
-              <th>
                 Unassigned hours
               </th>
             </tr>
@@ -84,9 +81,6 @@
                 <a href="{{ shift.get_view_url }}">
                   {{ shift.workshift_type.title }} - {{ shift.display_time }}
                 </a>
-              </td>
-              <td>
-                {% for assignee in shift.current_assignees.all %}{% if not forloop.first %}, {% endif %}<a href="{{ assignee.get_view_url }}">{{ assignee.user.get_full_name }}</a>{% endfor %}
               </td>
               <td>
                 {{ shift_hours }} hour{{ shift_hours|pluralize }}
@@ -101,7 +95,7 @@
       {% if unassigned_profiles %}
       <div id="unassigned_profiles" class="col-md-6 unassigned_profiles">
         <h2>
-          Underassigned members
+          Members
         </h2>
         <hr class="w_line" />
         <p>
