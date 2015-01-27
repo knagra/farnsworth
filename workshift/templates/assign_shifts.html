@@ -99,7 +99,7 @@
         </h2>
         <hr class="w_line" />
         <p>
-          These members do not yet have complete workshift assignments.
+          These members do not yet have complete workshift assignments. Shown below are the number of hours that still need to be assigned to each workshifer.
         </p>
         <table id="unassigned_profiles_table" class="table table-striped table-condensed">
           <thead>
@@ -122,10 +122,10 @@
                   {{ workshifter.user.get_full_name }}
                 </a>
               </td>
-              {% for pool in pool_hours %}
+              {% for hours in pool_hours %}
               <td>
-                {% if pool_hours != 0 %}
-                {{ pool_hours }}
+                {% if hours != 0 %}
+                {{ hours }}
                 {% endif %}
               </td>
               {% endfor %}
