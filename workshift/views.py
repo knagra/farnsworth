@@ -12,6 +12,7 @@ from django.utils.timezone import now
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -413,14 +414,26 @@ def _is_preferred(instance, profile):
 def view_open_shifts(request, semester, profile=None):
     page_name = "Upcoming Open Shifts"
     shifts = WorkshiftInstance.objects.filter(closed=False).order_by('-date')
+    shift_count = shifts.count()
+    paginator = Paginator(shifts, 100)
+
+    page = request.GET.get("page")
+    try:
+        shifts = paginator.page(page)
+    except PageNotAnInteger:
+        shifts = paginator.page(1)
+    except EmptyPage:
+        shifts = paginator.page(paginator.num_pages)
     shift_tuples = [
         (instance, _get_forms(profile, instance), _is_preferred(instance, profile))
         for instance in shifts
-        ]
+    ]
     return render_to_response("open_shifts.html", {
         "page_name": page_name,
+        "shifts": shifts,
+        "shift_count": shift_count,
         "shift_tuples": shift_tuples,
-        }, context_instance=RequestContext(request))
+    }, context_instance=RequestContext(request))
 
 @workshift_manager_required
 @get_workshift_profile

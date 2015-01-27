@@ -62,30 +62,58 @@
       {% endfor %}
     </tbody>
   </table>
-  {% with id_prefix="shifts" %}
-  {% include "pager.html" %}
-  {% endwith %}
+  <div class="field_wrapper">
+	{% if shifts.has_previous %}
+	<a href="?page={{ shifts.previous_page_number }}">
+	  <span class="glyphicon glyphicon-chevron-left"></span>
+	  Previous
+	</a>
+	{% else %}
+    <span class="glyphicon glyphicon-chevron-left"></span>
+    Previous
+    {% endif %}
+
+    |
+
+    <span class="current">
+      Page {{ shifts.number }} of {{ shifts.paginator.num_pages }}.
+    </span>
+
+    |
+
+    {% if shifts.has_next %}
+    <a href="?page={{ shifts.next_page_number }}">
+	  Next
+      <span class="glyphicon glyphicon-chevron-right"></span>
+	</a>
+    {% else %}
+    Next
+	<span class="glyphicon glyphicon-chevron-right"></span>
+    {% endif %}
+  </div>
+  <div class="field_wrapper text-info">
+    {{ shift_count }} total open shifts in database.
+  </div>
 </div> <!-- .workshift_table -->
 {% else %}
-No open shifts.
+<p>
+  No open shifts.
+</p>
 {% endif %}
 {% endblock %}
 
 {% block w_endscripts %}
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script>
-$(document).ready(function() {
-    $('table').tablesorter({
-        sortList: [[1, 0], [0, 0], [2, 0]],
-        widgets: ["filter", "resizable"],
-        widgetOptions: {
-            resizable: true
-        }
-    }).tablesorterPager({
-        container: "#shifts_pager",
-        cssGoto: "#shifts_goto"
-    });
-});
+ $(document).ready(function() {
+   $('table').tablesorter({
+     sortList: [[1, 0], [0, 0], [2, 0]],
+     widgets: ["filter", "resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+ });
 </script>
 <script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
 {% endblock %}
