@@ -60,10 +60,6 @@
         <h3>
           {{ pool.title }}
         </h3>
-        <hr class="w_line" />
-        <p>
-          {{ total_shift_hours }} unassigned hour{{ total_shift_hours|pluralize }}
-        </p>
         <table class="table table-striped table-condensed">
           <thead>
             <tr>
@@ -88,6 +84,14 @@
               </td>
             </tr>
             {% endfor %}
+            <tr>
+              <td>
+                Total
+              </td>
+              <td>
+                {{ total_shift_hours }} hour{{ total_shift_hours|pluralize }}
+              </td>
+            </tr>
           </tbody>
         </table>
         {% endfor %}
