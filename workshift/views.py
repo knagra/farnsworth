@@ -415,7 +415,7 @@ def view_open_shifts(request, semester, profile=None):
     page_name = "Upcoming Open Shifts"
     shifts = WorkshiftInstance.objects.filter(closed=False).order_by('-date')
     shift_count = shifts.count()
-    paginator = Paginator(shifts, 100)
+    paginator = Paginator(shifts, 250)
 
     page = request.GET.get("page")
     try:
