@@ -181,3 +181,19 @@
   </div> <!-- .tab-content -->
 </div> <!-- #assign_container -->
 {% endblock %}
+
+{% block w_endscripts %}
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script>
+ $(document).ready(function() {
+   $('table').tablesorter({
+     sortList: [[0, 0]],
+     widgets: ["filter", "resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+ });
+</script>
+<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
+{% endblock %}
