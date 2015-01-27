@@ -751,16 +751,18 @@ def assign_shifts_view(request, semester):
     pools = WorkshiftPool.objects.filter(semester=semester).order_by('-is_primary', 'title')
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
     all_workshifts = RegularWorkshift.objects.filter(pool__semester=semester)
-    pool_hours = [
-        [
+    pool_hours = []
+    for workshifter in workshifters:
+        hours_owed = [
             pool.hours - sum(
                 i.hours
                 for i in all_workshifts.filter(current_assignees=workshifter, pool=pool)
             )
             for pool in pools
         ]
-        for workshifter in workshifters
-    ]
+
+        if any(i > 0 for i in hours_owed):
+            pool_hours.append(hours_owed)
 
     total_pool_hours = [
         sum(pools[i] for pools in pool_hours)
