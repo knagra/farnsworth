@@ -25,6 +25,16 @@
       Week long
       {% endif %}
     </dd>
+	{% if shift.workshift_type %}
+	<dt>
+	  Workshift Type
+	</dt>
+	<dd>
+	  <a href="{% wurl 'workshift:view_type' pk=shift.workshift_type.pk %}">
+		{{ shift.workshift_type.title }}
+	  </a>
+	</dd>
+	{% endif %}
     <dt>Hours</dt>
     <dd>{{ shift.hours }}</dd>
 	{% if shift.workshift_type.quick_tips %}
