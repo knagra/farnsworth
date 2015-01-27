@@ -753,7 +753,7 @@ def assign_shifts_view(request, semester):
     all_workshifts = RegularWorkshift.objects.filter(pool__semester=semester)
     pool_hours = [
         [
-            sum(
+            pool.hours - sum(
                 i.hours
                 for i in all_workshifts.filter(current_assignees=workshifter, pool=pool)
             )
