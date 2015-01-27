@@ -7,6 +7,18 @@
 </h3>
 <dl class="result_description dl-horizontal">
   <dt>
+	Day
+  </dt>
+  <dd>
+	<a href="{% wurl 'workshift:view_shift' sem_url=result.object.pool.semester.sem_url pk=result.object.workshift_type.pk %}">
+	  {% if result.object.day != None %}
+	  {{ result.object.get_day_display }}
+	  {% else %}
+	  Week long
+	  {% endif %}
+	</a>
+  </dd>
+  <dt>
 	Workshift Type
   </dt>
   <dd>
@@ -21,14 +33,6 @@
 	<a href="{% wurl 'workshift:view_pool' sem_url=result.object.pool.semester.sem_url pk=result.object.pool.pk %}">
 	  {{ result.object.pool }}
 	</a>
-  </dd>
-  <dt>Day</dt>
-  <dd>
-	{% if result.object.day != None %}
-	{{ result.object.get_day_display }}
-	{% else %}
-	Week long
-	{% endif %}
   </dd>
   <dt>
 	Hours
