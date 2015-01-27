@@ -26,10 +26,32 @@
 	<dd><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool.title }}</a></dd>
 	<dt>Date</dt>
 	<dd>{{ instance.date }}</dd>
-	<dt>Worth</dt>
-	<dd>{{ instance.hours }} hour{{ instance.hours|pluralize }}</dd>
+	{% if instance.workshifter or instance.liable %}
+	<dt>
+	  Assignee
+	</dt>
+	{% if instance.workshifter %}
+	<dd>
+	  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.workshifter.user.username %}">
+		{{ instance.workshifter.user.get_full_name }}
+	  </a>
+	</dd>
+	{% elif instance.liable %}
+	<dd>
+	  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.liable.user.username %}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of this shift and is still expected to complete the shift if it is not filled by another person.
+	</dd>
+	{% endif %}
+	{% endif %}
+	<dt>
+	  Workshit Hours
+	</dt>
+	<dd>
+	  {{ instance.hours }} hour{{ instance.hours|pluralize }}
+	</dd>
 	{% if interact_forms %}
-	<dt>Action</dt>
+	<dt>
+	  Action
+	</dt>
 	<dd>
       <form style="display:inline" method="POST">
 		{% for form in interact_forms %}
@@ -46,7 +68,9 @@
 	</dd>
 	{% endif %}
 	{% if edit_hours_form %}
-	<dt>Edit Credited Hours</dt>
+	<dt>
+	  Edit Credited Hours
+	</dt>
 	<dd>
 	  <form method="POST">
 		{% csrf_token %}
@@ -58,21 +82,18 @@
 	  </form>
 	</dd>
 	{% endif %}
-	{% if instance.workshifter %}
-	<dt>Assignee</dt>
-	<dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.workshifter.user.username %}">{{ instance.workshifter.user.get_full_name }}</a></dd>
-	{% elif instance.liable %}
-	<dt>Event</dt>
-	<dd><a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.liable.user.username %}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of this shift and is still expected to complete the shift if it is not filled by another person.</dd>
-	{% endif %}
 	{% if instance.weekly_workshift.workshift_type.quick_tips %}
-	<dt>Quick Tips</dt>
+	<dt>
+	  Quick Tips
+	</dt>
 	<dd>
 	  {{ instance.weekly_workshift.workshift_type.quick_tips|safe }}
 	</dd>
 	{% endif %}
 	{% if instance.description or instance.addendum %}
-	<dt>Description</dt>
+	<dt>
+	  Description
+	</dt>
 	<dd>
 	  {% if instance.description %}
 	  {{ instance.description|safe }}
@@ -100,12 +121,12 @@
     <tbody>
       {% for log in instance.logs.all %}
       <tr
-		{% if log.entry_type == 'B' %}
-	    class="danger"
-	    {% elif log.entry_type == 'V' %}
-	    class="success"
-	    {% endif %}
-	    >
+{% if log.entry_type == 'B' %}
+class="danger"
+{% elif log.entry_type == 'V' %}
+class="success"
+{% endif %}
+>
         <td>{{ log.entry_time }}</td>
         <td>
           {% if log.person %}
@@ -138,19 +159,19 @@
 
 {% block w_endscripts %}
 <script>
-$(document).ready(function() {
-    $('table').tablesorter({
-        headers: {
-            0: {
-                sorter: 'farnsworth_datetime'
-            }
-        },
-        sortList: [[0, 1]],
-        widgets: ["resizable"],
-        widgetOptions: {
-            resizable: true
-        }
-    });
-});
+ $(document).ready(function() {
+   $('table').tablesorter({
+     headers: {
+       0: {
+         sorter: 'farnsworth_datetime'
+       }
+     },
+     sortList: [[0, 1]],
+     widgets: ["resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+ });
 </script>
 {% endblock %}
