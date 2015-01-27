@@ -428,7 +428,7 @@ class WorkshiftProfile(models.Model):
         return self.__unicode__()
 
     def __unicode__(self):
-        return "{}, {}".format(self.user.get_full_name(), self.semester.year)
+        return self.user.get_full_name()
 
     class Meta:
         unique_together = ("user", "semester")
