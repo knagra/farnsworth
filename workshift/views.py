@@ -109,7 +109,6 @@ def add_workshift_context(request):
     standing = None
     happening_now = None
     workshift_profile = None
-    
 
     if current_semester:
         # number of days passed in this semester
@@ -749,10 +748,52 @@ def assign_shifts_view(request, semester):
         return HttpResponseRedirect(wurl('workshift:assign_shifts',
                                          sem_url=semester.sem_url))
 
+    pools = WorkshiftPool.objects.filter(semester=semester).order_by('-is_primary', 'title')
+    workshifters = WorkshiftProfile.objects.filter(semester=semester)
+    pool_hours = [
+        [
+            sum(
+                i.hours
+                for i in RegularWorkshift.objects
+                .filter(current_assignees=workshifter, pool=pool)
+            )
+            for pool in pools
+        ]
+        for workshifter in workshifters
+    ]
+
+    total_pool_hours = [
+        sum(pools[i] for pools in pool_hours)
+        for i in range(len(pools))
+    ]
+
+    unassigned_shifts = []
+    for pool in pools:
+        shifts = RegularWorkshift.objects.filter(pool=pool)
+        filtered_shifts, shift_hours = [], []
+        for shift in shifts:
+            if shift.current_assignees.all().count() < shift.count:
+                filtered_shifts.append(shift)
+                shift_hours.append(
+                    shift.hours * shift.count - shift.current_assignees.all().count()
+                )
+        total_shift_hours = sum(shift_hours)
+
+        if total_shift_hours > 0:
+            unassigned_shifts.append((
+                pool,
+                zip(filtered_shifts, shift_hours),
+                total_shift_hours,
+            ))
+
     return render_to_response("assign_shifts.html", {
         "page_name": page_name,
         "forms": forms,
         "assign_forms": assign_forms,
+        "unassigned_profiles": zip(workshifters, pool_hours),
+        "pools": pools,
+        "total_pool_hours": total_pool_hours,
+        "unassigned_shifts": unassigned_shifts,
     }, context_instance=RequestContext(request))
 
 @semester_required
