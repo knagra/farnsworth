@@ -49,13 +49,20 @@
       {% if unassigned_shifts %}
       <div id="unassigned_shifts" class="col-md-6">
         <h2>
-          Unassigned regular workshifts
+          Unassigned workshifts
         </h2>
         <hr class="w_line" />
+        <p>
+          These workshifts are not yet completely assigned to members.
+        </p>
         {% for pool, shifts, total_shift_hours in unassigned_shifts %}
         <h3>
-          {{ pool.title }}: {{ total_shift_hours }} unassigned hour{{ total_shift_hours|pluralize }}
+          {{ pool.title }}
         </h3>
+        <hr class="w_line" />
+        <p>
+          {{ total_shift_hours }} unassigned hour{{ total_shift_hours|pluralize }}
+        </p>
         <table class="table table-striped table-condensed">
           <thead>
             <tr>
@@ -94,8 +101,12 @@
       {% if unassigned_profiles %}
       <div id="unassigned_profiles" class="col-md-6 unassigned_profiles">
         <h2>
-          Members with unassigned hours
+          Underassigned members
         </h2>
+        <hr class="w_line" />
+        <p>
+          These members do not yet have complete workshift assignments.
+        </p>
         <table id="unassigned_profiles_table" class="table table-striped table-condensed">
           <thead>
             <tr>
@@ -123,6 +134,7 @@
                 {{ pool_hours }}
                 {% endif %}
               </td>
+              {% endfor %}
             </tr>
             {% endfor %}
             <tr>
@@ -135,7 +147,6 @@
               </td>
               {% endfor %}
             </tr>
-            {% endfor %}
           </tbody>
         </table> <!-- #unassigned_profiles_table -->
       </div> <!-- #unassigned_profiles -->
