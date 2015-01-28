@@ -564,6 +564,7 @@ def calculate_assigned_hours(profiles=None):
             shifts = RegularWorkshift.objects.filter(
                 current_assignees=profile,
                 pool=pool_hours.pool,
+                active=True,
             )
             pool_hours.assigned_hours = sum(i.hours for i in shifts)
             pool_hours.save(update_fields=["assigned_hours"])
