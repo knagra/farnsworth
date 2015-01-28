@@ -1126,7 +1126,7 @@ def edit_shift_view(request, semester, pk, profile=None):
         # XXX: Bad way of doing this, we should make manager_shift point to the related
         # Manager object directly
         try:
-            manager = Manager.objects.get(title=shift.title)
+            manager = Manager.objects.get(title=shift.workshift_type.title)
         except Manager.DoesNotExist:
             pass
         else:
