@@ -14,9 +14,10 @@
     </button>
   </form>
   {% endif %}
-  <h1 class="w_title">{{ page_name }}</h1>
+  <h1 class="w_title">
+	{{ page_name }}
+  </h1>
   <hr class="w_line" />
-  <h3 class="w_subtitle">Description</h3>
   <dl id="info_table" class="dl-horizontal">
     {% if instance.weekly_workshift %}
     <dt>Recurring Workshift</dt>
@@ -82,34 +83,40 @@
 	  </form>
 	</dd>
 	{% endif %}
-	{% if instance.weekly_workshift.workshift_type.quick_tips %}
-	<dt>
-	  Quick Tips
-	</dt>
-	<dd>
-	  {{ instance.weekly_workshift.workshift_type.quick_tips|safe }}
-	</dd>
-	{% endif %}
-	{% if instance.description or instance.addendum %}
-	<dt>
-	  Description
-	</dt>
-	<dd>
-	  {% if instance.description %}
-	  {{ instance.description|safe }}
-	  {% endif %}
-	  {% if instance.description and instance.addendum %}
-	  <br />
-	  {% endif %}
-	  {% if instance.addendum %}
-	  {{ instance.addendum|safe }}
-	  {% endif %}
-	</dd>
-	{% endif %}
   </dl>
-  {% if instance.logs.all %}
   <hr />
-  <h3 class="w_subtitle">Logs</h3>
+  {% if instance.description or instance.addendum %}
+  <h3 class="w_subtitle">
+	Description
+  </h3>
+  <hr class="w_line" />
+  <div>
+	{% if instance.description %}
+	{{ instance.description|safe }}
+	{% endif %}
+	{% if instance.description and instance.addendum %}
+	<br />
+	{% endif %}
+	{% if instance.addendum %}
+	{{ instance.addendum|safe }}
+	{% endif %}
+  </div>
+  <hr />
+  {% endif %}
+  {% if instance.weekly_workshift.workshift_type.quick_tips %}
+  <h3 class="w_subtitle">
+	Quick Tips
+  </h3>
+  <hr class="w_line" />
+  <div>
+	{{ instance.weekly_workshift.workshift_type.quick_tips|safe }}
+  </div>
+  <hr />
+  {% endif %}
+  {% if instance.logs.all %}
+  <h3 class="w_subtitle">
+	Logs
+  </h3>
   <table class=" table table-striped table-bordered table-condensed table-hover">
     <thead>
       <tr>
