@@ -11,7 +11,7 @@
   <hr class="w_line" />
   {% for form in forms %}
   {% if form %}
-  <div class="col-xs-3">
+  <div class="col-md-3">
 	<form method="post">
 	  {% csrf_token %}
 	  {{ form|bootstrap }}
