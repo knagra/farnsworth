@@ -552,3 +552,18 @@ def clear_semester(semester):
     WorkshiftProfile.objects.filter(semester=semester).delete()
     WorkshiftPool.objects.filter(semester=semester).delete()
     semester.delete()
+
+def calculate_assigned_hours(profiles=None):
+    """
+    Recalculates PoolHour.assigned_hours from scratch.
+    """
+    if profiles is None:
+        profiles = WorkshiftProfile.objects.all()
+    for profile in profiles:
+        for pool_hours in profile.pool_hours.all():
+            shifts = RegularWorkshift.objects.filter(
+                current_assignees=profile,
+                pool=pool_hours.pool,
+            )
+            pool_hours.assigned_hours = sum(i.hours for i in shifts)
+            pool_hours.save(update_fields=["assigned_hours"])
