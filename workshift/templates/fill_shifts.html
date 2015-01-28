@@ -9,20 +9,27 @@
 <div id="fill_shifts_container">
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
-  {% for form in forms %}
-  {% if form %}
-  <div class="col-md-3">
-	<form method="post">
-	  {% csrf_token %}
-	  {{ form|bootstrap }}
-	  <div class="text-center">
-		<button type="submit" class="btn btn-primary" name="{{ form.name }}">
-		  {{ form.button_text }}
-		</button>
+  <div class="container">
+	<div class="row">
+	  {% for form in forms %}
+	  {% if form %}
+	  <div class="col-md-3">
+		<form method="post">
+		  {% csrf_token %}
+		  {{ form|bootstrap }}
+		  <div class="text-center">
+			<button type="submit" class="btn btn-primary" name="{{ form.name }}">
+			  {{ form.button_text }}
+			</button>
+		  </div>
+		</form>
 	  </div>
-	</form>
+	  {% if forloop.counter|divisibleby:"3" and not forloop.last %}
+	</div><div class="row">
+	  {% endif %}
+	</div>
+	{% endif %}
+	{% endfor %}
   </div>
-  {% endif %}
-  {% endfor %}
 </div> <!-- #assign_container -->
 {% endblock %}
