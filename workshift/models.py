@@ -441,7 +441,10 @@ class WorkshiftProfile(models.Model):
         return self.__unicode__()
 
     def __unicode__(self):
-        return self.user.get_full_name()
+        ret = self.user.get_full_name()
+        if UserProfile.objects.get(user=self.user).status == UserProfile.BOARDER:
+            ret += " (Boarder)"
+        return ret
 
     class Meta:
         unique_together = ("user", "semester")
