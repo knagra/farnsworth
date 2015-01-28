@@ -5,22 +5,15 @@
 
 {% block headers %}
 <style>
- .stats_list {
-   list-style: none;
- }
- .stats_list ul {
-   list-style: none;
-   padding-left: 20px;
- }
  p {
    margin-left: 5px;
    margin-right: 5px;
    margin-top: 5px;
    marging-bottom: 5px;
  }
- .link_list {
-   margin-left: 10px;
-   margin-right: 10px;
+ #link_list {
+   padding-left: 10px;
+   padding-right: 10px;
  }
 </style>
 {% endblock %}
@@ -54,7 +47,7 @@
   <div class="field_wrapper">
 	Please choose from the links below:
   </div>
-  <ul>
+  <ul id="link_list">
 	{% for title, url, icon, number in render_list %}
 	<a href={{ url }} class="list-group-item">
 	  <span class="badge pull-right">
