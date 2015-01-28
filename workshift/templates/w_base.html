@@ -15,17 +15,17 @@
     <div class="col-xs-12">
       <div class="row">
         <h5 class="col-xs-3 text-left">
-          <a href="{% wurl 'workshift:view_semester' %}?day={{ CURRENT_SEMESTER.start_date|date:'Y-m-d' }}" title="Jump to date">
+          <a href="{{ CURRENT_SEMESTER.get_view_url }}?day={{ CURRENT_SEMESTER.start_date|date:'Y-m-d' }}" title="Jump to date">
             {{ CURRENT_SEMESTER.start_date|date:"N d" }}<span class="hidden-xs">, {{ CURRENT_SEMESTER.start_date|date:"Y" }}</span>
           </a>
         </h5>
-        <a href="{% wurl 'workshift:view_semester' sem_url=CURRENT_SEMESTER.sem_url %}">
+        <a href="{{ CURRENT_SEMESTER.get_view_url }}">
           <h4 class="col-xs-6 text-center" id="current_semester">
             <span class="hidden-xs">Current Semester - </span>{{ CURRENT_SEMESTER.get_season_display }} {{ CURRENT_SEMESTER.year }}
           </h4>
         </a>
         <h5 class="col-xs-3 text-right">
-          <a href="{% wurl 'workshift:view_semester' %}?day={{ CURRENT_SEMESTER.end_date|date:'Y-m-d' }}" title="Jump to date">
+          <a href="{{ CURRENT_SEMESTER.get_view_url }}?day={{ CURRENT_SEMESTER.end_date|date:'Y-m-d' }}" title="Jump to date">
             {{ CURRENT_SEMESTER.end_date|date:"N d" }}<span class="hidden-xs">, {{ CURRENT_SEMESTER.end_date|date:"Y" }}</span>
           </a>
         </h5>
@@ -52,7 +52,7 @@
       <h4 id="shifts_title">Upcoming &amp; Recent Shifts</h4>
       <div id="upcoming_shifts" class="list-group">
         {% for shift, happening in upcoming_shifts %}
-        <a title="See shift info" href="{% wurl 'workshift:view_instance' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="list-group-item">
+        <a title="See shift info" href="{{ shift.get_view_url }}" class="list-group-item">
           <span title="Worth {{ shift.hours }} hour{{ shift.hours|pluralize }}"
 				class="badge">{{ shift.hours }}</span>{{ shift.title }}{% if not shift.week_long %}, {{ shift.date|date:"l" }}{% endif %}
 		  {{ shift.get_time_range }}
@@ -70,7 +70,7 @@
         {% if WORKSHIFT_PROFILE %}
         <div class="col-md-12 col-lg-12{% if WORKSHIFT_MANAGER %} col-sm-6 col-xs-6{% endif %}">
           <h4 class="w_subtitle">
-            <a href="{% wurl 'workshift:profile' targetUsername=WORKSHIFT_PROFILE.user.username sem_url=SEMESTER.sem_url %}">
+            <a href="{{ WORKSHIFT_PROFILE.get_view_url }}">
               My Profile
             </a>
           </h4>

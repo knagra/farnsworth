@@ -8,7 +8,7 @@
 {% block w_content %}
 <div class="shift_container">
   {% if can_edit %}
-  <form action="{% wurl 'workshift:edit_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
+  <form action="{{ shift.get_edit_url }}" class="pull-right">
     <button class="btn btn-warning" type="submit">
       <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span>
     </button>
@@ -37,7 +37,7 @@
 	  Workshift Type
 	</dt>
 	<dd>
-	  <a href="{% wurl 'workshift:view_type' pk=shift.workshift_type.pk %}">
+	  <a href="{{ shift.workshift_type.get_view_url }}">
 		{{ shift.workshift_type.title }}
 	  </a>
 	</dd>
@@ -58,16 +58,14 @@
 	{% endif %}
     <dt>Workshift Pool</dt>
     <dd>
-	  <a href="{% wurl 'workshift:view_pool' pk=shift.pool.pk sem_url=SEMESTER.sem_url %}">
+	  <a href="{{ shift.pool.get_view_url }}">
 		{{ shift.pool.title }}
 	  </a>
 	</dd>
     {% if shift.current_assignees.count %}
     <dt>Assignee{{ shift.current_assignees.count|pluralize }}</dt>
     <dd>{% for assignee in shift.current_assignees.all %}{% if not forloop.first %},
-      {% endif %}<a
-      href="{% wurl 'workshift:profile' sem_url=assignee.semester.sem_url targetUsername=assignee.get_user %}">{{ assignee.get_full_name }}</a>
-      {% endfor %}
+      {% endif %}<a href="{{ assignee.get_view_url }}">{{ assignee.get_full_name }}</a>{% endfor %}
     </dd>
     {% endif %}
   </dl>
@@ -85,7 +83,7 @@
   <tbody>
 	{% for instance, forms in instance_tuples %}
 	<tr>
-	  <td><a href="{% wurl 'workshift:view_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}">{{ instance.date }}</a></td>
+	  <td><a href="{{ instance.get_view_url }}">{{ instance.date }}</a></td>
 	  <td>
         {% if shift.intended_hours == shift.hours %}
         {{ shift.hours }}
@@ -99,9 +97,13 @@
         {% elif shift.verify == 'A' %}
         Auto Verify
         {% elif shift.verifier %}
-        <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.verifier.user.username %}">{{ shift.verifier.user.get_full_name }}</a>
+        <a href="{{ shift.verifier.get_view_url }}">{{ shift.verifier.user.get_full_name }}</a>
         {% elif shift.liable %}
-        <del><a title="Workshifter is still liable for this shift" href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.liable.user.username %}">{{ shift.liable.user.get_full_name }}</a></del>
+        <del>
+		  <a title="Workshifter is still liable for this shift" href="{{ shift.liable.get_view_url }}">
+			{{ shift.liable.user.get_full_name }}
+		  </a>
+		</del>
         {% endif %}
       </td>
       <td>

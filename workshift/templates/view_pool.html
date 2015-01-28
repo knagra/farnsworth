@@ -8,7 +8,7 @@
 {% block w_content %}
 <div class="pool_container">
   {% if WORKSHIFT_MANAGER %}
-  <form action="{% wurl 'workshift:edit_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
+  <form action="{{ pool.get_edit_url }}" class="pull-right">
     <button class="btn btn-warning" type="submit">
       <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit Pool</span>
     </button>
@@ -69,7 +69,11 @@
     <tbody>
       {% for shift in shifts %}
       <tr>
-        <td><a href="{% wurl 'workshift:view_shift' sem_url=SEMESTER.sem_url pk=shift.pk %}">{{ shift.workshift_type.title }}</a></td>
+        <td>
+		  <a href="{{ shift.get_view_url }}">
+			{{ shift.workshift_type.title }}
+		  </a>
+		</td>
         <td>
 		  {% if shift.week_long %}
 		  Week long
@@ -88,7 +92,7 @@
 		</td>
         <td>
           {% if shift.current_assignee %}
-          {% for assignee in shift.current_assignees.all %}{% if not forloop.first %}, {% endif %}<a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=shift.current_assignee.user.username %}">{{ shift.current_assignee.user.get_full_name }}</a>{% endfor %}
+          {% for assignee in shift.current_assignees.all %}{% if not forloop.first %}, {% endif %}<a href="{{ assignee.get_view_url }}">{{ assignee.user.get_full_name }}</a>{% endfor %}
           {% endif %}
         </td>
       </tr>
@@ -118,7 +122,7 @@
       {% for shift, form in upcoming_pool_shifts %}
       <tr>
         <td>
-		  <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">
+		  <a href="{{ shift.get_view_url }}">
 			{{ shift.title }}
 		  </a>
 		</td>

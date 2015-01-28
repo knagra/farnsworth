@@ -1,7 +1,7 @@
 {% load highlight %}
 {% load workshift_tags %}
 <h3 class="result_title">
-  <a href="{% wurl 'workshift:view_type' pk=result.object.pk %}">
+  <a href="{{ result.object.get_view_url }}">
 	{{ result.object }}
   </a>
   <small>

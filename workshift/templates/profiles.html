@@ -19,7 +19,7 @@
         <th>Last Name</th>
         {% for pool in pools %}
         <th>
-		  <a href="{% wurl 'workshift:view_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}">
+		  <a href="{{ pool.get_view_url }}">
 			{{ pool.title }}
 		  </a>
 		</th>
@@ -30,7 +30,7 @@
       {% for workshifter, pool_hours in workshifter_tuples %}
       <tr>
         <td>
-		  <a href="{% wurl 'workshift:profile' targetUsername=workshifter.user.username sem_url=SEMESTER.sem_url %}">
+		  <a href="{{ workshifter.get_view_url }}">
 			{{ workshifter.user.first_name }}
 		  </a>
 		</td>

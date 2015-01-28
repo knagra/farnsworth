@@ -28,7 +28,7 @@
 		<td>{% if preferred %}preferred{% endif %}</td>
 		<td>{{ shift.date }}</td>
         <td>
-          <a href="{% wurl 'workshift:view_instance' sem_url=SEMESTER.sem_url pk=shift.pk %}">
+          <a href="{{ shift.get_view_url }}">
 			{{ shift.title }}
 		  </a>
         </td>

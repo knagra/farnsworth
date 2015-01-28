@@ -202,6 +202,9 @@ class WorkshiftPool(models.Model):
     def get_view_url(self):
         return wurl("workshift:view_pool", pk=self.pk, sem_url=self.semester.sem_url)
 
+    def get_edit_url(self):
+        return wurl("workshift:edit_pool", pk=self.pk, sem_url=self.semester.sem_url)
+
     def is_workshift_pool(self):
         return True
 
@@ -258,6 +261,9 @@ class WorkshiftType(models.Model):
 
     def get_view_url(self):
         return wurl("workshift:view_type", pk=self.pk)
+
+    def get_edit_url(self):
+        return wurl("workshift:edit_type", pk=self.pk)
 
 class TimeBlock(models.Model):
     '''
@@ -462,6 +468,13 @@ class WorkshiftProfile(models.Model):
             sem_url=self.semester.sem_url,
         )
 
+    def get_edit_url(self):
+        return wurl(
+            "workshift:profile",
+            targetUsername=self.user.username,
+            sem_url=self.semester.sem_url,
+        )
+
 class RegularWorkshift(models.Model):
     '''
     A weekly workshift for a semester.
@@ -547,6 +560,9 @@ class RegularWorkshift(models.Model):
 
     def get_view_url(self):
         return wurl("workshift:view_shift", pk=self.pk, sem_url=self.pool.semester.sem_url)
+
+    def get_edit_url(self):
+        return wurl("workshift:edit_shift", pk=self.pk, sem_url=self.pool.semester.sem_url)
 
     def display_time(self):
         if self.day is not None:
@@ -827,5 +843,8 @@ class WorkshiftInstance(models.Model):
 
     def get_view_url(self):
         return wurl("workshift:view_instance", pk=self.pk, sem_url=self.semester.sem_url)
+
+    def get_edit_url(self):
+        return wurl("workshift:edit_instance", pk=self.pk, sem_url=self.semester.sem_url)
 
 from workshift import signals

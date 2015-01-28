@@ -41,7 +41,11 @@
 		<tbody>
 		  {% for pool in pools %}
 		  <tr>
-			<td><a href="{% wurl 'workshift:view_pool' pk=pool.pk sem_url=SEMESTER.sem_url %}">{{ pool.title }}</a></td>
+			<td>
+			  <a href="{{ pool.get_view_url }}">
+				{{ pool.title }}
+			  </a>
+			</td>
 			<td>
 			  {% if pool.managers.count %}
 			  {% for pos in pool.managers.all %}

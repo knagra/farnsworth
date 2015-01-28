@@ -8,7 +8,7 @@
 {% block w_content %}
 <div class="instance_container">
   {% if WORKSHIFT_MANAGER %}
-  <form action="{% wurl 'workshift:edit_instance' pk=instance.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
+  <form action="{{ instance.get_edit_url }}" class="pull-right">
     <button class="btn btn-warning" type="submit">
       <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span>
     </button>
@@ -23,7 +23,7 @@
     <dd><a href="{{ instance.weekly_workshift.get_view_url }}">{{ instance.weekly_workshift.display_time }}</a></dd>
     {% endif %}
 	<dt>Workshift Pool</dt>
-	<dd><a href="{% wurl 'workshift:view_pool' pk=instance.pool.pk sem_url=SEMESTER.sem_url %}">{{ instance.pool.title }}</a></dd>
+	<dd><a href="{{ instance.pool.get_view_url }}">{{ instance.pool.title }}</a></dd>
 	<dt>Date</dt>
 	<dd>{{ instance.date }}</dd>
 	{% if instance.workshifter or instance.liable %}
@@ -32,13 +32,13 @@
 	</dt>
 	{% if instance.workshifter %}
 	<dd>
-	  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.workshifter.user.username %}">
+	  <a href="{{ instance.workshifter.get_view_url }}">
 		{{ instance.workshifter.user.get_full_name }}
 	  </a>
 	</dd>
 	{% elif instance.liable %}
 	<dd>
-	  <a href="{% wurl 'workshift:profile' sem_url=SEMESTER.sem_url targetUsername=instance.liable.user.username %}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of this shift and is still expected to complete the shift if it is not filled by another person.
+	  <a href="{{ instance.liable.get_view_url }}">{{ instance.liable.user.get_full_name }}</a> signed out less than {{ instance.pool.sign_out_cutoff }} hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of this shift and is still expected to complete the shift if it is not filled by another person.
 	</dd>
 	{% endif %}
 	{% endif %}
