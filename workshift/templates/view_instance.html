@@ -137,7 +137,9 @@ class="success"
         <td>{{ log.entry_time }}</td>
         <td>
           {% if log.person %}
-          <a href="{% url 'workshift:profile' targetUsername=log.person.user.username %}">{{ log.person.user.get_full_name }}</a>
+          <a href="{{ log.person.get_view_url }}">
+			{{ log.person.user.get_full_name }}
+		  </a>
           {% else %}
           Farnsworth automatically
           {% endif %}
