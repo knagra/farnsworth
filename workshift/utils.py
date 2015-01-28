@@ -74,7 +74,7 @@ def _date_range(start, end, step):
         yield start
         start += step
 
-def make_instances(semester, shifts=None, start=None):
+def make_instances(semester=None, shifts=None, start=None):
     if semester is None:
         semester = Semester.objects.get(current=True)
     if shifts is None:
