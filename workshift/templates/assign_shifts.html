@@ -161,7 +161,9 @@
             </th>
             {% for pool in pools %}
             <th>
-              {{ pool.title }}
+              <a href="{{ pool.get_view_url }}">
+                {{ pool.title }}
+              </a>
             </th>
             {% endfor %}
           </tr>
