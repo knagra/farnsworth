@@ -540,6 +540,32 @@ def update_standings(semester=None):
             pool_hours.last_updated = now()
             pool_hours.save()
 
+def reset_standings(semester=None):
+    if semester is None:
+        try:
+            semester = Semester.objects.get(current=True)
+        except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+            return
+
+    for profile in WorkshiftProfile.objects.filter(semester=semester):
+        for pool_hours in profile.pool_hours.all():
+            pool_hours.last_updated = None
+            pool_hours.standing = 0
+            pool_hours.save()
+
+        for field in ["workshifter", "liable"]:
+            for instance in WorkshiftInstance.objects.filter(**{field: profile}):
+                if not instance.closed:
+                    continue
+                pool_hours = profile.pool_hours.get(pool=instance.pool)
+                if instance.blown:
+                    pool_hours.standing -= instance.hours
+                else:
+                    pool_hours.standing += instance.hours
+                pool_hours.save()
+
+    update_standings(semester=semester)
+
 def clear_semester(semester):
     """
     Removes all traces of Semester from the database.
