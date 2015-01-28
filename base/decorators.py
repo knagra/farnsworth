@@ -71,14 +71,12 @@ def president_admin_required(function=None, redirect_no_user='login', redirect_p
                     redirect_to += "?next=" + request.path
                 return HttpResponseRedirect(redirect_to)
             try:
-                userProfile = UserProfile.objects.get(user=request.user)
+                UserProfile.objects.get(user=request.user)
             except UserProfile.DoesNotExist:
                 return redirect_profile(request, MESSAGES['NO_PROFILE'])
-            president = False # whether the user has president privileges
-            for pos in Manager.objects.filter(incumbent=userProfile):
-                if pos.president:
-                    president = True
-                    break
+            # whether the user has president privileges
+            president = Manager.objects.filter(incumbent__user=request.user, president=True) \
+                        .count() > 0
             if (not request.user.is_superuser) and (not president):
                 return redirect_profile(request, MESSAGES['PRESIDENTS_ONLY'])
             return view_func(request, *args, **kwargs)
