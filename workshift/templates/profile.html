@@ -178,8 +178,14 @@
 {% block w_endscripts %}
 <script>
  $(document).ready(function() {
-   $('table').tablesorter({
+   $("#regular_shifts_table, #assigned_instances_table, #past_shifts_table").tablesorter({
      sortList: [[0,0]],
+     widgets: ["resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+   $("#pool_hours_table").tablesorter({
      widgets: ["resizable"],
      widgetOptions: {
        resizable: true
