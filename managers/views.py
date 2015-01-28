@@ -460,9 +460,7 @@ def request_view(request, request_pk):
     '''
     The view of a single request.
     '''
-    print "NOT AJAX REQUEST"
     if request.is_ajax():
-        print "AJAX REQUEST"
         if not request.user.is_authenticated():
             return HttpResponse(json.dumps(dict()),
                                 content_type="application/json")
