@@ -95,20 +95,22 @@ def subtract_workshift_pool_hours(sender, instance, **kwargs):
 def add_workshift_pool_hours(sender, instance, **kwargs):
     shift = instance
 
-    # Add shift's hours to current assignees
-    for assignee in shift.current_assignees.all():
-        pool_hours = assignee.pool_hours.get(pool=shift.pool)
-        pool_hours.assigned_hours += shift.hours
-        pool_hours.save()
+    if shift.active:
+        # Add shift's hours to current assignees
+        for assignee in shift.current_assignees.all():
+            pool_hours = assignee.pool_hours.get(pool=shift.pool)
+            pool_hours.assigned_hours += shift.hours
+            pool_hours.save()
 
 @receiver(signals.pre_delete, sender=RegularWorkshift)
 def delete_regular_workshift(sender, instance, **kwargs):
     shift = instance
 
-    for assignee in shift.current_assignees.all():
-        pool_hours = assignee.pool_hours.get(pool=shift.pool)
-        pool_hours.assigned_hours -= shift.hours
-        pool_hours.save()
+    if shift.active:
+        for assignee in shift.current_assignees.all():
+            pool_hours = assignee.pool_hours.get(pool=shift.pool)
+            pool_hours.assigned_hours -= shift.hours
+            pool_hours.save()
 
 @receiver(signals.pre_save, sender=RegularWorkshift)
 def set_week_long(sender, instance, **kwargs):
