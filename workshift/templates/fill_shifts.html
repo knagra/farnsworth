@@ -9,11 +9,11 @@
 <div id="fill_shifts_container">
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
-  <div class="container">
+  <div class="container-fluid">
 	<div class="row">
 	  {% for form in forms %}
 	  {% if form %}
-	  <div class="col-md-3">
+	  <div class="col-xs-3">
 		<form method="post">
 		  {% csrf_token %}
 		  {{ form|bootstrap }}
