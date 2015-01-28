@@ -190,7 +190,7 @@ def add_workshift_context(request):
 @workshift_manager_required
 def start_semester_view(request):
     """
-    Initiates a semester's worth of workshift, with the option to copy workshift
+    Initiates a semester"s worth of workshift, with the option to copy workshift
     types from the previous semester.
     """
     page_name = "Start Semester"
@@ -210,7 +210,7 @@ def start_semester_view(request):
 
     pool_forms = []
     try:
-        prev_semester = Semester.objects.all().order_by('end_date')[0]
+        prev_semester = Semester.objects.all().order_by("end_date")[0]
     except IndexError:
         pass
     else:
@@ -413,7 +413,7 @@ def _is_preferred(instance, profile):
 @get_workshift_profile
 def view_open_shifts(request, semester, profile=None):
     page_name = "Upcoming Open Shifts"
-    shifts = WorkshiftInstance.objects.filter(closed=False).order_by('-date')
+    shifts = WorkshiftInstance.objects.filter(closed=False).order_by("-date")
     shift_count = shifts.count()
     paginator = Paginator(shifts, 250)
 
@@ -523,7 +523,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
     if wprofile.user != request.user and \
       not utils.can_manage(request.user, semester=semester):
         messages.add_message(request, messages.ERROR,
-                             MESSAGES['ADMINS_ONLY'])
+                             MESSAGES["ADMINS_ONLY"])
         return HttpResponseRedirect(semester.get_view_url())
 
     rating_forms = []
@@ -561,7 +561,7 @@ def preferences_view(request, semester, targetUsername, profile=None):
             wprofile.preference_save_time = now()
             wprofile.save()
         messages.add_message(request, messages.INFO, "Preferences saved.")
-        return HttpResponseRedirect(wurl('workshift:preferences',
+        return HttpResponseRedirect(wurl("workshift:preferences",
                                          sem_url=semester.sem_url,
                                          targetUsername=request.user.username))
 
@@ -610,7 +610,7 @@ def manage_view(request, semester, profile=None):
         pools = pools.filter(managers__incumbent__user=request.user)
         if not pools.count():
             messages.add_message(request, messages.ERROR,
-                                 MESSAGES['ADMINS_ONLY'])
+                                 MESSAGES["ADMINS_ONLY"])
             return HttpResponseRedirect(semester.get_view_url())
     else:
         edit_semester_form = FullSemesterForm(
@@ -632,7 +632,7 @@ def manage_view(request, semester, profile=None):
     if edit_semester_form and edit_semester_form.is_valid():
         semester = edit_semester_form.save()
         messages.add_message(request, messages.INFO, "Semester successfully updated.")
-        return HttpResponseRedirect(wurl('workshift:manage',
+        return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
 
     if close_semester_form and close_semester_form.is_valid():
@@ -647,10 +647,10 @@ def manage_view(request, semester, profile=None):
         return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
 
-    pools = pools.order_by('-is_primary', 'title')
+    pools = pools.order_by("-is_primary", "title")
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
     pool_hours = [workshifter.pool_hours.filter(pool__in=pools)
-                  .order_by('-pool__is_primary', 'pool__title')
+                  .order_by("-pool__is_primary", "pool__title")
                   for workshifter in workshifters]
 
     return render_to_response("manage.html", {
@@ -701,7 +701,7 @@ def assign_shifts_view(request, semester):
               "complete assignments: "
             message += ", ".join(i.user.get_full_name() for i in unassigned_profiles)
         messages.add_message(request, messages.INFO, message)
-        return HttpResponseRedirect(wurl('workshift:assign_shifts',
+        return HttpResponseRedirect(wurl("workshift:assign_shifts",
                                          sem_url=semester.sem_url))
 
     if random_assign_instances_form and random_assign_instances_form.is_valid():
@@ -714,7 +714,7 @@ def assign_shifts_view(request, semester):
               "complete assignments: "
             message += ", ".join(i.user.get_full_name() for i in unassigned_profiles)
         messages.add_message(request, messages.INFO, message)
-        return HttpResponseRedirect(wurl('workshift:assign_shifts',
+        return HttpResponseRedirect(wurl("workshift:assign_shifts",
                                          sem_url=semester.sem_url))
 
     if clear_assign_form and clear_assign_form.is_valid():
@@ -722,7 +722,7 @@ def assign_shifts_view(request, semester):
         message = "Cleared all workshifters from their regular workshift " \
           "assignments"
         messages.add_message(request, messages.INFO, message)
-        return HttpResponseRedirect(wurl('workshift:assign_shifts',
+        return HttpResponseRedirect(wurl("workshift:assign_shifts",
                                          sem_url=semester.sem_url))
 
     shifts = RegularWorkshift.objects.filter(
@@ -746,16 +746,15 @@ def assign_shifts_view(request, semester):
         for form in assign_forms:
             form.save()
         messages.add_message(request, messages.INFO, "Workshift assignments saved.")
-        return HttpResponseRedirect(wurl('workshift:assign_shifts',
+        return HttpResponseRedirect(wurl("workshift:assign_shifts",
                                          sem_url=semester.sem_url))
 
-    pools = WorkshiftPool.objects.filter(semester=semester).order_by('-is_primary', 'title')
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
     pool_hours = []
     for workshifter in workshifters:
         hours_owed = [
             pool.hours - pool.assigned_hours
-            for pool in workshifter.pool_hours.all()
+            for pool in workshifter.pool_hours.all().order_by("-pool__is_primary", "pool__title")
         ]
 
         if any(i > 0 for i in hours_owed):
@@ -763,9 +762,10 @@ def assign_shifts_view(request, semester):
 
     total_pool_hours = [
         sum(pools[i] for pools in pool_hours)
-        for i in range(len(pools))
+        for i in range(len(pool_hours[0]) if len(pool_hours) > 0 else 0)
     ]
 
+    pools = WorkshiftPool.objects.filter(semester=semester).order_by("-is_primary", "title")
     unassigned_shifts = []
     for pool in pools:
         shifts = RegularWorkshift.objects.filter(pool=pool)
@@ -776,6 +776,7 @@ def assign_shifts_view(request, semester):
                 shift_hours.append(
                     shift.hours * shift.count - shift.current_assignees.all().count()
                 )
+
         total_shift_hours = sum(shift_hours)
 
         if total_shift_hours > 0:
@@ -847,7 +848,7 @@ def add_pool_view(request, semester):
     if add_pool_form.is_valid():
         add_pool_form.save()
         messages.add_message(request, messages.INFO, "Workshift pool added.")
-        return HttpResponseRedirect(wurl('workshift:manage',
+        return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
     return render_to_response("add_pool.html", {
         "page_name": page_name,
@@ -902,7 +903,7 @@ def fill_shifts_view(request, semester):
             form.save()
             message = "Created {} workshifts".format(form.shift_name)
             messages.add_message(request, messages.INFO, message)
-            return HttpResponseRedirect(wurl('workshift:fill_shifts',
+            return HttpResponseRedirect(wurl("workshift:fill_shifts",
                                              sem_url=semester.sem_url))
 
     return render_to_response("fill_shifts.html", {
@@ -923,7 +924,7 @@ def add_shift_view(request, semester):
         pools = pools.filter(managers__incumbent__user=request.user)
         if not pools.count():
             messages.add_message(request, messages.ERROR,
-                                 MESSAGES['ADMINS_ONLY'])
+                                 MESSAGES["ADMINS_ONLY"])
             return HttpResponseRedirect(semester.get_view_url())
 
     if full_management:
@@ -983,10 +984,10 @@ def fine_date_view(request, semester, profile=None):
                                          sem_url=semester.sem_url))
 
     pools = WorkshiftPool.objects.filter(semester=semester)
-    pools = pools.order_by('-is_primary', 'title')
+    pools = pools.order_by("-is_primary", "title")
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
     pool_hours = [workshifter.pool_hours.filter(pool__in=pools)
-                  .order_by('-pool__is_primary', 'pool__title')
+                  .order_by("-pool__is_primary", "pool__title")
                   for workshifter in workshifters]
 
     return render_to_response("fine_date.html", {
@@ -1031,7 +1032,7 @@ def edit_pool_view(request, semester, pk, profile=None):
 
     if not full_management and managers.count() == 0:
         messages.add_message(request, messages.ERROR,
-                             MESSAGES['ADMINS_ONLY'])
+                             MESSAGES["ADMINS_ONLY"])
         return HttpResponseRedirect(semester.get_view_url())
 
     # TODO: Link auto-verify / auto-blown / etc to pool view?
@@ -1043,13 +1044,13 @@ def edit_pool_view(request, semester, pk, profile=None):
         )
     if "delete" in request.POST:
         pool.delete()
-        return HttpResponseRedirect(wurl('workshift:manage',
+        return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
     if edit_pool_form.is_valid():
         edit_pool_form.save()
         messages.add_message(request, messages.INFO,
                              "Workshift pool successfully updated.")
-        return HttpResponseRedirect(wurl('workshift:manage',
+        return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
 
     return render_to_response("edit_pool.html", {
@@ -1098,7 +1099,7 @@ def edit_shift_view(request, semester, pk, profile=None):
 
     if not utils.can_manage(request.user, semester=semester) and managers.count() == 0:
         messages.add_message(request, messages.ERROR,
-                             MESSAGES['ADMINS_ONLY'])
+                             MESSAGES["ADMINS_ONLY"])
         return HttpResponseRedirect(semester.get_view_url())
 
     edit_form = RegularWorkshiftForm(
@@ -1110,7 +1111,7 @@ def edit_shift_view(request, semester, pk, profile=None):
     if "delete" in request.POST:
         # Open instances are deleted automatically
         shift.delete()
-        return HttpResponseRedirect(wurl('workshift:manage',
+        return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
     elif edit_form.is_valid():
         shift = edit_form.save()
@@ -1189,7 +1190,7 @@ def edit_instance_view(request, semester, pk, profile=None):
 
     if not utils.can_manage(request.user, semester=semester) and managers.count() == 0:
         messages.add_message(request, messages.ERROR,
-                             MESSAGES['ADMINS_ONLY'])
+                             MESSAGES["ADMINS_ONLY"])
         return HttpResponseRedirect(semester.get_view_url())
 
     page_name = "Edit " + instance.title
@@ -1203,7 +1204,7 @@ def edit_instance_view(request, semester, pk, profile=None):
 
     if "delete" in request.POST:
         instance.delete()
-        return HttpResponseRedirect(wurl('workshift:manage',
+        return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
     elif edit_form.is_valid():
         instance = edit_form.save()
