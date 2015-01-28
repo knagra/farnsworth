@@ -120,8 +120,8 @@ def set_week_long(sender, instance, **kwargs):
 def subtract_instance_hours(sender, instance, **kwargs):
     if instance.closed and instance.workshifter:
         pool_hours = instance.workshifter.pool_hours.get(pool=instance.pool)
-        pool_hours -= instance.hours
-        pool_hours.ssave()
+        pool_hours.standing -= instance.hours
+        pool_hours.save()
 
 # TODO: Auto-notify manager and workshifter when they are >= 10 hours down
 # TODO: Auto-email central when workshifters are >= 15 hours down?
