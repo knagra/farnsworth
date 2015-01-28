@@ -278,7 +278,6 @@ def fill_regular_shifts(regular_hours=5, semester=None):
             shift.count = count
             shift.save()
 
-
 def fill_bathroom_shifts(bathroom_hours=4, semester=None):
     if semester is None:
         semester = _get_semester()
