@@ -186,6 +186,7 @@ def make_manager_workshifts(semester=None, managers=None):
             WorkshiftInstance.objects.filter(
                 weekly_workshift=shift, closed=False,
             ).delete()
+        shift.is_manager_shift = True
         shift.hours = wtype.hours
         if manager.incumbent:
             shift.current_assignees = WorkshiftProfile.objects.filter(

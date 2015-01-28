@@ -7,7 +7,7 @@
 
 {% block w_content %}
 <div class="shift_container">
-  {% if WORKSHIFT_MANAGER %}
+  {% if can_edit %}
   <form action="{% wurl 'workshift:edit_shift' pk=shift.pk sem_url=SEMESTER.sem_url %}" class="pull-right">
     <button class="btn btn-warning" type="submit">
       <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span>
@@ -16,6 +16,13 @@
   {% endif %}
   <h1 class="w_title">{{ page_name }}</h1>
   <hr class="w_line" />
+  {% if WORKSHIFT_MANAGER and not can_edit %}
+  <p>
+	Note: Only presidents can change the workshift assignments for other
+	managers. Please contact your house president and ask them to update the
+	manager hours and assignments.
+  </p>
+  {% endif %}
   <dl class="dl-horizontal">
     <dt>Day</dt>
     <dd>

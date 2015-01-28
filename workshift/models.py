@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.dateformat import time_format
 
+
 from base.models import UserProfile
 from utils.variables import ANONYMOUS_USERNAME
 from managers.models import Manager
@@ -324,30 +325,36 @@ class PoolHours(models.Model):
     pool = models.ForeignKey(
         WorkshiftPool,
         help_text="The pool associated with these hours.",
-        )
+    )
     hours = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         default=settings.DEFAULT_WORKSHIFT_HOURS,
         help_text="Periodic hour requirement.",
-        )
+    )
+    assigned_hours = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        help_text="Total hours satisfied by periodic shifts.",
+    )
     standing = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         default=0,
         help_text="Current hours standing, below or above requirement.",
-        )
+    )
     hour_adjustment = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         default=0,
         help_text="Manual hour requirement adjustment.",
-        )
+    )
     last_updated = models.DateTimeField(
         null=True,
         blank=True,
         help_text="When the last time the system updated this workshifter's standings.",
-        )
+    )
     first_date_standing = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -356,7 +363,7 @@ class PoolHours(models.Model):
         default=0,
         help_text="The hourly fines or repayment at the first fine date. "
         "Stored in a field for manual adjustment.",
-        )
+    )
     second_date_standing = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -365,7 +372,7 @@ class PoolHours(models.Model):
         default=0,
         help_text="The hourly fines or repayment at the second fine date. "
         "Stored in a field for manual adjustment.",
-        )
+    )
     third_date_standing = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -374,7 +381,7 @@ class PoolHours(models.Model):
         default=0,
         help_text="The hourly fines or repayment at the third fine date. "
         "Stored in a field for manual adjustment.",
-        )
+    )
 
     def show_hours(self):
         if self.pool.weeks_per_period == 0:
@@ -463,64 +470,68 @@ class RegularWorkshift(models.Model):
     workshift_type = models.ForeignKey(
         WorkshiftType,
         help_text="The workshift type for this weekly workshift.",
-        )
+    )
     pool = models.ForeignKey(
         WorkshiftPool,
         help_text="The workshift pool for this shift.",
-        )
+    )
     day = DayField(
         null=True,
         blank=True,
         help_text="The day of the week when this workshift takes place.",
-        )
+    )
     count = models.PositiveSmallIntegerField(
         max_length=4,
         default=1,
         help_text="Number of instances to create with each occurrence.",
-        )
+    )
     hours = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         default=settings.DEFAULT_WORKSHIFT_HOURS,
         help_text="Number of hours for this shift.",
-        )
+    )
     active = models.BooleanField(
         default=True,
         help_text="Whether this shift is actively being used currently "
         "(displayed in list of shifts, given hours, etc.).",
-        )
+    )
     current_assignees = models.ManyToManyField(
         WorkshiftProfile,
         blank=True,
         help_text="The workshifter currently assigned to this weekly "
         "workshift.",
-        )
+    )
     start_time = models.TimeField(
         help_text="Start time for this workshift.",
         null=True,
         blank=True,
-        )
+    )
     end_time = models.TimeField(
         help_text="End time for this workshift.",
         null=True,
         blank=True,
-        )
+    )
     verify = models.CharField(
         default=OTHER_VERIFY,
         choices=VERIFY_CHOICES,
         max_length=1,
         help_text="Who is able to mark this shift as completed.",
-        )
+    )
     week_long = models.BooleanField(
         default=False,
         help_text="If this shift is for the entire week.",
-        )
+    )
     addendum = models.TextField(
         default='',
         blank=True,
         null=True,
         help_text="Addendum to the description for this workshift.",
-        )
+    )
+    is_manager_shift = models.BooleanField(
+        default=False,
+        help_text="If this shift was automatically generated from the managers module",
+    )
 
     def __str__(self):
         return self.__unicode__()
@@ -817,93 +828,4 @@ class WorkshiftInstance(models.Model):
     def get_view_url(self):
         return wurl("workshift:view_instance", pk=self.pk, sem_url=self.semester.sem_url)
 
-def create_workshift_profile(sender, instance, created, **kwargs):
-    '''
-    Function to add a workshift profile for every User that is created.
-    Parameters:
-        instance is an of UserProfile that was just saved.
-    '''
-    if instance.user.username == ANONYMOUS_USERNAME or \
-       instance.status != UserProfile.RESIDENT:
-        return
-
-    try:
-        semester = Semester.objects.get(current=True)
-    except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
-        pass
-    else:
-        from workshift import utils
-        profile, created = WorkshiftProfile.objects.get_or_create(
-            user=instance.user,
-            semester=semester,
-        )
-        if created:
-            utils.make_workshift_pool_hours(
-                semester=semester,
-                profiles=[profile],
-            )
-
-def create_workshift_pool_hours(sender, instance, **kwargs):
-    pool = instance
-    from workshift import utils
-    utils.make_workshift_pool_hours(
-        semester=pool.semester,
-        pools=[pool],
-    )
-    utils.make_manager_workshifts(
-        semester=pool.semester,
-    )
-
-def create_manager_workshifts(sender, instance, created, **kwargs):
-    manager = instance
-    try:
-        semester = Semester.objects.get(current=True)
-    except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
-        pass
-    else:
-        from workshift import utils
-        utils.make_manager_workshifts(semester=semester, managers=[manager])
-
-def create_workshift_instances(sender, instance, created, **kwargs):
-    shift = instance
-    from workshift import utils
-    if shift.active:
-        utils.make_instances(shift.pool.semester, shifts=[instance])
-    else:
-        delete_workshift_instances(sender=sender, instance=shift)
-
-def delete_workshift_instances(sender, instance, **kwargs):
-    shift = instance
-    instances = WorkshiftInstance.objects.filter(
-        weekly_workshift=shift,
-        )
-    info = InstanceInfo.objects.create(
-        title=shift.workshift_type.title,
-        description=shift.workshift_type.description,
-        pool=shift.pool,
-        start_time=shift.start_time,
-        end_time=shift.end_time,
-        )
-    for instance in instances:
-        if instance.closed:
-            instance.weekly_workshift = None
-            instance.info = info
-            instance.closed = True
-            instance.save()
-        else:
-            instance.delete()
-
-def set_week_long(sender, instance, **kwargs):
-    shift = instance
-    shift.week_long = shift.day is None
-
-# Connect signals with their respective functions from above.
-# When a user is created, create a user profile associated with that user.
-models.signals.post_save.connect(create_workshift_profile, sender=UserProfile)
-models.signals.post_save.connect(create_workshift_pool_hours, sender=WorkshiftPool)
-models.signals.post_save.connect(create_manager_workshifts, sender=Manager)
-models.signals.post_save.connect(create_workshift_instances, sender=RegularWorkshift)
-models.signals.pre_delete.connect(delete_workshift_instances, sender=RegularWorkshift)
-models.signals.pre_save.connect(set_week_long, sender=RegularWorkshift)
-# TODO: Auto-notify manager and workshifter when they are >= 10 hours down
-# TODO: Auto-email central when workshifters are >= 15 hours down?
+from workshift import signals

@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -750,15 +751,11 @@ def assign_shifts_view(request, semester):
 
     pools = WorkshiftPool.objects.filter(semester=semester).order_by('-is_primary', 'title')
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
-    all_workshifts = RegularWorkshift.objects.filter(pool__semester=semester)
     pool_hours = []
     for workshifter in workshifters:
         hours_owed = [
-            pool.hours - sum(
-                i.hours
-                for i in all_workshifts.filter(current_assignees=workshifter, pool=pool)
-            )
-            for pool in pools
+            pool.hours - pool.assigned_hours
+            for pool in workshifter.pool_hours.all()
         ]
 
         if any(i > 0 for i in hours_owed):
@@ -771,7 +768,7 @@ def assign_shifts_view(request, semester):
 
     unassigned_shifts = []
     for pool in pools:
-        shifts = all_workshifts.filter(pool=pool)
+        shifts = RegularWorkshift.objects.filter(pool=pool)
         filtered_shifts, shift_hours = [], []
         for shift in shifts:
             if shift.current_assignees.all().count() < shift.count:
@@ -1032,7 +1029,7 @@ def edit_pool_view(request, semester, pk, profile=None):
     full_management = utils.can_manage(request.user, semester=semester)
     managers = pool.managers.filter(incumbent__user=request.user)
 
-    if not full_management and not managers.count():
+    if not full_management and managers.count() == 0:
         messages.add_message(request, messages.ERROR,
                              MESSAGES['ADMINS_ONLY'])
         return HttpResponseRedirect(semester.get_view_url())
@@ -1068,19 +1065,24 @@ def shift_view(request, semester, pk, profile=None):
     shift = get_object_or_404(RegularWorkshift, pk=pk)
     page_name = shift.workshift_type.title
 
+    president = Manager.objects.filter(incumbent__user=request.user, president=True) \
+                .count() > 0
+    can_edit = request.user.is_superuser or president
+
     instances = WorkshiftInstance.objects.filter(
         closed=False,
         weekly_workshift=shift,
-        )
+    )
     instance_tuples = [
         (instance, _get_forms(profile, instance))
         for instance in instances
-        ]
+    ]
 
     return render_to_response("view_shift.html", {
         "page_name": page_name,
         "shift": shift,
         "instance_tuples": instance_tuples,
+        "can_edit": can_edit,
     }, context_instance=RequestContext(request))
 
 @get_workshift_profile
@@ -1091,7 +1093,10 @@ def edit_shift_view(request, semester, pk, profile=None):
     shift = get_object_or_404(RegularWorkshift, pk=pk)
     managers = shift.pool.managers.filter(incumbent__user=request.user)
 
-    if not request.user.is_superuser and not managers.count():
+    if shift.is_manager_shift:
+        return HttpResponseRedirect(reverse("managers:edit_manager"))
+
+    if not utils.can_manage(request.user, semester=semester) and managers.count() == 0:
         messages.add_message(request, messages.ERROR,
                              MESSAGES['ADMINS_ONLY'])
         return HttpResponseRedirect(semester.get_view_url())
@@ -1100,7 +1105,7 @@ def edit_shift_view(request, semester, pk, profile=None):
         request.POST if "edit" in request.POST else None,
         instance=shift,
         semester=semester,
-        )
+    )
 
     if "delete" in request.POST:
         # Open instances are deleted automatically
@@ -1182,7 +1187,7 @@ def edit_instance_view(request, semester, pk, profile=None):
     instance = get_object_or_404(WorkshiftInstance, pk=pk)
     managers = instance.pool.managers.filter(incumbent__user=request.user)
 
-    if not request.user.is_superuser and not managers.count():
+    if not utils.can_manage(request.user, semester=semester) and managers.count() == 0:
         messages.add_message(request, messages.ERROR,
                              MESSAGES['ADMINS_ONLY'])
         return HttpResponseRedirect(semester.get_view_url())

@@ -17,7 +17,7 @@ from workshift.models import *
 from workshift.forms import *
 from workshift.fields import DAY_CHOICES
 from workshift.cron import CollectBlownCronJob, UpdateWeeklyStandings
-from workshift import utils
+from workshift import utils, signals
 
 class TestStart(TestCase):
     """
@@ -475,7 +475,7 @@ class TestUtils(TestCase):
             )
         # Disconnect the handler and run make_instances ourselves
         models.signals.post_save.disconnect(
-            create_workshift_instances, sender=RegularWorkshift
+            signals.create_workshift_instances, sender=RegularWorkshift
             )
         shift = RegularWorkshift.objects.create(
             workshift_type=wtype,
