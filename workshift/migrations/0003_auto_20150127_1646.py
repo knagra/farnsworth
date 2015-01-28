@@ -10,7 +10,10 @@ def calculate_assigned_hours(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     for workshifter in WorkshiftProfile.objects.using(db_alias).all():
         for pool_hours in workshifter.pool_hours.all():
-            shifts = RegularWorkshift.objects.using(db_alias).filter(current_assignees=workshifter)
+            shifts = RegularWorkshift.objects.using(db_alias).filter(
+                current_assignees=workshifter,
+                pool=pool_hours.pool,
+            )
             pool_hours.assigned_hours = sum(i.hours for i in shifts)
             pool_hours.save(using=db_alias, update_fields=["assigned_hours"])
 
