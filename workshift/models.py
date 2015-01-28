@@ -470,7 +470,7 @@ class WorkshiftProfile(models.Model):
 
     def get_edit_url(self):
         return wurl(
-            "workshift:profile",
+            "workshift:edit_profile",
             targetUsername=self.user.username,
             sem_url=self.semester.sem_url,
         )
