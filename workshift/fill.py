@@ -199,13 +199,19 @@ def _fill_workshift_types():
             ),
         )
 
-def reset_all_shifts(semester=None):
+def reset_all_shifts(semester=None, pool=None):
     if semester is None:
         semester = _get_semester()
 
-    shifts = RegularWorkshift.objects.filter(semester=semester)
+    shifts = RegularWorkshift.objects.filter(pool__semester=semester)
+
+    if pool is not None:
+        shifts = shifts.filter(pool=pool)
+
     shift_count = shifts.count()
     shifts.delete()
+
+    make_manager_workshifts(semester)
 
     return shift_count
 
@@ -259,7 +265,6 @@ def fill_regular_shifts(regular_hours=5, semester=None):
         )
 
     make_instances(semester=semester)
-    make_manager_workshifts(semester)
 
 def fill_hi_shifts(hi_hours=5, semester=None):
     if semester is None:

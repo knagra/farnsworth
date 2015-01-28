@@ -214,7 +214,8 @@ def start_semester_view(request):
     except IndexError:
         pass
     else:
-        for pool in WorkshiftPool.objects.filter(semester=prev_semester):
+        pools = WorkshiftPool.objects.filter(semester=prev_semester, is_primary=False)
+        for pool in pools:
             form = StartPoolForm(
                 request.POST or None,
                 initial={
@@ -537,19 +538,19 @@ def preferences_view(request, semester, targetUsername, profile=None):
             prefix="rating-{0}".format(wtype.pk),
             instance=rating,
             profile=wprofile,
-            )
+        )
         rating_forms.append(form)
 
     time_formset = TimeBlockFormSet(
         request.POST or None,
         prefix="time",
         profile=wprofile,
-        )
+    )
     note_form = ProfileNoteForm(
         request.POST or None,
         instance=wprofile,
         prefix="note",
-        )
+    )
 
     if all(i.is_valid() for i in rating_forms) and time_formset.is_valid() and \
       note_form.is_valid():
@@ -569,7 +570,8 @@ def preferences_view(request, semester, targetUsername, profile=None):
         page_name = "My Workshift Preferences"
     else:
         page_name = "{0}'s Workshift Preferences".format(
-        wprofile.user.get_full_name())
+            wprofile.user.get_full_name(),
+        )
     return render_to_response("preferences.html", {
         "page_name": page_name,
         "profile": wprofile,
@@ -868,6 +870,7 @@ def fill_shifts_view(request, semester):
     fill_social_shifts_form = None
     fill_humor_shifts_form = None
     fill_hi_shifts_form = None
+    reset_all_shifts_form = None
 
     managers = Manager.objects.filter(incumbent__user=request.user)
     admin = utils.can_manage(request.user, semester=semester)
@@ -876,32 +879,39 @@ def fill_shifts_view(request, semester):
         fill_regular_shifts_form = FillRegularShiftsForm(
             request.POST,
             semester=semester,
-            )
+        )
         fill_humor_shifts_form = FillHumorShiftsForm(
             request.POST,
             semester=semester,
-            )
+        )
+        reset_all_shifts_form = ResetAllShiftsForm(
+            request.POST,
+            semester=semester,
+        )
     # XXX: BAD! We should filter by pool owners? By Manager bool flags? By
     # arbitrary django permissions?
     if admin or managers.filter(title="Social Manager"):
         fill_social_shifts_form = FillSocialShiftsForm(
             request.POST,
             semester=semester,
-            )
+        )
     # XXX: See above
     if admin or managers.filter(title="Maintenance Manager"):
         fill_hi_shifts_form = FillHIShiftsForm(
             request.POST,
             semester=semester,
-            )
+        )
 
     forms = [fill_regular_shifts_form, fill_social_shifts_form,
-             fill_humor_shifts_form, fill_hi_shifts_form]
+             fill_humor_shifts_form, fill_hi_shifts_form,
+             reset_all_shifts_form]
 
     for form in forms:
         if form and form.is_valid():
-            form.save()
-            message = "Created {} workshifts".format(form.shift_name)
+            count = form.save()
+            message = "{} {} {}".format(
+                form.message, count, p.plural("workshift", count),
+            )
             messages.add_message(request, messages.INFO, message)
             return HttpResponseRedirect(wurl("workshift:fill_shifts",
                                              sem_url=semester.sem_url))

@@ -38,42 +38,6 @@ class SemesterForm(forms.ModelForm):
         model = Semester
         exclude = ("workshift_managers", "preferences_open", "current",)
 
-    def save(self):
-        semester = super(SemesterForm, self).save()
-
-        # Set current to false for previous semesters
-        for prev_semester in Semester.objects.all():
-            prev_semester.current = False
-            prev_semester.save()
-
-        semester.workshift_managers = \
-          [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
-        semester.current = True
-        semester.preferences_open = True
-        semester.save()
-
-        # Create the primary workshift pool
-        pool = WorkshiftPool.objects.create(
-            semester=semester,
-            is_primary=True,
-            )
-        pool.managers = Manager.objects.filter(workshift_manager=True)
-        pool.save()
-
-        # Create this semester's workshift profiles
-        for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
-            if uprofile.user.username == ANONYMOUS_USERNAME:
-                continue
-            WorkshiftProfile.objects.create(
-                user=uprofile.user,
-                semester=semester,
-                )
-
-        utils.make_workshift_pool_hours(semester=semester)
-        utils.make_manager_workshifts(semester=pool.semester)
-
-        return semester
-
 class StartPoolForm(forms.ModelForm):
     copy_pool = forms.BooleanField(initial=True)
 
@@ -578,8 +542,11 @@ class AddWorkshifterForm(forms.Form):
             return profile
 
 class FillShiftsForm(forms.Form):
+    message = "Created"
+
     def __init__(self, *args, **kwargs):
         self.name = "fill_{}_shifts".format(self.shift_name)
+        self.button_text = "Fill in {} shifts".format(self.shift_name)
 
         if len(args) > 0 and self.name not in args[0]:
             args = (None,) + tuple(args[1:])
@@ -600,21 +567,38 @@ class FillSocialShiftsForm(FillShiftsForm):
 
     def save(self):
         from workshift.fill import fill_social_shifts
-        fill_social_shifts(semester=self.semester)
+        return fill_social_shifts(semester=self.semester)
 
 class FillHumorShiftsForm(FillShiftsForm):
     shift_name = "humor"
 
     def save(self):
         from workshift.fill import fill_humor_shifts
-        fill_humor_shifts(semester=self.semester)
+        return fill_humor_shifts(semester=self.semester)
 
 class FillHIShiftsForm(FillShiftsForm):
     shift_name = "HI"
 
     def save(self):
         from workshift.fill import fill_hi_shifts
-        fill_hi_shifts(semester=self.semester)
+        return fill_hi_shifts(semester=self.semester)
+
+class ResetAllShiftsForm(forms.Form):
+    name = "reset_all_shifts"
+    button_text = "Remove all shifts"
+    message = "Removed"
+
+    def __init__(self, *args, **kwargs):
+        if len(args) > 0 and self.name not in args[0]:
+            args = (None,) + tuple(args[1:])
+
+        self.semester = kwargs.pop("semester")
+
+        super(ResetAllShiftsForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        from workshift.fill import reset_all_shifts
+        return reset_all_shifts(semester=self.semester)
 
 class AutoAssignShiftForm(forms.Form):
     name = "auto_assign_shifts"

@@ -566,19 +566,6 @@ def reset_standings(semester=None):
 
     update_standings(semester=semester)
 
-def clear_semester(semester):
-    """
-    Removes all traces of Semester from the database.
-    """
-    ShiftLogEntry.objects.filter(person__semester=semester).delete()
-    WorkshiftInstance.objects.filter(semester=semester).delete()
-    InstanceInfo.objects.filter(pool__semester=semester).delete()
-    RegularWorkshift.objects.filter(pool__semester=semester).delete()
-    PoolHours.objects.filter(pool__semester=semester).delete()
-    WorkshiftProfile.objects.filter(semester=semester).delete()
-    WorkshiftPool.objects.filter(semester=semester).delete()
-    semester.delete()
-
 def calculate_assigned_hours(profiles=None):
     """
     Recalculates PoolHour.assigned_hours from scratch.

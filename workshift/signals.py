@@ -41,6 +41,54 @@ def create_workshift_pool_hours(sender, instance, **kwargs):
         pools=[pool],
     )
 
+@receiver(signals.post_save, sender=Semester)
+def initialize_semester(sender, instance, created, **kwargs):
+    if not created:
+        return
+
+    semester = instance
+    semester.workshift_managers = \
+      [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
+    semester.preferences_open = True
+    semester.save()
+
+    # Set current to false for previous semesters
+    for prev_semester in Semester.objects.exclude(pk=semester.pk):
+        prev_semester.current = False
+        prev_semester.save()
+
+    # Create the primary workshift pool
+    pool, created = WorkshiftPool.objects.get_or_create(
+        semester=semester,
+        is_primary=True,
+    )
+    if created:
+        pool.managers = Manager.objects.filter(workshift_manager=True)
+        pool.save()
+
+    # Create this semester's workshift profiles
+    for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
+        if uprofile.user.username == ANONYMOUS_USERNAME:
+            continue
+        WorkshiftProfile.objects.create(
+            user=uprofile.user,
+            semester=semester,
+        )
+
+    utils.make_workshift_pool_hours(semester=semester)
+    utils.make_manager_workshifts(semester=semester)
+
+@receiver(signals.pre_delete, sender=Semester)
+def clear_semester(sender, instance, **kwargs):
+    semester = instance
+    ShiftLogEntry.objects.filter(person__semester=semester).delete()
+    WorkshiftInstance.objects.filter(semester=semester).delete()
+    InstanceInfo.objects.filter(pool__semester=semester).delete()
+    RegularWorkshift.objects.filter(pool__semester=semester).delete()
+    PoolHours.objects.filter(pool__semester=semester).delete()
+    WorkshiftProfile.objects.filter(semester=semester).delete()
+    WorkshiftPool.objects.filter(semester=semester).delete()
+
 @receiver(signals.post_save, sender=Manager)
 def create_manager_workshifts(sender, instance, created, **kwargs):
     manager = instance
