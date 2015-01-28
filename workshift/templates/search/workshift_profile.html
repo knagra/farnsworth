@@ -13,8 +13,8 @@
 	User Profile
   </dt>
   <dd>
-	<a href="{% url 'member_profile' targetUsername=result.object.get_user %}">
-	  {{ result.object.get_full_name }}
+	<a href="{{ result.object.get_view_url }}">
+	  {{ result.object }}
 	</a>
   </dd>
   {% for hours in result.object.pool_hours.all %}

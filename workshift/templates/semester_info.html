@@ -23,7 +23,7 @@
 	  Workshift Managers
 	</dt>
 	<dd>
-	  {% for user in semester.workshift_managers.all %}{% if not forloop.first %}, {% endif %}<a href="{% url 'member_profile' targetUsername=user.username %}">{{ user.get_full_name }}</a>{% endfor %}
+	  {% for user in semester.workshift_managers.all %}{% if not forloop.first %}, {% endif %}<a href="{{ user.get_view_url }}">{{ user.get_full_name }}</a>{% endfor %}
 	</dd>
 	<dt>
 	  Workshift Rate

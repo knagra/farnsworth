@@ -87,6 +87,9 @@ class Manager(models.Model):
     def get_view_url(self):
         return reverse("managers:view_manager", kwargs={"managerTitle": self.url_title})
 
+    def get_edit_url(self):
+        return reverse("managers:edit_manager", kwargs={"managerTitle": self.url_title})
+
     def __init__(self, *args, **kwargs):
         if "title" in kwargs:
             kwargs.setdefault("url_title", convert_to_url(kwargs["title"]))

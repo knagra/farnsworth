@@ -50,9 +50,9 @@
 			  {% if pool.managers.count %}
 			  {% for pos in pool.managers.all %}
 			  {% if not forloop.first %}, {% endif %}
-			  <a {% if pos.active %}title="View Details" href="{% url 'managers:view_manager' managerTitle=pos.url_title %}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{% url 'managers:edit_manager' managerTitle=pos.url_title %}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+			  <a {% if pos.active %}title="View Details" href="{{ pos.get_view_url }}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{{ pos.get_edit_url }}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
 			  {% if pos.incumbent %}
-			  (<a title="View Profile" href="{% url 'member_profile' targetUsername=pos.incumbent.user.username %}">{{ pos.incumbent }}</a>)
+			  (<a title="View Profile" href="{{ pos.incumbent.get_view_url }}">{{ pos.incumbent }}</a>)
 			  {% else %}
 			  (<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
 			  {% endif %}
@@ -113,22 +113,22 @@
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
-  $("[id$=date]").datetimepicker({pickTime: false});
-  $("[id$=time]").datetimepicker({pickDate: false});
-  $(document).ready(function() {
-    $('#pools_table').tablesorter({
-        widgets: ["resizable", "filter"],
-        widgetOptions: {
-            resizable: true
-        }
-    });
-    $('#workshifters_table').tablesorter({
-        sortList: [[0,0], [1,0]],
-        widgets: ["resizable", "filter"],
-        widgetOptions: {
-            resizable: true
-        }
-    });
-  });
+ $("[id$=date]").datetimepicker({pickTime: false});
+ $("[id$=time]").datetimepicker({pickDate: false});
+ $(document).ready(function() {
+   $('#pools_table').tablesorter({
+     widgets: ["resizable", "filter"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+   $('#workshifters_table').tablesorter({
+     sortList: [[0,0], [1,0]],
+     widgets: ["resizable", "filter"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+ });
 </script>
 {% endblock %}
