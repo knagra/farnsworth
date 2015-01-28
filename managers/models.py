@@ -85,7 +85,7 @@ class Manager(models.Model):
         return True
 
     def get_view_url(self):
-        return reverse("managers:view_manager", kwargs={"managerTitle": self.title})
+        return reverse("managers:view_manager", kwargs={"managerTitle": self.url_title})
 
     def __init__(self, *args, **kwargs):
         if "title" in kwargs:
