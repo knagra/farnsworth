@@ -345,11 +345,12 @@ class TestUtils(TestCase):
     Tests most of the various functions within workshift.utils.
     """
     def setUp(self):
+        today = now().date()
         self.semester = Semester.objects.create(
-            year=2014,
+            year=today.year,
             season=Semester.SUMMER,
-            start_date=date(2014, 5, 25),
-            end_date=date(2014, 8, 16),
+            start_date=today,
+            end_date=today + timedelta(weeks=18),
             )
         self.u = User.objects.create_user(username="u")
         self.profile = WorkshiftProfile.objects.get(user=self.u)
@@ -2283,13 +2284,14 @@ class TestSemester(TestCase):
 
     def test_new_semester(self):
         url = reverse("workshift:start_semester")
+        today = now().date()
         response = self.client.post(url, {
-            "semester-year": 2015,
+            "semester-year": today.year,
             "semester-season": Semester.SPRING,
             "semester-rate": 14.00,
             "semester-policy": "http://bsc.coop",
-            "semester-start_date": date(2015, 1, 25),
-            "semester-end_date": date(2015, 5, 30),
+            "semester-start_date": today,
+            "semester-end_date": today + timedelta(weeks=18),
         }, follow=True)
 
         self.assertRedirects(response, reverse("workshift:manage"))
@@ -2300,7 +2302,7 @@ class TestSemester(TestCase):
         s = Semester.objects.get(current=True)
         self.assertEqual(
             s.year,
-            2015,
+            today.year,
         )
         self.assertEqual(
             WorkshiftProfile.objects.filter(semester=s).count(),
