@@ -105,13 +105,13 @@ def make_instances(semester=None, shifts=None, start=None):
                     date=day,
                     hours=shift.hours,
                     intended_hours=shift.hours,
-                    )
+                )
                 if i < len(assignees):
                     instance.workshifter = assignees[i]
                     log = ShiftLogEntry.objects.create(
                         person=instance.workshifter,
                         entry_type=ShiftLogEntry.ASSIGNED,
-                        )
+                    )
                     instance.logs.add(log)
                     instance.save()
                 new_instances.append(instance)

@@ -728,8 +728,9 @@ class TestViews(TestCase):
             reverse("workshift:view_instance", kwargs={"pk": self.instance.pk}),
             reverse("workshift:view_instance", kwargs={"pk": self.once.pk}),
             reverse("workshift:view_open"),
+            reverse("workshift:semester_info"),
             reverse("workshift:profiles"),
-            ]
+        ]
         for url in urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
@@ -740,13 +741,14 @@ class TestViews(TestCase):
             reverse("workshift:list_types"),
             reverse("workshift:view_type", kwargs={"pk": self.wtype.pk}),
             reverse("workshift:edit_type", kwargs={"pk": self.wtype.pk}),
-            ]
+        ]
         for url in urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
         urls = [
             ("workshift:view_semester", {}),
+            ("workshift:semester_info", {}),
             ("workshift:profile", {"targetUsername": self.wprofile.user.username}),
             ("workshift:edit_profile", {"targetUsername": self.wprofile.user.username}),
             ("workshift:preferences", {"targetUsername": self.wprofile.user.username}),
@@ -766,7 +768,7 @@ class TestViews(TestCase):
             ("workshift:add_pool", {}),
             ("workshift:view_pool", {"pk": self.pool.pk}),
             ("workshift:edit_pool", {"pk": self.pool.pk}),
-            ]
+        ]
         for name, kwargs in urls:
             url = reverse(name, kwargs=kwargs)
             response = self.client.get(url)
@@ -1517,6 +1519,7 @@ class TestPermissions(TestCase):
         urls = [
             reverse("workshift:start_semester"),
             reverse("workshift:view_semester"),
+            reverse("workshift:semester_info"),
             reverse("workshift:profile", kwargs={"targetUsername": self.up.user.username}),
             reverse("workshift:edit_profile", kwargs={"targetUsername": self.up.user.username}),
             reverse("workshift:preferences", kwargs={"targetUsername": self.up.user.username}),
@@ -1532,8 +1535,7 @@ class TestPermissions(TestCase):
             reverse("workshift:edit_shift", kwargs={"pk": self.mshift.pk}),
             reverse("workshift:edit_instance", kwargs={"pk": self.minstance.pk}),
             reverse("workshift:edit_type", kwargs={"pk": self.mtype.pk}),
-            ]
-
+        ]
         for url in urls:
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
@@ -1544,6 +1546,7 @@ class TestPermissions(TestCase):
         urls = [
             (False, reverse("workshift:start_semester")),
             (True, reverse("workshift:view_semester")),
+            (True, reverse("workshift:semester_info")),
             (True, reverse("workshift:profile", kwargs={"targetUsername": self.up.user.username})),
             (False, reverse("workshift:preferences", kwargs={"targetUsername": self.up.user.username})),
             (True, reverse("workshift:manage")),
@@ -1558,7 +1561,7 @@ class TestPermissions(TestCase):
             (True, reverse("workshift:edit_shift", kwargs={"pk": self.mshift.pk})),
             (True, reverse("workshift:edit_instance", kwargs={"pk": self.minstance.pk})),
             (True, reverse("workshift:edit_type", kwargs={"pk": self.mtype.pk})),
-            ]
+        ]
         for okay, url in urls:
             response = self.client.get(url, follow=True)
             if okay:
@@ -1573,6 +1576,7 @@ class TestPermissions(TestCase):
         urls = [
             (False, reverse("workshift:start_semester")),
             (True, reverse("workshift:view_semester")),
+            (True, reverse("workshift:semester_info")),
             (True, reverse("workshift:profile", kwargs={"targetUsername": self.up.user.username})),
             (False, reverse("workshift:edit_profile", kwargs={"targetUsername": self.up.user.username})),
             (True, reverse("workshift:preferences", kwargs={"targetUsername": self.up.user.username})),
@@ -1588,8 +1592,7 @@ class TestPermissions(TestCase):
             (False, reverse("workshift:edit_shift", kwargs={"pk": self.mshift.pk})),
             (False, reverse("workshift:edit_instance", kwargs={"pk": self.minstance.pk})),
             (False, reverse("workshift:edit_type", kwargs={"pk": self.mtype.pk})),
-            ]
-
+        ]
         for okay, url in urls:
             response = self.client.get(url, follow=True)
             if okay:
@@ -1604,6 +1607,7 @@ class TestPermissions(TestCase):
         urls = [
             (False, reverse("workshift:start_semester")),
             (True, reverse("workshift:view_semester")),
+            (True, reverse("workshift:semester_info")),
             (True, reverse("workshift:profile", kwargs={"targetUsername": self.up.user.username})),
             (False, reverse("workshift:edit_profile", kwargs={"targetUsername": self.up.user.username})),
             (False, reverse("workshift:preferences", kwargs={"targetUsername": self.up.user.username})),

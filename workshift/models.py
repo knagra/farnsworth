@@ -116,6 +116,9 @@ class Semester(models.Model):
     def get_view_url(self):
         return wurl("workshift:view_semester", sem_url=self.sem_url)
 
+    def get_edit_url(self):
+        return wurl("workshift:manage", sem_url=self.sem_url)
+
 class WorkshiftPool(models.Model):
     title = models.CharField(
         max_length=100,

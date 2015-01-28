@@ -60,12 +60,17 @@
         {% endfor %}
       </div> <!-- #upcoming_shifts -->
       {% endif %}
-      {% if CURRENT_SEMESTER %}
+      {% if SEMESTER %}
       <h4>
-        <a href="{% wurl 'workshift:view_open' sem_url=CURRENT_SEMESTER.sem_url %}">
+        <a href="{% wurl 'workshift:view_open' sem_url=SEMESTER.sem_url %}">
           Open Shifts
         </a>
       </h4>
+	  <h4>
+		<a href="{% wurl 'workshift:semester_info' sem_url=SEMESTER.sem_url %}">
+		  Semester Info
+		</a>
+	  </h4>
       <div class="row">
         {% if WORKSHIFT_PROFILE %}
         <div class="col-md-12 col-lg-12{% if WORKSHIFT_MANAGER %} col-sm-6 col-xs-6{% endif %}">

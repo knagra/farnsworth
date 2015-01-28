@@ -100,6 +100,9 @@ class UserProfile(models.Model):
     def is_userprofile(self):
         return True
 
+    def get_view_url(self):
+        return _get_user_view_url(self.user)
+
 class ProfileRequest(models.Model):
     '''
     The ProfileRequest model.  A request to create a user account on the site.

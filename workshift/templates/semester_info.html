@@ -1,0 +1,91 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<div class="semester_info_container">
+  {% if WORKSHIFT_MANAGER %}
+  <form action="{{ semester.get_edit_url }}" class="pull-right">
+    <button class="btn btn-warning" type="submit">
+      <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Manage</span>
+    </button>
+  </form>
+  {% endif %}
+  <h1 class="w_title">
+	{{ page_name }}
+  </h1>
+  <hr class="w_line" />
+  <dl id="info_table" class="dl-horizontal">
+	<dt>
+	  Workshift Managers
+	</dt>
+	<dd>
+	  {% for user in semester.workshift_managers.all %}{% if not forloop.first %}, {% endif %}<a href="{% url 'member_profile' targetUsername=user.username %}">{{ user.get_full_name }}</a>{% endfor %}
+	</dd>
+	<dt>
+	  Workshift Rate
+	</dt>
+	<dd>
+	  ${{ semester.rate }}
+	</dd>
+	<dt>
+	  Workshift Policy
+	</dt>
+	<dd>
+	  <a href="{{ semester.policy }}">
+		{{ semester.policy }}
+	  </a>
+	</dd>
+	<dt>
+	  Dates
+	</dt>
+	<dd>
+	  {{ semester.start_date }} - {{ semester.end_date }}
+	</dd>
+  </dl>
+  {% if pools %}
+  <table>
+	<thead>
+	  <tr>
+		<th>
+		  Title
+		</th>
+		<th>
+		  Managers
+		</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for pool in pools %}
+	  <tr>
+		<td>
+		  <a href="{{ pool.get_view_url }}">
+			{{ pool.title }}
+		  </a>
+		</td>
+		<td>
+		  {% for manager in pool.managers.all %}{% if not forloop.first %}, {% endif %}<a href="{{ manager.get_view_url }}">{{ manager.title }}</a> ({% if manager.incumbent %}<a href="{{ manager.incumbent.get_view_url }}">{{ manager.incumbent }}</a>{% else %}<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>{% endif %}){% endfor %}
+		</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+  </table>
+  {% endif %}
+</div> <!-- .semester_info_container -->
+{% endblock %}
+
+{% block w_endscripts %}
+<script>
+ $(document).ready(function() {
+   $('table').tablesorter({
+     widgets: ["resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+ });
+</script>
+{% endblock %}

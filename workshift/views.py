@@ -241,7 +241,7 @@ def start_semester_view(request):
     }, context_instance=RequestContext(request))
 
 @get_workshift_profile
-def view_semester(request, semester, profile=None):
+def semester_view(request, semester, profile=None):
     """
     Displays a table of the workshifts for the week, shift assignments,
     accumulated statistics (Down hours), reminders for any upcoming shifts, and
@@ -325,6 +325,16 @@ def view_semester(request, semester, profile=None):
 
     return render_to_response("semester.html", template_dict,
                               context_instance=RequestContext(request))
+
+@get_workshift_profile
+def semester_info_view(request, semester, profile=None):
+    page_name = "{} {}".format(semester.get_season_display(), semester.year)
+    pools = WorkshiftPool.objects.filter(semester=semester)
+    return render_to_response("semester_info.html", {
+        "page_name": page_name,
+        "semester": semester,
+        "pools": pools,
+    }, context_instance=RequestContext(request))
 
 def _get_forms(profile, instance, undo=False, prefix=""):
     """
@@ -412,7 +422,7 @@ def _is_preferred(instance, profile):
     return True
 
 @get_workshift_profile
-def view_open_shifts(request, semester, profile=None):
+def open_shifts_view(request, semester, profile=None):
     page_name = "Upcoming Open Shifts"
     shifts = WorkshiftInstance.objects.filter(closed=False).order_by("-date")
     shift_count = shifts.count()
