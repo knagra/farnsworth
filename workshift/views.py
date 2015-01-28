@@ -917,13 +917,14 @@ def fill_shifts_view(request, semester):
             semester=semester,
         )
 
-    forms = [
+    fill_forms = [
         fill_regular_shifts_form, fill_social_shifts_form,
         fill_humor_shifts_form, fill_bathroom_shifts_form,
         fill_hi_shifts_form, reset_all_shifts_form,
     ]
+    fill_forms = [i for i in fill_forms if i is not None]
 
-    for form in forms:
+    for form in fill_forms:
         if form and form.is_valid():
             count = form.save()
             message = "{} {} {}".format(
@@ -935,7 +936,7 @@ def fill_shifts_view(request, semester):
 
     return render_to_response("fill_shifts.html", {
         "page_name": page_name,
-        "forms": forms,
+        "forms": fill_forms,
     }, context_instance=RequestContext(request))
 
 @semester_required

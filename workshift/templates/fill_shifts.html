@@ -27,9 +27,9 @@
 	  {% if forloop.counter|divisibleby:"3" and not forloop.last %}
 	</div><div class="row">
 	  {% endif %}
+	  {% endif %}
+	  {% endfor %}
 	</div>
-	{% endif %}
-	{% endfor %}
   </div>
 </div> <!-- #assign_container -->
 {% endblock %}
