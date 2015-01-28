@@ -576,6 +576,13 @@ class FillHumorShiftsForm(FillShiftsForm):
         from workshift.fill import fill_humor_shifts
         return fill_humor_shifts(semester=self.semester)
 
+class FillBathroomShiftsForm(FillShiftsForm):
+    shift_name = "bathroom"
+
+    def save(self):
+        from workshift.fill import fill_bathroom_shifts
+        return fill_bathroom_shifts(semester=self.semester)
+
 class FillHIShiftsForm(FillShiftsForm):
     shift_name = "HI"
 
@@ -641,12 +648,14 @@ class RandomAssignInstancesForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop('semester')
         super(RandomAssignInstancesForm, self).__init__(*args, **kwargs)
-        try:
-            primary = self.fields['pool'].queryset.get(title__contains="Humor")
-        except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
-            pass
-        else:
-            self.fields['pool'].initial = primary
+        for title in ["Humor", "Bathroom"]:
+            try:
+                primary = self.fields['pool'].queryset.get(title__contains=title)
+            except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
+                pass
+            else:
+                self.fields['pool'].initial = primary
+                break
 
     def save(self):
         unfinished = utils.randomly_assign_instances(

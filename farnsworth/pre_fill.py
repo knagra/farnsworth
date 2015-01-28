@@ -47,11 +47,13 @@ def main(args):
         fill_requests(verbose=args.verbose)
 
     if args.workshift and "workshift" in settings.INSTALLED_APPS:
-        from workshift.fill import fill_regular_shifts, fill_humor_shifts, \
-            fill_social_shifts
+        from workshift.fill import fill_regular_shifts, fill_bathroom_shifts, \
+            fill_hi_shifts, fill_social_shifts, fill_humor_shifts
         fill_regular_shifts()
-        fill_humor_shifts()
+        fill_bathroom_shifts()
+        fill_hi_shifts()
         fill_social_shifts()
+        fill_humor_shifts()
 
 if __name__ == "__main__":
     main(sys.argv[1:])

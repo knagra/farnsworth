@@ -12,7 +12,8 @@ from base.models import User, UserProfile, ProfileRequest
 from farnsworth import pre_fill
 from managers.models import Manager
 from utils.variables import MESSAGES
-from workshift.fill import REGULAR_WORKSHIFTS, WEEK_LONG, HUMOR_WORKSHIFTS
+from workshift.fill import REGULAR_WORKSHIFTS, WEEK_LONG, HUMOR_WORKSHIFTS, \
+    BATHROOM_WORKSHIFTS
 from workshift.models import *
 from workshift.forms import *
 from workshift.fields import DAY_CHOICES
@@ -2252,6 +2253,7 @@ class TestSemester(TestCase):
         names = [
             "fill_regular_shifts",
             "fill_humor_shifts",
+            "fill_bathroom_shifts",
             "fill_social_shifts",
             "fill_HI_shifts",
         ]
@@ -2267,6 +2269,7 @@ class TestSemester(TestCase):
             RegularWorkshift.objects.all().count(),
             sum(len(i[2]) for i in REGULAR_WORKSHIFTS) + len(WEEK_LONG) +
             sum(len(i[2]) for i in HUMOR_WORKSHIFTS) +
+            sum(len(i[2]) for i in BATHROOM_WORKSHIFTS) +
             Manager.objects.all().count() * 2,
         )
 

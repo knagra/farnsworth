@@ -8,8 +8,7 @@ from datetime import time
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     RegularWorkshift
-from workshift.utils import get_year_season, make_instances, \
-    get_semester_start_end, make_workshift_pool_hours, \
+from workshift.utils import get_year_season, get_semester_start_end, \
     make_manager_workshifts
 
 # Items of form (title, description, quick_tips, rateable)
@@ -165,7 +164,10 @@ HUMOR_WORKSHIFTS = [
     ("Sweep & Mop", 2, [4, 5], 1, time(20), time(0)),
 ]
 
-# TODO: Bathroom shifts
+# (type_title, hours, days, count, start, end)
+BATHROOM_WORKSHIFTS = [
+    ("Bathroom Clean", 2, [1, 3, 5], 3, None, None),
+]
 
 def _get_semester():
     # Start the Workshift Semester
@@ -230,15 +232,19 @@ def fill_regular_shifts(regular_hours=5, semester=None):
 
     if created:
         pool.managers = Manager.objects.filter(workshift_manager=True)
-        pool.save()
+    else:
+        pool.hours = regular_hours
+        pool.weeks_per_period = 0
 
-    make_workshift_pool_hours(semester, pools=[pool])
+    pool.save()
+
+    _fill_workshift_types()
 
     # Regular Workshifts
     for type_title, hours, days, count, start, end in REGULAR_WORKSHIFTS:
         wtype = WorkshiftType.objects.get(title=type_title)
         for day in days:
-            RegularWorkshift.objects.get_or_create(
+            shift, created = RegularWorkshift.objects.get_or_create(
                 workshift_type=wtype,
                 pool=pool,
                 day=day,
@@ -249,10 +255,14 @@ def fill_regular_shifts(regular_hours=5, semester=None):
                     hours=hours,
                 ),
             )
+            if not created:
+                shift.hours = hours
+                shift.count = count
+                shift.save()
 
     for type_title, hours, count in WEEK_LONG:
         wtype = WorkshiftType.objects.get(title=type_title)
-        RegularWorkshift.objects.get_or_create(
+        shift, created = RegularWorkshift.objects.get_or_create(
             workshift_type=wtype,
             pool=pool,
             count=count,
@@ -263,66 +273,35 @@ def fill_regular_shifts(regular_hours=5, semester=None):
                 hours=hours,
             ),
         )
+        if not created:
+            shift.hours = hours
+            shift.count = count
+            shift.save()
 
-    make_instances(semester=semester)
 
-def fill_hi_shifts(hi_hours=5, semester=None):
+def fill_bathroom_shifts(bathroom_hours=4, semester=None):
     if semester is None:
         semester = _get_semester()
 
-    # HI Hours
-    hi_pool, created = WorkshiftPool.objects.get_or_create(
-        title="Home Improvement",
+    pool, created = WorkshiftPool.objects.get_or_create(
+        title="Bathroom Shift",
         semester=semester,
-        defaults=dict(hours=hi_hours, weeks_per_period=0),
-    )
-    if created:
-        hi_pool.managers = Manager.objects.filter(title="Maintenance Manager")
-        hi_pool.save()
-
-    make_workshift_pool_hours(semester, pools=[hi_pool])
-
-def fill_social_shifts(social_hours=1, semester=None):
-    if semester is None:
-        semester = _get_semester()
-
-    # Social Hours
-    social_pool, created = WorkshiftPool.objects.get_or_create(
-        title="Social",
-        semester=semester,
-        defaults=dict(hours=social_hours, weeks_per_period=0),
+        defaults=dict(any_blown=True, hours=bathroom_hours, weeks_per_period=0),
     )
 
-    if created:
-        social_pool.managers = Manager.objects.filter(title="Social Manager")
-        social_pool.save()
+    if not created:
+        pool.hours = pool
+        pool.weeks_per_period = 0
+        pool.save()
 
-    make_workshift_pool_hours(semester, pools=[social_pool])
+    _fill_workshift_types()
 
-def fill_humor_shifts(humor_hours=2, semester=None):
-    if semester is None:
-        semester = _get_semester()
-
-    # Humor Shift
-    humor_pool, created = WorkshiftPool.objects.get_or_create(
-        title="Humor Shift",
-        semester=semester,
-        defaults=dict(any_blown=True, hours=humor_hours, weeks_per_period=6),
-    )
-
-    if created:
-        humor_pool.managers = Manager.objects.filter(workshift_manager=True)
-        humor_pool.save()
-
-    make_workshift_pool_hours(semester, pools=[humor_pool])
-
-    # Humor Workshifts
-    for type_title, hours, days, count, start, end in HUMOR_WORKSHIFTS:
+    for type_title, hours, days, count, start, end in BATHROOM_WORKSHIFTS:
         wtype = WorkshiftType.objects.get(title=type_title)
         for day in days:
-            RegularWorkshift.objects.get_or_create(
+            shift, created = RegularWorkshift.objects.get_or_create(
                 workshift_type=wtype,
-                pool=humor_pool,
+                pool=pool,
                 day=day,
                 defaults=dict(
                     start_time=start,
@@ -331,3 +310,86 @@ def fill_humor_shifts(humor_hours=2, semester=None):
                     count=count,
                 ),
             )
+            if not created:
+                shift.hours = hours
+                shift.count = count
+                shift.save()
+
+def fill_hi_shifts(hi_hours=5, semester=None):
+    if semester is None:
+        semester = _get_semester()
+
+    # HI Hours
+    pool, created = WorkshiftPool.objects.get_or_create(
+        title="Home Improvement",
+        semester=semester,
+        defaults=dict(hours=hi_hours, weeks_per_period=0),
+    )
+
+    if created:
+        pool.managers = Manager.objects.filter(title="Maintenance Manager")
+    else:
+        pool.hours = hi_hours
+        pool.weeks_per_period = 0
+
+    pool.save()
+
+def fill_social_shifts(social_hours=1, semester=None):
+    if semester is None:
+        semester = _get_semester()
+
+    # Social Hours
+    pool, created = WorkshiftPool.objects.get_or_create(
+        title="Social",
+        semester=semester,
+        defaults=dict(hours=social_hours, weeks_per_period=0),
+    )
+
+    if created:
+        pool.managers = Manager.objects.filter(title="Social Manager")
+    else:
+        pool.hours = social_hours
+        pool.weeks_per_period = 0
+
+    pool.save()
+
+def fill_humor_shifts(humor_hours=2, semester=None):
+    if semester is None:
+        semester = _get_semester()
+
+    # Humor Shift
+    pool, created = WorkshiftPool.objects.get_or_create(
+        title="Humor Shift",
+        semester=semester,
+        defaults=dict(any_blown=True, hours=humor_hours, weeks_per_period=6),
+    )
+
+    if created:
+        pool.managers = Manager.objects.filter(workshift_manager=True)
+    else:
+        pool.hours = humor_hours
+        pool.weeks_per_period = 0
+
+    pool.save()
+
+    _fill_workshift_types()
+
+    # Humor Workshifts
+    for type_title, hours, days, count, start, end in HUMOR_WORKSHIFTS:
+        wtype = WorkshiftType.objects.get(title=type_title)
+        for day in days:
+            shift, created = RegularWorkshift.objects.get_or_create(
+                workshift_type=wtype,
+                pool=pool,
+                day=day,
+                defaults=dict(
+                    start_time=start,
+                    end_time=end,
+                    hours=hours,
+                    count=count,
+                ),
+            )
+            if not created:
+                shift.hours = hours
+                shift.count = count
+                shift.save()

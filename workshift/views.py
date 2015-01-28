@@ -879,6 +879,7 @@ def fill_shifts_view(request, semester):
     fill_regular_shifts_form = None
     fill_social_shifts_form = None
     fill_humor_shifts_form = None
+    fill_bathroom_shifts_form = None
     fill_hi_shifts_form = None
     reset_all_shifts_form = None
 
@@ -891,6 +892,10 @@ def fill_shifts_view(request, semester):
             semester=semester,
         )
         fill_humor_shifts_form = FillHumorShiftsForm(
+            request.POST,
+            semester=semester,
+        )
+        fill_bathroom_shifts_form = FillBathroomShiftsForm(
             request.POST,
             semester=semester,
         )
@@ -912,9 +917,11 @@ def fill_shifts_view(request, semester):
             semester=semester,
         )
 
-    forms = [fill_regular_shifts_form, fill_social_shifts_form,
-             fill_humor_shifts_form, fill_hi_shifts_form,
-             reset_all_shifts_form]
+    forms = [
+        fill_regular_shifts_form, fill_social_shifts_form,
+        fill_humor_shifts_form, fill_bathroom_shifts_form,
+        fill_hi_shifts_form, reset_all_shifts_form,
+    ]
 
     for form in forms:
         if form and form.is_valid():
