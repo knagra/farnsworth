@@ -1131,7 +1131,7 @@ def edit_shift_view(request, semester, pk, profile=None):
             pass
         else:
             return HttpResponseRedirect(reverse("managers:edit_manager",
-                                                kwargs={"managerTitle": manager.url_title))
+                                                kwargs={"managerTitle": manager.url_title}))
 
     if not utils.can_manage(request.user, semester=semester) and managers.count() == 0:
         messages.add_message(request, messages.ERROR,
