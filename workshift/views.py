@@ -1123,7 +1123,15 @@ def edit_shift_view(request, semester, pk, profile=None):
     managers = shift.pool.managers.filter(incumbent__user=request.user)
 
     if shift.is_manager_shift:
-        return HttpResponseRedirect(reverse("managers:edit_manager"))
+        # XXX: Bad way of doing this, we should make manager_shift point to the related
+        # Manager object directly
+        try:
+            manager = Manager.objects.get(title=shift.title)
+        except Manager.DoesNotExist:
+            pass
+        else:
+            return HttpResponseRedirect(reverse("managers:edit_manager",
+                                                kwargs={"managerTitle": manager.url_title))
 
     if not utils.can_manage(request.user, semester=semester) and managers.count() == 0:
         messages.add_message(request, messages.ERROR,
