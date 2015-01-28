@@ -1,7 +1,9 @@
 
 from django.dispatch import receiver
 from django.db.models import signals
+from django.utils.timezone import now
 
+from managers.models import Manager
 from workshift.models import *
 from workshift import utils
 
@@ -38,9 +40,6 @@ def create_workshift_pool_hours(sender, instance, **kwargs):
         semester=pool.semester,
         pools=[pool],
     )
-    utils.make_manager_workshifts(
-        semester=pool.semester,
-    )
 
 @receiver(signals.post_save, sender=Manager)
 def create_manager_workshifts(sender, instance, created, **kwargs):
@@ -65,14 +64,14 @@ def delete_workshift_instances(sender, instance, **kwargs):
     shift = instance
     instances = WorkshiftInstance.objects.filter(
         weekly_workshift=shift,
-        )
+    )
     info = InstanceInfo.objects.create(
         title=shift.workshift_type.title,
         description=shift.workshift_type.description,
         pool=shift.pool,
         start_time=shift.start_time,
         end_time=shift.end_time,
-        )
+    )
     for instance in instances:
         if instance.closed:
             instance.weekly_workshift = None
@@ -119,7 +118,7 @@ def set_week_long(sender, instance, **kwargs):
 
 @receiver(signals.pre_delete, sender=WorkshiftInstance)
 def subtract_instance_hours(sender, instance, **kwargs):
-    if instance.closed:
+    if instance.closed and instance.workshifter:
         pool_hours = instance.workshifter.pool_hours.get(pool=instance.pool)
         pool_hours -= instance.hours
         pool_hours.ssave()
