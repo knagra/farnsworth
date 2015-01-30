@@ -880,16 +880,7 @@ class WorkshiftPoolHoursForm(forms.ModelForm):
         help_texts = {
             "hours": "",
             "hour_adjustment": "",
-            }
-
-    def save(self):
-        prev_instance = self.instance
-        pool_hours = super(WorkshiftPoolHoursForm, self).save(commit=False)
-        if prev_instance.pk is not None:
-            pool_hours.standing -= prev_instance.hour_adjustment
-        pool_hours.standing += prev_instance.hour_adjustment
-        pool_hours.save()
-        return pool_hours
+        }
 
 class ProfileNoteForm(forms.ModelForm):
     class Meta:

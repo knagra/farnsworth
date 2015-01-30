@@ -550,7 +550,7 @@ def reset_standings(semester=None):
     for profile in WorkshiftProfile.objects.filter(semester=semester):
         for pool_hours in profile.pool_hours.all():
             pool_hours.last_updated = None
-            pool_hours.standing = 0
+            pool_hours.standing = pool_hours.hour_adjustment
             pool_hours.save()
 
         for field in ["workshifter", "liable"]:

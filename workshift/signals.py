@@ -78,6 +78,17 @@ def initialize_semester(sender, instance, created, **kwargs):
     utils.make_workshift_pool_hours(semester=semester)
     utils.make_manager_workshifts(semester=semester)
 
+@receiver(signals.pre_save, sender=PoolHours)
+def manual_hour_adjustment(sender, instance, **kwargs):
+    pool_hours = instance
+
+    # Subtract previously given adjustment hours
+    if pool_hours.id:
+        old_pool_hours = sender.objects.get(pk=pool_hours.id)
+        pool_hours.standing -= old_pool_hours.hour_adjustment
+
+    pool_hours.standing += pool_hours.hour_adjustment
+
 @receiver(signals.pre_delete, sender=Semester)
 def clear_semester(sender, instance, **kwargs):
     semester = instance
