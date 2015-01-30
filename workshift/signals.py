@@ -78,6 +78,55 @@ def initialize_semester(sender, instance, created, **kwargs):
     utils.make_workshift_pool_hours(semester=semester)
     utils.make_manager_workshifts(semester=semester)
 
+@receiver(signals.pre_save, sender=WorkshiftPool)
+def update_pool_hours(sender, instance, **kwargs):
+    pool = instance
+    old_pool = None
+
+    if pool.id:
+        old_pool = sender.objects.get(pk=pool.id)
+
+    for pool_hours in PoolHours.objects.filter(pool=pool):
+        if old_pool is None or pool_hours.hours == old_pool.hours:
+            pool_hours.hours = pool.hours
+            pool_hours.save()
+
+@receiver(signals.post_save, sender=WorkshiftPool)
+def make_pool_hours(sender, instance, created, **kwargs):
+    pool = instance
+
+    if created:
+        utils.make_workshift_pool_hours(pool.semester, pools=[pool])
+
+@receiver(signals.pre_save, sender=WorkshiftInstance)
+def log_entry_assign(sender, instance, **kwargs):
+    old_instance = None
+
+    if instance.id:
+        old_instance = sender.objects.get(pk=instance.id)
+
+        # TODO: Cover other log entries here, too?
+        if instance.workshifter and \
+           old_instance.workshifter != instance.workshifter:
+            log = ShiftLogEntry.objects.create(
+                person=instance.workshifter,
+                entry_type=ShiftLogEntry.ASSIGNED,
+            )
+            instance.logs.add(log)
+
+@receiver(signals.post_save, sender=WorkshiftInstance)
+def log_entry_create(sender, instance, created, **kwargs):
+    if created:
+        # Don't create the log until after the instance is created, we can use a
+        # many-to-many relationship otherwise
+        if instance.workshifter:
+            log = ShiftLogEntry.objects.create(
+                person=instance.workshifter,
+                entry_type=ShiftLogEntry.ASSIGNED,
+            )
+            instance.logs.add(log)
+            instance.save()
+
 @receiver(signals.pre_save, sender=PoolHours)
 def manual_hour_adjustment(sender, instance, **kwargs):
     pool_hours = instance

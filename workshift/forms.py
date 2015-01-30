@@ -91,27 +91,17 @@ class PoolForm(forms.ModelForm):
             self.fields['managers'].widget.attrs['readonly'] = True
 
     def save(self):
-        prev_pool = self.instance
-        new = prev_pool.pk is None
         pool = super(PoolForm, self).save(commit=False)
         if self.semester:
             pool.semester = self.semester
         pool.save()
         self.save_m2m()
-
-        if not new:
-            for pool_hours in PoolHours.objects.filter(pool=pool):
-                if pool_hours.hours == prev_pool.hours:
-                    pool_hours.hours = pool.hours
-                    pool_hours.save()
-        else:
-            utils.make_workshift_pool_hours(self.semester, pools=[pool])
         return pool
 
 class SwitchSemesterForm(forms.Form):
     semester = forms.ModelChoiceField(
         queryset=Semester.objects.all(),
-        )
+    )
 
     def save(self):
         return self.cleaned_data["semester"]
@@ -230,14 +220,6 @@ class WorkshiftInstanceForm(forms.ModelForm):
                 instance.info.save()
         instance.save()
         self.save_m2m()
-        if new and instance.workshifter or \
-          prev_instance.workshifter != instance.workshifter:
-            log = ShiftLogEntry.objects.create(
-                person=instance.workshifter,
-                entry_type=ShiftLogEntry.ASSIGNED,
-                )
-            instance.logs.add(log)
-            instance.save()
         return instance
 
 class InteractShiftForm(forms.Form):
@@ -310,7 +292,7 @@ class VerifyShiftForm(InteractShiftForm):
             person=self.profile,
             entry_type=ShiftLogEntry.VERIFY,
             note=note,
-            )
+        )
 
         instance = self.cleaned_data["pk"]
         workshifter = instance.workshifter or instance.liable

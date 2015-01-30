@@ -346,7 +346,7 @@ class TestUtils(TestCase):
     Tests most of the various functions within workshift.utils.
     """
     def setUp(self):
-        self.u = User.objects.create_user(username="u")
+        self.u = User.objects.create_user(username="u", first_name="N", last_name="M")
 
         today = now().date()
         self.semester = Semester.objects.create(

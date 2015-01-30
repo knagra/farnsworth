@@ -651,7 +651,7 @@ class ShiftLogEntry(models.Model):
     def __unicode__(self):
         return "<{0}, {1}>".format(
             self.person,
-            self.entry_type,
+            self.get_entry_type_display(),
             )
 
     class Meta:
