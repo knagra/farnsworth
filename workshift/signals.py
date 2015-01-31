@@ -136,6 +136,15 @@ def manual_hour_adjustment(sender, instance, **kwargs):
         old_pool_hours = sender.objects.get(pk=pool_hours.id)
         pool_hours.standing -= old_pool_hours.hour_adjustment
 
+        if old_pool_hours.hours != pool_hours.hours:
+            # Reset and recalculate standings
+            pool_hours.standing = 0
+            pool_hours.last_updated = None
+            utils.update_standings(
+                semester=pool_hours.pool.semester,
+                pool_hours=[pool_hours],
+            )
+
     pool_hours.standing += pool_hours.hour_adjustment
 
 @receiver(signals.pre_delete, sender=Semester)

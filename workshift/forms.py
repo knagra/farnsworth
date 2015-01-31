@@ -868,15 +868,6 @@ RegularWorkshiftFormSet = modelformset_factory(
     can_delete=True, extra=1, max_num=50,
     )
 
-class WorkshiftPoolHoursForm(forms.ModelForm):
-    class Meta:
-        model = PoolHours
-        fields = ("hours", "hour_adjustment")
-        help_texts = {
-            "hours": "",
-            "hour_adjustment": "",
-        }
-
 class ProfileNoteForm(forms.ModelForm):
     class Meta:
         model = WorkshiftProfile

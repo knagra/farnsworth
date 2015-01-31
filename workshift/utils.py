@@ -504,36 +504,39 @@ def clear_all_assignments(semester, pool):
         shift.current_assignees.clear()
         shift.save()
 
-def update_standings(semester=None):
+def update_standings(semester=None, pool_hours=None):
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             return []
 
-    for pool_hours in PoolHours.objects.filter(pool__semester=semester):
+    if pool_hours is None:
+        pool_hours = PoolHours.objects.filter(pool__semester=semester)
+
+    for hours in pool_hours:
         # Don't update hours after the semester ends
-        if pool_hours.last_updated and pool_hours.last_updated.date() > semester.end_date:
+        if hours.last_updated and hours.last_updated.date() > semester.end_date:
             continue
 
         # Calculate the number of periods since we last updated the standings
-        if pool_hours.pool.weeks_per_period == 0:
+        if hours.pool.weeks_per_period == 0:
             periods = 1
         else:
             # Note, this will give periods > 0 on weeks starting on start_date's day,
             # rather than explicitly Sunday
-            if not pool_hours.last_updated:
+            if not hours.last_updated:
                 last_weeks = 0
             else:
-                last_weeks = (pool_hours.last_updated.date() - semester.start_date).days // 7
+                last_weeks = (hours.last_updated.date() - semester.start_date).days // 7
             sem_weeks = (now().date() - semester.start_date).days // 7
-            periods = (sem_weeks - last_weeks) // pool_hours.pool.weeks_per_period
+            periods = (sem_weeks - last_weeks) // hours.pool.weeks_per_period
 
         # Update the actual standings
         if periods:
-            pool_hours.standing -= pool_hours.hours * periods
-            pool_hours.last_updated = now()
-            pool_hours.save()
+            hours.standing -= hours.hours * periods
+            hours.last_updated = now()
+            hours.save()
 
 def reset_standings(semester=None):
     if semester is None:
