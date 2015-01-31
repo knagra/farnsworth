@@ -1134,9 +1134,17 @@ def shift_view(request, semester, pk, profile=None):
     shift = get_object_or_404(RegularWorkshift, pk=pk)
     page_name = shift.workshift_type.title
 
-    president = Manager.objects.filter(incumbent__user=request.user, president=True) \
-                .count() > 0
-    can_edit = request.user.is_superuser or president
+    if shift.is_manager_shift:
+        president = Manager.objects.filter(
+            incumbent__user=request.user,
+            president=True
+        ).count() > 0
+        can_edit = request.user.is_superuser or president
+    else:
+        manager = shift.pool.managers.filter(
+            incumbent__user=request.user,
+        ).count() > 0
+        can_edit = utils.can_manage(request.user, semester=semester) or manager
 
     instances = WorkshiftInstance.objects.filter(
         closed=False,
