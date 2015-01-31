@@ -538,29 +538,33 @@ def update_standings(semester=None, pool_hours=None):
             hours.last_updated = now()
             hours.save()
 
-def reset_standings(semester=None):
+def reset_standings(semester=None, pool_hours=None):
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             return
 
-    for profile in WorkshiftProfile.objects.filter(semester=semester):
-        for pool_hours in profile.pool_hours.all():
-            pool_hours.last_updated = None
-            pool_hours.standing = pool_hours.hour_adjustment
-            pool_hours.save()
+    if pool_hours is None:
+        pool_hours = PoolHours.objects.filter(pool__semester=semester)
+
+    for hours in pool_hours:
+        hours.last_updated = None
+        hours.standing = hours.hour_adjustment
+
+        profile = WorkshiftProfile.objects.get(pool_hours=hours)
 
         for field in ["workshifter", "liable"]:
-            for instance in WorkshiftInstance.objects.filter(**{field: profile}):
-                if not instance.closed:
+            instances = WorkshiftInstance.objects.filter(**{field: profile})
+            for instance in instances:
+                if instance.pool != hours.pool or not instance.closed:
                     continue
-                pool_hours = profile.pool_hours.get(pool=instance.pool)
                 if instance.blown:
-                    pool_hours.standing -= instance.hours
+                    hours.standing -= instance.hours
                 else:
-                    pool_hours.standing += instance.hours
-                pool_hours.save()
+                    hours.standing += instance.hours
+
+        hours.save(update_fields=["standing", "last_updated"])
 
     update_standings(semester=semester)
 
