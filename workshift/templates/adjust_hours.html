@@ -1,0 +1,78 @@
+{% extends "w_base.html" %}
+
+{% load static from staticfiles %}
+{% load request_tags %}
+{% load bootstrap %}
+{% load workshift_tags %}
+
+{% block w_content %}
+<div class="instance_container">
+  <h1 class="w_title">
+	{{ page_name }}
+  </h1>
+  <hr class="w_line" />
+  <div class="field_wrapper text-info">
+	<p>
+	  Partway through the semester? Want to quickly adjust house members' hours
+	  without having to document each and every past shift? You can use this
+	  form to add hours that have not been tracked by past shifts on the site.
+	</p>
+  </div>
+  {% if workshifters_tuples %}
+  <form method="post" action="">
+    {% csrf_token %}
+    <table class="table table-striped table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th>
+			Workshifter
+		  </th>
+		  {% for pool in pools %}
+		  <th>
+			<a href="{{ pool.get_view_url }}">
+			  {{ pool.title }}
+			</a>
+		  </th>
+		  {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for workshifter, forms in workshifters_tuples %}
+        <tr>
+          <td style="vertical-align: middle;">
+			<a href={{ workshifter.get_view_url }}">
+			  {{ workshifter.user.get_full_name }}
+			</a>
+		  </td>
+		  {% for form in forms %}
+		  <td>
+			{{ form|bootstrap }}
+		  </td>
+		  {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="text-center field_wrapper">
+      <button type="submit" class="btn btn-success">
+		Adjust Workshift Hours
+	  </button>
+    </div>
+  </form>
+  {% else %}
+  <div class="field_wrapper text-info">
+	<p>
+	  No workshifters can been created for this semester.
+	</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block w_endscripts %}
+<script>
+ $(document).ready(function(){
+   $('div.form-group').css('margin', 0);
+ })
+</script>
+{% endblock %}

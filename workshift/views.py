@@ -32,10 +32,10 @@ from workshift import utils
 from workshift.templatetags.workshift_tags import wurl
 
 def add_archive_context(request):
-    semester_count = Semester.objects.all().count()
-    workshift_profile_count = WorkshiftProfile.objects.all().count()
-    shift_log_entry_count = ShiftLogEntry.objects.all().count()
-    workshift_instance_count = WorkshiftInstance.objects.all().count()
+    semester_count = Semester.objects.count()
+    workshift_profile_count = WorkshiftProfile.objects.count()
+    shift_log_entry_count = ShiftLogEntry.objects.count()
+    workshift_instance_count = WorkshiftInstance.objects.count()
     nodes = [
         [
             "{} {}".format(semester_count, p.plural("semester", semester_count)),
@@ -72,7 +72,7 @@ def add_workshift_context(request):
     if not request.user.is_authenticated():
         return {}
 
-    if Semester.objects.all().count() < 1:
+    if Semester.objects.count() < 1:
         return {"WORKSHIFT_ENABLED": False}
 
     # Current semester is for navbar notifications
@@ -210,7 +210,7 @@ def start_semester_view(request):
 
     pool_forms = []
     try:
-        prev_semester = Semester.objects.all().order_by("end_date")[0]
+        prev_semester = Semester.objects.order_by("end_date")[0]
     except IndexError:
         pass
     else:
@@ -783,10 +783,10 @@ def assign_shifts_view(request, semester):
         shifts = RegularWorkshift.objects.filter(pool=pool)
         filtered_shifts, shift_hours = [], []
         for shift in shifts:
-            if shift.current_assignees.all().count() < shift.count:
+            if shift.current_assignees.count() < shift.count:
                 filtered_shifts.append(shift)
                 shift_hours.append(
-                    shift.hours * shift.count - shift.current_assignees.all().count()
+                    shift.hours * shift.count - shift.current_assignees.count()
                 )
 
         total_shift_hours = sum(shift_hours)
@@ -806,6 +806,46 @@ def assign_shifts_view(request, semester):
         "pools": pools,
         "total_pool_hours": total_pool_hours,
         "unassigned_shifts": unassigned_shifts,
+    }, context_instance=RequestContext(request))
+
+@semester_required
+@workshift_manager_required
+def adjust_hours_view(request, semester):
+    """
+    Adjust members' workshift hours requirements.
+    """
+    page_name = "Adjust Hours"
+
+    pools = WorkshiftPool.objects.filter(semester=semester).order_by("-is_primary", "title")
+    workshifters = WorkshiftProfile.objects.filter(semester=semester)
+    pool_hour_forms = [
+        [
+            AdjustHoursForm(
+                request.POST if request.POST else None,
+                prefix="pool_hours-{}".format(hours.pk),
+                instance=hours,
+            )
+            for hours in workshifter.pool_hours.order_by("-pool__is_primary", "pool__title")
+        ]
+        for workshifter in workshifters
+    ]
+
+    if all(
+            form.is_valid()
+            for workshifter_forms in pool_hour_forms
+            for form in workshifter_forms
+    ):
+        for workshifter_forms in pool_hour_forms:
+            for form in workshifter_forms:
+                form.save()
+        messages.add_message(request, messages.INFO, "Updated hours.")
+        return HttpResponseRedirect(wurl("workshift:adjust_hours",
+                                         sem_url=semester.sem_url))
+
+    return render_to_response("adjust_hours.html", {
+        "page_name": page_name,
+        "pools": pools,
+        "workshifters_tuples": zip(workshifters, pool_hour_forms),
     }, context_instance=RequestContext(request))
 
 @semester_required

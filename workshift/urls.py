@@ -18,6 +18,7 @@ urlpatterns = [
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/add_workshifter/$", views.add_workshifter_view, name="add_workshifter"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/add_pool/$", views.add_pool_view, name="add_pool"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/fill_shifts/$", views.fill_shifts_view, name="fill_shifts"),
+    url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/adjust_hours/$", views.adjust_hours_view, name="adjust_hours"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/easy_fill/$", views.fill_shifts_view, name="easy_fill"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/add_shift/$", views.add_shift_view, name="add_shift"),
     url(r"^workshift(?:/(?P<sem_url>\w+\d+))?/manage/fine_date/$", views.fine_date_view, name="fine_date"),

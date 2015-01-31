@@ -700,6 +700,11 @@ class AssignShiftForm(forms.ModelForm):
             self.fields['current_assignees'].queryset = \
               WorkshiftProfile.objects.filter(pk__in=query)
 
+class AdjustHoursForm(forms.ModelForm):
+    class Meta:
+        model = PoolHours
+        fields = ("assigned_hours", "hour_adjustment",)
+
 class RegularWorkshiftForm(forms.ModelForm):
     start_time = forms.TimeField(
         widget=forms.TimeInput(format='%I:%M %p'),
