@@ -708,6 +708,10 @@ class AdjustHoursForm(forms.ModelForm):
             "hours": "",
             "hour_adjustment": "",
         }
+        labels = {
+            "hours": "Periodic Hourly Requirement",
+            "hour_adjustment": "Hours added to a workshifter's standing",
+        }
 
 class RegularWorkshiftForm(forms.ModelForm):
     start_time = forms.TimeField(
