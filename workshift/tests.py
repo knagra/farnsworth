@@ -2230,7 +2230,7 @@ class TestSemester(TestCase):
         )
 
         self.assertEqual(
-            RegularWorkshift.objects.all().count(),
+            RegularWorkshift.objects.count(),
             2,
         )
 
@@ -2246,7 +2246,7 @@ class TestSemester(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(
-            RegularWorkshift.objects.all().count(),
+            RegularWorkshift.objects.count(),
             2, # 2x Workshift Manager
         )
 
@@ -2266,11 +2266,11 @@ class TestSemester(TestCase):
 
         # Check we created the correct number of shifts (no duplicates across semesters)
         self.assertEqual(
-            RegularWorkshift.objects.all().count(),
+            RegularWorkshift.objects.count(),
             sum(len(i[2]) for i in REGULAR_WORKSHIFTS) + len(WEEK_LONG) +
             sum(len(i[2]) for i in HUMOR_WORKSHIFTS) +
             sum(len(i[2]) for i in BATHROOM_WORKSHIFTS) +
-            Manager.objects.all().count() * 2,
+            Manager.objects.count() * 2,
         )
 
         response = self.client.post(url, {
@@ -2280,20 +2280,20 @@ class TestSemester(TestCase):
         self.assertRedirects(response, reverse("workshift:fill_shifts"))
 
         self.assertEqual(
-            RegularWorkshift.objects.all().count(),
+            RegularWorkshift.objects.count(),
             2, # 2x Workshift Manager
         )
 
     def test_clear_semester(self):
         self.s1.delete()
         self.assertEqual(
-            Semester.objects.all().count(),
+            Semester.objects.count(),
             1,
         )
 
         self.s2.delete()
         self.assertEqual(
-            Semester.objects.all().count(),
+            Semester.objects.count(),
             0,
         )
 
