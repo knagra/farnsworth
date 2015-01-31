@@ -704,6 +704,10 @@ class AdjustHoursForm(forms.ModelForm):
     class Meta:
         model = PoolHours
         fields = ("hours", "hour_adjustment",)
+        help_texts = {
+            "hours": "",
+            "hour_adjustment": "",
+        }
 
 class RegularWorkshiftForm(forms.ModelForm):
     start_time = forms.TimeField(
