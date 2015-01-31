@@ -1168,7 +1168,6 @@ def edit_shift_view(request, semester, pk, profile=None):
     View for a manager to edit the details of a particular RegularWorkshift.
     """
     shift = get_object_or_404(RegularWorkshift, pk=pk)
-    managers = shift.pool.managers.filter(incumbent__user=request.user)
 
     if shift.is_manager_shift:
         # XXX: Bad way of doing this, we should make manager_shift point to the related
@@ -1181,7 +1180,9 @@ def edit_shift_view(request, semester, pk, profile=None):
             return HttpResponseRedirect(reverse("managers:edit_manager",
                                                 kwargs={"managerTitle": manager.url_title}))
 
-    if not utils.can_manage(request.user, semester=semester) and managers.count() == 0:
+    manager = shift.pool.managers.filter(incumbent__user=request.user).count() > 0
+
+    if not utils.can_manage(request.user, semester=semester) and not manager:
         messages.add_message(request, messages.ERROR,
                              MESSAGES["ADMINS_ONLY"])
         return HttpResponseRedirect(semester.get_view_url())
