@@ -28,7 +28,8 @@ def can_manage(user, semester=None):
     if semester and user in semester.workshift_managers.all():
         return True
     if Manager and Manager.objects.filter(
-        incumbent__user=user, workshift_manager=True).count() > 0:
+        incumbent__user=user, workshift_manager=True
+    ).count() > 0:
         return True
     return user.is_superuser or user.is_staff
 
@@ -497,6 +498,7 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
 def clear_all_assignments(semester, pool):
     shifts = RegularWorkshift.objects.filter(
         pool=pool,
+        is_manager_shift=False,
     ).exclude(
         workshift_type__assignment=WorkshiftType.NO_ASSIGN,
     )
