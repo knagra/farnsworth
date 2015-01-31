@@ -15,8 +15,8 @@
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="profiles_table">
     <thead>
       <tr>
-        <th>First Name</th>
-        <th>Last Name</th>
+        <th>Name</th>
+		<th>Preferences First Saved</th>
         {% for pool in pools %}
         <th>
 		  <a href="{{ pool.get_view_url }}">
@@ -31,10 +31,14 @@
       <tr>
         <td>
 		  <a href="{{ workshifter.get_view_url }}">
-			{{ workshifter.user.first_name }}
+			{{ workshifter.user.get_full_name }}
 		  </a>
 		</td>
-        <td>{{ workshifter.user.last_name }}</td>
+		<td>
+		  {% if workshifter.preference_save_time %}
+		  {{ workshifter.preference_save_time }}
+		  {% endif %}
+		</td>
         {% for hours in pool_hours %}
         <td>
 		  {% if 0 > hours.standing %}
