@@ -829,6 +829,13 @@ def adjust_hours_view(request, semester):
         ]
         for workshifter in workshifters
     ]
+    standings = [
+        [
+            hours.standing
+            for hours in workshifter.pool_hours.order_by("-pool__is_primary", "pool__title")
+        ]
+        for workshifter in workshifters
+    ]
 
     if all(
             form.is_valid()
@@ -845,7 +852,7 @@ def adjust_hours_view(request, semester):
     return render_to_response("adjust_hours.html", {
         "page_name": page_name,
         "pools": pools,
-        "workshifters_tuples": zip(workshifters, pool_hour_forms),
+        "workshifters_tuples": zip(workshifters, pool_hour_forms, standings),
     }, context_instance=RequestContext(request))
 
 @semester_required

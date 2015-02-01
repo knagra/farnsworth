@@ -47,15 +47,23 @@
         </tr>
       </thead>
       <tbody>
-        {% for workshifter, forms in workshifters_tuples %}
+        {% for workshifter, form_tuples in workshifters_tuples %}
         <tr>
           <td style="vertical-align: middle;">
 			<a href={{ workshifter.get_view_url }}">
 			  {{ workshifter.user.get_full_name }}
 			</a>
 		  </td>
-		  {% for form in forms %}
+		  {% for form, standing in form_tuples %}
 		  <td>
+			<p>
+			  <b>Current Standing</b>:
+			  {% if 0 > pool_hours.standing %}
+			  <font color="red">{{ standing }}</font>
+			  {% else %}
+			  <font color="green">{{ standing }}</font>
+			  {% endif %}
+			</p>
 			{{ form|bootstrap }}
 		  </td>
 		  {% endfor %}
