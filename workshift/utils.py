@@ -304,10 +304,10 @@ def is_available(workshift_profile, shift):
     """
     if shift.week_long:
         return True
-    start_time = shift.start_time
-    end_time = shift.end_time
+    start_time = shift.start_time or time(hour=0)
+    end_time = shift.end_time or time(hour=23, minute=59)
     relevant_blocks = list()
-    for block in workshift_profile.time_blocks.all().order_by('start_time'):
+    for block in workshift_profile.time_blocks.order_by('start_time'):
         if block.day == shift.day and block.preference == TimeBlock.BUSY \
           and block.start_time < end_time \
           and block.end_time > start_time:
@@ -335,12 +335,12 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     if profiles is None:
         profiles = WorkshiftProfile.objects.filter(
             semester=semester,
-            ).order_by('preference_save_time')
+        ).order_by('preference_save_time')
     if shifts is None:
         shifts = RegularWorkshift.objects.filter(
             pool=pool,
             workshift_type__assignment=WorkshiftType.AUTO_ASSIGN,
-            )
+        )
 
     shifts = set(shifts)
     profiles = list(profiles)
@@ -353,7 +353,7 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
         for shift in profile.regularworkshift_set.filter(
                 current_assignees=profile,
                 pool=pool,
-                ):
+        ):
             hours_mapping[profile] += float(shift.hours)
 
     # Pre-process, rank shifts by their times / preferences
