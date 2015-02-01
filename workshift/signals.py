@@ -180,9 +180,13 @@ def create_manager_workshifts(sender, instance, created, **kwargs):
 def create_workshift_instances(sender, instance, created, **kwargs):
     shift = instance
     if shift.active:
-        utils.make_instances(shift.pool.semester, shifts=[instance])
+        if created:
+            utils.make_instances(shift.pool.semester, shifts=[instance])
     else:
-        delete_workshift_instances(sender=sender, instance=shift)
+        WorkshiftInstance.objects.filter(
+            weekly_workshift=shift,
+            closed=False,
+        ).delete()
 
 @receiver(signals.pre_delete, sender=RegularWorkshift)
 def delete_workshift_instances(sender, instance, **kwargs):
@@ -205,6 +209,12 @@ def delete_workshift_instances(sender, instance, **kwargs):
             instance.save()
         else:
             instance.delete()
+
+    if shift.active:
+        for assignee in shift.current_assignees.all():
+            pool_hours = assignee.pool_hours.get(pool=shift.pool)
+            pool_hours.assigned_hours -= shift.hours
+            pool_hours.save()
 
 @receiver(signals.m2m_changed, sender=RegularWorkshift.current_assignees.through)
 def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kwargs):
@@ -266,26 +276,6 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
             instance.workshifter = assignee
             instance.liable = None
             instance.save()
-
-@receiver(signals.post_save, sender=RegularWorkshift)
-def add_workshift_pool_hours(sender, instance, **kwargs):
-    shift = instance
-
-    if not shift.active:
-        WorkshiftInstance.objects.filter(
-            weekly_workshift=shift,
-            closed=False,
-        ).delete()
-
-@receiver(signals.pre_delete, sender=RegularWorkshift)
-def delete_regular_workshift(sender, instance, **kwargs):
-    shift = instance
-
-    if shift.active:
-        for assignee in shift.current_assignees.all():
-            pool_hours = assignee.pool_hours.get(pool=shift.pool)
-            pool_hours.assigned_hours -= shift.hours
-            pool_hours.save()
 
 @receiver(signals.pre_save, sender=RegularWorkshift)
 def set_week_long(sender, instance, **kwargs):
