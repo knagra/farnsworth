@@ -8,6 +8,7 @@ from __future__ import division
 
 from collections import defaultdict
 from datetime import date, timedelta, time, datetime
+from itertools import cycle
 import random
 
 from django.conf import settings
@@ -357,7 +358,12 @@ def is_available(workshift_profile, shift):
 
     return False
 
-def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
+def auto_assign_shifts(semester=None, pool=None, profiles=None, shifts=None):
+    if semester is None:
+        try:
+            semester = Semester.objects.get(current=True)
+        except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+            return
     if pool is None:
         pool = WorkshiftPool.objects.get(
             semester=semester,
@@ -624,3 +630,35 @@ def calculate_assigned_hours(profiles=None):
             )
             pool_hours.assigned_hours = sum(i.hours for i in shifts)
             pool_hours.save(update_fields=["assigned_hours"])
+
+def reset_instance_assignments(semester=None, shifts=None):
+    if semester is None:
+        try:
+            semester = Semester.objects.get(current=True)
+        except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+            return
+    if shifts is None:
+        shifts = RegularWorkshift.objects.filter(
+            pool__semester=semester,
+        )
+
+    for shift in shifts:
+        instances = WorkshiftInstance.objects.filter(
+            closed=False,
+            weekly_workshift=shift,
+        ).order_by("date")
+
+        assignees = list(shift.current_assignees.all())
+        assignees += [None] * (shift.count - len(assignees))
+        dates = defaultdict(set)
+
+        for assignee, instance in zip(cycle(assignees), instances):
+            if assignee is not None:
+                if instance.date in dates[assignee.pk]:
+                    continue
+
+                dates[assignee.pk].add(instance.date)
+
+            instance.workshifter = assignee
+            instance.liable = None
+            instance.save()
