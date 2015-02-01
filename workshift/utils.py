@@ -430,7 +430,7 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
                     # Assign the person to their shift
                     shift.current_assignees.add(profile)
-                    shift.save(update_fields=["current_assignees"])
+                    shift.save()
 
                     hours_mapping[profile] += float(shift.hours)
 
