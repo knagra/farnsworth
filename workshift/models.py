@@ -852,3 +852,5 @@ class WorkshiftInstance(models.Model):
 
     def get_edit_url(self):
         return wurl("workshift:edit_instance", pk=self.pk, sem_url=self.semester.sem_url)
+
+from workshift import signals
