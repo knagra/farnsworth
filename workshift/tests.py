@@ -2183,6 +2183,7 @@ class TestWorkshifts(TestCase):
             "pool": self.pool.pk,
             "hours": 42,
             "count": 4,
+            "day": DAY_CHOICES[0][0],
             "active": True,
             "current_assignees": [self.up.pk],
             "start_time": "4:00 PM",
@@ -2210,7 +2211,8 @@ class TestWorkshifts(TestCase):
         self.assertEqual(time(16), shift.start_time)
         self.assertEqual(time(18), shift.end_time)
         self.assertEqual(AUTO_VERIFY, shift.verify)
-        self.assertEqual(True, shift.week_long)
+        self.assertEqual(DAY_CHOICES[0][0], shift.day)
+        self.assertEqual(False, shift.week_long)
         self.assertEqual("Edited addendum", shift.addendum)
 
     def test_delete_shift(self):

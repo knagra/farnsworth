@@ -5,6 +5,7 @@ from django.utils.timezone import now
 
 from managers.models import Manager
 from workshift.models import *
+from workshift.fields import DAY_CHOICES
 from workshift import utils
 
 @receiver(signals.post_save, sender=UserProfile)
@@ -258,7 +259,7 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
 @receiver(signals.pre_save, sender=RegularWorkshift)
 def set_week_long(sender, instance, **kwargs):
     shift = instance
-    shift.week_long = shift.day is None
+    shift.week_long = shift.day not in [i[0] for i in DAY_CHOICES]
 
 @receiver(signals.pre_delete, sender=WorkshiftInstance)
 def subtract_instance_hours(sender, instance, **kwargs):
