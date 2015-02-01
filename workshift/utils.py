@@ -525,7 +525,17 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
 
     return profiles, instances
 
-def clear_all_assignments(semester, pool):
+def clear_all_assignments(semester=None, pool=None):
+    if semester is None:
+        try:
+            semester = Semester.objects.get(current=True)
+        except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+            return []
+    if pool is None:
+        pool = WorkshiftPool.objects.get(
+            semester=semester,
+            is_primary=True,
+        )
     shifts = RegularWorkshift.objects.filter(
         pool=pool,
         is_manager_shift=False,
