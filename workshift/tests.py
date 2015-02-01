@@ -167,6 +167,12 @@ class TestAssignment(TestCase):
             for instance in instances
         ))
 
+        pool_hours = self.profile.pool_hours.get(pool=self.p1)
+        self.assertEqual(
+            pool_hours.assigned_hours,
+            pool_hours.hours,
+        )
+
     def test_pre_assigned(self):
         """
         Test that assignment behaves correctly when members are already assigned
@@ -183,10 +189,16 @@ class TestAssignment(TestCase):
             hours=1,
         )
         shift2.current_assignees = [self.profile]
-        shift2.save()
+
         unfinished = utils.auto_assign_shifts(self.semester)
         self.assertEqual([self.profile], unfinished)
         self.assertNotIn(self.profile, shift1.current_assignees.all())
+
+        pool_hours = self.profile.pool_hours.get(pool=self.p1)
+        self.assertEqual(
+            pool_hours.assigned_hours,
+            1,
+        )
 
     def test_auto_assign_one_overflow(self):
         """
@@ -208,6 +220,12 @@ class TestAssignment(TestCase):
             instance.workshifter == None
             for instance in instances
         ))
+
+        pool_hours = self.profile.pool_hours.get(pool=self.p1)
+        self.assertEqual(
+            pool_hours.assigned_hours,
+            0,
+        )
 
     def test_auto_assign_two(self):
         """
@@ -236,6 +254,12 @@ class TestAssignment(TestCase):
                 instance.workshifter == self.profile
                 for instance in instances
             ))
+
+        pool_hours = self.profile.pool_hours.get(pool=self.p1)
+        self.assertEqual(
+            pool_hours.assigned_hours,
+            pool_hours.hours,
+        )
 
     def test_auto_assign_two_preferred(self):
         """
@@ -269,6 +293,12 @@ class TestAssignment(TestCase):
             instance.workshifter == None
             for instance in instances
         ))
+
+        pool_hours = self.profile.pool_hours.get(pool=self.p1)
+        self.assertEqual(
+            pool_hours.assigned_hours,
+            pool_hours.hours,
+        )
 
     def test_auto_assign_two_overflow(self):
         """
@@ -304,6 +334,12 @@ class TestAssignment(TestCase):
             instance.workshifter == None
             for instance in instances
         ))
+
+        pool_hours = self.profile.pool_hours.get(pool=self.p1)
+        self.assertEqual(
+            pool_hours.assigned_hours,
+            3,
+        )
 
     def _test_auto_assign_fifty(self):
         """
