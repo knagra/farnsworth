@@ -1309,7 +1309,10 @@ def list_types_view(request):
     page_name = "Workshift Types"
     types = WorkshiftType.objects.all()
     shifts = [
-        RegularWorkshift.objects.filter(workshift_type=i, pool__semester__current=True)
+        RegularWorkshift.objects.filter(
+            workshift_type=i,
+            pool__semester__current=True,
+        ).order_by("day")
         for i in types
     ]
     return render_to_response("list_types.html", {
