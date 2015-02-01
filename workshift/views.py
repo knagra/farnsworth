@@ -740,9 +740,9 @@ def assign_shifts_view(request, semester):
     shifts = RegularWorkshift.objects.filter(
         pool__semester=semester,
         active=True,
-        ).exclude(
-            workshift_type__assignment=WorkshiftType.NO_ASSIGN,
-            )
+    ).exclude(
+        workshift_type__assignment=WorkshiftType.NO_ASSIGN,
+    )
 
     assign_forms = []
     for shift in shifts:
@@ -751,7 +751,7 @@ def assign_shifts_view(request, semester):
             prefix="shift-{0}".format(shift.pk),
             instance=shift,
             semester=semester,
-            )
+        )
         assign_forms.append(form)
 
     if assign_forms and all(i.is_valid() for i in assign_forms):
