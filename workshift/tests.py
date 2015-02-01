@@ -165,7 +165,6 @@ class TestAssignment(TestCase):
         Test that assignment behaves correctly when members are already assigned
         to other workshifts.
         """
-        print "test_pre_assigned"
         shift1 = RegularWorkshift.objects.create(
             workshift_type=self.wtype1,
             pool=self.p1,
