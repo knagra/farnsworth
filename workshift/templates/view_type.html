@@ -41,10 +41,10 @@
 	  <tr>
 		<td>
 		  <a href="{{ shift.get_view_url }}">
-			{% if shift.day %}
-			{{ shift.get_day_display }}
-			{% else %}
+			{% if shift.week_long %}
 			Week long
+			{% else %}
+			{{ shift.get_day_display }}
 			{% endif %}
 		  </a>
 		</td>
