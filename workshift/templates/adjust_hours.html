@@ -50,7 +50,7 @@
         {% for workshifter, form_tuples in workshifters_tuples %}
         <tr>
           <td style="vertical-align: middle;">
-			<a href={{ workshifter.get_view_url }}">
+			<a href="{{ workshifter.get_view_url }}">
 			  {{ workshifter.user.get_full_name }}
 			</a>
 		  </td>
