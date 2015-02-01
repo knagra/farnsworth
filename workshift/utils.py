@@ -384,7 +384,7 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
         rankings = defaultdict(set)
         for shift in shifts:
             # Skip shifts that put a member over their hour requirement
-            if float(shift.hours) + hours_mapping[profile] > float(pool_hours.hours):
+            if float(shift.hours) + float(hours_mapping[profile]) > float(pool_hours.hours):
                 continue
 
             # Check how well this shift fits the member's schedule
