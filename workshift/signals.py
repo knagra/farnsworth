@@ -203,39 +203,43 @@ def delete_workshift_instances(sender, instance, **kwargs):
         else:
             instance.delete()
 
-@receiver(signals.pre_save, sender=RegularWorkshift)
-def subtract_workshift_pool_hours(sender, instance, **kwargs):
+@receiver(signals.m2m_changed, sender=RegularWorkshift.current_assignees.through)
+def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kwargs):
     shift = instance
 
-    # Subtract previously given hours
-    if shift.id:
-        old_shift = sender.objects.get(pk=shift.id)
-        delete_regular_workshift(sender, old_shift)
+    if action in ["pre_remove", "pre_clear"]:
+        if not pk_set:
+            assignees = shift.current_assignees.all()
+        else:
+            assignees = WorkshiftProfile.objects.filter(pk__in=pk_set)
 
-@receiver(signals.post_save, sender=RegularWorkshift)
-def add_workshift_pool_hours(sender, instance, **kwargs):
-    shift = instance
+        for assignee in assignees:
+            pool_hours = assignee.pool_hours.get(pool=shift.pool)
+            pool_hours.assigned_hours -= shift.hours
+            pool_hours.save()
 
-    if shift.active:
+    elif action in ["post_add"]:
         # Add shift's hours to current assignees
-        assignees = shift.current_assignees.all()
+        assignees = WorkshiftProfile.objects.filter(pk__in=pk_set)
+
         for assignee in assignees:
             pool_hours = assignee.pool_hours.get(pool=shift.pool)
             pool_hours.assigned_hours += shift.hours
             pool_hours.save()
 
-        instances = WorkshiftInstance.objects.filter(
+    if action in ["post_remove", "post_clear", "post_add"]:
+        WorkshiftInstance.objects.filter(
             weekly_workshift=shift,
             closed=False,
-        )
-        assignees += [None] * (len(instances) - len(assignees))
+        ).delete()
 
-        # Assign assignees to instances
-        for instance, assignee in zip(instances, assignees):
-            if instance.workshifter != assignee:
-                instance.workshifter = assignee
-                instance.save()
-    else:
+        utils.make_instances(semester=shift.pool.semester, shifts=[shift])
+
+@receiver(signals.post_save, sender=RegularWorkshift)
+def add_workshift_pool_hours(sender, instance, **kwargs):
+    shift = instance
+
+    if not shift.active:
         WorkshiftInstance.objects.filter(
             weekly_workshift=shift,
             closed=False,
