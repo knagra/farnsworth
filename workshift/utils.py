@@ -304,29 +304,53 @@ def is_available(workshift_profile, shift):
     """
     if shift.week_long:
         return True
+
     start_time = shift.start_time or time(hour=0)
     end_time = shift.end_time or time(hour=23, minute=59)
     relevant_blocks = list()
+
     for block in workshift_profile.time_blocks.order_by('start_time'):
         if block.day == shift.day and block.preference == TimeBlock.BUSY \
           and block.start_time < end_time \
           and block.end_time > start_time:
             relevant_blocks.append(block)
+
     # Time blocks should be ordered; so go through and see if there is a wide
     # enough window for the shifter to do the shift.  If there is,
     # return True.
-    hours = timedelta(hours=float(shift.hours))
     if not relevant_blocks:
         return True
-    elif relevant_blocks[0].start_time - start_time >= hours:
+
+    hours = timedelta(hours=float(shift.hours))
+    start_delta = timedelta(
+        hours=relevant_blocks[0].start_time.hour - start_time.hour,
+        minutes=relevant_blocks[0].start_time.minute - start_time.minute,
+    )
+
+    if start_delta.seconds / 60 / 60 >= hours:
         return True
+
+    block = relevant_blocks.pop(0)
+
     while len(relevant_blocks) > 0:
-        first_block = relevant_blocks.pop(0)
+        block, prev_block = relevant_blocks.pop(0), block
+        end_delta = timedelta(
+            hours=end_time.hour - prev_block.end_time.hour,
+            minutes=end_time.minute - prev_block.end_time.minute,
+        )
+
         if len(relevant_blocks) == 0 \
-          and end_time - first_block.end_tim >= hours:
+          and end_delta.seconds / 60 / 60 >= hours:
              return True
-        elif relevant_blocks[0].start_time - first_block.end_time >= hours:
+
+        start_end_delta = timedelta(
+            hours=block.start_time.hour - prev_block.end_time.hour,
+            minutes=block.start_time.minute - prev_block.end_time.minute,
+        )
+
+        if start_end_delta.seconds / 60 / 60 >= hours:
             return True
+
     return False
 
 def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
