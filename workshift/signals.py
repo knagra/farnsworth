@@ -3,6 +3,8 @@ from django.dispatch import receiver
 from django.db.models import signals
 from django.utils.timezone import now
 
+from itertools import cycle
+
 from managers.models import Manager
 from workshift.models import *
 from workshift import utils
@@ -227,13 +229,34 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
             pool_hours.assigned_hours += shift.hours
             pool_hours.save()
 
-    if action in ["post_remove", "post_clear", "post_add"]:
-        WorkshiftInstance.objects.filter(
+    if action in ["post_remove", "post_clear"]:
+        # ...
+        instances = WorkshiftInstance.objects.filter(
             weekly_workshift=shift,
             closed=False,
-        ).delete()
+        ).order_by("date")
 
-        utils.make_instances(semester=shift.pool.semester, shifts=[shift])
+        for instance in instances:
+            if not pk_set or instance.workshifter.pk in pk_set:
+                instance.workshifter = None
+                instance.liable = None
+                instance.save()
+
+    elif action in ["post_add"]:
+        # ...
+        instances = WorkshiftInstance.objects.filter(
+            weekly_workshift=shift,
+            closed=False,
+        ).exclude(
+            workshifter__pk__in=pk_set,
+        ).order_by("date")
+
+        assignees = WorkshiftProfile.objects.filter(pk__in=pk_set)
+
+        for assignee, instance in zip(cycle(assignees), instances):
+            instance.workshifter = assignee
+            instance.liable = None
+            instance.save()
 
 @receiver(signals.post_save, sender=RegularWorkshift)
 def add_workshift_pool_hours(sender, instance, **kwargs):

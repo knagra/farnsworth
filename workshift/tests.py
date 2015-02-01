@@ -609,29 +609,26 @@ class TestViews(TestCase):
     def setUp(self):
         today = now().date()
         self.sem = Semester.objects.create(
-            year=2014, start_date=today,
-            end_date=today + timedelta(days=7),
-            current=True,
-            )
+            year=today.year,
+            start_date=today,
+            end_date=today + timedelta(days=6),
+        )
 
         self.u = User.objects.create_user(username="u", password="pwd")
         self.wu = User.objects.create_user(username="wu", password="pwd")
         self.wu.first_name, self.wu.last_name = "Cooperative", "User"
         self.wu.save()
 
-        self.pool = WorkshiftPool.objects.get(
-            semester=self.sem,
-            is_primary=True,
-        )
-
         self.wm = Manager.objects.create(
             title="Workshift Manager",
             incumbent=UserProfile.objects.get(user=self.wu),
             workshift_manager=True,
-            )
+        )
 
-        self.pool.managers = [self.wm]
-        self.pool.save()
+        self.pool = WorkshiftPool.objects.get(
+            semester=self.sem,
+            is_primary=True,
+        )
 
         self.wprofile = WorkshiftProfile.objects.get(user=self.wu)
 
@@ -639,76 +636,65 @@ class TestViews(TestCase):
             title="Test Posts",
             description="Test WorkshiftType Description",
             quick_tips="Test Quick Tips",
-            )
+        )
 
         self.shift = RegularWorkshift.objects.create(
             workshift_type=self.wtype,
             pool=self.pool,
+            day=today.weekday(),
             start_time=now(),
             end_time=now() + timedelta(hours=2),
-            )
+        )
         self.shift.current_assignees = [self.wprofile]
-        self.shift.days = [DAY_CHOICES[0][0]]
-        self.shift.save()
 
-        self.instance = WorkshiftInstance.objects.create(
+        self.instance = WorkshiftInstance.objects.get(
             weekly_workshift=self.shift,
-            date=today,
-            workshifter=self.wprofile,
-            )
-
-        self.open_instance = WorkshiftInstance.objects.create(
-            weekly_workshift=self.shift,
-            date=today,
-            )
+        )
 
         info = InstanceInfo.objects.create(
             title="Test One Time Shift",
             pool=self.pool,
             description="One Time Description",
-            )
+        )
 
         self.once = WorkshiftInstance.objects.create(
             info=info,
-            date=date(2014, 1, 1),
+            date=today + timedelta(days=7),
             workshifter=self.wprofile,
-            )
+        )
 
         self.sle0 = ShiftLogEntry.objects.create(
             person=self.wprofile,
             note="Test Shift Log #0",
             entry_type=ShiftLogEntry.ASSIGNED,
-            )
+        )
 
         self.sle1 = ShiftLogEntry.objects.create(
             person=self.wprofile,
             note="Test Shift Log #1",
             entry_type=ShiftLogEntry.SIGNOUT,
-            )
+        )
 
         self.sle2 = ShiftLogEntry.objects.create(
             person=self.wprofile,
             note="Test Shift Log #2",
             entry_type=ShiftLogEntry.SIGNIN,
-            )
+        )
 
         self.sle3 = ShiftLogEntry.objects.create(
             person=self.wprofile,
             note="Test Shift Log #3",
             entry_type=ShiftLogEntry.VERIFY,
-            )
+        )
 
         self.sle4 = ShiftLogEntry.objects.create(
             person=self.wprofile,
             note="Test Shift Log #4",
             entry_type=ShiftLogEntry.BLOWN,
-            )
+        )
 
-        self.instance.logs = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
         self.once.logs = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
-
-        self.instance.save()
-        self.once.save()
+        self.instance.logs = [self.sle0, self.sle1, self.sle2, self.sle3, self.sle4]
 
         hours = self.wprofile.pool_hours.get(pool=self.pool)
         hours.first_fine_date = 13.00
@@ -985,11 +971,11 @@ class TestViews(TestCase):
         self.assertEqual(
             1,
             RegularWorkshift.objects.filter(current_assignees=self.wprofile).count()
-            )
+        )
         self.assertEqual(
-            2,
-            WorkshiftInstance.objects.filter(workshifter=self.wprofile).count()
-            )
+            2, # self.instance, Workshift Manager
+            WorkshiftInstance.objects.filter(workshifter=self.wprofile).count(),
+        )
 
     def test_fine_date(self):
         url = reverse("workshift:fine_date")
@@ -2225,7 +2211,8 @@ class TestSemester(TestCase):
         today = now().date()
         last_year = today - timedelta(days=365)
         self.s2 = Semester.objects.create(
-            year=last_year.year, start_date=last_year,
+            year=last_year.year,
+            start_date=last_year,
             end_date=last_year + timedelta(days=7),
         )
 
@@ -2311,7 +2298,7 @@ class TestSemester(TestCase):
             "semester-rate": 14.00,
             "semester-policy": "http://bsc.coop",
             "semester-start_date": today,
-            "semester-end_date": today + timedelta(weeks=18),
+            "semester-end_date": today + timedelta(weeks=18) - timedelta(days=today.weekday()),
         }, follow=True)
 
         self.assertRedirects(response, reverse("workshift:manage"))
