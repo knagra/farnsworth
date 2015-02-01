@@ -3,9 +3,6 @@ from django.dispatch import receiver
 from django.db.models import signals
 from django.utils.timezone import now
 
-from collections import defaultdict
-from itertools import cycle
-
 from managers.models import Manager
 from workshift.models import *
 from workshift import utils
@@ -67,7 +64,6 @@ def initialize_semester(sender, instance, created, **kwargs):
     )
     if created:
         pool.managers = Manager.objects.filter(workshift_manager=True)
-        pool.save()
 
     # Create this semester's workshift profiles
     for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
@@ -128,7 +124,6 @@ def log_entry_create(sender, instance, created, **kwargs):
                 entry_type=ShiftLogEntry.ASSIGNED,
             )
             instance.logs.add(log)
-            instance.save()
 
 @receiver(signals.pre_save, sender=PoolHours)
 def manual_hour_adjustment(sender, instance, **kwargs):
@@ -255,27 +250,10 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
 
     elif action in ["post_add"]:
         # ...
-        instances = WorkshiftInstance.objects.filter(
-            weekly_workshift=shift,
-            closed=False,
-        ).exclude(
-            workshifter__pk__in=pk_set,
-        ).order_by("date")
-
-        assignees = list(shift.current_assignees.all())
-        assignees += [None] * (shift.count - len(assignees))
-        dates = defaultdict(set)
-
-        for assignee, instance in zip(cycle(assignees), instances):
-            if assignee is not None:
-                if instance.date in dates[assignee.pk]:
-                    continue
-
-                dates[assignee.pk].add(instance.date)
-
-            instance.workshifter = assignee
-            instance.liable = None
-            instance.save()
+        utils.reset_instance_assignments(
+            semester=shift.pool.semester,
+            shifts=[shift],
+        )
 
 @receiver(signals.pre_save, sender=RegularWorkshift)
 def set_week_long(sender, instance, **kwargs):
