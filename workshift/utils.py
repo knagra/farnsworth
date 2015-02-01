@@ -355,7 +355,10 @@ def is_available(workshift_profile, shift):
 
 def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     if pool is None:
-        pool = WorkshiftPool.objects.get(semester=semester, is_primary=True)
+        pool = WorkshiftPool.objects.get(
+            semester=semester,
+            is_primary=True,
+        )
     if profiles is None:
         profiles = WorkshiftProfile.objects.filter(
             semester=semester,
@@ -374,16 +377,11 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
     # Initialize with already-assigned shifts
     for profile in profiles:
-        for shift in profile.regularworkshift_set.filter(
-                current_assignees=profile,
-                pool=pool,
-        ):
-            hours_mapping[profile] += float(shift.hours)
-
-    # Pre-process, rank shifts by their times / preferences
-    rankings = defaultdict(set)
-    for profile in profiles:
         pool_hours = profile.pool_hours.get(pool=pool)
+        hours_mapping[profile] = pool_hours.assigned_hours
+
+        # Pre-process, rank shifts by their times / preferences
+        rankings = defaultdict(set)
         for shift in shifts:
             # Skip shifts that put a member over their hour requirement
             if float(shift.hours) + hours_mapping[profile] > float(pool_hours.hours):
@@ -397,7 +395,7 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
             try:
                 rating = profile.ratings.get(
                     workshift_type=shift.workshift_type,
-                    ).rating
+                ).rating
             except WorkshiftRating.DoesNotExist:
                 rating = WorkshiftRating.INDIFFERENT
 
@@ -422,16 +420,18 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
             # Assign a shift, picking from the most preferable groups first
             for rank in range(1, 7):
                 # Update the rankings with the list of available shifts
-                rankings[profile, rank] = shifts.intersection(rankings[profile, rank])
+                rankings[profile, rank].intersection_update(shifts)
+
                 if rankings[profile, rank]:
                     # Select the shift, starting with those that take the most
                     # hours and fit the best into the workshifter's allotted
                     # hours
-                    shift = sorted(rankings[profile, rank],
-                                   key=lambda x: x.hours, reverse=True)[0]
+                    shift = max(rankings[profile, rank], key=lambda x: x.hours)
 
                     # Assign the person to their shift
                     shift.current_assignees.add(profile)
+                    shift.save(update_fields=["current_assignees"])
+
                     hours_mapping[profile] += float(shift.hours)
 
                     # Remove shift from shifts if it has been completely filled
@@ -456,7 +456,7 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
                     for shift in rankings[profile, rank]
                     if float(shift.hours) + hours_mapping[profile] <=
                     float(pool_hours.hours)
-                    )
+                )
 
     # Return profiles that were incompletely assigned shifts
     return profiles
