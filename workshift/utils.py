@@ -544,7 +544,6 @@ def clear_all_assignments(semester=None, pool=None):
     )
     for shift in shifts:
         shift.current_assignees.clear()
-        shift.save()
 
 def update_standings(semester=None, pool_hours=None):
     if semester is None:
