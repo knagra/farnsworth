@@ -54,14 +54,14 @@
 			  {{ workshifter.user.get_full_name }}
 			</a>
 		  </td>
-		  {% for form, standing in form_tuples %}
+		  {% for form, pool_hours in form_tuples %}
 		  <td>
 			<p>
 			  <b>Current Standing</b>:
 			  {% if 0 > pool_hours.standing %}
-			  <font color="red">{{ standing }}</font>
+			  <font color="red">{{ pool_hours.standing }}</font>
 			  {% else %}
-			  <font color="green">{{ standing }}</font>
+			  <font color="green">{{ pool_hours.standing }}</font>
 			  {% endif %}
 			</p>
 			{{ form|bootstrap }}

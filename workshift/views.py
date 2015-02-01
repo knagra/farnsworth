@@ -820,18 +820,14 @@ def adjust_hours_view(request, semester):
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
     pool_hour_forms = [
         [
-            AdjustHoursForm(
-                request.POST or None,
-                prefix="pool_hours-{}".format(hours.pk),
-                instance=hours,
+            (
+                AdjustHoursForm(
+                    request.POST or None,
+                    prefix="pool_hours-{}".format(hours.pk),
+                    instance=hours,
+                ),
+                hours,
             )
-            for hours in workshifter.pool_hours.order_by("-pool__is_primary", "pool__title")
-        ]
-        for workshifter in workshifters
-    ]
-    standings = [
-        [
-            hours.standing
             for hours in workshifter.pool_hours.order_by("-pool__is_primary", "pool__title")
         ]
         for workshifter in workshifters
@@ -840,10 +836,10 @@ def adjust_hours_view(request, semester):
     if all(
             form.is_valid()
             for workshifter_forms in pool_hour_forms
-            for form in workshifter_forms
+            for form, pool_hours in workshifter_forms
     ):
         for workshifter_forms in pool_hour_forms:
-            for form in workshifter_forms:
+            for form, pool_hours in workshifter_forms:
                 form.save()
         messages.add_message(request, messages.INFO, "Updated hours.")
         return HttpResponseRedirect(wurl("workshift:adjust_hours",
@@ -852,7 +848,7 @@ def adjust_hours_view(request, semester):
     return render_to_response("adjust_hours.html", {
         "page_name": page_name,
         "pools": pools,
-        "workshifters_tuples": zip(workshifters, pool_hour_forms, standings),
+        "workshifters_tuples": zip(workshifters, pool_hour_forms),
     }, context_instance=RequestContext(request))
 
 @semester_required
