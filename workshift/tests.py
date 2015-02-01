@@ -481,15 +481,17 @@ class TestUtils(TestCase):
         # Disconnect the handler and run make_instances ourselves
         models.signals.post_save.disconnect(
             signals.create_workshift_instances, sender=RegularWorkshift
-            )
+        )
+
         shift = RegularWorkshift.objects.create(
             workshift_type=wtype,
             pool=self.p1,
             day=4,
             hours=7,
         )
+
         shift.current_assignees = [self.profile]
-        shift.save()
+
         today = now().date()
         WorkshiftInstance.objects.create(
             weekly_workshift=shift,
@@ -498,6 +500,10 @@ class TestUtils(TestCase):
         instances = utils.make_instances(
             semester=self.semester,
             shifts=[shift],
+        )
+
+        models.signals.post_save.connect(
+            signals.create_workshift_instances, sender=RegularWorkshift
         )
 
         for instance in instances:
