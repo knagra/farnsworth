@@ -322,27 +322,22 @@ def is_available(workshift_profile, shift):
         return True
 
     hours_delta = timedelta(hours=float(shift.hours))
+
+    # Check the time between shift start and block start
+    block = relevant_blocks.pop(0)
     start_delta = timedelta(
-        hours=relevant_blocks[0].start_time.hour - start_time.hour,
-        minutes=relevant_blocks[0].start_time.minute - start_time.minute,
+        hours=block.start_time.hour - start_time.hour,
+        minutes=block.start_time.minute - start_time.minute,
     )
 
     if start_delta >= hours_delta:
         return True
 
-    block = relevant_blocks.pop(0)
-
     while len(relevant_blocks) > 0:
         block, prev_block = relevant_blocks.pop(0), block
-        end_delta = timedelta(
-            hours=end_time.hour - prev_block.end_time.hour,
-            minutes=end_time.minute - prev_block.end_time.minute,
-        )
 
-        if len(relevant_blocks) == 0 \
-          and end_delta >= hours_delta:
-             return True
-
+        # Check the time between the last block and the next block
+        # is larger than the length of the shift
         start_end_delta = timedelta(
             hours=block.start_time.hour - prev_block.end_time.hour,
             minutes=block.start_time.minute - prev_block.end_time.minute,
@@ -350,6 +345,15 @@ def is_available(workshift_profile, shift):
 
         if start_end_delta >= hours_delta:
             return True
+
+    # Check the time between the end of the time block to the end of the shift
+    end_delta = timedelta(
+        hours=end_time.hour - block.end_time.hour,
+        minutes=end_time.minute - block.end_time.minute,
+    )
+
+    if end_delta >= hours_delta:
+         return True
 
     return False
 
@@ -382,6 +386,7 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
         # Pre-process, rank shifts by their times / preferences
         rankings = defaultdict(set)
+
         for shift in shifts:
             # Skip shifts that put a member over their hour requirement
             if float(shift.hours) + hours_mapping[profile] > float(pool_hours.hours):
@@ -411,9 +416,11 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
             rankings[profile, rank].add(shift)
 
+    print(rankings)
     # Assign shifts in a round-robin manner, run until we can't assign anyone
     # any more shifts
     while any(rankings.values()):
+        print(rankings)
         for profile in profiles[:]:
             pool_hours = profile.pool_hours.get(pool=pool)
 
@@ -443,9 +450,11 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
             # Remove profiles when their hours have all been assigned
             if float(pool_hours.hours) <= hours_mapping[profile]:
                 profiles.remove(profile)
+
                 for rank in range(1, 7):
                     if (profile, rank) in rankings:
                         del rankings[profile, rank]
+
                 continue
 
             # Otherwise, Remove shifts that put people above their weekly
