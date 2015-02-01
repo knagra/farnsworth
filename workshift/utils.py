@@ -549,8 +549,7 @@ def clear_all_assignments(semester=None, pool=None):
     shifts = RegularWorkshift.objects.filter(
         pool=pool,
         is_manager_shift=False,
-    ).exclude(
-        workshift_type__assignment=WorkshiftType.NO_ASSIGN,
+        workshift_type__assignment=WorkshiftType.AUTO_ASSIGN,
     )
     for shift in shifts:
         shift.current_assignees.clear()
