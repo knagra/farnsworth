@@ -321,13 +321,13 @@ def is_available(workshift_profile, shift):
     if not relevant_blocks:
         return True
 
-    hours = timedelta(hours=float(shift.hours))
+    hours_delta = timedelta(hours=float(shift.hours))
     start_delta = timedelta(
         hours=relevant_blocks[0].start_time.hour - start_time.hour,
         minutes=relevant_blocks[0].start_time.minute - start_time.minute,
     )
 
-    if start_delta.seconds / 60 / 60 >= hours:
+    if start_delta >= hours_delta:
         return True
 
     block = relevant_blocks.pop(0)
@@ -340,7 +340,7 @@ def is_available(workshift_profile, shift):
         )
 
         if len(relevant_blocks) == 0 \
-          and end_delta.seconds / 60 / 60 >= hours:
+          and end_delta >= hours_delta:
              return True
 
         start_end_delta = timedelta(
@@ -348,7 +348,7 @@ def is_available(workshift_profile, shift):
             minutes=block.start_time.minute - prev_block.end_time.minute,
         )
 
-        if start_end_delta.seconds / 60 / 60 >= hours:
+        if start_end_delta >= hours_delta:
             return True
 
     return False
