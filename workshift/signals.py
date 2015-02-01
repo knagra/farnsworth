@@ -218,10 +218,28 @@ def add_workshift_pool_hours(sender, instance, **kwargs):
 
     if shift.active:
         # Add shift's hours to current assignees
-        for assignee in shift.current_assignees.all():
+        assignees = shift.current_assignees.all()
+        for assignee in assignees:
             pool_hours = assignee.pool_hours.get(pool=shift.pool)
             pool_hours.assigned_hours += shift.hours
             pool_hours.save()
+
+        instances = WorkshiftInstance.objects.filter(
+            weekly_workshift=shift,
+            closed=False,
+        )
+        assignees += [None] * (len(instances) - len(assignees))
+
+        # Assign assignees to instances
+        for instance, assignee in zip(instances, assignees):
+            if instance.workshifter != assignee:
+                instance.workshifter = assignee
+                instance.save()
+    else:
+        WorkshiftInstance.objects.filter(
+            weekly_workshift=shift,
+            closed=False,
+        ).delete()
 
 @receiver(signals.pre_delete, sender=RegularWorkshift)
 def delete_regular_workshift(sender, instance, **kwargs):
