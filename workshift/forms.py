@@ -727,7 +727,7 @@ class RegularWorkshiftForm(forms.ModelForm):
 
     class Meta:
         model = RegularWorkshift
-        exclude = ("week_long",)
+        exclude = ("week_long", "is_manager_shift")
 
     def __init__(self, *args, **kwargs):
         self.pools = kwargs.pop('pools', None)
