@@ -379,7 +379,11 @@ def auto_assign_shifts(semester=None, pool=None, profiles=None, shifts=None):
             workshift_type__assignment=WorkshiftType.AUTO_ASSIGN,
         )
 
-    shifts = set(shifts)
+    shifts = set([
+        shift
+        for shift in shifts
+        if shift.current_assignees.count() < shift.count
+    ])
     profiles = list(profiles)
 
     # List of hours assigned to each profile
@@ -445,7 +449,7 @@ def auto_assign_shifts(semester=None, pool=None, profiles=None, shifts=None):
                     hours_mapping[profile] += float(shift.hours)
 
                     # Remove shift from shifts if it has been completely filled
-                    if shift.current_assignees.count() == shift.count:
+                    if shift.current_assignees.count() >= shift.count:
                         shifts.remove(shift)
 
                     break
