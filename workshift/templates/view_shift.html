@@ -26,10 +26,10 @@
   <dl class="dl-horizontal">
     <dt>Day</dt>
     <dd>
-      {% if shift.day %}
-      {{ shift.get_day_display }}
-      {% else %}
+      {% if shift.week_long %}
       Week long
+      {% else %}
+      {{ shift.get_day_display }}
       {% endif %}
     </dd>
 	{% if shift.workshift_type %}
