@@ -127,22 +127,22 @@ class TestAssignment(TestCase):
         )
         self.wtype2 = WorkshiftType.objects.create(
             title="Indifferent Type",
-            )
+        )
         self.wtype3 = WorkshiftType.objects.create(
             title="Dislike Type",
-            )
+        )
         preference1 = WorkshiftRating.objects.create(
             rating=WorkshiftRating.LIKE,
             workshift_type=self.wtype1,
-            )
+        )
         preference2 = WorkshiftRating.objects.create(
             rating=WorkshiftRating.INDIFFERENT,
             workshift_type=self.wtype2,
-            )
+        )
         preference3 = WorkshiftRating.objects.create(
             rating=WorkshiftRating.DISLIKE,
             workshift_type=self.wtype3,
-            )
+        )
         self.profile.ratings = [preference1, preference2, preference3]
         self.profile.save()
         utils.make_workshift_pool_hours(semester=self.semester)
@@ -165,16 +165,17 @@ class TestAssignment(TestCase):
         Test that assignment behaves correctly when members are already assigned
         to other workshifts.
         """
+        print "test_pre_assigned"
         shift1 = RegularWorkshift.objects.create(
             workshift_type=self.wtype1,
             pool=self.p1,
             hours=5,
-            )
+        )
         shift2 = RegularWorkshift.objects.create(
             workshift_type=self.wtype3,
             pool=self.p1,
             hours=1,
-            )
+        )
         shift2.current_assignees = [self.profile]
         shift2.save()
         unfinished = utils.auto_assign_shifts(self.semester)
