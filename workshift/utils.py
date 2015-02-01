@@ -378,13 +378,13 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     # Initialize with already-assigned shifts
     for profile in profiles:
         pool_hours = profile.pool_hours.get(pool=pool)
-        hours_mapping[profile] = pool_hours.assigned_hours
+        hours_mapping[profile] = float(pool_hours.assigned_hours)
 
         # Pre-process, rank shifts by their times / preferences
         rankings = defaultdict(set)
         for shift in shifts:
             # Skip shifts that put a member over their hour requirement
-            if float(shift.hours) + float(hours_mapping[profile]) > float(pool_hours.hours):
+            if float(shift.hours) + hours_mapping[profile] > float(pool_hours.hours):
                 continue
 
             # Check how well this shift fits the member's schedule
@@ -441,7 +441,7 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
                     break
 
             # Remove profiles when their hours have all been assigned
-            if pool_hours.hours <= hours_mapping[profile]:
+            if float(pool_hours.hours) <= hours_mapping[profile]:
                 profiles.remove(profile)
                 for rank in range(1, 7):
                     if (profile, rank) in rankings:
