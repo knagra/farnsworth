@@ -379,13 +379,13 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
     # List of hours assigned to each profile
     hours_mapping = defaultdict(float)
 
+    # Pre-process, rank shifts by their times / preferences
+    rankings = defaultdict(set)
+
     # Initialize with already-assigned shifts
     for profile in profiles:
         pool_hours = profile.pool_hours.get(pool=pool)
         hours_mapping[profile] = float(pool_hours.assigned_hours)
-
-        # Pre-process, rank shifts by their times / preferences
-        rankings = defaultdict(set)
 
         for shift in shifts:
             # Skip shifts that put a member over their hour requirement
@@ -416,11 +416,9 @@ def auto_assign_shifts(semester, pool=None, profiles=None, shifts=None):
 
             rankings[profile, rank].add(shift)
 
-    print(rankings)
     # Assign shifts in a round-robin manner, run until we can't assign anyone
     # any more shifts
     while any(rankings.values()):
-        print(rankings)
         for profile in profiles[:]:
             pool_hours = profile.pool_hours.get(pool=pool)
 
