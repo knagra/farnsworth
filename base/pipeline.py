@@ -54,6 +54,8 @@ def request_user(strategy, details, user=None, request=None, is_new=False, uid=N
             uid=uid,
         )
 
-        messages.add_message(strategy.request_data, messages.SUCCESS,
-                    "Your account request has been submitted.")
+        messages.add_message(
+            strategy.request, messages.SUCCESS,
+            "Your account request has been submitted.",
+        )
         return redirect(reverse('request_profile'))
