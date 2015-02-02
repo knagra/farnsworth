@@ -45,15 +45,14 @@ def request_user(strategy, details, user=None, request=None, is_new=False, uid=N
 
         first, last = _get_first_last(details)
         email = details["email"]
-        pr = ProfileRequest(
+        ProfileRequest.objects.create(
             username=username,
             first_name=first, last_name=last,
             email=email,
             affiliation=UserProfile.STATUS_CHOICES[0][0],
-            provider=strategy.backend.name,
+            provider=kwargs.get("social").provider,
             uid=uid,
-            )
-        pr.save()
+        )
 
         messages.add_message(request, messages.SUCCESS,
                     "Your account request has been submitted.")
