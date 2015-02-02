@@ -32,7 +32,8 @@ def _get_first_last(details):
     return "", ""
 
 @partial
-def request_user(strategy, details, user=None, request=None, is_new=False, uid=None, **kwargs):
+def request_user(strategy=None, details=None, user=None, request=None, is_new=False, uid=None,
+                 **kwargs):
     if user:
         return
     elif is_new:
@@ -55,7 +56,7 @@ def request_user(strategy, details, user=None, request=None, is_new=False, uid=N
         )
 
         messages.add_message(
-            strategy.request, messages.SUCCESS,
+            request, messages.SUCCESS,
             "Your account request has been submitted.",
         )
         return redirect(reverse('request_profile'))
