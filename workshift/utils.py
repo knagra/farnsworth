@@ -13,7 +13,7 @@ import random
 
 from django.conf import settings
 from django.db.models import Q
-from django.utils.timezone import now, utc
+from django.utils.timezone import now, utc, localtime
 
 from notifications import notify
 
@@ -203,7 +203,7 @@ def past_verify(instance, moment=None):
     end_datetime = datetime.combine(
         instance.date,
         instance.end_time or time(0),
-        )
+    )
 
     if instance.end_time is None:
         end_datetime += timedelta(days=1)
@@ -220,7 +220,7 @@ def past_sign_out(instance, moment=None):
     start_datetime = datetime.combine(
         instance.date,
         instance.start_time or time(0),
-        )
+    )
 
     if settings.USE_TZ:
         start_datetime = start_datetime.replace(tzinfo=utc)
@@ -234,12 +234,14 @@ def collect_blown(semester=None, moment=None):
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             return []
     if moment is None:
-        moment = now()
+        moment = localtime(now())
+
     closed, verified, blown = [], [], []
     today = moment.date()
     instances = WorkshiftInstance.objects.filter(
         semester=semester, closed=False, date__lte=today,
-        )
+    )
+
     for instance in instances:
         # Skip shifts not yet ended
         if not past_verify(instance, moment=moment):
@@ -272,7 +274,7 @@ def collect_blown(semester=None, moment=None):
             if entry_type:
                 log = ShiftLogEntry.objects.create(
                     entry_type=entry_type,
-                    )
+                )
                 instance.logs.add(log)
 
             # Send out notifications
@@ -286,7 +288,7 @@ def collect_blown(semester=None, moment=None):
                     instance,
                     verb="was automatically marked as blown",
                     recipient=target,
-                    )
+                )
 
         instance.save()
 
