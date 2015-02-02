@@ -50,7 +50,7 @@ def request_user(strategy, details, user=None, request=None, is_new=False, uid=N
             first_name=first, last_name=last,
             email=email,
             affiliation=UserProfile.STATUS_CHOICES[0][0],
-            provider=kwargs.get("social").provider,
+            provider=kwargs.get("backend").name,
             uid=uid,
         )
 
