@@ -13,9 +13,10 @@ import random
 
 from django.conf import settings
 from django.db.models import Q
-from django.utils.timezone import now, utc, localtime
+from django.utils.timezone import now, localtime
 
 from notifications import notify
+from pytz import timezone
 
 from managers.models import Manager
 from workshift.models import *
@@ -82,7 +83,7 @@ def make_instances(semester=None, shifts=None, start=None):
     if shifts is None:
         shifts = RegularWorkshift.objects.filter(pool__semester=semester)
     if start is None:
-        start = max([now().date(), semester.start_date])
+        start = max([localtime(now()).date(), semester.start_date])
     new_instances = []
     for shift in shifts:
         # Delete all old instances of this shift
@@ -198,7 +199,7 @@ def make_manager_workshifts(semester=None, managers=None):
 
 def past_verify(instance, moment=None):
     if moment is None:
-        moment = now()
+        moment = localtime(now())
 
     end_datetime = datetime.combine(
         instance.date,
@@ -209,13 +210,13 @@ def past_verify(instance, moment=None):
         end_datetime += timedelta(days=1)
 
     if settings.USE_TZ:
-        end_datetime = end_datetime.replace(tzinfo=utc)
+        end_datetime = end_datetime.replace(tzinfo=timezone(settings.TIME_ZONE))
 
     return moment > end_datetime + timedelta(hours=instance.pool.verify_cutoff)
 
 def past_sign_out(instance, moment=None):
     if moment is None:
-        moment = now()
+        moment = localtime(now())
 
     start_datetime = datetime.combine(
         instance.date,
@@ -223,7 +224,7 @@ def past_sign_out(instance, moment=None):
     )
 
     if settings.USE_TZ:
-        start_datetime = start_datetime.replace(tzinfo=utc)
+        start_datetime = start_datetime.replace(tzinfo=timezone(settings.TIME_ZONE))
 
     return moment > start_datetime - timedelta(hours=instance.pool.sign_out_cutoff)
 
@@ -556,12 +557,14 @@ def clear_all_assignments(semester=None, pool=None):
     for shift in shifts:
         shift.current_assignees.clear()
 
-def update_standings(semester=None, pool_hours=None):
+def update_standings(semester=None, pool_hours=None, moment=None):
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             return []
+    if moment is None:
+        moment = localtime(now())
 
     if pool_hours is None:
         pool_hours = PoolHours.objects.filter(pool__semester=semester)
@@ -581,13 +584,13 @@ def update_standings(semester=None, pool_hours=None):
                 last_weeks = 0
             else:
                 last_weeks = (hours.last_updated.date() - semester.start_date).days // 7
-            sem_weeks = (now().date() - semester.start_date).days // 7
+            sem_weeks = (moment.date() - semester.start_date).days // 7
             periods = (sem_weeks - last_weeks) // hours.pool.weeks_per_period
 
         # Update the actual standings
         if periods:
             hours.standing -= hours.hours * periods
-            hours.last_updated = now()
+            hours.last_updated = moment
             hours.save()
 
 def reset_standings(semester=None, pool_hours=None):

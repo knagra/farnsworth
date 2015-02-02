@@ -6,7 +6,7 @@ from datetime import timedelta, time, date
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 
 from base.models import User, UserProfile, ProfileRequest
 from farnsworth import pre_fill
@@ -618,43 +618,43 @@ class TestUtils(TestCase):
             utils.collect_blown(semester=self.semester),
             )
 
-        moment = now().replace(hour=20, minute=0, second=0, microsecond=0)
+        moment = localtime(now().replace(hour=20, minute=0, second=0, microsecond=0))
         past = moment - timedelta(days=1)
 
         WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Closed",
                 pool=self.p1,
-                ),
+            ),
             closed=True,
             date=past.date(),
             semester=self.semester,
-            )
+        )
         to_close = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="To be closed",
                 pool=self.p1,
-                ),
+            ),
             date=past.date(),
             semester=self.semester,
-            )
+        )
         WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Not Blown",
                 pool=self.p1,
-                ),
+            ),
             date=moment.date(),
             semester=self.semester,
-            )
+        )
         blown = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Blown",
                 pool=self.p1,
-                ),
+            ),
             date=past.date(),
             workshifter=self.profile,
             semester=self.semester,
-            )
+        )
         WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Edge Case 1: Not Closed",
@@ -663,37 +663,37 @@ class TestUtils(TestCase):
                 ),
             date=moment.date(),
             semester=self.semester,
-            )
+        )
         edge_datetime = moment - timedelta(hours=self.p1.verify_cutoff, minutes=1)
         edge_case_2 = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Edge Case 2: Closed",
                 end_time=edge_datetime.time(),
                 pool=self.p1,
-                ),
+            ),
             date=edge_datetime.date(),
-            )
+        )
         signed_out_1 = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Workshifter signed out early enough",
                 pool=self.p1,
-                ),
+            ),
             date=past.date(),
             semester=self.semester,
-            )
+        )
         signed_out_2 = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Workshifter signed out too late",
                 pool=self.p1,
-                ),
+            ),
             liable=self.profile,
             date=past.date(),
             semester=self.semester,
-            )
+        )
         self.assertEqual(
             ([to_close, edge_case_2, signed_out_1], [], [blown, signed_out_2]),
             utils.collect_blown(moment=moment),
-            )
+        )
 
 class TestViews(TestCase):
     """
