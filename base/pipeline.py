@@ -40,8 +40,10 @@ def request_user(strategy=None, details=None, user=None, request=None, is_new=Fa
         username = re.sub("[^a-zA-Z0-9_]", "_", details["username"].lower())
 
         if ProfileRequest.objects.filter(username=username).count() > 0:
-            messages.add_message(request, messages.WARNING,
-                                 "Profile request already submitted")
+            messages.add_message(
+                strategy.request, messages.WARNING,
+                "Profile request already submitted",
+            )
             return redirect(reverse('request_profile'))
 
         first, last = _get_first_last(details)
