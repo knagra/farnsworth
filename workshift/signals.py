@@ -136,9 +136,16 @@ def manual_hour_adjustment(sender, instance, **kwargs):
 
         if old_pool_hours.hours != pool_hours.hours:
             # Reset and recalculate standings from all sources
+            signals.pre_save.disconnect(
+                manual_hour_adjustment,
+            )
             utils.reset_standings(
                 semester=pool_hours.pool.semester,
                 pool_hours=[pool_hours],
+            )
+            signals.pre_save.connect(
+                manual_hour_adjustment,
+                sneder=PoolHours,
             )
         elif old_pool_hours.hour_adjustment != pool_hours.hour_adjustment:
             pool_hours.standing += pool_hours.hour_adjustment - \
