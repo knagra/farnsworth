@@ -448,8 +448,8 @@ class TestUtils(TestCase):
             is_primary=True,
             semester=self.semester,
         )
-        self.p1.sign_out_cutoff=24
-        self.p1.verify_cutoff=2
+        self.p1.sign_out_cutoff = 24
+        self.p1.verify_cutoff = 2
         self.p1.save()
 
         self.p2 = WorkshiftPool.objects.create(
