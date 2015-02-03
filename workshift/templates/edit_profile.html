@@ -7,9 +7,9 @@
 
 {% block w_headers %}
 <style>
-    .pool_row td div label {
-        display: none;
-    }
+ .pool_row td div label {
+     display: none;
+ }
 </style>
 {% endblock %}
 
@@ -24,17 +24,17 @@
   <table class="table table-striped table-bordered table-condensed table-hover">
     <thead>
       <tr>
-	<th>Pool</th>
-	<th>Regular Hourly Requirement</th>
-	<th>Hour Adjustment</th>
+		<th>Pool</th>
+		<th>Regular Hourly Requirement</th>
+		<th>Hour Adjustment</th>
       </tr>
     </thead>
     <tbody>
       {% for pool_hours, form in pools_tuples %}
       <tr class="pool_row">
-	<td>{{ pool_hours.pool.title }}</td>
-	<td>{{ form.hours|bootstrap }}</td>
-	<td>{{ form.hour_adjustment|bootstrap }}</td>
+		<td>{{ pool_hours.pool.title }}</td>
+		<td>{{ form.hours|bootstrap }}</td>
+		<td>{{ form.hour_adjustment|bootstrap }}</td>
       </tr>
       {% endfor %}
     </tbody>
