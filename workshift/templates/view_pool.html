@@ -19,9 +19,13 @@
     </button>
   </form>
   {% endif %}
-  <h1 class="w_title">{{ page_name }}</h1>
+  <h1 class="w_title">
+	{{ page_name }}
+  </h1>
   <hr class="w_line" />
-  <h3 class="w_subtitle">Details</h3>
+  <h3 class="w_subtitle">
+	Details
+  </h3>
   <dl id="information_table" class="dl-horizontal">
 	{% if pool.managers.count %}
 	<dt>Managers</dt>
@@ -54,7 +58,9 @@
   </dl>
   {% if shifts %}
   <hr />
-  <h3 class="w_subtitle">Recurring Workshifts</h3>
+  <h3 class="w_subtitle">
+	Recurring Workshifts
+  </h3>
   <table id="recurring_shifts" class="table table-striped table-bordered table-condensed table-hover">
     <thead>
       <tr>
@@ -91,7 +97,7 @@
 		  {{ shift.hours }}
 		</td>
         <td>
-          {% if shift.current_assignee %}
+          {% if shift.current_assignees %}
           {% for assignee in shift.current_assignees.all %}{% if not forloop.first %}, {% endif %}<a href="{{ assignee.get_view_url }}">{{ assignee.user.get_full_name }}</a>{% endfor %}
           {% endif %}
         </td>
@@ -107,7 +113,9 @@
   {% endif %}
   {% if upcoming_pool_shifts %}
   {% if shifts %}<hr />{% endif %}
-  <h3 class="w_subtitle">Vacant Shifts</h3>
+  <h3 class="w_subtitle">
+	Vacant Shifts
+  </h3>
   <table id="vacant_shifts" class="table table-striped table-bordered table-condensed table-hover">
     <thead>
       <tr>
