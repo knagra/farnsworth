@@ -1265,12 +1265,22 @@ def instance_view(request, semester, pk, profile=None):
                     messages.add_message(request, messages.ERROR, error)
 
     edit_hours_form = None
-    if utils.can_manage(request.user, semester=instance.pool.semester, pool=instance.pool):
+    if instance.weekly_workshift and instance.weekly_workshift.is_manager_shift:
+        president = Manager.objects.filter(
+            incumbent__user=request.user,
+            president=True
+        ).count() > 0
+        edit_hours = request.user.is_superuser or president
+    else:
+        edit_hours = utils.can_manage(
+            request.user, semester=instance.pool.semester, pool=instance.pool,
+        )
+    if edit_hours:
         edit_hours_form = EditHoursForm(
             request.POST if "edit_hours" in request.POST else None,
             instance=instance,
             profile=profile,
-            )
+        )
         if edit_hours_form.is_valid():
             edit_hours_form.save()
             messages.add_message(request, messages.INFO, "Updated instance's hours.")
