@@ -1301,9 +1301,21 @@ def edit_instance_view(request, semester, pk, profile=None):
     """
     instance = get_object_or_404(WorkshiftInstance, pk=pk)
 
-    if not utils.can_manage(request.user, semester=semester, pool=instance.pool):
-        messages.add_message(request, messages.ERROR,
-                             MESSAGES["ADMINS_ONLY"])
+    if instance.weekly_workshift and instance.weekly_workshift.is_manager_shift:
+        president = Manager.objects.filter(
+            incumbent__user=request.user,
+            president=True
+        ).count() > 0
+        can_edit = request.user.is_superuser or president
+        message = MESSAGES["PRESIDENTS_ONLY"]
+    else:
+        can_edit = utils.can_manage(
+            request.user, semester=semester, pool=instance.pool,
+        )
+        message = MESSAGES["ADMINS_ONLY"]
+
+    if not can_edit:
+        messages.add_message(request, messages.ERROR, message)
         return HttpResponseRedirect(semester.get_view_url())
 
     page_name = "Edit " + instance.title
