@@ -579,9 +579,13 @@ def update_standings(semester=None, pool_hours=None, moment=None):
         if hours.last_updated and hours.last_updated.date() > semester.end_date:
             continue
 
+        periods = 0
+
         # Calculate the number of periods since we last updated the standings
         if hours.pool.weeks_per_period == 0:
-            periods = 1
+            # Only update this pool once
+            if not hours.last_updated:
+                periods = 1
         else:
             # Note, this will give periods > 0 on weeks starting on start_date's day,
             # rather than explicitly Sunday
