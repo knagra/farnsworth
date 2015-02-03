@@ -8,7 +8,7 @@ from __future__ import division, absolute_import
 
 from datetime import date, timedelta
 
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -143,7 +143,7 @@ def add_workshift_context(request):
         )
 
     # TODO: Add a fudge factor of an hour to this?
-    time = now().time()
+    time = localtime(now()).time()
     happening_now = []
     for shift in upcoming_shifts:
         if shift.week_long:
