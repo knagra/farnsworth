@@ -113,14 +113,27 @@
         <td><a href="{{ shift.get_view_url }}">{{ shift.title }}</a></td>
         <td>{{ shift.date }}</td>
         <td>{{ shift.hours }}</td>
-        <td>{% if shift.blown %}<font color="red">BLOWN</font>{% elif shift.verifier %}<font color="green">Verified by <a href="{{ shift.verifier.get_view_url }}">{{ shift.verifier.user.get_full_name }}</a>{% endif %}</td>
+        <td>
+		  {% if shift.blown %}
+		  <font color="red">
+			BLOWN
+		  </font>
+		  {% elif shift.verifier %}
+		  <font color="green">
+			Verified by
+			<a href="{{ shift.verifier.get_view_url }}">
+			  {{ shift.verifier.user.get_full_name }}
+			</a>
+		  </font>
+		  {% endif %}
+		</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   {% endif %}
 
-  {% if profile.pool_hours.all %}
+  {% if pool_hours %}
   <hr class="w_line" />
   <h3 class="w_subtitle">
 	Workshift Requirements
@@ -134,27 +147,33 @@
       </tr>
     </thead>
     <tbody>
-      {% for pool_hours in profile.pool_hours.all %}
+      {% for hours in pool_hours %}
       <tr>
-        <td><a href="{{ pool_hours.pool.get_view_url }}">{{ pool_hours.pool.title }}</a></td>
-        <td>{{ pool_hours.show_hours }}</td>
+        <td>
+		  <a href="{{ hours.pool.get_view_url }}">
+			{{ hours.pool.title }}
+		  </a>
+		</td>
+        <td>
+		  {{ hours.show_hours }}
+		</td>
 		<td>
-		  {% if 0 > pool_hours.standing %}
-		  <font color="red">{{ pool_hours.standing }}</font>
+		  {% if 0 > hours.standing %}
+		  <font color="red">{{ hours.standing }}</font>
 		  {% else %}
-		  <font color="green">{{ pool_hours.standing }}</font>
+		  <font color="green">{{ hours.standing }}</font>
 		  {% endif %}
-		  {% if pool_hours.first_date_standing %}
+		  {% if hours.first_date_standing %}
 		  <br />
-		  First Fines: {{ pool_hours.first_date_standing|currency }}
+		  First Fines: {{ hours.first_date_standing|currency }}
 		  {% endif %}
-		  {% if pool_hours.second_date_standing %}
+		  {% if hours.second_date_standing %}
 		  <br />
-		  Second Fines: {{ pool_hours.second_date_standing|currency }}
+		  Second Fines: {{ hours.second_date_standing|currency }}
 		  {% endif %}
-		  {% if pool_hours.third_date_standing %}
+		  {% if hours.third_date_standing %}
 		  <br />
-		  Third Fines: {{ pool_hours.third_date_standing|currency }}
+		  Third Fines: {{ hours.third_date_standing|currency }}
 		  {% endif %}
 		</td>
       </tr>
