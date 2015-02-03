@@ -47,7 +47,7 @@ class StartPoolForm(forms.ModelForm):
         help_texts = {
             "title": "",
             "hours": "",
-            }
+        }
 
     def save(self, semester):
         if self.cleaned_data['copy_pool']:
@@ -64,7 +64,7 @@ class CloseSemesterForm(forms.Form):
 
     def save(self):
         self.semester.current = False
-        self.semester.save()
+        self.semester.save(update_fields=["current"])
 
 class OpenSemesterForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -74,9 +74,9 @@ class OpenSemesterForm(forms.Form):
     def save(self):
         for semester in Semester.objects.filter(current=True):
             semester.current = False
-            semester.save()
+            semester.save(update_fields=["current"])
         self.semester.current = True
-        self.semester.save()
+        self.semester.save(update_fields=["current"])
 
 class PoolForm(forms.ModelForm):
     class Meta:
@@ -94,7 +94,7 @@ class PoolForm(forms.ModelForm):
         pool = super(PoolForm, self).save(commit=False)
         if self.semester:
             pool.semester = self.semester
-        pool.save()
+        pool.save(update_fields=["semester"])
         self.save_m2m()
         return pool
 
@@ -304,10 +304,10 @@ class VerifyShiftForm(InteractShiftForm):
         instance.verifier = self.profile
         instance.closed = True
         instance.logs.add(entry)
-        instance.save()
+        instance.save(update_fields=["blown", "verifier", "closed"])
 
         pool_hours.standing += instance.hours
-        pool_hours.save()
+        pool_hours.save(update_fields=["standing"])
 
         if self.profile != workshifter:
             notify.send(self.profile.user, verb="verified", action_object=instance,
@@ -350,11 +350,11 @@ class BlownShiftForm(InteractShiftForm):
         instance.blown = True
         instance.closed = True
         instance.logs.add(entry)
-        instance.save()
+        instance.save(update_fields=["blown", "verifier", "closed"])
 
         # Update the workshifter's hours
         pool_hours.standing -= instance.hours
-        pool_hours.save()
+        pool_hours.save(update_fields=["standing"])
 
         # Notify the workshifter as well as the workshift manager
         targets = []
@@ -399,13 +399,13 @@ class SignInForm(InteractShiftForm):
             person=self.profile,
             entry_type=ShiftLogEntry.SIGNIN,
             note=note,
-            )
+        )
 
         instance = self.cleaned_data["pk"]
         instance.workshifter = self.profile
         instance.liable = None
         instance.logs.add(entry)
-        instance.save()
+        instance.save(update_fields=["workshifter", "liable"])
 
         return instance
 
@@ -434,7 +434,7 @@ class SignOutForm(InteractShiftForm):
         if utils.past_sign_out(instance):
             instance.liable = self.profile
         instance.logs.add(entry)
-        instance.save()
+        instance.save(update_fields=["workshifter", "liable"])
 
         return instance
 
@@ -464,23 +464,23 @@ class EditHoursForm(forms.Form):
             # Remove the hours we gave them previously
             pool_hours = self.instance.workshifter.pool_hours.get(
                 pool=self.instance.pool,
-                )
+            )
             pool_hours.standing -= self.instance.hours
 
             # Then give them the hours for this shift
             pool_hours.standing += hours
-            pool_hours.save()
+            pool_hours.save(update_fields=["standing"])
 
         log = ShiftLogEntry.objects.create(
             person=self.profile,
             note=self.cleaned_data["note"],
             hours=hours,
             entry_type=ShiftLogEntry.MODIFY_HOURS,
-            )
+        )
 
         self.instance.hours = hours
         self.instance.logs.add(log)
-        self.instance.save()
+        self.instance.save(update_fields=["hours"])
 
         return self.instance
 
@@ -771,7 +771,6 @@ class WorkshiftRatingForm(forms.ModelForm):
         rating = super(WorkshiftRatingForm, self).save()
         if not self.profile.ratings.filter(pk=rating.pk):
             self.profile.ratings.add(rating)
-        self.profile.save()
         return rating
 
 class TimeBlockForm(forms.ModelForm):
@@ -803,7 +802,6 @@ class BaseTimeBlockFormSet(BaseModelFormSet):
         for block in blocks:
             if not self.profile.time_blocks.filter(pk=block.pk):
                 self.profile.time_blocks.add(block)
-        self.profile.save()
         return blocks
 
 TimeBlockFormSet = modelformset_factory(
@@ -937,12 +935,16 @@ class FineDateForm(forms.Form):
                     pool_hours.second_date_standing = None
                 else:
                     pool_hours.third_date_standing = None
-                pool_hours.save()
+                pool_hours.save(update_fields=[
+                    "first_date_standing",
+                    "second_date_standing",
+                    "third_date_standing",
+                ])
                 notify.send(
                     pool,
                     verb="had its workshift fine cleared.",
                     recipient=profile.user,
-                    )
+                )
                 continue
 
             standing = pool_hours.standing + offset
@@ -955,13 +957,17 @@ class FineDateForm(forms.Form):
                     pool_hours.second_date_standing = fine
                 else:
                     pool_hours.third_date_standing = fine
-                pool_hours.save()
+                pool_hours.save(update_fields=[
+                    "first_date_standing",
+                    "second_date_standing",
+                    "third_date_standing",
+                ])
                 fined.append(profile)
                 notify.send(
                     pool,
                     verb="generated a workshift fine of {0}"
                     .format(currency(fine)),
                     recipient=profile.user,
-                    )
+                )
 
         return fined
