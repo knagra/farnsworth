@@ -24,7 +24,7 @@
     </thead>
     <tbody>
       {% for shift, forms, preferred in shift_tuples %}
-      <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+      <tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
 		<td>{% if preferred %}preferred{% endif %}</td>
 		<td>{{ shift.date }}</td>
         <td>

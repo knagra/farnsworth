@@ -39,7 +39,7 @@
     </thead>
     <tbody>
       {% for shift, forms in day_shifts %}
-      <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+      <tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
         <td>
           <a href="{{ shift.get_view_url }}">
 			{{ shift.title }}
@@ -98,7 +98,7 @@
     </thead>
     <tbody>
       {% for shift, forms in week_shifts %}
-      <tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+      <tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
         <td>
           <a href="{{ shift.get_view_url }}">
 			{{ shift.title }}

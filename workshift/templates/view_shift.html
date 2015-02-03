@@ -83,7 +83,7 @@
   </thead>
   <tbody>
 	{% for shift, forms in instance_tuples %}
-	<tr class="{% if shift.blown %}danger{% elif shift.verifier %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+	<tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
 	  <td>
 		<a href="{{ shift.get_view_url }}">
 		  {{ shift.date }}
