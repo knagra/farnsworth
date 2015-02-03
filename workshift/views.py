@@ -318,10 +318,20 @@ def semester_view(request, semester, profile=None):
         )
     week_shifts = [i for i in week_shifts if i.week_long]
 
-    template_dict["day_shifts"] = [(shift, _get_forms(profile, shift))
-                                   for shift in day_shifts]
-    template_dict["week_shifts"] = [(shift, _get_forms(profile, shift))
-                                    for shift in week_shifts]
+    template_dict["day_shifts"] = [
+        (shift, _get_forms(
+            profile, shift,
+            undo=utils.can_manage(request.user, semester=semester, pool=shift.pool),
+        ))
+        for shift in day_shifts
+    ]
+    template_dict["week_shifts"] = [
+        (shift,_get_forms(
+            profile, shift,
+            undo=utils.can_manage(request.user, semester=semester, pool=shift.pool),
+        ))
+        for shift in week_shifts
+    ]
 
     return render_to_response("semester.html", template_dict,
                               context_instance=RequestContext(request))
@@ -1154,7 +1164,10 @@ def shift_view(request, semester, pk, profile=None):
         weekly_workshift=shift,
     )
     instance_tuples = [
-        (instance, _get_forms(profile, instance))
+        (instance, _get_forms(
+            profile, instance,
+            undo=utils.can_manage(request.user, semester=semester, pool=instance.pool)),
+        )
         for instance in instances
     ]
 
@@ -1222,7 +1235,7 @@ def instance_view(request, semester, pk, profile=None):
     page_name = instance.title
     interact_forms = _get_forms(
         profile, instance,
-        undo=utils.can_manage(request.user, semester),
+        undo=utils.can_manage(request.user, semester=semester, pool=instance.pool),
         prefix="interact",
     )
 
