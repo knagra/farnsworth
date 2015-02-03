@@ -210,7 +210,7 @@ def start_semester_view(request):
 
     pool_forms = []
     try:
-        prev_semester = Semester.objects.order_by("end_date")[0]
+        prev_semester = Semester.objects.latest("end_date")
     except IndexError:
         pass
     else:
@@ -682,9 +682,13 @@ def manage_view(request, semester, profile=None):
 
     pools = pools.order_by("-is_primary", "title")
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
-    pool_hours = [workshifter.pool_hours.filter(pool__in=pools)
-                  .order_by("-pool__is_primary", "pool__title")
-                  for workshifter in workshifters]
+    pool_hours = [
+        [
+            workshifter.pool_hours.get(pool=pool)
+            for pool in pools
+        ]
+        for workshifter in workshifters
+    ]
 
     return render_to_response("manage.html", {
         "page_name": page_name,
@@ -783,22 +787,25 @@ def assign_shifts_view(request, semester):
                                          sem_url=semester.sem_url))
 
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
+    pools = WorkshiftPool.objects.filter(semester=semester).order_by(
+        "-is_primary", "title",
+    )
+
     pool_hours = []
     for workshifter in workshifters:
-        hours_owed = [
-            pool.hours - pool.assigned_hours
-            for pool in workshifter.pool_hours.order_by("-pool__is_primary", "pool__title")
-        ]
+        hours_owed = []
+        for pool in pools:
+            hours = workshifter.pool_hours.get(pool=pool)
+            hours_owed.append(hours.hours - hours.assigned_hours)
 
         if any(i > 0 for i in hours_owed):
             pool_hours.append(hours_owed)
 
     total_pool_hours = [
-        sum(pools[i] for pools in pool_hours)
+        sum(hours[i] for hours in pool_hours)
         for i in range(len(pool_hours[0]) if len(pool_hours) > 0 else 0)
     ]
 
-    pools = WorkshiftPool.objects.filter(semester=semester).order_by("-is_primary", "title")
     unassigned_shifts = []
     for pool in pools:
         shifts = RegularWorkshift.objects.filter(pool=pool)
@@ -837,22 +844,23 @@ def adjust_hours_view(request, semester):
     """
     page_name = "Adjust Hours"
 
-    pools = WorkshiftPool.objects.filter(semester=semester).order_by("-is_primary", "title")
+    pools = WorkshiftPool.objects.filter(semester=semester).order_by(
+        "-is_primary", "title",
+    )
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
-    pool_hour_forms = [
-        [
-            (
+    pool_hour_forms = []
+
+    for workshifter in workshifters:
+        for pool in pools:
+            hours = workshifter.pool_hours.get(pool=pool)
+            pool_hour_forms.append((
                 AdjustHoursForm(
                     request.POST or None,
                     prefix="pool_hours-{}".format(hours.pk),
                     instance=hours,
                 ),
                 hours,
-            )
-            for hours in workshifter.pool_hours.order_by("-pool__is_primary", "pool__title")
-        ]
-        for workshifter in workshifters
-    ]
+            ))
 
     if all(
             form.is_valid()
@@ -1075,12 +1083,17 @@ def fine_date_view(request, semester, profile=None):
         return HttpResponseRedirect(wurl("workshift:manage",
                                          sem_url=semester.sem_url))
 
-    pools = WorkshiftPool.objects.filter(semester=semester)
-    pools = pools.order_by("-is_primary", "title")
+    pools = WorkshiftPool.objects.filter(semester=semester).order_by(
+        "-is_primary", "title",
+    )
     workshifters = WorkshiftProfile.objects.filter(semester=semester)
-    pool_hours = [workshifter.pool_hours.filter(pool__in=pools)
-                  .order_by("-pool__is_primary", "pool__title")
-                  for workshifter in workshifters]
+    pool_hours = [
+        [
+            workshifter.pool_hours.get(pool=pool)
+            for pool in pools
+        ]
+        for workshifter in workshifters
+    ]
 
     return render_to_response("fine_date.html", {
         "page_name": page_name,
