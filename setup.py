@@ -6,7 +6,11 @@ from setuptools import setup, find_packages
 
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-required = open("requirements.txt").read().split("\n")
+required = [
+    line.strip()
+    for line in open("requirements.txt").read().split("\n")
+    if line.strip()
+]
 
 setup(
     name="Farnsworth",
