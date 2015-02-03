@@ -7,12 +7,12 @@ XXX:
 This module is deprecated and marked for replacement.
 """
 
-from datetime import datetime
-
 from django.conf import settings
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.timezone import now
+from django.test import TestCase
+
 from wiki.models import Wiki, Page, Revision, MediaFile
 
 
@@ -37,12 +37,12 @@ class TestListPage(TestCase):
         for x in ('All Pages', 'Page Name', 'No wiki pages have been added yet'):
             self.assertContains(response, x)
 
-        page = Page(slug="page")
-        page.save()
-        revision = Revision(page=page, content="page", content_html="",
-                            created_ip="0.0.0.0", created_at=datetime.now(),
-                            created_by=self.u)
-        revision.save()
+        page = Page.objects.create(slug="page")
+        Revision.objects.create(
+            page=page, content="page", content_html="",
+            created_ip="0.0.0.0", created_at=now(),
+            created_by=self.u,
+        )
 
         response = self.client.get(self.addr, follow=True)
         self.assertEqual(response.status_code, 200)
