@@ -1163,10 +1163,7 @@ def shift_view(request, semester, pk, profile=None):
         ).count() > 0
         can_edit = request.user.is_superuser or president
     else:
-        manager = shift.pool.managers.filter(
-            incumbent__user=request.user,
-        ).count() > 0
-        can_edit = utils.can_manage(request.user, semester=semester) or manager
+        can_edit = utils.can_manage(request.user, semester=semester, pool=shift.pool)
 
     instances = WorkshiftInstance.objects.filter(
         closed=False,
@@ -1205,9 +1202,7 @@ def edit_shift_view(request, semester, pk, profile=None):
             return HttpResponseRedirect(reverse("managers:edit_manager",
                                                 kwargs={"managerTitle": manager.url_title}))
 
-    manager = shift.pool.managers.filter(incumbent__user=request.user).count() > 0
-
-    if not utils.can_manage(request.user, semester=semester) and not manager:
+    if not utils.can_manage(request.user, semester=semester, pool=shift.pool):
         messages.add_message(request, messages.ERROR,
                              MESSAGES["ADMINS_ONLY"])
         return HttpResponseRedirect(semester.get_view_url())
@@ -1270,8 +1265,7 @@ def instance_view(request, semester, pk, profile=None):
                     messages.add_message(request, messages.ERROR, error)
 
     edit_hours_form = None
-    if utils.can_manage(request.user, semester=instance.pool.semester) or \
-      instance.pool.managers.filter(incumbent__user=request.user):
+    if utils.can_manage(request.user, semester=instance.pool.semester, pool=instance.pool):
         edit_hours_form = EditHoursForm(
             request.POST if "edit_hours" in request.POST else None,
             instance=instance,
@@ -1296,9 +1290,8 @@ def edit_instance_view(request, semester, pk, profile=None):
     View for a manager to edit the details of a particular WorkshiftInstance.
     """
     instance = get_object_or_404(WorkshiftInstance, pk=pk)
-    managers = instance.pool.managers.filter(incumbent__user=request.user)
 
-    if not utils.can_manage(request.user, semester=semester) and managers.count() == 0:
+    if not utils.can_manage(request.user, semester=semester, pool=instance.pool):
         messages.add_message(request, messages.ERROR,
                              MESSAGES["ADMINS_ONLY"])
         return HttpResponseRedirect(semester.get_view_url())
