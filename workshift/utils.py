@@ -116,7 +116,7 @@ def make_instances(semester=None, shifts=None, start=None):
                 )
                 if i < len(assignees):
                     instance.workshifter = assignees[i]
-                    instance.save()
+                    instance.save(update_fields=["workshifter"])
                 new_instances.append(instance)
 
     return new_instances
@@ -144,10 +144,9 @@ def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
                 pool_hours = PoolHours.objects.create(
                     pool=pool,
                     hours=hours,
-                    )
+                )
                 profile.pool_hours.add(pool_hours)
                 ret.append(pool_hours)
-        profile.save()
     return ret
 
 def make_manager_workshifts(semester=None, managers=None):
@@ -178,8 +177,7 @@ def make_manager_workshifts(semester=None, managers=None):
             defaults=dict(rateable=False, assignment=WorkshiftType.NO_ASSIGN),
         )
         wtype.description = manager.duties
-        wtype.hours = hours
-        wtype.save()
+        wtype.save(update_fields=["description"])
         shift, new = RegularWorkshift.objects.get_or_create(
             workshift_type=wtype,
             pool=pool,
@@ -190,14 +188,14 @@ def make_manager_workshifts(semester=None, managers=None):
                 weekly_workshift=shift, closed=False,
             ).delete()
         shift.is_manager_shift = True
-        shift.hours = wtype.hours
+        shift.hours = hours
         if manager.incumbent:
             shift.current_assignees = WorkshiftProfile.objects.filter(
                 user=manager.incumbent.user,
                 semester=semester,
             )
         shift.active = manager.active
-        shift.save()
+        shift.save(update_fields=["is_manager_shift", "hours", "active"])
         shifts.append(shift)
 
     return shifts
@@ -274,7 +272,7 @@ def collect_blown(semester=None, moment=None):
                 entry_type = ShiftLogEntry.VERIFY
                 verified.append(instance)
 
-            pool_hours.save()
+            pool_hours.save(update_fields=["standing"])
 
             # Make a log entry
             if entry_type:
@@ -296,7 +294,7 @@ def collect_blown(semester=None, moment=None):
                     recipient=target,
                 )
 
-        instance.save()
+        instance.save(update_fields=["closed", "blown"])
 
     return closed, verified, blown
 
@@ -533,8 +531,10 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
         for profile in profiles[:]:
             instance = random.choice(instances)
             instance.workshifter = profile
-            instance.save()
+
+            instance.save(update_fields=["workshifter"])
             instances.remove(instance)
+
             hours_mapping[profile] += float(instance.hours)
             if hours_mapping[profile] >= total_hours_owed[profile]:
                 profiles.remove(profile)
@@ -675,4 +675,4 @@ def reset_instance_assignments(semester=None, shifts=None):
 
             instance.workshifter = assignee
             instance.liable = None
-            instance.save()
+            instance.save(update_fields=["workshifter", "liable"])
