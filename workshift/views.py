@@ -862,7 +862,7 @@ def adjust_hours_view(request, semester):
                 ),
                 hours,
             ))
-        pool_hour_forms.apend(forms_list)
+        pool_hour_forms.append(forms_list)
 
     if all(
             form.is_valid()
