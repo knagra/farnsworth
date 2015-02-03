@@ -4,7 +4,6 @@ elasticsearch==1.0.0
 python-social-auth
 psycopg2
 django-haystack
-pypandoc
 django-cron
 django-phonenumber-field
 bcrypt
