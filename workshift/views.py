@@ -851,9 +851,10 @@ def adjust_hours_view(request, semester):
     pool_hour_forms = []
 
     for workshifter in workshifters:
+        forms_list = []
         for pool in pools:
             hours = workshifter.pool_hours.get(pool=pool)
-            pool_hour_forms.append((
+            forms_list.append((
                 AdjustHoursForm(
                     request.POST or None,
                     prefix="pool_hours-{}".format(hours.pk),
@@ -861,6 +862,7 @@ def adjust_hours_view(request, semester):
                 ),
                 hours,
             ))
+        pool_hour_forms.apend(forms_list)
 
     if all(
             form.is_valid()
