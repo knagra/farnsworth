@@ -434,7 +434,7 @@ def _is_preferred(instance, profile):
 @get_workshift_profile
 def open_shifts_view(request, semester, profile=None):
     page_name = "Upcoming Open Shifts"
-    shifts = WorkshiftInstance.objects.filter(closed=False).order_by("-date")
+    shifts = WorkshiftInstance.objects.filter(closed=False).order_by("date")
     shift_count = shifts.count()
     paginator = Paginator(shifts, 250)
 
