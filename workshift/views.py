@@ -472,7 +472,9 @@ def edit_profile_view(request, semester, targetUsername, profile=None):
         instance=wprofile,
         prefix="note",
         )
-    pool_hours = wprofile.pool_hours.all()
+    pool_hours = wprofile.pool_hours.order_by(
+        "-pool__is_primary", "pool__title",
+    )
     pools_forms = []
     for hours in pool_hours:
         form = AdjustHoursForm(
