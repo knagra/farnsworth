@@ -136,11 +136,13 @@ def manual_hour_adjustment(sender, instance, update_fields=None, **kwargs):
 
         reset_hours = (
             (update_fields is None and old_pool_hours.hours != pool_hours.hours)
-            or "hours" in update_fields
+            or
+            (update_fields is not None and "hours" in update_fields)
         )
         reset_adjustment = (
             (update_fields is None and old_pool_hours.hour_adjustment != pool_hours.hour_adjustment)
-            or "hour_adjustment" in update_fields
+            or
+            (update_fields is not None and "hour_adjustment" in update_fields)
         )
 
         if reset_hours:
