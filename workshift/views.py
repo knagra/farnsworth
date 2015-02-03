@@ -613,7 +613,9 @@ def preferences_view(request, semester, targetUsername, profile=None):
 def profiles_view(request, semester, profile=None):
     page_name = "Workshift Profiles"
     wprofiles = WorkshiftProfile.objects.filter(semester=semester)
-    pools = WorkshiftPool.objects.filter(semester=semester)
+    pools = WorkshiftPool.objects.filter(semester=semester).order_by(
+        "-is_primary", "title",
+    )
     pool_hours = [
         [wprofile.pool_hours.get(pool=pool) for pool in pools]
         for wprofile in wprofiles
