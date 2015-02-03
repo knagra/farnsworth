@@ -1288,7 +1288,7 @@ def edit_instance_view(request, semester, pk, profile=None):
         instance=instance,
         semester=semester,
         edit_hours=False,
-        )
+    )
 
     if "delete" in request.POST:
         instance.delete()
@@ -1355,15 +1355,15 @@ def edit_type_view(request, pk):
         request.POST if "edit" in request.POST else None,
         instance=wtype,
         prefix="edit",
-        )
+    )
 
     shifts_formset = RegularWorkshiftFormSet(
         request.POST if "edit" in request.POST else None,
         prefix="shifts",
         queryset=RegularWorkshift.objects.filter(
             workshift_type=wtype,
-            ),
-        )
+        ),
+    )
 
     if edit_form.is_valid() and shifts_formset.is_valid():
         wtype = edit_form.save()

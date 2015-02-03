@@ -6,15 +6,37 @@
 
 {% block w_content %}
 <div class="instance_container">
-  <h1 class="w_title">{{ page_name }}</h1>
+  <h1 class="w_title">
+	{{ page_name }}
+  </h1>
+  <hr class="w_line"/>
+  {% if instance.weekly_workshift %}
+  <p>
+	Note that this is an instance of a repeated workshift. Individual instances
+	cannot be deleted. If you wish to edit information about all instances of
+	this workshift or remove it,
+	<a href="{{ instance.weekly_workshift.get_view_url }}">
+	  please see this page to edit its information
+	</a>.
+  </p>
+  {% endif %}
   <form method="post" action="">
     {% csrf_token %}
     {{ edit_form|bootstrap }}
     <div class="text-center">
-    <div class="btn-group">
-        <button type="submit" class="btn btn-success" name="edit"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
-        <button type="submit" class="btn btn-danger" name="delete"><span class="glyphicon glyphicon-fire"></span> Delete</button>
-    </div> <!-- .btn-group -->
+      <div class="btn-group">
+        <button type="submit" class="btn btn-success" name="edit">
+		  <span class="glyphicon glyphicon-floppy-disk"></span>
+		  Save
+		</button>
+        <button type="submit" class="btn btn-danger" name="delete">
+		  <span class="glyphicon glyphicon-fire"></span>
+		  Delete
+		  {% if instance.weekly_workshift %}
+		  single instance
+		  {% endif %}
+		</button>
+      </div> <!-- .btn-group -->
     </div> <!-- .text-center -->
   </form>
 </div> <!-- .instance_container -->
@@ -25,12 +47,12 @@
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
-  function renewDatePickers(row) {
-    $("[id$=time]", row || null).datetimepicker({pickDate: false});
-    $("[id$=date]", row || null).datetimepicker({pickTime: false});
-  };
-  $(document).ready(function() {
-    renewDatePickers();
-  });
+ function renewDatePickers(row) {
+   $("[id$=time]", row || null).datetimepicker({pickDate: false});
+   $("[id$=date]", row || null).datetimepicker({pickTime: false});
+ };
+ $(document).ready(function() {
+   renewDatePickers();
+ });
 </script>
 {% endblock %}
