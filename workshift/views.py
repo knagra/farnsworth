@@ -252,7 +252,7 @@ def semester_view(request, semester, profile=None):
     template_dict["page_name"] = \
       "Workshift for {0} {1}".format(season_name, semester.year)
 
-    today = now().date()
+    today = localtime(now()).date()
     template_dict["semester_percentage"] = int(
         (today - semester.start_date).days /
         (semester.end_date - semester.start_date).days * 100
