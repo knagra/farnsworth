@@ -1159,7 +1159,7 @@ def shift_view(request, semester, pk, profile=None):
     if shift.is_manager_shift:
         president = Manager.objects.filter(
             incumbent__user=request.user,
-            president=True
+            president=True,
         ).count() > 0
         can_edit = request.user.is_superuser or president
     else:
