@@ -51,12 +51,12 @@ def initialize_semester(sender, instance, created, **kwargs):
     semester.workshift_managers = \
       [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
     semester.preferences_open = True
-    semester.save()
+    semester.save(update_fields=["preferences_open"])
 
     # Set current to false for previous semesters
     for prev_semester in Semester.objects.exclude(pk=semester.pk):
         prev_semester.current = False
-        prev_semester.save()
+        prev_semester.save(update_fields=["current"])
 
     # Create the primary workshift pool
     pool, created = WorkshiftPool.objects.get_or_create(
@@ -89,7 +89,7 @@ def update_pool_hours(sender, instance, **kwargs):
     for pool_hours in PoolHours.objects.filter(pool=pool):
         if old_pool is None or pool_hours.hours == old_pool.hours:
             pool_hours.hours = pool.hours
-            pool_hours.save()
+            pool_hours.save(update_fields=["hours"])
 
 @receiver(signals.post_save, sender=WorkshiftPool)
 def make_pool_hours(sender, instance, created, **kwargs):
@@ -213,7 +213,7 @@ def delete_workshift_instances(sender, instance, **kwargs):
             instance.weekly_workshift = None
             instance.info = info
             instance.closed = True
-            instance.save()
+            instance.save(update_fields=["weekly_workshift", "info", "closed"])
         else:
             instance.delete()
 
@@ -221,7 +221,7 @@ def delete_workshift_instances(sender, instance, **kwargs):
         for assignee in shift.current_assignees.all():
             pool_hours = assignee.pool_hours.get(pool=shift.pool)
             pool_hours.assigned_hours -= shift.hours
-            pool_hours.save()
+            pool_hours.save(update_fields=["assigned_hours"])
 
 @receiver(signals.m2m_changed, sender=RegularWorkshift.current_assignees.through)
 def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kwargs):
@@ -236,7 +236,7 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
         for assignee in assignees:
             pool_hours = assignee.pool_hours.get(pool=shift.pool)
             pool_hours.assigned_hours -= shift.hours
-            pool_hours.save()
+            pool_hours.save(update_fields=["assigned_hours"])
 
     elif action in ["post_add"]:
         # Add shift's hours to current assignees
@@ -245,7 +245,7 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
         for assignee in assignees:
             pool_hours = assignee.pool_hours.get(pool=shift.pool)
             pool_hours.assigned_hours += shift.hours
-            pool_hours.save()
+            pool_hours.save(update_fields=["assigned_hours"])
 
     if action in ["post_remove", "post_clear"]:
         # ...
@@ -258,7 +258,7 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
             if not pk_set or instance.workshifter.pk in pk_set:
                 instance.workshifter = None
                 instance.liable = None
-                instance.save()
+                instance.save(update_fields=["workshifter", "liable"])
 
     elif action in ["post_add"]:
         # ...
@@ -277,7 +277,7 @@ def subtract_instance_hours(sender, instance, **kwargs):
     if instance.closed and instance.workshifter:
         pool_hours = instance.workshifter.pool_hours.get(pool=instance.pool)
         pool_hours.standing -= instance.hours
-        pool_hours.save()
+        pool_hours.save(update_fields=["assigned_hours"])
 
 # TODO: Auto-notify manager and workshifter when they are >= 10 hours down
 # TODO: Auto-email central when workshifters are >= 15 hours down?
