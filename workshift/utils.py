@@ -589,6 +589,7 @@ def update_standings(semester=None, pool_hours=None, moment=None):
                 last_weeks = 0
             else:
                 last_weeks = (hours.last_updated.date() - semester.start_date).days // 7
+
             sem_weeks = (moment.date() - semester.start_date).days // 7
             periods = (sem_weeks - last_weeks) // hours.pool.weeks_per_period
 
@@ -596,7 +597,7 @@ def update_standings(semester=None, pool_hours=None, moment=None):
         if periods:
             hours.standing -= hours.hours * periods
             hours.last_updated = moment
-            hours.save()
+            hours.save(update_fields=["standing", "last_updated"])
 
 def reset_standings(semester=None, pool_hours=None):
     if semester is None:
