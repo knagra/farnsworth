@@ -104,7 +104,7 @@ class TestAssignment(TestCase):
     """
     def setUp(self):
         self.u = User.objects.create_user(username="u0")
-        today = now().date()
+        today = localtime(now()).date()
         self.semester = Semester.objects.create(
             year=today.year,
             start_date=today,
@@ -436,7 +436,7 @@ class TestUtils(TestCase):
     def setUp(self):
         self.u = User.objects.create_user(username="u", first_name="N", last_name="M")
 
-        today = now().date()
+        today = localtime(now()).date()
         self.semester = Semester.objects.create(
             year=today.year,
             season=Semester.SUMMER,
@@ -465,7 +465,7 @@ class TestUtils(TestCase):
 
     def test_get_year_season(self):
         year, season = utils.get_year_season()
-        self.assertLess(abs(year - now().date().year), 2)
+        self.assertLess(abs(year - localtime(now()).date().year), 2)
         self.assertIn(season, [Semester.SPRING, Semester.SUMMER, Semester.FALL])
 
     def test_starting_month(self):
@@ -580,7 +580,7 @@ class TestUtils(TestCase):
 
         shift.current_assignees = [self.profile]
 
-        today = now().date()
+        today = localtime(now()).date()
         WorkshiftInstance.objects.create(
             weekly_workshift=shift,
             date=today - timedelta(today.weekday()),
@@ -701,7 +701,8 @@ class TestViews(TestCase):
     correctly, and that they contain the content that is expected.
     """
     def setUp(self):
-        today = now().date()
+        moment = localtime(now())
+        today = moment.date()
         self.sem = Semester.objects.create(
             year=today.year,
             start_date=today,
@@ -736,8 +737,8 @@ class TestViews(TestCase):
             workshift_type=self.wtype,
             pool=self.pool,
             day=today.weekday(),
-            start_time=now(),
-            end_time=now() + timedelta(hours=2),
+            start_time=moment,
+            end_time=moment + timedelta(hours=2),
         )
         self.shift.current_assignees = [self.wprofile]
 
@@ -1099,7 +1100,7 @@ class TestPreferences(TestCase):
             workshift_manager=True,
         )
 
-        today = now().date()
+        today = localtime(now()).date()
         self.sem = Semester.objects.create(
             year=today.year, start_date=today,
             end_date=today + timedelta(days=7),
@@ -1316,7 +1317,7 @@ class TestInteractForms(TestCase):
             workshift_manager=True,
         )
 
-        today = now().date()
+        today = localtime(now()).date()
         self.sem = Semester.objects.create(
             year=today.year, start_date=today,
             end_date=today + timedelta(days=7),
@@ -1342,7 +1343,7 @@ class TestInteractForms(TestCase):
             workshift_type=self.wtype,
             pool=self.pool,
             day=DAY_CHOICES[0][0],
-            start_time=now(),
+            start_time=localtime(now()),
             end_time=time(23, 59, 59),
         )
 
@@ -1511,7 +1512,8 @@ class TestPermissions(TestCase):
             incumbent=UserProfile.objects.get(user=self.mu),
         )
 
-        today = now().date()
+        moment = localtime(now())
+        today = moment.date()
         self.sem = Semester.objects.create(
             year=today.year, start_date=today,
             end_date=today + timedelta(days=7),
@@ -1544,16 +1546,16 @@ class TestPermissions(TestCase):
             workshift_type=self.wtype,
             pool=self.pool,
             day=DAY_CHOICES[0][0],
-            start_time=now(),
-            end_time=now() + timedelta(hours=2),
+            start_time=moment,
+            end_time=moment + timedelta(hours=2),
         )
 
         self.mshift = RegularWorkshift.objects.create(
             workshift_type=self.mtype,
             pool=self.hi_pool,
             day=DAY_CHOICES[0][0],
-            start_time=now(),
-            end_time=now() + timedelta(hours=2),
+            start_time=moment,
+            end_time=moment + timedelta(hours=2),
         )
 
         self.winstance = WorkshiftInstance.objects.create(
@@ -1750,7 +1752,7 @@ class TestWorkshifters(TestCase):
         self.assertTrue(self.client.login(username="ru", password="pwd"))
 
         url = reverse("workshift:start_semester")
-        today = now().date()
+        today = localtime(now()).date()
         response = self.client.post(url, {
             "semester-season": Semester.SUMMER,
             "semester-year": today.year,
@@ -1927,7 +1929,7 @@ class TestWorkshifts(TestCase):
             workshift_manager=True,
         )
 
-        today = now().date()
+        today = localtime(now()).date()
         self.sem = Semester.objects.create(
             year=2014,
             start_date=today,
@@ -2301,7 +2303,7 @@ class TestSemester(TestCase):
             workshift_manager=True,
         )
 
-        today = now().date()
+        today = localtime(now()).date()
         last_year = today - timedelta(days=365)
         self.s2 = Semester.objects.create(
             year=last_year.year,
@@ -2384,7 +2386,7 @@ class TestSemester(TestCase):
 
     def test_new_semester(self):
         url = reverse("workshift:start_semester")
-        today = now().date()
+        today = localtime(now()).date()
         response = self.client.post(url, {
             "semester-year": today.year,
             "semester-season": Semester.FALL,
