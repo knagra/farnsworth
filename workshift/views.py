@@ -532,7 +532,7 @@ def profile_view(request, semester, targetUsername, profile=None):
         "past_shifts": past_shifts,
         "regular_shifts": regular_shifts,
         "assigned_instances": assigned_instances,
-        "pool_hours", pool_hours,
+        "pool_hours": pool_hours,
         "first_standing": first_standing,
         "second_standing": second_standing,
         "third_standing": third_standing,
