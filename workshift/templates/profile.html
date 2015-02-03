@@ -114,18 +114,7 @@
         <td>{{ shift.date }}</td>
         <td>{{ shift.hours }}</td>
         <td>
-		  {% if shift.blown %}
-		  <font color="red">
-			BLOWN
-		  </font>
-		  {% elif shift.verifier %}
-		  <font color="green">
-			Verified by
-			<a href="{{ shift.verifier.get_view_url }}">
-			  {{ shift.verifier.user.get_full_name }}
-			</a>
-		  </font>
-		  {% endif %}
+		  {% include "shift_status.html" %}
 		</td>
       </tr>
       {% endfor %}

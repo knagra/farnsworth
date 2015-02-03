@@ -1,0 +1,11 @@
+{% if shift.workshifter %}
+<a href="{{ shift.workshifter.get_view_url }}">
+  {{ shift.workshifter.user.get_full_name }}
+</a>
+{% elif shift.liable %}
+<del>
+  <a title="Workshifter is still liable for this shift" href="{{ shift.liable.get_view_url }}">
+	{{ shift.liable.user.get_full_name }}
+  </a>
+</del>
+{% endif %}

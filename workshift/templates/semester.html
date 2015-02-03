@@ -33,7 +33,7 @@
         <th>Ends</th>
         <th>Hours</th>
         <th>Workshifter</th>
-        <th>Verifier</th>
+        <th>Status</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -59,28 +59,10 @@
           {% endif %}
         </td>
         <td>
-          {% if shift.workshifter %}
-          <a href="{{ shift.workshifter.get_view_url }}">
-			{{ shift.workshifter.user.get_full_name }}
-		  </a>
-          {% elif shift.liable %}
-          <del>
-			<a title="Workshifter is still liable for this shift" href="{{ shift.liable.get_view_url }}">
-			  {{ shift.liable.user.get_full_name }}
-			</a>
-		  </del>
-          {% endif %}
+		  {% include "shift_workshifter.html" %}
         </td>
         <td>
-          {% if shift.blown %}
-          <font color="red">
-			BLOWN
-		  </font>
-          {% elif shift.verifier %}
-          <a href="{{ shift.verifier.get_view_url }}">
-			{{ shift.verifier.user.get_full_name }}
-		  </a>
-          {% endif %}
+		  {% include "shift_status.html" %}
         </td>
         <td>
           {% for form in forms %}
@@ -110,7 +92,7 @@
         <th>Title</th>
         <th>Hours</th>
         <th>Workshifter</th>
-        <th>Verifier</th>
+        <th>Status</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -130,28 +112,10 @@
           {% endif %}
         </td>
         <td>
-          {% if shift.workshifter %}
-          <a href="{{ shift.workshifter.get_view_url }}">
-			{{ shift.workshifter.user.get_full_name }}
-		  </a>
-          {% endif %}
+		  {% include "shift_workshifter.html" %}
         </td>
         <td>
-          {% if shift.blown %}
-          <font color="red">BLOWN</font>
-          {% elif shift.verify == 'A' %}
-          Auto Verify
-          {% elif shift.verifier %}
-          <a href="{{ shift.verifier.get_view_url }}">
-			{{ shift.verifier.user.get_full_name }}
-		  </a>
-          {% elif shift.liable %}
-          <del>
-			<a title="Workshifter is still liable for this shift" href="{{ shift.liable.get_view_url }}">
-			  {{ shift.liable.user.get_full_name }}
-			</a>
-		  </del>
-          {% endif %}
+		  {% include "shift_status.html" %}
         </td>
         <td>
           {% for form in forms %}

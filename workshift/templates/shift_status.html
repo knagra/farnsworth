@@ -1,0 +1,20 @@
+{% if shift.blown %}
+<font color="red">
+  BLOWN
+</font>
+{% elif shift.verify == 'A' %}
+{% if shift.closed %}
+<font color="green">
+  Automatically verified
+</font>
+{% else %}
+Auto verify
+{% endif %}
+{% elif shift.verifier %}
+<font color="green">
+  Verified by
+  <a href="{{ shift.verifier.get_view_url }}">
+	{{ shift.verifier.user.get_full_name }}
+  </a>
+</font>
+{% endif %}
