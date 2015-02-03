@@ -114,9 +114,17 @@ def make_instances(semester=None, shifts=None, start=None):
                     hours=shift.hours,
                     intended_hours=shift.hours,
                 )
+
                 if i < len(assignees):
                     instance.workshifter = assignees[i]
                     instance.save(update_fields=["workshifter"])
+
+                    log = ShiftLogEntry.objects.create(
+                        person=instance.workshifter,
+                        entry_type=ShiftLogEntry.ASSIGNED,
+                    )
+                    instance.logs.add(log)
+
                 new_instances.append(instance)
 
     return new_instances
@@ -531,8 +539,14 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
         for profile in profiles[:]:
             instance = random.choice(instances)
             instance.workshifter = profile
-
             instance.save(update_fields=["workshifter"])
+
+            log = ShiftLogEntry.objects.create(
+                person=instance.workshifter,
+                entry_type=ShiftLogEntry.ASSIGNED,
+            )
+            instance.logs.add(log)
+
             instances.remove(instance)
 
             hours_mapping[profile] += float(instance.hours)
@@ -684,3 +698,9 @@ def reset_instance_assignments(semester=None, shifts=None):
             instance.workshifter = assignee
             instance.liable = None
             instance.save(update_fields=["workshifter", "liable"])
+
+            log = ShiftLogEntry.objects.create(
+                person=instance.workshifter,
+                entry_type=ShiftLogEntry.ASSIGNED,
+            )
+            instance.logs.add(log)

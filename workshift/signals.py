@@ -104,29 +104,10 @@ def _check_field_changed(update_fields, field_name, instance, old_instance):
 
     return getattr(instance, field_name) != getattr(old_instance, field_name)
 
-@receiver(signals.pre_save, sender=WorkshiftInstance)
-def log_entry_assign(sender, instance, update_fields=None, **kwargs):
-    old_instance = None
-
-    if instance.id:
-        old_instance = sender.objects.get(pk=instance.id)
-
-        reset_workshifter = _check_field_changed(
-            update_fields, "workshifter", instance, old_instance,
-        )
-
-        # TODO: Cover other log entries here, too?
-        if reset_workshifter and instance.workshifter:
-            log = ShiftLogEntry.objects.create(
-                person=instance.workshifter,
-                entry_type=ShiftLogEntry.ASSIGNED,
-            )
-            instance.logs.add(log)
-
 @receiver(signals.post_save, sender=WorkshiftInstance)
 def log_entry_create(sender, instance, created, **kwargs):
     if created:
-        # Don't create the log until after the instance is created, we can use a
+        # Don't create the log until after the instance is created, we can't use a
         # many-to-many relationship otherwise
         if instance.workshifter:
             log = ShiftLogEntry.objects.create(

@@ -288,12 +288,6 @@ class VerifyShiftForm(InteractShiftForm):
         return instance
 
     def save(self, note=None):
-        entry = ShiftLogEntry.objects.create(
-            person=self.profile,
-            entry_type=ShiftLogEntry.VERIFY,
-            note=note,
-        )
-
         instance = self.cleaned_data["pk"]
         workshifter = instance.workshifter or instance.liable
         pool_hours = workshifter.pool_hours.get(pool=instance.pool)
@@ -303,8 +297,14 @@ class VerifyShiftForm(InteractShiftForm):
 
         instance.verifier = self.profile
         instance.closed = True
-        instance.logs.add(entry)
         instance.save(update_fields=["blown", "verifier", "closed"])
+
+        log = ShiftLogEntry.objects.create(
+            person=self.profile,
+            entry_type=ShiftLogEntry.VERIFY,
+            note=note,
+        )
+        instance.logs.add(log)
 
         pool_hours.standing += instance.hours
         pool_hours.save(update_fields=["standing"])
@@ -333,12 +333,6 @@ class BlownShiftForm(InteractShiftForm):
         return shift
 
     def save(self, note=None):
-        entry = ShiftLogEntry.objects.create(
-            person=self.profile,
-            entry_type=ShiftLogEntry.BLOWN,
-            note=note,
-            )
-
         instance = self.cleaned_data["pk"]
         workshifter = instance.workshifter or instance.liable
         pool_hours = workshifter.pool_hours.get(pool=instance.pool)
@@ -349,8 +343,14 @@ class BlownShiftForm(InteractShiftForm):
         # Close the shift
         instance.blown = True
         instance.closed = True
-        instance.logs.add(entry)
         instance.save(update_fields=["blown", "verifier", "closed"])
+
+        log = ShiftLogEntry.objects.create(
+            person=self.profile,
+            entry_type=ShiftLogEntry.BLOWN,
+            note=note,
+        )
+        instance.logs.add(log)
 
         # Update the workshifter's hours
         pool_hours.standing -= instance.hours
@@ -395,17 +395,17 @@ class SignInForm(InteractShiftForm):
         return shift
 
     def save(self, note=None):
-        entry = ShiftLogEntry.objects.create(
+        instance = self.cleaned_data["pk"]
+        instance.workshifter = self.profile
+        instance.liable = None
+        instance.save(update_fields=["workshifter", "liable"])
+
+        log = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.SIGNIN,
             note=note,
         )
-
-        instance = self.cleaned_data["pk"]
-        instance.workshifter = self.profile
-        instance.liable = None
-        instance.logs.add(entry)
-        instance.save(update_fields=["workshifter", "liable"])
+        instance.logs.add(log)
 
         return instance
 
@@ -423,18 +423,20 @@ class SignOutForm(InteractShiftForm):
         return shift
 
     def save(self, note=None):
-        entry = ShiftLogEntry.objects.create(
+        instance = self.cleaned_data["pk"]
+        instance.workshifter = None
+
+        if utils.past_sign_out(instance):
+            instance.liable = self.profile
+
+        instance.save(update_fields=["workshifter", "liable"])
+
+        log = ShiftLogEntry.objects.create(
             person=self.profile,
             entry_type=ShiftLogEntry.SIGNOUT,
             note=note,
-            )
-
-        instance = self.cleaned_data["pk"]
-        instance.workshifter = None
-        if utils.past_sign_out(instance):
-            instance.liable = self.profile
-        instance.logs.add(entry)
-        instance.save(update_fields=["workshifter", "liable"])
+        )
+        instance.logs.add(log)
 
         return instance
 
@@ -471,16 +473,16 @@ class EditHoursForm(forms.Form):
             pool_hours.standing += hours
             pool_hours.save(update_fields=["standing"])
 
+        self.instance.hours = hours
+        self.instance.save(update_fields=["hours"])
+
         log = ShiftLogEntry.objects.create(
             person=self.profile,
             note=self.cleaned_data["note"],
             hours=hours,
             entry_type=ShiftLogEntry.MODIFY_HOURS,
         )
-
-        self.instance.hours = hours
         self.instance.logs.add(log)
-        self.instance.save(update_fields=["hours"])
 
         return self.instance
 
