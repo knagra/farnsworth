@@ -785,7 +785,7 @@ def assign_shifts_view(request, semester):
     for workshifter in workshifters:
         hours_owed = [
             pool.hours - pool.assigned_hours
-            for pool in workshifter.pool_hours.all().order_by("-pool__is_primary", "pool__title")
+            for pool in workshifter.pool_hours.order_by("-pool__is_primary", "pool__title")
         ]
 
         if any(i > 0 for i in hours_owed):
