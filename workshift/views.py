@@ -519,7 +519,9 @@ def profile_view(request, semester, targetUsername, profile=None):
     ).exclude(
         weekly_workshift__current_assignees=wprofile,
     )
-    pool_hours = wprofile.pool_hours.order_by("pool__is_primary", "pool__title")
+    pool_hours = wprofile.pool_hours.order_by(
+        "-pool__is_primary", "pool__title",
+    )
     first_standing, second_standing, third_standing = \
       any(pool_hours.first_date_standing for pool_hours in wprofile.pool_hours.all()), \
       any(pool_hours.second_date_standing for pool_hours in wprofile.pool_hours.all()), \
