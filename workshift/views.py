@@ -51,7 +51,7 @@ def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
     return all upcoming, vacant shifts along with sign-in forms
     for the profile in that pool. """
     upcoming_shifts = list()
-    today = now().today()
+    today = localtime(now()).date()
     for shift in WorkshiftInstance.objects.filter(
             date__gte=today,
             closed=False,
@@ -102,7 +102,7 @@ def add_workshift_context(request):
                 workshift_emails=workshift_email_str,
                 ))
 
-    today = now().date()
+    today = localtime(now()).date()
 
     days_passed = None
     total_days = None
