@@ -23,27 +23,43 @@
 {% endblock %}
 
 {% block w_content %}
-<h1 class="w_title">My Preferences</h1>
+<h1 class="w_title">
+  {{ page_name }}
+</h1>
 <hr class="w_line" />
 
 <form id="preferences_form" method="post" action="">
   {% csrf_token %}
   {% if rating_forms %}
-  <h3 class="w_subtitle text-center">Workshift Preferences</h3>
-  <p class="text-info text-center">Click on a workshift type to show or hide its description.
-	<span class="hidden-xs">You can click and drag the rows vertically.</span></p>
+  <h3 class="w_subtitle text-center">
+	Workshift Preferences
+  </h3>
+  <p class="text-info text-center">
+	Click on a workshift type to show or hide its description.
+	<span class="hidden-xs">
+	  You can click and drag the rows vertically.
+	</span>
+  </p>
   <div id="accordion">
     {% for form in rating_forms %}
     <div class="group">
       <div class="rating_forms_row row" style="border-radius: 0px; background-image: none; padding: 3px 0px 3px 0px;">
-        <h4 class="col-xs-6" style="margin-top: 8px; margin-bottom: 0; padding: 0px 5px 0px 5px;">{{ form.title }}</h4>
-        <div class="col-xs-6" style="padding: 0px 5px 0px 5px;">{{ form.rating }}</div>
+        <h4 class="col-xs-6" style="margin-top: 8px; margin-bottom: 0; padding: 0px 5px 0px 5px;">
+		  {{ form.title }}
+		</h4>
+        <div class="col-xs-6" style="padding: 0px 5px 0px 5px;">
+		  {{ form.rating }}
+		</div>
       </div>
       <dl class="dl-horizontal" style="background-image: none; background-color: #fff;">
+		{% if form.instance.workshift_type.description %}
         <dt>Description</dt>
-        <dd>{{ form.instance.workshift_type.description|safe }}&nbsp;</dd>
+        <dd>{{ form.instance.workshift_type.description|safe }}</dd>
+		{% endif %}
+		{% if form.instance.workshift_type.quick_tips %}
         <dt>Tips</dt>
-        <dd>{{ form.instance.workshift_type.quick_tips|safe }}&nbsp;</dd>
+        <dd>{{ form.instance.workshift_type.quick_tips|safe }}</dd>
+		{% endif %}
       </dl> <!-- .dl-horizontal -->
     </div> <!-- .group -->
     {% endfor %}
@@ -54,9 +70,14 @@
   {% if rating_forms %}
   <hr />
   {% endif %}
-  <h3 class="w_subtitle text-center">Your Schedule</h3>
-  <p class="text-info field_wrapper hidden-xs">Click and drag 
-    <span class="glyphicon glyphicon-resize-vertical"></span> to move rows vertically.</p>
+  <h3 class="w_subtitle text-center">
+	Your Schedule
+  </h3>
+  <p class="text-info field_wrapper hidden-xs">
+	Click and drag
+    <span class="glyphicon glyphicon-resize-vertical"></span>
+	to move rows vertically.
+  </p>
   <table id="time_blocks" class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
     <tbody>
       {% for form in time_formset.forms %}
@@ -90,10 +111,14 @@
   {% if rating_forms or time_formset %}
   <hr />
   {% endif %}
-  <h3 class="w_subtitle text-center">Note to Workshift Manager(s)</h3>
+  <h3 class="w_subtitle text-center">
+	Note to Workshift Manager(s)
+  </h3>
   {{ note_form|bootstrap }}
   <div class="text-center">
-    <button type="submit" class="btn btn-success" name="update_preferences">Update preferences</button>
+    <button type="submit" class="btn btn-success" name="update_preferences">
+	  Update preferences
+	</button>
   </div>
 </form>
 {% endblock %}
@@ -130,15 +155,14 @@
        beforeActivate: function(event, ui) {
          return !$(event.originalEvent.target).is('select');
        }
-     })
-					.sortable({
-					  axis: "y",
-					  handle: "div.rating_forms_row",
-					  stop: function(event, ui) {
-						ui.item.children("div.rating_forms_row").triggerHandler("focusout");
-						$(this).accordion("refresh");
-					  }
-					});
+     }).sortable({
+	   axis: "y",
+	   handle: "div.rating_forms_row",
+	   stop: function(event, ui) {
+		 ui.item.children("div.rating_forms_row").triggerHandler("focusout");
+		 $(this).accordion("refresh");
+	   }
+	 });
      $('#time_blocks > tbody').sortable({
        axis: "y",
        items: "tr:not(.add_row)",
