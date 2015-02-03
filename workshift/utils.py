@@ -628,7 +628,10 @@ def reset_standings(semester=None, pool_hours=None):
 
         hours.save(update_fields=["standing", "last_updated"])
 
-    update_standings(semester=semester)
+    update_standings(
+        semester=semester,
+        pool_hours=pool_hours,
+    )
 
 def calculate_assigned_hours(profiles=None):
     """
