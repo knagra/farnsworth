@@ -8,6 +8,6 @@ django-cron
 django-phonenumber-field
 bcrypt
 pytz
-git+git://github.com/naderm/django-notifications@master
+django-notifications-hq
 pinax-wiki
 inflect
