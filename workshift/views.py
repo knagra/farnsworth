@@ -211,7 +211,7 @@ def start_semester_view(request):
     pool_forms = []
     try:
         prev_semester = Semester.objects.latest("end_date")
-    except IndexError:
+    except Semester.DoesNotExist:
         pass
     else:
         pools = WorkshiftPool.objects.filter(semester=prev_semester, is_primary=False)
