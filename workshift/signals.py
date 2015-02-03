@@ -98,16 +98,25 @@ def make_pool_hours(sender, instance, created, **kwargs):
     if created:
         utils.make_workshift_pool_hours(pool.semester, pools=[pool])
 
+def _check_field_changed(update_fields, field_name, instance, old_instance):
+    if update_fields is not None and field_name not in update_fields:
+        return False
+
+    return getattr(instance, field_name) != getattr(old_instance, field_name)
+
 @receiver(signals.pre_save, sender=WorkshiftInstance)
-def log_entry_assign(sender, instance, **kwargs):
+def log_entry_assign(sender, instance, update_fields=None, **kwargs):
     old_instance = None
 
     if instance.id:
         old_instance = sender.objects.get(pk=instance.id)
 
+        reset_workshifter = _check_field_changed(
+            update_fields, "workshifter", instance, old_instance,
+        )
+
         # TODO: Cover other log entries here, too?
-        if instance.workshifter and \
-           old_instance.workshifter != instance.workshifter:
+        if reset_workshifter and instance.workshifter:
             log = ShiftLogEntry.objects.create(
                 person=instance.workshifter,
                 entry_type=ShiftLogEntry.ASSIGNED,
@@ -134,15 +143,11 @@ def manual_hour_adjustment(sender, instance, update_fields=None, **kwargs):
     if pool_hours.id:
         old_pool_hours = sender.objects.get(pk=pool_hours.id)
 
-        reset_hours = (
-            (update_fields is None and old_pool_hours.hours != pool_hours.hours)
-            or
-            (update_fields is not None and "hours" in update_fields)
+        reset_hours = _check_field_changed(
+            update_fields, "hours", pool_hours, old_pool_hours,
         )
-        reset_adjustment = (
-            (update_fields is None and old_pool_hours.hour_adjustment != pool_hours.hour_adjustment)
-            or
-            (update_fields is not None and "hour_adjustment" in update_fields)
+        reset_adjustment = _check_field_changed(
+            update_fields, "hour_adjustment", pool_hours, old_pool_hours,
         )
 
         if reset_hours:
