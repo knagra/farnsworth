@@ -81,7 +81,12 @@ class OpenSemesterForm(forms.Form):
 class PoolForm(forms.ModelForm):
     class Meta:
         model = WorkshiftPool
-        exclude = ("semester",)
+        exclude = (
+            "semester",
+        )
+        widgets = {
+            "managers": Select2MultipleWidget(),
+        }
 
     def __init__(self, *args, **kwargs):
         self.full_management = kwargs.pop('full_management', False)
