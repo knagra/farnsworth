@@ -237,7 +237,22 @@ def past_sign_out(instance, moment=None):
     if settings.USE_TZ:
         start_datetime = start_datetime.replace(tzinfo=timezone(settings.TIME_ZONE))
 
-    return moment > start_datetime - timedelta(hours=instance.pool.sign_out_cutoff)
+    cutoff_time = start_datetime - timedelta(hours=instance.pool.sign_out_cutoff)
+
+    assigned_time = instance.logs.filter(
+        person=instance.workshifter,
+        entry_type=ShiftLogEntry.ASSIGNED,
+    )
+
+    # Let people sign out of shifts if they were assigned to them within the
+    # no-sign-out window (i.e. assigned on Monday, shift on Tuesday)
+    if assigned_time.count() > 0:
+        assigned_time = assigned_time.latest("entry_time")
+
+        if assigned_time > cutoff_time:
+            return False
+
+    return moment > cutoff_time
 
 def collect_blown(semester=None, moment=None):
     if semester is None:
