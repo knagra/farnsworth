@@ -71,7 +71,7 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     "base.views.add_context",
     "workshift.views.add_workshift_context",
     "farnswiki.views.add_wiki_context",
-    )
+)
 
 try:
     ENABLE_OAUTH
@@ -229,13 +229,14 @@ INSTALLED_APPS = (
     "django.contrib.admin",
     "django.contrib.admindocs",
     "social.apps.django_app.default",
+    "django_select2",
 )
 
-CRON_CLASSES = [
+CRON_CLASSES = (
     "managers.cron.ExpireRequestsCronJob",
     "workshift.cron.CollectBlownCronJob",
     "workshift.cron.UpdateWeeklyStandings",
-    ]
+)
 
 WIKI_HOOKSET = "farnswiki.hooks.ProjectWikiHookset"
 WIKI_PARSE = "farnswiki.hooks.parse"
@@ -249,7 +250,7 @@ BASE_ARCHIVE_FUNCTIONS = (
     "managers.views.add_archive_context",
     "workshift.views.add_archive_context",
     # "legacy.views.add_archive_context",
-    )
+)
 
 ###
 
@@ -306,7 +307,7 @@ PASSWORD_HASHERS = (
     "django.contrib.auth.hashers.SHA1PasswordHasher",
     "django.contrib.auth.hashers.MD5PasswordHasher",
     "django.contrib.auth.hashers.CryptPasswordHasher",
-    )
+)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -349,6 +350,10 @@ LOGGING = {
         },
     },
 }
+
+# django-select2 settings
+SELECT2_BOOTSTRAP = True
+AUTO_RENDER_SELECT2_STATICS = False
 
 # Haystack search backend setting.
 HAYSTACK_CONNECTIONS = {

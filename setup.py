@@ -1,16 +1,30 @@
 
 from __future__ import print_function
 
+import re
 import os
 from setuptools import setup, find_packages
 
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-required = [
+def _required_to_setup(required):
+    install_requires, dependency_links = [], []
+    for package in required:
+        m = re.match("(.*)://(.*)/(.*)(\.git)?#egg=(.*)", package)
+
+        if not m:
+            install_requires.append(package)
+        else:
+            install_requires.append(m.group(3))
+            dependency_links.append(package)
+
+    return install_requires, dependency_links
+
+install_required, dependency_links = _required_to_setup([
     line.strip()
     for line in open("requirements.txt").read().split("\n")
     if line.strip()
-]
+])
 
 setup(
     name="Farnsworth",
@@ -21,8 +35,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     description="Website for BSC houses.",
-    install_requires=required +  ["elasticsearch==1.0.0"],
-    tests_require=required,
+    install_requires=install_required,
+    tests_require=install_required,
     test_suite="runtests.runtests",
     package_data={
         "": ["*/static/*/*/*", "*/templates/*", "templates/search/*/*/*"],
@@ -41,10 +55,7 @@ setup(
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     ],
-    dependency_links=[
-        "git://github.com/naderm/django-phonenumber-field.git#egg=django_phonenumber_field-develop",
-        "git://github.com/naderm/django-notifications.git#egg=django_notifications-master",
-    ],
+    dependency_links=dependency_links,
     extras_require={
         "PostgreSQL": ["psycopg2"],
         "social-auth": ["python-social-auth"],

@@ -10,6 +10,8 @@ from __future__ import absolute_import, unicode_literals
 
 from django.db import models
 
+from django_select2 import AutoModelSelect2MultipleField
+
 DAY_CHOICES = [
     (0, "Monday"),
     (1, "Tuesday"),
@@ -18,7 +20,7 @@ DAY_CHOICES = [
     (4, "Friday"),
     (5, "Saturday"),
     (6, "Sunday"),
-    ]
+]
 
 class DayField(models.PositiveSmallIntegerField):
     '''

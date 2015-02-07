@@ -11,3 +11,4 @@ pytz
 django-notifications-hq
 pinax-wiki
 inflect
+git+git://github.com/applegrew/django-select2#egg=django-select2

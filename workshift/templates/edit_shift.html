@@ -3,10 +3,21 @@
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
+{% load django_select2_tags %}
+
+{% block headers %}
+{% import_django_select2_js %}
+{% import_django_select2_css light=1 %}
+<script>
+  hashedSelector = "#id_current_assignees";
+</script>
+{% endblock %}
 
 {% block w_content %}
 <div class="shift_container">
-  <h1 class="w_title">{{ page_name }}</h1>
+  <h1 class="w_title">
+	{{ page_name }}
+  </h1>
   <hr class="w_line" />
   <form method="post">
     {% csrf_token %}
@@ -19,11 +30,11 @@
     <div class="text-center">
       <div class="btn-group">
         <button type="submit" class="btn btn-success" name="edit">
-	  <span class="glyphicon glyphicon-floppy-disk"></span> Save
-	</button>
+		  <span class="glyphicon glyphicon-floppy-disk"></span> Save
+		</button>
         <button type="submit" class="btn btn-danger" name="delete">
-	  <span class="glyphicon glyphicon-fire"></span> Delete
-	</button>
+		  <span class="glyphicon glyphicon-fire"></span> Delete
+		</button>
       </div> <!-- .btn-group -->
     </div> <!-- .text-center -->
   </form>

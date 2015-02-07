@@ -14,8 +14,8 @@ from django.db.models import Q
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from notifications import notify
+from django_select2.widgets import Select2MultipleWidget
 
-from utils.variables import ANONYMOUS_USERNAME
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
@@ -720,16 +720,22 @@ class RegularWorkshiftForm(forms.ModelForm):
         widget=forms.TimeInput(format='%I:%M %p'),
         input_formats=valid_time_formats,
         required=False,
-        )
+    )
     end_time = forms.TimeField(
         widget=forms.TimeInput(format='%I:%M %p'),
         input_formats=valid_time_formats,
         required=False,
-        )
+    )
 
     class Meta:
         model = RegularWorkshift
         exclude = ("week_long", "is_manager_shift")
+        widgets = {
+            "current_assignees": Select2MultipleWidget(),
+        }
+        help_texts = {
+            "current_assignees": "",
+        }
 
     def __init__(self, *args, **kwargs):
         self.pools = kwargs.pop('pools', None)
@@ -737,6 +743,9 @@ class RegularWorkshiftForm(forms.ModelForm):
         super(RegularWorkshiftForm, self).__init__(*args, **kwargs)
         if self.pools:
             self.fields['pool'].queryset = self.pools
+        self.fields["current_assignees"].queryset = WorkshiftProfile.objects.filter(
+            semester=self.semester,
+        )
 
     def clean(self):
         data = super(RegularWorkshiftForm, self).clean()
