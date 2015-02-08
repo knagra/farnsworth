@@ -131,30 +131,17 @@ class="danger"
 class="success"
 {% endif %}
 >
-        <td>{{ log.entry_time }}</td>
         <td>
-          {% if log.person %}
-          <a href="{{ log.person.get_view_url }}">
-			{{ log.person.user.get_full_name }}
-		  </a>
-          {% else %}
-          Farnsworth automatically
-          {% endif %}
-          {% if log.entry_type == 'A' %}
-          was assigned to this shift.
-          {% elif log.entry_type == 'B' %}
-          marked this shift as blown.
-          {% elif log.entry_type == 'I' %}
-          signed into this shift.
-          {% elif log.entry_type == 'O' %}
-          signed out of this shift.
-          {% elif log.entry_type == 'V' %}
-          verified that this shift was completed.
-		  {% elif log.entry_type == 'M' %}
-		  changed the hours credited by this shift to {{ log.hours }} hour{{ log.hours|pluralize}}.
-          {% endif %}
+		  {{ log.entry_time }}
 		</td>
-        <td>{% if log.note %}{{ log.note }}{% endif %}</td>
+        <td>
+		  {% incude "shift_log.html" %}
+		</td>
+        <td>
+		  {% if log.note %}
+		  {{ log.note }}
+		  {% endif %}
+		</td>
       </tr>
       {% endfor %}
     </tbody>
