@@ -379,7 +379,7 @@ class BlownShiftForm(InteractShiftForm):
             raise forms.ValidationError("Workshift is not filled.")
         pool = shift.pool
         if not pool.any_blown and \
-           not utils.can_manage(self.profile.user, semester=self.semester, pool=pool):
+           not utils.can_manage(self.profile.user, semester=shift.semester, pool=pool):
             raise forms.ValidationError("You are not a workshift manager.")
 
         return shift
