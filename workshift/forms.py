@@ -987,3 +987,5 @@ class FineDateForm(forms.Form):
                 )
 
         return fined
+
+INTERACTION_FORMS = [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]

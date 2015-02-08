@@ -46,27 +46,6 @@ def add_archive_context(request):
     ]
     return nodes, []
 
-def _pool_upcoming_vacant_shifts(workshift_pool, workshift_profile):
-    """ Given a workshift pool and a workshift profile,
-    return all upcoming, vacant shifts along with sign-in forms
-    for the profile in that pool. """
-    upcoming_shifts = list()
-    today = localtime(now()).date()
-    for shift in WorkshiftInstance.objects.filter(
-            date__gte=today,
-            closed=False,
-            blown=False,
-            workshifter=None,
-            liable=None,
-        ):
-        if shift.pool == workshift_pool:
-            form = SignInForm(
-                initial={"pk": shift.pk},
-                profile=workshift_profile,
-                )
-            upcoming_shifts.append((shift, form))
-    return upcoming_shifts
-
 def add_workshift_context(request):
     """ Add workshift variables to all dictionaries passed to templates. """
     if not request.user.is_authenticated():
@@ -294,7 +273,7 @@ def semester_view(request, semester, profile=None):
 
     # Forms to interact with workshift
     if profile:
-        for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
+        for form in INTERACTION_FORMS:
             if form.action_name in request.POST:
                 f = form(request.POST, profile=profile)
                 if f.is_valid():
@@ -315,7 +294,7 @@ def semester_view(request, semester, profile=None):
     day_shifts = [i for i in day_shifts if not i.week_long]
     week_shifts = WorkshiftInstance.objects.filter(
         date__gt=last_sunday, date__lte=next_sunday,
-        )
+    )
     week_shifts = [i for i in week_shifts if i.week_long]
 
     template_dict["day_shifts"] = [
@@ -382,7 +361,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
                 profile=profile,
                 prefix=prefix,
                 undo=undo,
-                )
+            )
             ret.append(verify_form)
 
         if pool.any_blown:
@@ -398,7 +377,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
                 profile=profile,
                 prefix=prefix,
                 undo=undo,
-                )
+            )
             ret.append(blown_form)
 
     if not instance.closed:
@@ -1107,20 +1086,34 @@ def fine_date_view(request, semester, profile=None):
 @get_workshift_profile
 def pool_view(request, semester, pk, profile=None):
     pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
-    if profile:
-        if SignInForm.action_name in request.POST:
-            f = SignInForm(request.POST, profile=profile)
-            if f.is_valid():
-                f.save()
-                return HttpResponseRedirect(pool.get_view_url())
-            else:
-                for error in f.errors.values():
-                    messages.add_message(request, messages.ERROR, error)
-        upcoming_pool_shifts = _pool_upcoming_vacant_shifts(pool, profile)
-    else:
-        upcoming_pool_shifts = None
     page_name = "{0} Pool".format(pool.title)
-    shifts = RegularWorkshift.objects.filter(pool=pool, active=True)
+
+    today = localtime(now()).date()
+    shifts = WorkshiftInstance.objects.filter(
+        date__gte=today,
+        closed=False,
+        blown=False,
+        workshifter=None,
+        liable=None,
+    )
+    upcoming_pool_shifts = [
+        (shift, _get_forms(
+            profile, shift,
+            undo=utils.can_manage(request.user, semester=semester, pool=shift.pool),
+        ))
+        for shift in shifts
+    ]
+    # Forms to interact with workshift
+    if profile:
+        for form in INTERACTION_FORMS:
+            if form.action_name in request.POST:
+                f = form(request.POST, profile=profile)
+                if f.is_valid():
+                    f.save()
+                    return HttpResponseRedirect(pool.get_view_url())
+                else:
+                    for error in f.errors.values():
+                        messages.add_message(request, messages.ERROR, error)
 
     return render_to_response("view_pool.html", {
         "page_name": page_name,
@@ -1265,10 +1258,10 @@ def instance_view(request, semester, pk, profile=None):
         prefix="note",
         )
 
-    for form in [VerifyShiftForm, BlownShiftForm, SignInForm, SignOutForm]:
+    for form in INTERACTION_FORMS:
         if form.action_name in request.POST:
             f = form(
-                request.POST or None,
+                request.POST,
                 profile=profile,
                 prefix="interact",
                 undo=utils.can_manage(request.user, semester),

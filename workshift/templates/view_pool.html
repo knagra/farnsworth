@@ -127,7 +127,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for shift, form in upcoming_pool_shifts %}
+      {% for shift, forms in upcoming_pool_shifts %}
       <tr>
         <td>
 		  <a href="{{ shift.get_view_url }}">
@@ -144,15 +144,7 @@
 		  {{ shift.get_end_time }}
 		</td>
         <td>
-		  <form class="inline-form" method="POST">
-			{% csrf_token %}
-			{{ form }}
-			<button
-            type="submit" name="{{ form.action_name }}"
-            class="btn btn-xs btn-primary">{{ form.title_short|safe }}
-			  <span class="hidden-xs">{{ form.title_long }}</span>
-			</button>
-		  </form>
+		  {% include "shift_forms.html" %}
 		</td>
       </tr>
       {% endfor %}
