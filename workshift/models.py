@@ -605,24 +605,24 @@ class ShiftLogEntry(models.Model):
         blank=True,
         null=True,
         help_text="Person who made this entry.",
-        )
+    )
     entry_time = models.DateTimeField(
         auto_now_add=True,
         help_text="Time this entry was made."
-        )
+    )
     hours = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         blank=True,
         null=True,
         help_text="Hours associated with a change in workshift credit.",
-        )
+    )
     note = models.TextField(
         blank=True,
         null=True,
         help_text="Message to the workshift manager. "
         "(e.g. 'Can't cook because of flu')",
-        )
+    )
     ASSIGNED = 'A'
     BLOWN = 'B'
     SIGNIN = 'I'
@@ -643,7 +643,7 @@ class ShiftLogEntry(models.Model):
         max_length=1,
         choices=ENTRY_CHOICES,
         default=VERIFY,
-        )
+    )
 
     def __str__(self):
         return self.__unicode__()
@@ -652,7 +652,7 @@ class ShiftLogEntry(models.Model):
         return "<{0}, {1}>".format(
             self.person,
             self.get_entry_type_display(),
-            )
+        )
 
     class Meta:
         ordering = ['-entry_time']
