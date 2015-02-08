@@ -65,17 +65,7 @@
 		  {% include "shift_status.html" %}
         </td>
         <td>
-          {% for form in forms %}
-          <form style="display:inline" method="POST">
-            {% csrf_token %}
-            {{ form }}
-            <button
-                type="submit" class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
-                name="{{ form.action_name }}">
-			  {{ form.title_short|safe }}<span class="hidden-xs">{{ form.title_long }}</span>
-			</button>
-          </form>
-          {% endfor %}
+		  {% include "shift_forms.html" %}
         </td>
       </tr>
       {% endfor %}
@@ -118,16 +108,7 @@
 		  {% include "shift_status.html" %}
         </td>
         <td>
-          {% for form in forms %}
-          <form style="display:inline" method="POST">
-            {% csrf_token %}
-            {{ form }}
-            <button type="submit"
-					class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
-					name="{{ form.action_name }}">{{ form.title_short|safe }}<span class="hidden-xs">
-              {{ form.title_long }}</span></button>
-          </form>
-          {% endfor %}
+		  {% include "shift_forms.html" %}
         </td>
       </tr>
       {% endfor %}
