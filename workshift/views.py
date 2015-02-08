@@ -350,19 +350,21 @@ def _get_forms(profile, instance, undo=False, prefix=""):
             verify = True
         elif instance.verify == POOL_MANAGER_VERIFY and \
           set(managers).intersections(pool.managers):
-          verify = True
+            verify = True
         elif instance.verify == WORKSHIFT_MANAGER_VERIFY and \
           any(i.workshift_manager for i in managers):
-          verify = True
+            verify = True
 
         if verify and not instance.verifier:
-            verify_form = VerifyShiftForm(
-                initial={"pk": instance.pk},
-                profile=profile,
-                prefix=prefix,
-                undo=undo,
+            # Verify Shift
+            ret.append(
+                VerifyShiftForm(
+                    initial={"pk": instance.pk},
+                    profile=profile,
+                    prefix=prefix,
+                    undo=undo,
+                )
             )
-            ret.append(verify_form)
 
         if pool.any_blown:
             blow = True
@@ -372,29 +374,61 @@ def _get_forms(profile, instance, undo=False, prefix=""):
             blow = True
 
         if blow and not instance.blown:
-            blown_form = BlownShiftForm(
+            # Blown Shift
+            ret.append(
+                BlownShiftForm(
+                    initial={"pk": instance.pk},
+                    profile=profile,
+                    prefix=prefix,
+                    undo=undo,
+                )
+            )
+
+    if instance.verifier == profile:
+        # Undo Verify Shift
+        ret.append(
+            UnVerifyShiftForm(
                 initial={"pk": instance.pk},
                 profile=profile,
                 prefix=prefix,
-                undo=undo,
+                undo=True,
             )
-            ret.append(blown_form)
+        )
+
+    if instance.blown:
+        # Undo Blown Shift
+        if instance.logs.count() > 0:
+            latest = instance.logs.latest("entry_time")
+            if latest.entry_type == ShiftLogEntry.BLOWN and latest.person == profile:
+                ret.append(
+                    UnBlownShiftForm(
+                        initial={"pk": instance.pk},
+                        profile=profile,
+                        prefix=prefix,
+                        undo=True,
+                    )
+                )
 
     if not instance.closed:
         if not instance.workshifter:
-            sign_in_form = SignInForm(
-                initial={"pk": instance.pk},
-                profile=profile,
-                prefix=prefix,
+            # Sign In
+            ret.append(
+                SignInForm(
+                    initial={"pk": instance.pk},
+                    profile=profile,
+                    prefix=prefix,
+                )
             )
-            ret.append(sign_in_form)
         elif instance.workshifter == profile:
-            sign_out_form = SignOutForm(
-                initial={"pk": instance.pk},
-                profile=profile,
-                prefix=prefix,
+            # Sign Out
+            ret.append(
+                SignOutForm(
+                    initial={"pk": instance.pk},
+                    profile=profile,
+                    prefix=prefix,
+                )
             )
-            ret.append(sign_out_form)
+
     return ret
 
 def _is_preferred(instance, profile):
@@ -1256,7 +1290,7 @@ def instance_view(request, semester, pk, profile=None):
     note_form = NoteForm(
         request.POST or None,
         prefix="note",
-        )
+    )
 
     for form in INTERACTION_FORMS:
         if form.action_name in request.POST:
