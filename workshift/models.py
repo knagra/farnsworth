@@ -1,8 +1,8 @@
-'''
+"""
 Project: Farnsworth
 
 Author: Karandeep Singh Nagra
-'''
+"""
 
 from __future__ import unicode_literals, absolute_import
 
@@ -32,63 +32,63 @@ VERIFY_CHOICES = (
     (OTHER_VERIFY, "Another member"),
     (SELF_VERIFY, "Any member (including self)"),
     (AUTO_VERIFY, "Automatically verified"),
-    )
+)
 
 class Semester(models.Model):
-    '''
+    """
     A semester instance, used to hold records, settings, and to separate
     workshifts into contained units.
-    '''
+    """
     SPRING = "Sp"
     SUMMER = "Su"
     FALL = "Fa"
     SEASON_CHOICES = (
-        (SPRING, 'Spring'),
-        (SUMMER, 'Summer'),
-        (FALL, 'Fall')
-        )
+        (SPRING, "Spring"),
+        (SUMMER, "Summer"),
+        (FALL, "Fall")
+    )
     season = models.CharField(
         max_length=2,
         choices=SEASON_CHOICES,
         default=SPRING,
         help_text="Season of the year (spring, summer, fall) of this semester.",
-        )
+    )
     year = models.PositiveSmallIntegerField(
         max_length=4,
         help_text="Year of this semester.",
-        )
+    )
     workshift_managers = models.ManyToManyField(
         User,
         blank=True,
         help_text="The users who were/are Workshift Managers for this semester.",
-        )
+    )
     rate = models.DecimalField(
         max_digits=7, # In case of inflation
         decimal_places=2,
         null=True,
         blank=True,
         help_text="Workshift rate for this semester.",
-        )
+    )
     policy = models.URLField(
         max_length=255,
         null=True,
         blank=True,
         help_text="Link to the workshift policy for this semester.",
-        )
+    )
     start_date = models.DateField(
         help_text="Start date of this semester.",
-        )
+    )
     end_date = models.DateField(
         help_text="End date of this semester.",
-        )
+    )
     preferences_open = models.BooleanField(
         default=False,
         help_text="Whether members can enter their workshift preferences.",
-        )
+    )
     current = models.BooleanField(
         default=True,
         help_text="If this semester is the current semester.",
-        )
+    )
 
     @property
     def sem_url(self):
@@ -102,7 +102,7 @@ class Semester(models.Model):
 
     class Meta:
         unique_together = ("season", "year")
-        ordering = ['-start_date']
+        ordering = ["-start_date"]
 
     def __str__(self):
         return self.__unicode__()
@@ -124,26 +124,26 @@ class WorkshiftPool(models.Model):
         max_length=100,
         default="Regular Workshift",
         help_text="The title of this workshift pool (i.e. HI Hours)",
-        )
+    )
     semester = models.ForeignKey(
         Semester,
         help_text="The semester associated with this pool of workshift hours.",
-        )
+    )
     managers = models.ManyToManyField(
         Manager,
         blank=True,
         help_text="Managers who are able to control this workshift category."
-        )
+    )
     sign_out_cutoff = models.PositiveSmallIntegerField(
         default=settings.DEFAULT_SIGN_OUT_CUTOFF,
         help_text="Cutoff for signing out of workshifts without requiring "
         "a substitute, in hours.",
-        )
+    )
     verify_cutoff = models.PositiveSmallIntegerField(
         default=settings.DEFAULT_VERIFY_CUTOFF,
         help_text="Cutoff for verifying a workshift after it has finished, "
         "in hours. After this cutoff, the shift will be marked as blown."
-        )
+    )
     hours = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -151,36 +151,36 @@ class WorkshiftPool(models.Model):
         help_text="Default hours required per member per period "
         "(e.g., 2 weeks per period and 2 hours required per period means 2 "
         "hours required every two weeks).",
-        )
+    )
     weeks_per_period = models.PositiveSmallIntegerField(
         default=1,
         help_text="Number of weeks for requirement period "
         "(e.g., 2 weeks per period and 2 hours required per period means 2 "
         "hours required every two weeks). 0 makes this a semesterly requirement",
-        )
+    )
     first_fine_date = models.DateField(
         null=True,
         blank=True,
         help_text="First fine date for this semester, optional.",
-        )
+    )
     second_fine_date = models.DateField(
         null=True,
         blank=True,
         help_text="Second fine date for this semester, optional.",
-        )
+    )
     third_fine_date = models.DateField(
         null=True,
         blank=True,
         help_text="Third fine date for this semester, optional.",
-        )
+    )
     any_blown = models.BooleanField(
         default=False,
         help_text="If any member is allowed to mark a shift as blown.",
-        )
+    )
     is_primary = models.BooleanField(
         default=False,
         help_text="Is the primary workshift pool for the house.",
-        )
+    )
 
     class Meta:
         unique_together = ("semester", "title")
@@ -200,7 +200,7 @@ class WorkshiftPool(models.Model):
             ret = "{{0}} hour{{1}} per {0} weeks".format(self.weeks_per_period)
         return ret.format(
             self.hours, "s" if self.hours != 1 else "",
-            )
+        )
 
     def get_view_url(self):
         return wurl("workshift:view_pool", pk=self.pk, sem_url=self.semester.sem_url)
@@ -212,38 +212,38 @@ class WorkshiftPool(models.Model):
         return True
 
 class WorkshiftType(models.Model):
-    '''
+    """
     A workshift type; for example, a "Pots" workshift type.
-    '''
+    """
     title = models.CharField(
         blank=False,
         null=False,
         unique=True,
         max_length=255,
-        help_text='The title of this workshift type (e.g., "Pots"), must be unique.',
-        )
+        help_text="The title of this workshift type (e.g., \"Pots\"), must be unique.",
+    )
     description = models.TextField(
         blank=True,
         null=True,
         help_text="A description for this workshift type.",
-        )
+    )
     quick_tips = models.TextField(
         blank=True,
         null=True,
         help_text="Quick tips to the workshifter.",
-        )
+    )
     rateable = models.BooleanField(
         default=True,
         help_text="Whether this workshift type is shown in preferences.",
-        )
-    AUTO_ASSIGN = 'A'
-    MANUAL_ASSIGN = 'M'
-    NO_ASSIGN = 'O'
+    )
+    AUTO_ASSIGN = "A"
+    MANUAL_ASSIGN = "M"
+    NO_ASSIGN = "O"
     ASSIGNMENT_CHOICES = (
         (AUTO_ASSIGN, "Auto-assign"),
         (MANUAL_ASSIGN, "Manually assign"),
         (NO_ASSIGN, "No assignment")
-        )
+    )
     assignment = models.CharField(
         max_length=1,
         choices=ASSIGNMENT_CHOICES,
@@ -251,7 +251,7 @@ class WorkshiftType(models.Model):
         help_text="How assignment to this workshift works. This can be automatic, "
         "manual-only, or no assignment (i.e. Manager shifts, which are internally "
         "assigned.",
-        )
+    )
 
     def __str__(self):
         return self.__unicode__()
@@ -269,42 +269,42 @@ class WorkshiftType(models.Model):
         return wurl("workshift:edit_type", pk=self.pk)
 
 class TimeBlock(models.Model):
-    '''
+    """
     A time block to represent member availability during a particular day.
     Used to reduce database size by creating references to existing time blocks for users.
     These objects should never be directly created on their own.  They be
     created and retrieved for use.
-    '''
+    """
     BUSY = 0
     PREFERRED = 1
     PREFERENCE_CHOICES = (
         (BUSY, "Busy"),
         (PREFERRED, "Preferred"),
-        )
+    )
     preference = models.PositiveSmallIntegerField(
         max_length=1,
         choices=PREFERENCE_CHOICES,
         default=BUSY,
         help_text="The user's preference for this time block.",
-        )
+    )
     day = DayField(
         help_text="Day of the week for this time block.",
-        )
+    )
     start_time = models.TimeField(
         help_text="Start time for this time block.",
-        )
+    )
     end_time = models.TimeField(
         help_text="End time for this time block.",
-        )
+    )
 
 class WorkshiftRating(models.Model):
-    '''
+    """
     A preference for a workshift type.  Used to reduce database size by creating
     references to existing ratings for users.
 
     These objects should never be directly created on their own.  They be
     created and retrieved for use.
-    '''
+    """
     DISLIKE = 0
     INDIFFERENT = 1
     LIKE = 2
@@ -312,17 +312,17 @@ class WorkshiftRating(models.Model):
         (DISLIKE, "Dislike"),
         (INDIFFERENT, "Indifferent"),
         (LIKE, "Like")
-        )
+    )
     rating = models.PositiveSmallIntegerField(
         max_length=1,
         choices=RATING_CHOICES,
         default=INDIFFERENT,
         help_text="Rating for the workshift type.",
-        )
+    )
     workshift_type = models.ForeignKey(
         WorkshiftType,
         help_text="The workshift type being rated.",
-        )
+    )
 
 class PoolHours(models.Model):
     """
@@ -401,44 +401,44 @@ class PoolHours(models.Model):
             ret = "{{0}} hour{{1}} per {0} weeks".format(self.pool.weeks_per_period)
         return ret.format(
             self.hours, "s" if self.hours != 1 else "",
-            )
+        )
 
 class WorkshiftProfile(models.Model):
-    ''' A workshift profile for a user for a given semester. '''
+    """ A workshift profile for a user for a given semester. """
     user = models.ForeignKey(
         User,
         help_text="The user for this workshift profile.",
-        )
+    )
     semester = models.ForeignKey(
         Semester,
         help_text="The semester for this workshift profile.",
-        )
+    )
     note = models.TextField(
         null=True,
         blank=True,
         help_text="Note for this profile. For communication between the "
         "workshifter and the workshift manager(s).",
-        )
+    )
     preference_save_time = models.DateTimeField(
         null=True,
         blank=True,
         help_text="The time this member first saved their preferences.",
-        )
+    )
     time_blocks = models.ManyToManyField(
         TimeBlock,
         blank=True,
         help_text="The time blocks for this workshift profile.",
-        )
+    )
     ratings = models.ManyToManyField(
         WorkshiftRating,
         blank=True,
         help_text="The workshift ratings for this workshift profile.",
-        )
+    )
     pool_hours = models.ManyToManyField(
         PoolHours,
         blank=True,
         help_text="Hours required for each workshift pool for this profile.",
-        )
+    )
 
     def __str__(self):
         return self.__unicode__()
@@ -482,10 +482,10 @@ class WorkshiftProfile(models.Model):
         )
 
 class RegularWorkshift(models.Model):
-    '''
+    """
     A weekly workshift for a semester.
     Used to generate individual instances of workshifts.
-    '''
+    """
     workshift_type = models.ForeignKey(
         WorkshiftType,
         help_text="The workshift type for this weekly workshift.",
@@ -542,7 +542,7 @@ class RegularWorkshift(models.Model):
         help_text="If this shift is for the entire week.",
     )
     addendum = models.TextField(
-        default='',
+        default="",
         blank=True,
         null=True,
         help_text="Addendum to the description for this workshift.",
@@ -599,7 +599,7 @@ class RegularWorkshift(models.Model):
         return True
 
 class ShiftLogEntry(models.Model):
-    ''' Entries for sign-ins, sign-outs, and verification. '''
+    """ Entries for sign-ins, sign-outs, and verification. """
     person = models.ForeignKey(
         WorkshiftProfile,
         blank=True,
@@ -621,23 +621,27 @@ class ShiftLogEntry(models.Model):
         blank=True,
         null=True,
         help_text="Message to the workshift manager. "
-        "(e.g. 'Can't cook because of flu')",
+        "(e.g. \"Can't cook because of flu\")",
     )
-    ASSIGNED = 'A'
-    BLOWN = 'B'
-    SIGNIN = 'I'
-    SIGNOUT = 'O'
-    VERIFY = 'V'
-    SELL = 'S'
+    ASSIGNED = "A"
+    BLOWN = "B"
+    UNBLOWN = "C"
+    SIGNIN = "I"
+    SIGNOUT = "O"
+    VERIFY = "V"
+    UNVERIFY = "U"
+    SELL = "S"
     MODIFY_HOURS = "M"
     ENTRY_CHOICES = (
-        (ASSIGNED, 'Assigned'),
-        (BLOWN, 'Blown'),
-        (SIGNIN, 'Sign In'),
-        (SIGNOUT, 'Sign Out'),
-        (VERIFY, 'Verify'),
+        (ASSIGNED, "Assigned"),
+        (BLOWN, "Blown"),
+        (UNBLOWN, "Undo Blown"),
+        (SIGNIN, "Sign In"),
+        (SIGNOUT, "Sign Out"),
+        (VERIFY, "Verify"),
+        (UNVERIFY, "Undo Verify"),
         (MODIFY_HOURS, "Modify Hours"),
-        (SELL, 'Sell'),
+        (SELL, "Sell"),
     )
     entry_type = models.CharField(
         max_length=1,
@@ -655,7 +659,7 @@ class ShiftLogEntry(models.Model):
         )
 
     class Meta:
-        ordering = ['-entry_time']
+        ordering = ["-entry_time"]
 
 class InstanceInfo(models.Model):
     """
@@ -666,60 +670,60 @@ class InstanceInfo(models.Model):
         blank=True,
         max_length=255,
         help_text="Title for this shift.",
-        )
+    )
     description = models.TextField(
         null=True,
         blank=True,
         help_text="Description of the shift.",
-        )
+    )
     pool = models.ForeignKey(
         WorkshiftPool,
         null=True,
         blank=True,
         help_text="The workshift pool for this shift.",
-        )
+    )
     verify = models.CharField(
         default=OTHER_VERIFY,
         choices=VERIFY_CHOICES,
         max_length=1,
         help_text="Who is able to mark this shift as completed.",
-        )
+    )
     start_time = models.TimeField(
         help_text="Start time for this workshift.",
         null=True,
         blank=True,
-        )
+    )
     end_time = models.TimeField(
         help_text="End time for this workshift.",
         null=True,
         blank=True,
-        )
+    )
     week_long = models.BooleanField(
         default=False,
         help_text="If this shift is for the entire week.",
-        )
+    )
 
 class WorkshiftInstance(models.Model):
-    ''' An instance of a workshift. '''
+    """ An instance of a workshift. """
     semester = models.ForeignKey(
         Semester,
         help_text="The semester for this workshift.",
-        )
+    )
     weekly_workshift = models.ForeignKey(
         RegularWorkshift,
         null=True,
         blank=True,
         help_text="The weekly workshift of which this is an instance.",
-        )
+    )
     info = models.ForeignKey(
         InstanceInfo,
         null=True,
         blank=True,
         help_text="The weekly workshift of which this is an instance.",
-        )
+    )
     date = models.DateField(
         help_text="Date of this workshift.",
-        )
+    )
     workshifter = models.ForeignKey(
         WorkshiftProfile,
         null=True,
@@ -727,7 +731,7 @@ class WorkshiftInstance(models.Model):
         related_name="instance_workshifter",
         help_text="Workshifter who was signed into this shift at the time "
         "it started.",
-        )
+    )
     liable = models.ForeignKey(
         WorkshiftProfile,
         null=True,
@@ -735,39 +739,39 @@ class WorkshiftInstance(models.Model):
         related_name="instance_liable",
         help_text="Workshifter who is liable for this shift if no one else "
         "signs in.",
-        )
+    )
     verifier = models.ForeignKey(
         WorkshiftProfile,
         null=True,
         blank=True,
         related_name="instance_verifier",
         help_text="Workshifter who verified that this shift was completed.",
-        )
+    )
     closed = models.BooleanField(
         default=False,
         help_text="If this shift has been completed.",
-        )
+    )
     blown = models.BooleanField(
         default=False,
         help_text="If this shift has been blown.",
-        )
+    )
     intended_hours = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         default=settings.DEFAULT_WORKSHIFT_HOURS,
         help_text="Intended hours given for this shift.",
-        )
+    )
     hours = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         default=settings.DEFAULT_WORKSHIFT_HOURS,
         help_text="Number of hours actually given for this shift.",
-        )
+    )
     logs = models.ManyToManyField(
         ShiftLogEntry,
         blank=True,
         help_text="The entries for sign ins, sign outs, and verification.",
-        )
+    )
 
     def get_info(self):
         return self.weekly_workshift or self.info
