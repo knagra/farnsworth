@@ -834,10 +834,13 @@ class AssignShiftForm(forms.ModelForm):
         fields = ("current_assignees",)
         labels = {
             "current_assignees": "",
-            }
+        }
         help_texts = {
             "current_assignees": "",
-            }
+        }
+        widgets = {
+            "current_assignees": Select2MultipleWidget(),
+        }
 
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop('semester')
