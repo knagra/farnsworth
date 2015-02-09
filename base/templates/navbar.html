@@ -26,13 +26,13 @@
         {% else %}
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="profile_dropdown_link"
-           {% if ANONYMOUS_SESSION %} style="color: #ff0000 !important;"
-           title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}>
+             {% if ANONYMOUS_SESSION %} style="color: #ff0000 !important;"
+             title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}>
             <span><span class="pull-right"><b class="caret"></b></span>{% if unread_count > 0 %}<span
             title="You have {{ unread_count }} unread notification{{ unread_count|pluralize }}." class="badge pull-right">{{ unread_count }}</span>
-            {% endif %}
-            <span class="glyphicon glyphicon-user"></span>
-            {{ user.first_name }}&nbsp;</span>
+              {% endif %}
+              <span class="glyphicon glyphicon-user"></span>
+              {{ user.first_name }}&nbsp;</span>
           </a>
           <ul class="dropdown-menu">
             <li>
@@ -109,7 +109,7 @@
             {% for request_type, counts in REQUEST_TYPES %}
             <li>
               <a id="{{ request_type.url_name }}_requests_link"
-                href="{% url 'managers:requests' requestType=request_type.url_name %}">
+                 href="{% url 'managers:requests' requestType=request_type.url_name %}">
                 {% if counts %}
                 <span title="{{ counts }} open request{{ counts|pluralize }}" class="badge pull-right">
                   {{ counts }}
@@ -144,13 +144,13 @@
                 <span class="glyphicon glyphicon-home"></span> Room List
               </a>
             </li>
-        {% if WIKI_ENABLED %}
+            {% if WIKI_ENABLED %}
             <li>
               <a href="{% url 'wiki_all' %}">
                 <span class="glyphicon glyphicon-pencil"></span> Wiki
               </a>
             </li>
-        {% endif %}
+            {% endif %}
             {% if WORKSHIFT_PROFILE %}
             <li class="divider"></li>
             <li class="dropdown-header">Workshift</li>
@@ -224,7 +224,7 @@
               <a id="profile_requests_link" href="{% url 'manage_profile_requests' %}">
                 {% if NUM_OF_PROFILE_REQUESTS > 0 %}
                 <span title="{{ NUM_OF_PROFILE_REQUESTS }} open profile request{{ NUM_OF_PROFILE_REQUESTS|pluralize }}"
-                  class="badge pull-right">{{ NUM_OF_PROFILE_REQUESTS }}</span>
+                      class="badge pull-right">{{ NUM_OF_PROFILE_REQUESTS }}</span>
                 {% endif %}
                 <span class="glyphicon glyphicon-inbox"></span> Profile Requests
               </a>
