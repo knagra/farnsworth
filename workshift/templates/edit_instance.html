@@ -7,17 +7,17 @@
 {% block w_content %}
 <div class="instance_container">
   <h1 class="w_title">
-	{{ page_name }}
+    {{ page_name }}
   </h1>
   <hr class="w_line"/>
   {% if instance.weekly_workshift %}
   <p>
-	Note: This is an instance of a repeated workshift. Individual instances
-	cannot be deleted. If you wish to edit information about all instances of
-	this workshift or remove it,
-	<a href="{{ instance.weekly_workshift.get_view_url }}">
-	  please see this page to edit its information
-	</a>.
+    Note: This is an instance of a repeated workshift. Individual instances
+    cannot be deleted. If you wish to edit information about all instances of
+    this workshift or remove it,
+    <a href="{{ instance.weekly_workshift.get_view_url }}">
+      please see this page to edit its information
+    </a>.
   </p>
   {% endif %}
   <form method="post" action="">
@@ -26,16 +26,16 @@
     <div class="text-center">
       <div class="btn-group">
         <button type="submit" class="btn btn-success" name="edit">
-		  <span class="glyphicon glyphicon-floppy-disk"></span>
-		  Save
-		</button>
+          <span class="glyphicon glyphicon-floppy-disk"></span>
+          Save
+        </button>
         <button type="submit" class="btn btn-danger" name="delete">
-		  <span class="glyphicon glyphicon-fire"></span>
-		  Delete
-		  {% if instance.weekly_workshift %}
-		  single instance
-		  {% endif %}
-		</button>
+          <span class="glyphicon glyphicon-fire"></span>
+          Delete
+          {% if instance.weekly_workshift %}
+          single instance
+          {% endif %}
+        </button>
       </div> <!-- .btn-group -->
     </div> <!-- .text-center -->
   </form>
@@ -43,8 +43,6 @@
 {% endblock %}
 
 {% block w_endscripts %}
-<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
  function renewDatePickers(row) {

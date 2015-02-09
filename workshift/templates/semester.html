@@ -202,8 +202,6 @@
 {% endblock %}
 
 {% block w_endscripts %}
-<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 {% if start_date != end_date and not long_range %}
 <script type="text/javascript" src="{% static 'ui/js/parser-date-weekday.js' %}"></script>
 {% endif %}

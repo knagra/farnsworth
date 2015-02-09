@@ -8,25 +8,25 @@
 {% block w_content %}
 <div class="instance_container">
   <h1 class="w_title">
-	{{ page_name }}
+    {{ page_name }}
   </h1>
   <hr class="w_line" />
   <div class="text-info">
-	<p>
-	  Partway through the semester? Want to quickly adjust house members' hours
-	  without having to document each and every past shift? You can use this
-	  form to add hours that have not been tracked by past shifts on the site.
-	</p>
-	<p>
-	  Below, <b>Hour Requirement</b> modifies the number of hours a workshifter is
-	  required to owe over each repeated period (i.e. 5 hours a week, 2 hours
-	  every 6 weeks, etc).
-	</p>
-	<p>
-	  <b>Hour Adjustment</b> adds the given hours to the workshifter's current
-	  standing. This allows the workshift manager to quickly carry over the
-	  workshift hours that were already completed, but tracked elsewhere.
-	</p>
+    <p>
+      Partway through the semester? Want to quickly adjust house members' hours
+      without having to document each and every past shift? You can use this
+      form to add hours that have not been tracked by past shifts on the site.
+    </p>
+    <p>
+      Below, <b>Hour Requirement</b> modifies the number of hours a workshifter is
+      required to owe over each repeated period (i.e. 5 hours a week, 2 hours
+      every 6 weeks, etc).
+    </p>
+    <p>
+      <b>Hour Adjustment</b> adds the given hours to the workshifter's current
+      standing. This allows the workshift manager to quickly carry over the
+      workshift hours that were already completed, but tracked elsewhere.
+    </p>
   </div>
   {% if workshifters_tuples %}
   <form method="post" action="">
@@ -35,53 +35,53 @@
       <thead>
         <tr>
           <th>
-			Workshifter
-		  </th>
-		  {% for pool in pools %}
-		  <th>
-			<a href="{{ pool.get_view_url }}">
-			  {{ pool.title }}
-			</a>
-		  </th>
-		  {% endfor %}
+            Workshifter
+          </th>
+          {% for pool in pools %}
+          <th>
+            <a href="{{ pool.get_view_url }}">
+              {{ pool.title }}
+            </a>
+          </th>
+          {% endfor %}
         </tr>
       </thead>
       <tbody>
         {% for workshifter, form_tuples in workshifters_tuples %}
         <tr>
           <td style="vertical-align: middle;">
-			<a href="{{ workshifter.get_view_url }}">
-			  {{ workshifter.user.get_full_name }}
-			</a>
-		  </td>
-		  {% for form, pool_hours in form_tuples %}
-		  <td>
-			<p>
-			  <b>Current Standing</b>:
-			  {% if 0 > pool_hours.standing %}
-			  <font color="red">{{ pool_hours.standing }}</font>
-			  {% else %}
-			  <font color="green">{{ pool_hours.standing }}</font>
-			  {% endif %}
-			</p>
-			{{ form|bootstrap }}
-		  </td>
-		  {% endfor %}
+            <a href="{{ workshifter.get_view_url }}">
+              {{ workshifter.user.get_full_name }}
+            </a>
+          </td>
+          {% for form, pool_hours in form_tuples %}
+          <td>
+            <p>
+              <b>Current Standing</b>:
+              {% if 0 > pool_hours.standing %}
+              <font color="red">{{ pool_hours.standing }}</font>
+              {% else %}
+              <font color="green">{{ pool_hours.standing }}</font>
+              {% endif %}
+            </p>
+            {{ form|bootstrap }}
+          </td>
+          {% endfor %}
         </tr>
         {% endfor %}
       </tbody>
     </table>
     <div class="text-center field_wrapper">
       <button type="submit" class="btn btn-success">
-		Adjust Workshift Hours
-	  </button>
+        Adjust Workshift Hours
+      </button>
     </div>
   </form>
   {% else %}
   <div class="field_wrapper text-info">
-	<p>
-	  No workshifters can been created for this semester.
-	</p>
+    <p>
+      No workshifters can been created for this semester.
+    </p>
   </div>
   {% endif %}
 </div>

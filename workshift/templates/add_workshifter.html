@@ -7,19 +7,19 @@
 
 {% block w_headers %}
 <style>
-    table tbody tr td div label {
-        display: none;
-    }
-    .checkbox label span {
-        display: none;
-    }
+ table tbody tr td div label {
+     display: none;
+ }
+ .checkbox label span {
+     display: none;
+ }
 </style>
 {% endblock %}
 
 {% block w_content %}
 <div class="instance_container">
   <h1 class="w_title">
-	{{ page_name }}
+    {{ page_name }}
   </h1>
   <hr class="w_line" />
   {% if add_workshifter_forms %}
@@ -37,34 +37,38 @@
         {% for form in add_workshifter_forms %}
         <tr>
           <td>
-			{{ form.add_profile|bootstrap }}
-		  </td>
+            {{ form.add_profile|bootstrap }}
+          </td>
           <td style="vertical-align: middle;">
-			<a href="{{ form.user.get_view_url }}">
-			  {{ form.user.get_full_name }}
-			</a>
-		  </td>
+            <a href="{{ form.user.get_view_url }}">
+              {{ form.user.get_full_name }}
+            </a>
+          </td>
           <td>
-			{{ form.hours|bootstrap }}
-		  </td>
+            {{ form.hours|bootstrap }}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
     <div class="text-center field_wrapper">
-      <button type="submit" class="btn btn-success">Add Workshifters</button>
+      <button type="submit" class="btn btn-success">
+        Add Workshifters
+      </button>
     </div>
   </form>
   {% else %}
-  <div class="field_wrapper text-info">Every resident and boarder already has a workshift profile for this semester!</div>
+  <div class="field_wrapper text-info">
+    Every resident and boarder already has a workshift profile for this semester!
+  </div>
   {% endif %}
 </div>
 {% endblock %}
 
 {% block w_endscripts %}
 <script>
-    $(document).ready(function(){
-        $('div.form-group').css('margin', 0);
-    })
+ $(document).ready(function(){
+   $('div.form-group').css('margin', 0);
+ })
 </script>
 {% endblock %}

@@ -28,57 +28,55 @@
   {% if regular_shifts %}
   <h2>Regular Shifts</h2>
   <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
-	<thead>
-	  <tr>
-		<th>Day</th>
-		<th>Time</th>
-		<th>Hours</th>
-		<th>Workshifter</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for shift in regular_shifts %}
-	  <tr>
-		<td>
-		  <a href="{{ shift.get_view_url }}">
-			{% if shift.week_long %}
-			Week long
-			{% else %}
-			{{ shift.get_day_display }}
-			{% endif %}
-		  </a>
-		</td>
-		<td>
-		  {{ shift.get_time_range }}
-		</td>
-		<td>{{ shift.hours }}</td>
-		<td>
-		  {% for assignee in shift.current_assignees.all %}{% if not forloop.first %},
-		  {% endif %}<a href="{{ assignee.get_view_url }}">{{ assignee.get_full_name }}</a>{% endfor %}
-		</td>
-	  </tr>
-	  {% endfor %}
-	</tbody>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Time</th>
+        <th>Hours</th>
+        <th>Workshifter</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for shift in regular_shifts %}
+      <tr>
+        <td>
+          <a href="{{ shift.get_view_url }}">
+            {% if shift.week_long %}
+            Week long
+            {% else %}
+            {{ shift.get_day_display }}
+            {% endif %}
+          </a>
+        </td>
+        <td>
+          {{ shift.get_time_range }}
+        </td>
+        <td>{{ shift.hours }}</td>
+        <td>
+          {% for assignee in shift.current_assignees.all %}{% if not forloop.first %},
+          {% endif %}<a href="{{ assignee.get_view_url }}">{{ assignee.get_full_name }}</a>{% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
   {% endif %}
 </div> <!-- .instance_container -->
 {% endblock %}
 
 {% block w_endscripts %}
-<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script>
-$(document).ready(function() {
-    $('table').tablesorter({
-        sortList: [[0, 0], [1, 0]],
-        widgets: ["filter", "resizable"],
-        widgetOptions: {
-            resizable: true
-        }
-    }).tablesorterPager({
-        container: "#instances_pager",
-        cssGoto: "#instances_goto"
-    });
-});
+ $(document).ready(function() {
+   $('table').tablesorter({
+     sortList: [[0, 0], [1, 0]],
+     widgets: ["filter", "resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   }).tablesorterPager({
+     container: "#instances_pager",
+     cssGoto: "#instances_goto"
+   });
+ });
 </script>
-<script src="{% static 'jquery/tablesorter-master/js/jquery.tablesorter.widgets.js' %}"></script>
 {% endblock %}
