@@ -10,7 +10,7 @@
 {% import_django_select2_js %}
 {% import_django_select2_css light=1 %}
 <script>
-  hashedSelector = "[id$=current_assignees]";
+ hashedSelector = "[id$=current_assignees]";
 </script>
 <style>
  .assign_row td div label {
@@ -219,8 +219,8 @@
      widgetOptions: {
        resizable: true
      },
-	 textExtraction: function (node) { return $(node).text().replace("Total", ""); },
-	 emptyTo: "bottom"
+     textExtraction: function (node) { return $(node).text().replace("Total", ""); },
+     emptyTo: "bottom"
    });
  });
 </script>
