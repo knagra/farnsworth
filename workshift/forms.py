@@ -248,10 +248,12 @@ class InteractShiftForm(forms.Form):
 def _undo_verify_blown(instance, pool_hours):
     if instance.blown:
         instance.blown = False
+        instance.closed = False
         pool_hours.standing += instance.hours
 
     if instance.verifier:
         instance.verifier = None
+        instance.closed = False
         pool_hours.standing -= instance.hours
 
 class VerifyShiftForm(InteractShiftForm):
@@ -330,6 +332,10 @@ class UnVerifyShiftForm(InteractShiftForm):
     title_long = "Undo Verify"
     action_name = "unverify_shift"
 
+    def __init__(self, *args, **kwargs):
+        super(UnVerifyShiftForm, self).__init__(*args, **kwargs)
+        self.undo = True
+
     def clean_pk(self):
         instance = super(UnVerifyShiftForm, self).clean_pk()
 
@@ -348,6 +354,7 @@ class UnVerifyShiftForm(InteractShiftForm):
         # Check if the shift was previously verified or marked as blown
         _undo_verify_blown(instance, pool_hours)
         instance.save(update_fields=["verifier", "closed"])
+        pool_hours.save(update_fields=["standing"])
 
         instance.logs.add(
             ShiftLogEntry.objects.create(
@@ -431,6 +438,10 @@ class UnBlownShiftForm(InteractShiftForm):
     title_long = "Undo Blown"
     action_name = "unblown_shift"
 
+    def __init__(self, *args, **kwargs):
+        super(UnBlownShiftForm, self).__init__(*args, **kwargs)
+        self.undo = True
+
     def clean_pk(self):
         shift = super(UnBlownShiftForm, self).clean_pk()
 
@@ -456,6 +467,7 @@ class UnBlownShiftForm(InteractShiftForm):
         # Check if the shift was previously verified or marked as blown
         _undo_verify_blown(instance, pool_hours)
         instance.save(update_fields=["blown", "closed"])
+        pool_hours.save(update_fields=["standing"])
 
         instance.logs.add(
             ShiftLogEntry.objects.create(
