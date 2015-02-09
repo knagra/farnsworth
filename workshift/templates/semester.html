@@ -48,6 +48,11 @@
 <form method="POST" action="">
   {% csrf_token %}
   {% if anonymous_form %}
+  <p class="help-block">
+    You are logged in as an anonymous user. In order to interact with shifts,
+	you will need to enter your personal login informtion and click one of the
+	buttons below.
+  </p>
   {{ anonymous_form|bootstrap }}
   {% endif %}
   <div class="workshift_table">
