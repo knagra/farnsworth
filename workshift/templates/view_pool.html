@@ -111,7 +111,7 @@
   {% endwith %}
   {% endif %}
   {% endif %}
-  {% if upcoming_pool_shifts %}
+  {% if upcoming_pool_instances %}
   {% if shifts %}<hr />{% endif %}
   <h3 class="w_subtitle">
 	Vacant Shifts
@@ -127,21 +127,21 @@
       </tr>
     </thead>
     <tbody>
-      {% for shift, forms in upcoming_pool_shifts %}
+      {% for instance, forms in upcoming_pool_instances %}
       <tr>
         <td>
-		  <a href="{{ shift.get_view_url }}">
-			{{ shift.title }}
+		  <a href="{{ instance.get_view_url }}">
+			{{ instance.title }}
 		  </a>
 		</td>
         <td>
-		  {{ shift.date }}
+		  {{ instance.date }}
 		</td>
         <td>
-		  {{ shift.get_start_time }}
+		  {{ instance.get_start_time }}
 		</td>
         <td>
-		  {{ shift.get_end_time }}
+		  {{ instance.get_end_time }}
 		</td>
         <td>
 		  <form method="POST" action="">
@@ -153,7 +153,7 @@
       {% endfor %}
     </tbody>
   </table>
-  {% if upcoming_pool_shifts|length > 10 %}
+  {% if upcoming_pool_instances|length > 10 %}
   {% with id_prefix="vacant" %}
   {% include "pager.html" %}
   {% endwith %}

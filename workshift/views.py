@@ -1213,23 +1213,27 @@ def pool_view(request, semester, pk, profile=None):
     page_name = "{0} Pool".format(pool.title)
 
     today = localtime(now()).date()
-    shifts = WorkshiftInstance.objects.filter(
+    shifts = RegularWorkshift.objects.filter(
+        pool=pool,
+        active=True,
+    )
+    instances = WorkshiftInstance.objects.filter(
         date__gte=today,
         closed=False,
         blown=False,
         workshifter=None,
         liable=None,
     )
-    upcoming_pool_shifts = [
-        (shift, _get_forms(
-            profile, shift, request,
-            undo=utils.can_manage(request.user, semester=semester, pool=shift.pool),
+    upcoming_pool_instances = [
+        (instance, _get_forms(
+            profile, instance, request,
+            undo=utils.can_manage(request.user, semester=semester, pool=instance.pool),
         ))
-        for shift in shifts
+        for instance in instances
     ]
 
     # Save any forms that were submitted
-    all_forms = [form for instance, forms in upcoming_pool_shifts for form in forms]
+    all_forms = [form for instance, forms in upcoming_pool_instances for form in forms]
     for form in all_forms:
         if form.is_valid():
             form.save()
@@ -1242,7 +1246,7 @@ def pool_view(request, semester, pk, profile=None):
         "page_name": page_name,
         "pool": pool,
         "shifts": shifts,
-        "upcoming_pool_shifts": upcoming_pool_shifts,
+        "upcoming_pool_instances": upcoming_pool_instances,
     }, context_instance=RequestContext(request))
 
 @workshift_manager_required
