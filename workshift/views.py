@@ -911,7 +911,7 @@ def assign_shifts_view(request, semester):
 
     unassigned_shifts = []
     for pool in pools:
-        shifts = RegularWorkshift.objects.filter(pool=pool)
+        shifts = RegularWorkshift.objects.filter(pool=pool, active=True)
         filtered_shifts, shift_hours = [], []
         for shift in shifts:
             if shift.current_assignees.count() < shift.count:
