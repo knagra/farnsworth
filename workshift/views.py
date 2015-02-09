@@ -278,7 +278,7 @@ def semester_view(request, semester, profile=None):
     template_dict["day"] = day
     template_dict["start_date"] = start_date
     template_dict["end_date"] = end_date
-    template_dict["long_range"] = (end_date - start_date).days > 7
+    template_dict["long_range"] = (end_date - start_date).days > 6
 
     if day > semester.start_date:
         template_dict["prev_date"] = (start_date - timedelta(days=1)).strftime("%Y-%m-%d")
@@ -319,16 +319,16 @@ def semester_view(request, semester, profile=None):
         Q(info__week_long=True),
     )
 
-    last_sunday = start_date - timedelta(days=start_date.weekday() + 1)
+    last_monday = start_date - timedelta(days=start_date.weekday())
     next_sunday = end_date - timedelta(days=end_date.weekday() + 1) + timedelta(weeks=1)
 
     week_shifts = WorkshiftInstance.objects.filter(
         Q(weekly_workshift__week_long=True) |
         Q(info__week_long=True),
-        date__gt=last_sunday, date__lte=next_sunday,
+        date__gt=last_monday, date__lte=next_sunday,
     )
 
-    template_dict["last_sunday"] = last_sunday.strftime("%Y-%m-%d")
+    template_dict["last_monday"] = last_monday.strftime("%Y-%m-%d")
     template_dict["next_sunday"] = next_sunday.strftime("%Y-%m-%d")
     template_dict["day_shifts"] = [
         (shift, _get_forms(
