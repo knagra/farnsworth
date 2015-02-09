@@ -22,7 +22,7 @@ from django.utils.timezone import now, localtime
 import inflect
 p = inflect.engine()
 
-from utils.variables import MESSAGES, date_formats
+from utils.variables import MESSAGES, ANONYMOUS_USERNAME, date_formats
 from base.models import User
 from managers.models import Manager
 from workshift.decorators import get_workshift_profile, \
@@ -294,6 +294,18 @@ def semester_view(request, semester, profile=None):
         if switch_form.is_valid():
             semester = switch_form.save()
             return HttpResponseRedirect(semester.get_view_url())
+
+    if profile is None and request.user.username == ANONYMOUS_USERNAME:
+        anonymous_form = AnonymousUserLogin(
+            request.POST or None,
+            prefix="anon",
+            semester=semester,
+        )
+
+        if anonymous_form.is_valid():
+            profile = anonymous_form.save()
+
+        template_dict["anonymous_form"] = anonymous_form
 
     # Forms to interact with workshift
     if profile:

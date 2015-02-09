@@ -10,6 +10,7 @@ from collections import OrderedDict
 
 from django import forms
 from django.conf import settings
+from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
@@ -227,6 +228,33 @@ class WorkshiftInstanceForm(forms.ModelForm):
         self.save_m2m()
         return instance
 
+class AnonymousUserLogin(AuthenticationForm):
+    """
+    Allows members logged in as the anonymous user to quickly enter their
+    username and password from the semester page in order to verify a shift or
+    mark it as blown.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.semester = kwargs.pop("semester")
+        super(AnonymousUserLogin, self).__init__(*args, **kwargs)
+
+    def confirm_login_allowed(self, user):
+        super(AnonymousUserLogin, self).confirm_login_allowed(user)
+        if WorkshiftProfile.objects.filter(
+                user=user,
+                semester=self.semester
+        ).count() == 0:
+            raise forms.ValidationError(
+                "You do not have a workshift profile for this semester.",
+            )
+
+    def save(self):
+        return WorkshiftProfile.objects.get(
+            user__username=self.cleaned_data["username"],
+            semester=self.semester,
+        )
+
 class InteractShiftForm(forms.Form):
     pk = forms.IntegerField(widget=forms.HiddenInput())
 
@@ -237,6 +265,10 @@ class InteractShiftForm(forms.Form):
 
     def clean_pk(self):
         pk = self.cleaned_data["pk"]
+        if self.profile is None:
+            raise forms.ValidationError(
+                "You do not have a workshift profile for this semester.",
+            )
         try:
             shift = WorkshiftInstance.objects.get(pk=pk)
         except WorkshiftInstance.DoesNotExist:
