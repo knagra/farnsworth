@@ -1,5 +1,6 @@
-/*! Weekday parser - 10/26/2014 (v2.18.0)
+/*! Weekday parser - 02/08/2015 (v2.19.0)
  * Demo: http://jsfiddle.net/Mottie/abkNM/4169/
+ * v2.19.0: Nader Morshed: Made Sunday end of week
  */
 /*jshint jquery:true */
 ;(function($){
@@ -8,7 +9,7 @@
 	var ts = $.tablesorter;
 	ts.dates = $.extend({}, ts.dates, {
 		// *** modify this array to change match the language ***
-		weekdayCased : [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ]
+		weekdayCased : [ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun' ]
 	});
 	ts.dates.weekdayLower = ts.dates.weekdayCased.join(',').toLocaleLowerCase().split(',');
 
