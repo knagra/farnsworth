@@ -621,7 +621,7 @@ class ShiftLogEntry(models.Model):
         blank=True,
         null=True,
         help_text="Message to the workshift manager. "
-        "(e.g. \"Can't cook because of flu\")",
+        "(e.g. 'Can't cook because of flu')",
     )
     ASSIGNED = "A"
     BLOWN = "B"
