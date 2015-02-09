@@ -1,15 +1,18 @@
 {% load bootstrap %}
-<form style="display:inline" method="POST" action="">
-  {% csrf_token %}
+<div style="display:inline">
   {% for form in forms %}
-  {{ form }}
+  <fieldset>
+	{{ form.pk }}
+  </fieldset>
   <button type="submit"
 		  class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
-          name="{{ form.action_name }}">
+          name="{{ form.action_name }}-{{ form.pk.value }}">
 	{{ form.title_short|safe }}<span class="hidden-xs">{{ form.title_long }}</span>
   </button>
   {% endfor %}
   {% if note_form %}
-  {{ note_form|bootstrap }}
+  <fieldset>
+	{{ note_form|bootstrap }}
+  </fieldset>
   {% endif %}
-</form>
+</div>

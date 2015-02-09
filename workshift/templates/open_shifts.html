@@ -23,48 +23,41 @@
       </tr>
     </thead>
     <tbody>
-      {% for shift, forms, preferred in shift_tuples %}
-      <tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+      {% for instance, forms, preferred in instance_tuples %}
+      <tr class="{% if instance.blown %}danger{% elif instance.closed %}success{% elif instance.liable %}warning{% elif not instance.workshifter %}info{% endif %}">
 		<td>{% if preferred %}preferred{% endif %}</td>
-		<td>{{ shift.date }}</td>
+		<td>{{ instance.date }}</td>
         <td>
-          <a href="{{ shift.get_view_url }}">
-			{{ shift.title }}
+          <a href="{{ instance.get_view_url }}">
+			{{ instance.title }}
 		  </a>
         </td>
 		<td>
-		  {{ shift.get_start_time }}
+		  {{ instance.get_start_time }}
 		</td>
 		<td>
-		  {{ shift.get_end_time }}
+		  {{ instance.get_end_time }}
 		</td>
         <td>
-          {% if shift.intended_hours == shift.hours %}
-          {{ shift.hours }}
+          {% if instance.intended_hours == instance.hours %}
+          {{ instance.hours }}
           {% else %}
-          <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
+          <del>{{ instance.intended_hours}}</del> {{ instance.hours }}
           {% endif %}
         </td>
         <td>
-          {% for form in forms %}
-          <form style="display:inline" method="POST">
+          <form method="POST" action="">
             {% csrf_token %}
-            {{ form }}
-            <button
-               type="submit" name="{{ form.action_name }}"
-			   class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}">
-			  {{ form.title_short|safe }}<span class="hidden-xs">{{ form.title_long }}</span>
-			</button>
+			{% include "shift_forms.html" %}
           </form>
-          {% endfor %}
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   <div class="field_wrapper">
-	{% if shifts.has_previous %}
-	<a href="?page={{ shifts.previous_page_number }}">
+	{% if instances.has_previous %}
+	<a href="?page={{ instances.previous_page_number }}">
 	  <span class="glyphicon glyphicon-chevron-left"></span>
 	  Previous
 	</a>
@@ -76,13 +69,13 @@
     |
 
     <span class="current">
-      Page {{ shifts.number }} of {{ shifts.paginator.num_pages }}
+      Page {{ instances.number }} of {{ instances.paginator.num_pages }}
     </span>
 
     |
 
-    {% if shifts.has_next %}
-    <a href="?page={{ shifts.next_page_number }}">
+    {% if instances.has_next %}
+    <a href="?page={{ instances.next_page_number }}">
 	  Next
       <span class="glyphicon glyphicon-chevron-right"></span>
 	</a>
@@ -92,7 +85,7 @@
     {% endif %}
   </div>
   <div class="field_wrapper text-info">
-    {{ shift_count }} total open shifts in database.
+    {{ instance_count }} total open shifts in database.
   </div>
 </div> <!-- .workshift_table -->
 {% else %}

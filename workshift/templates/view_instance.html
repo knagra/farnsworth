@@ -60,9 +60,12 @@
 	  Action
 	</dt>
 	<dd>
-	  {% with forms=interact_forms %}
-	  {% include "shift_forms.html" %}
-	  {% endwith %}
+	  <form method="POST" action="">
+		{% csrf_token %}
+		{% with forms=interact_forms %}
+		{% include "shift_forms.html" %}
+		{% endwith %}
+	  </form>
 	</dd>
 	{% endif %}
 	{% if edit_hours_form %}

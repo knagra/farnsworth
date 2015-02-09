@@ -260,8 +260,6 @@ def semester_view(request, semester, profile=None):
         (semester.end_date - semester.start_date).days * 100
     )
 
-    template_dict["profile"] = profile
-
     # We want a form for verification, a notification of upcoming shifts, and a
     # chart displaying the entire house's workshift for the day as well as
     # weekly shifts.
@@ -295,33 +293,6 @@ def semester_view(request, semester, profile=None):
             semester = switch_form.save()
             return HttpResponseRedirect(semester.get_view_url())
 
-    if profile is None and request.user.username == ANONYMOUS_USERNAME:
-        anonymous_form = AnonymousUserLogin(
-            request.POST or None,
-            prefix="anon",
-            semester=semester,
-        )
-
-        if anonymous_form.is_valid():
-            profile = anonymous_form.save()
-
-        template_dict["anonymous_form"] = anonymous_form
-
-    # Forms to interact with workshift
-    if profile:
-        for form in INTERACTION_FORMS:
-            if form.action_name in request.POST:
-                f = form(request.POST, profile=profile)
-                if f.is_valid():
-                    f.save()
-                    return HttpResponseRedirect(
-                        semester.get_view_url() +
-                        _get_date_params(request)
-                        )
-                else:
-                    for error in f.errors.values():
-                        messages.add_message(request, messages.ERROR, error)
-
     # Grab the shifts for just today, as well as week-long shifts
     day_shifts = WorkshiftInstance.objects.filter(
         date__gte=start_date,
@@ -342,20 +313,45 @@ def semester_view(request, semester, profile=None):
 
     template_dict["last_monday"] = last_monday.strftime("%Y-%m-%d")
     template_dict["next_sunday"] = next_sunday.strftime("%Y-%m-%d")
+
+    # Add a login form for anonymous user
+    if profile is None and request.user.username == ANONYMOUS_USERNAME:
+        anonymous_form = AnonymousUserLogin(
+            data=request.POST or None,
+            prefix="anon",
+            semester=semester,
+        )
+
+        if anonymous_form.is_valid():
+            profile = anonymous_form.save()
+
+        template_dict["anonymous_form"] = anonymous_form
+
     template_dict["day_shifts"] = [
         (shift, _get_forms(
-            profile, shift,
+            profile, shift, request,
             undo=utils.can_manage(request.user, semester=semester, pool=shift.pool),
         ))
         for shift in day_shifts
     ]
     template_dict["week_shifts"] = [
         (shift, _get_forms(
-            profile, shift,
+            profile, shift, request,
             undo=utils.can_manage(request.user, semester=semester, pool=shift.pool),
         ))
         for shift in week_shifts
     ]
+
+   # Save any forms that were submitted
+    all_forms = [form for shift, forms in template_dict["day_shifts"] for form in forms] + \
+                [form for shift, forms in template_dict["week_shifts"] for form in forms]
+    for form in all_forms:
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(semester.get_view_url() + _get_date_params(request))
+        else:
+            for error in form.errors.values():
+                messages.add_message(request, messages.ERROR, error)
 
     return render_to_response(
         "semester.html",
@@ -373,18 +369,31 @@ def semester_info_view(request, semester, profile=None):
         "pools": pools,
     }, context_instance=RequestContext(request))
 
-def _get_forms(profile, instance, undo=False, prefix=""):
+def _get_forms(profile, instance, request, undo=False, prefix=""):
     """
     Gets the forms for profile interacting with an instance of a shift. This
     includes verify shift, mark shift as blown, sign in, and sign out.
     """
-    if not profile:
+    anonymous = profile is None and request.user.username == ANONYMOUS_USERNAME
+
+    if not profile and not anonymous:
         return []
+
+    if prefix:
+        prefix += "-{}".format(instance.pk)
+    else:
+        prefix = "{}".format(instance.pk)
+
     ret = []
     if (not instance.closed or undo) and instance.workshifter:
         workshifter = instance.workshifter or instance.liable
         pool = instance.pool
-        managers = Manager.objects.filter(incumbent__user=profile.user)
+
+        if not profile:
+            managers = []
+        else:
+            managers = Manager.objects.filter(incumbent__user=profile.user)
+
         verify, blow = False, False
 
         # The many ways a person can be eligible to verify a shift...
@@ -405,8 +414,10 @@ def _get_forms(profile, instance, undo=False, prefix=""):
 
         if verify and not instance.verifier:
             # Verify Shift
+            action = "{}-{}".format(VerifyShiftForm.action_name, instance.pk)
             ret.append(
                 VerifyShiftForm(
+                    request.POST if action in request.POST else None,
                     initial={"pk": instance.pk},
                     profile=profile,
                     prefix=prefix,
@@ -417,14 +428,17 @@ def _get_forms(profile, instance, undo=False, prefix=""):
         if pool.any_blown:
             blow = True
 
-        pool_managers = pool.managers.filter(incumbent__user=profile.user)
-        if pool_managers.count():
-            blow = True
+        if profile:
+            pool_managers = pool.managers.filter(incumbent__user=profile.user)
+            if pool_managers.count():
+                blow = True
 
         if blow and not instance.blown:
             # Blown Shift
+            action = "{}-{}".format(BlownShiftForm.action_name, instance.pk)
             ret.append(
                 BlownShiftForm(
+                    request.POST if action in request.POST else None,
                     initial={"pk": instance.pk},
                     profile=profile,
                     prefix=prefix,
@@ -432,10 +446,12 @@ def _get_forms(profile, instance, undo=False, prefix=""):
                 )
             )
 
-    if instance.verifier == profile:
+    if instance.verifier is not None and instance.verifier == profile:
         # Undo Verify Shift
+        action = "{}-{}".format(UnVerifyShiftForm.action_name, instance.pk)
         ret.append(
             UnVerifyShiftForm(
+                request.POST if action in request.POST else None,
                 initial={"pk": instance.pk},
                 profile=profile,
                 prefix=prefix,
@@ -448,8 +464,10 @@ def _get_forms(profile, instance, undo=False, prefix=""):
         if instance.logs.count() > 0:
             latest = instance.logs.latest("entry_time")
             if latest.entry_type == ShiftLogEntry.BLOWN and latest.person == profile:
+                action = "{}-{}".format(UnBlownShiftForm.action_name, instance.pk)
                 ret.append(
                     UnBlownShiftForm(
+                        request.POST if action in request.POST else None,
                         initial={"pk": instance.pk},
                         profile=profile,
                         prefix=prefix,
@@ -460,8 +478,10 @@ def _get_forms(profile, instance, undo=False, prefix=""):
     if not instance.closed:
         if not instance.workshifter:
             # Sign In
+            action = "{}-{}".format(SignInForm.action_name, instance.pk)
             ret.append(
                 SignInForm(
+                    request.POST if action in request.POST else None,
                     initial={"pk": instance.pk},
                     profile=profile,
                     prefix=prefix,
@@ -469,8 +489,10 @@ def _get_forms(profile, instance, undo=False, prefix=""):
             )
         elif instance.workshifter == profile:
             # Sign Out
+            action = "{}-{}".format(SignOutForm.action_name, instance.pk)
             ret.append(
                 SignOutForm(
+                    request.POST if action in request.POST else None,
                     initial={"pk": instance.pk},
                     profile=profile,
                     prefix=prefix,
@@ -486,8 +508,8 @@ def _is_preferred(instance, profile):
     if not instance.weekly_workshift:
         return False
     if profile and profile.ratings.filter(
-        workshift_type=instance.weekly_workshift.workshift_type,
-        rating=WorkshiftRating.LIKE,
+            workshift_type=instance.weekly_workshift.workshift_type,
+            rating=WorkshiftRating.LIKE,
         ).count() == 0:
         return False
     return True
@@ -495,29 +517,49 @@ def _is_preferred(instance, profile):
 @get_workshift_profile
 def open_shifts_view(request, semester, profile=None):
     page_name = "Upcoming Open Shifts"
-    shifts = WorkshiftInstance.objects.filter(
+    instances = WorkshiftInstance.objects.filter(
         closed=False,
         workshifter=None,
     ).order_by("date")
-    shift_count = shifts.count()
-    paginator = Paginator(shifts, 250)
+    instance_count = instances.count()
+    paginator = Paginator(instances, 250)
 
     page = request.GET.get("page")
     try:
-        shifts = paginator.page(page)
+        instances = paginator.page(page)
     except PageNotAnInteger:
-        shifts = paginator.page(1)
+        instances = paginator.page(1)
     except EmptyPage:
-        shifts = paginator.page(paginator.num_pages)
-    shift_tuples = [
-        (instance, _get_forms(profile, instance), _is_preferred(instance, profile))
-        for instance in shifts
+        instances = paginator.page(paginator.num_pages)
+    instance_tuples = [
+        (
+            instance,
+            _get_forms(profile, instance, request),
+            _is_preferred(instance, profile),
+        )
+        for instance in instances
     ]
+
+    # Save any forms that were submitted
+    all_forms = [form for instance, forms, preferred in instance_tuples for form in forms]
+    for form in all_forms:
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(
+                reverse(
+                    "workshift:view_open",
+                    kwargs={"sem_url": semester.sem_url},
+                ) + "?page={}".format(page)
+            )
+        else:
+            for error in form.errors.values():
+                messages.add_message(request, messages.ERROR, error)
+
     return render_to_response("open_shifts.html", {
         "page_name": page_name,
-        "shifts": shifts,
-        "shift_count": shift_count,
-        "shift_tuples": shift_tuples,
+        "instances": instances,
+        "instance_count": instance_count,
+        "instance_tuples": instance_tuples,
     }, context_instance=RequestContext(request))
 
 @workshift_manager_required
@@ -1180,22 +1222,21 @@ def pool_view(request, semester, pk, profile=None):
     )
     upcoming_pool_shifts = [
         (shift, _get_forms(
-            profile, shift,
+            profile, shift, request,
             undo=utils.can_manage(request.user, semester=semester, pool=shift.pool),
         ))
         for shift in shifts
     ]
-    # Forms to interact with workshift
-    if profile:
-        for form in INTERACTION_FORMS:
-            if form.action_name in request.POST:
-                f = form(request.POST, profile=profile)
-                if f.is_valid():
-                    f.save()
-                    return HttpResponseRedirect(pool.get_view_url())
-                else:
-                    for error in f.errors.values():
-                        messages.add_message(request, messages.ERROR, error)
+
+    # Save any forms that were submitted
+    all_forms = [form for shift, forms in upcoming_pool_shifts for form in forms]
+    for form in all_forms:
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(pool.get_view_url())
+        else:
+            for error in form.errors.values():
+                messages.add_message(request, messages.ERROR, error)
 
     return render_to_response("view_pool.html", {
         "page_name": page_name,
@@ -1263,11 +1304,21 @@ def shift_view(request, semester, pk, profile=None):
     )
     instance_tuples = [
         (instance, _get_forms(
-            profile, instance,
+            profile, instance, request,
             undo=utils.can_manage(request.user, semester=semester, pool=instance.pool)),
         )
         for instance in instances
     ]
+
+    # Save any forms that were submitted
+    all_forms = [form for shift, forms in instance_tuples for form in forms]
+    for form in all_forms:
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(shift.get_view_url())
+        else:
+            for error in form.errors.values():
+                messages.add_message(request, messages.ERROR, error)
 
     return render_to_response("view_shift.html", {
         "page_name": page_name,
@@ -1330,7 +1381,7 @@ def instance_view(request, semester, pk, profile=None):
     instance = get_object_or_404(WorkshiftInstance, pk=pk)
     page_name = instance.title
     interact_forms = _get_forms(
-        profile, instance,
+        profile, instance, request,
         undo=utils.can_manage(request.user, semester=semester, pool=instance.pool),
         prefix="interact",
     )
@@ -1340,21 +1391,16 @@ def instance_view(request, semester, pk, profile=None):
         prefix="note",
     )
 
-    for form in INTERACTION_FORMS:
-        if form.action_name in request.POST:
-            f = form(
-                request.POST,
-                profile=profile,
-                prefix="interact",
-                undo=utils.can_manage(request.user, semester),
-            )
-            if f.is_valid() and note_form.is_valid():
-                note = note_form.save()
-                instance = f.save(note=note)
-                return HttpResponseRedirect(instance.get_view_url())
-            else:
-                for error in f.errors.values():
-                    messages.add_message(request, messages.ERROR, error)
+    # Save any forms that were submitted
+    all_forms = [form for shift, forms in interact_forms for form in forms]
+    for form in all_forms:
+        if form.is_valid() and note_form.is_valid():
+            note = note_form.save()
+            form.save(note=note)
+            return HttpResponseRedirect(instance.get_view_url())
+        else:
+            for error in form.errors.values():
+                messages.add_message(request, messages.ERROR, error)
 
     edit_hours_form = None
     if instance.weekly_workshift and instance.weekly_workshift.is_manager_shift:
@@ -1367,6 +1413,7 @@ def instance_view(request, semester, pk, profile=None):
         edit_hours = utils.can_manage(
             request.user, semester=instance.pool.semester, pool=instance.pool,
         )
+
     if edit_hours:
         edit_hours_form = EditHoursForm(
             request.POST if "edit_hours" in request.POST else None,

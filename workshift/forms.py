@@ -243,7 +243,7 @@ class AnonymousUserLogin(AuthenticationForm):
         super(AnonymousUserLogin, self).confirm_login_allowed(user)
         if WorkshiftProfile.objects.filter(
                 user=user,
-                semester=self.semester
+                semester=self.semester,
         ).count() == 0:
             raise forms.ValidationError(
                 "You do not have a workshift profile for this semester.",

@@ -144,7 +144,10 @@
 		  {{ shift.get_end_time }}
 		</td>
         <td>
-		  {% include "shift_forms.html" %}
+		  <form method="POST" action="">
+			{% csrf_token %}
+			{% include "shift_forms.html" %}
+		  </form>
 		</td>
       </tr>
       {% endfor %}
