@@ -1392,15 +1392,15 @@ def instance_view(request, semester, pk, profile=None):
     )
 
     # Save any forms that were submitted
-    all_forms = [form for shift, forms in interact_forms for form in forms]
-    for form in all_forms:
-        if form.is_valid() and note_form.is_valid():
-            note = note_form.save()
-            form.save(note=note)
-            return HttpResponseRedirect(instance.get_view_url())
-        else:
-            for error in form.errors.values():
-                messages.add_message(request, messages.ERROR, error)
+    if note_form.is_valid():
+        for form in interact_forms:
+            if form.is_valid():
+                note = note_form.save()
+                form.save(note=note)
+                return HttpResponseRedirect(instance.get_view_url())
+            else:
+                for error in form.errors.values():
+                    messages.add_message(request, messages.ERROR, error)
 
     edit_hours_form = None
     if instance.weekly_workshift and instance.weekly_workshift.is_manager_shift:
