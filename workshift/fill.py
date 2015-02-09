@@ -239,6 +239,7 @@ def fill_regular_shifts(regular_hours=5, semester=None):
     pool.save()
 
     _fill_workshift_types()
+    count = 0
 
     # Regular Workshifts
     for type_title, hours, days, count, start, end in REGULAR_WORKSHIFTS:
@@ -259,6 +260,8 @@ def fill_regular_shifts(regular_hours=5, semester=None):
                 shift.hours = hours
                 shift.count = count
                 shift.save()
+            else:
+                count += 1
 
     for type_title, hours, count in WEEK_LONG:
         wtype = WorkshiftType.objects.get(title=type_title)
@@ -277,6 +280,10 @@ def fill_regular_shifts(regular_hours=5, semester=None):
             shift.hours = hours
             shift.count = count
             shift.save()
+        else:
+            count += 1
+
+    return count
 
 def fill_bathroom_shifts(bathroom_hours=4, semester=None):
     if semester is None:
@@ -294,6 +301,7 @@ def fill_bathroom_shifts(bathroom_hours=4, semester=None):
         pool.save()
 
     _fill_workshift_types()
+    count = 0
 
     for type_title, hours, days, count, start, end in BATHROOM_WORKSHIFTS:
         wtype = WorkshiftType.objects.get(title=type_title)
@@ -313,6 +321,10 @@ def fill_bathroom_shifts(bathroom_hours=4, semester=None):
                 shift.hours = hours
                 shift.count = count
                 shift.save()
+            else:
+                count += 1
+
+    return count
 
 def fill_hi_shifts(hi_hours=5, semester=None):
     if semester is None:
@@ -333,6 +345,10 @@ def fill_hi_shifts(hi_hours=5, semester=None):
 
     pool.save()
 
+    count = 0
+
+    return count
+
 def fill_social_shifts(social_hours=1, semester=None):
     if semester is None:
         semester = _get_semester()
@@ -351,6 +367,10 @@ def fill_social_shifts(social_hours=1, semester=None):
         pool.weeks_per_period = 0
 
     pool.save()
+
+    count = 0
+
+    return count
 
 def fill_humor_shifts(humor_hours=2, semester=None):
     if semester is None:
@@ -372,6 +392,7 @@ def fill_humor_shifts(humor_hours=2, semester=None):
     pool.save()
 
     _fill_workshift_types()
+    count = 0
 
     # Humor Workshifts
     for type_title, hours, days, count, start, end in HUMOR_WORKSHIFTS:
@@ -392,3 +413,7 @@ def fill_humor_shifts(humor_hours=2, semester=None):
                 shift.hours = hours
                 shift.count = count
                 shift.save()
+            else:
+                count += 1
+
+    return count
