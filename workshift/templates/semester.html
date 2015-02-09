@@ -32,10 +32,9 @@
 	</span>
 
 	{% if start_date == end_date %}
-	(
-	<a title="Week View" href="{{ SEMESTER.get_view_url }}?start_date={{ last_monday }}&end_date={{ next_sunday }}">
-	  Week<span class="hidden-xs"> View</span></a>
-	)
+	<small></small>(<a title="Week View"
+	  href="{{ SEMESTER.get_view_url }}?start_date={{ last_monday }}&end_date={{ next_sunday }}">Week<span
+	    class="hidden-xs"> View</span></a>)</small>
 	{% endif %}
   </h3>
   <div class="col-sm-1 col-xs-2 text-right">
