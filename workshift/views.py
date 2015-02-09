@@ -343,8 +343,8 @@ def semester_view(request, semester, profile=None):
     ]
 
    # Save any forms that were submitted
-    all_forms = [form for shift, forms in template_dict["day_shifts"] for form in forms] + \
-                [form for shift, forms in template_dict["week_shifts"] for form in forms]
+    all_forms = [form for instance, forms in template_dict["day_shifts"] for form in forms] + \
+                [form for instance, forms in template_dict["week_shifts"] for form in forms]
     for form in all_forms:
         if form.is_valid():
             form.save()
@@ -1229,7 +1229,7 @@ def pool_view(request, semester, pk, profile=None):
     ]
 
     # Save any forms that were submitted
-    all_forms = [form for shift, forms in upcoming_pool_shifts for form in forms]
+    all_forms = [form for instance, forms in upcoming_pool_shifts for form in forms]
     for form in all_forms:
         if form.is_valid():
             form.save()
@@ -1311,7 +1311,7 @@ def shift_view(request, semester, pk, profile=None):
     ]
 
     # Save any forms that were submitted
-    all_forms = [form for shift, forms in instance_tuples for form in forms]
+    all_forms = [form for instance, forms in instance_tuples for form in forms]
     for form in all_forms:
         if form.is_valid():
             form.save()
