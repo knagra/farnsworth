@@ -8,7 +8,7 @@ from __future__ import division, absolute_import
 
 from datetime import date, timedelta
 
-from django.utils.timezone import now, localtime
+from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -17,6 +17,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils.timezone import now, localtime
 
 import inflect
 p = inflect.engine()
@@ -219,6 +220,27 @@ def start_semester_view(request):
         "pool_forms": pool_forms,
     }, context_instance=RequestContext(request))
 
+def _get_date(request, name, default):
+    day = default
+    if name in request.GET:
+        try:
+            day = date(*map(int, request.GET[name].split("-")))
+        except (TypeError, ValueError):
+            pass
+    return day
+
+def _get_date_params(request):
+    if "day" in request:
+        return "?day={}".format(
+            request.GET["day"],
+        )
+    elif "start_date" in request.GET and "end_date" in request.GET:
+        return "?start_date={}&end_date={}".format(
+            request.GET["start_date"],
+            request.GET["end_date"],
+        )
+    return ""
+
 @get_workshift_profile
 def semester_view(request, semester, profile=None):
     """
@@ -227,15 +249,16 @@ def semester_view(request, semester, profile=None):
     links to sign off on shifts. Also links to the rest of the workshift pages.
     """
     template_dict = {}
-    season_name = semester.get_season_display()
-    template_dict["page_name"] = \
-      "Workshift for {0} {1}".format(season_name, semester.year)
+    template_dict["page_name"] = "Workshift for {} {}".format(
+        semester.get_season_display(),
+        semester.year,
+    )
 
     today = localtime(now()).date()
     template_dict["semester_percentage"] = int(
         (today - semester.start_date).days /
         (semester.end_date - semester.start_date).days * 100
-        )
+    )
 
     template_dict["profile"] = profile
 
@@ -248,23 +271,24 @@ def semester_view(request, semester, profile=None):
     # switching days should use AJAX to appear more seemless to users.
 
     # Recent History
-    day = today
-    if "day" in request.GET:
-        try:
-            day = date(*map(int, request.GET["day"].split("-")))
-        except (TypeError, ValueError):
-            pass
+    day = _get_date(request, "day", today)
+    start_date = _get_date(request, "start_date", day)
+    end_date = _get_date(request, "end_date", day)
 
     template_dict["day"] = day
+    template_dict["start_date"] = start_date
+    template_dict["end_date"] = end_date
+    template_dict["long_range"] = (end_date - start_date).days > 7
+
     if day > semester.start_date:
-        template_dict["prev_day"] = (day - timedelta(days=1)).strftime("%Y-%m-%d")
+        template_dict["prev_date"] = (start_date - timedelta(days=1)).strftime("%Y-%m-%d")
     if day < semester.end_date:
-        template_dict["next_day"] = (day + timedelta(days=1)).strftime("%Y-%m-%d")
+        template_dict["next_date"] = (end_date + timedelta(days=1)).strftime("%Y-%m-%d")
 
     if Semester.objects.count() > 1:
         switch_form = SwitchSemesterForm(
-			request.POST if "switch_semester" in request.POST else None
-		)
+            request.POST if "switch_semester" in request.POST else None
+        )
         template_dict["switch_form"] = switch_form
 
         if switch_form.is_valid():
@@ -280,23 +304,32 @@ def semester_view(request, semester, profile=None):
                     f.save()
                     return HttpResponseRedirect(
                         semester.get_view_url() +
-                        "?day={0}".format(day) if "day" in request.GET else ""
+                        _get_date_params(request)
                         )
                 else:
                     for error in f.errors.values():
                         messages.add_message(request, messages.ERROR, error)
 
     # Grab the shifts for just today, as well as week-long shifts
-    last_sunday = day - timedelta(days=day.weekday() + 1)
-    next_sunday = last_sunday + timedelta(weeks=1)
+    day_shifts = WorkshiftInstance.objects.filter(
+        date__gte=start_date,
+        date__lte=end_date,
+    ).exclude(
+        Q(weekly_workshift__week_long=True) |
+        Q(info__week_long=True),
+    )
 
-    day_shifts = WorkshiftInstance.objects.filter(date=day)
-    day_shifts = [i for i in day_shifts if not i.week_long]
+    last_sunday = start_date - timedelta(days=start_date.weekday() + 1)
+    next_sunday = end_date - timedelta(days=end_date.weekday() + 1) + timedelta(weeks=1)
+
     week_shifts = WorkshiftInstance.objects.filter(
+        Q(weekly_workshift__week_long=True) |
+        Q(info__week_long=True),
         date__gt=last_sunday, date__lte=next_sunday,
     )
-    week_shifts = [i for i in week_shifts if i.week_long]
 
+    template_dict["last_sunday"] = last_sunday.strftime("%Y-%m-%d")
+    template_dict["next_sunday"] = next_sunday.strftime("%Y-%m-%d")
     template_dict["day_shifts"] = [
         (shift, _get_forms(
             profile, shift,
@@ -305,15 +338,18 @@ def semester_view(request, semester, profile=None):
         for shift in day_shifts
     ]
     template_dict["week_shifts"] = [
-        (shift,_get_forms(
+        (shift, _get_forms(
             profile, shift,
             undo=utils.can_manage(request.user, semester=semester, pool=shift.pool),
         ))
         for shift in week_shifts
     ]
 
-    return render_to_response("semester.html", template_dict,
-                              context_instance=RequestContext(request))
+    return render_to_response(
+        "semester.html",
+        template_dict,
+        context_instance=RequestContext(request),
+    )
 
 @get_workshift_profile
 def semester_info_view(request, semester, profile=None):
@@ -391,7 +427,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
                 initial={"pk": instance.pk},
                 profile=profile,
                 prefix=prefix,
-                undo=True,
+                undo=undo,
             )
         )
 
@@ -405,7 +441,7 @@ def _get_forms(profile, instance, undo=False, prefix=""):
                         initial={"pk": instance.pk},
                         profile=profile,
                         prefix=prefix,
-                        undo=True,
+                        undo=undo,
                     )
                 )
 

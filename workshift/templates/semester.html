@@ -14,8 +14,30 @@
     </a>
     {% endif %}
   </div> <!-- .col-xs-1 -->
-  <h3 id="day_title" class="col-sm-10 col-xs-8 text-center w_subtitle"><span class="hidden-xs w_subtitle">Workshifts
-    for {{ day|date:"l, F d, Y" }}</span><span class="visible-xs w_subtitle">{{ day|date:"D., N d, Y" }}</span></h3>
+  <h3 id="day_title" class="col-sm-10 col-xs-8 text-center w_subtitle">
+	<span class="hidden-xs w_subtitle">
+	  Workshifts for
+	  {% if start_date == end_date %}
+	  {{ day|date:"l, F d, Y" }}
+	  {% else %}
+	  {{ start_date|date:"l, F d, Y" }} - {{ end_date|date:"l, F d, Y" }}
+	  {% endif %}
+	</span>
+	<span class="visible-xs w_subtitle">
+	  {% if start_date == end_date %}
+	  {{ day|date:"D., N d, Y" }}
+	  {% else %}
+	  {{ start_date|date:"D., N d, Y" }} - {{ end_date|date:"D., N d, Y" }}
+	  {% endif %}
+	</span>
+
+	{% if start_date == end_date %}
+	(
+	<a title="Week View" href="{{ SEMESTER.get_view_url }}?start_date={{ last_sunday }}&end_date={{ next_sunday }}">
+	  Week<span class="hidden-xs"> View</span></a>
+	)
+	{% endif %}
+  </h3>
   <div class="col-sm-1 col-xs-2 text-right">
     {% if next_day %}
     <a title="Next day" class="day_control" href="{{ SEMESTER.get_view_url }}?day={{ next_day }}">
@@ -25,10 +47,14 @@
   </div> <!-- .col-sm-1 -->
 </div> <!-- .row -->
 <div class="workshift_table">
-  <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
+  <table class="workshift_inner table table-striped table-bordered table-condensed table-hover"
+		 id="day_shifts_table">
     <thead>
       <tr>
         <th>Title</th>
+		{% if start_date != end_date %}
+		<th>Day</th>
+		{% endif %}
         <th>Starts</th>
         <th>Ends</th>
         <th>Hours</th>
@@ -45,6 +71,15 @@
 			{{ shift.title }}
 		  </a>
         </td>
+		{% if start_date != end_date %}
+		<td>
+		  {% if long_range %}
+		  {{ shift.date }}
+		  {% else %}
+		  {{ shift.date|date:"l" }}
+		  {% endif %}
+		</td>
+		{% endif %}
         <td>
 		  {{ shift.get_start_time }}
 		</td>
@@ -75,11 +110,17 @@
 {% if week_shifts %}
 <hr/>
 <div class="workshift_week_table">
-  <h3 class="w_subtitle">Weeklong Shifts</h3>
-  <table class="workshift_inner table table-striped table-bordered table-condensed table-hover">
+  <h3 class="w_subtitle">
+	Weeklong Shifts
+  </h3>
+  <table class="workshift_inner table table-striped table-bordered table-condensed table-hover"
+		 id="week_shifts_table">
     <thead>
       <tr>
         <th>Title</th>
+		{% if long_range %}
+		<th>Date</th>
+		{% endif %}
         <th>Hours</th>
         <th>Workshifter</th>
         <th>Status</th>
@@ -94,6 +135,11 @@
 			{{ shift.title }}
 		  </a>
         </td>
+		{% if long_range %}
+		<td>
+		  {{ shift.date }}
+		</td>
+		{% endif %}
         <td>
           {% if shift.intended_hours == shift.hours %}
           {{ shift.hours }}
@@ -148,10 +194,33 @@
 {% block w_endscripts %}
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+{% if start_date != end_date and not long_range %}
+<script type="text/javascript" src="{% static 'ui/js/parser-date-weekday.js' %}"></script>
+{% endif %}
 <script>
  $(document).ready(function() {
-   $('table').tablesorter({
-     sortList: [[0,0], [1, 0]]
+   $('#day_shifts_table').tablesorter({
+	 {% if start_date != end_date %}
+     sortList: [[1, 0], [0, 0], [3, 1]],
+     widgets: ["filter"],
+	 {% if not long_range %}
+	 headers: {
+	   1: {
+		 sorter: "weekday",
+	   }
+	 }
+	 {% endif %}
+	 {% else %}
+     sortList: [[0, 0], [2, 1]]
+	 {% endif %}
+   });
+   $('#week_shifts_table').tablesorter({
+     widgets: ["filter"],
+	 {% if long_range %}
+     sortList: [[1, 0], [0, 0]]
+	 {% else %}
+     sortList: [[0, 0]]
+	 {% endif %}
    });
    $('#jump_day').datetimepicker({pickTime: false, format: 'YYYY-MM-DD'});
  });
