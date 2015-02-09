@@ -281,9 +281,9 @@ def semester_view(request, semester, profile=None):
     template_dict["long_range"] = (end_date - start_date).days > 7
 
     if day > semester.start_date:
-        template_dict["prev_date"] = (start_date - timedelta(days=1)).strftime("%Y-%m-%d")
+        template_dict["prev_day"] = (start_date - timedelta(days=1)).strftime("%Y-%m-%d")
     if day < semester.end_date:
-        template_dict["next_date"] = (end_date + timedelta(days=1)).strftime("%Y-%m-%d")
+        template_dict["next_day"] = (end_date + timedelta(days=1)).strftime("%Y-%m-%d")
 
     if Semester.objects.count() > 1:
         switch_form = SwitchSemesterForm(
