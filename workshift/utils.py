@@ -249,7 +249,7 @@ def past_sign_out(instance, moment=None):
     if assigned_time.count() > 0:
         assigned_time = assigned_time.latest("entry_time")
 
-        if assigned_time > cutoff_time.entry_time:
+        if assigned_time.entry_time > cutoff_time:
             return False
 
     return moment > cutoff_time
