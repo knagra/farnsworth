@@ -656,7 +656,7 @@ class FillRegularShiftsForm(FillShiftsForm):
 
     def save(self):
         from workshift.fill import fill_regular_shifts
-        fill_regular_shifts(semester=self.semester)
+        return fill_regular_shifts(semester=self.semester)
 
 class FillSocialShiftsForm(FillShiftsForm):
     shift_name = "social"
