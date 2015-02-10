@@ -4,7 +4,9 @@ Project: Farnsworth
 Author: Karandeep Singh Nagra
 '''
 
+from django.core.urlresolvers import reverse
 from django.db import models
+
 from base.models import UserProfile
 from managers.models import Manager
 
@@ -85,3 +87,9 @@ class Event(models.Model):
 
     def is_event(self):
         return True
+
+    def get_view_url(self):
+        return reverse("events:view", kwargs={"event_pk": self.pk})
+
+    def get_edit_url(self):
+        return reverse("events:edit", kwargs={"event_pk": self.pk})

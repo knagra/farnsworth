@@ -7,10 +7,10 @@
 <div class="pull-right">
   {% if user.is_superuser %}
   <form action="{% url 'rooms:add' %}" style="display:inline">
-	<button class="btn btn-default">
-	  <span class="glyphicon glyphicon-plus"></span>
-	  <span class="hidden-xs"> Add Room</span>
-	</button>
+    <button class="btn btn-default">
+      <span class="glyphicon glyphicon-plus"></span>
+      <span class="hidden-xs"> Add Room</span>
+    </button>
   </form>
   {% endif %}
   <form action="{% url 'rooms:list' %}" style="display:inline">
@@ -53,14 +53,14 @@
 
 {% block endscripts %}
 <script>
-$(document).ready(function() {
-    $('table').tablesorter({
-        sortList: [[0,0]],
-        widgets: ["filter", "resizable"],
-        widgetOptions: {
-            resizable: true
-        }
-    });
-});
+ $(document).ready(function() {
+   $('table').tablesorter({
+     sortList: [[0,0]],
+     widgets: ["filter", "resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+ });
 </script>
 {% endblock %}

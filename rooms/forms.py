@@ -7,10 +7,9 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 from django import forms
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
-from django_select2.widgets import Select2MultipleWidget
+from django_select2.widgets import Select2Widget, Select2MultipleWidget
 
-from utils.funcs import form_add_error
-from utils.variables import date_formats, MESSAGES, ANONYMOUS_USERNAME
+from utils.variables import date_formats, ANONYMOUS_USERNAME
 from base.models import UserProfile
 from rooms.models import Room, PreviousResident
 
@@ -25,7 +24,9 @@ class RoomForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(RoomForm, self).__init__(*args, **kwargs)
-        self.fields["current_residents"].queryset = UserProfile.objects.filter(status=UserProfile.RESIDENT).exclude(user__username=ANONYMOUS_USERNAME)
+        self.fields["current_residents"].queryset = UserProfile.objects.filter(
+            status=UserProfile.RESIDENT,
+        ).exclude(user__username=ANONYMOUS_USERNAME)
 
     def clean_title(self):
         title = self.cleaned_data["title"]
@@ -45,11 +46,20 @@ class RoomForm(forms.ModelForm):
 class ResidentForm(forms.ModelForm):
     class Meta:
         model = PreviousResident
-        fields = ("resident", "start_date", "end_date")
+        fields = (
+            "resident",
+            "start_date",
+            "end_date",
+        )
+        widgets = {
+            "resident": Select2Widget,
+        }
 
     def __init__(self, *args, **kwargs):
         super(ResidentForm, self).__init__(*args, **kwargs)
-        self.fields['resident'].queryset = UserProfile.objects.exclude(user__username=ANONYMOUS_USERNAME)
+        self.fields['resident'].queryset = UserProfile.objects.exclude(
+            user__username=ANONYMOUS_USERNAME,
+        )
         self.fields['start_date'].widget.format = date_formats[0]
         self.fields['end_date'].widget.format = date_formats[0]
 
@@ -74,5 +84,5 @@ class BaseResidentFormSet(BaseModelFormSet):
 ResidentFormSet = modelformset_factory(
     PreviousResident, form=ResidentForm, formset=BaseResidentFormSet,
     can_delete=True, extra=1, max_num=50,
-    help_texts=dict(resident="", start_date="", end_date="")
-    )
+    help_texts=dict(resident="", start_date="", end_date=""),
+)

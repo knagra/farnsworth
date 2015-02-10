@@ -46,10 +46,11 @@ def list_events_view(request):
     event_form = EventForm(
         request.POST if 'post_event' in request.POST else None,
         profile=profile,
-        )
+    )
     if event_form.is_valid():
         event_form.save()
         return HttpResponseRedirect(reverse('events:list'))
+
     # a pseudo-dictionary, actually a list with items of form (event, ongoing,
     # rsvpd, rsvp_form), where ongoing is a boolean of whether the event is
     # currently ongoing, rsvpd is a boolean of whether the user has rsvp'd to
@@ -60,7 +61,7 @@ def list_events_view(request):
             request.POST if "rsvp-{0}".format(event.pk) in request.POST else None,
             instance=event,
             profile=profile,
-            )
+        )
         if rsvp_form.is_valid():
             rsvpd = rsvp_form.save()
             if rsvpd:
@@ -82,7 +83,7 @@ def list_events_view(request):
         'events_dict': events_dict,
         'now': now(),
         'event_form': event_form,
-        }, context_instance=RequestContext(request))
+    }, context_instance=RequestContext(request))
 
 @profile_required
 def list_all_events_view(request):
@@ -93,7 +94,7 @@ def list_all_events_view(request):
     event_form = EventForm(
         request.POST if "post_event" in request.POST else None,
         profile=profile,
-        )
+    )
 
     if event_form.is_valid():
         event_form.save()
@@ -111,7 +112,7 @@ def list_all_events_view(request):
                 request.POST if "rsvp-{0}".format(event.pk) in request.POST else None,
                 instance=event,
                 profile=profile,
-                )
+            )
             if rsvp_form.is_valid():
                 rsvpd = rsvp_form.save()
                 if rsvpd:
@@ -125,7 +126,7 @@ def list_all_events_view(request):
         rsvpd = profile in event.rsvps.all()
         events_dict.append(
             (event, ongoing, rsvpd, rsvp_form)
-            )
+        )
 
     if request.method == "POST":
         messages.add_message(request, messages.ERROR, MESSAGES["EVENT_ERROR"])
@@ -135,7 +136,7 @@ def list_all_events_view(request):
         'events_dict': events_dict,
         'now': now(),
         'event_form': event_form,
-        }, context_instance=RequestContext(request))
+    }, context_instance=RequestContext(request))
 
 @profile_required
 @ajax_capable
@@ -151,7 +152,7 @@ def event_view(request, event_pk):
         request.POST if "rsvp" in request.POST else None,
         instance=event,
         profile=profile,
-        )
+    )
 
     if rsvp_form.is_valid():
         rsvpd = rsvp_form.save()
@@ -194,7 +195,7 @@ def event_view(request, event_pk):
         'rsvp_form': rsvp_form,
         'rsvpd': rsvpd,
         'already_passed': already_passed,
-        }, context_instance=RequestContext(request))
+    }, context_instance=RequestContext(request))
 
 @profile_required
 def edit_event_view(request, event_pk):
@@ -202,25 +203,28 @@ def edit_event_view(request, event_pk):
     page_name = "Edit Event"
     profile = UserProfile.objects.get(user=request.user)
     event = get_object_or_404(Event, pk=event_pk)
+
     if event.owner != profile and not request.user.is_superuser:
         return HttpResponseRedirect(
             reverse('events:view', kwargs={"event_pk": event_pk}),
-            )
+        )
+
     event_form = EventForm(
         request.POST or None,
         profile=profile,
         instance=event,
-        )
+    )
     if event_form.is_valid():
         event = event_form.save()
         messages.add_message(
             request, messages.SUCCESS,
             MESSAGES['EVENT_UPDATED'].format(event=event.title),
-            )
+        )
         return HttpResponseRedirect(
             reverse('events:view', kwargs={"event_pk": event_pk}),
-            )
+        )
+
     return render_to_response('edit_event.html', {
         'page_name': page_name,
         'event_form': event_form,
-        }, context_instance=RequestContext(request))
+    }, context_instance=RequestContext(request))

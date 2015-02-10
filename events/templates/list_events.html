@@ -3,14 +3,22 @@
 {% load static from staticfiles %}
 {% load bootstrap %}
 {% load thread_tags %}
+{% load django_select2_tags %}
+
 {% block headers %}
+{% import_django_select2_js %}
+{% import_django_select2_css light=1 %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/list_events.css' %}" />
 {% endblock %}
 
 {% block content %}
-<button class="btn btn-primary pull-right" id="show_event_form" type="button"><span
-    class="glyphicon glyphicon-pencil"></span><span class="hidden-xs"> New Event</span></button>
-<h1 class="w_title">{{ page_name }}</h1>
+<button class="btn btn-primary pull-right" id="show_event_form" type="button">
+  <span class="glyphicon glyphicon-pencil"></span>
+  <span class="hidden-xs"> New Event</span>
+</button>
+<h1 class="w_title">
+  {{ page_name }}
+</h1>
 <hr class="w_line" />
 <div class="events_table">
   <form id="new_event_form" method="post" action="">
@@ -19,8 +27,14 @@
       {{ event_form|bootstrap }}
       <div class="text-center">
         <div class="btn-group">
-          <button type="submit" class="btn btn-success" name="post_event"><span class="glyphicon glyphicon-plus-sign"></span> Add Event</button>
-          <button type="button" class="btn btn-default" id="hide_event_form"><span class="glyphicon glyphicon-collapse-up"></span> Hide</button>
+          <button type="submit" class="btn btn-success" name="post_event">
+            <span class="glyphicon glyphicon-plus-sign"></span>
+            Add Event
+          </button>
+          <button type="button" class="btn btn-default" id="hide_event_form">
+            <span class="glyphicon glyphicon-collapse-up"></span>
+            Hide
+          </button>
         </div> <!-- .btn-group -->
       </div> <!-- .text-center -->
     </div> <!-- .form-group -->
@@ -60,37 +74,39 @@
         {{ event.description|safe }}
         <hr style="width: 75%;" />
         <span id="rsvp_list_{{ event.pk }}">
-        {% if event.rsvps.all %}
-        RSVPs: {% for member in event.rsvps.all %}{% if forloop.counter > 1 %},
-        {% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
-        {% else %}
-        No RSVPs.
-        {% endif %}
+          {% if event.rsvps.all %}
+          RSVPs: {% for member in event.rsvps.all %}{% if forloop.counter > 1 %},
+          {% endif %}<a class="page_link" title="View Profile" href="{% url 'member_profile' targetUsername=member.user.username %}">{{ member|display_user:user }}</a>{% endfor %}
+          {% else %}
+          No RSVPs.
+          {% endif %}
         </span>
         <div class="pull-right">
           {% if user.username != ANONYMOUS_USERNAME %}
           {% if rsvp_form %}
           <form class="pull-right" id="rsvp_form_{{ event.pk }}" method="post"
-              action="{% url 'events:view' event_pk=event.pk %}">
+                action="{{ event.get_view_url }}">
             {% csrf_token %}
             {{ rsvp_form|bootstrap }}
             {% if rsvpd %}
             <button type="submit" id="rsvp_link_{{ event.pk }}"
-              class="main_link warning_link" name="rsvp-{{ event.pk }}"
-              style="padding-top: 0px; padding-bottom: 0px;"
-              title="Un-RSVP to this event">Un-RSVP</button>
+                    class="main_link warning_link" name="rsvp-{{ event.pk }}"
+                    style="padding-top: 0px; padding-bottom: 0px;"
+                    title="Un-RSVP to this event">Un-RSVP</button>
             {% else %}
             <button type="submit" id="rsvp_link_{{ event.pk }}"
-              class="main_link success_link" name="rsvp-{{ event.pk }}"
-              style="padding-top: 0px; padding-bottom: 0px;"
-              title="RSVP to this event">RSVP</button>
+                    class="main_link success_link" name="rsvp-{{ event.pk }}"
+                    style="padding-top: 0px; padding-bottom: 0px;"
+                    title="RSVP to this event">RSVP</button>
             {% endif %}
           </form>
           {% endif %}
           {% endif %}
           {% if event.owner.user == user or user.is_superuser %}
-          <a href="{% url 'events:edit' event_pk=event.pk %}"
-            class="main_link primary_link" title="Edit this event">Edit</a>
+          <a href="{{ event.get_edit_url }}" class="main_link primary_link"
+             title="Edit this event">
+            Edit
+          </a>
           {% endif %}
         </div> <!-- .pull-right -->
       </div> <!-- .event_body -->
@@ -108,18 +124,16 @@
 {% endblock %}
 
 {% block endscripts %}
-<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript">
-$(function(){$("#id_start_time").datetimepicker();});
-$(function(){$("#id_end_time").datetimepicker();});
-$(document).ready(function() {
-    $('#show_event_form').click(function() {
-        $('#new_event_form').slideToggle();
-    });
-    $('#hide_event_form').click(function() {
-        $('#new_event_form').slideUp();
-    });
-});
+ $(function(){$("#id_start_time").datetimepicker();});
+ $(function(){$("#id_end_time").datetimepicker();});
+ $(document).ready(function() {
+   $('#show_event_form').click(function() {
+     $('#new_event_form').slideToggle();
+   });
+   $('#hide_event_form').click(function() {
+     $('#new_event_form').slideUp();
+   });
+ });
 </script>
 {% endblock %}

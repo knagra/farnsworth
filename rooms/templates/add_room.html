@@ -2,21 +2,24 @@
 
 {% load static from staticfiles %}
 {% load bootstrap %}
+{% load django_select2_tags %}
 
 {% block headers %}
+{% import_django_select2_js %}
+{% import_django_select2_css light=1 %}
 <style>
-    .resident_formset_row td {
-        padding-right: 5px;
-        padding-bottom: 5px;
-        border-top: none !important;
-        border-bottom: 1px solid #e4e4e4;
-    }
-    .resident_formset_row td div {
-        margin: 0px;
-    }
-    .resident_formset_row td div label {
-        display: none;
-    }
+ .resident_formset_row td {
+     padding-right: 5px;
+     padding-bottom: 5px;
+     border-top: none !important;
+     border-bottom: 1px solid #e4e4e4;
+ }
+ .resident_formset_row td div {
+     margin: 0px;
+ }
+ .resident_formset_row td div label {
+     display: none;
+ }
 </style>
 {% endblock %}
 
@@ -27,17 +30,17 @@
   {% csrf_token %}
   <div class="form-group">
     {{ form|bootstrap }}
-	{% if resident_formset %}
+    {% if resident_formset %}
     <hr />
     <table class="table table-condensed" border="0" cellpadding="0" cellspacing="0">
       <tbody>
         {% for form in resident_formset.forms %}
-	{{ form.id }}
+        {{ form.id }}
         <tr class="resident_formset_row">
-	  <td>
-	    {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+          <td>
+            {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
             {{ form.resident|bootstrap }}
-	  </td>
+          </td>
           <td>{{ form.start_date|bootstrap }}</td>
           <td>{{ form.end_date|bootstrap }}</td>
           <td style="vertical-align: middle;"></td>
@@ -45,12 +48,12 @@
         {% endfor %}
       </tbody>
     </table>
-	{{ resident_formset.management_form }}
-	{% endif %}
+    {{ resident_formset.management_form }}
+    {% endif %}
     <hr />
     <div class="text-center">
       <button type="submit" class="btn btn-success" name="add_room"><span
-				class="glyphicon glyphicon-{% if editing %}floppy-disk{% else %}plus{% endif %}"></span>
+                class="glyphicon glyphicon-{% if editing %}floppy-disk{% else %}plus{% endif %}"></span>
         {% if editing %}Save{% else %}Add{% endif %} Room</button>
     </div> <!-- .text-center -->
   </div> <!-- .form-group -->
@@ -58,23 +61,21 @@
 {% endblock %}
 
 {% block endscripts %}
-<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'ui/js/jquery.formset.js' %}"></script>
 <script type="text/javascript">
-function renewDatePickers(row) {
-    $("[id$=date]", row || null).datetimepicker({
-        pickTime: false,
-    });
-};
-$(document).ready(function() {
-    $(function() {
-        $('.resident_formset_row').formset({
-            prefix: "{{ resident_formset.prefix }}",
-            added: renewDatePickers,
-        });
-        renewDatePickers();
-    });
-});
+ function renewDatePickers(row) {
+   $("[id$=date]", row || null).datetimepicker({
+     pickTime: false,
+   });
+ };
+ $(document).ready(function() {
+   $(function() {
+     $('.resident_formset_row').formset({
+       prefix: "{{ resident_formset.prefix }}",
+       added: renewDatePickers,
+     });
+     renewDatePickers();
+   });
+ });
 </script>
 {% endblock %}

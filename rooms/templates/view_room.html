@@ -52,22 +52,22 @@
 
 {% block endscripts %}
 <script>
-$(document).ready(function() {
-    $('table').tablesorter({
-        headers: {
-            2: {
-                sorter: 'farnsworth_date',
-            },
-            3: {
-                sorter: 'farnsworth_date',
-            }
-        },
-        sortList: [[2,0], [3,0]],
-        widgets: ["filter", "resizable"],
-        widgetOptions: {
-            resizable: true
-        }
-    });
-});
+ $(document).ready(function() {
+   $('table').tablesorter({
+     headers: {
+       2: {
+         sorter: 'farnsworth_date',
+       },
+       3: {
+         sorter: 'farnsworth_date',
+       }
+     },
+     sortList: [[2,0], [3,0]],
+     widgets: ["filter", "resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   });
+ });
 </script>
 {% endblock %}
