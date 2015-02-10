@@ -11,7 +11,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.dateformat import time_format
 
-
+from utils.variables import ANONYMOUS_USERNAME
 from base.models import UserProfile
 from managers.models import Manager
 from workshift.fields import DayField

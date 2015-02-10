@@ -2,7 +2,6 @@
 from django.dispatch import receiver
 from django.db.models import signals
 
-from utils.variables import ANONYMOUS_USERNAME
 from managers.models import Manager
 from workshift.models import *
 from workshift.fields import DAY_CHOICES
