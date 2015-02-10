@@ -69,9 +69,9 @@ def initialize_semester(sender, instance, created, **kwargs):
         pool.managers = Manager.objects.filter(workshift_manager=True)
 
     # Create this semester's workshift profiles
-    for uprofile in UserProfile.objects.filter(status=UserProfile.RESIDENT):
-        if uprofile.user.username == ANONYMOUS_USERNAME:
-            continue
+    for uprofile in UserProfile.objects.filter(
+            status=UserProfile.RESIDENT,
+    ).exclude(user__username=ANONYMOUS_USERNAME):
         WorkshiftProfile.objects.create(
             user=uprofile.user,
             semester=semester,
