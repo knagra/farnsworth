@@ -86,7 +86,7 @@ $ $EDITOR farnsworth/house_settings.py
 
 See `farnsworth/settings.py` for the full list of settings used by Django.
 
-#### Initialization
+### Initialization
 
 To create the tables in the database and an initial user:
 
