@@ -9,6 +9,7 @@ from django.conf import settings
 from django.utils.timezone import now
 
 from notifications import notify
+from django_select2.widgets import Select2Widget
 
 from utils.variables import time_formats, ANONYMOUS_USERNAME, MESSAGES
 from managers.models import Manager
@@ -43,7 +44,8 @@ class EventForm(forms.Form):
         required=False,
         queryset=Manager.objects.none(),
         label="As manager (if manager event)",
-        )
+        widget=Select2Widget,
+    )
     cancelled = forms.BooleanField(
         required=False,
         label="Mark Cancelled",

@@ -7,6 +7,8 @@ Authors: Karandeep Singh Nagra and Nader Morshed
 from django import forms
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
+from django_select2.widgets import Select2MultipleWidget
+
 from utils.funcs import form_add_error
 from utils.variables import date_formats, MESSAGES, ANONYMOUS_USERNAME
 from base.models import UserProfile
@@ -17,6 +19,9 @@ class RoomForm(forms.ModelForm):
     class Meta:
         model = Room
         fields = "__all__"
+        widgets = {
+            "current_residents": Select2MultipleWidget,
+        }
 
     def __init__(self, *args, **kwargs):
         super(RoomForm, self).__init__(*args, **kwargs)

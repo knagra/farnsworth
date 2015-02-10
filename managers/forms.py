@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.core.mail import EmailMultiAlternatives
 
 from notifications import notify
+from django_select2.widgets import Select2Widget
 
 from utils.variables import ANNOUNCEMENT_SUBJECT, ANNOUNCEMENT_EMAIL, \
     MESSAGES
@@ -24,7 +25,12 @@ class ManagerForm(forms.ModelForm):
     ''' Form to create or modify a manager position. '''
     class Meta:
         model = Manager
-        exclude = ("url_title",)
+        exclude = (
+            "url_title",
+        )
+        widgets = {
+            "incumbent": Select2Widget,
+        }
 
     def __init__(self, *args, **kwargs):
         super(ManagerForm, self).__init__(*args, **kwargs)
@@ -204,7 +210,13 @@ class AnnouncementForm(forms.ModelForm):
 
     class Meta:
         model = Announcement
-        fields = ("manager", "body")
+        fields = (
+            "manager",
+            "body",
+        )
+        widgets = {
+            "manager": Select2Widget,
+        }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
