@@ -5,12 +5,9 @@
 {% load bootstrap %}
 {% load django_select2_tags %}
 
-{% block headers %}
+{% block w_headers %}
 {% import_django_select2_js %}
 {% import_django_select2_css light=1 %}
-<script>
-  hashedSelector = "#id_current_assignees";
-</script>
 {% endblock %}
 
 {% block w_content %}
