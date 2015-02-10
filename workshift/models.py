@@ -13,7 +13,6 @@ from django.utils.dateformat import time_format
 
 
 from base.models import UserProfile
-from utils.variables import ANONYMOUS_USERNAME
 from managers.models import Manager
 from workshift.fields import DayField
 from workshift.templatetags.workshift_tags import wurl
