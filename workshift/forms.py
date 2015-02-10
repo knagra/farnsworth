@@ -10,12 +10,13 @@ from collections import OrderedDict
 
 from django import forms
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from notifications import notify
-from django_select2.widgets import Select2MultipleWidget
+from django_select2.widgets import Select2MultipleWidget, Select2Widget
 
 from base.models import UserProfile
 from managers.models import Manager
@@ -228,16 +229,49 @@ class WorkshiftInstanceForm(forms.ModelForm):
         self.save_m2m()
         return instance
 
-class AnonymousUserLogin(AuthenticationForm):
+class AnonymousUserLogin(forms.Form):
     """
     Allows members logged in as the anonymous user to quickly enter their
     username and password from the semester page in order to verify a shift or
     mark it as blown.
     """
+    profile = forms.ModelChoiceField(
+        queryset=WorkshiftProfile.objects.all(),
+        widget=Select2Widget,
+    )
+    password = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput,
+    )
 
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop("semester")
         super(AnonymousUserLogin, self).__init__(*args, **kwargs)
+        self.fields["profile"].queryset = WorkshiftProfile.objects.filter(
+            semester=self.semester,
+        )
+
+    def clean(self):
+        profile = self.cleaned_data.get("profile")
+        password = self.cleaned_data.get("password")
+
+        if profile and password:
+            user_cache = authenticate(
+                username=profile.user.username,
+                password=password,
+            )
+            if user_cache is None:
+                raise forms.ValidationError(
+                    "Password is incorrect. Note that this field is case-sensitive.",
+                    code="invalid_login",
+                )
+            elif not user_cache.is_active:
+                raise forms.ValidationError(
+                    AuthenticationForm.error_messages["inactive"],
+                    code="inactive",
+                )
+
+        return self.cleaned_data
 
     def confirm_login_allowed(self, user):
         super(AnonymousUserLogin, self).confirm_login_allowed(user)
@@ -250,10 +284,7 @@ class AnonymousUserLogin(AuthenticationForm):
             )
 
     def save(self):
-        return WorkshiftProfile.objects.get(
-            user__username=self.cleaned_data["username"],
-            semester=self.semester,
-        )
+        return self.cleaned_data["profile"]
 
 class InteractShiftForm(forms.Form):
     pk = forms.IntegerField(widget=forms.HiddenInput())
