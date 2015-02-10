@@ -10,56 +10,58 @@
   {% if WORKSHIFT_MANAGER %}
   <form action="{{ pool.get_edit_url }}" class="pull-right">
     <button class="btn btn-warning" type="submit">
-      <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit Pool</span>
+      <span class="glyphicon glyphicon-edit"></span>
+      <span class="hidden-xs"> Edit Pool</span>
     </button>
   </form>
   <form action="{% wurl 'workshift:add_shift' sem_url=SEMESTER.sem_url %}" class="pull-right" style="margin-right: 5px;">
     <button class="btn btn-default" type="submit">
-      <span class="glyphicon glyphicon-plus"></span><span class="hidden-xs"> Add Shift</span>
+      <span class="glyphicon glyphicon-plus"></span>
+      <span class="hidden-xs"> Add Shift</span>
     </button>
   </form>
   {% endif %}
   <h1 class="w_title">
-	{{ page_name }}
+    {{ page_name }}
   </h1>
   <hr class="w_line" />
   <h3 class="w_subtitle">
-	Details
+    Details
   </h3>
   <dl id="information_table" class="dl-horizontal">
-	{% if pool.managers.count %}
-	<dt>Managers</dt>
-	<dd>
-	  {% for pos in pool.managers.all %}
-	  {% if not forloop.first %}, {% endif %}
-	  <a {% if pos.active %}title="View Details" href="{{ pos.get_view_url }}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{{ pos.get_edit_url }}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
-	  {% if pos.incumbent %}
-	  (<a title="View Profile" href="{{ pos.incumbent.get_view_url }}">{{ pos.incumbent }}</a>)
-	  {% else %}
-	  <span title="There is currently no incumbent for this position." class="text-danger">(No incumbent)</span>
-	  {% endif %}
-	  {% endfor %}
-	</dd>
-	{% endif %}
-	<dt>Hour Requirements</dt>
-	<dd>{{ pool.show_hours }}&nbsp;</dd>
-	{% if pool.first_fine_date %}
-	<dt>First Fine Date</dt>
-	<dd>{{ pool.first_fine_date }}</dd>
-	{% endif %}
-	{% if pool.second_fine_date %}
-	<dt>Second Fine Date</dt>
-	<dd>{{ pool.second_fine_date }}</dd>
-	{% endif %}
-	{% if pool.third_fine_date %}
-	<dt>Third Fine Date</dt>
-	<dd>{{ pool.third_fine_date }}</dd>
-	{% endif %}
+    {% if pool.managers.count %}
+    <dt>Managers</dt>
+    <dd>
+      {% for pos in pool.managers.all %}
+      {% if not forloop.first %}, {% endif %}
+      <a {% if pos.active %}title="View Details" href="{{ pos.get_view_url }}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{{ pos.get_edit_url }}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+      {% if pos.incumbent %}
+      (<a title="View Profile" href="{{ pos.incumbent.get_view_url }}">{{ pos.incumbent }}</a>)
+      {% else %}
+      <span title="There is currently no incumbent for this position." class="text-danger">(No incumbent)</span>
+      {% endif %}
+      {% endfor %}
+    </dd>
+    {% endif %}
+    <dt>Hour Requirements</dt>
+    <dd>{{ pool.show_hours }}&nbsp;</dd>
+    {% if pool.first_fine_date %}
+    <dt>First Fine Date</dt>
+    <dd>{{ pool.first_fine_date }}</dd>
+    {% endif %}
+    {% if pool.second_fine_date %}
+    <dt>Second Fine Date</dt>
+    <dd>{{ pool.second_fine_date }}</dd>
+    {% endif %}
+    {% if pool.third_fine_date %}
+    <dt>Third Fine Date</dt>
+    <dd>{{ pool.third_fine_date }}</dd>
+    {% endif %}
   </dl>
   {% if shifts %}
   <hr />
   <h3 class="w_subtitle">
-	Recurring Workshifts
+    Recurring Workshifts
   </h3>
   <table id="recurring_shifts" class="table table-striped table-bordered table-condensed table-hover">
     <thead>
@@ -76,26 +78,26 @@
       {% for shift in shifts %}
       <tr>
         <td>
-		  <a href="{{ shift.get_view_url }}">
-			{{ shift.workshift_type.title }}
-		  </a>
-		</td>
+          <a href="{{ shift.get_view_url }}">
+            {{ shift.workshift_type.title }}
+          </a>
+        </td>
         <td>
-		  {% if shift.week_long %}
-		  Week long
-		  {% else %}
-		  {{ shift.get_day_display }}
-		  {% endif %}
-		</td>
-		<td>
-		  {{ shift.get_start_time }}
-		</td>
+          {% if shift.week_long %}
+          Week long
+          {% else %}
+          {{ shift.get_day_display }}
+          {% endif %}
+        </td>
         <td>
-		  {{ shift.get_end_time }}
-		</td>
+          {{ shift.get_start_time }}
+        </td>
         <td>
-		  {{ shift.hours }}
-		</td>
+          {{ shift.get_end_time }}
+        </td>
+        <td>
+          {{ shift.hours }}
+        </td>
         <td>
           {% if shift.current_assignees %}
           {% for assignee in shift.current_assignees.all %}{% if not forloop.first %}, {% endif %}<a href="{{ assignee.get_view_url }}">{{ assignee.user.get_full_name }}</a>{% endfor %}
@@ -114,7 +116,7 @@
   {% if upcoming_pool_instances %}
   {% if shifts %}<hr />{% endif %}
   <h3 class="w_subtitle">
-	Vacant Shifts
+    Vacant Shifts
   </h3>
   <table id="vacant_shifts" class="table table-striped table-bordered table-condensed table-hover">
     <thead>
@@ -130,25 +132,25 @@
       {% for instance, forms in upcoming_pool_instances %}
       <tr>
         <td>
-		  <a href="{{ instance.get_view_url }}">
-			{{ instance.title }}
-		  </a>
-		</td>
+          <a href="{{ instance.get_view_url }}">
+            {{ instance.title }}
+          </a>
+        </td>
         <td>
-		  {{ instance.date }}
-		</td>
+          {{ instance.date }}
+        </td>
         <td>
-		  {{ instance.get_start_time }}
-		</td>
+          {{ instance.get_start_time }}
+        </td>
         <td>
-		  {{ instance.get_end_time }}
-		</td>
+          {{ instance.get_end_time }}
+        </td>
         <td>
-		  <form method="POST" action="">
-			{% csrf_token %}
-			{% include "shift_forms.html" %}
-		  </form>
-		</td>
+          <form method="POST" action="">
+            {% csrf_token %}
+            {% include "shift_forms.html" %}
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

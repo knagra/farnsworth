@@ -9,14 +9,14 @@
 <div class="profile_container">
   {% if WORKSHIFT_MANAGER %}
   <form action="{{ profile.get_edit_url }}" class="pull-right">
-	<button class="btn btn-warning" type="submit">
+    <button class="btn btn-warning" type="submit">
       <span class="glyphicon glyphicon-edit"></span>
       <span class="hidden-xs">Edit</span>
-	</button>
+    </button>
   </form>
   {% endif %}
   <h1 class="w_title">
-	{{ page_name }}
+    {{ page_name }}
   </h1>
   {% if regular_shifts %}
   <hr class="w_line" />
@@ -33,17 +33,17 @@
       {% for shift in regular_shifts %}
       <tr>
         <td>
-		  <a href="{{ shift.get_view_url }}">
-			{{ shift.workshift_type.title }}
-		  </a>
-		</td>
+          <a href="{{ shift.get_view_url }}">
+            {{ shift.workshift_type.title }}
+          </a>
+        </td>
         <td>
           {% if shift.week_long %}
           Week long
           {% else %}
           {{ shift.get_day_display }}
           {% endif %}
-		  {{ shift.get_time_range }}
+          {{ shift.get_time_range }}
         </td>
         <td>{{ shift.hours }} hour{{ shift.hours|pluralize }}</td>
       </tr>
@@ -55,40 +55,40 @@
   {% if assigned_instances %}
   <hr class="w_line" />
   <h3 class="w_subtitle">
-	Assigned Singular Workshifts
+    Assigned Singular Workshifts
   </h3>
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="assigned_instances_table">
     <thead>
       <tr>
-		<th>Pool</th>
-		<th>Title</th>
-		<th>Date</th>
-		<th>Start</th>
-		<th>End</th>
+        <th>Pool</th>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Start</th>
+        <th>End</th>
       </tr>
     </thead>
     <tbody>
       {% for instance in assigned_instances %}
       <tr>
-		<td>
-		  <a href="{{ instance.pool.get_view_url }}">
-			{{ instance.pool }}
-		  </a>
-		</td>
-		<td>
-		  <a href="{{ instance.get_view_url }}">
-			{{ instance.title }}
-		  </a>
-		</td>
-		<td>
-		  {{ instance.date }}
-		</td>
-		<td>
-		  {{ instance.get_start_time }}
-		</td>
-		<td>
-		  {{ instance.get_end_time }}
-		</td>
+        <td>
+          <a href="{{ instance.pool.get_view_url }}">
+            {{ instance.pool }}
+          </a>
+        </td>
+        <td>
+          <a href="{{ instance.get_view_url }}">
+            {{ instance.title }}
+          </a>
+        </td>
+        <td>
+          {{ instance.date }}
+        </td>
+        <td>
+          {{ instance.get_start_time }}
+        </td>
+        <td>
+          {{ instance.get_end_time }}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -114,8 +114,8 @@
         <td>{{ shift.date }}</td>
         <td>{{ shift.hours }}</td>
         <td>
-		  {% include "shift_status.html" %}
-		</td>
+          {% include "shift_status.html" %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -125,7 +125,7 @@
   {% if pool_hours %}
   <hr class="w_line" />
   <h3 class="w_subtitle">
-	Workshift Requirements
+    Workshift Requirements
   </h3>
   <table class="table table-striped table-bordered table-condensed table-hover members_table" id="pool_hours_table">
     <thead>
@@ -139,32 +139,32 @@
       {% for hours in pool_hours %}
       <tr>
         <td>
-		  <a href="{{ hours.pool.get_view_url }}">
-			{{ hours.pool.title }}
-		  </a>
-		</td>
+          <a href="{{ hours.pool.get_view_url }}">
+            {{ hours.pool.title }}
+          </a>
+        </td>
         <td>
-		  {{ hours.show_hours }}
-		</td>
-		<td>
-		  {% if 0 > hours.standing %}
-		  <font color="red">{{ hours.standing }}</font>
-		  {% else %}
-		  <font color="green">{{ hours.standing }}</font>
-		  {% endif %}
-		  {% if hours.first_date_standing %}
-		  <br />
-		  First Fines: {{ hours.first_date_standing|currency }}
-		  {% endif %}
-		  {% if hours.second_date_standing %}
-		  <br />
-		  Second Fines: {{ hours.second_date_standing|currency }}
-		  {% endif %}
-		  {% if hours.third_date_standing %}
-		  <br />
-		  Third Fines: {{ hours.third_date_standing|currency }}
-		  {% endif %}
-		</td>
+          {{ hours.show_hours }}
+        </td>
+        <td>
+          {% if 0 > hours.standing %}
+          <font color="red">{{ hours.standing }}</font>
+          {% else %}
+          <font color="green">{{ hours.standing }}</font>
+          {% endif %}
+          {% if hours.first_date_standing %}
+          <br />
+          First Fines: {{ hours.first_date_standing|currency }}
+          {% endif %}
+          {% if hours.second_date_standing %}
+          <br />
+          Second Fines: {{ hours.second_date_standing|currency }}
+          {% endif %}
+          {% if hours.third_date_standing %}
+          <br />
+          Third Fines: {{ hours.third_date_standing|currency }}
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -174,10 +174,10 @@
   {% if view_note and profile.note %}
   <hr class="w_line" />
   <h3 class="w_subtitle">
-	Profile notes
+    Profile notes
   </h3>
   <p>
-	{{ profile.note|safe }}
+    {{ profile.note|safe }}
   </p>
   {% endif %}
 </div> <!-- .instance_container -->

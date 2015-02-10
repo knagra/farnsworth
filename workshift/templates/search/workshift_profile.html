@@ -2,31 +2,31 @@
 {% load workshift_tags %}
 <h3 class="result_title">
   <a href="{{ result.object.get_view_url }}">
-	{{ result.object }}
+    {{ result.object }}
   </a>
   <small>
-	Workshift Profile
+    Workshift Profile
   </small>
 </h3>
 <dl class="result_description dl-horizontal">
   <dt>
-	User Profile
+    User Profile
   </dt>
   <dd>
-	<a href="{{ result.object.get_view_url }}">
-	  {{ result.object }}
-	</a>
+    <a href="{{ result.object.get_view_url }}">
+      {{ result.object }}
+    </a>
   </dd>
   {% for hours in result.object.pool_hours.all %}
   <dt>
-	{{ hours.pool }}
-	&nbsp;
+    {{ hours.pool }}
+    &nbsp;
   </dt>
   <dd>
-	<span class="text-{% if hours.standing >= 0 %}success{% else %}danger{% endif %}">
-	  {{ hours.standing }}
-	</span>
-	&nbsp;
+    <span class="text-{% if hours.standing >= 0 %}success{% else %}danger{% endif %}">
+      {{ hours.standing }}
+    </span>
+    &nbsp;
   </dd>
   {% endfor %}
 </dl>

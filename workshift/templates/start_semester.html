@@ -5,18 +5,20 @@
 
 {% block w_headers %}
 <style>
-    table tbody tr td div label {
-        display: none;
-    }
-    .checkbox label span {
-        display: none;
-    }
+ table tbody tr td div label {
+     display: none;
+ }
+ .checkbox label span {
+     display: none;
+ }
 </style>
 {% endblock %}
 
 {% block w_content %}
 <div class="w_container">
-  <h1 class="w_title">Start New Semester</h1>
+  <h1 class="w_title">
+    {{ page_name }}
+  </h1>
   <hr class="w_line" />
   <form method="post" action="">
     {% csrf_token %}
@@ -54,14 +56,14 @@
 <script type="text/javascript">
   $(function() {$("[id$=date]").datetimepicker({pickTime: false});});
   //$(function() {$("#id_year").datetimepicker({
-    //    format: "YYYY",
-    //    viewMode: "years",
-    //    minViewMode: "years",
-    //    pickTime: false
-    //});});
+  //    format: "YYYY",
+  //    viewMode: "years",
+  //    minViewMode: "years",
+  //    pickTime: false
+  //});});
   $(document).ready(function() {
-        $('#id_rate').wrap('<div class="input-group"></div>');
-        $('<span class="input-group-addon">$</span>').insertBefore('#id_rate');
-    });
+  $('#id_rate').wrap('<div class="input-group"></div>');
+  $('<span class="input-group-addon">$</span>').insertBefore('#id_rate');
+  });
 </script>
 {% endblock %}

@@ -1,54 +1,54 @@
 {% load workshift_tags %}
 <h3 class="result_title">
   <a href="{{ result.object.get_view_url }}">
-	{{ result.object }}
+    {{ result.object }}
   </a>
   <small>
-	{% if result.object.current %}
-	Current
-	{% else %}
-	Past
-	{% endif %}
-	Workshift Semester
+    {% if result.object.current %}
+    Current
+    {% else %}
+    Past
+    {% endif %}
+    Workshift Semester
   </small>
 </h3>
 <dl class="result_description dl-horizontal">
   {% if result.object.policy %}
   <dt>
-	Policy
+    Policy
   </dt>
   <dd>
-	<a href="{{ result.object.policy }}">
-	  {{ result.object.policy }}
-	</a>
+    <a href="{{ result.object.policy }}">
+      {{ result.object.policy }}
+    </a>
   </dd>
   <dt>
-	Workshift Managers
+    Workshift Managers
   </dt>
   <dd>
-	{% for user in result.object.workshift_managers.all %}{% if forloop.counter > 1 %},
+    {% for user in result.object.workshift_managers.all %}{% if forloop.counter > 1 %},
     {% endif %}<a href="{{ user.get_view_url }}">{{ user.get_full_name }}</a>{% empty %}&nbsp;{% endfor %}
   </dd>
   {% if result.object.rate %}
   <dt>
-	Workshift Rate
+    Workshift Rate
   </dt>
   <dd>
-	{{ result.object.display_rate }}
+    {{ result.object.display_rate }}
   </dd>
   {% endif %}
   <dt>
-	Start Date
+    Start Date
   </dt>
   <dd>
-	{{ result.object.start_date }}
-	&nbsp;
+    {{ result.object.start_date }}
+    &nbsp;
   </dd>
   <dt>
-	End Date
+    End Date
   </dt>
   <dd>
-	{{ result.object.end_date }}
-	&nbsp;
+    {{ result.object.end_date }}
+    &nbsp;
   </dd>
 </dl>

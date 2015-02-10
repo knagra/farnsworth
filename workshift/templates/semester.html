@@ -21,27 +21,27 @@
     {% endif %}
   </div> <!-- .col-xs-1 -->
   <h3 id="day_title" class="col-sm-10 col-xs-8 text-center w_subtitle">
-	<span class="hidden-xs w_subtitle">
-	  Workshifts for
-	  {% if start_date == end_date %}
-	  {{ day|date:"l, F d, Y" }}
-	  {% else %}
-	  {{ start_date|date:"l, F d, Y" }} - {{ end_date|date:"l, F d, Y" }}
-	  {% endif %}
-	</span>
-	<span class="visible-xs w_subtitle">
-	  {% if start_date == end_date %}
-	  {{ day|date:"D., N d, Y" }}
-	  {% else %}
-	  {{ start_date|date:"D., N d, Y" }} - {{ end_date|date:"D., N d, Y" }}
-	  {% endif %}
-	</span>
+    <span class="hidden-xs w_subtitle">
+      Workshifts for
+      {% if start_date == end_date %}
+      {{ day|date:"l, F d, Y" }}
+      {% else %}
+      {{ start_date|date:"l, F d, Y" }} - {{ end_date|date:"l, F d, Y" }}
+      {% endif %}
+    </span>
+    <span class="visible-xs w_subtitle">
+      {% if start_date == end_date %}
+      {{ day|date:"D., N d, Y" }}
+      {% else %}
+      {{ start_date|date:"D., N d, Y" }} - {{ end_date|date:"D., N d, Y" }}
+      {% endif %}
+    </span>
 
-	{% if start_date == end_date %}
-	<small>(<a title="Week View"
-	  href="{{ SEMESTER.get_view_url }}?start_date={{ last_monday }}&end_date={{ next_sunday }}">Week<span
-	    class="hidden-xs"> View</span></a>)</small>
-	{% endif %}
+    {% if start_date == end_date %}
+    <small>(<a title="Week View"
+               href="{{ SEMESTER.get_view_url }}?start_date={{ last_monday }}&end_date={{ next_sunday }}">Week<span
+        class="hidden-xs"> View</span></a>)</small>
+    {% endif %}
   </h3>
   <div class="col-sm-1 col-xs-2 text-right">
     {% if next_day %}
@@ -56,125 +56,125 @@
   {% if anonymous_form %}
   <p class="help-block">
     You are logged in as an anonymous user. In order to interact with shifts,
-	you will need to enter your personal login informtion and click one of the
-	buttons below.
+    you will need to enter your personal login informtion and click one of the
+    buttons below.
   </p>
   {{ anonymous_form|bootstrap }}
   {% endif %}
   <div class="workshift_table">
-	<table class="workshift_inner table table-striped table-bordered table-condensed table-hover"
-		   id="day_shifts_table">
+    <table class="workshift_inner table table-striped table-bordered table-condensed table-hover"
+           id="day_shifts_table">
       <thead>
-		<tr>
+        <tr>
           <th>Title</th>
-		  {% if start_date != end_date %}
-		  <th>Day</th>
-		  {% endif %}
+          {% if start_date != end_date %}
+          <th>Day</th>
+          {% endif %}
           <th>Starts</th>
           <th>Ends</th>
           <th>Hours</th>
           <th>Workshifter</th>
           <th>Status</th>
           <th>Action</th>
-		</tr>
+        </tr>
       </thead>
       <tbody>
-		{% for shift, forms in day_shifts %}
-		<tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+        {% for shift, forms in day_shifts %}
+        <tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
           <td>
-			<a href="{{ shift.get_view_url }}" title="{{ shift.pool }}">
-			  {{ shift.title }}
-			</a>
+            <a href="{{ shift.get_view_url }}" title="{{ shift.pool }}">
+              {{ shift.title }}
+            </a>
           </td>
-		  {% if start_date != end_date %}
-		  <td>
-			{% if long_range %}
-			{{ shift.date }}
-			{% else %}
-			{{ shift.date|date:"l" }}
-			{% endif %}
-		  </td>
-		  {% endif %}
+          {% if start_date != end_date %}
           <td>
-			{{ shift.get_start_time }}
-		  </td>
+            {% if long_range %}
+            {{ shift.date }}
+            {% else %}
+            {{ shift.date|date:"l" }}
+            {% endif %}
+          </td>
+          {% endif %}
           <td>
-			{{ shift.get_end_time }}
-		  </td>
-          <td>
-			{% if shift.intended_hours == shift.hours %}
-			{{ shift.hours }}
-			{% else %}
-			<del>{{ shift.intended_hours}}</del> {{ shift.hours }}
-			{% endif %}
+            {{ shift.get_start_time }}
           </td>
           <td>
-			{% include "shift_workshifter.html" %}
+            {{ shift.get_end_time }}
           </td>
           <td>
-			{% include "shift_status.html" %}
+            {% if shift.intended_hours == shift.hours %}
+            {{ shift.hours }}
+            {% else %}
+            <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
+            {% endif %}
           </td>
           <td>
-			{% include "shift_forms.html" %}
+            {% include "shift_workshifter.html" %}
           </td>
-		</tr>
-		{% endfor %}
+          <td>
+            {% include "shift_status.html" %}
+          </td>
+          <td>
+            {% include "shift_forms.html" %}
+          </td>
+        </tr>
+        {% endfor %}
       </tbody>
-	</table>
+    </table>
   </div> <!-- .workshift_table -->
   {% if week_shifts %}
   <hr/>
   <div class="workshift_week_table">
-	<h3 class="w_subtitle">
-	  Weeklong Shifts
-	</h3>
-	<table class="workshift_inner table table-striped table-bordered table-condensed table-hover"
-		   id="week_shifts_table">
+    <h3 class="w_subtitle">
+      Weeklong Shifts
+    </h3>
+    <table class="workshift_inner table table-striped table-bordered table-condensed table-hover"
+           id="week_shifts_table">
       <thead>
-		<tr>
+        <tr>
           <th>Title</th>
-		  {% if long_range %}
-		  <th>Date</th>
-		  {% endif %}
+          {% if long_range %}
+          <th>Date</th>
+          {% endif %}
           <th>Hours</th>
           <th>Workshifter</th>
           <th>Status</th>
           <th>Action</th>
-		</tr>
+        </tr>
       </thead>
       <tbody>
-		{% for shift, forms in week_shifts %}
-		<tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+        {% for shift, forms in week_shifts %}
+        <tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
           <td>
-			<a href="{{ shift.get_view_url }}" title="{{ shift.pool }}">
-			  {{ shift.title }}
-			</a>
+            <a href="{{ shift.get_view_url }}" title="{{ shift.pool }}">
+              {{ shift.title }}
+            </a>
           </td>
-		  {% if long_range %}
-		  <td>
-			{{ shift.date }}
-		  </td>
-		  {% endif %}
+          {% if long_range %}
           <td>
-			{% if shift.intended_hours == shift.hours %}
-			{{ shift.hours }}
-			{% else %}
-			<del>{{ shift.intended_hours}}</del> {{ shift.hours }}
-			{% endif %}
+            {{ shift.date }}
           </td>
+          {% endif %}
           <td>
-			{% include "shift_workshifter.html" %}
+            {% if shift.intended_hours == shift.hours %}
+            {{ shift.hours }}
+            {% else %}
+            <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
+            {% endif %}
           </td>
           <td>
-			{% include "shift_status.html" %}
+            {% include "shift_workshifter.html" %}
           </td>
           <td>
-			{% include "shift_forms.html" %}
+            {% include "shift_status.html" %}
           </td>
-		</tr>
-		{% endfor %}
+          <td>
+            {% include "shift_forms.html" %}
+          </td>
+        </tr>
+        {% endfor %}
       </tbody>
-	</table>
+    </table>
   </div> <!-- .workshift_week_table -->
   {% endif %}
 </form>
@@ -185,22 +185,22 @@
   <span class="input-group">
     <input id="jump_day" name="day" placeholder="Jump to date..." class="form-control">
     <span class="input-group-btn">
-	  <button type="submit" title="Jump to date..." class="btn btn-default">
-		<span class="glyphicon glyphicon-step-forward"></span>
-	  </button>
+      <button type="submit" title="Jump to date..." class="btn btn-default">
+        <span class="glyphicon glyphicon-step-forward"></span>
+      </button>
     </span>
   </span>
 </form>
 {% if switch_form %}
 <form class="inline-form" method="post" id="switch_form">
   <span class="input-group">
-	{% csrf_token %}
-	{{ switch_form|bootstrap }}
+    {% csrf_token %}
+    {{ switch_form|bootstrap }}
     <span class="input-group-btn">
-	  <button type="submit" title="Switch semester" class="btn btn-default"
-			  name="switch_semester">
-		<span class="glyphicon glyphicon-th"></span>
-	  </button>
+      <button type="submit" title="Switch semester" class="btn btn-default"
+              name="switch_semester">
+        <span class="glyphicon glyphicon-th"></span>
+      </button>
     </span>
   </span>
 </form>
@@ -214,27 +214,27 @@
 <script>
  $(document).ready(function() {
    $('#day_shifts_table').tablesorter({
-	 {% if start_date != end_date %}
+     {% if start_date != end_date %}
      sortList: [[1, 0], [0, 0], [3, 1]],
      widgets: ["filter"],
-	 {% if not long_range %}
-	 headers: {
-	   1: {
-		 sorter: "weekday",
-	   }
-	 }
-	 {% endif %}
-	 {% else %}
+     {% if not long_range %}
+     headers: {
+       1: {
+         sorter: "weekday",
+       }
+     }
+     {% endif %}
+     {% else %}
      sortList: [[0, 0], [2, 1]]
-	 {% endif %}
+     {% endif %}
    });
    $('#week_shifts_table').tablesorter({
      widgets: ["filter"],
-	 {% if long_range %}
+     {% if long_range %}
      sortList: [[1, 0], [0, 0]]
-	 {% else %}
+     {% else %}
      sortList: [[0, 0]]
-	 {% endif %}
+     {% endif %}
    });
    $('#jump_day').datetimepicker({pickTime: false, format: 'YYYY-MM-DD'});
  });

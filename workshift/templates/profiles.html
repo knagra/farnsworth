@@ -7,7 +7,9 @@
 
 {% block w_content %}
 <div class="profiles_container">
-  <h1 class="w_title">{{ page_name }}</h1>
+  <h1 class="w_title">
+    {{ page_name }}
+  </h1>
   <hr class="w_line" />
   {% if not workshifter_tuples %}
   No workshifters added yet.
@@ -16,13 +18,13 @@
     <thead>
       <tr>
         <th>Name</th>
-		<th>Preferences First Saved</th>
+        <th>Preferences First Saved</th>
         {% for pool in pools %}
         <th>
-		  <a href="{{ pool.get_view_url }}">
-			{{ pool.title }}
-		  </a>
-		</th>
+          <a href="{{ pool.get_view_url }}">
+            {{ pool.title }}
+          </a>
+        </th>
         {% endfor %}
       </tr>
     </thead>
@@ -30,23 +32,23 @@
       {% for workshifter, pool_hours in workshifter_tuples %}
       <tr>
         <td>
-		  <a href="{{ workshifter.get_view_url }}">
-			{{ workshifter.user.get_full_name }}
-		  </a>
-		</td>
-		<td>
-		  {% if workshifter.preference_save_time %}
-		  {{ workshifter.preference_save_time }}
-		  {% endif %}
-		</td>
+          <a href="{{ workshifter.get_view_url }}">
+            {{ workshifter.user.get_full_name }}
+          </a>
+        </td>
+        <td>
+          {% if workshifter.preference_save_time %}
+          {{ workshifter.preference_save_time }}
+          {% endif %}
+        </td>
         {% for hours in pool_hours %}
         <td>
-		  {% if 0 > hours.standing %}
-		  <font color="red">{{ hours.standing }}</font>
-		  {% else %}
-		  <font color="green">{{ hours.standing }}</font>
-		  {% endif %}
-		</td>
+          {% if 0 > hours.standing %}
+          <font color="red">{{ hours.standing }}</font>
+          {% else %}
+          <font color="green">{{ hours.standing }}</font>
+          {% endif %}
+        </td>
         {% endfor %}
       </tr>
       {% endfor %}

@@ -10,12 +10,13 @@
   {% if WORKSHIFT_MANAGER %}
   <form action="{{ instance.get_edit_url }}" class="pull-right">
     <button class="btn btn-warning" type="submit">
-      <span class="glyphicon glyphicon-edit"></span><span class="hidden-xs"> Edit</span>
+      <span class="glyphicon glyphicon-edit"></span>
+      <span class="hidden-xs"> Edit</span>
     </button>
   </form>
   {% endif %}
   <h1 class="w_title">
-	{{ page_name }}
+    {{ page_name }}
   </h1>
   <hr class="w_line" />
   <dl id="info_table" class="dl-horizontal">
@@ -23,99 +24,99 @@
     <dt>Recurring Workshift</dt>
     <dd><a href="{{ instance.weekly_workshift.get_view_url }}">{{ instance.weekly_workshift.display_time }}</a></dd>
     {% endif %}
-	<dt>Workshift Pool</dt>
-	<dd><a href="{{ instance.pool.get_view_url }}">{{ instance.pool.title }}</a></dd>
-	<dt>Date</dt>
-	<dd>{{ instance.date }}</dd>
-	{% if instance.workshifter or instance.liable %}
-	<dt>
-	  Assignee
-	</dt>
-	{% if instance.workshifter %}
-	<dd>
-	  <a href="{{ instance.workshifter.get_view_url }}">
-		{{ instance.workshifter.user.get_full_name }}
-	  </a>
-	</dd>
-	{% elif instance.liable %}
-	<dd>
-	  <a href="{{ instance.liable.get_view_url }}">
-		{{ instance.liable.user.get_full_name }}
-	  </a>
-	  signed out less than {{ instance.pool.sign_out_cutoff }}
-	  hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of
-	  this shift and is still expected to complete the shift if it is not
-	  filled by another person.
-	</dd>
-	{% endif %}
-	{% endif %}
-	<dt>
-	  Workshift Hours
-	</dt>
-	<dd>
-	  {{ instance.hours }} hour{{ instance.hours|pluralize }}
-	</dd>
-	{% if interact_forms or note_form %}
-	<dt>
-	  Action
-	</dt>
-	<dd>
-	  <form method="POST" action="">
-		{% csrf_token %}
-		{% with forms=interact_forms %}
-		{% include "shift_forms.html" %}
-		{% endwith %}
-	  </form>
-	</dd>
-	{% endif %}
-	{% if edit_hours_form %}
-	<dt>
-	  Edit Credited Hours
-	</dt>
-	<dd>
-	  <form method="POST">
-		{% csrf_token %}
-		{{ edit_hours_form|bootstrap }}
-		<button type="submit" class="btn btn-default" name="edit_hours">
-		  <span class="glyphicon glyphicon-edit"></span>
-		  Edit Hours
-		</button>
-	  </form>
-	</dd>
-	{% endif %}
+    <dt>Workshift Pool</dt>
+    <dd><a href="{{ instance.pool.get_view_url }}">{{ instance.pool.title }}</a></dd>
+    <dt>Date</dt>
+    <dd>{{ instance.date }}</dd>
+    {% if instance.workshifter or instance.liable %}
+    <dt>
+      Assignee
+    </dt>
+    {% if instance.workshifter %}
+    <dd>
+      <a href="{{ instance.workshifter.get_view_url }}">
+        {{ instance.workshifter.user.get_full_name }}
+      </a>
+    </dd>
+    {% elif instance.liable %}
+    <dd>
+      <a href="{{ instance.liable.get_view_url }}">
+        {{ instance.liable.user.get_full_name }}
+      </a>
+      signed out less than {{ instance.pool.sign_out_cutoff }}
+      hour{{ instance.pool.sign_out_cutoff|pluralize }} before the beginning of
+      this shift and is still expected to complete the shift if it is not
+      filled by another person.
+    </dd>
+    {% endif %}
+    {% endif %}
+    <dt>
+      Workshift Hours
+    </dt>
+    <dd>
+      {{ instance.hours }} hour{{ instance.hours|pluralize }}
+    </dd>
+    {% if interact_forms or note_form %}
+    <dt>
+      Action
+    </dt>
+    <dd>
+      <form method="POST" action="">
+        {% csrf_token %}
+        {% with forms=interact_forms %}
+        {% include "shift_forms.html" %}
+        {% endwith %}
+      </form>
+    </dd>
+    {% endif %}
+    {% if edit_hours_form %}
+    <dt>
+      Edit Credited Hours
+    </dt>
+    <dd>
+      <form method="POST">
+        {% csrf_token %}
+        {{ edit_hours_form|bootstrap }}
+        <button type="submit" class="btn btn-default" name="edit_hours">
+          <span class="glyphicon glyphicon-edit"></span>
+          Edit Hours
+        </button>
+      </form>
+    </dd>
+    {% endif %}
   </dl>
   <hr />
   {% if instance.description or instance.addendum %}
   <h3 class="w_subtitle">
-	Description
+    Description
   </h3>
   <hr class="w_line" />
   <div>
-	{% if instance.description %}
-	{{ instance.description|safe }}
-	{% endif %}
-	{% if instance.description and instance.addendum %}
-	<br />
-	{% endif %}
-	{% if instance.addendum %}
-	{{ instance.addendum|safe }}
-	{% endif %}
+    {% if instance.description %}
+    {{ instance.description|safe }}
+    {% endif %}
+    {% if instance.description and instance.addendum %}
+    <br />
+    {% endif %}
+    {% if instance.addendum %}
+    {{ instance.addendum|safe }}
+    {% endif %}
   </div>
   <hr />
   {% endif %}
   {% if instance.weekly_workshift.workshift_type.quick_tips %}
   <h3 class="w_subtitle">
-	Quick Tips
+    Quick Tips
   </h3>
   <hr class="w_line" />
   <div>
-	{{ instance.weekly_workshift.workshift_type.quick_tips|safe }}
+    {{ instance.weekly_workshift.workshift_type.quick_tips|safe }}
   </div>
   <hr />
   {% endif %}
   {% if instance.logs.all %}
   <h3 class="w_subtitle">
-	Logs
+    Logs
   </h3>
   <table class=" table table-striped table-bordered table-condensed table-hover">
     <thead>
@@ -135,16 +136,16 @@ class="success"
 {% endif %}
 >
         <td>
-		  {{ log.entry_time }}
-		</td>
+          {{ log.entry_time }}
+        </td>
         <td>
-		  {% include "shift_log.html" %}
-		</td>
+          {% include "shift_log.html" %}
+        </td>
         <td>
-		  {% if log.note %}
-		  {{ log.note }}
-		  {% endif %}
-		</td>
+          {% if log.note %}
+          {{ log.note }}
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>

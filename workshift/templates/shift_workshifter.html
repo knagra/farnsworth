@@ -5,7 +5,7 @@
 {% elif shift.liable %}
 <del>
   <a title="Workshifter is still liable for this shift" href="{{ shift.liable.get_view_url }}">
-	{{ shift.liable.user.get_full_name }}
+    {{ shift.liable.user.get_full_name }}
   </a>
 </del>
 {% endif %}

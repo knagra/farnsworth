@@ -7,103 +7,105 @@
 
 {% block w_content %}
 <div id="manage_container">
-  <h1 class="w_title">Manage Workshifts</h1>
+  <h1 class="w_title">
+    {{ page_name }}
+  </h1>
   <hr class="w_line" />
   <ul class="nav nav-pills" style="margin-bottom: 10px;">
     {% if pools %}
-	<li class="active">
-	  <a href="#pools_div" data-toggle="tab">Workshift Pools</a>
-	</li>
-	{% endif %}
+    <li class="active">
+      <a href="#pools_div" data-toggle="tab">Workshift Pools</a>
+    </li>
+    {% endif %}
     {% if workshifters %}
-	<li{% if not pools %} class="active"{% endif %}>
-	  <a href="#workshifters_div" data-toggle="tab">Workshifters</a>
-	</li>
-	{% endif %}
-	{% if edit_semester_form %}
-	<li>
-	  <a href="#edit_semester_div" data-toggle="tab">Edit Semester Options</a>
-	</li>
-	{% endif %}
+    <li{% if not pools %} class="active"{% endif %}>
+      <a href="#workshifters_div" data-toggle="tab">Workshifters</a>
+    </li>
+    {% endif %}
+    {% if edit_semester_form %}
+    <li>
+      <a href="#edit_semester_div" data-toggle="tab">Edit Semester Options</a>
+    </li>
+    {% endif %}
   </ul>
 
   <div class="tab-content">
-	{% if pools %}
-	<div class="tab-pane active" id="pools_div">
-	  <table id="pools_table" class="table table-striped table-bordered table-condensed table-hover members_table">
-		<thead>
-		  <tr>
-			<th>Workshift Pool</th>
-			<th>Managers</th>
-			<th>Hours</th>
-		  </tr>
-		</thead>
-		<tbody>
-		  {% for pool in pools %}
-		  <tr>
-			<td>
-			  <a href="{{ pool.get_view_url }}">
-				{{ pool.title }}
-			  </a>
-			  (<a href="{{ pool.get_edit_url }}">edit</a>)
-			</td>
-			<td>
-			  {% if pool.managers.count %}
-			  {% for pos in pool.managers.all %}
-			  {% if not forloop.first %}, {% endif %}
-			  <a {% if pos.active %}title="View Details" href="{{ pos.get_view_url }}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{{ pos.get_edit_url }}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
-			  {% if pos.incumbent %}
-			  (<a title="View Profile" href="{{ pos.incumbent.get_view_url }}">{{ pos.incumbent }}</a>)
-			  {% else %}
-			  (<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
-			  {% endif %}
-			  {% endfor %}
-			  {% endif %}
-			</td>
-			<td>{{ pool.show_hours }}</td>
-		  </tr>
-		  {% endfor %}
-		</tbody>
-	  </table>
-	</div> <!-- #pools_div -->
-	{% endif %}
+    {% if pools %}
+    <div class="tab-pane active" id="pools_div">
+      <table id="pools_table" class="table table-striped table-bordered table-condensed table-hover members_table">
+        <thead>
+          <tr>
+            <th>Workshift Pool</th>
+            <th>Managers</th>
+            <th>Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pool in pools %}
+          <tr>
+            <td>
+              <a href="{{ pool.get_view_url }}">
+                {{ pool.title }}
+              </a>
+              (<a href="{{ pool.get_edit_url }}">edit</a>)
+            </td>
+            <td>
+              {% if pool.managers.count %}
+              {% for pos in pool.managers.all %}
+              {% if not forloop.first %}, {% endif %}
+              <a {% if pos.active %}title="View Details" href="{{ pos.get_view_url }}"{% else %}title="This position is not active. Click to edit." class="text-muted" href="{{ pos.get_edit_url }}"{% endif %}><span class="glyphicon glyphicon-tower"></span> {{ pos.title }}</a>
+              {% if pos.incumbent %}
+              (<a title="View Profile" href="{{ pos.incumbent.get_view_url }}">{{ pos.incumbent }}</a>)
+              {% else %}
+              (<span title="There is currently no incumbent for this position." class="text-danger">No incumbent</span>)
+              {% endif %}
+              {% endfor %}
+              {% endif %}
+            </td>
+            <td>{{ pool.show_hours }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div> <!-- #pools_div -->
+    {% endif %}
 
-	{% if workshifters %}
-	<div class="tab-pane{% if not pools %} active{% endif %}" id="workshifters_div">
-	  {% include "workshifters_table.html" %}
-	</div> <!-- #workshifters_div -->
-	{% endif %}
+    {% if workshifters %}
+    <div class="tab-pane{% if not pools %} active{% endif %}" id="workshifters_div">
+      {% include "workshifters_table.html" %}
+    </div> <!-- #workshifters_div -->
+    {% endif %}
 
-	{% if edit_semester_form %}
-	<div class="tab-pane" id="edit_semester_div">
-	  <form method="post">
-		{% csrf_token %}
-		{{ edit_semester_form|bootstrap }}
-		{% if close_semester_form %}
-		{{ close_semester_form|bootstrap }}
-		{% endif %}
-		{% if open_semester_form %}
-		{{ open_semester_form|bootstrap }}
-		{% endif %}
-		<div class="text-center">
-		  <div class="btn-group">
-			<button type="submit" class="btn btn-primary" name="edit_semester">
-			  <span class="glyphicon glyphicon-floppy-disk"></span> Save
-			</button>
-			{% if close_semester_form %}
-			<button type="submit" class="btn btn-warning" name="close_semester">
-			  <span class="glyphicon glyphicon-fire"></span> Close
-			</button>
-			{% endif %}
-			{% if open_semester_form %}
-			<button type="submit" class="btn btn-info" name="open_semester">
-			  <span class="glyphicon glyphicon-repeat"></span> Re-Open
-			</button>
-			{% endif %}
-		  </div>
-		</div>
-	  </form>
-	</div> <!-- #edit_semester_div -->
+    {% if edit_semester_form %}
+    <div class="tab-pane" id="edit_semester_div">
+      <form method="post">
+        {% csrf_token %}
+        {{ edit_semester_form|bootstrap }}
+        {% if close_semester_form %}
+        {{ close_semester_form|bootstrap }}
+        {% endif %}
+        {% if open_semester_form %}
+        {{ open_semester_form|bootstrap }}
+        {% endif %}
+        <div class="text-center">
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary" name="edit_semester">
+              <span class="glyphicon glyphicon-floppy-disk"></span> Save
+            </button>
+            {% if close_semester_form %}
+            <button type="submit" class="btn btn-warning" name="close_semester">
+              <span class="glyphicon glyphicon-fire"></span> Close
+            </button>
+            {% endif %}
+            {% if open_semester_form %}
+            <button type="submit" class="btn btn-info" name="open_semester">
+              <span class="glyphicon glyphicon-repeat"></span> Re-Open
+            </button>
+            {% endif %}
+          </div>
+        </div>
+      </form>
+    </div> <!-- #edit_semester_div -->
   </div> <!-- .tab-content -->
   {% endif %}
 </div> <!-- #manage_container -->
