@@ -482,7 +482,7 @@ class UndoShiftForm(InteractShiftForm):
         super(UndoShiftForm, self).__init__(*args, **kwargs)
         self.undo = True
 
-    @classmethod
+    @staticmethod
     def check_marked_blown(instance, profile):
         if instance.logs.count() > 0:
             latest = instance.logs.latest("entry_time")
