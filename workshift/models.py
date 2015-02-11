@@ -13,7 +13,7 @@ from django.utils.dateformat import time_format
 
 from base.models import UserProfile
 from managers.models import Manager
-from workshift.fields import DayField, DAY_CHOICES
+from workshift.fields import DayField
 from workshift.templatetags.workshift_tags import wurl
 
 WORKSHIFT_MANAGER_VERIFY = "W"
@@ -554,16 +554,13 @@ class RegularWorkshift(models.Model):
         return self.__unicode__()
 
     def __unicode__(self):
-        if self.day:
-            return "{0}: {1}".format(
+        if self.day is not None:
+            return "{}: {}".format(
                 self.workshift_type.title,
                 self.get_day_display(),
             )
         else:
             return self.workshift_type.title
-
-    def get_day_display(self):
-        return DAY_CHOICES[self.day][1]
 
     def get_view_url(self):
         return wurl("workshift:view_shift", pk=self.pk, sem_url=self.pool.semester.sem_url)
