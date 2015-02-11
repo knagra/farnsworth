@@ -603,6 +603,7 @@ class SignInForm(InteractShiftForm):
 
         return instance
 
+
 class SignOutForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-log-out"></span>'
     title_long = "Sign Out"
@@ -611,29 +612,46 @@ class SignOutForm(InteractShiftForm):
     def clean_pk(self):
         shift = super(SignOutForm, self).clean_pk()
 
-        if shift.workshifter != self.profile:
-            raise forms.ValidationError("Not signed into workshift.")
+        if shift.workshifter != None:
+            raise forms.ValidationError(
+                "No one is signed into this workshift.",
+            )
 
         return shift
 
     def save(self, note=None):
         instance = self.cleaned_data["pk"]
+        liable = False
+        workshifter = instance.workshifter
+
+        if workshifter != instance.profile:
+            notify.send(
+                self.profile.user,
+                verb="signed you out of",
+                action_object=instance,
+                recipience=workshifter.user,
+            )
+        else:
+            if utils.past_sign_out(instance):
+                liable = True
+
         instance.workshifter = None
 
-        if utils.past_sign_out(instance):
-            instance.liable = self.profile
+        if liable:
+            instance.liable = workshifter
 
         instance.save(update_fields=["workshifter", "liable"])
 
         instance.logs.add(
             ShiftLogEntry.objects.create(
-                person=self.profile,
+                person=workshifter,
                 entry_type=ShiftLogEntry.SIGNOUT,
                 note=note,
             )
         )
 
         return instance
+
 
 class EditHoursForm(forms.Form):
     hours = forms.DecimalField(
