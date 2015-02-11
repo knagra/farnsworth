@@ -231,3 +231,15 @@ class TestInteractForms(TestCase):
         form = SignOutForm({"pk": self.once.pk}, profile=self.up)
         self.assertFalse(form.is_valid())
         self.assertEqual(["Workshift has been closed."], form.errors["pk"])
+
+    def test_edit_hours(self):
+        form = EditHoursForm(
+            {
+                "hours": self.once.hours + 1,
+                "note": "Better than expected",
+            },
+            instance=self.once,
+            profile=self.wp,
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.save(), self.once)
