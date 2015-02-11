@@ -179,7 +179,7 @@ def create_workshift_instances(sender, instance, created, **kwargs):
                 weekly_workshift=shift,
                 closed=False,
         ).count() == 0:
-            utils.make_instances(shift.pool.semester, shifts=[instance])
+            utils.make_instances(shift.pool.semester, shifts=[shift])
     else:
         WorkshiftInstance.objects.filter(
             weekly_workshift=shift,
