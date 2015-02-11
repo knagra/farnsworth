@@ -7,7 +7,10 @@
 
 {% block w_content %}
 <div class="instance_container">
-  <h1 class="w_title">{{ page_name }}</h1>
+  <h1 class="w_title">
+    {{ page_name }}
+  </h1>
+  <hr class="w_line"/>
   {% if add_pool_form %}
   <form method="post" action="">
     {% csrf_token %}
