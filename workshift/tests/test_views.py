@@ -9,7 +9,6 @@ from django.test import TestCase
 from django.utils.timezone import now, localtime
 
 from base.models import User, UserProfile
-from farnsworth import pre_fill
 from managers.models import Manager
 from utils.variables import MESSAGES
 from workshift.fill import REGULAR_WORKSHIFTS, WEEK_LONG, HUMOR_WORKSHIFTS, \
