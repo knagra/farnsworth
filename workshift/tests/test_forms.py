@@ -207,7 +207,10 @@ class TestInteractForms(TestCase):
 
         form = SignOutForm({"pk": self.once.pk}, profile=self.up)
         self.assertFalse(form.is_valid())
-        self.assertEqual(["Not signed into workshift."], form.errors["pk"])
+        self.assertEqual(
+            ["No one is signed into this workshift."],
+            form.errors["pk"],
+        )
 
     def test_missing_shift(self):
         self.assertTrue(self.client.login(username="u", password="pwd"))
