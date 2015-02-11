@@ -612,7 +612,7 @@ class SignOutForm(InteractShiftForm):
     def clean_pk(self):
         shift = super(SignOutForm, self).clean_pk()
 
-        if shift.workshifter != None:
+        if shift.workshifter is None:
             raise forms.ValidationError(
                 "No one is signed into this workshift.",
             )
