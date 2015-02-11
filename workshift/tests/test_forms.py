@@ -83,9 +83,6 @@ class TestInteractForms(TestCase):
         self.instance.logs = [self.sle0]
         self.once.logs = [self.sle0]
 
-        self.instance.save()
-        self.once.save()
-
     def test_verify(self):
         self.assertTrue(self.client.login(username="u", password="pwd"))
 
@@ -124,12 +121,14 @@ class TestInteractForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("Workshifter cannot verify self.", form.errors["pk"])
 
+        self.client.logout()
         self.assertTrue(self.client.login(username="ou", password="pwd"))
 
         form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.op)
         form.is_valid()
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
+
         log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
         self.assertEqual(1, log.count())
         self.assertEqual(log[0].person, self.op)
@@ -186,6 +185,7 @@ class TestInteractForms(TestCase):
         form = SignInForm({"pk": self.once.pk}, profile=self.up)
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
+
         log = self.once.logs.filter(entry_type=ShiftLogEntry.SIGNIN)
         self.assertEqual(1, log.count())
         self.assertEqual(log[0].person, self.up)
@@ -200,6 +200,7 @@ class TestInteractForms(TestCase):
         form = SignOutForm({"pk": self.instance.pk}, profile=self.up)
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
+
         log = self.instance.logs.filter(entry_type=ShiftLogEntry.SIGNOUT)
         self.assertEqual(1, log.count())
         self.assertEqual(log[0].person, self.up)
@@ -213,15 +214,20 @@ class TestInteractForms(TestCase):
 
         form = SignOutForm({"pk": -1}, profile=self.up)
         self.assertFalse(form.is_valid())
+        self.assertEqual(["Workshift does not exist."], form.errors["pk"])
 
         form = SignOutForm({"pk": 100}, profile=self.up)
         self.assertFalse(form.is_valid())
+        self.assertEqual(["Workshift does not exist."], form.errors["pk"])
 
         form = SignOutForm({"pk": "a"}, profile=self.up)
         self.assertFalse(form.is_valid())
+        self.assertEqual(["Enter a whole number."], form.errors["pk"])
 
     def test_closed_shift(self):
         self.once.closed = True
         self.once.save()
+
         form = SignOutForm({"pk": self.once.pk}, profile=self.up)
         self.assertFalse(form.is_valid())
+        self.assertEqual(["Workshift has been closed."], form.errors["pk"])
