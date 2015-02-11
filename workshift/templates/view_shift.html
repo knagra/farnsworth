@@ -45,8 +45,20 @@
       </a>
     </dd>
     {% endif %}
+    <dt>Workshift Pool</dt>
+    <dd>
+      <a href="{{ shift.pool.get_view_url }}">
+        {{ shift.pool.title }}
+      </a>
+    </dd>
     <dt>Hours</dt>
     <dd>{{ shift.hours }}</dd>
+    {% if shift.current_assignees.count %}
+    <dt>Assignee{{ shift.current_assignees.count|pluralize }}</dt>
+    <dd>{% for assignee in shift.current_assignees.all %}{% if not forloop.first %},
+      {% endif %}<a href="{{ assignee.get_view_url }}">{{ assignee.get_full_name }}</a>{% endfor %}
+    </dd>
+    {% endif %}
     {% if shift.workshift_type.quick_tips %}
     <dt>Quick Tips</dt>
     <dd>
@@ -57,18 +69,6 @@
     <dt>Description</dt>
     <dd>
       {{ shift.workshift_type.description|safe }}
-    </dd>
-    {% endif %}
-    <dt>Workshift Pool</dt>
-    <dd>
-      <a href="{{ shift.pool.get_view_url }}">
-        {{ shift.pool.title }}
-      </a>
-    </dd>
-    {% if shift.current_assignees.count %}
-    <dt>Assignee{{ shift.current_assignees.count|pluralize }}</dt>
-    <dd>{% for assignee in shift.current_assignees.all %}{% if not forloop.first %},
-      {% endif %}<a href="{{ assignee.get_view_url }}">{{ assignee.get_full_name }}</a>{% endfor %}
     </dd>
     {% endif %}
   </dl>
@@ -85,25 +85,29 @@
     </tr>
   </thead>
   <tbody>
-    {% for shift, forms in instance_tuples %}
-    <tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
+    {% for instance, forms in instance_tuples %}
+    <tr class="{% if instance.blown %}danger{% elif instance.closed %}success{% elif instance.liable %}warning{% elif not instance.workshifter %}info{% endif %}">
       <td>
-        <a href="{{ shift.get_view_url }}">
-          {{ shift.date }}
+        <a href="{{ instance.get_view_url }}">
+          {{ instance.date }}
         </a>
       </td>
       <td>
-        {% if shift.intended_hours == shift.hours %}
-        {{ shift.hours }}
+        {% if instance.intended_hours == instance.hours %}
+        {{ instance.hours }}
         {% else %}
-        <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
+        <del>{{ instance.intended_hours}}</del> {{ instance.hours }}
         {% endif %}
       </td>
       <td>
+        {% with shift=instance %}
         {% include "shift_workshifter.html" %}
+        {% endwith %}
       </td>
       <td>
+        {% with shift=instance %}
         {% include "shift_status.html" %}
+        {% endwith %}
       </td>
       <td>
         <form method="POST" action="">

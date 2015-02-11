@@ -4,9 +4,17 @@
 {% load request_tags %}
 {% load bootstrap %}
 {% load workshift_tags %}
+{% load django_select2_tags %}
+
+{% block w_headers %}
+{% import_django_select2_js %}
+{% import_django_select2_css light=1 %}
+{% endblock %}
 
 {% block w_content %}
-<h1 class="w_title">{{ page_name }}</h1>
+<h1 class="w_title">
+  {{ page_name }}
+</h1>
 {% if workshifters and pools %}
 <hr class="w_line" />
 {% include "workshifters_table.html" %}

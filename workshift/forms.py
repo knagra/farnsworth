@@ -134,12 +134,17 @@ class WorkshiftInstanceForm(forms.ModelForm):
             "semester",
             "verifier",
             "liable",
+            "closed",
         )
+        widgets = {
+            "workshifter": Select2Widget,
+        }
 
     weekly_workshift = forms.ModelChoiceField(
         required=False,
         queryset=RegularWorkshift.objects.filter(active=True),
         help_text="Link this instance to a regular shift.",
+        widget=Select2Widget,
     )
     title = forms.CharField(
         required=False,
@@ -155,11 +160,13 @@ class WorkshiftInstanceForm(forms.ModelForm):
         required=False,
         queryset=WorkshiftPool.objects.filter(semester__current=True),
         help_text="The workshift pool for this shift.",
+        widget=Select2Widget,
     )
     verify = forms.ChoiceField(
         required=False,
         choices=VERIFY_CHOICES,
         help_text="Who is able to mark this shift as completed.",
+        widget=Select2Widget,
     )
     start_time = forms.TimeField(
         required=False,
@@ -194,6 +201,11 @@ class WorkshiftInstanceForm(forms.ModelForm):
         self.edit_hours = kwargs.pop("edit_hours", True)
 
         super(WorkshiftInstanceForm, self).__init__(*args, **kwargs)
+
+        self.fields["weekly_workshift"].queryset = \
+            self.fields["weekly_workshift"].queryset.filter(
+                pool__semester=self.semester,
+            )
 
         # Don't allow editing hours through this form if a view doesn't allow
         # it, we have a separate form for that which requires a note as well.
@@ -924,7 +936,11 @@ class RegularWorkshiftForm(forms.ModelForm):
             "is_manager_shift",
         )
         widgets = {
-            "current_assignees": Select2MultipleWidget(),
+            "workshift_type": Select2Widget,
+            "pool": Select2Widget,
+            "day": Select2Widget,
+            "verify": Select2Widget,
+            "current_assignees": Select2MultipleWidget,
         }
         help_texts = {
             "current_assignees": "",
@@ -952,11 +968,20 @@ class WorkshiftTypeForm(forms.ModelForm):
     class Meta:
         model = WorkshiftType
         fields = "__all__"
+        widgets = {
+            "assignment": Select2Widget,
+        }
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('auto_id', '%s')
         kwargs.setdefault('label_suffix', '')
+        read_only = kwargs.pop("read_only", False)
+
         super(WorkshiftTypeForm, self).__init__(*args, **kwargs)
+
+        if read_only:
+            for field in self.fields.keys():
+                self.fields[field].widget.attrs['readonly'] = True
 
 class WorkshiftRatingForm(forms.ModelForm):
     class Meta:
@@ -1050,6 +1075,10 @@ class AddRegularWorkshiftForm(forms.ModelForm):
             "start_time": "",
             "end_time": "",
         }
+        widgets = {
+            "pool": Select2Widget,
+            "day": Select2Widget,
+        }
 
     def clean(self):
         cleaned_data = super(AddRegularWorkshiftForm, self).clean()
@@ -1065,16 +1094,20 @@ class AddRegularWorkshiftForm(forms.ModelForm):
 class BaseRegularWorkshiftFormSet(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
         self.pools = kwargs.pop("pools", None)
+
         super(BaseRegularWorkshiftFormSet, self).__init__(*args, **kwargs)
+
         if self.pools:
             for form in self.forms:
                 form.fields["pool"].queryset = self.pools
 
     def save(self, workshift_type):
         shifts = super(BaseRegularWorkshiftFormSet, self).save(commit=False)
+
         for shift in shifts:
             shift.workshift_type = workshift_type
             shift.save()
+
         return shifts
 
 RegularWorkshiftFormSet = modelformset_factory(
@@ -1101,6 +1134,7 @@ class FineDateForm(forms.Form):
     pool = forms.ModelChoiceField(
         queryset=WorkshiftPool.objects.none(),
         help_text="The workshift pool to calculate fines for.",
+        widget=Select2Widget,
     )
     period = forms.ChoiceField(
         choices=FINE_DATE_CHOICES,

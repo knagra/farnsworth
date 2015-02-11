@@ -4,8 +4,11 @@
 {% load request_tags %}
 {% load bootstrap %}
 {% load workshift_tags %}
+{% load django_select2_tags %}
 
 {% block w_headers %}
+{% import_django_select2_js %}
+{% import_django_select2_css light=1 %}
 <style>
  .shifts_formset_row td {
      padding-right: 5px;
@@ -23,10 +26,24 @@
 {% endblock %}
 
 {% block w_content %}
-<h1 class="w_title">{{ page_name }}</h1>
+<h1 class="w_title">
+  {{ page_name }}
+</h1>
 <ul class="nav nav-pills" style="margin-bottom: 10px;">
-  {% if add_instance_form %}<li class="active"><a href="#workshift_instance" data-toggle="tab">Workshift Instance</a></li>{% endif %}
-  {% if add_type_form %}<li><a href="#workshift_type" data-toggle="tab">Workshift Type</a></li>{% endif %}
+  {% if add_instance_form %}
+  <li class="active">
+    <a href="#workshift_instance" data-toggle="tab">
+      Workshift Instance
+    </a>
+  </li>
+  {% endif %}
+  {% if add_type_form %}
+  <li>
+    <a href="#workshift_type" data-toggle="tab">
+      Recurring Workshift
+    </a>
+  </li>
+  {% endif %}
 </ul>
 <div class="tab-content">
   {% if add_instance_form %}
@@ -34,7 +51,10 @@
     {% csrf_token %}
     {{ add_instance_form|bootstrap }}
     <div class="text-center">
-      <button type="submit" class="btn btn-success" name="add_instance">Create Single Workshift</button>
+      <button type="submit" class="btn btn-success" name="add_instance">
+        <span class="glyphicon glyphicon-plus"></span>
+        Create Workshift Instance
+      </button>
     </div>
   </form>
   {% endif %}
@@ -74,7 +94,10 @@
     </table>
     {{ shifts_formset.management_form }}
     <div class="text-center">
-      <button type="submit" class="btn btn-success" name="add_type">Create Workshift Type</button>
+      <button type="submit" class="btn btn-success" name="add_type">
+        <span class="glyphicon glyphicon-plus"></span>
+        Create Recurring Workshift
+      </button>
     </div>
   </form>
   {% endif %}
@@ -96,29 +119,29 @@
  function show_hide_details() {
    var weekly_workshift = $("#id_weekly_workshift").val();
    if (weekly_workshift != "") {
-     $("#id_title").parent().parent().hide()
-       $("#id_description").parent().parent().hide()
-       $("#id_pool").parent().parent().hide()
-       $("#id_start_time").parent().parent().hide()
-       $("#id_end_time").parent().parent().hide()
+     $("#id_title").parent().parent().hide();
+     $("#id_description").parent().parent().hide();
+     $("#id_pool").parent().parent().hide();
+     $("#id_start_time").parent().parent().hide();
+     $("#id_end_time").parent().parent().hide();
    } else {
-     $("#id_title").parent().parent().show()
-       $("#id_description").parent().parent().show()
-       $("#id_pool").parent().parent().show()
-       $("#id_start_time").parent().parent().show()
-       $("#id_end_time").parent().parent().show()
+     $("#id_title").parent().parent().show();
+     $("#id_description").parent().parent().show();
+     $("#id_pool").parent().parent().show();
+     $("#id_start_time").parent().parent().show();
+     $("#id_end_time").parent().parent().show();
    }
  }
- $("#id_weekly_workshift").change(show_hide_details)
-   $(document).ready(function() {
-     $(function() {
-       $(".shifts_formset_row").formset({
-         prefix: "{{ shifts_formset.prefix }}",
-         added: renewDatePickers,
-       });
-       renewDatePickers();
-       show_hide_details();
+ $("#id_weekly_workshift").change(show_hide_details);
+ $(document).ready(function() {
+   $(function() {
+     $(".shifts_formset_row").formset({
+       prefix: "{{ shifts_formset.prefix }}",
+       added: renewDatePickers,
      });
+     renewDatePickers();
+     show_hide_details();
    });
+ });
 </script>
 {% endblock %}

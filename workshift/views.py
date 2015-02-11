@@ -11,7 +11,6 @@ from datetime import date, timedelta
 from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -363,10 +362,19 @@ def semester_view(request, semester, profile=None):
 def semester_info_view(request, semester, profile=None):
     page_name = "{} {}".format(semester.get_season_display(), semester.year)
     pools = WorkshiftPool.objects.filter(semester=semester)
+    full_management = utils.can_manage(request.user, semester)
+    pool_edits = [
+        (
+            pool,
+            full_management or utils.can_manage(request.user, semester, pool=pool),
+        )
+        for pool in pools
+    ]
     return render_to_response("semester_info.html", {
         "page_name": page_name,
         "semester": semester,
-        "pools": pools,
+        "pools": pool_edits,
+        "can_edit": full_management,
     }, context_instance=RequestContext(request))
 
 def _get_forms(profile, instance, request, undo=False, prefix=""):
@@ -461,22 +469,6 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
                     undo=undo,
                 )
             )
-
-    if instance.blown:
-        # Undo Blown Shift
-        if instance.logs.count() > 0:
-            latest = instance.logs.latest("entry_time")
-            if latest.entry_type == ShiftLogEntry.BLOWN and latest.person == profile:
-                action = "{}-{}".format(UnBlownShiftForm.action_name, instance.pk)
-                ret.append(
-                    UnBlownShiftForm(
-                        request.POST if action in request.POST else None,
-                        initial={"pk": instance.pk},
-                        profile=profile,
-                        prefix=prefix,
-                        undo=undo,
-                    )
-                )
 
     if not instance.closed:
         if not instance.workshifter:
@@ -1126,45 +1118,55 @@ def add_shift_view(request, semester):
     View for the workshift manager to create new types of workshifts.
     """
     page_name = "Add Workshift"
+    any_management = utils.can_manage(request.user, semester, any_pool=True)
+
+    if not any_management:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            MESSAGES["ADMINS_ONLY"],
+        )
+        return HttpResponseRedirect(semester.get_view_url())
+
+    # Check what pools this person can manage
     pools = WorkshiftPool.objects.filter(semester=semester)
     full_management = utils.can_manage(request.user, semester=semester)
+
     if not full_management:
         pools = pools.filter(managers__incumbent__user=request.user)
-        if not pools.count():
-            messages.add_message(request, messages.ERROR,
-                                 MESSAGES["ADMINS_ONLY"])
-            return HttpResponseRedirect(semester.get_view_url())
 
-    if full_management:
-        add_type_form = WorkshiftTypeForm(
-            request.POST if "add_type" in request.POST else None,
-            prefix="type",
-            )
-        shifts_formset = RegularWorkshiftFormSet(
-            request.POST if "add_type" in request.POST else None,
-            prefix="shifts",
-            queryset=RegularWorkshift.objects.none(),
-            pools=pools,
-            )
+    # Forms
+    add_type_form = WorkshiftTypeForm(
+        data=request.POST if "add_type" in request.POST else None,
+        prefix="type",
+    )
+    shifts_formset = RegularWorkshiftFormSet(
+        data=request.POST if "add_type" in request.POST else None,
+        prefix="shifts",
+        queryset=RegularWorkshift.objects.none(),
+        pools=pools,
+    )
 
-        if add_type_form.is_valid() and shifts_formset.is_valid():
-            wtype = add_type_form.save()
-            shifts_formset.save(workshift_type=wtype)
-            return HttpResponseRedirect(wurl("workshift:manage",
-                                             sem_url=semester.sem_url))
-    else:
-        add_type_form = None
-        shifts_formset = None
+    if add_type_form.is_valid() and shifts_formset.is_valid():
+        wtype = add_type_form.save()
+        shifts_formset.save(workshift_type=wtype)
+        return HttpResponseRedirect(wurl(
+            "workshift:manage",
+            sem_url=semester.sem_url,
+        ))
 
     add_instance_form = WorkshiftInstanceForm(
-        request.POST if "add_instance" in request.POST else None,
+        data=request.POST if "add_instance" in request.POST else None,
         pools=pools,
         semester=semester,
-        )
+    )
     if add_instance_form.is_valid():
         add_instance_form.save()
-        return HttpResponseRedirect(wurl("workshift:manage",
-                                         sem_url=semester.sem_url))
+        return HttpResponseRedirect(wurl(
+            "workshift:manage",
+            sem_url=semester.sem_url,
+        ))
+
     return render_to_response("add_shift.html", {
         "page_name": page_name,
         "add_type_form": add_type_form,
@@ -1214,6 +1216,7 @@ def fine_date_view(request, semester, profile=None):
 def pool_view(request, semester, pk, profile=None):
     pool = get_object_or_404(WorkshiftPool, semester=semester, pk=pk)
     page_name = "{0} Pool".format(pool.title)
+    can_edit = utils.can_manage(request.user, semester, pool=pool)
 
     today = localtime(now()).date()
     shifts = RegularWorkshift.objects.filter(
@@ -1248,6 +1251,7 @@ def pool_view(request, semester, pk, profile=None):
     return render_to_response("view_pool.html", {
         "page_name": page_name,
         "pool": pool,
+        "can_edit": can_edit,
         "shifts": shifts,
         "upcoming_pool_instances": upcoming_pool_instances,
     }, context_instance=RequestContext(request))
@@ -1267,21 +1271,34 @@ def edit_pool_view(request, semester, pk, profile=None):
 
     # TODO: Link auto-verify / auto-blown / etc to pool view?
 
-    edit_pool_form = PoolForm(
-        request.POST or None,
-        instance=pool,
-        full_management=full_management,
-        )
     if "delete" in request.POST:
         pool.delete()
-        return HttpResponseRedirect(wurl("workshift:manage",
-                                         sem_url=semester.sem_url))
+        messages.add_message(
+            request,
+            messages.INFO,
+            "Workshift pool deleted.",
+        )
+        return HttpResponseRedirect(wurl(
+            "workshift:manage",
+            sem_url=semester.sem_url,
+        ))
+
+    edit_pool_form = PoolForm(
+        data=request.POST or None,
+        instance=pool,
+        full_management=full_management,
+    )
     if edit_pool_form.is_valid():
         edit_pool_form.save()
-        messages.add_message(request, messages.INFO,
-                             "Workshift pool successfully updated.")
-        return HttpResponseRedirect(wurl("workshift:manage",
-                                         sem_url=semester.sem_url))
+        messages.add_message(
+            request,
+            messages.INFO,
+            "Workshift pool successfully updated.",
+        )
+        return HttpResponseRedirect(wurl(
+            "workshift:manage",
+            sem_url=semester.sem_url,
+        ))
 
     return render_to_response("edit_pool.html", {
         "page_name": page_name,
@@ -1306,13 +1323,13 @@ def shift_view(request, semester, pk, profile=None):
         can_edit = utils.can_manage(request.user, semester=semester, pool=shift.pool)
 
     instances = WorkshiftInstance.objects.filter(
-        closed=False,
         weekly_workshift=shift,
+        date__gte=localtime(now()).date(),
     )
     instance_tuples = [
-        (instance, _get_forms(
-            profile, instance, request,
-            undo=utils.can_manage(request.user, semester=semester, pool=instance.pool)),
+        (
+            instance,
+            _get_forms(profile, instance, request, undo=can_edit),
         )
         for instance in instances
     ]
@@ -1415,13 +1432,13 @@ def instance_view(request, semester, pk, profile=None):
             incumbent__user=request.user,
             president=True
         ).count() > 0
-        edit_hours = request.user.is_superuser or president
+        can_edit = request.user.is_superuser or president
     else:
-        edit_hours = utils.can_manage(
+        can_edit = utils.can_manage(
             request.user, semester=instance.pool.semester, pool=instance.pool,
         )
 
-    if edit_hours:
+    if can_edit:
         edit_hours_form = EditHoursForm(
             request.POST if "edit_hours" in request.POST else None,
             instance=instance,
@@ -1434,6 +1451,7 @@ def instance_view(request, semester, pk, profile=None):
 
     return render_to_response("view_instance.html", {
         "page_name": page_name,
+        "can_edit": can_edit,
         "instance": instance,
         "interact_forms": interact_forms,
         "note_form": note_form,
@@ -1487,73 +1505,118 @@ def edit_instance_view(request, semester, pk, profile=None):
         "edit_form": edit_form,
     }, context_instance=RequestContext(request))
 
-@login_required
-def list_types_view(request):
+@semester_required
+def list_types_view(request, semester):
     """
     View the details of a particular WorkshiftType.
     """
     page_name = "Workshift Types"
+    full_management = utils.can_manage(request.user, semester)
+    any_management = utils.can_manage(request.user, semester, any_pool=True)
+
     types = WorkshiftType.objects.all()
-    shifts = [
+    type_shifts = [
         RegularWorkshift.objects.filter(
             workshift_type=i,
-            pool__semester__current=True,
+            pool__semester=semester,
         ).order_by("day")
         for i in types
     ]
+    shift_edits = [
+        [
+            (
+                shift,
+                full_management or utils.can_manage(request.user, semester, pool=shift.pool),
+            )
+            for shift in shifts
+        ]
+        for shifts in type_shifts
+    ]
+
     return render_to_response("list_types.html", {
         "page_name": page_name,
-        "type_tuples": zip(types, shifts),
-        "can_edit": utils.can_manage(request.user),
+        "type_tuples": zip(types, shift_edits),
+        "can_edit": any_management,
     }, context_instance=RequestContext(request))
 
-@login_required
-def type_view(request, pk):
+@semester_required
+def type_view(request, semester, pk):
     """
     View the details of a particular WorkshiftType.
     """
+    any_management = utils.can_manage(request.user, semester, any_pool=True)
     wtype = get_object_or_404(WorkshiftType, pk=pk)
     page_name = wtype.title
     regular_shifts = RegularWorkshift.objects.filter(
-        workshift_type=wtype, pool__semester__current=True,
-        )
+        workshift_type=wtype,
+        pool__semester=semester,
+    )
     return render_to_response("view_type.html", {
         "page_name": page_name,
         "wtype": wtype,
         "regular_shifts": regular_shifts,
-        "can_edit": utils.can_manage(request.user),
+        "can_edit": any_management,
     }, context_instance=RequestContext(request))
 
-@workshift_manager_required
-def edit_type_view(request, pk):
+@semester_required
+def edit_type_view(request, semester, pk):
     """
     View for a manager to edit the details of a particular WorkshiftType.
     """
     wtype = get_object_or_404(WorkshiftType, pk=pk)
+    full_management = utils.can_manage(request.user, semester)
+    any_management = utils.can_manage(request.user, semester, any_pool=True)
 
-    if "delete" in request.POST:
-        pass
+    if not any_management:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            MESSAGES["ADMINS_ONLY"],
+        )
+        return HttpResponseRedirect(semester.get_view_url())
+
+    if full_management:
+        if "delete" in request.POST:
+            messages.add_message(
+                request,
+                messages.INFO,
+                "Workshift type deleted.",
+            )
+            wtype.delete()
+            return HttpResponseRedirect(wurl(
+                "workshift:list_types",
+                sem_url=semester.sem_url,
+            ))
 
     edit_form = WorkshiftTypeForm(
-        request.POST if "edit" in request.POST else None,
+        data=request.POST if "edit" in request.POST else None,
         instance=wtype,
         prefix="edit",
+        read_only=not full_management,
     )
 
+    queryset = RegularWorkshift.objects.filter(
+        workshift_type=wtype,
+    )
+
+    if not full_management:
+        queryset = queryset.filter(
+            pool__managers__incumbent__user=request.user,
+        )
+
     shifts_formset = RegularWorkshiftFormSet(
-        request.POST if "edit" in request.POST else None,
+        data=request.POST if "edit" in request.POST else None,
         prefix="shifts",
-        queryset=RegularWorkshift.objects.filter(
-            workshift_type=wtype,
-        ),
+        queryset=queryset,
     )
 
     if edit_form.is_valid() and shifts_formset.is_valid():
-        wtype = edit_form.save()
+        if full_management:
+            wtype = edit_form.save()
         shifts_formset.save(wtype)
         return HttpResponseRedirect(wtype.get_view_url())
 
-    page_name = "Edit {0}".format(wtype.title)
+    page_name = "Edit {}".format(wtype.title)
 
     return render_to_response("edit_type.html", {
         "page_name": page_name,

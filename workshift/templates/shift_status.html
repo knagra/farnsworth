@@ -12,9 +12,12 @@ Auto verify
 {% endif %}
 {% elif shift.verifier %}
 <font color="green">
-  Verified by
-  <a href="{{ shift.verifier.get_view_url }}">
-    {{ shift.verifier.user.get_full_name }}
-  </a>
+  Verified
+  <span class="hidden-xs">
+    by
+    <a href="{{ shift.verifier.get_view_url }}">
+      {{ shift.verifier.user.get_full_name }}
+    </a>
+  </span>
 </font>
 {% endif %}

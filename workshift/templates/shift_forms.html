@@ -1,17 +1,19 @@
 {% load bootstrap %}
 <div style="display:inline">
   {% for form in forms %}
-  <fieldset>
+  <fieldset style="display:inline">
     {{ form.pk }}
   </fieldset>
   <button type="submit"
           class="btn btn-xs btn-{% if form.title_long = 'Verify' %}success{% elif form.title_long = 'Blown' %}danger{% elif form.title_long = 'Sign In' %}primary{% else %}warning{% endif %}"
-          name="{{ form.action_name }}-{{ form.pk.value }}">
-    {{ form.title_short|safe }}<span class="hidden-xs">{{ form.title_long }}</span>
+          name="{{ form.action_name }}-{{ form.pk.value }}"
+          style="display:inline">
+    {{ form.title_short|safe }}
+    <span class="hidden-xs">{{ form.title_long }}</span>
   </button>
   {% endfor %}
   {% if note_form %}
-  <fieldset>
+  <fieldset style="display:inline">
     {{ note_form|bootstrap }}
   </fieldset>
   {% endif %}

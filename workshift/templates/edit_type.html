@@ -3,8 +3,11 @@
 {% load static from staticfiles %}
 {% load request_tags %}
 {% load bootstrap %}
+{% load django_select2_tags %}
 
 {% block w_headers %}
+{% import_django_select2_js %}
+{% import_django_select2_css light=1 %}
 <style>
  .shifts_formset_row td {
      padding-right: 5px;
@@ -23,7 +26,9 @@
 
 {% block w_content %}
 <div class="type_container">
-  <h1 class="w_title">{{ page_name }}</h1>
+  <h1 class="w_title">
+    {{ page_name }}
+  </h1>
   <form method="post">
     {% csrf_token %}
     {% if edit_form %}
@@ -70,10 +75,12 @@
     <div class="text-center">
       <div class="btn-group">
         <button type="submit" class="btn btn-success" name="edit">
-          <span class="glyphicon glyphicon-floppy-disk"></span> Save
+          <span class="glyphicon glyphicon-floppy-disk"></span>
+          Save
         </button>
         <button type="submit" class="btn btn-danger" name="delete">
-          <span class="glyphicon glyphicon-fire"></span> Delete
+          <span class="glyphicon glyphicon-fire"></span>
+          Delete
         </button>
       </div> <!-- .btn-group -->
     </div> <!-- .text-center -->

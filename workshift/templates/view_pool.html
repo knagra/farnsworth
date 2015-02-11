@@ -7,20 +7,25 @@
 
 {% block w_content %}
 <div class="pool_container">
-  {% if WORKSHIFT_MANAGER %}
-  <form action="{{ pool.get_edit_url }}" class="pull-right">
-    <button class="btn btn-warning" type="submit">
+  <div class="pull-right">
+    <a href="{% wurl 'workshift:semester_info' sem_url=SEMESTER.sem_url %}"
+       class="btn btn-default">
+      <span class="glyphicon glyphicon-list"></span>
+      <span class="hidden-xs"> All Pools</span>
+    </a>
+    {% if can_edit %}
+    <a href="{{ pool.get_edit_url }}"
+       class="btn btn-warning">
       <span class="glyphicon glyphicon-edit"></span>
       <span class="hidden-xs"> Edit Pool</span>
-    </button>
-  </form>
-  <form action="{% wurl 'workshift:add_shift' sem_url=SEMESTER.sem_url %}" class="pull-right" style="margin-right: 5px;">
-    <button class="btn btn-default" type="submit">
+    </a>
+    <a href="{% wurl 'workshift:add_shift' sem_url=SEMESTER.sem_url %}"
+       class="btn btn-default">
       <span class="glyphicon glyphicon-plus"></span>
       <span class="hidden-xs"> Add Shift</span>
-    </button>
-  </form>
-  {% endif %}
+    </a>
+    {% endif %}
+  </div>
   <h1 class="w_title">
     {{ page_name }}
   </h1>

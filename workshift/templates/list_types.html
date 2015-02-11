@@ -11,7 +11,9 @@
   <form action="{% wurl 'workshift:add_shift' sem_url=SEMESTER.sem_url %}" class="pull-right">
     <button class="btn btn-default" type="submit">
       <span class="glyphicon glyphicon-plus"></span>
-      <span class="hidden-xs"> Add Shift</span>
+      <span class="hidden-xs">
+        Add Shift
+      </span>
     </button>
   </form>
   {% endif %}
@@ -42,11 +44,17 @@
           <a href="{{ type.get_view_url }}">
             {{ type.title }}
           </a>
+          {% if can_edit %}
+          (<a href="{{ type.get_edit_url }}">edit</a>)
+          {% endif %}
         </td>
         <td>
-          {% for shift in shifts %}
+          {% for shift, edit in shifts %}
           {% if not forloop.first %}<br/>{% endif %}
           <a href="{{ shift.get_view_url }}">{{ shift.display_time }}</a>
+          {% if edit %}
+          (<a href="{{ shift.get_edit_url }}">edit</a>)
+          {% endif %}
           {% endfor %}
         </td>
       </tr>
