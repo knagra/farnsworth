@@ -624,7 +624,7 @@ class SignOutForm(InteractShiftForm):
         liable = False
         workshifter = instance.workshifter
 
-        if workshifter != instance.profile:
+        if workshifter != self.profile:
             notify.send(
                 self.profile.user,
                 verb="signed you out of",
