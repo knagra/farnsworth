@@ -414,53 +414,6 @@ class VerifyShiftForm(InteractShiftForm):
 
         return instance
 
-class UnVerifyShiftForm(InteractShiftForm):
-    title_short = '<span class="glyphicon glyphicon-remove-circle"></span>'
-    title_long = "Undo Verify"
-    action_name = "unverify_shift"
-
-    def __init__(self, *args, **kwargs):
-        super(UnVerifyShiftForm, self).__init__(*args, **kwargs)
-        self.undo = True
-
-    def clean_pk(self):
-        instance = super(UnVerifyShiftForm, self).clean_pk()
-
-        if not instance.verifier:
-            raise forms.ValidationError("Workshift is not verified.")
-        if instance.verifier != self.profile:
-            raise forms.ValidationError("You did not verify this workshift.")
-
-        return instance
-
-    def save(self, note=None):
-        instance = self.cleaned_data["pk"]
-        workshifter = instance.workshifter or instance.liable
-        pool_hours = workshifter.pool_hours.get(pool=instance.pool)
-
-        # Check if the shift was previously verified or marked as blown
-        _undo_verify_blown(instance, pool_hours)
-        instance.save(update_fields=["verifier", "closed"])
-        pool_hours.save(update_fields=["standing"])
-
-        instance.logs.add(
-            ShiftLogEntry.objects.create(
-                person=self.profile,
-                entry_type=ShiftLogEntry.UNVERIFY,
-                note=note,
-            )
-        )
-
-        if self.profile != workshifter:
-            notify.send(
-                self.profile.user,
-                verb="unverified",
-                action_object=instance,
-                recipient=workshifter.user,
-            )
-
-        return instance
-
 class BlownShiftForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-remove"></span>'
     title_long = "Blown"
@@ -520,31 +473,35 @@ class BlownShiftForm(InteractShiftForm):
 
         return instance
 
-class UnBlownShiftForm(InteractShiftForm):
+class UndoShiftForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-remove-circle"></span>'
-    title_long = "Undo Blown"
-    action_name = "unblown_shift"
+    title_long = "Undo"
+    action_name = "undo"
 
     def __init__(self, *args, **kwargs):
-        super(UnBlownShiftForm, self).__init__(*args, **kwargs)
+        super(UndoShiftForm, self).__init__(*args, **kwargs)
         self.undo = True
 
+    @classmethod
+    def check_marked_blown(instance, profile):
+        if instance.logs.count() > 0:
+            latest = instance.logs.latest("entry_time")
+            if latest.entry_type == ShiftLogEntry.BLOWN and latest.person == profile:
+                return True
+
+        return False
+
     def clean_pk(self):
-        shift = super(UnBlownShiftForm, self).clean_pk()
+        instance = super(UndoShiftForm, self).clean_pk()
 
-        if not shift.blown:
-            raise forms.ValidationError("Workshift is not blown.")
+        if self.profile is not None:
+            if instance.verifier != self.profile and \
+               not UndoShiftForm.check_marked_blown(instance, self.profile):
+                raise forms.ValidationError(
+                    "You cannot undo anything for this workshift.",
+                )
 
-        marked_blown = False
-        if shift.logs.count() > 0:
-            latest = shift.logs.latest("entry_time")
-            if latest.entry_type == ShiftLogEntry.BLOWN and latest.person == self.profile:
-                marked_blown = True
-
-        if not marked_blown:
-            raise forms.ValidationError("You did not mark this shift as blown.")
-
-        return shift
+        return instance
 
     def save(self, note=None):
         instance = self.cleaned_data["pk"]
@@ -552,29 +509,45 @@ class UnBlownShiftForm(InteractShiftForm):
         pool_hours = workshifter.pool_hours.get(pool=instance.pool)
 
         # Check if the shift was previously verified or marked as blown
+        marked_blown = UndoShiftForm.check_marked_blown(instance, self.profile)
+
         _undo_verify_blown(instance, pool_hours)
-        instance.save(update_fields=["blown", "closed"])
+        instance.save(update_fields=["verifier", "blown", "closed"])
         pool_hours.save(update_fields=["standing"])
 
-        instance.logs.add(
-            ShiftLogEntry.objects.create(
-                person=self.profile,
-                entry_type=ShiftLogEntry.UNBLOWN,
-                note=note,
+        if marked_blown:
+            instance.logs.add(
+                ShiftLogEntry.objects.create(
+                    person=self.profile,
+                    entry_type=ShiftLogEntry.UNBLOWN,
+                    note=note,
+                )
             )
-        )
+            verb = "marked as unblown"
+        else:
+            instance.logs.add(
+                ShiftLogEntry.objects.create(
+                    person=self.profile,
+                    entry_type=ShiftLogEntry.UNVERIFY,
+                    note=note,
+                )
+            )
+            verb = "unverified"
 
         # Notify the workshifter as well as the workshift manager
         targets = []
+
         if self.profile != instance.workshifter:
-            targets.append(instance.workshifter.user)
+            targets.append(workshifter.user)
+
         for manager in instance.pool.managers.all():
             if manager.incumbent and manager.incumbent.user != self.profile.user:
                 targets.append(manager.incumbent.user)
+
         for target in targets:
             notify.send(
-                self.profile.user,
-                verb="marked as unblown",
+                self.profile,
+                verb=verb,
                 action_object=instance,
                 recipient=target,
             )

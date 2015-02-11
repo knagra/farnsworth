@@ -97,7 +97,7 @@ class TestInteractForms(TestCase):
     def test_unverify(self):
         self.test_verify()
 
-        form = UnVerifyShiftForm({"pk": self.instance.pk}, profile=self.wp)
+        form = UndoShiftForm({"pk": self.instance.pk}, profile=self.wp)
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
 
@@ -171,7 +171,7 @@ class TestInteractForms(TestCase):
     def test_unblown(self):
         self.test_blown()
 
-        form = UnBlownShiftForm({"pk": self.instance.pk}, profile=self.wp)
+        form = UndoShiftForm({"pk": self.instance.pk}, profile=self.wp)
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
 

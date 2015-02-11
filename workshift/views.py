@@ -446,18 +446,21 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
                 )
             )
 
-    if instance.verifier is not None and instance.verifier == profile:
-        # Undo Verify Shift
-        action = "{}-{}".format(UnVerifyShiftForm.action_name, instance.pk)
-        ret.append(
-            UnVerifyShiftForm(
-                request.POST if action in request.POST else None,
-                initial={"pk": instance.pk},
-                profile=profile,
-                prefix=prefix,
-                undo=undo,
+    if profile is not None:
+        marked_blown = UndoShiftForm.check_marked_blown(instance, profile)
+
+        if marked_blown or instance.verifier == profile:
+            # Undo Verify Shift
+            action = "{}-{}".format(UndoShiftForm.action_name, instance.pk)
+            ret.append(
+                UndoShiftForm(
+                    data=request.POST if action in request.POST else None,
+                    initial={"pk": instance.pk},
+                    profile=profile,
+                    prefix=prefix,
+                    undo=undo,
+                )
             )
-        )
 
     if instance.blown:
         # Undo Blown Shift
