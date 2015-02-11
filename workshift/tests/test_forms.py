@@ -243,3 +243,8 @@ class TestInteractForms(TestCase):
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(form.save(), self.once)
+        self.assertEqual(self.once.intended_hours, self.once.hours - 1)
+
+        log = self.once.logs.filter(entry_type=ShiftLogEntry.MODIFY_HOURS)
+        self.assertEqual(1, log.count())
+        self.assertEqual(log[0].person, self.wp)
