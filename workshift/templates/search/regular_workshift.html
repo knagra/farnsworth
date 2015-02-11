@@ -1,25 +1,13 @@
 {% load workshift_tags %}
 <h3 class="result_title">
   <a href="{{ result.object.get_view_url }}">
-    {{ result.object.title }}
+    {{ result.object }}
   </a>
   <small>
     Regular Workshift
   </small>
 </h3>
 <dl class="result_description dl-horizontal">
-  <dt>
-    Day
-  </dt>
-  <dd>
-    <a href="{{ result.object.get_view_url }}">
-      {% if result.object.day != None %}
-      {{ result.object.get_day_display }}
-      {% else %}
-      Week long
-      {% endif %}
-    </a>
-  </dd>
   <dt>
     Workshift Type
   </dt>
