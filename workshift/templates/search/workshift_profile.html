@@ -8,14 +8,6 @@
   </small>
 </h3>
 <dl class="result_description dl-horizontal">
-  <dt>
-    Profile
-  </dt>
-  <dd>
-    <a href="{{ result.object.get_view_url }}">
-      {{ result.object }}
-    </a>
-  </dd>
   {% for hours in result.object.pool_hours.all %}
   <dt>
     <a href="{{ hours.pool.get_view_url}}">
