@@ -1,3 +1,7 @@
-{{ object.title }},
-{{ object.workshift_type.title }}, {{ object.pool.title }}
+{{ object.title }}
+{{ object.day }}
+{{ object.workshift_type.title }}
+{{ object.pool.title }}
+{% if object.addendum %}
 {{ object.addendum|safe }}
+{% endif %}

@@ -1,2 +1,4 @@
-{{ object.user.get_full_name }} ({{ object.user.username }})
-{{ object.semester.get_season_display }} {{ object.semester.year }}
+{{ object.user.get_full_name }}
+{{ object.user.username }}
+{{ object.semester.get_season_display }}
+{{ object.semester.year }}

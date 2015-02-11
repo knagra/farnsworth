@@ -1,3 +1,7 @@
 {{ object.title }}
+{% if object.description %}
 {{ object.description|safe }}
-{{ object.quick_tipes|safe }}
+{% endif %}
+{% if object.quick_tips %}
+{{ object.quick_tips|safe }}
+{% endif %}
