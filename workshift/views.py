@@ -482,7 +482,7 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
                     prefix=prefix,
                 )
             )
-        elif instance.workshifter == profile:
+        elif undo or instance.workshifter == profile:
             # Sign Out
             action = "{}-{}".format(SignOutForm.action_name, instance.pk)
             ret.append(
