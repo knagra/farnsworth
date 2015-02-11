@@ -21,6 +21,7 @@ from pytz import timezone
 from managers.models import Manager
 from workshift.models import *
 
+
 def can_manage(user, semester=None, pool=None, any_pool=False):
     """
     Whether a user is allowed to manage a workshift semester. This includes the
@@ -45,6 +46,7 @@ def can_manage(user, semester=None, pool=None, any_pool=False):
 
     return user.is_superuser or user.is_staff
 
+
 def get_year_season(day=None):
     """
     Returns a guess of the year and season of the current semester.
@@ -63,6 +65,7 @@ def get_year_season(day=None):
             year += 1
     return year, season
 
+
 def get_semester_start_end(year, season):
     """
     Returns a guess of the start and end dates for given semester.
@@ -79,6 +82,7 @@ def get_semester_start_end(year, season):
 
     return date(year, start_month, start_day), date(year, end_month, end_day)
 
+
 def _date_range(start, end, step):
     """
     'range' for datetime.date
@@ -87,6 +91,7 @@ def _date_range(start, end, step):
         yield start
         start += step
 
+
 def make_instances(semester=None, shifts=None, start=None):
     if semester is None:
         semester = Semester.objects.get(current=True)
@@ -94,6 +99,7 @@ def make_instances(semester=None, shifts=None, start=None):
         shifts = RegularWorkshift.objects.filter(pool__semester=semester)
     if start is None:
         start = max([localtime(now()).date(), semester.start_date])
+
     new_instances = []
     for shift in shifts:
         # Delete all old instances of this shift
@@ -107,32 +113,34 @@ def make_instances(semester=None, shifts=None, start=None):
             day = 6
         else:
             day = shift.day
+
         next_day = start + timedelta(days=int(day) - start.weekday())
 
         # Create new instances for the entire semester
         assignees = shift.current_assignees.all()
-        for day in _date_range(next_day, semester.end_date, timedelta(weeks=1)):
+        for day in _date_range(
+                next_day,
+                semester.end_date,
+                timedelta(weeks=1),
+        ):
             for i in range(shift.count):
+                if i < len(assignees):
+                    workshifter = assignees[i]
+                else:
+                    workshifter = None
+
                 instance = WorkshiftInstance.objects.create(
                     weekly_workshift=shift,
                     date=day,
                     hours=shift.hours,
                     intended_hours=shift.hours,
+                    workshifter=workshifter,
                 )
-
-                if i < len(assignees):
-                    instance.workshifter = assignees[i]
-                    instance.save(update_fields=["workshifter"])
-
-                    log = ShiftLogEntry.objects.create(
-                        person=instance.workshifter,
-                        entry_type=ShiftLogEntry.ASSIGNED,
-                    )
-                    instance.logs.add(log)
 
                 new_instances.append(instance)
 
     return new_instances
+
 
 def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
                               primary_hours=None):
@@ -161,6 +169,7 @@ def make_workshift_pool_hours(semester=None, profiles=None, pools=None,
                 profile.pool_hours.add(pool_hours)
                 ret.append(pool_hours)
     return ret
+
 
 def make_manager_workshifts(semester=None, managers=None):
     if semester is None:
@@ -213,6 +222,7 @@ def make_manager_workshifts(semester=None, managers=None):
 
     return shifts
 
+
 def past_verify(instance, moment=None):
     if moment is None:
         moment = localtime(now())
@@ -226,9 +236,12 @@ def past_verify(instance, moment=None):
         end_datetime += timedelta(days=1)
 
     if settings.USE_TZ:
-        end_datetime = end_datetime.replace(tzinfo=timezone(settings.TIME_ZONE))
+        end_datetime = end_datetime.replace(
+            tzinfo=timezone(settings.TIME_ZONE),
+        )
 
     return moment > end_datetime + timedelta(hours=instance.pool.verify_cutoff)
+
 
 def past_sign_out(instance, moment=None):
     if moment is None:
@@ -240,9 +253,12 @@ def past_sign_out(instance, moment=None):
     )
 
     if settings.USE_TZ:
-        start_datetime = start_datetime.replace(tzinfo=timezone(settings.TIME_ZONE))
+        start_datetime = start_datetime.replace(
+            tzinfo=timezone(settings.TIME_ZONE),
+        )
 
-    cutoff_time = start_datetime - timedelta(hours=instance.pool.sign_out_cutoff)
+    cutoff_hours = timedelta(hours=instance.pool.sign_out_cutoff)
+    cutoff_time = start_datetime - cutoff_hours
 
     assigned_time = instance.logs.filter(
         person=instance.workshifter,
@@ -258,6 +274,7 @@ def past_sign_out(instance, moment=None):
             return False
 
     return moment > cutoff_time
+
 
 def collect_blown(semester=None, moment=None):
     if semester is None:
@@ -304,10 +321,11 @@ def collect_blown(semester=None, moment=None):
 
             # Make a log entry
             if entry_type:
-                log = ShiftLogEntry.objects.create(
-                    entry_type=entry_type,
+                instance.logs.add(
+                    ShiftLogEntry.objects.create(
+                        entry_type=entry_type,
+                    )
                 )
-                instance.logs.add(log)
 
             # Send out notifications
             targets = []
@@ -325,6 +343,7 @@ def collect_blown(semester=None, moment=None):
         instance.save(update_fields=["closed", "blown"])
 
     return closed, verified, blown
+
 
 def is_available(workshift_profile, shift):
     """
@@ -346,12 +365,12 @@ def is_available(workshift_profile, shift):
 
     for block in workshift_profile.time_blocks.order_by('start_time'):
         if block.day == shift.day and block.preference == TimeBlock.BUSY \
-          and block.start_time < end_time \
-          and block.end_time > start_time:
+           and block.start_time < end_time \
+           and block.end_time > start_time:
             relevant_blocks.append(block)
 
     # Time blocks should be ordered; so go through and see if there is a wide
-    # enough window for the shifter to do the shift.  If there is,
+    # enough window for the workshifter to do the shift.  If there is,
     # return True.
     if not relevant_blocks:
         return True
@@ -388,9 +407,10 @@ def is_available(workshift_profile, shift):
     )
 
     if end_delta >= hours_delta:
-         return True
+        return True
 
     return False
+
 
 def auto_assign_shifts(semester=None, pool=None, profiles=None, shifts=None):
     if semester is None:
@@ -433,7 +453,8 @@ def auto_assign_shifts(semester=None, pool=None, profiles=None, shifts=None):
 
         for shift in shifts:
             # Skip shifts that put a member over their hour requirement
-            if float(shift.hours) + hours_mapping[profile] > float(pool_hours.hours):
+            added_hours = float(shift.hours) + hours_mapping[profile]
+            if added_hours > float(pool_hours.hours):
                 continue
 
             # Check how well this shift fits the member's schedule
@@ -511,6 +532,7 @@ def auto_assign_shifts(semester=None, pool=None, profiles=None, shifts=None):
     # Return profiles that were incompletely assigned shifts
     return profiles
 
+
 def randomly_assign_instances(semester, pool, profiles=None, instances=None):
     """
     Randomly assigns workshift instances to profiles.
@@ -546,14 +568,14 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
         for shift in profile.instance_workshifter.filter(
                 Q(info__pool=pool) |
                 Q(weekly_workshift__pool=pool)
-            ):
+        ):
             hours_mapping[profile] += float(shift.hours)
         pool_hours = profile.pool_hours.get(pool=pool)
         if pool.weeks_per_period == 0:
             total_hours_owed[profile] = pool_hours.hours
         else:
-            total_hours_owed[profile] = \
-              semester_weeks / pool.weeks_per_period * float(pool_hours.hours)
+            periods = semester_weeks / pool.weeks_per_period
+            total_hours_owed[profile] = periods * float(pool_hours.hours)
 
     while profiles and instances:
         for profile in profiles[:]:
@@ -561,11 +583,13 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
             instance.workshifter = profile
             instance.save(update_fields=["workshifter"])
 
-            log = ShiftLogEntry.objects.create(
-                person=instance.workshifter,
-                entry_type=ShiftLogEntry.ASSIGNED,
+            instance.logs.add(
+                ShiftLogEntry.objects.create(
+                    person=instance.workshifter,
+                    entry_type=ShiftLogEntry.ASSIGNED,
+                    note="Randomly assigned",
+                )
             )
-            instance.logs.add(log)
 
             instances.remove(instance)
 
@@ -576,6 +600,7 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
                 break
 
     return profiles, instances
+
 
 def clear_all_assignments(semester=None, pool=None):
     if semester is None:
@@ -596,6 +621,7 @@ def clear_all_assignments(semester=None, pool=None):
     for shift in shifts:
         shift.current_assignees.clear()
 
+
 def update_standings(semester=None, pool_hours=None, moment=None):
     if semester is None:
         try:
@@ -610,7 +636,8 @@ def update_standings(semester=None, pool_hours=None, moment=None):
 
     for hours in pool_hours:
         # Don't update hours after the semester ends
-        if hours.last_updated and hours.last_updated.date() > semester.end_date:
+        if hours.last_updated and \
+           hours.last_updated.date() > semester.end_date:
             continue
 
         periods = 0
@@ -621,12 +648,13 @@ def update_standings(semester=None, pool_hours=None, moment=None):
             if not hours.last_updated:
                 periods = 1
         else:
-            # Note, this will give periods > 0 on weeks starting on start_date's day,
-            # rather than explicitly Sunday
+            # Note, this will give periods > 0 on weeks starting on
+            # start_date's day, rather than explicitly Sunday
             if not hours.last_updated:
                 last_weeks = 0
             else:
-                last_weeks = (hours.last_updated.date() - semester.start_date).days // 7
+                last_period = hours.last_updated.date() - semester.start_date
+                last_weeks = last_period.days // 7
 
             sem_weeks = (moment.date() - semester.start_date).days // 7
             periods = (sem_weeks - last_weeks) // hours.pool.weeks_per_period
@@ -637,7 +665,18 @@ def update_standings(semester=None, pool_hours=None, moment=None):
             hours.last_updated = moment
             hours.save(update_fields=["standing", "last_updated"])
 
+
 def reset_standings(semester=None, pool_hours=None):
+    """
+    Utility function to recalculate workshift standings. This function is meant
+    to only be called from the manager shell, it is not referenced anywhere
+    else in the workshift module.
+
+    Parameters
+    ----------
+    semester : workshift.models.Semester, optional
+    pool_hours : list of workshift.models.PoolHours, optional
+    """
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
@@ -654,7 +693,8 @@ def reset_standings(semester=None, pool_hours=None):
 
         for field in ["workshifter", "liable"]:
             instances = WorkshiftInstance.objects.filter(
-                Q(weekly_workshift__pool=hours.pool) | Q(info__pool=hours.pool),
+                Q(weekly_workshift__pool=hours.pool) |
+                Q(info__pool=hours.pool),
                 closed=True,
                 **{field: profile}
             )
@@ -671,12 +711,26 @@ def reset_standings(semester=None, pool_hours=None):
         pool_hours=pool_hours,
     )
 
-def calculate_assigned_hours(profiles=None):
+
+def calculate_assigned_hours(semester=None, profiles=None):
     """
-    Recalculates PoolHour.assigned_hours from scratch.
+    Utility function to recalculate the assigned workshift hours. This function
+    is meant to only be called from the manager shell, it is not referenced
+    anywhere else in the workshift module.
+
+    Parameters
+    ----------
+    semester : workshift.models.Semester, optional
+    profiles : list of workshift.models.WorkshiftProfile, optional
     """
+    if semester is None:
+        try:
+            semester = Semester.objects.get(current=True)
+        except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
+            return
     if profiles is None:
-        profiles = WorkshiftProfile.objects.all()
+        profiles = WorkshiftProfile.objects.filter(semester=semester)
+
     for profile in profiles:
         for pool_hours in profile.pool_hours.all():
             shifts = RegularWorkshift.objects.filter(
@@ -684,10 +738,21 @@ def calculate_assigned_hours(profiles=None):
                 pool=pool_hours.pool,
                 active=True,
             )
-            pool_hours.assigned_hours = sum(i.hours for i in shifts)
+            pool_hours.assigned_hours = sum(shift.hours for shift in shifts)
             pool_hours.save(update_fields=["assigned_hours"])
 
+
 def reset_instance_assignments(semester=None, shifts=None):
+    """
+    Utility function to reset instance assignments. This function is meant to
+    only be called from the manager shell, it is not referenced anywhere else
+    in the workshift module.
+
+    Parameters
+    ----------
+    semester : workshift.models.Semester, optional
+    shifts : list of workshift.models.RegularWorkshift, optional
+    """
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
@@ -719,8 +784,10 @@ def reset_instance_assignments(semester=None, shifts=None):
             instance.liable = None
             instance.save(update_fields=["workshifter", "liable"])
 
-            log = ShiftLogEntry.objects.create(
-                person=instance.workshifter,
-                entry_type=ShiftLogEntry.ASSIGNED,
+            instance.logs.add(
+                ShiftLogEntry.objects.create(
+                    person=instance.workshifter,
+                    entry_type=ShiftLogEntry.ASSIGNED,
+                    note="Manager reset assignment.",
+                )
             )
-            instance.logs.add(log)
