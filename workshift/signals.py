@@ -112,11 +112,13 @@ def log_entry_create(sender, instance, created, **kwargs):
         # Don't create the log until after the instance is created, we can't use a
         # many-to-many relationship otherwise
         if instance.workshifter:
-            log = ShiftLogEntry.objects.create(
-                person=instance.workshifter,
-                entry_type=ShiftLogEntry.ASSIGNED,
+            instance.logs.add(
+                ShiftLogEntry.objects.create(
+                    person=instance.workshifter,
+                    entry_type=ShiftLogEntry.ASSIGNED,
+                    note="Initial assignment.",
+                )
             )
-            instance.logs.add(log)
 
 @receiver(signals.pre_save, sender=PoolHours)
 def manual_hour_adjustment(sender, instance, update_fields=None, **kwargs):
