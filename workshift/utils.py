@@ -21,7 +21,7 @@ from pytz import timezone
 from managers.models import Manager
 from workshift.models import *
 
-def can_manage(user, semester=None, pool=None):
+def can_manage(user, semester=None, pool=None, any_pool=False):
     """
     Whether a user is allowed to manage a workshift semester. This includes the
     current workshift managers, that semester's workshift managers, and site
@@ -36,6 +36,11 @@ def can_manage(user, semester=None, pool=None):
         return True
 
     if pool and pool.managers.filter(incumbent__user=user).count() > 0:
+        return True
+
+    if any_pool and WorkshiftPool.objects.filter(
+            managers__incumbent__user=user,
+    ):
         return True
 
     return user.is_superuser or user.is_staff
