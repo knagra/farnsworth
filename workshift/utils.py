@@ -587,7 +587,7 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
                 ShiftLogEntry.objects.create(
                     person=instance.workshifter,
                     entry_type=ShiftLogEntry.ASSIGNED,
-                    note="Randomly assigned",
+                    note="Randomly assigned.",
                 )
             )
 
