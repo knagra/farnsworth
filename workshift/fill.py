@@ -179,7 +179,11 @@ def _get_semester():
         semester, created = Semester.objects.get_or_create(
             year=year,
             season=season,
-            defaults=dict(start_date=start_date, end_date=end_date),
+            defaults=dict(
+                rate=13.30,
+                start_date=start_date,
+                end_date=end_date,
+            ),
         )
     else:
         created = False
