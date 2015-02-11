@@ -90,12 +90,26 @@ class TestInteractForms(TestCase):
         self.assertTrue(self.client.login(username="u", password="pwd"))
 
         form = VerifyShiftForm({"pk": self.instance.pk}, profile=self.wp)
-        form.is_valid()
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
+
         log = self.instance.logs.filter(entry_type=ShiftLogEntry.VERIFY)
         self.assertEqual(1, log.count())
         self.assertEqual(log[0].person, self.wp)
+
+    def test_unverify(self):
+        self.test_verify()
+
+        form = UnVerifyShiftForm({"pk": self.instance.pk}, profile=self.wp)
+        self.assertTrue(form.is_valid())
+        self.assertIsInstance(form.save(), WorkshiftInstance)
+
+        log = self.instance.logs.filter(entry_type=ShiftLogEntry.UNVERIFY)
+        self.assertEqual(1, log.count())
+        self.assertEqual(log[0].person, self.wp)
+
+    def test_unfilled(self):
+        self.assertTrue(self.client.login(username="u", password="pwd"))
 
         form = VerifyShiftForm({"pk": self.once.pk}, profile=self.wp)
         self.assertFalse(form.is_valid())
@@ -144,14 +158,25 @@ class TestInteractForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("You are not a workshift manager.", form.errors["pk"])
 
-        self.client.logout()
-
+    def test_blown(self):
         self.assertTrue(self.client.login(username="wu", password="pwd"))
 
         form = BlownShiftForm({"pk": self.instance.pk}, profile=self.wp)
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.save(), WorkshiftInstance)
+
         log = self.instance.logs.filter(entry_type=ShiftLogEntry.BLOWN)
+        self.assertEqual(1, log.count())
+        self.assertEqual(log[0].person, self.wp)
+
+    def test_unblown(self):
+        self.test_blown()
+
+        form = UnBlownShiftForm({"pk": self.instance.pk}, profile=self.wp)
+        self.assertTrue(form.is_valid())
+        self.assertIsInstance(form.save(), WorkshiftInstance)
+
+        log = self.instance.logs.filter(entry_type=ShiftLogEntry.UNBLOWN)
         self.assertEqual(1, log.count())
         self.assertEqual(log[0].person, self.wp)
 
