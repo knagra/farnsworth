@@ -175,7 +175,7 @@ def create_manager_workshifts(sender, instance, created, **kwargs):
 def create_workshift_instances(sender, instance, created, **kwargs):
     shift = instance
     if shift.active:
-        if created or WorkshiftInstance.filter(
+        if created or WorkshiftInstance.objects.filter(
                 weekly_workshift=shift,
                 closed=False,
         ).count() == 0:
