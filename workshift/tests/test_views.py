@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.timezone import now, localtime
 
-from base.models import User, UserProfile, ProfileRequest
+from base.models import User, UserProfile
 from farnsworth import pre_fill
 from managers.models import Manager
 from utils.variables import MESSAGES
@@ -17,8 +17,6 @@ from workshift.fill import REGULAR_WORKSHIFTS, WEEK_LONG, HUMOR_WORKSHIFTS, \
 from workshift.models import *
 from workshift.forms import *
 from workshift.fields import DAY_CHOICES
-from workshift.cron import CollectBlownCronJob, UpdateWeeklyStandings
-from workshift import utils
 
 
 class TestPermissions(TestCase):
