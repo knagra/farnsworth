@@ -629,7 +629,7 @@ class SignOutForm(InteractShiftForm):
                 self.profile.user,
                 verb="signed you out of",
                 action_object=instance,
-                recipience=workshifter.user,
+                recipient=workshifter.user,
             )
         else:
             if utils.past_sign_out(instance):
