@@ -207,3 +207,108 @@ class TestWorkshifters(TestCase):
                 ).hours,
             3,
         )
+
+class TestMakeInstances(TestCase):
+    def setUp(self):
+        self.u = User.objects.create_user(username="u", password="pwd")
+        self.wu = User.objects.create_user(username="wu", password="pwd")
+        self.wu.first_name, self.wu.last_name = "Cooperative", "User"
+        self.wu.save()
+
+        self.today = localtime(now())
+        self.semester = Semester.objects.create(
+            year=self.today.year,
+            start_date=self.today,
+            end_date=self.today + timedelta(days=13),
+        )
+
+        self.pool = WorkshiftPool.objects.get(
+            semester=self.semester,
+            is_primary=True,
+        )
+
+        self.wtype = WorkshiftType.objects.create(
+            title="Test Posts",
+        )
+
+
+    def test_make_instances(self):
+        shift = RegularWorkshift.objects.create(
+            workshift_type=self.wtype,
+            pool=self.pool,
+            day=self.today.weekday(),
+        )
+
+        self.assertEqual(
+            WorkshiftInstance.objects.filter(
+                weekly_workshift=shift,
+            ).count(),
+            2,
+        )
+
+
+    def test_make_instances_inactive(self):
+        shift = RegularWorkshift.objects.create(
+            workshift_type=self.wtype,
+            pool=self.pool,
+            day=self.today.weekday(),
+            active=False,
+        )
+
+        self.assertEqual(
+            WorkshiftInstance.objects.filter(
+                weekly_workshift=shift,
+            ).count(),
+            0,
+        )
+
+
+    def test_switch_active(self):
+        shift = RegularWorkshift.objects.create(
+            workshift_type=self.wtype,
+            pool=self.pool,
+            day=self.today.weekday(),
+            active=False,
+        )
+
+        self.assertEqual(
+            WorkshiftInstance.objects.filter(
+                weekly_workshift=shift,
+            ).count(),
+            0,
+        )
+
+        shift.active = True
+        shift.save()
+
+        self.assertEqual(
+            WorkshiftInstance.objects.filter(
+                weekly_workshift=shift,
+            ).count(),
+            2,
+        )
+
+
+    def test_switch_inactive(self):
+        shift = RegularWorkshift.objects.create(
+            workshift_type=self.wtype,
+            pool=self.pool,
+            day=self.today.weekday(),
+        )
+
+        self.assertEqual(
+            WorkshiftInstance.objects.filter(
+                weekly_workshift=shift,
+            ).count(),
+            2,
+        )
+
+        shift.active = False
+        shift.save()
+
+        self.assertEqual(
+            WorkshiftInstance.objects.filter(
+                weekly_workshift=shift,
+            ).count(),
+            0,
+        )
