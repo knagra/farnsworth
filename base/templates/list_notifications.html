@@ -3,79 +3,83 @@
 {% load static from staticfiles %}
 
 {% block content %}
-<h1 class="w_title">{{ page_name }}</h1>
+<h1 class="w_title">
+  {{ page_name }}
+</h1>
 <hr class="w_line" />
 {% if not notifications %}
-<div class="field_wrapper text-success">No unread notifications.</div>
+<div class="field_wrapper text-success">
+  No unread notifications.
+</div>
 {% else %}
 <table class="table table-striped table-bordered table-condensed table-hover">
   <thead>
     <th>Message</th>
     <th>Time</th>
-  <tbody>
-    {% for notification in notifications %}
-    <tr {% if notification.unread %} class="info" {% endif %}>
-      <td>
-	{% if notification.actor %}
-	{% if notification.actor.get_view_url %}
-	<a href="{{ notification.actor.get_view_url }}">
-	  {{ notification.actor }}
-	</a>
-	{% else %}
-	{{ notification.actor }}
-	{% endif %}
-	{% endif %}
-	{% if notification.verb %}
-	{{ notification.verb }}
-	{% endif %}
-	{% if notification.action_object %}
-	{% if notification.action_object.get_view_url %}
-	<a href="{{ notification.action_object.get_view_url }}">
-	  {{ notification.action_object|striptags|truncatechars:50 }}
-	</a>
-	{% else %}
-	{{ notification.action_object|striptags|truncatechars:50 }}
-	{% endif %}
-	{% endif %}
-	{% if notification.target and notification.action_object %}
-	on
-	{% endif %}
-	{% if notification.target %}
-	{% if notification.target.get_view_url %}
-	<a href="{{ notification.target.get_view_url }}">
-	  {{ notification.target|truncatechars:50 }}
-	</a>
-	{% else %}
-	{{ notification.target|truncatechars:50 }}
-	{% endif %}
-	{% endif %}
-      </td>
-      <td>{{ notification.timestamp }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
+    <tbody>
+      {% for notification in notifications %}
+      <tr {% if notification.unread %} class="info" {% endif %}>
+        <td>
+          {% if notification.actor %}
+          {% if notification.actor.get_view_url %}
+          <a href="{{ notification.actor.get_view_url }}">
+            {{ notification.actor }}
+          </a>
+          {% else %}
+          {{ notification.actor }}
+          {% endif %}
+          {% endif %}
+          {% if notification.verb %}
+          {{ notification.verb }}
+          {% endif %}
+          {% if notification.action_object %}
+          {% if notification.action_object.get_view_url %}
+          <a href="{{ notification.action_object.get_view_url }}">
+            {{ notification.action_object|striptags|truncatechars:50 }}
+          </a>
+          {% else %}
+          {{ notification.action_object|striptags|truncatechars:50 }}
+          {% endif %}
+          {% endif %}
+          {% if notification.target and notification.action_object %}
+          on
+          {% endif %}
+          {% if notification.target %}
+          {% if notification.target.get_view_url %}
+          <a href="{{ notification.target.get_view_url }}">
+            {{ notification.target|truncatechars:50 }}
+          </a>
+          {% else %}
+          {{ notification.target|truncatechars:50 }}
+          {% endif %}
+          {% endif %}
+        </td>
+        <td>{{ notification.timestamp }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
 </table>
 {% endif %}
 {% endblock %}
 
 {% block endscripts %}
 <script>
-$(document).ready(function() {
-    $('table').tablesorter({
-        sortList: [[1, 0]],
-        headers: {
-            1: {
-                sorter: 'farnsworth_datetime',
-            }
-        },
-        widgets: ["filter", "resizable"],
-        widgetOptions: {
-            resizable: true
-        }
-    }).tablesorterPager({
-        container: "#notifications_pager",
-        cssGoto: "#notifications_goto"
-    });
-});
+ $(document).ready(function() {
+   $('table').tablesorter({
+     sortList: [[1, 0]],
+     headers: {
+       1: {
+         sorter: 'farnsworth_datetime',
+       }
+     },
+     widgets: ["filter", "resizable"],
+     widgetOptions: {
+       resizable: true
+     }
+   }).tablesorterPager({
+     container: "#notifications_pager",
+     cssGoto: "#notifications_goto"
+   });
+ });
 </script>
 {% endblock %}
