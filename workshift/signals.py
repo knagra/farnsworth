@@ -6,6 +6,8 @@ from collections import defaultdict
 from django.dispatch import receiver
 from django.db.models import signals
 
+from notifications import notify
+
 from utils.variables import ANONYMOUS_USERNAME
 from managers.models import Manager
 from workshift.models import *
@@ -262,6 +264,12 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                 pool_hours.assigned_hours -= shift.hours
                 pool_hours.save(update_fields=["assigned_hours"])
 
+                notify.send(
+                    verb="You were removed from",
+                    action_object=shift,
+                    recipient=assignee.user,
+                )
+
         elif action in ["post_add"]:
             # Add shift's hours to current assignees
             assignees = WorkshiftProfile.objects.filter(pk__in=pk_set)
@@ -270,6 +278,12 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                 pool_hours = assignee.pool_hours.get(pool=shift.pool)
                 pool_hours.assigned_hours += shift.hours
                 pool_hours.save(update_fields=["assigned_hours"])
+
+                notify.send(
+                    verb="You were assigned to",
+                    action_object=shift,
+                    recipient=assignee.user,
+                )
 
         # Update instances
         if action in ["post_remove", "post_clear"]:
@@ -324,6 +338,13 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                     instance.workshifter = assignee
                     instance.liable = None
                     instance.save(update_fields=["workshifter", "liable"])
+
+                    instance.logs.add(
+                        ShiftLogEntry.objects.create(
+                            person=instance.workshifter,
+                            entry_type=ShiftLogEntry.ASSIGNED,
+                        )
+                    )
 
                     dates[assignee.pk].add(instance.date)
 
