@@ -55,8 +55,10 @@ def initialize_semester(sender, instance, created, **kwargs):
         return
 
     semester = instance
-    semester.workshift_managers = \
-      [i.incumbent.user for i in Manager.objects.filter(workshift_manager=True)]
+    semester.workshift_managers = [
+        i.incumbent.user
+        for i in Manager.objects.filter(workshift_manager=True)
+    ]
     semester.preferences_open = True
     semester.save(update_fields=["preferences_open"])
 
