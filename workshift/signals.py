@@ -1,6 +1,8 @@
 
 from __future__ import division, absolute_import
 
+from collections import defaultdict
+
 from django.dispatch import receiver
 from django.db.models import signals
 
