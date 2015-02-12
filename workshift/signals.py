@@ -110,7 +110,18 @@ def make_pool_hours(sender, instance, created, **kwargs):
         utils.make_workshift_pool_hours(pool.semester, pools=[pool])
 
 
-def _check_field_changed(update_fields, field_name, instance, old_instance):
+def _check_field_changed(instance, old_instance, field_name, update_fields=None):
+    """
+    Examines update_fields and an attribute of an instance to determine if
+    that attribute has changed prior to the instance being saved.
+
+    Parameters
+    ----------
+    field_name : str
+    instance : object
+    old_instance : object
+    update_fields : list of str, optional
+    """
     if update_fields is not None and field_name not in update_fields:
         return False
 
@@ -141,10 +152,12 @@ def manual_hour_adjustment(sender, instance, update_fields=None, **kwargs):
         old_pool_hours = sender.objects.get(pk=pool_hours.id)
 
         reset_hours = _check_field_changed(
-            update_fields, "hours", pool_hours, old_pool_hours,
+            pool_hours, old_pool_hours, "hours",
+            update_fields=update_fields,
         )
         reset_adjustment = _check_field_changed(
-            update_fields, "hour_adjustment", pool_hours, old_pool_hours,
+            pool_hours, old_pool_hours, "hour_adjustment",
+            update_fields=update_fields,
         )
 
         if reset_hours:
@@ -154,8 +167,8 @@ def manual_hour_adjustment(sender, instance, update_fields=None, **kwargs):
                 pool_hours=[pool_hours],
             )
         elif reset_adjustment:
-            pool_hours.standing += pool_hours.hour_adjustment - \
-                                   old_pool_hours.hour_adjustment
+            change = pool_hours.hour_adjustment - old_pool_hours.hour_adjustment
+            pool_hours.standing += change
 
 
 @receiver(signals.post_save, sender=PoolHours)
@@ -193,10 +206,8 @@ def create_manager_workshifts(sender, instance, created, **kwargs):
 def create_workshift_instances(sender, instance, created, **kwargs):
     shift = instance
     if shift.active:
-        if created or WorkshiftInstance.objects.filter(
-                weekly_workshift=shift,
-                closed=False,
-        ).count() == 0:
+        if created:
+            # Make instances for newly created shifts
             utils.make_instances(shift.pool.semester, shifts=[shift])
     else:
         WorkshiftInstance.objects.filter(
@@ -275,15 +286,17 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                     instance.save(update_fields=["workshifter", "liable"])
 
         elif action in ["post_add"]:
+            # Assign these people to any instances of this shift if they are
+            # not assigned an instance on that day or have already signed out
+            # of one on that day
             dates = defaultdict(set)
 
             instances = WorkshiftInstance.objects.filter(
                 weekly_workshift=shift,
                 closed=False,
             ).order_by("date")
-            assignees = list(
-                WorkshiftProfile.objects.filter(pk__in=pk_set)
-            )
+
+            assignees = WorkshiftProfile.objects.filter(pk__in=pk_set)
 
             for instance in instances:
                 # Check if member is assigned to shift
@@ -291,20 +304,17 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                     if instance.workshifter.pk in pk_set:
                         dates[instance.workshifter.pk].add(instance.date)
 
-                    continue
-
-                # If an assignee already signed out of this shift, don't
-                # re-assign them to it
+                # If an assignee already signed out of a shift on this day,
+                # don't re-assign them to it
                 signed_out = instance.logs.filter(
                     person__pk__in=pk_set,
                     entry_type=ShiftLogEntry.SIGNOUT,
                 )
 
-                if signed_out.count() > 0:
-                    person = signed_out.latest("entry_type").person
+                for person in signed_out:
                     dates[person.pk].add(instance.date)
-                    continue
 
+            for instance in instances.filter(workshifter__isnull=True):
                 # Find a member who is not yet assigned to an instance on this
                 # day and assign them to this one
                 for assignee in assignees:
@@ -321,9 +331,20 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
 
 
 @receiver(signals.pre_save, sender=RegularWorkshift)
-def set_week_long(sender, instance, **kwargs):
+def pre_process_shift(sender, instance, update_fields=None, **kwargs):
     shift = instance
+
+    # Set week_long if day not set
     shift.week_long = shift.day not in [i[0] for i in DAY_CHOICES]
+
+    # Create instances if shift is being changed from inactive to active
+    if shift.id and shift.active:
+        old_shift = sender.objects.get(pk=shift.id)
+        if _check_field_changed(
+                shift, old_shift, "active",
+                update_fields=update_fields,
+        ):
+            utils.make_instances(shift.pool.semester, shifts=[shift])
 
 
 @receiver(signals.pre_delete, sender=WorkshiftInstance)
