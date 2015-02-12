@@ -265,6 +265,7 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                 pool_hours.save(update_fields=["assigned_hours"])
 
                 notify.send(
+                    None,
                     verb="You were removed from",
                     action_object=shift,
                     recipient=assignee.user,
@@ -280,6 +281,7 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                 pool_hours.save(update_fields=["assigned_hours"])
 
                 notify.send(
+                    shift,
                     verb="You were assigned to",
                     action_object=shift,
                     recipient=assignee.user,
