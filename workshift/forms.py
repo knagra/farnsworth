@@ -631,6 +631,10 @@ class SignOutForm(InteractShiftForm):
                 action_object=instance,
                 recipient=workshifter.user,
             )
+            if note is None:
+                note = "Signed out by {}".format(
+                    self.profile
+                )
         else:
             if utils.past_sign_out(instance):
                 liable = True
