@@ -541,9 +541,9 @@ def open_shifts_view(request, semester, profile=None):
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(
-                reverse(
+                wurl(
                     "workshift:view_open",
-                    kwargs={"sem_url": semester.sem_url},
+                    sem_url=semester.sem_url,
                 ) + "?page={}".format(page)
             )
         else:
