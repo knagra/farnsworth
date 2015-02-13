@@ -3,8 +3,9 @@ from __future__ import division, absolute_import
 
 from collections import defaultdict
 
-from django.dispatch import receiver
 from django.db.models import signals
+from django.dispatch import receiver
+from django.utils.timezone import now, localtime
 
 from notifications import notify
 
@@ -287,14 +288,14 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                     recipient=assignee.user,
                 )
 
+        instances = WorkshiftInstance.objects.filter(
+                weekly_workshift=shift,
+                date_gte=localtime(now()).date(),
+                closed=False,
+            ).order_by("date")
         # Update instances
         if action in ["post_remove", "post_clear"]:
             # Unassign these people from any instances they were assigned to
-            instances = WorkshiftInstance.objects.filter(
-                weekly_workshift=shift,
-                closed=False,
-            ).order_by("date")
-
             for instance in instances:
                 if not pk_set or instance.workshifter.pk in pk_set:
                     instance.workshifter = None
@@ -306,12 +307,6 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
             # not assigned an instance on that day or have already signed out
             # of one on that day
             dates = defaultdict(set)
-
-            instances = WorkshiftInstance.objects.filter(
-                weekly_workshift=shift,
-                closed=False,
-            ).order_by("date")
-
             assignees = WorkshiftProfile.objects.filter(pk__in=pk_set)
 
             for instance in instances:
