@@ -32,7 +32,7 @@ def can_manage(user, semester=None, pool=None, any_pool=False):
         return True
 
     if Manager and Manager.objects.filter(
-        incumbent__user=user, workshift_manager=True
+            incumbent__user=user, workshift_manager=True,
     ).count() > 0:
         return True
 

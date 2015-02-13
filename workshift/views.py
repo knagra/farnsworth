@@ -904,26 +904,6 @@ def assign_shifts_view(request, semester):
         for i in range(len(pool_hours[0]) if len(pool_hours) > 0 else 0)
     ]
 
-    unassigned_shifts = []
-    for pool in pools:
-        shifts = RegularWorkshift.objects.filter(pool=pool, active=True)
-        filtered_shifts, shift_hours = [], []
-        for shift in shifts:
-            if shift.current_assignees.count() < shift.count:
-                filtered_shifts.append(shift)
-                shift_hours.append(
-                    shift.hours * shift.count - shift.current_assignees.count()
-                )
-
-        total_shift_hours = sum(shift_hours)
-
-        if total_shift_hours > 0:
-            unassigned_shifts.append((
-                pool,
-                zip(filtered_shifts, shift_hours),
-                total_shift_hours,
-            ))
-
     return render_to_response("assign_shifts.html", {
         "page_name": page_name,
         "forms": forms,
@@ -931,7 +911,6 @@ def assign_shifts_view(request, semester):
         "unassigned_profiles": zip(workshifters, pool_hours),
         "pools": pools,
         "total_pool_hours": total_pool_hours,
-        "unassigned_shifts": unassigned_shifts,
     }, context_instance=RequestContext(request))
 
 @semester_required
