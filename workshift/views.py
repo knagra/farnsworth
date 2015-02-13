@@ -1505,8 +1505,8 @@ def edit_instance_view(request, semester, pk, profile=None):
         "edit_form": edit_form,
     }, context_instance=RequestContext(request))
 
-@semester_required
-def list_types_view(request, semester):
+@get_workshift_profile
+def list_types_view(request, semester, profile=None):
     """
     View the details of a particular WorkshiftType.
     """
@@ -1539,8 +1539,8 @@ def list_types_view(request, semester):
         "can_edit": any_management,
     }, context_instance=RequestContext(request))
 
-@semester_required
-def type_view(request, semester, pk):
+@get_workshift_profile
+def type_view(request, semester, pk, profile=None):
     """
     View the details of a particular WorkshiftType.
     """
@@ -1558,7 +1558,7 @@ def type_view(request, semester, pk):
         "can_edit": any_management,
     }, context_instance=RequestContext(request))
 
-@semester_required
+@get_workshift_profile
 def edit_type_view(request, semester, pk):
     """
     View for a manager to edit the details of a particular WorkshiftType.
