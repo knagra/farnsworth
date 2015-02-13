@@ -290,7 +290,7 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
 
         instances = WorkshiftInstance.objects.filter(
                 weekly_workshift=shift,
-                date_gte=localtime(now()).date(),
+                date__gte=localtime(now()).date(),
                 closed=False,
             ).order_by("date")
         # Update instances
