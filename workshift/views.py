@@ -1559,7 +1559,7 @@ def type_view(request, semester, pk, profile=None):
     }, context_instance=RequestContext(request))
 
 @get_workshift_profile
-def edit_type_view(request, semester, pk):
+def edit_type_view(request, semester, pk, profile=None):
     """
     View for a manager to edit the details of a particular WorkshiftType.
     """
