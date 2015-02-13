@@ -8,14 +8,15 @@
 {% block w_content %}
 <div id="types_container">
   {% if can_edit %}
-  <form action="{% wurl 'workshift:add_shift' sem_url=SEMESTER.sem_url %}" class="pull-right">
-    <button class="btn btn-default" type="submit">
+  <div class="pull-right">
+    <a href="{% wurl 'workshift:add_shift' sem_url=SEMESTER.sem_url %}"
+       class="btn btn-default">
       <span class="glyphicon glyphicon-plus"></span>
       <span class="hidden-xs">
         Add Shift
       </span>
-    </button>
-  </form>
+    </a>
+  </div>
   {% endif %}
   <h1 class="w_title">
     {{ page_name }}

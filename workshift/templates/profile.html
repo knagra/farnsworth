@@ -8,12 +8,13 @@
 {% block w_content %}
 <div class="profile_container">
   {% if WORKSHIFT_MANAGER %}
-  <form action="{{ profile.get_edit_url }}" class="pull-right">
-    <button class="btn btn-warning" type="submit">
+  <div class="pull-right">
+    <a href="{{ profile.get_edit_url }}"
+       class="btn btn-warning">
       <span class="glyphicon glyphicon-edit"></span>
       <span class="hidden-xs">Edit</span>
-    </button>
-  </form>
+    </a>
+  </div>
   {% endif %}
   <h1 class="w_title">
     {{ page_name }}
