@@ -12,7 +12,6 @@ from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -1345,8 +1344,7 @@ def edit_shift_view(request, semester, pk, profile=None):
         except Manager.DoesNotExist:
             pass
         else:
-            return HttpResponseRedirect(reverse("managers:edit_manager",
-                                                kwargs={"managerTitle": manager.url_title}))
+            return HttpResponseRedirect(manager.get_edit_url())
 
     if not utils.can_manage(request.user, semester=semester, pool=shift.pool):
         messages.add_message(request, messages.ERROR,
