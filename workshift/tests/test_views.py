@@ -324,6 +324,10 @@ class TestStart(TestCase):
             self.assertIn(profile.pool_hours.all()[0], pool_hours)
             self.assertEqual(1, profile.pool_hours.filter(pool=pool).count())
 
+        # Test that we can delete the semester object without model clashes as
+        # well
+        semester.delete()
+
 
 class TestViews(TestCase):
     """

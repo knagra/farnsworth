@@ -185,13 +185,10 @@ def set_initial_standing(sender, instance, created, **kwargs):
 @receiver(signals.pre_delete, sender=Semester)
 def clear_semester(sender, instance, **kwargs):
     semester = instance
-    ShiftLogEntry.objects.filter(person__semester=semester).delete()
-    WorkshiftInstance.objects.filter(semester=semester).delete()
-    InstanceInfo.objects.filter(pool__semester=semester).delete()
-    RegularWorkshift.objects.filter(pool__semester=semester).delete()
-    PoolHours.objects.filter(pool__semester=semester).delete()
     WorkshiftProfile.objects.filter(semester=semester).delete()
     WorkshiftPool.objects.filter(semester=semester).delete()
+    WorkshiftInstance.objects.filter(semester=semester).delete()
+    RegularWorkshift.objects.filter(pool__semester=semester).delete()
 
 
 @receiver(signals.post_save, sender=Manager)
@@ -367,10 +364,26 @@ def pre_process_shift(sender, instance, update_fields=None, **kwargs):
 
 @receiver(signals.pre_delete, sender=WorkshiftInstance)
 def subtract_instance_hours(sender, instance, **kwargs):
+    # Subtract this workshift from a person's hours if necessary
     if instance.closed and instance.workshifter:
         pool_hours = instance.workshifter.pool_hours.get(pool=instance.pool)
         pool_hours.standing -= instance.hours
-        pool_hours.save(update_fields=["assigned_hours"])
+        pool_hours.save(update_fields=["standing"])
+
+    # Delete any associated information
+    if instance.info:
+        instance.info.delete()
+
+    instance.logs.all().delete()
+
+@receiver(signals.pre_delete, sender=WorkshiftProfile)
+def delete_associated_hours(sender, instance, **kwargs):
+    profile = instance
+
+    # Delete associated model instances
+    profile.time_blocks.all().delete()
+    profile.ratings.all().delete()
+    profile.pool_hours.all().delete()
 
 # TODO: Auto-notify manager and workshifter when they are >= 10 hours down
 # TODO: Auto-email central when workshifters are >= 15 hours down?
