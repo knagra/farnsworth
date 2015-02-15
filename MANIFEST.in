@@ -4,7 +4,7 @@ exclude farnsworth/house_settings.py farnsworth/local_settings.py
 
 recursive-include base/static *
 recursive-include base/templates *
-recursive-include electionss/static *
+recursive-include elections/static *
 recursive-include elections/templates *
 recursive-include events/static *
 recursive-include events/templates *
