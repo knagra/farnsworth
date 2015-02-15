@@ -8,12 +8,10 @@ recursive-include elections/static *
 recursive-include elections/templates *
 recursive-include events/static *
 recursive-include events/templates *
-recursive-include farnswiki/static *
 recursive-include farnswiki/templates *
 recursive-include farnsworth *
 recursive-include managers/static *
 recursive-include managers/templates *
-recursive-include rooms/static *
 recursive-include rooms/templates *
 recursive-include threads/static *
 recursive-include threads/templates *
