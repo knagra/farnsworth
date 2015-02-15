@@ -7,7 +7,7 @@
 
 {% block w_content %}
 <div class="profile_container">
-  {% if WORKSHIFT_MANAGER %}
+  {% if can_edit %}
   <div class="pull-right">
     <a href="{{ profile.get_edit_url }}"
        class="btn btn-warning">

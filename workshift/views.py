@@ -608,7 +608,7 @@ def profile_view(request, semester, targetUsername, profile=None):
     if wprofile == profile:
         page_name = "My Workshift Profile"
     else:
-        page_name = "{0}'s Workshift Profile".format(wprofile.user.get_full_name())
+        page_name = "{}'s Workshift Profile".format(wprofile.user.get_full_name())
     past_shifts = WorkshiftInstance.objects.filter(workshifter=wprofile, closed=True)
     regular_shifts = RegularWorkshift.objects.filter(
         active=True, current_assignees=wprofile,
@@ -626,6 +626,7 @@ def profile_view(request, semester, targetUsername, profile=None):
       any(pool_hours.second_date_standing for pool_hours in wprofile.pool_hours.all()), \
       any(pool_hours.third_date_standing for pool_hours in wprofile.pool_hours.all())
     view_note = wprofile == profile or utils.can_manage(request.user, semester=semester)
+    can_edit = utils.can_manage(request.user, semester, any_pool=True)
     return render_to_response("profile.html", {
         "page_name": page_name,
         "profile": wprofile,
@@ -637,6 +638,7 @@ def profile_view(request, semester, targetUsername, profile=None):
         "first_standing": first_standing,
         "second_standing": second_standing,
         "third_standing": third_standing,
+        "can_edit": can_edit,
     }, context_instance=RequestContext(request))
 
 @get_workshift_profile
