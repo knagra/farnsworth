@@ -134,8 +134,8 @@ def _check_field_changed(instance, old_instance, field_name, update_fields=None)
 @receiver(signals.post_save, sender=WorkshiftInstance)
 def log_entry_create(sender, instance, created, **kwargs):
     if created:
-        # Don't create the log until after the instance is created, we can't use a
-        # many-to-many relationship otherwise
+        # Don't create the log until after the instance is created, we can't
+        # use a many-to-many relationship otherwise
         if instance.workshifter:
             instance.logs.add(
                 ShiftLogEntry.objects.create(
@@ -185,10 +185,10 @@ def set_initial_standing(sender, instance, created, **kwargs):
 @receiver(signals.pre_delete, sender=Semester)
 def clear_semester(sender, instance, **kwargs):
     semester = instance
-    WorkshiftProfile.objects.filter(semester=semester).delete()
-    WorkshiftPool.objects.filter(semester=semester).delete()
     WorkshiftInstance.objects.filter(semester=semester).delete()
     RegularWorkshift.objects.filter(pool__semester=semester).delete()
+    WorkshiftProfile.objects.filter(semester=semester).delete()
+    WorkshiftPool.objects.filter(semester=semester).delete()
 
 
 @receiver(signals.post_save, sender=Manager)
@@ -222,15 +222,18 @@ def delete_workshift_instances(sender, instance, **kwargs):
     instances = WorkshiftInstance.objects.filter(
         weekly_workshift=shift,
     )
-    info = InstanceInfo.objects.create(
-        title=shift.workshift_type.title,
-        description=shift.workshift_type.description,
-        pool=shift.pool,
-        start_time=shift.start_time,
-        end_time=shift.end_time,
-    )
+    info = None
     for instance in instances:
         if instance.closed:
+            if info is None:
+                info = InstanceInfo.objects.create(
+                    title=shift.workshift_type.title,
+                    description=shift.workshift_type.description,
+                    pool=shift.pool,
+                    start_time=shift.start_time,
+                    end_time=shift.end_time,
+                )
+
             instance.weekly_workshift = None
             instance.info = info
             instance.closed = True
@@ -240,9 +243,13 @@ def delete_workshift_instances(sender, instance, **kwargs):
 
     if shift.active:
         for assignee in shift.current_assignees.all():
-            pool_hours = assignee.pool_hours.get(pool=shift.pool)
-            pool_hours.assigned_hours -= shift.hours
-            pool_hours.save(update_fields=["assigned_hours"])
+            try:
+                pool_hours = assignee.pool_hours.get(pool=shift.pool)
+            except PoolHours.DoesNotExist:
+                pass
+            else:
+                pool_hours.assigned_hours -= shift.hours
+                pool_hours.save(update_fields=["assigned_hours"])
 
 
 @receiver(signals.m2m_changed, sender=RegularWorkshift.current_assignees.through)
@@ -286,10 +293,10 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                 )
 
         instances = WorkshiftInstance.objects.filter(
-                weekly_workshift=shift,
-                date__gte=localtime(now()).date(),
-                closed=False,
-            ).order_by("date")
+            weekly_workshift=shift,
+            date__gte=localtime(now()).date(),
+            closed=False,
+        ).order_by("date")
         # Update instances
         if action in ["post_remove", "post_clear"]:
             # Unassign these people from any instances they were assigned to
@@ -371,10 +378,8 @@ def subtract_instance_hours(sender, instance, **kwargs):
         pool_hours.save(update_fields=["standing"])
 
     # Delete any associated information
-    if instance.info:
-        instance.info.delete()
-
     instance.logs.all().delete()
+
 
 @receiver(signals.pre_delete, sender=WorkshiftProfile)
 def delete_associated_hours(sender, instance, **kwargs):
@@ -384,6 +389,7 @@ def delete_associated_hours(sender, instance, **kwargs):
     profile.time_blocks.all().delete()
     profile.ratings.all().delete()
     profile.pool_hours.all().delete()
+
 
 # TODO: Auto-notify manager and workshifter when they are >= 10 hours down
 # TODO: Auto-email central when workshifters are >= 15 hours down?
