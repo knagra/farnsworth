@@ -24,10 +24,11 @@ def runtests():
         "threads",
         "events",
         "managers",
+        "farnswiki",
         "workshift",
         "elections",
         "rooms",
-        ])
+    ])
     sys.exit(bool(failures))
 
 if __name__ == "__main__":
