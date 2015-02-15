@@ -263,7 +263,7 @@ class TestStart(TestCase):
             title="Workshift Manager",
             incumbent=UserProfile.objects.get(user=self.wu),
             workshift_manager=True,
-            )
+        )
 
         self.assertTrue(self.client.login(username="wu", password="pwd"))
 
@@ -286,43 +286,62 @@ class TestStart(TestCase):
 
     def test_start(self):
         url = reverse("workshift:start_semester")
+        today = localtime(now()).date()
         response = self.client.post(url, {
             "semester-season": Semester.SUMMER,
-            "semester-year": 2014,
+            "semester-year": today.year,
             "semester-rate": 13.30,
             "semester-policy": "http://bsc.coop",
-            "semester-start_date": date(2014, 5, 22),
-            "semester-end_date": date(2014, 8, 15),
+            "semester-start_date": today,
+            "semester-end_date": today + timedelta(weeks=18),
         }, follow=True)
 
         self.assertRedirects(response, reverse("workshift:manage"))
 
         self.assertEqual(
             1,
-            Semester.objects.filter(year=2014).filter(season=Semester.SUMMER).count(),
-            )
+            Semester.objects.filter(
+                year=today.year,
+                season=Semester.SUMMER,
+            ).count(),
+        )
 
-        semester = Semester.objects.get(year=2014, season=Semester.SUMMER)
+        semester = Semester.objects.get(
+            year=today.year,
+            season=Semester.SUMMER,
+        )
 
         self.assertEqual(
             2,
             WorkshiftProfile.objects.filter(semester=semester).count(),
-            )
+        )
         self.assertEqual(
             1,
             WorkshiftPool.objects.filter(semester=semester).count(),
-            )
+        )
 
         pool = WorkshiftPool.objects.get(semester=semester)
 
-        self.assertEqual(PoolHours.objects.filter(pool=pool).count(), 2)
+        self.assertEqual(
+            2,
+            PoolHours.objects.filter(pool=pool).count(),
+        )
 
         pool_hours = PoolHours.objects.filter(pool=pool)
 
         for profile in WorkshiftProfile.objects.filter(semester=semester):
-            self.assertEqual(1, profile.pool_hours.count())
-            self.assertIn(profile.pool_hours.all()[0], pool_hours)
-            self.assertEqual(1, profile.pool_hours.filter(pool=pool).count())
+            self.assertEqual(
+                1,
+                profile.pool_hours.count(),
+            )
+            self.assertIn(
+                profile.pool_hours.all()[0],
+                pool_hours,
+            )
+            self.assertEqual(
+                1,
+                profile.pool_hours.filter(pool=pool).count(),
+            )
 
         # Test that we can delete the semester object without model clashes as
         # well
@@ -1358,7 +1377,7 @@ class TestSemester(TestCase):
 
         self.assertEqual(
             RegularWorkshift.objects.count(),
-            2, # 2x Workshift Manager
+            2,  # 2x Workshift Manager
         )
 
         names = [

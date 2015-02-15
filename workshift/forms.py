@@ -30,12 +30,14 @@ from workshift.templatetags.workshift_tags import currency
 
 valid_time_formats = ['%H:%M', '%I:%M%p', '%I:%M %p']
 
+
 class FullSemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
         exclude = (
             "workshift_managers",
         )
+
 
 class SemesterForm(forms.ModelForm):
     class Meta:
@@ -45,6 +47,7 @@ class SemesterForm(forms.ModelForm):
             "preferences_open",
             "current",
         )
+
 
 class StartPoolForm(forms.ModelForm):
     copy_pool = forms.BooleanField(initial=True)
@@ -68,6 +71,7 @@ class StartPoolForm(forms.ModelForm):
 
             utils.make_workshift_pool_hours(pool.semester, pools=[pool])
 
+
 class CloseSemesterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.semester = kwargs.pop("semester")
@@ -76,6 +80,7 @@ class CloseSemesterForm(forms.Form):
     def save(self):
         self.semester.current = False
         self.semester.save(update_fields=["current"])
+
 
 class OpenSemesterForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -88,6 +93,7 @@ class OpenSemesterForm(forms.Form):
             semester.save(update_fields=["current"])
         self.semester.current = True
         self.semester.save(update_fields=["current"])
+
 
 class PoolForm(forms.ModelForm):
     class Meta:
@@ -114,6 +120,7 @@ class PoolForm(forms.ModelForm):
         self.save_m2m()
         return pool
 
+
 class SwitchSemesterForm(forms.Form):
     semester = forms.ModelChoiceField(
         queryset=Semester.objects.all(),
@@ -121,6 +128,7 @@ class SwitchSemesterForm(forms.Form):
 
     def save(self):
         return self.cleaned_data["semester"]
+
 
 class WorkshiftInstanceForm(forms.ModelForm):
     class Meta:
@@ -265,6 +273,7 @@ class WorkshiftInstanceForm(forms.ModelForm):
         self.save_m2m()
         return instance
 
+
 class AnonymousUserLogin(forms.Form):
     """
     Allows members logged in as the anonymous user to quickly enter their
@@ -322,6 +331,7 @@ class AnonymousUserLogin(forms.Form):
     def save(self):
         return self.cleaned_data["profile"]
 
+
 class InteractShiftForm(forms.Form):
     pk = forms.IntegerField(widget=forms.HiddenInput())
 
@@ -344,6 +354,7 @@ class InteractShiftForm(forms.Form):
             raise forms.ValidationError("Workshift has been closed.")
         return shift
 
+
 def _undo_verify_blown(instance, pool_hours):
     if instance.blown:
         instance.blown = False
@@ -354,6 +365,7 @@ def _undo_verify_blown(instance, pool_hours):
         instance.verifier = None
         instance.closed = False
         pool_hours.standing -= instance.hours
+
 
 class VerifyShiftForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-ok"></span>'
@@ -426,6 +438,7 @@ class VerifyShiftForm(InteractShiftForm):
 
         return instance
 
+
 class BlownShiftForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-remove"></span>'
     title_long = "Blown"
@@ -484,6 +497,7 @@ class BlownShiftForm(InteractShiftForm):
             )
 
         return instance
+
 
 class UndoShiftForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-remove-circle"></span>'
@@ -566,6 +580,7 @@ class UndoShiftForm(InteractShiftForm):
 
         return instance
 
+
 class NoteForm(forms.Form):
     note = forms.CharField(
         required=False,
@@ -573,6 +588,7 @@ class NoteForm(forms.Form):
 
     def save(self):
         return self.cleaned_data["note"]
+
 
 class SignInForm(InteractShiftForm):
     title_short = '<span class="glyphicon glyphicon-log-in"></span>'
@@ -704,6 +720,7 @@ class EditHoursForm(forms.Form):
 
         return self.instance
 
+
 class AddWorkshifterForm(forms.Form):
     add_profile = forms.BooleanField(
         initial=True,
@@ -721,8 +738,10 @@ class AddWorkshifterForm(forms.Form):
         self.user = kwargs.pop("user")
         if "initial" not in kwargs:
             try:
-                pool = WorkshiftPool.objects.get(semester=self.semester,
-                                                 is_primary=True)
+                pool = WorkshiftPool.objects.get(
+                    semester=self.semester,
+                    is_primary=True,
+                )
             except (WorkshiftPool.DoesNotExist, WorkshiftPool.MultipleObjectsReturned):
                 pass
             else:
@@ -743,6 +762,7 @@ class AddWorkshifterForm(forms.Form):
 
             return profile
 
+
 class FillShiftsForm(forms.Form):
     message = "Created"
 
@@ -750,12 +770,13 @@ class FillShiftsForm(forms.Form):
         self.name = "fill_{}_shifts".format(self.shift_name)
         self.button_text = "Fill in {} shifts".format(self.shift_name)
 
-        if len(args) > 0 and self.name not in args[0]:
-            args = (None,) + tuple(args[1:])
+        if self.name not in kwargs.get("data", {}):
+            kwargs["data"] = None
 
         self.semester = kwargs.pop("semester")
 
         super(FillShiftsForm, self).__init__(*args, **kwargs)
+
 
 class FillRegularShiftsForm(FillShiftsForm):
     shift_name = "regular"
@@ -764,12 +785,14 @@ class FillRegularShiftsForm(FillShiftsForm):
         from workshift.fill import fill_regular_shifts
         return fill_regular_shifts(semester=self.semester)
 
+
 class FillSocialShiftsForm(FillShiftsForm):
     shift_name = "social"
 
     def save(self):
         from workshift.fill import fill_social_shifts
         return fill_social_shifts(semester=self.semester)
+
 
 class FillHumorShiftsForm(FillShiftsForm):
     shift_name = "humor"
@@ -778,12 +801,14 @@ class FillHumorShiftsForm(FillShiftsForm):
         from workshift.fill import fill_humor_shifts
         return fill_humor_shifts(semester=self.semester)
 
+
 class FillBathroomShiftsForm(FillShiftsForm):
     shift_name = "bathroom"
 
     def save(self):
         from workshift.fill import fill_bathroom_shifts
         return fill_bathroom_shifts(semester=self.semester)
+
 
 class FillHIShiftsForm(FillShiftsForm):
     shift_name = "HI"
@@ -792,14 +817,15 @@ class FillHIShiftsForm(FillShiftsForm):
         from workshift.fill import fill_hi_shifts
         return fill_hi_shifts(semester=self.semester)
 
+
 class ResetAllShiftsForm(forms.Form):
     name = "reset_all_shifts"
     button_text = "Remove all shifts"
     message = "Removed"
 
     def __init__(self, *args, **kwargs):
-        if len(args) > 0 and self.name not in args[0]:
-            args = (None,) + tuple(args[1:])
+        if self.name not in kwargs.get("data", {}):
+            kwargs["data"] = None
 
         self.semester = kwargs.pop("semester")
 
@@ -808,6 +834,7 @@ class ResetAllShiftsForm(forms.Form):
     def save(self):
         from workshift.fill import reset_all_shifts
         return reset_all_shifts(semester=self.semester)
+
 
 class AutoAssignShiftForm(forms.Form):
     name = "auto_assign_shifts"
@@ -837,6 +864,7 @@ class AutoAssignShiftForm(forms.Form):
         )
         return unfinished
 
+
 class RandomAssignInstancesForm(forms.Form):
     name = "random_assign_instances"
     text = "Randomly assign shift instances"
@@ -865,6 +893,7 @@ class RandomAssignInstancesForm(forms.Form):
         )
         return unfinished
 
+
 class ClearAssignmentsForm(forms.Form):
     name = "clear_assignments"
     text = "Clear all shift assignments"
@@ -890,10 +919,13 @@ class ClearAssignmentsForm(forms.Form):
     def save(self):
         utils.clear_all_assignments(self.semester, self.cleaned_data["pool"])
 
+
 class AssignShiftForm(forms.ModelForm):
     class Meta:
         model = RegularWorkshift
-        fields = ("current_assignees",)
+        fields = (
+            "current_assignees",
+        )
         labels = {
             "current_assignees": "",
         }
@@ -923,6 +955,7 @@ class AssignShiftForm(forms.ModelForm):
             self.fields['current_assignees'].queryset = \
               WorkshiftProfile.objects.filter(pk__in=query)
 
+
 class AdjustHoursForm(forms.ModelForm):
     class Meta:
         model = PoolHours
@@ -938,6 +971,7 @@ class AdjustHoursForm(forms.ModelForm):
             "hours": "Hour Requirement",
             "hour_adjustment": "Hour Adjustment",
         }
+
 
 class RegularWorkshiftForm(forms.ModelForm):
     start_time = forms.TimeField(
@@ -986,6 +1020,7 @@ class RegularWorkshiftForm(forms.ModelForm):
             )
         return data
 
+
 class WorkshiftTypeForm(forms.ModelForm):
     class Meta:
         model = WorkshiftType
@@ -1004,6 +1039,7 @@ class WorkshiftTypeForm(forms.ModelForm):
         if read_only:
             for field in self.fields.keys():
                 self.fields[field].widget.attrs['readonly'] = True
+
 
 class WorkshiftRatingForm(forms.ModelForm):
     class Meta:
@@ -1025,6 +1061,7 @@ class WorkshiftRatingForm(forms.ModelForm):
         if not self.profile.ratings.filter(pk=rating.pk):
             self.profile.ratings.add(rating)
         return rating
+
 
 class TimeBlockForm(forms.ModelForm):
     start_time = forms.TimeField(
@@ -1048,6 +1085,7 @@ class TimeBlockForm(forms.ModelForm):
             self.add_error('end_time', u"Start time later than end time.")
         return cleaned_data
 
+
 class BaseTimeBlockFormSet(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
@@ -1061,11 +1099,13 @@ class BaseTimeBlockFormSet(BaseModelFormSet):
                 self.profile.time_blocks.add(block)
         return blocks
 
+
 TimeBlockFormSet = modelformset_factory(
     TimeBlock, form=TimeBlockForm, formset=BaseTimeBlockFormSet,
     can_delete=True, extra=1, max_num=50,
     help_texts=dict(preference="", day="", start_time="", end_time=""),
 )
+
 
 class AddRegularWorkshiftForm(forms.ModelForm):
     start_time = forms.TimeField(
@@ -1113,6 +1153,7 @@ class AddRegularWorkshiftForm(forms.ModelForm):
             self.add_error('end_time', u"Start time later than end time.")
         return cleaned_data
 
+
 class BaseRegularWorkshiftFormSet(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
         self.pools = kwargs.pop("pools", None)
@@ -1132,11 +1173,13 @@ class BaseRegularWorkshiftFormSet(BaseModelFormSet):
 
         return shifts
 
+
 RegularWorkshiftFormSet = modelformset_factory(
     RegularWorkshift, form=AddRegularWorkshiftForm,
     formset=BaseRegularWorkshiftFormSet,
     can_delete=True, extra=1, max_num=50,
 )
+
 
 class ProfileNoteForm(forms.ModelForm):
     class Meta:
@@ -1145,12 +1188,14 @@ class ProfileNoteForm(forms.ModelForm):
             "note",
         )
 
+
 # I recommend red wine and a late night walk along a lake
 FINE_DATE_CHOICES = (
     ("1", "First Fine Date"),
     ("2", "Second Fine Date"),
     ("3", "Third Fine Date"),
 )
+
 
 class FineDateForm(forms.Form):
     pool = forms.ModelChoiceField(
