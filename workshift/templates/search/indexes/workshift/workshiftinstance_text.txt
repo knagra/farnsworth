@@ -6,3 +6,6 @@
 {% if object.description %}
 {{ object.description|safe }}
 {% endif %}
+{% for log in object.logs.all %}
+log.person
+{% endfor %}
