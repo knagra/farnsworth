@@ -622,6 +622,7 @@ class ShiftLogEntry(models.Model):
         "(e.g. 'Can't cook because of flu')",
     )
     ASSIGNED = "A"
+    UNASSIGNED = "D"
     BLOWN = "B"
     UNBLOWN = "C"
     SIGNIN = "I"
@@ -632,6 +633,7 @@ class ShiftLogEntry(models.Model):
     MODIFY_HOURS = "M"
     ENTRY_CHOICES = (
         (ASSIGNED, "Assigned"),
+        (UNASSIGNED, "Unassigned"),
         (BLOWN, "Blown"),
         (UNBLOWN, "Undo Blown"),
         (SIGNIN, "Sign In"),

@@ -8,6 +8,8 @@ Farnsworth automatically
 
 {% if log.entry_type == 'A' %}
 was assigned to this shift.
+{% elif log.entry_type == 'D' %}
+was removed from this shift.
 {% elif log.entry_type == 'B' %}
 marked this shift as blown.
 {% elif log.entry_type == 'C' %}

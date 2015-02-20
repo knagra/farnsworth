@@ -301,10 +301,20 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
         if action in ["post_remove", "post_clear"]:
             # Unassign these people from any instances they were assigned to
             for instance in instances:
-                if not pk_set or instance.workshifter.pk in pk_set:
+                liable = instance.workshifter or instance.liable
+                if liable is not None and \
+                   (not pk_set or liable.pk in pk_set):
                     instance.workshifter = None
                     instance.liable = None
                     instance.save(update_fields=["workshifter", "liable"])
+
+                    instance.logs.add(
+                        ShiftLogEntry.objects.create(
+                            person=liable,
+                            entry_type=ShiftLogEntry.UNASSIGNED,
+                            note="Removed from the recurring shift.",
+                        )
+                    )
 
         elif action in ["post_add"]:
             # Assign these people to any instances of this shift if they are
