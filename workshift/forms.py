@@ -405,7 +405,7 @@ class VerifyShiftForm(InteractShiftForm):
         instance = super(VerifyShiftForm, self).clean_pk()
 
         workshifter = instance.workshifter or instance.liable
-        managers = Manager.objects.filter(incumbent=user_profile)
+        managers = Manager.objects.filter(incumbent__user=self.profile.user)
 
         if not workshifter:
             raise forms.ValidationError("Workshift is not filled.")
