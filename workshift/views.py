@@ -436,6 +436,13 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
     else:
         prefix = "{}".format(instance.pk)
 
+    kwargs = dict(
+        initial={"pk": instance.pk},
+        profile=profile,
+        prefix=prefix,
+        undo=undo,
+    )
+
     ret = []
     if (not instance.closed or undo) and instance.workshifter:
         workshifter = instance.workshifter or instance.liable
@@ -470,10 +477,7 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
             ret.append(
                 VerifyShiftForm(
                     data=request.POST if action in request.POST else None,
-                    initial={"pk": instance.pk},
-                    profile=profile,
-                    prefix=prefix,
-                    undo=undo,
+                    **kwargs
                 )
             )
 
@@ -491,10 +495,7 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
             ret.append(
                 BlownShiftForm(
                     data=request.POST if action in request.POST else None,
-                    initial={"pk": instance.pk},
-                    profile=profile,
-                    prefix=prefix,
-                    undo=undo,
+                    **kwargs
                 )
             )
 
@@ -507,10 +508,7 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
             ret.append(
                 UndoShiftForm(
                     data=request.POST if action in request.POST else None,
-                    initial={"pk": instance.pk},
-                    profile=profile,
-                    prefix=prefix,
-                    undo=undo,
+                    **kwargs
                 )
             )
 
@@ -521,10 +519,7 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
             ret.append(
                 SignInForm(
                     data=request.POST if action in request.POST else None,
-                    initial={"pk": instance.pk},
-                    profile=profile,
-                    prefix=prefix,
-                    undo=undo,
+                    **kwargs
                 )
             )
         liable = instance.workshifter or instance.liable
@@ -535,10 +530,7 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
             ret.append(
                 SignOutForm(
                     data=request.POST if action in request.POST else None,
-                    initial={"pk": instance.pk},
-                    profile=profile,
-                    prefix=prefix,
-                    undo=undo,
+                    **kwargs
                 )
             )
 
