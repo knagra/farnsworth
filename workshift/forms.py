@@ -651,7 +651,7 @@ class SignOutForm(InteractShiftForm):
                 note = "Signed out by {}".format(
                     self.profile
                 )
-        else:
+        elif not self.undo:
             if utils.past_sign_out(instance):
                 liable = True
 
