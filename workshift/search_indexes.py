@@ -96,7 +96,7 @@ class RegularWorkshiftIndex(indexes.ModelSearchIndex, indexes.Indexable):
     def index_queryset(self, using=None):
         return self.get_model().objects.filter(pool__semester__current=True)
 
-
+'''
 class WorkshiftInstanceIndex(indexes.ModelSearchIndex, indexes.Indexable):
     """ Index for a workshift instance. """
     class Meta:
@@ -115,3 +115,4 @@ class WorkshiftInstanceIndex(indexes.ModelSearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         return self.get_model().objects.filter(semester__current=True)
+'''
