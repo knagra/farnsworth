@@ -628,7 +628,7 @@ class SignOutForm(InteractShiftForm):
     def clean_pk(self):
         shift = super(SignOutForm, self).clean_pk()
 
-        if shift.workshifter is None:
+        if shift.workshifter is None and shift.liable is None:
             raise forms.ValidationError(
                 "No one is signed into this workshift.",
             )
@@ -659,6 +659,8 @@ class SignOutForm(InteractShiftForm):
 
         if liable:
             instance.liable = workshifter
+        else:
+            instance.liable = None
 
         instance.save(update_fields=["workshifter", "liable"])
 
