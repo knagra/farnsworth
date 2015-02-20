@@ -344,6 +344,7 @@ def update_assigned_hours(sender, instance, action, reverse, model, pk_set, **kw
                         ShiftLogEntry.objects.create(
                             person=instance.workshifter,
                             entry_type=ShiftLogEntry.ASSIGNED,
+                            note="Assigned to the recurring shift.",
                         )
                     )
 
