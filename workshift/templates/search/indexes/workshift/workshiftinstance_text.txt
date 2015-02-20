@@ -1,8 +1,6 @@
 {{ object.title }}
 {{ object.workshifter }}
-{{ object.pool.title }},
-{{ object.semester.get_season_display }}
-{{ object.semester.year }}
+{{ object.pool }}
 {% if object.description %}
 {{ object.description|safe }}
 {% endif %}

@@ -75,21 +75,19 @@ class RegularWorkshiftIndex(indexes.SearchIndex, indexes.Indexable):
     def index_queryset(self, using=None):
         return self.get_model().objects.filter(pool__semester__current=True)
 
-''' Adding these clutters up search pages really quickly.
 class WorkshiftInstanceIndex(indexes.SearchIndex, indexes.Indexable):
     """ Index for a workshift instance. """
     text = indexes.EdgeNgramField(document=True, use_template=True)
-    semester = indexes.EdgeNgramField(model_attr='semester')
-    date = indexes.DateField(model_attr='date')
-    user = indexes.EdgeNgramField(model_attr='workshifter',
-                                    null=True,
-                                    boost=1.25)
-    user = indexes.CharField(model_attr='workshifter', null=True,
-                                faceted=True)
-
-    def get_model(self):
-        return WorkshiftInstance
+    class Meta:
+        model = WorkshiftInstance
+        fields = (
+            "date",
+            "workshifter",
+            "logs",
+            "pool",
+            "title",
+            "description",
+        )
 
     def index_queryset(self, using=None):
         return self.get_model().objects.filter(semester__current=True)
-'''
