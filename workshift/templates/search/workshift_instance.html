@@ -1,11 +1,53 @@
 {% load highlight %}
 {% load workshift_tags %}
 <h3 class="result_title">
-  <a href="{{ result.object.get_view_url }}">{{ result.object }}</a>
+  <a href="{{ result.object.get_view_url }}">
+    {{ result.object }}
+  </a>
   <small>
     Workshift Instance
+    {% if result.object.weekly_workshift %}
+    (recurring)
+    {% endif %}
   </small>
+  {% if result.object.logs.all %}
+  <h3 class="w_subtitle">
+    Logs
+  </h3>
 </h3>
+<table class="table table-striped table-bordered table-condensed table-hover">
+  <thead>
+    <tr>
+      <th>Time</th>
+      <th>Entry</th>
+      <th>Note</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in result.object.logs.all|slice":3" %}
+    <tr
+{% if log.entry_type == 'B' %}
+class="danger"
+{% elif log.entry_type == 'V' %}
+class="success"
+{% endif %}
+>
+      <td>
+        {{ log.entry_time }}
+      </td>
+      <td>
+        {% include "shift_log.html" %}
+      </td>
+      <td>
+        {% if log.note %}
+        {{ log.note }}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
 <div class="result_highlight">
   {% highlight result.text with query %}
 </div>
