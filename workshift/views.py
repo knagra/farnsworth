@@ -524,6 +524,7 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
                     initial={"pk": instance.pk},
                     profile=profile,
                     prefix=prefix,
+                    undo=undo,
                 )
             )
         liable = instance.workshifter or instance.liable
@@ -537,6 +538,7 @@ def _get_forms(profile, instance, request, undo=False, prefix=""):
                     initial={"pk": instance.pk},
                     profile=profile,
                     prefix=prefix,
+                    undo=undo,
                 )
             )
 
