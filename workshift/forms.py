@@ -253,11 +253,39 @@ class WorkshiftInstanceForm(forms.ModelForm):
         instance = super(WorkshiftInstanceForm, self).save(commit=False)
         instance.semester = self.semester
         instance.weekly_workshift = self.cleaned_data["weekly_workshift"]
+
         if instance.weekly_workshift:
             if instance.info:
                 instance.info.delete()
+
         if new:
+            # Update the intended hours
             instance.intended_hours = instance.hours
+        else:
+            # Add logs and update liable if workshifter changed
+            prev_liable = prev_instance.workshifter or prev_instance.liable
+
+            if prev_liable:
+                if prev_instance.workshifter:
+                    instance.logs.add(
+                        ShiftLogEntry.objects.create(
+                            person=prev_liable,
+                            entry_type=ShiftLogEntry.UNASSIGNED,
+                            note="Removed from this individual shift.",
+                        )
+                    )
+
+            if instance.workshifter:
+                instance.liable = None
+                instance.logs.add(
+                    ShiftLogEntry.objects.create(
+                        person=instance.workshifter,
+                        entry_type=ShiftLogEntry.ASSIGNED,
+                        note="Assigned to this individual shift.",
+                    )
+                )
+
+        # Create InstanceInfo if necessary
         if not self.cleaned_data["weekly_workshift"]:
             if not instance.info and \
               (not instance.weekly_workshift or
@@ -269,8 +297,10 @@ class WorkshiftInstanceForm(forms.ModelForm):
                 for field in self.info_fields:
                     setattr(instance.info, field, self.cleaned_data[field])
                 instance.info.save()
+
         instance.save()
         self.save_m2m()
+
         return instance
 
 
