@@ -75,6 +75,7 @@ class RegularWorkshiftIndex(indexes.SearchIndex, indexes.Indexable):
     def index_queryset(self, using=None):
         return self.get_model().objects.filter(pool__semester__current=True)
 
+'''
 class WorkshiftInstanceIndex(indexes.SearchIndex, indexes.Indexable):
     """ Index for a workshift instance. """
     text = indexes.EdgeNgramField(document=True, use_template=True)
@@ -94,3 +95,4 @@ class WorkshiftInstanceIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         return self.get_model().objects.filter(semester__current=True)
+'''
