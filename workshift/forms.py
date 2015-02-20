@@ -18,7 +18,6 @@ from django.forms.models import BaseModelFormSet, modelformset_factory
 from notifications import notify
 from django_select2.widgets import Select2MultipleWidget, Select2Widget
 
-from base.models import UserProfile
 from managers.models import Manager
 from workshift.models import Semester, WorkshiftPool, WorkshiftType, \
     TimeBlock, WorkshiftRating, WorkshiftProfile, \
@@ -406,14 +405,10 @@ class VerifyShiftForm(InteractShiftForm):
         instance = super(VerifyShiftForm, self).clean_pk()
 
         workshifter = instance.workshifter or instance.liable
-        user_profile = UserProfile.objects.get(user=self.profile.user)
         managers = Manager.objects.filter(incumbent=user_profile)
 
         if not workshifter:
             raise forms.ValidationError("Workshift is not filled.")
-        if user_profile.status not in \
-          [UserProfile.RESIDENT, UserProfile.BOARDER]:
-            raise forms.ValidationError("Verifier is not a member or boarder.")
 
         if instance.verify == AUTO_VERIFY:
             raise forms.ValidationError("Workshift is automatically verified.")
