@@ -638,7 +638,7 @@ class SignOutForm(InteractShiftForm):
     def save(self, note=None):
         instance = self.cleaned_data["pk"]
         liable = False
-        workshifter = instance.workshifter
+        workshifter = instance.workshifter or instance.liable
 
         if workshifter != self.profile:
             notify.send(
