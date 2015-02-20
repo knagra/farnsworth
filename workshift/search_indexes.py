@@ -89,5 +89,8 @@ class WorkshiftInstanceIndex(indexes.SearchIndex, indexes.Indexable):
             "description",
         )
 
+    def get_model(self):
+        return WorkshiftInstance
+
     def index_queryset(self, using=None):
         return self.get_model().objects.filter(semester__current=True)
