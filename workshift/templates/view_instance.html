@@ -40,7 +40,7 @@
     </dd>
     <dt>Date</dt>
     <dd>
-      {{ instance.date }}
+      {{ instance.date }}{% if instance.get_time_range %}: {{ instance.get_time_range }}{% endif %}
     </dd>
     {% if instance.workshifter or instance.liable %}
     <dt>
