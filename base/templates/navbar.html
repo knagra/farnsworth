@@ -1,5 +1,5 @@
 {% load notifications_tags %}
-{% notifications_unread as unread_count %}
+{% notifications_unread as UNREAD_COUNT %}
 <div class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 10px;">
   <div class="container">
     <div class="navbar-header">
@@ -28,13 +28,25 @@
         {% else %}
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="profile_dropdown_link"
-             {% if ANONYMOUS_SESSION %} style="color: #ff0000 !important;"
-             title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'{% endif %}>
-            <span><span class="pull-right"><b class="caret"></b></span>{% if unread_count > 0 %}<span
-            title="You have {{ unread_count }} unread notification{{ unread_count|pluralize }}." class="badge pull-right">{{ unread_count }}</span>
-              {% endif %}
+             {% if ANONYMOUS_SESSION %}
+             style="color: #ff0000 !important;"
+             title='This is a temporary session.  When you logout, the anonymous user "{{ ANONYMOUS_USERNAME }}" will be logged in.'
+             {% endif %}>
+            <span>
+              <span class="pull-right">
+                {% if UNREAD_COUNT > 0 %}
+                &nbsp;
+                <span title="You have {{ UNREAD_COUNT }} unread notification{{ UNREAD_COUNT|pluralize }}."
+                      class="badge">
+                  {{ UNREAD_COUNT }}
+                </span>
+                {% endif %}
+                <b class="caret"></b>
+              </span>
+
               <span class="glyphicon glyphicon-user"></span>
-              {{ user.first_name }}&nbsp;</span>
+              {{ user.first_name }}&nbsp;
+            </span>
           </a>
           <ul class="dropdown-menu">
             <li>
@@ -55,7 +67,6 @@
                 Your Requests
               </a>
             </li>
-            <li class="divider"></li>
             {% if WORKSHIFT_PROFILE %}
             <li>
               <a href="{{ WORKSHIFT_PROFILE.get_view_url }}">
@@ -66,21 +77,22 @@
                 </span>
                 {% endif %}
                 <span class="glyphicon glyphicon-dashboard"></span>
-                Workshift Dashboard
+                Your Workshift
               </a>
             </li>
             {% endif %}
+            <li class="divider"></li>
             <li>
               <a href="{% url 'my_profile' %}">
                 <span class="glyphicon glyphicon-edit"></span>
-                Update Your Profile
+                Edit Profile
               </a>
             </li>
             <li>
               <a id="notifications_link" href="{% url 'notifications' %}"
-                 title="{{ unread_count }} unread notification{{ unread_count|pluralize }}">
-                {% if unread_count > 0 %}
-                <span class="badge pull-right">{{ unread_count }}</span>
+                 title="{{ UNREAD_COUNT }} unread notification{{ UNREAD_COUNT|pluralize }}">
+                {% if UNREAD_COUNT > 0 %}
+                <span class="badge pull-right">{{ UNREAD_COUNT }}</span>
                 {% endif %}
                 <span class="glyphicon glyphicon-bell"></span>
                 Notifications
@@ -235,7 +247,15 @@
         {% if user.is_superuser or PRESIDENT or WORKSHIFT_MANAGER%}
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <span class="pull-right"><b class="caret"></b></span>
+            <span class="pull-right">
+              {% if ADMIN_UNREAD_COUNT > 0 %}
+              &nbsp;
+              <span class="badge">
+                {{ ADMIN_UNREAD_COUNT }}
+              </span>
+              {% endif %}
+              <b class="caret"></b>
+            </span>
             <span class="glyphicon glyphicon-cog"></span>
             Admin
           </a>
@@ -323,7 +343,11 @@
         {% endif %} {% comment %} end if user.is_superuser {% endcomment %}
       </ul> <!-- .navbar-nav -->
       <div style="padding: 0px;" class="col-sm-3 col-md-4 pull-right">
-        <form id="search_bar" class="navbar-form" role="search" action="{% url 'haystack_search' %}?q=" style="padding-left: 5px; padding-right: 5px;">
+        <form id="search_bar"
+              class="navbar-form"
+              role="search"
+              action="{% url 'haystack_search' %}?q="
+              style="padding-left: 5px; padding-right: 5px;">
           <div class="input-group">
             <input type="search" class="form-control search-query" name="q" placeholder="Search">
             <span class="input-group-btn">

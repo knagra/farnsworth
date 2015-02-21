@@ -52,40 +52,51 @@ from events.ajax import build_ajax_rsvps
 from rooms.models import Room, PreviousResident
 
 def add_context(request):
-    ''' Add variables to all dictionaries passed to templates. '''
-    PRESIDENT = False # whether the user has president privileges
+    """ Add variables to all dictionaries passed to templates. """
+    # Whether the user has president privileges
     try:
-        userProfile = UserProfile.objects.get(user=request.user)
-    except (UserProfile.DoesNotExist, TypeError):
-        pass
-    else:
-        for pos in Manager.objects.filter(incumbent=userProfile):
-            if pos.president:
-                PRESIDENT = True
-                break
+        PRESIDENT = Manager.objects.filter(
+            incumbent__user=request.user,
+            president=True,
+        ).count() > 0
+    except TypeError:
+        PRESIDENT = False
+
+    # If the user is logged in as an anymous user
     if request.user.username == ANONYMOUS_USERNAME:
-        request.session['ANONYMOUS_SESSION'] = True
-    ANONYMOUS_SESSION = request.session.get('ANONYMOUS_SESSION', False)
+        request.session["ANONYMOUS_SESSION"] = True
+
+    ANONYMOUS_SESSION = request.session.get("ANONYMOUS_SESSION", False)
+
     # A list with items of form (RequestType, number_of_open_requests)
     request_types = list()
     if request.user.is_authenticated():
         for request_type in RequestType.objects.filter(enabled=True):
-            requests = Request.objects.filter(request_type=request_type, status=Request.OPEN)
+            requests = Request.objects.filter(
+                request_type=request_type,
+                status=Request.OPEN,
+            )
             if not request_type.managers.filter(incumbent__user=request.user):
                 requests = requests.exclude(
-                    ~Q(owner__user=request.user), private=True,
-                    )
+                    ~Q(owner__user=request.user),
+                    private=True,
+                )
             request_types.append((request_type, requests.count()))
+
+    profile_requests_count = ProfileRequest.objects.all().count()
+    admin_unread_count = profile_requests_count
+
     return {
-        'REQUEST_TYPES': request_types,
-        'HOUSE': settings.HOUSE_NAME,
-        'ANONYMOUS_USERNAME': ANONYMOUS_USERNAME,
-        'SHORT_HOUSE': settings.SHORT_HOUSE_NAME,
-        'ADMIN': settings.ADMINS[0],
-        'NUM_OF_PROFILE_REQUESTS': ProfileRequest.objects.all().count(),
-        'ANONYMOUS_SESSION': ANONYMOUS_SESSION,
-        'PRESIDENT': PRESIDENT,
-        }
+        "REQUEST_TYPES": request_types,
+        "HOUSE": settings.HOUSE_NAME,
+        "ANONYMOUS_USERNAME": ANONYMOUS_USERNAME,
+        "SHORT_HOUSE": settings.SHORT_HOUSE_NAME,
+        "ADMIN": settings.ADMINS[0],
+        "NUM_OF_PROFILE_REQUESTS": profile_requests_count,
+        "ADMIN_UNREAD_COUNT": admin_unread_count,
+        "ANONYMOUS_SESSION": ANONYMOUS_SESSION,
+        "PRESIDENT": PRESIDENT,
+    }
 
 def landing_view(request):
     ''' The external landing.'''
