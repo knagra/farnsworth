@@ -94,11 +94,9 @@
         </a>
       </td>
       <td>
-        {% if instance.intended_hours == instance.hours %}
-        {{ instance.hours }}
-        {% else %}
-        <del>{{ instance.intended_hours}}</del> {{ instance.hours }}
-        {% endif %}
+        {% with shift=instance %}
+        {% include "shift_hours.html" %}
+        {% endwith %}
       </td>
       <td>
         {% with shift=instance %}

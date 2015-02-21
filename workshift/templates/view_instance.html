@@ -33,9 +33,15 @@
   <hr class="w_line" />
   <dl id="info_table" class="dl-horizontal">
     <dt>Workshift Pool</dt>
-    <dd><a href="{{ instance.pool.get_view_url }}">{{ instance.pool.title }}</a></dd>
+    <dd>
+      <a href="{{ instance.pool.get_view_url }}">
+        {{ instance.pool.title }}
+      </a>
+    </dd>
     <dt>Date</dt>
-    <dd>{{ instance.date }}</dd>
+    <dd>
+      {{ instance.date }}
+    </dd>
     {% if instance.workshifter or instance.liable %}
     <dt>
       Assignee
@@ -62,7 +68,10 @@
       Workshift Hours
     </dt>
     <dd>
-      {{ instance.hours }} hour{{ instance.hours|pluralize }}
+      {% with shift=instance %}
+      {% include "shift_hours.html" %}
+      {% endwith %}
+      hour{{ instance.hours|pluralize }}
     </dd>
     {% if interact_forms or note_form %}
     <dt>

@@ -102,11 +102,7 @@
             {{ shift.get_end_time }}
           </td>
           <td>
-            {% if shift.intended_hours == shift.hours %}
-            {{ shift.hours }}
-            {% else %}
-            <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
-            {% endif %}
+            {% include "shift_hours.html" %}
           </td>
           <td>
             {% include "shift_workshifter.html" %}
@@ -156,11 +152,7 @@
           </td>
           {% endif %}
           <td>
-            {% if shift.intended_hours == shift.hours %}
-            {{ shift.hours }}
-            {% else %}
-            <del>{{ shift.intended_hours}}</del> {{ shift.hours }}
-            {% endif %}
+            {% include "shift_hours.html" %}
           </td>
           <td>
             {% include "shift_workshifter.html" %}

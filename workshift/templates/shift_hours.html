@@ -1,0 +1,5 @@
+{% if shift.intended_hours == shift.hours %}
+{{ shift.hours }}
+{% else %}
+<del>{{ shift.intended_hours}}</del> {{ shift.hours }}
+{% endif %}

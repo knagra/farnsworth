@@ -41,11 +41,7 @@
           {{ instance.get_end_time }}
         </td>
         <td>
-          {% if instance.intended_hours == instance.hours %}
-          {{ instance.hours }}
-          {% else %}
-          <del>{{ instance.intended_hours}}</del> {{ instance.hours }}
-          {% endif %}
+          {% include "shift_hours.html" %}
         </td>
         <td>
           <form method="POST" action="">

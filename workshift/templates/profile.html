@@ -111,9 +111,17 @@
     <tbody>
       {% for shift in past_shifts %}
       <tr class="{% if shift.blown %}danger{% elif shift.closed %}success{% elif shift.liable %}warning{% elif not shift.workshifter %}info{% endif %}">
-        <td><a href="{{ shift.get_view_url }}">{{ shift.title }}</a></td>
-        <td>{{ shift.date }}</td>
-        <td>{{ shift.hours }}</td>
+        <td>
+          <a href="{{ shift.get_view_url }}">
+            {{ shift.title }}
+          </a>
+        </td>
+        <td>
+          {{ shift.date }}
+        </td>
+        <td>
+          {% include "shift_hours.html" %}
+        </td>
         <td>
           {% include "shift_status.html" %}
         </td>
