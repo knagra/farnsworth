@@ -663,12 +663,16 @@ def profile_view(request, semester, targetUsername, profile=None):
     else:
         page_name = "{}'s Workshift Profile".format(wprofile.user.get_full_name())
 
-    past_shifts = WorkshiftInstance.objects.filter(workshifter=wprofile, closed=True)
+    past_shifts = WorkshiftInstance.objects.filter(
+        Q(workshifter=wprofile) | Q(liable=wprofile),
+        closed=True,
+    )
     regular_shifts = RegularWorkshift.objects.filter(
         active=True, current_assignees=wprofile,
     )
     assigned_instances = WorkshiftInstance.objects.filter(
-        closed=False, workshifter=wprofile,
+        Q(workshifter=wprofile) | Q(liable=wprofile),
+        closed=False,
     ).exclude(
         weekly_workshift__current_assignees=wprofile,
     )
