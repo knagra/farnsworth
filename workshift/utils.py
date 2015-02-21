@@ -260,18 +260,16 @@ def past_sign_out(instance, moment=None):
     cutoff_hours = timedelta(hours=instance.pool.sign_out_cutoff)
     cutoff_time = start_datetime - cutoff_hours
 
-    assigned_time = instance.logs.filter(
-        person=instance.workshifter,
-        entry_type=ShiftLogEntry.ASSIGNED,
-    )
-
     # Let people sign out of shifts if they were assigned to them within the
     # no-sign-out window (i.e. assigned on Monday, shift on Tuesday)
-    if assigned_time.count() > 0:
-        assigned_time = assigned_time.latest("entry_time")
+    assigned_time = instance.logs.filter(
+        person=instance.workshifter or instance.liable,
+        entry_type=ShiftLogEntry.ASSIGNED,
+        entry_time__gte=cutoff_time,
+    )
 
-        if assigned_time.entry_time > cutoff_time:
-            return False
+    if assigned_time.count() > 0:
+        return False
 
     return moment > cutoff_time
 
