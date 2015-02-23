@@ -5,10 +5,16 @@
 {% elif shift.verify == 'A' %}
 {% if shift.closed %}
 <font color="green">
-  Automatically verified
+  Verified
+  <span class="hidden-xs">
+    automatically
+  </span>
 </font>
 {% else %}
-Auto verify
+Auto
+<span class="hidden-xs">
+  verify
+</span>
 {% endif %}
 {% elif shift.verifier %}
 <font color="green">
