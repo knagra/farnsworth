@@ -4,7 +4,11 @@
 {% load bootstrap %}
 {% load thread_tags %}
 {% load request_tags %}
+{% load django_select2_tags %}
+
 {% block headers %}
+{% import_django_select2_js %}
+{% import_django_select2_css light=1 %}
 <link type="text/css" rel="stylesheet" href="{% static 'ui/css/homepage.css' %}" />
 <style>
  .form-group label[for*="body"] {
