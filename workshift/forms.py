@@ -450,6 +450,7 @@ class VerifyShiftForm(InteractShiftForm):
             )
         )
 
+        # Update the workshifter's hours
         pool_hours.standing += instance.hours
         pool_hours.save(update_fields=["standing"])
 
@@ -722,11 +723,14 @@ class EditHoursForm(forms.Form):
     def save(self):
         hours = self.cleaned_data["hours"]
 
-        if self.instance.workshifter and self.instance.closed:
-            # Remove the hours we gave them previously
-            pool_hours = self.instance.workshifter.pool_hours.get(
+        workshifter = self.instance.workshifter or self.instance.liable
+
+        if workshifter and self.instance.closed:
+            pool_hours = workshifter.pool_hours.get(
                 pool=self.instance.pool,
             )
+
+            # Remove the hours we gave them previously
             pool_hours.standing -= self.instance.hours
 
             # Then give them the hours for this shift

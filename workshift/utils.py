@@ -689,18 +689,17 @@ def reset_standings(semester=None, pool_hours=None):
 
         profile = WorkshiftProfile.objects.get(pool_hours=hours)
 
-        for field in ["workshifter", "liable"]:
-            instances = WorkshiftInstance.objects.filter(
-                Q(weekly_workshift__pool=hours.pool) |
-                Q(info__pool=hours.pool),
-                closed=True,
-                **{field: profile}
-            )
-            for instance in instances:
-                if instance.blown:
-                    hours.standing -= instance.hours
-                else:
-                    hours.standing += instance.hours
+        instances = WorkshiftInstance.objects.filter(
+            Q(weekly_workshift__pool=hours.pool) |
+            Q(info__pool=hours.pool),
+            Q(workshifter=profile) | Q(liable=profile),
+            closed=True,
+        )
+        for instance in instances:
+            if instance.blown:
+                hours.standing -= instance.hours
+            else:
+                hours.standing += instance.hours
 
         hours.save(update_fields=["standing", "last_updated"])
 
