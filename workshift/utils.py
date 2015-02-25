@@ -621,11 +621,23 @@ def clear_all_assignments(semester=None, pool=None):
 
 
 def update_standings(semester=None, pool_hours=None, moment=None):
+    """
+    This function acts to update a list of PoolHours objects to adjust their
+    current standing based on the time in the semester.
+
+    Parameters
+    ----------
+    semester : workshift.models.Semester, optional
+    pool_hours : list of workshift.models.PoolHours, optional
+        If None, runs on all pool hours for semester.
+    moment : datetime, optional
+    """
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
         except (Semester.DoesNotExist, Semester.MultipleObjectsReturned):
             return []
+
     if moment is None:
         moment = localtime(now())
 
@@ -638,24 +650,9 @@ def update_standings(semester=None, pool_hours=None, moment=None):
            hours.last_updated.date() > semester.end_date:
             continue
 
-        periods = 0
-
-        # Calculate the number of periods since we last updated the standings
-        if hours.pool.weeks_per_period == 0:
-            # Only update this pool once
-            if not hours.last_updated:
-                periods = 1
-        else:
-            # Note, this will give periods > 0 on weeks starting on
-            # start_date's day, rather than explicitly Sunday
-            if not hours.last_updated:
-                last_weeks = 0
-            else:
-                last_period = hours.last_updated.date() - semester.start_date
-                last_weeks = last_period.days // 7
-
-            sem_weeks = (moment.date() - semester.start_date).days // 7
-            periods = (sem_weeks - last_weeks) // hours.pool.weeks_per_period
+        # Calculate the number of periods (n weeks / once per semester) that
+        # have passed since last update
+        periods = hours.periods_since_last_update(moment=moment)
 
         # Update the actual standings
         if periods:

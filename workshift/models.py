@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
 from django.utils.dateformat import time_format
+from django.utils.timezone import now, localtime
 
 from base.models import UserProfile
 from managers.models import Manager
@@ -117,6 +118,7 @@ class Semester(models.Model):
     def get_edit_url(self):
         return wurl("workshift:manage", sem_url=self.sem_url)
 
+
 class WorkshiftPool(models.Model):
     title = models.CharField(
         max_length=100,
@@ -209,6 +211,7 @@ class WorkshiftPool(models.Model):
     def is_workshift_pool(self):
         return True
 
+
 class WorkshiftType(models.Model):
     """
     A workshift type; for example, a "Pots" workshift type.
@@ -266,6 +269,7 @@ class WorkshiftType(models.Model):
     def get_edit_url(self):
         return wurl("workshift:edit_type", pk=self.pk)
 
+
 class TimeBlock(models.Model):
     """
     A time block to represent member availability during a particular day.
@@ -295,6 +299,7 @@ class TimeBlock(models.Model):
         help_text="End time for this time block.",
     )
 
+
 class WorkshiftRating(models.Model):
     """
     A preference for a workshift type.  Used to reduce database size by creating
@@ -321,6 +326,7 @@ class WorkshiftRating(models.Model):
         WorkshiftType,
         help_text="The workshift type being rated.",
     )
+
 
 class PoolHours(models.Model):
     """
@@ -401,6 +407,34 @@ class PoolHours(models.Model):
             self.hours, "s" if self.hours != 1 else "",
         )
 
+    def periods_since_last_update(self, moment=None):
+        if moment is None:
+            moment = localtime(now())
+
+        periods_since = 0
+        semester = self.pool.semester
+
+        # Calculate the number of periods since we last updated the standings
+        if self.pool.weeks_per_period == 0:
+            # Only update this pool once
+            if self.last_updated is None:
+                periods_since = 1
+        else:
+            # Note, this will give periods > 0 on weeks starting on
+            # start_date's day, rather than explicitly Sunday
+            if self.last_updated is None:
+                last_weeks = 0
+            else:
+                last_delta = self.last_updated.date() - semester.start_date
+                last_weeks = last_delta.days // 7
+
+            sem_delta = moment.date() - semester.start_date
+            sem_weeks = sem_delta.days // 7
+            periods_since = (sem_weeks - last_weeks) // self.pool.weeks_per_period
+
+        return periods_since
+
+
 class WorkshiftProfile(models.Model):
     """ A workshift profile for a user for a given semester. """
     user = models.ForeignKey(
@@ -478,6 +512,7 @@ class WorkshiftProfile(models.Model):
             targetUsername=self.user.username,
             sem_url=self.semester.sem_url,
         )
+
 
 class RegularWorkshift(models.Model):
     """
@@ -596,6 +631,7 @@ class RegularWorkshift(models.Model):
     def is_regular_workshift(self):
         return True
 
+
 class ShiftLogEntry(models.Model):
     """ Entries for sign-ins, sign-outs, and verification. """
     person = models.ForeignKey(
@@ -661,6 +697,7 @@ class ShiftLogEntry(models.Model):
     class Meta:
         ordering = ["-entry_time"]
 
+
 class InstanceInfo(models.Model):
     """
     The info associated with a WorkshiftInstance for a non-recurring task.
@@ -702,6 +739,7 @@ class InstanceInfo(models.Model):
         default=False,
         help_text="If this shift is for the entire week.",
     )
+
 
 class WorkshiftInstance(models.Model):
     """ An instance of a workshift. """
