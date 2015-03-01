@@ -227,9 +227,15 @@ def past_verify(instance, moment=None):
     if moment is None:
         moment = localtime(now())
 
+    end_time = (
+        instance.end_time
+        if instance.end_time is not None
+        else time(23, 59)
+    )
+
     end_datetime = datetime.combine(
         instance.date,
-        instance.end_time or time(0),
+        end_time,
     )
 
     if instance.end_time is None:
@@ -247,9 +253,14 @@ def past_sign_out(instance, moment=None):
     if moment is None:
         moment = localtime(now())
 
+    start_time = (
+        instance.start_time
+        if instance.start_time is not None
+        else time(0)
+    )
     start_datetime = datetime.combine(
         instance.date,
-        instance.start_time or time(0),
+        start_time,
     )
 
     if settings.USE_TZ:
@@ -357,8 +368,16 @@ def is_available(workshift_profile, shift):
     if shift.week_long:
         return True
 
-    start_time = shift.start_time or time(hour=0)
-    end_time = shift.end_time or time(hour=23, minute=59)
+    start_time = (
+        shift.start_time
+        if shift.start_time is not None
+        else time(hour=0)
+    )
+    end_time = (
+        shift.end_time
+        if shift.end_time is not None
+        else time(hour=23, minute=59)
+    )
     relevant_blocks = list()
 
     for block in workshift_profile.time_blocks.order_by('start_time'):
@@ -411,6 +430,16 @@ def is_available(workshift_profile, shift):
 
 
 def auto_assign_shifts(semester=None, pool=None, profiles=None, shifts=None):
+    """
+    Auto-assigns profiles to regular workshifts.
+
+    Parameters
+    ----------
+    semester : workshift.models.Semester, optional
+    pool : workshift.models.WorkshiftPool, optional
+    profiles : list of workshift.models.WorkshiftProfile, optional
+    shifts : list of workshift.models.RegularWorkshift, optional
+    """
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
@@ -600,7 +629,18 @@ def randomly_assign_instances(semester, pool, profiles=None, instances=None):
     return profiles, instances
 
 
-def clear_all_assignments(semester=None, pool=None):
+def clear_all_assignments(semester=None, pool=None, shifts=None):
+    """
+    Clears all regular workshift assignments.
+
+    Parameters
+    ----------
+    semester : workshift.models.Semester, optional
+    pool : workshift.models.WorkshiftPool, optional
+        If set, grab workshifts from a specific pool. Otherwise, the primary
+        workshift pool will be used.
+    shifts : list of workshift.models.RegularWorkshift, optional
+    """
     if semester is None:
         try:
             semester = Semester.objects.get(current=True)
@@ -611,11 +651,13 @@ def clear_all_assignments(semester=None, pool=None):
             semester=semester,
             is_primary=True,
         )
-    shifts = RegularWorkshift.objects.filter(
-        pool=pool,
-        is_manager_shift=False,
-        workshift_type__assignment=WorkshiftType.AUTO_ASSIGN,
-    )
+    if shifts is None:
+        shifts = RegularWorkshift.objects.filter(
+            pool=pool,
+            is_manager_shift=False,
+            workshift_type__assignment=WorkshiftType.AUTO_ASSIGN,
+        )
+
     for shift in shifts:
         shift.current_assignees.clear()
 
@@ -655,7 +697,7 @@ def update_standings(semester=None, pool_hours=None, moment=None):
         periods = hours.periods_since_last_update(moment=moment)
 
         # Update the actual standings
-        if periods:
+        if periods > 0:
             hours.standing -= hours.hours * periods
             hours.last_updated = moment
             hours.save(update_fields=["standing", "last_updated"])
