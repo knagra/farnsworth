@@ -1,7 +1,7 @@
 
 from __future__ import absolute_import
 
-from datetime import date, timedelta
+from datetime import time, date, timedelta
 
 from django.test import TestCase
 from django.utils.timezone import now, localtime
@@ -222,6 +222,7 @@ class TestUtils(TestCase):
             info=InstanceInfo.objects.create(
                 title="Closed",
                 pool=self.p1,
+                end_time=time(12),
             ),
             closed=True,
             date=past.date(),
@@ -231,6 +232,7 @@ class TestUtils(TestCase):
             info=InstanceInfo.objects.create(
                 title="To be closed",
                 pool=self.p1,
+                end_time=time(12),
             ),
             date=past.date(),
             semester=self.semester,
@@ -239,6 +241,7 @@ class TestUtils(TestCase):
             info=InstanceInfo.objects.create(
                 title="Not Blown",
                 pool=self.p1,
+                end_time=time(12),
             ),
             date=moment.date(),
             semester=self.semester,
@@ -247,6 +250,7 @@ class TestUtils(TestCase):
             info=InstanceInfo.objects.create(
                 title="Blown",
                 pool=self.p1,
+                end_time=time(12),
             ),
             date=past.date(),
             workshifter=self.profile,
@@ -255,9 +259,9 @@ class TestUtils(TestCase):
         WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Edge Case 1: Not Closed",
-                end_time=moment.time(),
                 pool=self.p1,
-                ),
+                end_time=moment.time(),
+            ),
             date=moment.date(),
             semester=self.semester,
         )
@@ -267,8 +271,8 @@ class TestUtils(TestCase):
         edge_case_2 = WorkshiftInstance.objects.create(
             info=InstanceInfo.objects.create(
                 title="Edge Case 2: Closed",
-                end_time=edge_datetime.time(),
                 pool=self.p1,
+                end_time=edge_datetime.time(),
             ),
             date=edge_datetime.date(),
         )
@@ -276,6 +280,7 @@ class TestUtils(TestCase):
             info=InstanceInfo.objects.create(
                 title="Workshifter signed out early enough",
                 pool=self.p1,
+                end_time=time(12),
             ),
             date=past.date(),
             semester=self.semester,
@@ -284,6 +289,7 @@ class TestUtils(TestCase):
             info=InstanceInfo.objects.create(
                 title="Workshifter signed out too late",
                 pool=self.p1,
+                end_time=time(12),
             ),
             liable=self.profile,
             date=past.date(),
